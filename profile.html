@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Психологический профиль</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #4ddb96;
+    --green-dim: rgba(77,219,150,0.18);
+    --green-border: rgba(77,219,150,0.4);
+    --red: #f07070;
+    --red-dim: rgba(240,112,112,0.18);
+    --red-border: rgba(240,112,112,0.4);
+    --orange: #f0b55a;
+    --orange-dim: rgba(240,181,90,0.18);
+    --orange-border: rgba(240,181,90,0.4);
+    --bg: #0d0d0f;
+    --card: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.07);
+    --text: #ffffff;
+    --text-dim: rgba(255,255,255,0.5);
+    --text-faint: rgba(255,255,255,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh; padding: 24px 20px;
+    background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { margin-bottom: 28px; animation: slideIn .5s ease both; }
+  .header-tag { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  .tag-text { font-size: 11px; color: rgba(126,203,161,0.6); letter-spacing: 2px; }
+  .title { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; line-height: 1; }
+  .title span { color: var(--green); }
+  .subtitle { color: var(--text-faint); font-size: 12px; margin-top: 8px; letter-spacing: .5px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; }
+  .tab {
+    flex: 1; padding: 10px; border-radius: 7px; border: none; cursor: pointer;
+    background: transparent; color: var(--text-faint);
+    font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; letter-spacing: 1px; transition: all .2s ease;
+  }
+  .tab.active { background: var(--green-dim); color: var(--green); }
+
+  /* PANELS */
+  .panel { display: none; animation: slideIn .4s ease both; }
+  .panel.active { display: flex; flex-direction: column; gap: 16px; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+  }
+  .card-label { font-size: 10px; color: var(--text-faint); letter-spacing: 2px; margin-bottom: 14px; }
+
+  /* ARCHETYPE */
+  .archetype-card {
+    background: linear-gradient(135deg, var(--red-dim), rgba(224,138,138,0.04));
+    border: 1px solid var(--red-border); border-radius: 14px; padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .archetype-bg-icon {
+    position: absolute; top: -20px; right: -20px; font-size: 80px;
+    opacity: .07; animation: float 4s ease-in-out infinite; pointer-events: none;
+  }
+  .archetype-body { display: flex; align-items: center; gap: 14px; }
+  .archetype-icon { font-size: 40px; animation: float 3s ease-in-out infinite; }
+  .archetype-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--red); }
+  .archetype-desc { color: var(--text-dim); font-size: 12px; margin-top: 4px; line-height: 1.5; }
+  .archetype-chips { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .chip {
+    padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);
+    background: transparent; color: var(--text-faint);
+    font-size: 11px; cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all .2s;
+  }
+  .chip.active-chip { border-color: var(--red); background: var(--red-dim); color: var(--red); }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; text-align: center;
+  }
+  .stat-label { font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; margin-bottom: 6px; }
+  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; }
+  .stat-sub { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+  .c-red { color: var(--red); }
+  .c-green { color: var(--green); }
+  .c-orange { color: var(--orange); }
+
+  /* RADAR */
+  .radar-wrap {
+    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+  }
+  .traits { flex: 1; min-width: 160px; }
+  .trait { margin-bottom: 10px; }
+  .trait-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .trait-name { font-size: 11px; color: var(--text-dim); }
+  .trait-val { font-size: 11px; font-weight: 700; }
+  .bar-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+  /* INSIGHT */
+  .insight {
+    background: var(--green-dim); border: 1px solid var(--green-border);
+    border-radius: 12px; padding: 16px;
+  }
+  .insight-label { font-size: 10px; color: var(--green); letter-spacing: 2px; margin-bottom: 8px; }
+  .insight-text { color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.7; }
+  .insight-text .hl-red { color: var(--red); font-weight: 700; }
+  .insight-text .hl-green { color: var(--green); font-weight: 700; }
+
+  /* PATTERNS */
+  .pattern-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .pattern-count { text-align: right; }
+  .pattern-count-num { color: var(--red); font-weight: 700; font-size: 18px; }
+  .pattern-count-label { color: var(--text-faint); font-size: 9px; letter-spacing: 1px; }
+
+  .pattern-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; cursor: pointer; transition: all .3s ease;
+  }
+  .pattern-card.open { background: var(--red-dim); border-color: var(--red-border); }
+  .pattern-top { display: flex; justify-content: space-between; align-items: center; }
+  .pattern-left { display: flex; align-items: center; gap: 12px; }
+  .pattern-icon-box {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--red-dim); display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .pattern-icon-box.medium { background: var(--orange-dim); }
+  .pattern-icon-box.positive { background: var(--green-dim); }
+  .pattern-title { color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .3px; }
+  .pattern-subtitle { color: var(--text-faint); font-size: 11px; margin-top: 2px; }
+  .pattern-right { display: flex; align-items: center; gap: 10px; }
+  .badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-orange { background: var(--orange-dim); color: var(--orange); }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .chevron { color: var(--text-faint); font-size: 12px; transition: transform .3s; }
+  .open .chevron { transform: rotate(180deg); }
+
+  .pattern-body {
+    display: none; margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .open .pattern-body { display: block; }
+  .pattern-desc { color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
+  .rec-box {
+    background: var(--green-dim); border: 1px solid var(--green-border);
+    border-radius: 8px; padding: 10px 14px;
+  }
+  .rec-label { color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+  .rec-text { color: rgba(126,203,161,0.6); font-size: 12px; line-height: 1.5; }
+  .trade-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .trade-tag {
+    padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05);
+    color: var(--text-faint); font-size: 11px;
+  }
+
+  /* HEATMAP */
+  .day-bars { display: flex; gap: 8px; margin-bottom: 28px; }
+  .day-bar { flex: 1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .day-bar-fill { transition: height .8s ease; min-height: 20px; }
+  .day-bar-info { padding: 8px 4px; text-align: center; background: rgba(255,255,255,0.02); }
+  .day-bar-pnl { font-size: 12px; font-weight: 700; }
+  .day-bar-name { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+
+  .emotion-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 28px; }
+  .emotion-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+  }
+  .emotion-name { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; letter-spacing: .5px; }
+  .emotion-cols { display: flex; gap: 6px; }
+  .emotion-col { flex: 1; text-align: center; border-radius: 6px; padding: 8px 4px; }
+  .emotion-col.pos { background: var(--green-dim); }
+  .emotion-col.neg { background: var(--red-dim); }
+  .emotion-col-val { font-size: 16px; font-weight: 700; }
+  .emotion-col.pos .emotion-col-val { color: var(--green); }
+  .emotion-col.neg .emotion-col-val { color: var(--red); }
+  .emotion-col-label { font-size: 9px; margin-top: 2px; }
+  .emotion-col.pos .emotion-col-label { color: rgba(126,203,161,0.5); }
+  .emotion-col.neg .emotion-col-label { color: rgba(224,138,138,0.5); }
+
+  .hour-grid { display: grid; grid-template-columns: repeat(12,1fr); gap: 4px; margin-bottom: 10px; }
+  .hour-cell {
+    height: 32px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; color: var(--text-faint); transition: opacity .2s;
+    cursor: default;
+  }
+  .hour-cell.win { background: rgba(77,219,150,0.45); border-color: rgba(77,219,150,0.4); color: rgba(255,255,255,0.7); }
+  .hour-cell.loss { background: rgba(240,112,112,0.45); border-color: rgba(240,112,112,0.4); color: rgba(255,255,255,0.7); }
+  .legend { display: flex; gap: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-faint); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 2px; }
+
+  /* ANIMATIONS */
+  @keyframes slideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-tag">
+      <div class="dot"></div>
+      <span class="tag-text">АНАЛИТИКА ТРЕЙДЕРА</span>
+    </div>
+    <h1 class="title">ПСИХОЛОГИЧЕСКИЙ<br><span>ПРОФИЛЬ</span></h1>
+    <p class="subtitle">На основе 8 сделок · последние 30 дней</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('profile',this)">ПРОФИЛЬ</button>
+    <button class="tab" onclick="switchTab('patterns',this)">ПАТТЕРНЫ</button>
+    <button class="tab" onclick="switchTab('heatmap',this)">ТЕПЛОВАЯ КАРТА</button>
+  </div>
+
+  <!-- PROFILE PANEL -->
+  <div id="panel-profile" class="panel active">
+
+    <!-- Archetype -->
+    <div class="archetype-card" id="archetype-card">
+      <div class="archetype-bg-icon" id="archetype-bg">🔥</div>
+      <div class="card-label">АРХЕТИП ТРЕЙДЕРА</div>
+      <div class="archetype-body">
+        <div class="archetype-icon" id="archetype-icon">🔥</div>
+        <div>
+          <div class="archetype-name" id="archetype-name">FOMO-ОХОТНИК</div>
+          <div class="archetype-desc" id="archetype-desc">Входишь на эмоциях, догоняешь рынок. Лучшие сделки — те, которые пропустил.</div>
+        </div>
+      </div>
+      <div class="archetype-chips">
+        <button class="chip active-chip" onclick="setArchetype(this,'🔥','FOMO-ОХОТНИК','Входишь на эмоциях, догоняешь рынок. Лучшие сделки — те, которые пропустил.')">🔥 FOMO-охотник</button>
+        <button class="chip" onclick="setArchetype(this,'🦊','ОСТОРОЖНЫЙ ЛИС','Закрываешь прибыль слишком рано. Страх мешает дать сделке дышать.')">🦊 Осторожный лис</button>
+        <button class="chip" onclick="setArchetype(this,'🎯','СНАЙПЕР','Редкие, точные входы. Ждёшь своего момента и берёшь максимум.')">🎯 Снайпер</button>
+        <button class="chip" onclick="setArchetype(this,'⚡','МСТИТЕЛЬ','После убытка удваиваешь ставки. Месть рынку дорого обходится.')">⚡ Мститель</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card" style="animation-delay:.05s">
+        <div class="stat-label">ВИН-РЕЙТ</div>
+        <div class="stat-value c-red">37.5%</div>
+        <div class="stat-sub">3 из 8</div>
+      </div>
+      <div class="stat-card" style="animation-delay:.1s">
+        <div class="stat-label">ЛУЧШИЙ ДЕНЬ</div>
+        <div class="stat-value c-green">Среда</div>
+        <div class="stat-sub">+$110</div>
+      </div>
+      <div class="stat-card" style="animation-delay:.15s">
+        <div class="stat-label">ХУДШИЙ ДЕНЬ</div>
+        <div class="stat-value c-red">Пятница</div>
+        <div class="stat-sub">−$298</div>
+      </div>
+    </div>
+
+    <!-- Radar + traits -->
+    <div class="card">
+      <div class="card-label">ЧЕРТЫ ХАРАКТЕРА</div>
+      <div class="radar-wrap">
+        <svg width="200" height="200" style="flex-shrink:0;overflow:visible" id="radar-svg"></svg>
+        <div class="traits">
+          <div class="trait"><div class="trait-row"><span class="trait-name">Уверенность</span><span class="trait-val c-orange">5.2</span></div><div class="bar-track"><div class="bar-fill" style="width:52%;background:var(--orange)"></div></div></div>
+          <div class="trait"><div class="trait-row"><span class="trait-name">Дисциплина</span><span class="trait-val c-red">4.8</span></div><div class="bar-track"><div class="bar-fill" style="width:48%;background:var(--red)"></div></div></div>
+          <div class="trait"><div class="trait-row"><span class="trait-name">Терпение</span><span class="trait-val c-red">3.9</span></div><div class="bar-track"><div class="bar-fill" style="width:39%;background:var(--red)"></div></div></div>
+          <div class="trait"><div class="trait-row"><span class="trait-name">Контроль риска</span><span class="trait-val c-red">4.1</span></div><div class="bar-track"><div class="bar-fill" style="width:41%;background:var(--red)"></div></div></div>
+          <div class="trait"><div class="trait-row"><span class="trait-name">Фокус</span><span class="trait-val c-green">6.3</span></div><div class="bar-track"><div class="bar-fill" style="width:63%;background:var(--green)"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insight -->
+    <div class="insight">
+      <div class="insight-label">🧠 AI-ИНСАЙТ</div>
+      <p class="insight-text">
+        Твой главный враг — <span class="hl-red">пятничный FOMO</span>. 37% всех потерь происходит в один временной слот. Закрой торговлю по пятницам после 17:00 — и твой PnL вырастет на <span class="hl-green">+29.8% мгновенно</span>. Паттерн "Откат к EMA" — твоя единственная статистически подтверждённая точка входа. Остальное — азарт.
+      </p>
+    </div>
+  </div>
+
+  <!-- PATTERNS PANEL -->
+  <div id="panel-patterns" class="panel">
+    <div class="pattern-header">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px">ПАТТЕРНЫ ОШИБОК</div>
+        <div style="color:var(--text-faint);font-size:11px">Нажми чтобы раскрыть · 4 паттерна найдено</div>
+      </div>
+      <div class="pattern-count">
+        <div class="pattern-count-num">4</div>
+        <div class="pattern-count-label">КРИТИЧЕСКИХ</div>
+      </div>
+    </div>
+
+    <div class="pattern-card" onclick="togglePattern(this)">
+      <div class="pattern-top">
+        <div class="pattern-left">
+          <div class="pattern-icon-box">🔥</div>
+          <div><div class="pattern-title">FOMO по пятницам 17–19:00</div><div class="pattern-subtitle">3 сделки · 100% убыточных</div></div>
+        </div>
+        <div class="pattern-right"><span class="badge badge-red">−$847 потерь</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="pattern-body">
+        <p class="pattern-desc">Каждую пятницу вечером ты входишь в BTC/USDT на пробое уровня. Жадность 8–9/10, страх 7–8/10. Все три сделки — убыточные. Скорее всего это реакция на дневные движения после рабочей недели.</p>
+        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Запрети себе торговать BTC/USDT в пятницу после 17:00. Поставь напоминание в календарь.</div></div>
+        <div class="trade-tags"><span class="trade-tag">BTC пт 17:10 −8.2%</span><span class="trade-tag">BTC пт 18:33 −12.5%</span><span class="trade-tag">BTC пт 19:01 −9.1%</span></div>
+      </div>
+    </div>
+
+    <div class="pattern-card" onclick="togglePattern(this)">
+      <div class="pattern-top">
+        <div class="pattern-left">
+          <div class="pattern-icon-box">💀</div>
+          <div><div class="pattern-title">Жадность >7 = убыток</div><div class="pattern-subtitle">5 из 6 сделок с жадн. >7 убыточны</div></div>
+        </div>
+        <div class="pattern-right"><span class="badge badge-red">−$312 потерь</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="pattern-body">
+        <p class="pattern-desc">Чёткая корреляция: когда жадность выше 7, вин-рейт падает до 16%. Когда жадность ≤4 — вин-рейт 100%. Твой злейший враг — это ты сам в состоянии эйфории.</p>
+        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Добавь блокировку: если выставил жадность >7 — система спрашивает «Уверен?» с паузой 60 секунд.</div></div>
+        <div class="trade-tags"><span class="trade-tag">Жадность 9 → −12.5%</span><span class="trade-tag">Жадность 8 → −8.2%</span><span class="trade-tag">Жадность 7 → −5.3%</span></div>
+      </div>
+    </div>
+
+    <div class="pattern-card" onclick="togglePattern(this)">
+      <div class="pattern-top">
+        <div class="pattern-left">
+          <div class="pattern-icon-box medium">⏰</div>
+          <div><div class="pattern-title">Утренние сделки (8–10:00) — слив</div><div class="pattern-subtitle">Пн–Вт, 2 из 2 убыточных</div></div>
+        </div>
+        <div class="pattern-right"><span class="badge badge-orange">+$291 при исправлении</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="pattern-body">
+        <p class="pattern-desc">Понедельник 8–9 утра — твоё слабое место. Фокус на минимуме (2–3), входишь импульсно. Вероятно, не успел настроиться на рынок после выходных.</p>
+        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Первый час после открытия рынка — только наблюдение. Никаких сделок до 10:00 в понедельник.</div></div>
+        <div class="trade-tags"><span class="trade-tag">Пн 08:14 BNB −6.7%</span><span class="trade-tag">Пн 09:02 SOL −5.3%</span></div>
+      </div>
+    </div>
+
+    <div class="pattern-card" onclick="togglePattern(this)">
+      <div class="pattern-top">
+        <div class="pattern-left">
+          <div class="pattern-icon-box positive">🎯</div>
+          <div><div class="pattern-title">Откат к EMA — золотая жила</div><div class="pattern-subtitle">3 из 3 прибыльных · avg +5.0%</div></div>
+        </div>
+        <div class="pattern-right"><span class="badge badge-green">Твоя суперсила</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="pattern-body">
+        <p class="pattern-desc">Паттерн «Откат к EMA» работает у тебя идеально: 100% вин-рейт, высокий фокус (8–9), низкая жадность. Это твой краевой сетап — именно здесь ты торгуешь как профи.</p>
+        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Увеличь размер позиции на этом паттерне. Это единственное место где твоя статистика говорит «вход оправдан».</div></div>
+        <div class="trade-tags"><span class="trade-tag">ETH EMA +4.1%</span><span class="trade-tag">ETH EMA +7.8%</span><span class="trade-tag">ADA EMA +3.2%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEATMAP PANEL -->
+  <div id="panel-heatmap" class="panel">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:6px">ТЕПЛОВАЯ КАРТА</div>
+    <div style="color:var(--text-faint);font-size:11px;margin-bottom:24px">Когда ты теряешь деньги</div>
+
+    <!-- Day bars -->
+    <div class="card-label">ПРИБЫЛЬ ПО ДНЯМ НЕДЕЛИ</div>
+    <div class="day-bars">
+      <div class="day-bar">
+        <div class="day-bar-fill" style="height:90px;background:rgba(240,112,112,0.45)"></div>
+        <div class="day-bar-info"><div class="day-bar-pnl c-red">−12%</div><div class="day-bar-name">Пн</div></div>
+      </div>
+      <div class="day-bar">
+        <div class="day-bar-fill" style="height:30px;background:rgba(77,219,150,0.45)"></div>
+        <div class="day-bar-info"><div class="day-bar-pnl c-green">+4.1%</div><div class="day-bar-name">Вт</div></div>
+      </div>
+      <div class="day-bar">
+        <div class="day-bar-fill" style="height:55px;background:rgba(77,219,150,0.5)"></div>
+        <div class="day-bar-info"><div class="day-bar-pnl c-green">+11%</div><div class="day-bar-name">Ср</div></div>
+      </div>
+      <div class="day-bar">
+        <div class="day-bar-fill" style="height:20px;background:rgba(255,255,255,0.05)"></div>
+        <div class="day-bar-info"><div class="day-bar-pnl" style="color:var(--text-faint)">—</div><div class="day-bar-name">Чт</div></div>
+      </div>
+      <div class="day-bar">
+        <div class="day-bar-fill" style="height:120px;background:rgba(240,112,112,0.55)"></div>
+        <div class="day-bar-info"><div class="day-bar-pnl c-red">−29.8%</div><div class="day-bar-name">Пт</div></div>
+      </div>
+    </div>
+
+    <!-- Emotion correlations -->
+    <div class="card-label" style="margin-top:8px">ВЛИЯНИЕ ЭМОЦИЙ НА РЕЗУЛЬТАТ</div>
+    <div class="emotion-grid">
+      <div class="emotion-card">
+        <div class="emotion-name">Жадность</div>
+        <div class="emotion-cols">
+          <div class="emotion-col pos"><div class="emotion-col-val">100%</div><div class="emotion-col-label">вин при ≤4</div></div>
+          <div class="emotion-col neg"><div class="emotion-col-val">16%</div><div class="emotion-col-label">вин при ≥7</div></div>
+        </div>
+      </div>
+      <div class="emotion-card">
+        <div class="emotion-name">Страх</div>
+        <div class="emotion-cols">
+          <div class="emotion-col pos"><div class="emotion-col-val">100%</div><div class="emotion-col-label">вин при ≤3</div></div>
+          <div class="emotion-col neg"><div class="emotion-col-val">20%</div><div class="emotion-col-label">вин при ≥6</div></div>
+        </div>
+      </div>
+      <div class="emotion-card">
+        <div class="emotion-name">Уверенность</div>
+        <div class="emotion-cols">
+          <div class="emotion-col pos"><div class="emotion-col-val">90%</div><div class="emotion-col-label">вин при ≥7</div></div>
+          <div class="emotion-col neg"><div class="emotion-col-val">15%</div><div class="emotion-col-label">вин при ≤4</div></div>
+        </div>
+      </div>
+      <div class="emotion-card">
+        <div class="emotion-name">Фокус</div>
+        <div class="emotion-cols">
+          <div class="emotion-col pos"><div class="emotion-col-val">88%</div><div class="emotion-col-label">вин при ≥7</div></div>
+          <div class="emotion-col neg"><div class="emotion-col-val">10%</div><div class="emotion-col-label">вин при ≤4</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hour heatmap -->
+    <div class="card-label" style="margin-top:8px">АКТИВНОСТЬ ПО ЧАСАМ</div>
+    <div class="hour-grid" id="hour-grid"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(77,219,150,0.45)"></div>Прибыльная сделка</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(240,112,112,0.45)"></div>Убыточная сделка</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// TABS
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ARCHETYPE
+function setArchetype(btn, icon, name, desc) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
+  btn.classList.add('active-chip');
+  document.getElementById('archetype-icon').textContent = icon;
+  document.getElementById('archetype-bg').textContent = icon;
+  document.getElementById('archetype-name').textContent = name;
+  document.getElementById('archetype-desc').textContent = desc;
+}
+
+// PATTERN TOGGLE
+function togglePattern(card) {
+  card.classList.toggle('open');
+}
+
+// RADAR SVG
+(function() {
+  const svg = document.getElementById('radar-svg');
+  const cx = 100, cy = 100, r = 75;
+  const vals = [5.2, 4.8, 3.9, 4.1, 6.3];
+  const n = vals.length;
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // grid
+  [2,4,6,8,10].forEach(lv => {
+    const pts = vals.map((_,i) => {
+      const a = -Math.PI/2 + i*(2*Math.PI/n);
+      const rv = (lv/10)*r;
+      return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;
+    }).join(' ');
+    const p = document.createElementNS(ns,'polygon');
+    p.setAttribute('points', pts);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke','rgba(255,255,255,0.07)');
+    p.setAttribute('stroke-width','1');
+    svg.appendChild(p);
+  });
+
+  // axes
+  vals.forEach((_,i) => {
+    const a = -Math.PI/2 + i*(2*Math.PI/n);
+    const l = document.createElementNS(ns,'line');
+    l.setAttribute('x1',cx); l.setAttribute('y1',cy);
+    l.setAttribute('x2',cx+r*Math.cos(a)); l.setAttribute('y2',cy+r*Math.sin(a));
+    l.setAttribute('stroke','rgba(255,255,255,0.1)'); l.setAttribute('stroke-width','1');
+    svg.appendChild(l);
+  });
+
+  // fill
+  const pts = vals.map((v,i) => {
+    const a = -Math.PI/2 + i*(2*Math.PI/n);
+    const rv = (v/10)*r;
+    return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;
+  }).join(' ');
+  const poly = document.createElementNS(ns,'polygon');
+  poly.setAttribute('points', pts);
+  poly.setAttribute('fill','rgba(77,219,150,0.18)');
+  poly.setAttribute('stroke','#4ddb96');
+  poly.setAttribute('stroke-width','2');
+  svg.appendChild(poly);
+
+  // dots
+  vals.forEach((v,i) => {
+    const a = -Math.PI/2 + i*(2*Math.PI/n);
+    const rv = (v/10)*r;
+    const c = document.createElementNS(ns,'circle');
+    c.setAttribute('cx', cx+rv*Math.cos(a));
+    c.setAttribute('cy', cy+rv*Math.sin(a));
+    c.setAttribute('r','4');
+    c.setAttribute('fill','#4ddb96');
+    svg.appendChild(c);
+  });
+
+  // labels
+  const labels = ['Уверенность','Дисциплина','Терпение','Контроль\nриска','Фокус'];
+  labels.forEach((label,i) => {
+    const a = -Math.PI/2 + i*(2*Math.PI/n);
+    const lx = cx+(r+22)*Math.cos(a);
+    const ly = cy+(r+22)*Math.sin(a);
+    const t = document.createElementNS(ns,'text');
+    t.setAttribute('x',lx); t.setAttribute('y',ly);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
+    t.style.cssText = 'font-size:9px;fill:rgba(255,255,255,0.4);font-family:monospace;letter-spacing:0.5px';
+    t.textContent = label.replace('\n',' ');
+    svg.appendChild(t);
+  });
+})();
+
+// HOUR GRID
+(function() {
+  const trades = {9:{r:'loss',pair:'SOL'},10:{r:'win',pair:'ETH'},14:{r:'win',pair:'ETH'},17:{r:'loss',pair:'BTC'},18:{r:'loss',pair:'BTC'},19:{r:'loss',pair:'BTC'},8:{r:'loss',pair:'BNB'}};
+  const grid = document.getElementById('hour-grid');
+  for(let h=0;h<24;h++){
+    const cell = document.createElement('div');
+    cell.className = 'hour-cell';
+    cell.textContent = h;
+    if(trades[h]) {
+      cell.classList.add(trades[h].r);
+      cell.title = `${h}:00 · ${trades[h].pair} · ${trades[h].r}`;
+    }
+    grid.appendChild(cell);
+  }
+})();
+</script>
+</body>
+</html>
