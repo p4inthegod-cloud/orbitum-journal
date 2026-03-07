@@ -108,6 +108,27 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
 .empty{text-align:center;padding:50px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;}
 .loading{text-align:center;padding:40px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
 
+/* LEVEL SYSTEM */
+.level-bar-wrap{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:20px 24px;margin-bottom:24px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
+.level-bar-wrap::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);}
+.level-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
+.level-left{display:flex;align-items:center;gap:14px;}
+.level-badge-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:2px solid rgba(255,255,255,0.1);}
+.level-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;line-height:1;}
+.level-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-top:3px;}
+.level-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.streak-box{display:flex;align-items:center;gap:8px;background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:10px;padding:8px 14px;}
+.streak-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;line-height:1;}
+.streak-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
+.level-pnl-val{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a);}
+.level-pnl-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
+.level-bar-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:6px;}
+.level-bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(0.16,1,0.3,1);}
+.level-bar-labels{display:flex;justify-content:space-between;margin-bottom:10px;}
+.lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
+.level-reward{display:flex;align-items:center;gap:8px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.15);border-radius:8px;padding:10px 14px;}
+.reward-text{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(52,208,88,0.8);letter-spacing:0.5px;line-height:1.4;}
+
 /* DASHBOARD */
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
 .dash-card{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:24px;backdrop-filter:blur(10px);}
@@ -171,6 +192,43 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
     <div class="stat"><div class="sl">P&L %</div><div class="sv" id="s-pnl">—</div></div>
     <div class="stat"><div class="sl">P&L $</div><div class="sv" id="s-usd">—</div></div>
     <div class="stat"><div class="sl">Серия</div><div class="sv a" id="s-str">—</div></div>
+  </div>
+
+  <!-- LEVEL BAR -->
+  <div class="level-bar-wrap" id="level-bar">
+    <div class="level-top">
+      <div class="level-left">
+        <div class="level-badge-icon" id="level-icon">🌱</div>
+        <div>
+          <div class="level-name" id="level-name">НОВИЧОК</div>
+          <div class="level-sub" id="level-sub">Уровень 0 · Начни торговать</div>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="streak-box">
+          <span style="font-size:20px">🔥</span>
+          <div>
+            <div class="streak-num" id="streak-num">0</div>
+            <div class="streak-label">ДНЕЙ ПОДРЯД</div>
+          </div>
+        </div>
+        <div>
+          <div class="level-pnl-val" id="level-pnl">0%</div>
+          <div class="level-pnl-label">P&L ОТ ДЕПОЗИТА</div>
+        </div>
+      </div>
+    </div>
+    <div class="level-bar-track">
+      <div class="level-bar-fill" id="level-fill" style="width:0%;background:linear-gradient(90deg,var(--a),#ff9a5c)"></div>
+    </div>
+    <div class="level-bar-labels">
+      <span class="lbl" id="level-cur-label">0%</span>
+      <span class="lbl" id="level-next-label">Следующий уровень: 5%</span>
+    </div>
+    <div class="level-reward" id="level-reward">
+      <span style="font-size:16px">🎁</span>
+      <span class="reward-text" id="reward-text">Достигни 5% прибыли → получи чек-лист входа в сделку</span>
+    </div>
   </div>
 
   <!-- JOURNAL -->
@@ -271,7 +329,7 @@ const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_K
 let currentUser=null,allTrades=[],currentDir='long',currentFilter='all';
 
 async function init(){const{data:{user}}=await sb.auth.getUser();if(!user){window.location.href='login.html';return;}const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();if(!p){window.location.href='login.html';return;}const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());if(!hasAccess&&p.role!=='admin'){window.location.href='pay.html';return;}currentUser={...user,...p};document.getElementById('ua').textContent=(p.full_name||p.username||'U')[0].toUpperCase();document.getElementById('un').textContent=p.full_name||p.username||user.email;await loadTrades();}
-async function loadTrades(){const{data}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});allTrades=data||[];render();renderDashboard();}
+async function loadTrades(){const{data}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});allTrades=data||[];render();renderDashboard();renderLevelBar(allTrades);}
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 function showPage(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');btn.classList.add('active');if(p==='dashboard')renderDashboard();}
 function setDir(d){currentDir=d;document.getElementById('btn-long').classList.toggle('active',d==='long');document.getElementById('btn-short').classList.toggle('active',d==='short');}
@@ -279,14 +337,65 @@ function sv(id,vid){document.getElementById(vid).textContent=document.getElement
 function fromPct(){const pct=parseFloat(document.getElementById('f-pnl').value);const dep=parseFloat(document.getElementById('f-dep').value);if(!isNaN(pct)&&!isNaN(dep)&&dep>0)document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
 function fromUsd(){const usd=parseFloat(document.getElementById('f-usd').value);const dep=parseFloat(document.getElementById('f-dep').value);if(!isNaN(usd)&&!isNaN(dep)&&dep>0)document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);}
 function recalc(){fromPct();}
-async function addTrade(){const pair=document.getElementById('f-pair').value.trim().toUpperCase();const res=document.getElementById('f-res').value;if(!pair||!res){alert('Укажи пару и результат');return;}const btn=document.getElementById('btn-add');btn.disabled=true;btn.textContent='СОХРАНЯЕМ...';const trade={user_id:currentUser.id,pair,direction:currentDir,result:res,pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,deposit:parseFloat(document.getElementById('f-dep').value)||null,entry_price:parseFloat(document.getElementById('f-entry').value)||null,exit_price:parseFloat(document.getElementById('f-exit').value)||null,emotion_conf:parseInt(document.getElementById('e-conf').value),emotion_fear:parseInt(document.getElementById('e-fear').value),emotion_greed:parseInt(document.getElementById('e-greed').value),emotion_calm:parseInt(document.getElementById('e-calm').value),note_why:document.getElementById('f-why').value.trim()||null,note_feel:document.getElementById('f-feel').value.trim()||null,note_lesson:document.getElementById('f-lesson').value.trim()||null};const{data,error}=await sb.from('trades').insert(trade).select().single();if(error){alert('Ошибка: '+error.message);btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';return;}allTrades.unshift(data);resetForm();render();renderDashboard();btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';}
+async function addTrade(){const pair=document.getElementById('f-pair').value.trim().toUpperCase();const res=document.getElementById('f-res').value;if(!pair||!res){alert('Укажи пару и результат');return;}const btn=document.getElementById('btn-add');btn.disabled=true;btn.textContent='СОХРАНЯЕМ...';const trade={user_id:currentUser.id,pair,direction:currentDir,result:res,pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,deposit:parseFloat(document.getElementById('f-dep').value)||null,entry_price:parseFloat(document.getElementById('f-entry').value)||null,exit_price:parseFloat(document.getElementById('f-exit').value)||null,emotion_conf:parseInt(document.getElementById('e-conf').value),emotion_fear:parseInt(document.getElementById('e-fear').value),emotion_greed:parseInt(document.getElementById('e-greed').value),emotion_calm:parseInt(document.getElementById('e-calm').value),note_why:document.getElementById('f-why').value.trim()||null,note_feel:document.getElementById('f-feel').value.trim()||null,note_lesson:document.getElementById('f-lesson').value.trim()||null};const{data,error}=await sb.from('trades').insert(trade).select().single();if(error){alert('Ошибка: '+error.message);btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';return;}allTrades.unshift(data);resetForm();render();renderDashboard();renderLevelBar(allTrades);btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';}
 function resetForm(){['f-pair','f-pnl','f-usd','f-dep','f-entry','f-exit','f-why','f-feel','f-lesson'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-res').value='';document.getElementById('e-conf').value=5;document.getElementById('sv-conf').textContent=5;document.getElementById('e-fear').value=3;document.getElementById('sv-fear').textContent=3;document.getElementById('e-greed').value=3;document.getElementById('sv-greed').textContent=3;document.getElementById('e-calm').value=7;document.getElementById('sv-calm').textContent=7;setDir('long');}
-async function deleteTrade(id){if(!confirm('Удалить сделку?'))return;await sb.from('trades').delete().eq('id',id).eq('user_id',currentUser.id);allTrades=allTrades.filter(t=>t.id!==id);render();renderDashboard();}
+async function deleteTrade(id){if(!confirm('Удалить сделку?'))return;await sb.from('trades').delete().eq('id',id).eq('user_id',currentUser.id);allTrades=allTrades.filter(t=>t.id!==id);render();renderDashboard();renderLevelBar(allTrades);}
 function setF(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 function dots(val){return Array.from({length:10},(_,i)=>`<div class="dot${i<val?' on':''}"></div>`).join('');}
 function render(){const wins=allTrades.filter(t=>t.result==='win').length;const total=allTrades.length;const totalPct=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);const totalUsd=allTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);let best=0,cur=0;[...allTrades].reverse().forEach(t=>{if(t.result==='win'){cur++;best=Math.max(best,cur);}else cur=0;});document.getElementById('s-total').textContent=total;document.getElementById('s-wr').textContent=total?Math.round(wins/total*100)+'%':'—';const pe=document.getElementById('s-pnl');pe.textContent=total?(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%':'—';pe.className='sv '+(totalPct>0?'g':totalPct<0?'r':'');const ue=document.getElementById('s-usd');ue.textContent=total?(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0):'—';ue.className='sv '+(totalUsd>0?'g':totalUsd<0?'r':'');document.getElementById('s-str').textContent=best;let filtered=allTrades;if(currentFilter==='win')filtered=allTrades.filter(t=>t.result==='win');else if(currentFilter==='loss')filtered=allTrades.filter(t=>t.result==='loss');else if(currentFilter==='long')filtered=allTrades.filter(t=>t.direction==='long');else if(currentFilter==='short')filtered=allTrades.filter(t=>t.direction==='short');const list=document.getElementById('trades-list');if(!filtered.length){list.innerHTML='<div class="empty">Сделок пока нет. Запиши первую!</div>';return;}list.innerHTML=filtered.map(t=>{const d=new Date(t.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const pnlStr=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'';const usdStr=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';const cls=t.pnl_pct>0?'p':t.pnl_pct<0?'n':'';return`<div class="tcard ${t.result}"><div class="thead"><div class="tl"><div class="tpair">${t.pair}</div><div class="tdir ${t.direction}">${t.direction.toUpperCase()}</div></div><div class="tr"><div class="tpnl ${cls}">${pnlStr}${usdStr?` <span style="opacity:.5;font-size:11px">(${usdStr})</span>`:''}</div><div class="tdate">${d}</div><button class="delbtn" onclick="deleteTrade(${t.id})">×</button></div></div><div class="tmeta">${t.entry_price?`<div class="mi"><div class="mil">Вход</div><div class="miv">${t.entry_price}</div></div>`:''} ${t.exit_price?`<div class="mi"><div class="mil">Выход</div><div class="miv">${t.exit_price}</div></div>`:''} ${t.deposit?`<div class="mi"><div class="mil">Депозит</div><div class="miv">$${t.deposit}</div></div>`:''}<div class="mi"><div class="mil">Итог</div><div class="miv">${t.result==='win'?'✓ Прибыль':t.result==='loss'?'✗ Убыток':'~ Безубыток'}</div></div></div><div class="edots">${t.emotion_conf?`<div class="ed"><span class="edl">УВЕРЕН</span><div class="dots">${dots(t.emotion_conf)}</div></div>`:''} ${t.emotion_fear?`<div class="ed"><span class="edl">СТРАХ</span><div class="dots">${dots(t.emotion_fear)}</div></div>`:''} ${t.emotion_greed?`<div class="ed"><span class="edl">ЖАДН</span><div class="dots">${dots(t.emotion_greed)}</div></div>`:''} ${t.emotion_calm?`<div class="ed"><span class="edl">ФОКУС</span><div class="dots">${dots(t.emotion_calm)}</div></div>`:''}</div>${(t.note_why||t.note_feel||t.note_lesson)?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}</div>`:''}</div>`;}).join('');}
 function renderDashboard(){if(!allTrades.length)return;const avg=key=>{const v=allTrades.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};const avgConf=avg('emotion_conf'),avgFear=avg('emotion_fear'),avgGreed=avg('emotion_greed'),avgCalm=avg('emotion_calm');const score=Math.max(0,Math.min(100,Math.round(((avgConf+avgCalm-avgFear-avgGreed)/20+0.5)*100)));updateSpeedometer(score);document.getElementById('em-bars').innerHTML=[{label:'Уверенность',val:avgConf,color:'#34d058'},{label:'Фокус',val:avgCalm,color:'#3498db'},{label:'Страх',val:avgFear,color:'#ff4d4d'},{label:'Жадность',val:avgGreed,color:'#f5a623'}].map(e=>`<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">${e.label}</span><span class="em-bar-val">${e.val.toFixed(1)} / 10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:${e.val*10}%;background:${e.color}"></div></div></div>`).join('');const wins=allTrades.filter(t=>t.result==='win'),losses=allTrades.filter(t=>t.result==='loss');const emKeys=[{key:'emotion_conf',label:'Уверен'},{key:'emotion_fear',label:'Страх'},{key:'emotion_greed',label:'Жадн'},{key:'emotion_calm',label:'Фокус'}];document.getElementById('em-compare').innerHTML=emKeys.map(e=>{const wA=wins.length?wins.reduce((s,t)=>s+(t[e.key]||0),0)/wins.length:0;const lA=losses.length?losses.reduce((s,t)=>s+(t[e.key]||0),0)/losses.length:0;return`<div class="emc-row"><span class="emc-label">${e.label}</span><div class="emc-bars"><div class="emc-bar emc-win" style="width:${wA*10}%"></div><div class="emc-bar emc-loss" style="width:${lA*10}%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);width:55px;text-align:right">${wA.toFixed(1)} / ${lA.toFixed(1)}</span></div>`;}).join('');const insights=[];const lc=losses.length,wc=wins.length;if(lc>=2){const lF=losses.reduce((s,t)=>s+(t.emotion_fear||0),0)/lc,wF=wc?wins.reduce((s,t)=>s+(t.emotion_fear||0),0)/wc:0;if(lF>wF+1.5)insights.push({icon:'😰',title:'Страх мешает тебе',desc:`Страх ${lF.toFixed(1)} при убытках vs ${wF.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});const lG=losses.reduce((s,t)=>s+(t.emotion_greed||0),0)/lc,wG=wc?wins.reduce((s,t)=>s+(t.emotion_greed||0),0)/wc:0;if(lG>wG+1.5)insights.push({icon:'💰',title:'Жадность сливает депозит',desc:`Жадность ${lG.toFixed(1)} при убытках vs ${wG.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});const wC=wc?wins.reduce((s,t)=>s+(t.emotion_conf||0),0)/wc:0,lC=losses.reduce((s,t)=>s+(t.emotion_conf||0),0)/lc;if(wC>lC+1)insights.push({icon:'💪',title:'Уверенность = результат',desc:`Уверенность ${wC.toFixed(1)} при прибыли vs ${lC.toFixed(1)} при убытке`,badge:'badge-ok',label:'ПАТТЕРН'});const wCa=wc?wins.reduce((s,t)=>s+(t.emotion_calm||0),0)/wc:0,lCa=losses.reduce((s,t)=>s+(t.emotion_calm||0),0)/lc;if(lCa<wCa-1)insights.push({icon:'🎯',title:'Теряешь фокус на убытках',desc:`Фокус ${lCa.toFixed(1)} при убытках vs ${wCa.toFixed(1)} при прибыли`,badge:'badge-warn',label:'ВНИМАНИЕ'});}const wr=allTrades.length?Math.round(wc/allTrades.length*100):0;if(wr>=60)insights.push({icon:'🏆',title:'Отличный винрейт',desc:`${wr}% — выше среднего. Продолжай!`,badge:'badge-ok',label:'ОТЛИЧНО'});else if(wr<40&&allTrades.length>=5)insights.push({icon:'📉',title:'Низкий винрейт',desc:`${wr}% — пересмотри стратегию входа`,badge:'badge-bad',label:'РИСК'});document.getElementById('patterns-list').innerHTML=insights.length?insights.map(i=>`<div class="pattern-item"><div class="pattern-icon">${i.icon}</div><div class="pattern-text"><div class="pattern-title">${i.title}</div><div class="pattern-desc">${i.desc}</div></div><div class="pattern-badge ${i.badge}">${i.label}</div></div>`).join(''):'<div class="empty" style="padding:20px">Накопи больше сделок для анализа</div>';}
 function updateSpeedometer(score){const angle=(score/100)*180-90;document.getElementById('speedo-needle').setAttribute('transform',`rotate(${angle} 110 110)`);document.getElementById('speedo-arc').setAttribute('stroke-dasharray',`${(score/100)*283} 283`);document.getElementById('speedo-score').textContent=score;const d=score>=75?'Состояние потока — торгуй!':score>=55?'Хорошее состояние':score>=40?'Нейтральное состояние':score>=25?'Повышенный стресс':'Высокий стресс — осторожно';document.getElementById('speedo-desc').textContent=d;}
+// ===== LEVEL SYSTEM =====
+const LEVELS = [
+  { min: 0,   max: 5,   name: 'НОВИЧОК',      icon: '🌱', color: '#52606e', reward: 'Достигни 5% прибыли → получи чек-лист входа в сделку' },
+  { min: 5,   max: 10,  name: 'СТАЖЁР',       icon: '📈', color: '#3498db', reward: 'Достигни 10% → методичка по управлению рисками' },
+  { min: 10,  max: 20,  name: 'ТРЕЙДЕР',      icon: '⚡', color: '#9b59b6', reward: 'Достигни 20% → разбор сделок в приоритете' },
+  { min: 20,  max: 50,  name: 'ПРОФИ',        icon: '🎯', color: '#e8722a', reward: 'Достигни 50% → бесплатная консультация 1 на 1' },
+  { min: 50,  max: 100, name: 'ЭКСПЕРТ',      icon: '🔥', color: '#f5a623', reward: 'Достигни 100% → вход в VIP комьюнити' },
+  { min: 100, max: 999, name: 'МАСТЕР',       icon: '👑', color: '#34d058', reward: 'Ты в элите. Помогай другим расти!' },
+];
+
+function calcStreak(trades) {
+  if (!trades.length) return 0;
+  const days = new Set(trades.map(t => new Date(t.created_at).toDateString()));
+  const today = new Date();
+  let streak = 0;
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    if (days.has(d.toDateString())) streak++;
+    else if (i > 0) break;
+  }
+  return streak;
+}
+
+function renderLevelBar(trades) {
+  const totalPct = trades.reduce((s, t) => s + (t.pnl_pct || 0), 0);
+  const streak = calcStreak(trades);
+
+  // Find level
+  const lvl = LEVELS.find(l => totalPct < l.max) || LEVELS[LEVELS.length - 1];
+  const nextLvl = LEVELS[LEVELS.indexOf(lvl) + 1];
+  const progress = lvl.max === 999 ? 100 : Math.min(100, Math.max(0, ((totalPct - lvl.min) / (lvl.max - lvl.min)) * 100));
+
+  document.getElementById('level-icon').textContent = lvl.icon;
+  document.getElementById('level-icon').style.background = lvl.color + '22';
+  document.getElementById('level-icon').style.borderColor = lvl.color + '44';
+  document.getElementById('level-name').textContent = lvl.name;
+  document.getElementById('level-name').style.color = lvl.color;
+  document.getElementById('level-sub').textContent = `Уровень ${LEVELS.indexOf(lvl)} · ${totalPct >= 0 ? '+' : ''}${totalPct.toFixed(1)}% от депозита`;
+  document.getElementById('level-fill').style.width = progress + '%';
+  document.getElementById('level-fill').style.background = `linear-gradient(90deg, ${lvl.color}, ${lvl.color}cc)`;
+  document.getElementById('level-cur-label').textContent = totalPct.toFixed(1) + '%';
+  document.getElementById('level-next-label').textContent = nextLvl ? `Следующий уровень: ${lvl.max}%` : '🏆 Максимальный уровень';
+  document.getElementById('level-pnl').textContent = (totalPct >= 0 ? '+' : '') + totalPct.toFixed(1) + '%';
+  document.getElementById('reward-text').textContent = lvl.reward;
+  document.getElementById('streak-num').textContent = streak;
+  if (streak >= 7) document.getElementById('streak-num').style.color = '#ff4d4d';
+  else if (streak >= 3) document.getElementById('streak-num').style.color = '#f5a623';
+}
+// ========================
+
 init();
 </script>
 </body>
