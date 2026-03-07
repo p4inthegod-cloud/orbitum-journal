@@ -7,86 +7,87 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--a:#e86c2a;--a2:rgba(232,108,42,0.12);--a3:rgba(232,108,42,0.35);--bg:#06080b;--bg2:#0c1018;--bg3:#121820;--bd:rgba(255,255,255,0.06);--t:#efefef;--m:#52606e;--g:#27ae60;--r:#e74c3c;--gd:rgba(39,174,96,0.1);--rd:rgba(231,76,60,0.1);--y:#f39c12;}
+:root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);--bd:rgba(255,255,255,0.07);--t:#f0f0f0;--m:rgba(255,255,255,0.35);--g:#34d058;--r:#ff4d4d;--gd:rgba(52,208,88,0.1);--rd:rgba(255,77,77,0.1);--y:#f5a623;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
-.topbar{position:sticky;top:0;z-index:50;background:rgba(6,8,11,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:58px;}
-.tlogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;background:linear-gradient(135deg,#fff 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.abadge{background:rgba(232,108,42,0.15);border:1px solid rgba(232,108,42,0.4);border-radius:4px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);letter-spacing:2px;text-transform:uppercase;}
-.logout{background:none;border:1px solid var(--bd);border-radius:6px;padding:5px 12px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.bg-orb{position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.1),transparent 65%);filter:blur(100px);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:0;}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(5,7,10,0.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;}
+.tlogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.abadge{background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);border-radius:6px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);letter-spacing:2px;text-transform:uppercase;}
+.logout{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 14px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
 .logout:hover{border-color:var(--r);color:var(--r);}
-.main{max-width:1100px;margin:0 auto;padding:32px 20px 80px;position:relative;z-index:1;}
-.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:4px;margin-bottom:28px;width:fit-content;}
-.tab{padding:9px 20px;border-radius:7px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
-.tab.active{background:var(--bg3);color:var(--t);box-shadow:0 1px 6px rgba(0,0,0,0.3);}
+.main{max-width:1100px;margin:0 auto;padding:32px 24px 80px;position:relative;z-index:1;}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:12px;padding:4px;margin-bottom:28px;width:fit-content;}
+.tab{padding:9px 20px;border-radius:9px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.tab.active{background:rgba(255,255,255,0.07);color:var(--t);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
 .gstats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:28px;}
-.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;}
-.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
-.sv{font-family:'JetBrains Mono',monospace;font-size:18px;}
+.stat{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:16px;backdrop-filter:blur(10px);}
+.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.sv{font-family:'JetBrains Mono',monospace;font-size:20px;}
 .sv.g{color:var(--g);}
 .sv.r{color:var(--r);}
 .sv.a{color:var(--a);}
 .sv.y{color:var(--y);}
-.stitle{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--m);margin-bottom:14px;}
-.pay-card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-.pay-card.pending{border-left:3px solid var(--y);}
-.pay-card.confirmed{border-left:3px solid var(--g);}
-.pay-card.rejected{border-left:3px solid var(--r);}
+.stitle{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--m);margin-bottom:14px;}
+.pay-card{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;backdrop-filter:blur(10px);transition:border-color 0.2s;}
+.pay-card.pending{border-left:2px solid var(--y);}
+.pay-card.confirmed{border-left:2px solid var(--g);}
+.pay-card.rejected{border-left:2px solid var(--r);}
 .pay-info{display:flex;gap:20px;flex-wrap:wrap;}
 .pi{display:flex;flex-direction:column;gap:2px;}
 .pil{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
 .piv{font-family:'JetBrains Mono',monospace;font-size:12px;}
 .pay-actions{display:flex;gap:8px;}
-.act-btn{padding:7px 14px;border-radius:6px;border:none;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-.act-btn.approve{background:var(--gd);border:1px solid var(--g);color:var(--g);}
+.act-btn{padding:8px 16px;border-radius:8px;border:none;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.act-btn.approve{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
 .act-btn.approve:hover{background:var(--g);color:#fff;}
-.act-btn.reject{background:var(--rd);border:1px solid var(--r);color:var(--r);}
+.act-btn.reject{background:var(--rd);border:1px solid rgba(255,77,77,0.3);color:var(--r);}
 .act-btn.reject:hover{background:var(--r);color:#fff;}
-.status-badge{padding:3px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
-.status-badge.pending{background:rgba(243,156,18,0.1);border:1px solid rgba(243,156,18,0.3);color:var(--y);}
-.status-badge.confirmed{background:var(--gd);border:1px solid rgba(39,174,96,0.3);color:var(--g);}
-.status-badge.rejected{background:var(--rd);border:1px solid rgba(231,76,60,0.3);color:var(--r);}
-.ucard{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;margin-bottom:10px;}
-.uhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.status-badge{padding:4px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.status-badge.pending{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:var(--y);}
+.status-badge.confirmed{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
+.status-badge.rejected{background:var(--rd);border:1px solid rgba(255,77,77,0.3);color:var(--r);}
+.ucard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:10px;backdrop-filter:blur(10px);transition:border-color 0.2s;}
+.ucard:hover{border-color:rgba(232,114,42,0.2);}
+.uhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .uinfo{display:flex;align-items:center;gap:12px;}
-.uavatar{width:36px;height:36px;border-radius:50%;background:var(--a2);border:1px solid var(--a);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--a);}
+.uavatar{width:38px;height:38px;border-radius:50%;background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--a);box-shadow:0 0 16px rgba(232,114,42,0.1);}
 .uname{font-family:'Syne',sans-serif;font-size:14px;font-weight:500;}
 .uemail{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);}
-.plan-badge2{padding:3px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
-.plan-badge2.lifetime{background:var(--a2);border:1px solid rgba(232,108,42,0.3);color:var(--a);}
-.plan-badge2.monthly{background:var(--gd);border:1px solid rgba(39,174,96,0.3);color:var(--g);}
-.plan-badge2.none{background:var(--bg3);border:1px solid var(--bd);color:var(--m);}
+.plan-badge2{padding:4px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.plan-badge2.lifetime{background:var(--a2);border:1px solid rgba(232,114,42,0.3);color:var(--a);}
+.plan-badge2.monthly{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
+.plan-badge2.none{background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--m);}
 .utrades{display:flex;gap:20px;flex-wrap:wrap;}
-.ut{display:flex;flex-direction:column;gap:1px;}
+.ut{display:flex;flex-direction:column;gap:2px;}
 .utl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
 .utv{font-family:'JetBrains Mono',monospace;font-size:12px;}
-.grant-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);}
-.grant-select{background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:7px 10px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;}
+.grant-row{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);}
+.grant-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;}
+.grant-select{background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color 0.2s;}
 .grant-select:focus{border-color:var(--a);}
-.grant-btn{padding:7px 14px;border-radius:6px;background:var(--a2);border:1px solid rgba(232,108,42,0.3);color:var(--a);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-.grant-btn:hover{background:var(--a);color:#fff;}
+.grant-btn{padding:8px 16px;border-radius:8px;background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);color:var(--a);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.grant-btn:hover{background:var(--a);color:#fff;box-shadow:0 4px 16px rgba(232,114,42,0.3);}
 .empty{text-align:center;padding:40px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;}
 .loading{text-align:center;padding:30px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
 @media(max-width:768px){.gstats{grid-template-columns:repeat(3,1fr);}.topbar{padding:0 16px;}}
 </style>
 </head>
 <body>
+<div class="bg-orb"></div>
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:12px">
-    <a href="index.html" style="text-decoration:none"><div class="tlogo">ORBITUM</div></a>
+    <a href="index.html" class="tlogo">ORBITUM</a>
     <div class="abadge">ADMIN</div>
   </div>
   <button class="logout" onclick="doLogout()">ВЫЙТИ</button>
 </div>
-
 <div class="main">
   <div class="tabs">
     <button class="tab active" onclick="showTab('payments')">Оплаты</button>
     <button class="tab" onclick="showTab('users')">Пользователи</button>
-    <button class="tab" onclick="showTab('stats')">Статистика команды</button>
+    <button class="tab" onclick="showTab('stats')">Статистика</button>
   </div>
-
   <div class="gstats">
     <div class="stat"><div class="sl">Юзеров</div><div class="sv" id="gs-users">—</div></div>
     <div class="stat"><div class="sl">Активных</div><div class="sv g" id="gs-active">—</div></div>
@@ -95,228 +96,38 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="stat"><div class="sl">Доход USDT</div><div class="sv g" id="gs-revenue">—</div></div>
     <div class="stat"><div class="sl">Ср. винрейт</div><div class="sv" id="gs-wr">—</div></div>
   </div>
-
   <div id="tab-payments">
     <div class="stitle">Ожидают подтверждения</div>
     <div id="pending-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
     <div class="stitle" style="margin-top:24px">Все платежи</div>
     <div id="all-payments"><div class="loading">ЗАГРУЖАЕМ...</div></div>
   </div>
-
   <div id="tab-users" style="display:none">
     <div class="stitle">Все пользователи</div>
     <div id="users-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
   </div>
-
   <div id="tab-stats" style="display:none">
-    <div class="stitle">Общая статистика команды</div>
+    <div class="stitle">Общая статистика</div>
     <div id="team-stats"><div class="loading">ЗАГРУЖАЕМ...</div></div>
   </div>
 </div>
-
 <script>
-const SUPABASE_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let currentAdmin = null;
-let allUsers = [];
-let allPayments = [];
-let allTrades = [];
-
-async function init() {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) { window.location.href = 'login.html'; return; }
-
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-  if (!profile || profile.role !== 'admin') { window.location.href = 'journal.html'; return; }
-
-  currentAdmin = { ...user, ...profile };
-  await loadAll();
-}
-
-async function loadAll() {
-  const [usersRes, paymentsRes, tradesRes] = await Promise.all([
-    sb.from('profiles').select('*').order('created_at', { ascending: false }),
-    sb.from('payments').select('*, profiles(full_name, username)').order('created_at', { ascending: false }),
-    sb.from('trades').select('*, profiles(full_name, username)').order('created_at', { ascending: false })
-  ]);
-
-  allUsers    = usersRes.data || [];
-  allPayments = paymentsRes.data || [];
-  allTrades   = tradesRes.data || [];
-
-  renderGlobalStats();
-  renderPayments();
-  renderUsers();
-  renderTeamStats();
-}
-
-function renderGlobalStats() {
-  const active = allUsers.filter(u => u.plan === 'lifetime' || (u.plan === 'monthly' && u.plan_expires_at && new Date(u.plan_expires_at) > new Date())).length;
-  const pending = allPayments.filter(p => p.status === 'pending').length;
-  const revenue = allPayments.filter(p => p.status === 'confirmed').reduce((s,p) => s + (p.amount_usdt || 0), 0);
-  const wins = allTrades.filter(t => t.result === 'win').length;
-  const wr = allTrades.length ? Math.round(wins / allTrades.length * 100) : 0;
-
-  document.getElementById('gs-users').textContent = allUsers.length;
-  document.getElementById('gs-active').textContent = active;
-  document.getElementById('gs-pending').textContent = pending;
-  document.getElementById('gs-trades').textContent = allTrades.length;
-  document.getElementById('gs-revenue').textContent = '$' + revenue.toFixed(0);
-  document.getElementById('gs-wr').textContent = allTrades.length ? wr + '%' : '—';
-}
-
-function renderPayments() {
-  const pending = allPayments.filter(p => p.status === 'pending');
-  const pendEl = document.getElementById('pending-list');
-
-  if (!pending.length) {
-    pendEl.innerHTML = '<div class="empty">Нет ожидающих платежей ✓</div>';
-  } else {
-    pendEl.innerHTML = pending.map(p => payCard(p)).join('');
-  }
-
-  const allEl = document.getElementById('all-payments');
-  if (!allPayments.length) {
-    allEl.innerHTML = '<div class="empty">Платежей нет</div>';
-  } else {
-    allEl.innerHTML = allPayments.map(p => payCard(p)).join('');
-  }
-}
-
-function payCard(p) {
-  const name = p.profiles?.full_name || p.profiles?.username || 'Unknown';
-  const d = new Date(p.created_at).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-  const actions = p.status === 'pending' ? `
-    <div class="pay-actions">
-      <button class="act-btn approve" onclick="confirmPayment('${p.id}','${p.user_id}','${p.plan}')">ПОДТВЕРДИТЬ</button>
-      <button class="act-btn reject" onclick="rejectPayment('${p.id}')">ОТКЛОНИТЬ</button>
-    </div>` : `<div class="status-badge ${p.status}">${p.status === 'confirmed' ? '✓ ПОДТВЕРЖДЁН' : '✗ ОТКЛОНЁН'}</div>`;
-
-  return `<div class="pay-card ${p.status}">
-    <div class="pay-info">
-      <div class="pi"><div class="pil">Юзер</div><div class="piv">${name}</div></div>
-      <div class="pi"><div class="pil">План</div><div class="piv">${p.plan === 'lifetime' ? 'Навсегда' : 'Месяц'}</div></div>
-      <div class="pi"><div class="pil">Сумма</div><div class="piv">${p.amount_usdt} USDT</div></div>
-      <div class="pi"><div class="pil">TX Hash</div><div class="piv" style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis">${p.tx_hash || '—'}</div></div>
-      <div class="pi"><div class="pil">Дата</div><div class="piv">${d}</div></div>
-    </div>
-    ${actions}
-  </div>`;
-}
-
-async function confirmPayment(payId, userId, plan) {
-  const expiresAt = plan === 'monthly' ? new Date(Date.now() + 30*24*60*60*1000).toISOString() : null;
-  await Promise.all([
-    sb.from('payments').update({ status: 'confirmed', confirmed_at: new Date().toISOString(), confirmed_by: currentAdmin.id }).eq('id', payId),
-    sb.from('profiles').update({ plan, plan_expires_at: expiresAt }).eq('id', userId)
-  ]);
-  await loadAll();
-}
-
-async function rejectPayment(payId) {
-  await sb.from('payments').update({ status: 'rejected' }).eq('id', payId);
-  await loadAll();
-}
-
-async function grantAccess(userId, plan) {
-  const expiresAt = plan === 'monthly' ? new Date(Date.now() + 30*24*60*60*1000).toISOString() : null;
-  await sb.from('profiles').update({ plan, plan_expires_at: expiresAt }).eq('id', userId);
-  await loadAll();
-}
-
-function renderUsers() {
-  const el = document.getElementById('users-list');
-  if (!allUsers.length) { el.innerHTML = '<div class="empty">Пользователей нет</div>'; return; }
-
-  el.innerHTML = allUsers.map(u => {
-    const userTrades = allTrades.filter(t => t.user_id === u.id);
-    const wins = userTrades.filter(t => t.result === 'win').length;
-    const pnlPct = userTrades.reduce((s,t) => s + (t.pnl_pct||0), 0);
-    const pnlUsd = userTrades.reduce((s,t) => s + (t.pnl_usd||0), 0);
-    const wr = userTrades.length ? Math.round(wins/userTrades.length*100) : 0;
-    const d = new Date(u.created_at).toLocaleDateString('ru-RU');
-    const planCls = u.plan || 'none';
-
-    return `<div class="ucard">
-      <div class="uhead">
-        <div class="uinfo">
-          <div class="uavatar">${(u.full_name||u.username||'?')[0].toUpperCase()}</div>
-          <div>
-            <div class="uname">${u.full_name || u.username || '—'}</div>
-            <div class="uemail">Зарегистрирован: ${d}</div>
-          </div>
-        </div>
-        <div class="plan-badge2 ${planCls}">${planCls === 'lifetime' ? '∞ НАВСЕГДА' : planCls === 'monthly' ? '📅 МЕСЯЧНЫЙ' : '— НЕТ ДОСТУПА'}</div>
-      </div>
-      <div class="utrades">
-        <div class="ut"><div class="utl">Сделок</div><div class="utv">${userTrades.length}</div></div>
-        <div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${userTrades.length?wr+'%':'—'}</div></div>
-        <div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${pnlPct>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlPct>=0?'+':'')+pnlPct.toFixed(1)+'%':'—'}</div></div>
-        <div class="ut"><div class="utl">P&L $</div><div class="utv" style="color:${pnlUsd>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlUsd>=0?'+$':'-$')+Math.abs(pnlUsd).toFixed(0):'—'}</div></div>
-      </div>
-      <div class="grant-row">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px">ВЫДАТЬ ДОСТУП:</span>
-        <select class="grant-select" id="gs-${u.id}">
-          <option value="monthly">Месяц</option>
-          <option value="lifetime">Навсегда</option>
-          <option value="none">Убрать доступ</option>
-        </select>
-        <button class="grant-btn" onclick="grantAccess('${u.id}', document.getElementById('gs-${u.id}').value)">ПРИМЕНИТЬ</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderTeamStats() {
-  const el = document.getElementById('team-stats');
-  if (!allTrades.length) { el.innerHTML = '<div class="empty">Сделок нет</div>'; return; }
-
-  const pairs = {};
-  allTrades.forEach(t => {
-    if (!pairs[t.pair]) pairs[t.pair] = { total:0, wins:0, pnl:0 };
-    pairs[t.pair].total++;
-    if (t.result === 'win') pairs[t.pair].wins++;
-    pairs[t.pair].pnl += t.pnl_pct || 0;
-  });
-
-  const pairRows = Object.entries(pairs).sort((a,b) => b[1].total - a[1].total).map(([pair, d]) => {
-    const wr = Math.round(d.wins / d.total * 100);
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px">${pair}</div>
-      <div style="display:flex;gap:20px">
-        <div class="ut"><div class="utl">Сделок</div><div class="utv">${d.total}</div></div>
-        <div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${wr}%</div></div>
-        <div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${d.pnl>=0?'var(--g)':'var(--r)'}">${(d.pnl>=0?'+':'')+d.pnl.toFixed(1)}%</div></div>
-      </div>
-    </div>`;
-  }).join('');
-
-  el.innerHTML = `
-    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:20px;margin-bottom:16px">
-      <div class="stitle" style="margin-bottom:12px">ТОП ИНСТРУМЕНТЫ</div>
-      ${pairRows}
-    </div>
-  `;
-}
-
-function showTab(t) {
-  ['payments','users','stats'].forEach(id => {
-    document.getElementById('tab-'+id).style.display = id === t ? 'block' : 'none';
-  });
-  document.querySelectorAll('.tab').forEach((btn, i) => {
-    btn.classList.toggle('active', ['payments','users','stats'][i] === t);
-  });
-}
-
-async function doLogout() {
-  await sb.auth.signOut();
-  window.location.href = 'login.html';
-}
-
+const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let currentAdmin=null,allUsers=[],allPayments=[],allTrades=[];
+async function init(){const{data:{user}}=await sb.auth.getUser();if(!user){window.location.href='login.html';return;}const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();if(!p||p.role!=='admin'){window.location.href='journal.html';return;}currentAdmin={...user,...p};await loadAll();}
+async function loadAll(){const[ur,pr,tr]=await Promise.all([sb.from('profiles').select('*').order('created_at',{ascending:false}),sb.from('payments').select('*, profiles(full_name, username)').order('created_at',{ascending:false}),sb.from('trades').select('*, profiles(full_name, username)').order('created_at',{ascending:false})]);allUsers=ur.data||[];allPayments=pr.data||[];allTrades=tr.data||[];renderGlobalStats();renderPayments();renderUsers();renderTeamStats();}
+function renderGlobalStats(){const active=allUsers.filter(u=>u.plan==='lifetime'||(u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)>new Date())).length;const pending=allPayments.filter(p=>p.status==='pending').length;const revenue=allPayments.filter(p=>p.status==='confirmed').reduce((s,p)=>s+(p.amount_usdt||0),0);const wins=allTrades.filter(t=>t.result==='win').length;const wr=allTrades.length?Math.round(wins/allTrades.length*100):0;document.getElementById('gs-users').textContent=allUsers.length;document.getElementById('gs-active').textContent=active;document.getElementById('gs-pending').textContent=pending;document.getElementById('gs-trades').textContent=allTrades.length;document.getElementById('gs-revenue').textContent='$'+revenue.toFixed(0);document.getElementById('gs-wr').textContent=allTrades.length?wr+'%':'—';}
+function renderPayments(){const pending=allPayments.filter(p=>p.status==='pending');document.getElementById('pending-list').innerHTML=pending.length?pending.map(p=>payCard(p)).join(''):'<div class="empty">Нет ожидающих платежей ✓</div>';document.getElementById('all-payments').innerHTML=allPayments.length?allPayments.map(p=>payCard(p)).join(''):'<div class="empty">Платежей нет</div>';}
+function payCard(p){const name=p.profiles?.full_name||p.profiles?.username||'Unknown';const d=new Date(p.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const actions=p.status==='pending'?`<div class="pay-actions"><button class="act-btn approve" onclick="confirmPayment('${p.id}','${p.user_id}','${p.plan}')">ПОДТВЕРДИТЬ</button><button class="act-btn reject" onclick="rejectPayment('${p.id}')">ОТКЛОНИТЬ</button></div>`:`<div class="status-badge ${p.status}">${p.status==='confirmed'?'✓ ПОДТВЕРЖДЁН':'✗ ОТКЛОНЁН'}</div>`;return`<div class="pay-card ${p.status}"><div class="pay-info"><div class="pi"><div class="pil">Юзер</div><div class="piv">${name}</div></div><div class="pi"><div class="pil">План</div><div class="piv">${p.plan==='lifetime'?'Навсегда':'Месяц'}</div></div><div class="pi"><div class="pil">Сумма</div><div class="piv">${p.amount_usdt} USDT</div></div><div class="pi"><div class="pil">TX Hash</div><div class="piv" style="font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis">${p.tx_hash||'—'}</div></div><div class="pi"><div class="pil">Дата</div><div class="piv">${d}</div></div></div>${actions}</div>`;}
+async function confirmPayment(payId,userId,plan){const expiresAt=plan==='monthly'?new Date(Date.now()+30*24*60*60*1000).toISOString():null;await Promise.all([sb.from('payments').update({status:'confirmed',confirmed_at:new Date().toISOString(),confirmed_by:currentAdmin.id}).eq('id',payId),sb.from('profiles').update({plan,plan_expires_at:expiresAt}).eq('id',userId)]);await loadAll();}
+async function rejectPayment(payId){await sb.from('payments').update({status:'rejected'}).eq('id',payId);await loadAll();}
+async function grantAccess(userId,plan){const expiresAt=plan==='monthly'?new Date(Date.now()+30*24*60*60*1000).toISOString():null;const updateData=plan==='none'?{plan:'none',plan_expires_at:null}:{plan,plan_expires_at:expiresAt};await sb.from('profiles').update(updateData).eq('id',userId);await loadAll();}
+function renderUsers(){const el=document.getElementById('users-list');if(!allUsers.length){el.innerHTML='<div class="empty">Пользователей нет</div>';return;}el.innerHTML=allUsers.map(u=>{const userTrades=allTrades.filter(t=>t.user_id===u.id);const wins=userTrades.filter(t=>t.result==='win').length;const pnlPct=userTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);const pnlUsd=userTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);const wr=userTrades.length?Math.round(wins/userTrades.length*100):0;const d=new Date(u.created_at).toLocaleDateString('ru-RU');const planCls=u.plan||'none';return`<div class="ucard"><div class="uhead"><div class="uinfo"><div class="uavatar">${(u.full_name||u.username||'?')[0].toUpperCase()}</div><div><div class="uname">${u.full_name||u.username||'—'}</div><div class="uemail">Зарегистрирован: ${d}</div></div></div><div class="plan-badge2 ${planCls}">${planCls==='lifetime'?'∞ НАВСЕГДА':planCls==='monthly'?'📅 МЕСЯЧНЫЙ':'— НЕТ ДОСТУПА'}</div></div><div class="utrades"><div class="ut"><div class="utl">Сделок</div><div class="utv">${userTrades.length}</div></div><div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${userTrades.length?wr+'%':'—'}</div></div><div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${pnlPct>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlPct>=0?'+':'')+pnlPct.toFixed(1)+'%':'—'}</div></div><div class="ut"><div class="utl">P&L $</div><div class="utv" style="color:${pnlUsd>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlUsd>=0?'+$':'-$')+Math.abs(pnlUsd).toFixed(0):'—'}</div></div></div><div class="grant-row"><span class="grant-label">ВЫДАТЬ ДОСТУП:</span><select class="grant-select" id="gs-${u.id}"><option value="monthly">Месяц</option><option value="lifetime">Навсегда</option><option value="none">Убрать доступ</option></select><button class="grant-btn" onclick="grantAccess('${u.id}',document.getElementById('gs-${u.id}').value)">ПРИМЕНИТЬ</button></div></div>`;}).join('');}
+function renderTeamStats(){const el=document.getElementById('team-stats');if(!allTrades.length){el.innerHTML='<div class="empty">Сделок нет</div>';return;}const pairs={};allTrades.forEach(t=>{if(!pairs[t.pair])pairs[t.pair]={total:0,wins:0,pnl:0};pairs[t.pair].total++;if(t.result==='win')pairs[t.pair].wins++;pairs[t.pair].pnl+=t.pnl_pct||0;});const rows=Object.entries(pairs).sort((a,b)=>b[1].total-a[1].total).map(([pair,d])=>{const wr=Math.round(d.wins/d.total*100);return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px">${pair}</div><div style="display:flex;gap:20px"><div class="ut"><div class="utl">Сделок</div><div class="utv">${d.total}</div></div><div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${wr}%</div></div><div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${d.pnl>=0?'var(--g)':'var(--r)'}">${(d.pnl>=0?'+':'')+d.pnl.toFixed(1)}%</div></div></div></div>`;}).join('');el.innerHTML=`<div style="background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:20px">${rows}</div>`;}
+function showTab(t){['payments','users','stats'].forEach(id=>{document.getElementById('tab-'+id).style.display=id===t?'block':'none';});document.querySelectorAll('.tab').forEach((btn,i)=>{btn.classList.toggle('active',['payments','users','stats'][i]===t);});}
+async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 init();
 </script>
 </body>
