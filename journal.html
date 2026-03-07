@@ -10,273 +10,285 @@
 :root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);--bd:rgba(255,255,255,0.07);--t:#f0f0f0;--m:rgba(255,255,255,0.35);--g:#34d058;--r:#ff4d4d;--gd:rgba(52,208,88,0.1);--rd:rgba(255,77,77,0.1);}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;}
-.bg-orb{position:fixed;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.1),transparent 65%);filter:blur(100px);top:-250px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:0;}
+.bg-orb{position:fixed;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.07),transparent 65%);filter:blur(100px);top:-250px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:0;}
 
-/* TOPBAR */
-.topbar{position:sticky;top:0;z-index:50;background:rgba(5,7,10,0.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;}
-.tlogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
-.tright{display:flex;align-items:center;gap:14px;}
-.uavatar{width:34px;height:34px;border-radius:50%;background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--a);box-shadow:0 0 16px rgba(232,114,42,0.1);}
-.uname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--m);}
-.logout{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 14px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
-.logout:hover{border-color:var(--r);color:var(--r);}
+/* ── SIDEBAR ── */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(4,5,8,0.97);border-right:1px solid var(--bd);backdrop-filter:blur(24px);display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:0 20px;height:64px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bd);flex-shrink:0;}
+.slogo-img{width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(255,255,255,0.3));}
+.slogo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:#f0f0f0;}
+.sidenav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:3px;overflow-y:auto;}
+.snav-section{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.2);letter-spacing:2px;padding:10px 10px 4px;text-transform:uppercase;}
+.snav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;text-decoration:none;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;transition:all 0.18s;border:1px solid transparent;cursor:pointer;background:none;width:100%;text-align:left;}
+.snav-item:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.05);}
+.snav-item.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.2);color:var(--a);}
+.snav-item.admin-link{color:rgba(245,166,35,0.6);}
+.snav-item.admin-link:hover,.snav-item.admin-link.active{background:rgba(245,166,35,0.08);border-color:rgba(245,166,35,0.2);color:#f5a623;}
+.snav-icon{font-size:15px;flex-shrink:0;width:18px;text-align:center;}
+.snav-divider{height:1px;background:var(--bd);margin:6px 4px;}
+.sidebar-footer{padding:12px 10px;border-top:1px solid var(--bd);flex-shrink:0;}
+.sf-user{display:flex;align-items:center;gap:9px;margin-bottom:8px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:8px;}
+.sf-avatar{width:30px;height:30px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a);flex-shrink:0;}
+.sf-info{overflow:hidden;flex:1;}
+.sf-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t);}
+.sf-plan{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;margin-top:1px;}
+.sf-logout{width:100%;padding:7px;background:none;border:1px solid var(--bd);border-radius:7px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.sf-logout:hover{border-color:var(--r);color:var(--r);}
+
+/* ── MOBILE ── */
+.mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(4,5,8,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:54px;align-items:center;justify-content:space-between;padding:0 16px;}
+.mob-logo-wrap{display:flex;align-items:center;gap:8px;}
+.mob-logo-img{width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(255,255,255,0.25));}
+.mob-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#f0f0f0;}
+.mob-right{display:flex;align-items:center;gap:8px;}
+.mob-tabnav{display:flex;gap:2px;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:8px;padding:2px;}
+.mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99;}
+
+/* ── MAIN ── */
+.main{margin-left:220px;padding:24px 28px 80px;position:relative;z-index:1;min-height:100vh;}
+
+/* ── TOPNAV TABS (inside main, desktop) ── */
+.page-topnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
 .tab-nav{display:flex;gap:3px;background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:3px;}
-.tnav{padding:7px 16px;border-radius:8px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.tnav{padding:7px 18px;border-radius:8px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
 .tnav.active{background:rgba(255,255,255,0.07);color:var(--t);}
 
-.main{max-width:1000px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1;}
-
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
-.stat{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;backdrop-filter:blur(10px);transition:all 0.25s;}
-.stat:hover{border-color:rgba(232,114,42,0.2);box-shadow:0 0 30px rgba(232,114,42,0.04);}
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.stat{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;backdrop-filter:blur(10px);transition:all 0.25s;}
+.stat:hover{border-color:rgba(232,114,42,0.2);}
 .sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-.sv{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;}
-.sv.g{color:var(--g);}
-.sv.r{color:var(--r);}
-.sv.a{color:var(--a);}
+.sv{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500;}
+.sv.g{color:var(--g);}.sv.r{color:var(--r);}.sv.a{color:var(--a);}
 
-.page{display:none;}
-.page.active{display:block;}
+.page{display:none;}.page.active{display:block;}
 
-/* FORM */
-.fcard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:18px;padding:30px;margin-bottom:24px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
+/* ── FORM ── */
+.fcard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:26px;margin-bottom:20px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
 .fcard::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.4),transparent);}
-.ftitle{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--a);margin-bottom:22px;}
-.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
-.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
-.field{display:flex;flex-direction:column;gap:7px;}
+.ftitle{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--a);margin-bottom:20px;}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.field{display:flex;flex-direction:column;gap:6px;}
 .field label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
-.field input,.field select,.field textarea{background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:all 0.2s;width:100%;}
+.field input,.field select,.field textarea{background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:all 0.2s;width:100%;}
 .field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,0.18);}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--a);background:rgba(232,114,42,0.04);box-shadow:0 0 0 3px rgba(232,114,42,0.08);}
-.field textarea{resize:vertical;min-height:80px;font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;}
+.field textarea{resize:vertical;min-height:78px;font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;}
 .field select option{background:#0d0f12;}
-.dtoggle{display:flex;gap:7px;}
-.dbtn{flex:1;padding:11px;border-radius:10px;border:1px solid var(--bd);background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.dtoggle{display:flex;gap:6px;}
+.dbtn{flex:1;padding:10px;border-radius:9px;border:1px solid var(--bd);background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-align:center;}
 .dbtn.long.active{background:var(--gd);border-color:rgba(52,208,88,0.4);color:var(--g);}
 .dbtn.short.active{background:var(--rd);border-color:rgba(255,77,77,0.4);color:var(--r);}
-.em-section{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:20px;margin-bottom:14px;}
-.em-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
-.emrow{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;}
-.emf{display:flex;flex-direction:column;gap:8px;}
+.em-section{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:11px;padding:18px;margin-bottom:12px;}
+.em-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.emrow{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:18px;}
+.emf{display:flex;flex-direction:column;gap:7px;}
 .emf label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
 .sw{display:flex;align-items:center;gap:10px;}
 .sw input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;border:none;padding:0;cursor:pointer;}
-.sw input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 10px rgba(232,114,42,0.5);}
-.sv2{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a);min-width:20px;text-align:right;}
-.addbtn{width:100%;padding:14px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:12px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all 0.25s;margin-top:4px;box-shadow:0 4px 24px rgba(232,114,42,0.35),inset 0 1px 0 rgba(255,255,255,0.12);}
-.addbtn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,114,42,0.5);}
+.sw input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 8px rgba(232,114,42,0.5);}
+.sv2{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a);min-width:18px;text-align:right;}
+.addbtn{width:100%;padding:13px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:11px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.25s;margin-top:4px;box-shadow:0 4px 20px rgba(232,114,42,0.3);}
+.addbtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,114,42,0.45);}
 .addbtn:disabled{opacity:0.42;cursor:not-allowed;transform:none;}
+.ai-btn{width:100%;padding:11px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.2);border-radius:11px;color:rgba(52,208,88,0.8);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ai-btn:hover{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.35);}
 
-/* LIST */
-.lhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.stitle{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--m);}
-.filters{display:flex;gap:6px;flex-wrap:wrap;}
-.fbtn{padding:6px 14px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+/* ── LIST ── */
+.lhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.stitle{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--m);}
+.filters{display:flex;gap:5px;flex-wrap:wrap;}
+.fbtn{padding:5px 12px;border-radius:18px;border:1px solid var(--bd);background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
 .fbtn.active,.fbtn:hover{border-color:rgba(232,114,42,0.4);color:var(--a);background:rgba(232,114,42,0.08);}
-.tcard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:14px;padding:20px 22px;margin-bottom:10px;backdrop-filter:blur(10px);transition:all 0.2s;}
-.tcard:hover{border-color:rgba(232,114,42,0.18);box-shadow:0 8px 30px rgba(0,0,0,0.2);}
-.tcard.win{border-left:2px solid var(--g);}
-.tcard.loss{border-left:2px solid var(--r);}
-.tcard.be{border-left:2px solid rgba(255,255,255,0.2);}
-.thead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.tl{display:flex;align-items:center;gap:10px;}
-.tpair{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
-.tdir{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 9px;border-radius:5px;letter-spacing:1px;}
-.tdir.long{background:var(--gd);color:var(--g);}
-.tdir.short{background:var(--rd);color:var(--r);}
-.tr{display:flex;align-items:center;gap:12px;}
-.tpnl{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;}
-.tpnl.p{color:var(--g);}
-.tpnl.n{color:var(--r);}
+.tcard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:13px;padding:18px 20px;margin-bottom:9px;backdrop-filter:blur(10px);transition:all 0.2s;}
+.tcard:hover{border-color:rgba(232,114,42,0.18);box-shadow:0 6px 24px rgba(0,0,0,0.2);}
+.tcard.win{border-left:2px solid var(--g);}.tcard.loss{border-left:2px solid var(--r);}.tcard.be{border-left:2px solid rgba(255,255,255,0.2);}
+.thead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.tl{display:flex;align-items:center;gap:9px;}
+.tpair{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
+.tdir{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:4px;letter-spacing:1px;}
+.tdir.long{background:var(--gd);color:var(--g);}.tdir.short{background:var(--rd);color:var(--r);}
+.tr{display:flex;align-items:center;gap:10px;}
+.tpnl{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;}
+.tpnl.p{color:var(--g);}.tpnl.n{color:var(--r);}
 .tdate{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);}
-.delbtn{background:none;border:none;color:var(--m);cursor:pointer;font-size:16px;padding:2px 8px;border-radius:4px;transition:all 0.2s;}
+.delbtn{background:none;border:none;color:var(--m);cursor:pointer;font-size:15px;padding:2px 7px;border-radius:4px;transition:all 0.2s;}
 .delbtn:hover{color:var(--r);background:var(--rd);}
-.tmeta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;}
+.tmeta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:9px;}
 .mi{display:flex;flex-direction:column;gap:2px;}
 .mil{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
-.miv{font-family:'JetBrains Mono',monospace;font-size:12px;}
-.edots{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.miv{font-family:'JetBrains Mono',monospace;font-size:11px;}
+.edots{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px;}
 .ed{display:flex;align-items:center;gap:5px;}
 .edl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
 .dots{display:flex;gap:3px;}
 .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.08);}
 .dot.on{background:var(--a);}
-.tnotes{font-size:13px;color:var(--m);line-height:1.6;margin-top:8px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);}
-.ntag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;margin-right:6px;}
-.empty{text-align:center;padding:50px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;}
-.loading{text-align:center;padding:40px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
+.tnotes{font-size:12px;color:var(--m);line-height:1.6;margin-top:7px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.05);}
+.ntag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;margin-right:5px;}
+.empty{text-align:center;padding:48px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;}
+.loading{text-align:center;padding:36px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
 
-/* AI ASSISTANT */
-.ai-btn{width:100%;padding:12px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.2);border-radius:12px;color:rgba(52,208,88,0.8);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
-.ai-btn:hover{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.4);}
-.ai-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:20px;}
-.ai-modal.open{display:flex;}
-.ai-box{background:#0c1018;border:1px solid rgba(52,208,88,0.2);border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:32px;position:relative;}
-.ai-box::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(52,208,88,0.4),transparent);}
-.ai-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#34d058;margin-bottom:4px;}
-.ai-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1.5px;margin-bottom:24px;}
-.ai-field{margin-bottom:16px;}
-.ai-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
-.ai-field textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;color:var(--t);font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;outline:none;resize:vertical;min-height:90px;transition:border-color 0.2s;}
-.ai-field textarea:focus{border-color:rgba(52,208,88,0.4);}
-.ai-field select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;}
-.ai-field select option{background:#0c1018;}
-.ai-check-btn{width:100%;padding:13px;background:linear-gradient(135deg,rgba(52,208,88,0.15),rgba(52,208,88,0.08));border:1px solid rgba(52,208,88,0.35);border-radius:12px;color:#34d058;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(52,208,88,0.1);}
-.ai-check-btn:hover{background:linear-gradient(135deg,rgba(52,208,88,0.25),rgba(52,208,88,0.12));transform:translateY(-1px);}
-.ai-check-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-.ai-result{margin-top:20px;border-radius:12px;padding:20px;display:none;}
-.ai-result.go{background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.25);}
-.ai-result.stop{background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.25);}
-.ai-result.wait{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);}
-.ai-verdict{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:10px;}
-.ai-verdict.go{color:#34d058;}
-.ai-verdict.stop{color:#ff4d4d;}
-.ai-verdict.wait{color:#f5a623;}
-.ai-text{font-family:'Syne',sans-serif;font-size:13px;color:var(--m);line-height:1.65;}
-.ck-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--bd);background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;}
-.ck-btn.yes{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.4);color:#34d058;}
-.ck-btn.no{background:rgba(255,77,77,0.12);border-color:rgba(255,77,77,0.4);color:#ff4d4d;}
-
-top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;transition:color 0.2s;}
-.ai-close:hover{color:var(--t);}
-
-
-.level-bar-wrap{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:20px 24px;margin-bottom:24px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
+/* ── LEVEL BAR ── */
+.level-bar-wrap{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:14px;padding:18px 22px;margin-bottom:20px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
 .level-bar-wrap::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);}
-.level-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
-.level-left{display:flex;align-items:center;gap:14px;}
-.level-badge-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:2px solid rgba(255,255,255,0.1);}
-.level-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;line-height:1;}
-.level-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-top:3px;}
-.level-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.streak-box{display:flex;align-items:center;gap:8px;background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:10px;padding:8px 14px;}
-.streak-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5a623;line-height:1;}
-.streak-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
-.level-pnl-val{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a);}
-.level-pnl-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
-.level-bar-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:6px;}
+.level-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.level-left{display:flex;align-items:center;gap:12px;}
+.level-badge-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:2px solid rgba(255,255,255,0.1);}
+.level-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;line-height:1;}
+.level-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-top:2px;}
+.level-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.streak-box{display:flex;align-items:center;gap:7px;background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:9px;padding:7px 12px;}
+.streak-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f5a623;line-height:1;}
+.streak-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
+.level-pnl-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a);}
+.level-pnl-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
+.level-bar-track{height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:5px;}
 .level-bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(0.16,1,0.3,1);}
-.level-bar-labels{display:flex;justify-content:space-between;margin-bottom:10px;}
+.level-bar-labels{display:flex;justify-content:space-between;margin-bottom:9px;}
 .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
-.level-reward{display:flex;align-items:center;gap:8px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.15);border-radius:8px;padding:10px 14px;}
-.reward-text{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(52,208,88,0.8);letter-spacing:0.5px;line-height:1.4;}
+.level-reward{display:flex;align-items:center;gap:7px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.15);border-radius:7px;padding:9px 12px;}
+.reward-text{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(52,208,88,0.8);letter-spacing:0.5px;line-height:1.4;}
 
-/* DASHBOARD */
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-.dash-card{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:24px;backdrop-filter:blur(10px);}
-.dash-card::before{display:none;}
-.dash-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--m);margin-bottom:20px;}
+/* ── DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.dash-card{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:14px;padding:22px;backdrop-filter:blur(10px);}
+.dash-title{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;color:var(--m);margin-bottom:18px;}
 .speedo-wrap{display:flex;flex-direction:column;align-items:center;}
-.speedo-svg{width:220px;height:130px;}
-.speedo-val{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--a);text-align:center;line-height:1;text-shadow:0 0 30px rgba(232,114,42,0.4);}
-.speedo-desc{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);text-align:center;margin-top:6px;letter-spacing:1px;}
-.em-bars{display:flex;flex-direction:column;gap:14px;}
-.em-bar-row{display:flex;flex-direction:column;gap:6px;}
+.speedo-svg{width:210px;height:125px;}
+.speedo-val{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--a);text-align:center;line-height:1;}
+.speedo-desc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);text-align:center;margin-top:5px;letter-spacing:1px;}
+.em-bars{display:flex;flex-direction:column;gap:12px;}
+.em-bar-row{display:flex;flex-direction:column;gap:5px;}
 .em-bar-head{display:flex;justify-content:space-between;}
-.em-bar-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
-.em-bar-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t);}
-.em-bar-track{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
-.em-bar-fill{height:100%;border-radius:3px;transition:width 0.9s cubic-bezier(0.16,1,0.3,1);}
-.patterns{display:flex;flex-direction:column;gap:10px;}
-.pattern-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:border-color 0.2s;}
+.em-bar-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
+.em-bar-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t);}
+.em-bar-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.em-bar-fill{height:100%;border-radius:2px;transition:width 0.9s cubic-bezier(0.16,1,0.3,1);}
+.patterns{display:flex;flex-direction:column;gap:9px;}
+.pattern-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color 0.2s;}
 .pattern-item:hover{border-color:rgba(255,255,255,0.1);}
-.pattern-icon{font-size:22px;flex-shrink:0;}
+.pattern-icon{font-size:20px;flex-shrink:0;}
 .pattern-text{flex:1;}
-.pattern-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:500;margin-bottom:3px;}
-.pattern-desc{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);}
-.pattern-badge{padding:4px 12px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;white-space:nowrap;}
+.pattern-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:500;margin-bottom:2px;}
+.pattern-desc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);}
+.pattern-badge{padding:3px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;white-space:nowrap;}
 .badge-warn{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:#f5a623;}
 .badge-ok{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
 .badge-bad{background:var(--rd);border:1px solid rgba(255,77,77,0.3);color:var(--r);}
-.emc-legend{display:flex;gap:16px;margin-bottom:14px;}
-.ecc{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
-.ecc-dot{width:8px;height:8px;border-radius:2px;}
-.em-compare{display:flex;flex-direction:column;gap:10px;}
-.emc-row{display:flex;align-items:center;gap:10px;}
-.emc-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);width:70px;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
-.emc-bars{flex:1;display:flex;flex-direction:column;gap:4px;}
-.emc-bar{height:7px;border-radius:4px;min-width:4px;transition:width 0.9s cubic-bezier(0.16,1,0.3,1);}
-.emc-win{background:var(--g);}
-.emc-loss{background:var(--r);}
+.emc-legend{display:flex;gap:14px;margin-bottom:12px;}
+.ecc{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
+.ecc-dot{width:7px;height:7px;border-radius:2px;}
+.em-compare{display:flex;flex-direction:column;gap:9px;}
+.emc-row{display:flex;align-items:center;gap:9px;}
+.emc-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);width:65px;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
+.emc-bars{flex:1;display:flex;flex-direction:column;gap:3px;}
+.emc-bar{height:6px;border-radius:3px;min-width:3px;transition:width 0.9s cubic-bezier(0.16,1,0.3,1);}
+.emc-win{background:var(--g);}.emc-loss{background:var(--r);}
 
-@media(max-width:768px){.stats{grid-template-columns:1fr 1fr;}.fg4,.fg3{grid-template-columns:1fr 1fr;}.emrow{grid-template-columns:1fr 1fr;}.dash-grid{grid-template-columns:1fr;}.topbar{padding:0 12px;height:auto;flex-wrap:wrap;gap:8px;padding-top:10px;padding-bottom:10px;}.tlogo{font-size:18px;}.main{padding:16px 12px 60px;}.tab-nav{display:flex;width:100%;order:3;margin-bottom:4px;}.tnav{flex:1;font-size:10px;padding:8px 6px;}.uname{display:none;}.level-top{flex-direction:column;gap:10px;}.level-right{width:100%;justify-content:space-between;}}
-/* ===== SIDEBAR ===== */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(5,7,10,0.95);border-right:1px solid var(--bd);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s ease;}
-.sidebar-logo{padding:0 24px;height:60px;display:flex;align-items:center;border-bottom:1px solid var(--bd);}
-.slogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
-.sidenav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;}
-.snav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;text-decoration:none;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;transition:all 0.2s;border:1px solid transparent;}
-.snav-item:hover{background:rgba(255,255,255,0.04);color:var(--t);}
-.snav-item.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.25);color:var(--a);}
-.snav-item.admin-link{color:rgba(245,166,35,0.7);}
-.snav-item.admin-link:hover{background:rgba(245,166,35,0.07);color:#f5a623;}
-.snav-item.admin-link.active{background:rgba(245,166,35,0.1);border-color:rgba(245,166,35,0.25);color:#f5a623;}
-.snav-icon{font-size:16px;flex-shrink:0;}
-.snav-divider{height:1px;background:var(--bd);margin:8px 4px;}
-.sidebar-footer{padding:16px 12px;border-top:1px solid var(--bd);}
-.sf-user{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.sf-avatar{width:34px;height:34px;border-radius:50%;background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--a);flex-shrink:0;}
-.sf-info{overflow:hidden;}
-.sf-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sf-plan{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-top:2px;}
-.sf-logout{width:100%;padding:8px;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
-.sf-logout:hover{border-color:var(--r);color:var(--r);}
-/* Mobile topbar toggle */
-.mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(5,7,10,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:56px;align-items:center;justify-content:space-between;padding:0 16px;}
-.mob-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
-.mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:6px 10px;color:var(--m);font-size:16px;cursor:pointer;}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;backdrop-filter:blur(2px);}
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%);}
+/* ── AI MODAL ── */
+.ai-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.ai-modal.open{display:flex;}
+.ai-box{background:#0c1018;border:1px solid rgba(52,208,88,0.2);border-radius:18px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px;position:relative;}
+.ai-box::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(52,208,88,0.4),transparent);}
+.ai-close{position:absolute;top:14px;right:18px;background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;transition:color 0.2s;}
+.ai-close:hover{color:var(--t);}
+.ai-title{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;color:#34d058;margin-bottom:3px;}
+.ai-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;margin-bottom:20px;}
+.ai-check-btn{width:100%;padding:12px;background:linear-gradient(135deg,rgba(52,208,88,0.15),rgba(52,208,88,0.08));border:1px solid rgba(52,208,88,0.35);border-radius:11px;color:#34d058;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;}
+.ai-check-btn:hover{background:linear-gradient(135deg,rgba(52,208,88,0.25),rgba(52,208,88,0.12));transform:translateY(-1px);}
+.ai-check-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.ai-result{margin-top:18px;border-radius:11px;padding:18px;display:none;}
+.ai-result.go{background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.25);}
+.ai-result.stop{background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.25);}
+.ai-result.wait{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);}
+.ai-verdict{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;margin-bottom:9px;}
+.ai-verdict.go{color:#34d058;}.ai-verdict.stop{color:#ff4d4d;}.ai-verdict.wait{color:#f5a623;}
+.ai-text{font-family:'Syne',sans-serif;font-size:13px;color:var(--m);line-height:1.6;}
+.ck-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--bd);background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;}
+.ck-btn.yes{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.4);color:#34d058;}
+.ck-btn.no{background:rgba(255,77,77,0.12);border-color:rgba(255,77,77,0.4);color:#ff4d4d;}
+.ai-field{margin-bottom:14px;}
+.ai-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.ai-field textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;color:var(--t);font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;outline:none;resize:vertical;min-height:80px;transition:border-color 0.2s;}
+.ai-field textarea:focus{border-color:rgba(52,208,88,0.4);}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s ease;}
   .sidebar.open{transform:translateX(0);}
   .sidebar-overlay.open{display:block;}
   .mob-topbar{display:flex;}
-  .main-content{margin-left:0!important;padding-top:0!important;}
+  .main{margin-left:0;padding:16px 14px 60px;}
+  .page-topnav .tab-nav{display:none;}
+  .stats{grid-template-columns:1fr 1fr;}
+  .fg4,.fg3{grid-template-columns:1fr 1fr;}
+  .emrow{grid-template-columns:1fr 1fr;}
+  .dash-grid{grid-template-columns:1fr;}
+  .level-top{flex-direction:column;}
+  .level-right{width:100%;justify-content:space-between;}
 }
-
-.main{max-width:none;margin-left:220px;padding:28px 28px 80px;position:relative;z-index:1;}
 </style>
 </head>
 <body>
 <div class="bg-orb"></div>
+
 <!-- MOBILE TOPBAR -->
 <div class="mob-topbar">
-  <a href="index.html" class="mob-logo">ORBITUM</a>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <div class="tab-nav" style="border:none;background:none;padding:0;gap:4px;">
+  <div class="mob-logo-wrap">
+    <img class="mob-logo-img" src="orbitum-logo.jpg" alt="O" onerror="this.style.display='none'">
+    <span class="mob-logo-text">ORBITUM</span>
+  </div>
+  <div class="mob-right">
+    <div class="mob-tabnav tab-nav">
       <button class="tnav active" onclick="showPage('journal',this)">ЖУРНАЛ</button>
       <button class="tnav" onclick="showPage('dashboard',this)">АНАЛИТИКА</button>
     </div>
     <button class="mob-burger" onclick="openSidebar()">☰</button>
   </div>
 </div>
+
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-logo"><a href="index.html" class="slogo">ORBITUM</a></div>
+  <div class="sidebar-logo">
+    <img class="slogo-img" src="orbitum-logo.jpg" alt="" onerror="this.style.display='none'">
+    <span class="slogo-text">ORBITUM</span>
+  </div>
   <nav class="sidenav">
-    <a href="journal.html" class="snav-item active" id="snav-journal"><span class="snav-icon">📊</span><span class="snav-label">ЖУРНАЛ</span></a>
-    <a href="profile.html" class="snav-item" id="snav-profile"><span class="snav-icon">🧠</span><span class="snav-label">ПРОФИЛЬ</span></a>
+    <div class="snav-section">Кабинет</div>
+    <a href="journal.html" class="snav-item active"><span class="snav-icon">📋</span>ЖУРНАЛ СДЕЛОК</a>
+    <a href="profile.html" class="snav-item"><span class="snav-icon">🧠</span>ПРОФИЛЬ</a>
     <div class="snav-divider"></div>
-    <div class="tab-nav" style="flex-direction:column;background:none;border:none;padding:0;gap:4px;">
-      <button class="tnav" style="text-align:left;border-radius:10px;border:1px solid transparent;" onclick="showPage('journal',this)" id="sidenav-journal-btn">📋 ЖУРНАЛ</button>
-      <button class="tnav" style="text-align:left;border-radius:10px;border:1px solid transparent;" onclick="showPage('dashboard',this)" id="sidenav-dash-btn">📈 АНАЛИТИКА</button>
-    </div>
+    <div class="snav-section">Вид</div>
+    <button class="snav-item" id="btn-tab-journal" onclick="showPage('journal',this);updateSidenavTabs('journal')"><span class="snav-icon">📊</span>ЖУРНАЛ</button>
+    <button class="snav-item" id="btn-tab-dash" onclick="showPage('dashboard',this);updateSidenavTabs('dashboard')"><span class="snav-icon">📈</span>АНАЛИТИКА</button>
     <div class="snav-divider" id="admin-divider" style="display:none"></div>
-    <a href="admin.html" class="snav-item admin-link" id="snav-admin" style="display:none"><span class="snav-icon">⚙️</span><span class="snav-label">АДМИН</span></a>
+    <a href="admin.html" class="snav-item admin-link" id="snav-admin" style="display:none"><span class="snav-icon">⚙️</span>АДМИН</a>
   </nav>
   <div class="sidebar-footer">
     <div class="sf-user">
       <div class="sf-avatar" id="sf-avatar">?</div>
-      <div class="sf-info"><div class="sf-name" id="sf-name">...</div><div class="sf-plan" id="sf-plan">—</div></div>
+      <div class="sf-info">
+        <div class="sf-name" id="sf-name">...</div>
+        <div class="sf-plan" id="sf-plan">—</div>
+      </div>
     </div>
     <button class="sf-logout" onclick="doLogout()">ВЫЙТИ</button>
   </div>
 </div>
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
+<!-- MAIN -->
 <div class="main">
+  <!-- Desktop tab nav -->
+  <div class="page-topnav">
+    <div class="tab-nav">
+      <button class="tnav active" id="desktop-tab-journal" onclick="showPage('journal',this)">ЖУРНАЛ</button>
+      <button class="tnav" id="desktop-tab-dash" onclick="showPage('dashboard',this)">АНАЛИТИКА</button>
+    </div>
+  </div>
+
   <div class="stats">
     <div class="stat"><div class="sl">Сделок</div><div class="sv" id="s-total">—</div></div>
     <div class="stat"><div class="sl">Винрейт</div><div class="sv g" id="s-wr">—</div></div>
@@ -286,7 +298,7 @@ top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cu
   </div>
 
   <!-- LEVEL BAR -->
-  <div class="level-bar-wrap" id="level-bar">
+  <div class="level-bar-wrap">
     <div class="level-top">
       <div class="level-left">
         <div class="level-badge-icon" id="level-icon">🌱</div>
@@ -297,7 +309,7 @@ top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cu
       </div>
       <div class="level-right">
         <div class="streak-box">
-          <span style="font-size:20px">🔥</span>
+          <span style="font-size:18px">🔥</span>
           <div>
             <div class="streak-num" id="streak-num">0</div>
             <div class="streak-label">ДНЕЙ ПОДРЯД</div>
@@ -316,13 +328,13 @@ top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cu
       <span class="lbl" id="level-cur-label">0%</span>
       <span class="lbl" id="level-next-label">Следующий уровень: 5%</span>
     </div>
-    <div class="level-reward" id="level-reward">
-      <span style="font-size:16px">🎁</span>
+    <div class="level-reward">
+      <span style="font-size:15px">🎁</span>
       <span class="reward-text" id="reward-text">Достигни 5% прибыли → получи чек-лист входа в сделку</span>
     </div>
   </div>
 
-  <!-- JOURNAL -->
+  <!-- JOURNAL PAGE -->
   <div class="page active" id="page-journal">
     <div class="fcard">
       <div class="ftitle">+ НОВАЯ СДЕЛКА</div>
@@ -368,21 +380,14 @@ top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cu
     <div id="trades-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- DASHBOARD PAGE -->
   <div class="page" id="page-dashboard">
     <div class="dash-grid">
       <div class="dash-card">
         <div class="dash-title">Эмоциональный индекс</div>
         <div class="speedo-wrap">
           <svg class="speedo-svg" viewBox="0 0 220 130">
-            <defs>
-              <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#ff4d4d"/>
-                <stop offset="40%" style="stop-color:#f5a623"/>
-                <stop offset="80%" style="stop-color:#34d058"/>
-                <stop offset="100%" style="stop-color:#34d058"/>
-              </linearGradient>
-            </defs>
+            <defs><linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#ff4d4d"/><stop offset="40%" style="stop-color:#f5a623"/><stop offset="80%" style="stop-color:#34d058"/><stop offset="100%" style="stop-color:#34d058"/></linearGradient></defs>
             <path d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" stroke-linecap="round"/>
             <path id="speedo-arc" d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="url(#ag)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 283"/>
             <line id="speedo-needle" x1="110" y1="110" x2="110" y2="28" stroke="var(--a)" stroke-width="2.5" stroke-linecap="round" transform="rotate(-90 110 110)"/>
@@ -397,87 +402,61 @@ top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cu
       </div>
       <div class="dash-card">
         <div class="dash-title">Средние эмоции</div>
-        <div class="em-bars" id="em-bars"><div class="empty" style="padding:20px">Нет данных</div></div>
+        <div class="em-bars" id="em-bars"><div class="empty" style="padding:16px">Нет данных</div></div>
       </div>
     </div>
     <div class="dash-grid">
       <div class="dash-card">
         <div class="dash-title">Эмоции: победы vs убытки</div>
         <div class="emc-legend"><div class="ecc"><div class="ecc-dot" style="background:var(--g)"></div>ПРИБЫЛЬ</div><div class="ecc"><div class="ecc-dot" style="background:var(--r)"></div>УБЫТОК</div></div>
-        <div class="em-compare" id="em-compare"><div class="empty" style="padding:20px">Нет данных</div></div>
+        <div class="em-compare" id="em-compare"><div class="empty" style="padding:16px">Нет данных</div></div>
       </div>
       <div class="dash-card">
         <div class="dash-title">Паттерны ошибок</div>
-        <div class="patterns" id="patterns-list"><div class="empty" style="padding:20px">Нет данных</div></div>
+        <div class="patterns" id="patterns-list"><div class="empty" style="padding:16px">Нет данных</div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- AI ASSISTANT MODAL -->
+<!-- AI MODAL -->
 <div class="ai-modal" id="ai-modal">
   <div class="ai-box">
     <button class="ai-close" onclick="closeAI()">×</button>
     <div class="ai-title">🤖 AI АССИСТЕНТ</div>
     <div class="ai-sub">5 вопросов · 30 секунд · честный вердикт</div>
-
-    <!-- CHECKLIST -->
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;" id="ai-checklist">
-
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">1 · СТРУКТУРА</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Есть подтверждённый BOS или CHoCH в направлении сделки?</div>
-        <div style="display:flex;gap:8px;">
-          <button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">✓ ДА</button>
-          <button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">✗ НЕТ</button>
-        </div>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:16px;" id="ai-checklist">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">1 · СТРУКТУРА</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Есть подтверждённый BOS или CHoCH в направлении сделки?</div>
+        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">✓ ДА</button><button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">✗ НЕТ</button></div>
       </div>
-
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">2 · ТОЧКА ИНТЕРЕСА</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Вход от OB / FVG / BPR? Под уровнем нет незакрытых пулов ликвидности?</div>
-        <div style="display:flex;gap:8px;">
-          <button class="ck-btn" id="ck2-yes" onclick="setCK(2,'yes')">✓ ДА</button>
-          <button class="ck-btn" id="ck2-no" onclick="setCK(2,'no')">✗ НЕТ</button>
-        </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">2 · ТОЧКА ИНТЕРЕСА</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Вход от OB / FVG / BPR? Под уровнем нет незакрытых пулов?</div>
+        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck2-yes" onclick="setCK(2,'yes')">✓ ДА</button><button class="ck-btn" id="ck2-no" onclick="setCK(2,'no')">✗ НЕТ</button></div>
       </div>
-
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">3 · ПОДТВЕРЖДЕНИЕ</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Есть реакция на младшем ТФ (CHoCH / BOS / сильная свеча от уровня)?</div>
-        <div style="display:flex;gap:8px;">
-          <button class="ck-btn" id="ck3-yes" onclick="setCK(3,'yes')">✓ ДА</button>
-          <button class="ck-btn" id="ck3-no" onclick="setCK(3,'no')">✗ НЕТ</button>
-        </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">3 · ПОДТВЕРЖДЕНИЕ</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Есть реакция на младшем ТФ (CHoCH / BOS / сильная свеча)?</div>
+        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck3-yes" onclick="setCK(3,'yes')">✓ ДА</button><button class="ck-btn" id="ck3-no" onclick="setCK(3,'no')">✗ НЕТ</button></div>
       </div>
-
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">4 · РИСК</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Стоп-лосс за уровень, RR не менее 1:2, размер позиции в рамках риска?</div>
-        <div style="display:flex;gap:8px;">
-          <button class="ck-btn" id="ck4-yes" onclick="setCK(4,'yes')">✓ ДА</button>
-          <button class="ck-btn" id="ck4-no" onclick="setCK(4,'no')">✗ НЕТ</button>
-        </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">4 · РИСК</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Стоп-лосс за уровень, RR не менее 1:2, размер в рамках риска?</div>
+        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck4-yes" onclick="setCK(4,'yes')">✓ ДА</button><button class="ck-btn" id="ck4-no" onclick="setCK(4,'no')">✗ НЕТ</button></div>
       </div>
-
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">5 · ПСИХОЛОГИЯ</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Ты спокоен? Нет жадности, страха, желания отыграться?</div>
-        <div style="display:flex;gap:8px;">
-          <button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button>
-          <button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button>
-        </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">5 · ПСИХОЛОГИЯ</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Ты спокоен? Нет жадности, страха, желания отыграться?</div>
+        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button><button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button></div>
       </div>
-
     </div>
-
     <div class="ai-field">
       <label>Кратко опиши сетап (необязательно)</label>
-      <textarea id="ai-reason" placeholder="BTC/USDT 4H, LONG от OB 42000, BOS на 1H..." rows="2" style="min-height:60px;"></textarea>
+      <textarea id="ai-reason" placeholder="BTC/USDT 4H, LONG от OB 42000..." rows="2" style="min-height:56px;"></textarea>
     </div>
-
     <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
-
     <div class="ai-result" id="ai-result">
       <div class="ai-verdict" id="ai-verdict"></div>
       <div class="ai-text" id="ai-text"></div>
@@ -488,173 +467,259 @@ top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cu
 <script>
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let currentUser=null,allTrades=[],currentDir='long',currentFilter='all';
 
-async function init(){const{data:{user}}=await sb.auth.getUser();if(!user){window.location.href='login.html';return;}const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();if(!p){window.location.href='login.html';return;}const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());if(!hasAccess&&p.role!=='admin'){window.location.href='pay.html';return;}currentUser={...user,...p};document.getElementById('ua').textContent=(p.full_name||p.username||'U')[0].toUpperCase();document.getElementById('un').textContent=p.full_name||p.username||user.email;
-// sidebar
-document.getElementById('sf-avatar').textContent=(p.full_name||p.username||'U')[0].toUpperCase();
-document.getElementById('sf-name').textContent=p.full_name||p.username||user.email;
-document.getElementById('sf-plan').textContent=p.plan==='lifetime'?'∞ НАВСЕГДА':p.plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-if(p.role==='admin'){document.getElementById('snav-admin').style.display='flex';document.getElementById('admin-divider').style.display='block';}await loadTrades();}
-async function loadTrades(){const{data}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});allTrades=data||[];render();renderDashboard();renderLevelBar(allTrades);}
+// ── SIDEBAR ──
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
+
+function updateSidenavTabs(active){
+  document.getElementById('btn-tab-journal').classList.toggle('active', active==='journal');
+  document.getElementById('btn-tab-dash').classList.toggle('active', active==='dashboard');
+}
+
+// ── INIT ──
+async function init(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){window.location.href='login.html';return;}
+  const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  if(!p){window.location.href='login.html';return;}
+  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());
+  if(!hasAccess&&p.role!=='admin'){window.location.href='pay.html';return;}
+  currentUser={...user,...p};
+  const initials=(p.full_name||p.username||'U')[0].toUpperCase();
+  const displayName=p.full_name||p.username||user.email;
+  document.getElementById('sf-avatar').textContent=initials;
+  document.getElementById('sf-name').textContent=displayName;
+  document.getElementById('sf-plan').textContent=p.plan==='lifetime'?'∞ НАВСЕГДА':p.plan==='monthly'?'МЕСЯЧНЫЙ':'—';
+  if(p.role==='admin'){
+    document.getElementById('snav-admin').style.display='flex';
+    document.getElementById('admin-divider').style.display='block';
+  }
+  await loadTrades();
+}
+
+async function loadTrades(){
+  const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  if(error){console.error('loadTrades error:',error);document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки сделок</div>';return;}
+  allTrades=data||[];
+  render();
+  renderDashboard();
+  renderLevelBar(allTrades);
+}
+
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
-function showPage(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');btn.classList.add('active');if(p==='dashboard')renderDashboard();}
+
+function showPage(p,btn){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  // sync all tab buttons
+  document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));
+  // mark clicked btn active
+  if(btn)btn.classList.add('active');
+  // also sync desktop tabs
+  if(p==='journal'){
+    const dt=document.getElementById('desktop-tab-journal');if(dt)dt.classList.add('active');
+    const dd=document.getElementById('desktop-tab-dash');if(dd)dd.classList.remove('active');
+  } else {
+    const dt=document.getElementById('desktop-tab-journal');if(dt)dt.classList.remove('active');
+    const dd=document.getElementById('desktop-tab-dash');if(dd)dd.classList.add('active');
+  }
+  updateSidenavTabs(p);
+  if(p==='dashboard')renderDashboard();
+}
+
 function setDir(d){currentDir=d;document.getElementById('btn-long').classList.toggle('active',d==='long');document.getElementById('btn-short').classList.toggle('active',d==='short');}
 function sv(id,vid){document.getElementById(vid).textContent=document.getElementById(id).value;}
 function fromPct(){const pct=parseFloat(document.getElementById('f-pnl').value);const dep=parseFloat(document.getElementById('f-dep').value);if(!isNaN(pct)&&!isNaN(dep)&&dep>0)document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
 function fromUsd(){const usd=parseFloat(document.getElementById('f-usd').value);const dep=parseFloat(document.getElementById('f-dep').value);if(!isNaN(usd)&&!isNaN(dep)&&dep>0)document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);}
 function recalc(){fromPct();}
-async function addTrade(){const pair=document.getElementById('f-pair').value.trim().toUpperCase();const res=document.getElementById('f-res').value;if(!pair||!res){alert('Укажи пару и результат');return;}const btn=document.getElementById('btn-add');btn.disabled=true;btn.textContent='СОХРАНЯЕМ...';const trade={user_id:currentUser.id,pair,direction:currentDir,result:res,pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,deposit:parseFloat(document.getElementById('f-dep').value)||null,entry_price:parseFloat(document.getElementById('f-entry').value)||null,exit_price:parseFloat(document.getElementById('f-exit').value)||null,emotion_conf:parseInt(document.getElementById('e-conf').value),emotion_fear:parseInt(document.getElementById('e-fear').value),emotion_greed:parseInt(document.getElementById('e-greed').value),emotion_calm:parseInt(document.getElementById('e-calm').value),note_why:document.getElementById('f-why').value.trim()||null,note_feel:document.getElementById('f-feel').value.trim()||null,note_lesson:document.getElementById('f-lesson').value.trim()||null};const{data,error}=await sb.from('trades').insert(trade).select().single();if(error){alert('Ошибка: '+error.message);btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';return;}allTrades.unshift(data);resetForm();render();renderDashboard();renderLevelBar(allTrades);btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';}
-function resetForm(){['f-pair','f-pnl','f-usd','f-dep','f-entry','f-exit','f-why','f-feel','f-lesson'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-res').value='';document.getElementById('e-conf').value=5;document.getElementById('sv-conf').textContent=5;document.getElementById('e-fear').value=3;document.getElementById('sv-fear').textContent=3;document.getElementById('e-greed').value=3;document.getElementById('sv-greed').textContent=3;document.getElementById('e-calm').value=7;document.getElementById('sv-calm').textContent=7;setDir('long');}
-async function deleteTrade(id){if(!confirm('Удалить сделку?'))return;await sb.from('trades').delete().eq('id',id).eq('user_id',currentUser.id);allTrades=allTrades.filter(t=>t.id!==id);render();renderDashboard();renderLevelBar(allTrades);}
+
+async function addTrade(){
+  const pair=document.getElementById('f-pair').value.trim().toUpperCase();
+  const res=document.getElementById('f-res').value;
+  if(!pair||!res){alert('Укажи пару и результат');return;}
+  const btn=document.getElementById('btn-add');btn.disabled=true;btn.textContent='СОХРАНЯЕМ...';
+  const trade={user_id:currentUser.id,pair,direction:currentDir,result:res,
+    pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,
+    pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,
+    deposit:parseFloat(document.getElementById('f-dep').value)||null,
+    entry_price:parseFloat(document.getElementById('f-entry').value)||null,
+    exit_price:parseFloat(document.getElementById('f-exit').value)||null,
+    emotion_conf:parseInt(document.getElementById('e-conf').value),
+    emotion_fear:parseInt(document.getElementById('e-fear').value),
+    emotion_greed:parseInt(document.getElementById('e-greed').value),
+    emotion_calm:parseInt(document.getElementById('e-calm').value),
+    note_why:document.getElementById('f-why').value.trim()||null,
+    note_feel:document.getElementById('f-feel').value.trim()||null,
+    note_lesson:document.getElementById('f-lesson').value.trim()||null};
+  const{data,error}=await sb.from('trades').insert(trade).select().single();
+  if(error){alert('Ошибка: '+error.message);btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';return;}
+  allTrades.unshift(data);resetForm();render();renderDashboard();renderLevelBar(allTrades);
+  btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
+}
+
+function resetForm(){
+  ['f-pair','f-pnl','f-usd','f-dep','f-entry','f-exit','f-why','f-feel','f-lesson'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-res').value='';
+  document.getElementById('e-conf').value=5;document.getElementById('sv-conf').textContent=5;
+  document.getElementById('e-fear').value=3;document.getElementById('sv-fear').textContent=3;
+  document.getElementById('e-greed').value=3;document.getElementById('sv-greed').textContent=3;
+  document.getElementById('e-calm').value=7;document.getElementById('sv-calm').textContent=7;
+  setDir('long');
+}
+
+async function deleteTrade(id){
+  if(!confirm('Удалить сделку?'))return;
+  await sb.from('trades').delete().eq('id',id).eq('user_id',currentUser.id);
+  allTrades=allTrades.filter(t=>t.id!==id);render();renderDashboard();renderLevelBar(allTrades);
+}
+
 function setF(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 function dots(val){return Array.from({length:10},(_,i)=>`<div class="dot${i<val?' on':''}"></div>`).join('');}
-function render(){const wins=allTrades.filter(t=>t.result==='win').length;const total=allTrades.length;const totalPct=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);const totalUsd=allTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);let best=0,cur=0;[...allTrades].reverse().forEach(t=>{if(t.result==='win'){cur++;best=Math.max(best,cur);}else cur=0;});document.getElementById('s-total').textContent=total;document.getElementById('s-wr').textContent=total?Math.round(wins/total*100)+'%':'—';const pe=document.getElementById('s-pnl');pe.textContent=total?(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%':'—';pe.className='sv '+(totalPct>0?'g':totalPct<0?'r':'');const ue=document.getElementById('s-usd');ue.textContent=total?(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0):'—';ue.className='sv '+(totalUsd>0?'g':totalUsd<0?'r':'');document.getElementById('s-str').textContent=best;let filtered=allTrades;if(currentFilter==='win')filtered=allTrades.filter(t=>t.result==='win');else if(currentFilter==='loss')filtered=allTrades.filter(t=>t.result==='loss');else if(currentFilter==='long')filtered=allTrades.filter(t=>t.direction==='long');else if(currentFilter==='short')filtered=allTrades.filter(t=>t.direction==='short');const list=document.getElementById('trades-list');if(!filtered.length){list.innerHTML='<div class="empty">Сделок пока нет. Запиши первую!</div>';return;}list.innerHTML=filtered.map(t=>{const d=new Date(t.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const pnlStr=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'';const usdStr=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';const cls=t.pnl_pct>0?'p':t.pnl_pct<0?'n':'';return`<div class="tcard ${t.result}"><div class="thead"><div class="tl"><div class="tpair">${t.pair}</div><div class="tdir ${t.direction}">${t.direction.toUpperCase()}</div></div><div class="tr"><div class="tpnl ${cls}">${pnlStr}${usdStr?` <span style="opacity:.5;font-size:11px">(${usdStr})</span>`:''}</div><div class="tdate">${d}</div><button class="delbtn" onclick="deleteTrade(${t.id})">×</button></div></div><div class="tmeta">${t.entry_price?`<div class="mi"><div class="mil">Вход</div><div class="miv">${t.entry_price}</div></div>`:''} ${t.exit_price?`<div class="mi"><div class="mil">Выход</div><div class="miv">${t.exit_price}</div></div>`:''} ${t.deposit?`<div class="mi"><div class="mil">Депозит</div><div class="miv">$${t.deposit}</div></div>`:''}<div class="mi"><div class="mil">Итог</div><div class="miv">${t.result==='win'?'✓ Прибыль':t.result==='loss'?'✗ Убыток':'~ Безубыток'}</div></div></div><div class="edots">${t.emotion_conf?`<div class="ed"><span class="edl">УВЕРЕН</span><div class="dots">${dots(t.emotion_conf)}</div></div>`:''} ${t.emotion_fear?`<div class="ed"><span class="edl">СТРАХ</span><div class="dots">${dots(t.emotion_fear)}</div></div>`:''} ${t.emotion_greed?`<div class="ed"><span class="edl">ЖАДН</span><div class="dots">${dots(t.emotion_greed)}</div></div>`:''} ${t.emotion_calm?`<div class="ed"><span class="edl">ФОКУС</span><div class="dots">${dots(t.emotion_calm)}</div></div>`:''}</div>${(t.note_why||t.note_feel||t.note_lesson)?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}</div>`:''}</div>`;}).join('');}
-function renderDashboard(){if(!allTrades.length)return;const avg=key=>{const v=allTrades.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};const avgConf=avg('emotion_conf'),avgFear=avg('emotion_fear'),avgGreed=avg('emotion_greed'),avgCalm=avg('emotion_calm');const score=Math.max(0,Math.min(100,Math.round(((avgConf+avgCalm-avgFear-avgGreed)/20+0.5)*100)));updateSpeedometer(score);document.getElementById('em-bars').innerHTML=[{label:'Уверенность',val:avgConf,color:'#34d058'},{label:'Фокус',val:avgCalm,color:'#3498db'},{label:'Страх',val:avgFear,color:'#ff4d4d'},{label:'Жадность',val:avgGreed,color:'#f5a623'}].map(e=>`<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">${e.label}</span><span class="em-bar-val">${e.val.toFixed(1)} / 10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:${e.val*10}%;background:${e.color}"></div></div></div>`).join('');const wins=allTrades.filter(t=>t.result==='win'),losses=allTrades.filter(t=>t.result==='loss');const emKeys=[{key:'emotion_conf',label:'Уверен'},{key:'emotion_fear',label:'Страх'},{key:'emotion_greed',label:'Жадн'},{key:'emotion_calm',label:'Фокус'}];document.getElementById('em-compare').innerHTML=emKeys.map(e=>{const wA=wins.length?wins.reduce((s,t)=>s+(t[e.key]||0),0)/wins.length:0;const lA=losses.length?losses.reduce((s,t)=>s+(t[e.key]||0),0)/losses.length:0;return`<div class="emc-row"><span class="emc-label">${e.label}</span><div class="emc-bars"><div class="emc-bar emc-win" style="width:${wA*10}%"></div><div class="emc-bar emc-loss" style="width:${lA*10}%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);width:55px;text-align:right">${wA.toFixed(1)} / ${lA.toFixed(1)}</span></div>`;}).join('');const insights=[];const lc=losses.length,wc=wins.length;if(lc>=2){const lF=losses.reduce((s,t)=>s+(t.emotion_fear||0),0)/lc,wF=wc?wins.reduce((s,t)=>s+(t.emotion_fear||0),0)/wc:0;if(lF>wF+1.5)insights.push({icon:'😰',title:'Страх мешает тебе',desc:`Страх ${lF.toFixed(1)} при убытках vs ${wF.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});const lG=losses.reduce((s,t)=>s+(t.emotion_greed||0),0)/lc,wG=wc?wins.reduce((s,t)=>s+(t.emotion_greed||0),0)/wc:0;if(lG>wG+1.5)insights.push({icon:'💰',title:'Жадность сливает депозит',desc:`Жадность ${lG.toFixed(1)} при убытках vs ${wG.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});const wC=wc?wins.reduce((s,t)=>s+(t.emotion_conf||0),0)/wc:0,lC=losses.reduce((s,t)=>s+(t.emotion_conf||0),0)/lc;if(wC>lC+1)insights.push({icon:'💪',title:'Уверенность = результат',desc:`Уверенность ${wC.toFixed(1)} при прибыли vs ${lC.toFixed(1)} при убытке`,badge:'badge-ok',label:'ПАТТЕРН'});const wCa=wc?wins.reduce((s,t)=>s+(t.emotion_calm||0),0)/wc:0,lCa=losses.reduce((s,t)=>s+(t.emotion_calm||0),0)/lc;if(lCa<wCa-1)insights.push({icon:'🎯',title:'Теряешь фокус на убытках',desc:`Фокус ${lCa.toFixed(1)} при убытках vs ${wCa.toFixed(1)} при прибыли`,badge:'badge-warn',label:'ВНИМАНИЕ'});}const wr=allTrades.length?Math.round(wc/allTrades.length*100):0;if(wr>=60)insights.push({icon:'🏆',title:'Отличный винрейт',desc:`${wr}% — выше среднего. Продолжай!`,badge:'badge-ok',label:'ОТЛИЧНО'});else if(wr<40&&allTrades.length>=5)insights.push({icon:'📉',title:'Низкий винрейт',desc:`${wr}% — пересмотри стратегию входа`,badge:'badge-bad',label:'РИСК'});document.getElementById('patterns-list').innerHTML=insights.length?insights.map(i=>`<div class="pattern-item"><div class="pattern-icon">${i.icon}</div><div class="pattern-text"><div class="pattern-title">${i.title}</div><div class="pattern-desc">${i.desc}</div></div><div class="pattern-badge ${i.badge}">${i.label}</div></div>`).join(''):'<div class="empty" style="padding:20px">Накопи больше сделок для анализа</div>';}
-function updateSpeedometer(score){const angle=(score/100)*180-90;document.getElementById('speedo-needle').setAttribute('transform',`rotate(${angle} 110 110)`);document.getElementById('speedo-arc').setAttribute('stroke-dasharray',`${(score/100)*283} 283`);document.getElementById('speedo-score').textContent=score;const d=score>=75?'Состояние потока — торгуй!':score>=55?'Хорошее состояние':score>=40?'Нейтральное состояние':score>=25?'Повышенный стресс':'Высокий стресс — осторожно';document.getElementById('speedo-desc').textContent=d;}
-// ===== AI ASSISTANT =====
-const ckAnswers = {};
-function openAI() {
-  document.getElementById('ai-modal').classList.add('open');
-  document.getElementById('ai-result').style.display='none';
+
+function render(){
+  const wins=allTrades.filter(t=>t.result==='win').length;
+  const total=allTrades.length;
+  const totalPct=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const totalUsd=allTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);
+  let best=0,cur=0;[...allTrades].reverse().forEach(t=>{if(t.result==='win'){cur++;best=Math.max(best,cur);}else cur=0;});
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-wr').textContent=total?Math.round(wins/total*100)+'%':'—';
+  const pe=document.getElementById('s-pnl');
+  pe.textContent=total?(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%':'—';
+  pe.className='sv '+(totalPct>0?'g':totalPct<0?'r':'');
+  const ue=document.getElementById('s-usd');
+  ue.textContent=total?(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0):'—';
+  ue.className='sv '+(totalUsd>0?'g':totalUsd<0?'r':'');
+  document.getElementById('s-str').textContent=best;
+  let filtered=allTrades;
+  if(currentFilter==='win')filtered=allTrades.filter(t=>t.result==='win');
+  else if(currentFilter==='loss')filtered=allTrades.filter(t=>t.result==='loss');
+  else if(currentFilter==='long')filtered=allTrades.filter(t=>t.direction==='long');
+  else if(currentFilter==='short')filtered=allTrades.filter(t=>t.direction==='short');
+  const list=document.getElementById('trades-list');
+  if(!filtered.length){list.innerHTML='<div class="empty">Сделок пока нет. Запиши первую!</div>';return;}
+  list.innerHTML=filtered.map(t=>{
+    const d=new Date(t.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const pnlStr=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'';
+    const usdStr=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';
+    const cls=t.pnl_pct>0?'p':t.pnl_pct<0?'n':'';
+    return`<div class="tcard ${t.result}"><div class="thead"><div class="tl"><div class="tpair">${t.pair}</div><div class="tdir ${t.direction}">${t.direction.toUpperCase()}</div></div><div class="tr"><div class="tpnl ${cls}">${pnlStr}${usdStr?` <span style="opacity:.5;font-size:10px">(${usdStr})</span>`:''}</div><div class="tdate">${d}</div><button class="delbtn" onclick="deleteTrade(${t.id})">×</button></div></div><div class="tmeta">${t.entry_price?`<div class="mi"><div class="mil">Вход</div><div class="miv">${t.entry_price}</div></div>`:''} ${t.exit_price?`<div class="mi"><div class="mil">Выход</div><div class="miv">${t.exit_price}</div></div>`:''} ${t.deposit?`<div class="mi"><div class="mil">Депозит</div><div class="miv">$${t.deposit}</div></div>`:''}<div class="mi"><div class="mil">Итог</div><div class="miv">${t.result==='win'?'✓ Прибыль':t.result==='loss'?'✗ Убыток':'~ Безубыток'}</div></div></div><div class="edots">${t.emotion_conf?`<div class="ed"><span class="edl">УВЕРЕН</span><div class="dots">${dots(t.emotion_conf)}</div></div>`:''} ${t.emotion_fear?`<div class="ed"><span class="edl">СТРАХ</span><div class="dots">${dots(t.emotion_fear)}</div></div>`:''} ${t.emotion_greed?`<div class="ed"><span class="edl">ЖАДН</span><div class="dots">${dots(t.emotion_greed)}</div></div>`:''} ${t.emotion_calm?`<div class="ed"><span class="edl">ФОКУС</span><div class="dots">${dots(t.emotion_calm)}</div></div>`:''}</div>${(t.note_why||t.note_feel||t.note_lesson)?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}</div>`:''}</div>`;
+  }).join('');
 }
-function closeAI() { document.getElementById('ai-modal').classList.remove('open'); }
 
-function setCK(num, val) {
-  ckAnswers[num] = val;
-  const yes = document.getElementById('ck'+num+'-yes');
-  const no  = document.getElementById('ck'+num+'-no');
-  yes.className = 'ck-btn' + (val==='yes'?' yes':'');
-  no.className  = 'ck-btn' + (val==='no'?' no':'');
-}
-
-async function checkSetup() {
-  const answered = Object.keys(ckAnswers).length;
-  if (answered < 5) { alert('Ответь на все 5 вопросов'); return; }
-
-  const btn = document.getElementById('ai-check-btn');
-  btn.disabled = true; btn.textContent = 'АНАЛИЗИРУЮ...';
-  document.getElementById('ai-result').style.display = 'none';
-
-  const labels = {
-    1: 'Структура (BOS/CHoCH)',
-    2: 'Точка интереса (OB/FVG/BPR)',
-    3: 'Подтверждение на младшем ТФ',
-    4: 'Риск-менеджмент (SL/RR/размер)',
-    5: 'Психологическое состояние'
-  };
-  const answers = Object.entries(ckAnswers).map(([k,v]) => `${labels[k]}: ${v==='yes'?'ДА':'НЕТ'}`).join('\n');
-  const note = document.getElementById('ai-reason').value.trim();
-  const yesCount = Object.values(ckAnswers).filter(v=>v==='yes').length;
-
-  const prompt = `Ты — строгий торговый наставник SMC/ICT методологии. Трейдер ответил на чек-лист перед входом в сделку.
-
-Ответы:
-${answers}
-${note ? `\nДополнение: ${note}` : ''}
-
-Правила методологии:
-- BOS = подтверждение тренда, CHoCH = разворот структуры
-- OB (Order Block) = последняя медвежья/бычья свеча перед BOS
-- FVG = имбаланс (3 свечи, гэп между тенями)
-- BPR = пересечение OB и FVG — сильнейшая зона
-- Вход ТОЛЬКО от подтверждённого уровня с реакцией на младшем ТФ
-- Психология = если не спокоен, сделку не открывать
-
-Дай вердикт в JSON (ТОЛЬКО JSON без markdown):
-{
-  "verdict": "GO" | "STOP" | "WAIT",
-  "title": "короткая фраза до 6 слов",
-  "message": "1-2 предложения — что хорошо и/или что не так",
-  "action": "одно конкретное действие что делать дальше"
-}`;
-
-  try {
-    const res = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    const data = await res.json();
-    const text = data.text || '';
-    const result = JSON.parse(text.replace(/```json|```/g,'').trim());
-
-    const v = (result.verdict||'wait').toLowerCase();
-    const resultEl = document.getElementById('ai-result');
-    const verdictEl = document.getElementById('ai-verdict');
-    const textEl = document.getElementById('ai-text');
-
-    resultEl.className = 'ai-result ' + v;
-    verdictEl.className = 'ai-verdict ' + v;
-    const icons = { go:'✅', stop:'🛑', wait:'⏳' };
-    verdictEl.textContent = (icons[v]||'⏳') + ' ' + (result.title || result.verdict);
-    textEl.innerHTML = `<p style="margin-bottom:10px">${result.message||''}</p>${result.action?`<p><span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:#34d058">→ </span>${result.action}</p>`:''}`;
-    resultEl.style.display = 'block';
-    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  } catch(e) { alert('Ошибка: ' + e.message); }
-
-  btn.disabled = false; btn.textContent = 'ПОЛУЧИТЬ ВЕРДИКТ';
-}
-// ========================
-
-// ===== LEVEL SYSTEM =====
-
-// ===== LEVEL SYSTEM =====
-const LEVELS = [
-  { min: 0,   max: 5,   name: 'НОВИЧОК',      icon: '🌱', color: '#52606e', reward: 'Достигни 5% прибыли → получи чек-лист входа в сделку' },
-  { min: 5,   max: 10,  name: 'СТАЖЁР',       icon: '📈', color: '#3498db', reward: 'Достигни 10% → методичка по управлению рисками' },
-  { min: 10,  max: 20,  name: 'ТРЕЙДЕР',      icon: '⚡', color: '#9b59b6', reward: 'Достигни 20% → разбор сделок в приоритете' },
-  { min: 20,  max: 50,  name: 'ПРОФИ',        icon: '🎯', color: '#e8722a', reward: 'Достигни 50% → бесплатная консультация 1 на 1' },
-  { min: 50,  max: 100, name: 'ЭКСПЕРТ',      icon: '🔥', color: '#f5a623', reward: 'Достигни 100% → вход в VIP комьюнити' },
-  { min: 100, max: 999, name: 'МАСТЕР',       icon: '👑', color: '#34d058', reward: 'Ты в элите. Помогай другим расти!' },
-];
-
-function calcStreak(trades) {
-  if (!trades.length) return 0;
-  const days = new Set(trades.map(t => new Date(t.created_at).toDateString()));
-  const today = new Date();
-  let streak = 0;
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    if (days.has(d.toDateString())) streak++;
-    else if (i > 0) break;
+function renderDashboard(){
+  if(!allTrades.length)return;
+  const avg=key=>{const v=allTrades.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
+  const avgConf=avg('emotion_conf'),avgFear=avg('emotion_fear'),avgGreed=avg('emotion_greed'),avgCalm=avg('emotion_calm');
+  const score=Math.max(0,Math.min(100,Math.round(((avgConf+avgCalm-avgFear-avgGreed)/20+0.5)*100)));
+  updateSpeedometer(score);
+  document.getElementById('em-bars').innerHTML=[
+    {label:'Уверенность',val:avgConf,color:'#34d058'},
+    {label:'Фокус',val:avgCalm,color:'#3498db'},
+    {label:'Страх',val:avgFear,color:'#ff4d4d'},
+    {label:'Жадность',val:avgGreed,color:'#f5a623'}
+  ].map(e=>`<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">${e.label}</span><span class="em-bar-val">${e.val.toFixed(1)} / 10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:${e.val*10}%;background:${e.color}"></div></div></div>`).join('');
+  const wins=allTrades.filter(t=>t.result==='win'),losses=allTrades.filter(t=>t.result==='loss');
+  const emKeys=[{key:'emotion_conf',label:'Уверен'},{key:'emotion_fear',label:'Страх'},{key:'emotion_greed',label:'Жадн'},{key:'emotion_calm',label:'Фокус'}];
+  document.getElementById('em-compare').innerHTML=emKeys.map(e=>{
+    const wA=wins.length?wins.reduce((s,t)=>s+(t[e.key]||0),0)/wins.length:0;
+    const lA=losses.length?losses.reduce((s,t)=>s+(t[e.key]||0),0)/losses.length:0;
+    return`<div class="emc-row"><span class="emc-label">${e.label}</span><div class="emc-bars"><div class="emc-bar emc-win" style="width:${wA*10}%"></div><div class="emc-bar emc-loss" style="width:${lA*10}%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);width:50px;text-align:right">${wA.toFixed(1)} / ${lA.toFixed(1)}</span></div>`;
+  }).join('');
+  const insights=[];
+  const lc=losses.length,wc=wins.length;
+  if(lc>=2){
+    const lF=losses.reduce((s,t)=>s+(t.emotion_fear||0),0)/lc,wF=wc?wins.reduce((s,t)=>s+(t.emotion_fear||0),0)/wc:0;
+    if(lF>wF+1.5)insights.push({icon:'😰',title:'Страх мешает тебе',desc:`Страх ${lF.toFixed(1)} при убытках vs ${wF.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});
+    const lG=losses.reduce((s,t)=>s+(t.emotion_greed||0),0)/lc,wG=wc?wins.reduce((s,t)=>s+(t.emotion_greed||0),0)/wc:0;
+    if(lG>wG+1.5)insights.push({icon:'💰',title:'Жадность сливает депозит',desc:`Жадность ${lG.toFixed(1)} при убытках vs ${wG.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});
+    const wC=wc?wins.reduce((s,t)=>s+(t.emotion_conf||0),0)/wc:0,lC=losses.reduce((s,t)=>s+(t.emotion_conf||0),0)/lc;
+    if(wC>lC+1)insights.push({icon:'💪',title:'Уверенность = результат',desc:`Уверенность ${wC.toFixed(1)} при прибыли vs ${lC.toFixed(1)} при убытке`,badge:'badge-ok',label:'ПАТТЕРН'});
+    const wCa=wc?wins.reduce((s,t)=>s+(t.emotion_calm||0),0)/wc:0,lCa=losses.reduce((s,t)=>s+(t.emotion_calm||0),0)/lc;
+    if(lCa<wCa-1)insights.push({icon:'🎯',title:'Теряешь фокус на убытках',desc:`Фокус ${lCa.toFixed(1)} при убытках vs ${wCa.toFixed(1)} при прибыли`,badge:'badge-warn',label:'ВНИМАНИЕ'});
   }
-  return streak;
+  const wr=allTrades.length?Math.round(wc/allTrades.length*100):0;
+  if(wr>=60)insights.push({icon:'🏆',title:'Отличный винрейт',desc:`${wr}% — выше среднего. Продолжай!`,badge:'badge-ok',label:'ОТЛИЧНО'});
+  else if(wr<40&&allTrades.length>=5)insights.push({icon:'📉',title:'Низкий винрейт',desc:`${wr}% — пересмотри стратегию`,badge:'badge-bad',label:'РИСК'});
+  document.getElementById('patterns-list').innerHTML=insights.length?insights.map(i=>`<div class="pattern-item"><div class="pattern-icon">${i.icon}</div><div class="pattern-text"><div class="pattern-title">${i.title}</div><div class="pattern-desc">${i.desc}</div></div><div class="pattern-badge ${i.badge}">${i.label}</div></div>`).join(''):'<div class="empty" style="padding:16px">Накопи больше сделок для анализа</div>';
 }
 
-function renderLevelBar(trades) {
-  const totalPct = trades.reduce((s, t) => s + (t.pnl_pct || 0), 0);
-  const streak = calcStreak(trades);
-
-  // Find level
-  const lvl = LEVELS.find(l => totalPct < l.max) || LEVELS[LEVELS.length - 1];
-  const nextLvl = LEVELS[LEVELS.indexOf(lvl) + 1];
-  const progress = lvl.max === 999 ? 100 : Math.min(100, Math.max(0, ((totalPct - lvl.min) / (lvl.max - lvl.min)) * 100));
-
-  document.getElementById('level-icon').textContent = lvl.icon;
-  document.getElementById('level-icon').style.background = lvl.color + '22';
-  document.getElementById('level-icon').style.borderColor = lvl.color + '44';
-  document.getElementById('level-name').textContent = lvl.name;
-  document.getElementById('level-name').style.color = lvl.color;
-  document.getElementById('level-sub').textContent = `Уровень ${LEVELS.indexOf(lvl)} · ${totalPct >= 0 ? '+' : ''}${totalPct.toFixed(1)}% от депозита`;
-  document.getElementById('level-fill').style.width = progress + '%';
-  document.getElementById('level-fill').style.background = `linear-gradient(90deg, ${lvl.color}, ${lvl.color}cc)`;
-  document.getElementById('level-cur-label').textContent = totalPct.toFixed(1) + '%';
-  document.getElementById('level-next-label').textContent = nextLvl ? `Следующий уровень: ${lvl.max}%` : '🏆 Максимальный уровень';
-  document.getElementById('level-pnl').textContent = (totalPct >= 0 ? '+' : '') + totalPct.toFixed(1) + '%';
-  document.getElementById('reward-text').textContent = lvl.reward;
-  document.getElementById('streak-num').textContent = streak;
-  if (streak >= 7) document.getElementById('streak-num').style.color = '#ff4d4d';
-  else if (streak >= 3) document.getElementById('streak-num').style.color = '#f5a623';
+function updateSpeedometer(score){
+  const angle=(score/100)*180-90;
+  document.getElementById('speedo-needle').setAttribute('transform',`rotate(${angle} 110 110)`);
+  document.getElementById('speedo-arc').setAttribute('stroke-dasharray',`${(score/100)*283} 283`);
+  document.getElementById('speedo-score').textContent=score;
+  const d=score>=75?'Состояние потока — торгуй!':score>=55?'Хорошее состояние':score>=40?'Нейтральное состояние':score>=25?'Повышенный стресс':'Высокий стресс — осторожно';
+  document.getElementById('speedo-desc').textContent=d;
 }
-// ========================
 
+// ── LEVEL SYSTEM ──
+const LEVELS=[
+  {min:0,max:5,name:'НОВИЧОК',icon:'🌱',color:'#52606e',reward:'Достигни 5% прибыли → получи чек-лист входа в сделку'},
+  {min:5,max:10,name:'СТАЖЁР',icon:'📈',color:'#3498db',reward:'Достигни 10% → методичка по управлению рисками'},
+  {min:10,max:20,name:'ТРЕЙДЕР',icon:'⚡',color:'#9b59b6',reward:'Достигни 20% → разбор сделок в приоритете'},
+  {min:20,max:50,name:'ПРОФИ',icon:'🎯',color:'#e8722a',reward:'Достигни 50% → бесплатная консультация 1 на 1'},
+  {min:50,max:100,name:'ЭКСПЕРТ',icon:'🔥',color:'#f5a623',reward:'Достигни 100% → вход в VIP комьюнити'},
+  {min:100,max:999,name:'МАСТЕР',icon:'👑',color:'#34d058',reward:'Ты в элите. Помогай другим расти!'},
+];
+function calcStreak(trades){if(!trades.length)return 0;const days=new Set(trades.map(t=>new Date(t.created_at).toDateString()));const today=new Date();let streak=0;for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(days.has(d.toDateString()))streak++;else if(i>0)break;}return streak;}
+function renderLevelBar(trades){
+  const totalPct=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const streak=calcStreak(trades);
+  const lvl=LEVELS.find(l=>totalPct<l.max)||LEVELS[LEVELS.length-1];
+  const nextLvl=LEVELS[LEVELS.indexOf(lvl)+1];
+  const progress=lvl.max===999?100:Math.min(100,Math.max(0,((totalPct-lvl.min)/(lvl.max-lvl.min))*100));
+  document.getElementById('level-icon').textContent=lvl.icon;
+  document.getElementById('level-icon').style.background=lvl.color+'22';
+  document.getElementById('level-icon').style.borderColor=lvl.color+'44';
+  document.getElementById('level-name').textContent=lvl.name;
+  document.getElementById('level-name').style.color=lvl.color;
+  document.getElementById('level-sub').textContent=`Уровень ${LEVELS.indexOf(lvl)} · ${totalPct>=0?'+':''}${totalPct.toFixed(1)}% от депозита`;
+  document.getElementById('level-fill').style.width=progress+'%';
+  document.getElementById('level-fill').style.background=`linear-gradient(90deg,${lvl.color},${lvl.color}cc)`;
+  document.getElementById('level-cur-label').textContent=totalPct.toFixed(1)+'%';
+  document.getElementById('level-next-label').textContent=nextLvl?`Следующий уровень: ${lvl.max}%`:'🏆 Максимальный уровень';
+  document.getElementById('level-pnl').textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
+  document.getElementById('reward-text').textContent=lvl.reward;
+  document.getElementById('streak-num').textContent=streak;
+  if(streak>=7)document.getElementById('streak-num').style.color='#ff4d4d';
+  else if(streak>=3)document.getElementById('streak-num').style.color='#f5a623';
+}
 
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('open');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
+// ── AI ──
+const ckAnswers={};
+function openAI(){document.getElementById('ai-modal').classList.add('open');document.getElementById('ai-result').style.display='none';}
+function closeAI(){document.getElementById('ai-modal').classList.remove('open');}
+function setCK(num,val){ckAnswers[num]=val;document.getElementById('ck'+num+'-yes').className='ck-btn'+(val==='yes'?' yes':'');document.getElementById('ck'+num+'-no').className='ck-btn'+(val==='no'?' no':'');}
+async function checkSetup(){
+  if(Object.keys(ckAnswers).length<5){alert('Ответь на все 5 вопросов');return;}
+  const btn=document.getElementById('ai-check-btn');btn.disabled=true;btn.textContent='АНАЛИЗИРУЮ...';
+  document.getElementById('ai-result').style.display='none';
+  const labels={1:'Структура (BOS/CHoCH)',2:'Точка интереса (OB/FVG/BPR)',3:'Подтверждение на младшем ТФ',4:'Риск-менеджмент (SL/RR/размер)',5:'Психологическое состояние'};
+  const answers=Object.entries(ckAnswers).map(([k,v])=>`${labels[k]}: ${v==='yes'?'ДА':'НЕТ'}`).join('\n');
+  const note=document.getElementById('ai-reason').value.trim();
+  const prompt=`Ты — строгий торговый наставник SMC/ICT методологии. Трейдер ответил на чек-лист.\n\nОтветы:\n${answers}${note?'\nДополнение: '+note:''}\n\nДай вердикт в JSON (ТОЛЬКО JSON без markdown):\n{"verdict":"GO"|"STOP"|"WAIT","title":"фраза до 6 слов","message":"1-2 предложения","action":"одно действие"}`;
+  try{
+    const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const data=await res.json();
+    const result=JSON.parse((data.text||'').replace(/```json|```/g,'').trim());
+    const v=(result.verdict||'wait').toLowerCase();
+    const resultEl=document.getElementById('ai-result');
+    resultEl.className='ai-result '+v;
+    const verdictEl=document.getElementById('ai-verdict');
+    verdictEl.className='ai-verdict '+v;
+    verdictEl.textContent=({go:'✅',stop:'🛑',wait:'⏳'}[v]||'⏳')+' '+(result.title||result.verdict);
+    document.getElementById('ai-text').innerHTML=`<p style="margin-bottom:9px">${result.message||''}</p>${result.action?`<p><span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:#34d058">→ </span>${result.action}</p>`:''}`;
+    resultEl.style.display='block';
+    resultEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){alert('Ошибка: '+e.message);}
+  btn.disabled=false;btn.textContent='ПОЛУЧИТЬ ВЕРДИКТ';
+}
+
 init();
 </script>
 </body>
