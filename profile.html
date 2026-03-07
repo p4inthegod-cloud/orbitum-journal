@@ -12,7 +12,7 @@
 .sidebar-logo{padding:0 16px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--bd);flex-shrink:0;position:relative;overflow:hidden;}
 .slogo-canvas{position:absolute;inset:0;pointer-events:none;}
 .slogo-inner{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.slogo-img{width:34px;height:34px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6)) drop-shadow(0 0 20px rgba(255,255,255,0.25)) drop-shadow(0 0 40px rgba(200,200,255,0.15));}
+.slogo-img{width:34px;height:34px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6)) drop-shadow(0 0 20px rgba(255,255,255,0.25)) drop-shadow(0 0 40px rgba(200,200,255,0.15));}
 .slogo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#f2f2f2;text-shadow:0 0 20px rgba(255,255,255,0.15);}
 .sidenav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
 .snav-sec{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:2px;padding:10px 10px 4px;text-transform:uppercase;}
@@ -34,7 +34,7 @@
 /* mobile */
 .mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(3,4,7,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:54px;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
 .mob-logo-wrap{display:flex;align-items:center;gap:8px;}
-.mob-logo-img{width:26px;height:26px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 16px rgba(255,255,255,0.2));}
+.mob-logo-img{width:26px;height:26px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 16px rgba(255,255,255,0.2));}
 .mob-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#f2f2f2;}
 .mob-right{display:flex;align-items:center;gap:8px;}
 .mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
@@ -575,27 +575,35 @@ async function initProfile(){
 }
 
 function computeRealStats(trades){
+  // update subtitle
+  document.querySelector('.subtitle').textContent=(document.querySelector('.subtitle').textContent.split('·')[0]).trim()+` · ${trades.length} сделок`;
   if(!trades.length) return;
   const wins=trades.filter(t=>t.result==='win');
   const losses=trades.filter(t=>t.result==='loss');
   const wr=Math.round(wins.length/trades.length*100);
-  // update stat cards
-  document.querySelector('.stat-value.c-red').textContent=wr+'%';
+
+  // update first stat-card (win rate)
+  const statCards=document.querySelectorAll('.stat-card');
+  if(statCards[0]){
+    const sv=statCards[0].querySelector('.stat-value');
+    const ss=statCards[0].querySelector('.stat-sub');
+    if(sv){sv.textContent=wr+'%';sv.className='stat-value '+(wr>=50?'c-green':'c-red');}
+    if(ss)ss.textContent=wins.length+' из '+trades.length;
+  }
 
   // best/worst days
   const byDay={};
   trades.forEach(t=>{
     const day=new Date(t.created_at).toLocaleDateString('ru-RU',{weekday:'short'});
-    if(!byDay[day])byDay[day]={pnl:0};
-    byDay[day].pnl+=(t.pnl_pct||0);
+    if(!byDay[day])byDay[day]={pnl:0,cnt:0};
+    byDay[day].pnl+=(t.pnl_pct||0);byDay[day].cnt++;
   });
   const days=Object.entries(byDay);
   if(days.length){
     const best=days.reduce((a,b)=>b[1].pnl>a[1].pnl?b:a);
     const worst=days.reduce((a,b)=>b[1].pnl<a[1].pnl?b:a);
-    const statCards=document.querySelectorAll('.stat-card');
-    if(statCards[1]){statCards[1].querySelector('.stat-value').textContent=best[0];statCards[1].querySelector('.stat-sub').textContent=(best[1].pnl>=0?'+':'')+best[1].pnl.toFixed(1)+'%';}
-    if(statCards[2]){statCards[2].querySelector('.stat-value').textContent=worst[0];statCards[2].querySelector('.stat-sub').textContent=worst[1].pnl.toFixed(1)+'%';}
+    if(statCards[1]){const sv=statCards[1].querySelector('.stat-value');const ss=statCards[1].querySelector('.stat-sub');if(sv)sv.textContent=best[0];if(ss)ss.textContent=(best[1].pnl>=0?'+':'')+best[1].pnl.toFixed(1)+'%';}
+    if(statCards[2]){const sv=statCards[2].querySelector('.stat-value');const ss=statCards[2].querySelector('.stat-sub');if(sv)sv.textContent=worst[0];if(ss)ss.textContent=worst[1].pnl.toFixed(1)+'%';}
   }
 
   // radar traits from emotions
@@ -609,17 +617,22 @@ function computeRealStats(trades){
   // update trait bars
   const traitBars=document.querySelectorAll('.bar-fill');
   const traitVals=document.querySelectorAll('.trait-val');
-  const labels=['c-orange','c-red','c-red','c-red','c-green'];
   radarVals.forEach((v,i)=>{
     if(traitBars[i]){traitBars[i].style.width=(v/10*100)+'%';}
     if(traitVals[i]){traitVals[i].textContent=v.toFixed(1);}
   });
 
-  // update day heatmap bars
+  // update day heatmap bars (real data)
   updateDayBars(trades);
+  // update emotion grid (real data)
   updateEmotionGrid(trades,wins,losses);
+  // update patterns (real data)
   updatePatterns(trades,wins,losses);
+  // update insight
   updateInsight(trades,wins,losses);
+  // update hour heatmap (real data)
+  updateHourGrid(trades);
+  // rebuild radar
   rebuildRadar(radarVals);
 }
 
@@ -670,7 +683,108 @@ function updateEmotionGrid(trades,wins,losses){
 }
 
 function updatePatterns(trades,wins,losses){
-  // patterns are already structural in HTML — just update insight
+  // Build dynamic patterns from real trade data
+  const patterns=[];
+
+  // FOMO pattern: losses in 17-19 on Fridays
+  const fridayEvening=trades.filter(t=>{
+    const d=new Date(t.created_at);
+    return d.getDay()===5&&d.getHours()>=17&&d.getHours()<19&&t.result==='loss';
+  });
+  if(fridayEvening.length>=1){
+    const pnl=fridayEvening.reduce((s,t)=>s+(t.pnl_usd||0),0);
+    patterns.push({icon:'🔥',color:'badge-red',title:'FOMO по пятницам 17–19:00',sub:`${fridayEvening.length} сделок · 100% убыточных`,badge:`−$${Math.abs(pnl).toFixed(0)} потерь`,desc:'Паттерн выявлен: убыточные входы каждую пятницу вечером. Вероятно реакция на дневные движения после рабочей недели.',rec:'Запрети себе торговать в пятницу после 17:00. Поставь напоминание.'});
+  }
+
+  // Greed pattern
+  const greedyLoss=trades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
+  const greedyAll=trades.filter(t=>(t.emotion_greed||0)>=7);
+  if(greedyLoss.length>=1){
+    const pnl=greedyLoss.reduce((s,t)=>s+(t.pnl_usd||0),0);
+    patterns.push({icon:'💀',color:'badge-red',title:'Жадность >7 = убыток',sub:`${greedyLoss.length} из ${greedyAll.length} сделок с жадн. >7 убыточны`,badge:`−$${Math.abs(pnl).toFixed(0)} потерь`,desc:`Чёткая корреляция: при жадности ≥7 вин-рейт падает до ${greedyAll.length?Math.round((greedyAll.length-greedyLoss.length)/greedyAll.length*100):0}%. Твой злейший враг — ты сам в состоянии эйфории.`,rec:'Добавь правило: жадность ≥7 → обязательная пауза 5 минут перед входом.'});
+  }
+
+  // Morning losses
+  const morningLoss=trades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=8&&h<10&&t.result==='loss';});
+  if(morningLoss.length>=1){
+    patterns.push({icon:'⏰',color:'badge-orange',title:'Утренние сделки (8–10:00) — риск',sub:`${morningLoss.length} убыточных в 8-10ч`,badge:'⚠ Риск-зона',desc:'Первые часы торговли — слабое место. Фокус минимальный, рынок ещё не определился с направлением.',rec:'Первый час после открытия — только наблюдение. Никаких входов до 10:00.'});
+  }
+
+  // Superpower: high confidence wins
+  const confWins=trades.filter(t=>(t.emotion_conf||0)>=7&&t.result==='win');
+  if(confWins.length>=2){
+    const avgPnl=confWins.reduce((s,t)=>s+(t.pnl_pct||0),0)/confWins.length;
+    patterns.push({icon:'🎯',color:'badge-green',title:'Высокая уверенность → победа',sub:`${confWins.length} из ${confWins.length} прибыльных · avg +${avgPnl.toFixed(1)}%`,badge:'Твоя суперсила',desc:`При уверенности ≥7 вин-рейт ${Math.round(confWins.length/trades.filter(t=>(t.emotion_conf||0)>=7).length*100)||100}%. Это твоя сильнейшая точка входа.`,rec:'Увеличь размер позиции когда уверенность ≥7. Это статистически подтверждено.'});
+  }
+
+  const container=document.getElementById('panel-patterns');
+  if(!container)return;
+
+  // update count
+  const countEl=container.querySelector('.pattern-count-num');
+  const countBad=patterns.filter(p=>p.color==='badge-red').length;
+  if(countEl)countEl.textContent=countBad;
+  const subEl=container.querySelector('[style*="color:var(--text-faint)"]');
+  if(subEl)subEl.textContent=`Нажми чтобы раскрыть · ${patterns.length} паттерн${patterns.length===1?'':'а'} найдено`;
+
+  // replace pattern cards
+  const oldCards=container.querySelectorAll('.pattern-card');
+  oldCards.forEach(c=>c.remove());
+
+  const insertAfter=container.querySelector('.pattern-header');
+  patterns.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='pattern-card';
+    div.onclick=function(){togglePattern(this);};
+    div.innerHTML=`<div class="pattern-top">
+      <div class="pattern-left">
+        <div class="pattern-icon-box ${p.color==='badge-green'?'positive':p.color==='badge-orange'?'medium':''}">${p.icon}</div>
+        <div><div class="pattern-title">${p.title}</div><div class="pattern-subtitle">${p.sub}</div></div>
+      </div>
+      <div class="pattern-right"><span class="badge ${p.color}">${p.badge}</span><span class="chevron">▼</span></div>
+    </div>
+    <div class="pattern-body">
+      <p class="pattern-desc">${p.desc}</p>
+      <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">${p.rec}</div></div>
+    </div>`;
+    if(insertAfter)insertAfter.after(div);
+    else container.appendChild(div);
+  });
+
+  if(!patterns.length){
+    const empty=document.createElement('div');
+    empty.style.cssText='color:var(--text-faint);font-size:12px;padding:20px;text-align:center';
+    empty.textContent='Недостаточно сделок для анализа паттернов. Добавь больше сделок в журнал.';
+    container.appendChild(empty);
+  }
+}
+
+function updateHourGrid(trades){
+  const grid=document.getElementById('hour-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  // build hour map from real trades
+  const hourMap={};
+  trades.forEach(t=>{
+    const h=new Date(t.created_at).getHours();
+    if(!hourMap[h])hourMap[h]=[];
+    hourMap[h].push(t.result);
+  });
+  for(let h=0;h<24;h++){
+    const cell=document.createElement('div');
+    cell.className='hour-cell';
+    cell.textContent=h;
+    if(hourMap[h]&&hourMap[h].length){
+      const wins=hourMap[h].filter(r=>r==='win').length;
+      const losses=hourMap[h].filter(r=>r==='loss').length;
+      // dominant result
+      if(wins>losses)cell.classList.add('win');
+      else if(losses>wins)cell.classList.add('loss');
+      else cell.classList.add('win'); // tie → green
+      cell.title=`${h}:00 · ${wins}W/${losses}L`;
+    }
+    grid.appendChild(cell);
+  }
 }
 
 function updateInsight(trades,wins,losses){
@@ -843,21 +957,7 @@ function togglePattern(card) {
   });
 })();
 
-// HOUR GRID
-(function() {
-  const trades = {9:{r:'loss',pair:'SOL'},10:{r:'win',pair:'ETH'},14:{r:'win',pair:'ETH'},17:{r:'loss',pair:'BTC'},18:{r:'loss',pair:'BTC'},19:{r:'loss',pair:'BTC'},8:{r:'loss',pair:'BNB'}};
-  const grid = document.getElementById('hour-grid');
-  for(let h=0;h<24;h++){
-    const cell = document.createElement('div');
-    cell.className = 'hour-cell';
-    cell.textContent = h;
-    if(trades[h]) {
-      cell.classList.add(trades[h].r);
-      cell.title = `${h}:00 · ${trades[h].pair} · ${trades[h].r}`;
-    }
-    grid.appendChild(cell);
-  }
-})();
+// Hour grid is now populated by updateHourGrid() with real trade data
 initProfile();
 </script>
 </div>

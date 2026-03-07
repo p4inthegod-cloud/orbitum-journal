@@ -12,7 +12,7 @@
 .sidebar-logo{padding:0 16px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--bd);flex-shrink:0;position:relative;overflow:hidden;}
 .slogo-canvas{position:absolute;inset:0;pointer-events:none;}
 .slogo-inner{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.slogo-img{width:34px;height:34px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6)) drop-shadow(0 0 20px rgba(255,255,255,0.25)) drop-shadow(0 0 40px rgba(200,200,255,0.15));}
+.slogo-img{width:34px;height:34px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6)) drop-shadow(0 0 20px rgba(255,255,255,0.25)) drop-shadow(0 0 40px rgba(200,200,255,0.15));}
 .slogo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#f2f2f2;text-shadow:0 0 20px rgba(255,255,255,0.15);}
 .sidenav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
 .snav-sec{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:2px;padding:10px 10px 4px;text-transform:uppercase;}
@@ -34,7 +34,7 @@
 /* mobile */
 .mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(3,4,7,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:54px;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
 .mob-logo-wrap{display:flex;align-items:center;gap:8px;}
-.mob-logo-img{width:26px;height:26px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 16px rgba(255,255,255,0.2));}
+.mob-logo-img{width:26px;height:26px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 16px rgba(255,255,255,0.2));}
 .mob-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#f2f2f2;}
 .mob-right{display:flex;align-items:center;gap:8px;}
 .mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
@@ -487,9 +487,9 @@ const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let currentUser=null,allTrades=[],currentDir='long',currentFilter='all';
 
 // ── SIDEBAR ──
-
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
+
 function initLogoParticles(){
   const canvas=document.getElementById('logo-canvas');
   if(!canvas)return;
@@ -517,7 +517,26 @@ function initLogoParticles(){
   }
   draw();
 }
+
 function fillSidebar(displayName,initials,plan,isAdmin){
+  document.getElementById('sf-avatar').textContent=initials;
+  document.getElementById('sf-name').textContent=displayName;
+  document.getElementById('sf-plan').textContent=plan==='lifetime'?'∞ НАВСЕГДА':plan==='monthly'?'МЕСЯЧНЫЙ':'—';
+  if(isAdmin){
+    const d=document.getElementById('admin-divider');if(d)d.style.display='block';
+    const a=document.getElementById('snav-admin');if(a)a.style.display='flex';
+  }
+}
+
+// ── INIT ──
+async function init(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){window.location.href='login.html';return;}
+  currentUser=user;
+  const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  if(!p){window.location.href='login.html';return;}
+  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());
+  if(!hasAccess&&p.role!=='admin'){window.location.href='pay.html';return;}
   fillSidebar(p.full_name||p.username||user.email,(p.full_name||p.username||'U')[0].toUpperCase(),p.plan,p.role==='admin');
   await loadTrades();
 }
@@ -526,12 +545,212 @@ async function loadTrades(){
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   if(error){console.error('loadTrades error:',error);document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки сделок</div>';return;}
   allTrades=data||[];
+  updateStats();
   render();
   renderDashboard();
   renderLevelBar(allTrades);
 }
 
+// ── DIRECTION TOGGLE ──
+function setDir(d){
+  currentDir=d;
+  document.getElementById('btn-long').classList.toggle('active',d==='long');
+  document.getElementById('btn-short').classList.toggle('active',d==='short');
+}
+
+// ── P&L RECALC ──
+function recalc(){
+  const dep=parseFloat(document.getElementById('f-dep').value)||0;
+  const pct=parseFloat(document.getElementById('f-pnl').value)||0;
+  if(dep&&pct){document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
+}
+function fromPct(){
+  const dep=parseFloat(document.getElementById('f-dep').value)||0;
+  const pct=parseFloat(document.getElementById('f-pnl').value)||0;
+  if(dep&&pct){document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
+}
+function fromUsd(){
+  const dep=parseFloat(document.getElementById('f-dep').value)||0;
+  const usd=parseFloat(document.getElementById('f-usd').value)||0;
+  if(dep&&usd){document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);}
+}
+
+// ── SLIDER DISPLAY ──
+function sv(inputId,spanId){document.getElementById(spanId).textContent=document.getElementById(inputId).value;}
+
+// ── FILTER ──
+function setF(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── ADD TRADE ──
+async function addTrade(){
+  const pair=(document.getElementById('f-pair').value||'').trim().toUpperCase();
+  const res=document.getElementById('f-res').value;
+  const dep=parseFloat(document.getElementById('f-dep').value)||null;
+  const pnlPct=parseFloat(document.getElementById('f-pnl').value)||null;
+  const pnlUsd=parseFloat(document.getElementById('f-usd').value)||null;
+  const entry=parseFloat(document.getElementById('f-entry').value)||null;
+  const exit=parseFloat(document.getElementById('f-exit').value)||null;
+  const conf=parseInt(document.getElementById('e-conf').value)||5;
+  const fear=parseInt(document.getElementById('e-fear').value)||3;
+  const greed=parseInt(document.getElementById('e-greed').value)||3;
+  const calm=parseInt(document.getElementById('e-calm').value)||7;
+  const why=document.getElementById('f-why').value.trim();
+  const feel=document.getElementById('f-feel').value.trim();
+  const lesson=document.getElementById('f-lesson').value.trim();
+  if(!pair){alert('Укажи торговую пару');return;}
+  if(!res){alert('Выбери результат');return;}
+  const btn=document.getElementById('btn-add');
+  btn.disabled=true;btn.textContent='СОХРАНЯЕМ...';
+  const{error}=await sb.from('trades').insert([{
+    user_id:currentUser.id,pair,direction:currentDir,result:res,
+    deposit:dep,pnl_pct:pnlPct,pnl_usd:pnlUsd,entry_price:entry,exit_price:exit,
+    emotion_conf:conf,emotion_fear:fear,emotion_greed:greed,emotion_calm:calm,
+    setup_notes:why,emotion_notes:feel,lesson
+  }]);
+  btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
+  if(error){alert('Ошибка: '+error.message);return;}
+  // reset form
+  document.getElementById('f-pair').value='';
+  document.getElementById('f-res').value='';
+  document.getElementById('f-dep').value='';
+  document.getElementById('f-pnl').value='';
+  document.getElementById('f-usd').value='';
+  document.getElementById('f-entry').value='';
+  document.getElementById('f-exit').value='';
+  document.getElementById('f-why').value='';
+  document.getElementById('f-feel').value='';
+  document.getElementById('f-lesson').value='';
+  ['e-conf','e-fear','e-greed','e-calm'].forEach(id=>{document.getElementById(id).value=id==='e-conf'?5:id==='e-calm'?7:3;});
+  ['sv-conf','sv-fear','sv-greed','sv-calm'].forEach((id,i)=>{document.getElementById(id).textContent=[5,3,3,7][i];});
+  setDir('long');
+  await loadTrades();
+}
+
+// ── STATS BAR ──
+function updateStats(){
+  const t=allTrades;
+  document.getElementById('s-total').textContent=t.length||'—';
+  if(!t.length){['s-wr','s-pnl','s-usd','s-str'].forEach(id=>{document.getElementById(id).textContent='—';});return;}
+  const wins=t.filter(x=>x.result==='win');
+  const wr=Math.round(wins.length/t.length*100);
+  document.getElementById('s-wr').textContent=wr+'%';
+  const totalPct=t.reduce((s,x)=>s+(x.pnl_pct||0),0);
+  const pEl=document.getElementById('s-pnl');
+  pEl.textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
+  pEl.className='sv '+(totalPct>=0?'g':'r');
+  const totalUsd=t.reduce((s,x)=>s+(x.pnl_usd||0),0);
+  const uEl=document.getElementById('s-usd');
+  uEl.textContent=(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0);
+  uEl.className='sv '+(totalUsd>=0?'g':'r');
+  // streak (consecutive wins)
+  let streak=0;
+  for(const tr of t){if(tr.result==='win')streak++;else break;}
+  document.getElementById('s-str').textContent=streak;
+}
+
+// ── RENDER TRADES LIST ──
+function render(){
+  const list=document.getElementById('trades-list');
+  let filtered=allTrades;
+  if(currentFilter==='win')filtered=filtered.filter(t=>t.result==='win');
+  else if(currentFilter==='loss')filtered=filtered.filter(t=>t.result==='loss');
+  else if(currentFilter==='long')filtered=filtered.filter(t=>t.direction==='long');
+  else if(currentFilter==='short')filtered=filtered.filter(t=>t.direction==='short');
+  if(!filtered.length){list.innerHTML='<div class="empty">Сделок нет. Добавь первую!</div>';return;}
+  list.innerHTML=filtered.map(t=>{
+    const pnl=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'—';
+    const usd=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';
+    const cls=t.result==='win'?'win':t.result==='loss'?'loss':'be';
+    const pnlCls=t.result==='win'?'p':t.result==='loss'?'n':'';
+    const date=new Date(t.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+    const dirCls=t.direction||'long';
+    const dots=(key,max=10)=>{const v=t[key]||0;return Array.from({length:10},(_,i)=>`<div class="dot${i<v?' on':''}"></div>`).join('');};
+    return`<div class="tcard ${cls}">
+      <div class="thead">
+        <div class="tl">
+          <div class="tpair">${t.pair||'?'}</div>
+          <div class="tdir ${dirCls}">${(t.direction||'').toUpperCase()}</div>
+        </div>
+        <div class="tr">
+          <div class="tpnl ${pnlCls}">${pnl}${usd?` <span style="font-size:10px;opacity:0.6">${usd}</span>`:''}</div>
+          <div class="tdate">${date}</div>
+          <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
+        </div>
+      </div>
+      ${t.setup_notes||t.emotion_notes||t.lesson?`<div class="tnotes">
+        ${t.setup_notes?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.setup_notes}<br>`:''}
+        ${t.emotion_notes?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.emotion_notes}<br>`:''}
+        ${t.lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.lesson}`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function deleteTrade(id){
+  if(!confirm('Удалить сделку?'))return;
+  await sb.from('trades').delete().eq('id',id).eq('user_id',currentUser.id);
+  await loadTrades();
+}
+
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
+
+// ── RENDER DASHBOARD ──
+function renderDashboard(){
+  if(!allTrades.length){
+    document.getElementById('speedo-score').textContent='—';
+    document.getElementById('speedo-desc').textContent='Нет данных';
+    document.getElementById('em-bars').innerHTML='<div class="empty" style="padding:16px">Нет данных</div>';
+    document.getElementById('em-compare').innerHTML='<div class="empty" style="padding:16px">Нет данных</div>';
+    document.getElementById('patterns-list').innerHTML='<div class="empty" style="padding:16px">Нет данных</div>';
+    return;
+  }
+  const avg=key=>{const v=allTrades.map(t=>t[key]).filter(x=>x!=null);return v.length?(v.reduce((s,x)=>s+x,0)/v.length):5;};
+  const conf=avg('emotion_conf'),fear=avg('emotion_fear'),greed=avg('emotion_greed'),calm=avg('emotion_calm');
+  // emotional index: high conf+calm, low fear+greed = good
+  const score=Math.round(((conf+calm+(10-fear)+(10-greed))/4)*10);
+  const clampedScore=Math.min(100,Math.max(0,score));
+  document.getElementById('speedo-score').textContent=clampedScore;
+  document.getElementById('speedo-desc').textContent=clampedScore>=70?'Состояние потока':clampedScore>=40?'Нейтральное состояние':'Высокий стресс';
+  // needle
+  const arc=Math.PI*(clampedScore/100);
+  const needle=document.getElementById('speedo-needle');
+  const arcEl=document.getElementById('speedo-arc');
+  if(needle)needle.setAttribute('transform',`rotate(${-90+arc*(180/Math.PI)*1} 110 110)`);
+  if(arcEl){const total=283;arcEl.setAttribute('stroke-dasharray',`${total*clampedScore/100} ${total}`);}
+  // avg emotion bars
+  const emKeys=[{label:'Уверенность',key:'emotion_conf',color:'#e8722a'},{label:'Страх',key:'emotion_fear',color:'#ff4d4d'},{label:'Жадность',key:'emotion_greed',color:'#ff4d4d'},{label:'Фокус',key:'emotion_calm',color:'#34d058'}];
+  document.getElementById('em-bars').innerHTML=emKeys.map(e=>{
+    const v=avg(e.key);
+    return`<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">${e.label}</span><span class="em-bar-val">${v.toFixed(1)}/10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:${v*10}%;background:${e.color}"></div></div></div>`;
+  }).join('');
+  // wins vs losses emotions
+  const wins=allTrades.filter(t=>t.result==='win');
+  const losses=allTrades.filter(t=>t.result==='loss');
+  const avgArr=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
+  document.getElementById('em-compare').innerHTML=emKeys.map(e=>{
+    const wV=avgArr(wins,e.key),lV=avgArr(losses,e.key);
+    const max=10;
+    return`<div class="emc-row"><div class="emc-label">${e.label}</div><div class="emc-bars"><div class="emc-bar emc-win" style="width:${wV/max*100}%"></div><div class="emc-bar emc-loss" style="width:${lV/max*100}%"></div></div></div>`;
+  }).join('');
+  // patterns
+  const patterns=[];
+  const fomo=allTrades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=17&&h<19&&t.result==='loss';});
+  if(fomo.length>=2)patterns.push({icon:'🔥',title:'FOMO в вечерние часы',desc:`${fomo.length} убыточных сделок 17-19ч`,badge:'badge-bad'});
+  const greedyLoss=allTrades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
+  if(greedyLoss.length>=2)patterns.push({icon:'💀',title:'Жадность → убыток',desc:`${greedyLoss.length} потерь при жадности ≥7`,badge:'badge-bad'});
+  const highConf=allTrades.filter(t=>(t.emotion_conf||0)>=7&&t.result==='win');
+  if(highConf.length>=2)patterns.push({icon:'🎯',title:'Уверенность → победа',desc:`${highConf.length} побед при уверенности ≥7`,badge:'badge-ok'});
+  const earlyLoss=allTrades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=8&&h<10&&t.result==='loss';});
+  if(earlyLoss.length>=2)patterns.push({icon:'⏰',title:'Утренние сделки — риск',desc:`${earlyLoss.length} убытков в 8-10ч`,badge:'badge-warn'});
+  document.getElementById('patterns-list').innerHTML=patterns.length?patterns.map(p=>`
+    <div class="pattern-item"><div class="pattern-icon">${p.icon}</div><div class="pattern-text"><div class="pattern-title">${p.title}</div><div class="pattern-desc">${p.desc}</div></div><div class="pattern-badge ${p.badge}">${p.badge==='badge-ok'?'ПЛЮС':'МИНУС'}</div></div>
+  `).join(''):'<div class="empty" style="padding:16px">Недостаточно данных для паттернов</div>';
+}
 
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
