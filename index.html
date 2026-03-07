@@ -3,226 +3,531 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORBITUM Journal — Торговый дневник трейдера</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>ORBITUM — Торговый журнал трейдера</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);--bd:rgba(255,255,255,0.07);--t:#f0f0f0;--m:rgba(255,255,255,0.38);--g:#34d058;--r:#ff4d4d;}
+:root{
+  --a:#e8722a;--a2:rgba(232,114,42,0.12);--a3:rgba(232,114,42,0.35);
+  --bg:#04060a;--bd:rgba(255,255,255,0.07);
+  --t:#f0f0f0;--m:rgba(255,255,255,0.4);
+  --g:#34d058;--r:#ff4d4d;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;overflow-x:hidden;}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,7,10,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.nav-links{display:flex;align-items:center;gap:32px;}
-.nav-links a{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--m);text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.2s;}
-.nav-links a:hover{color:var(--t);}
-.nav-cta{padding:8px 20px;background:linear-gradient(135deg,var(--a),#c85e18);border-radius:8px;color:#fff!important;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-decoration:none;box-shadow:0 2px 16px rgba(232,114,42,0.35);transition:all 0.2s!important;}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(232,114,42,0.5)!important;opacity:1!important;}
+/* ── NOISE OVERLAY ── */
+body::before{content:'';position:fixed;inset:0;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0 48px;height:66px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,6,10,0.6);backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo-img{width:30px;height:30px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 20px rgba(255,255,255,0.2));}
+.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#f2f2f2;}
+.nav-links{display:flex;align-items:center;gap:36px;}
+.nav-links a:not(.nav-cta){font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color 0.2s;}
+.nav-links a:not(.nav-cta):hover{color:var(--t);}
+.nav-cta{padding:9px 22px;background:linear-gradient(135deg,var(--a),#c85e18);border-radius:9px;color:#fff!important;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none;box-shadow:0 2px 20px rgba(232,114,42,0.35);transition:all 0.22s;white-space:nowrap;}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 28px rgba(232,114,42,0.55);}
 .nav-user{display:flex;align-items:center;gap:10px;}
-.nav-username{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--m);letter-spacing:1px;}
-.nav-logout{background:none;border:1px solid var(--bd);border-radius:6px;padding:6px 12px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.nav-username{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);}
+.nav-logout{background:none;border:1px solid var(--bd);border-radius:6px;padding:6px 12px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.2s;}
 .nav-logout:hover{border-color:var(--r);color:var(--r);}
 
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 60px;position:relative;overflow:hidden;}
-.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
-.hero-orb1{width:700px;height:700px;background:radial-gradient(circle,rgba(232,114,42,0.18),transparent 65%);top:-150px;left:50%;transform:translateX(-50%);animation:f1 10s ease-in-out infinite;}
-.hero-orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(232,114,42,0.08),transparent 65%);bottom:0;right:-100px;animation:f2 12s ease-in-out infinite;}
-@keyframes f1{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-30px);}}
-@keyframes f2{0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);pointer-events:none;}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;border:1px solid rgba(232,114,42,0.25);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--a);letter-spacing:2px;text-transform:uppercase;margin-bottom:30px;animation:fadeUp 0.6s ease both;backdrop-filter:blur(10px);background:rgba(232,114,42,0.06);}
-.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);}
-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,10vw,108px);letter-spacing:4px;line-height:0.9;margin-bottom:24px;animation:fadeUp 0.6s 0.1s ease both;}
-h1 span{background:linear-gradient(135deg,var(--a),#ff9a5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:clamp(15px,2vw,17px);color:var(--m);max-width:500px;line-height:1.7;margin-bottom:44px;animation:fadeUp 0.6s 0.2s ease both;}
-.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s 0.3s ease both;}
-.btn-primary{padding:15px 38px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:12px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;text-decoration:none;box-shadow:0 6px 28px rgba(232,114,42,0.4),inset 0 1px 0 rgba(255,255,255,0.14);transition:all 0.25s;display:inline-block;}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(232,114,42,0.55);}
-.btn-ghost{padding:15px 38px;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:12px;color:var(--m);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;text-decoration:none;transition:all 0.25s;display:inline-block;backdrop-filter:blur(10px);}
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;}
+.hero-orb1{width:900px;height:900px;background:radial-gradient(circle,rgba(232,114,42,0.14),transparent 60%);top:-300px;left:50%;transform:translateX(-50%);animation:orbFloat1 14s ease-in-out infinite;}
+.hero-orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(232,114,42,0.07),transparent 65%);bottom:-100px;right:-150px;animation:orbFloat2 18s ease-in-out infinite;}
+.hero-orb3{width:300px;height:300px;background:radial-gradient(circle,rgba(100,180,255,0.04),transparent 65%);bottom:100px;left:-80px;animation:orbFloat2 22s ease-in-out infinite reverse;}
+@keyframes orbFloat1{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-40px);}}
+@keyframes orbFloat2{0%,100%{transform:translateY(0);}50%{transform:translateY(-25px);}}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 20%,transparent 100%);pointer-events:none;}
+
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border:1px solid rgba(232,114,42,0.2);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--a);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:32px;backdrop-filter:blur(10px);background:rgba(232,114,42,0.05);animation:fadeUp 0.7s ease both;}
+.hero-eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a),0 0 16px var(--a);}
+
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(62px,11vw,120px);letter-spacing:3px;line-height:0.88;margin-bottom:28px;animation:fadeUp 0.7s 0.1s ease both;}
+.hero-title em{font-style:normal;color:var(--a);text-shadow:0 0 40px rgba(232,114,42,0.4),0 0 80px rgba(232,114,42,0.15);}
+
+.hero-sub{font-size:clamp(15px,1.8vw,18px);color:var(--m);max-width:520px;line-height:1.75;margin-bottom:48px;font-weight:400;animation:fadeUp 0.7s 0.2s ease both;}
+.hero-sub strong{color:rgba(255,255,255,0.75);font-weight:500;}
+
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.7s 0.3s ease both;}
+.btn-primary{padding:16px 42px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:13px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;text-decoration:none;box-shadow:0 6px 32px rgba(232,114,42,0.38),inset 0 1px 0 rgba(255,255,255,0.15);transition:all 0.25s;display:inline-block;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(232,114,42,0.55);}
+.btn-ghost{padding:16px 42px;background:rgba(255,255,255,0.035);border:1px solid var(--bd);border-radius:13px;color:rgba(255,255,255,0.6);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;text-decoration:none;transition:all 0.25s;display:inline-block;backdrop-filter:blur(10px);}
 .btn-ghost:hover{border-color:rgba(232,114,42,0.4);color:var(--a);}
-.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:64px;animation:fadeUp 0.6s 0.4s ease both;}
-.hs{text-align:center;}
-.hs-n{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--a);letter-spacing:2px;text-shadow:0 0 30px rgba(232,114,42,0.4);}
-.hs-l{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
 
-/* MOCKUP */
-.mockup-section{padding:60px 24px 80px;overflow:hidden;}
-.mockup-wrap{max-width:900px;margin:0 auto;}
-.mockup-frame{background:rgba(255,255,255,0.02);border:1px solid var(--bd);border-radius:20px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(232,114,42,0.06);}
-.mockup-bar{height:42px;background:rgba(255,255,255,0.03);display:flex;align-items:center;gap:8px;padding:0 18px;border-bottom:1px solid var(--bd);}
-.dot-r{width:10px;height:10px;border-radius:50%;background:#ff5f57;}
-.dot-y{width:10px;height:10px;border-radius:50%;background:#febc2e;}
-.dot-g{width:10px;height:10px;border-radius:50%;background:#28c840;}
-.mockup-url{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.2);}
-.mockup-body{padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.mock-stat{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px;}
-.mock-sl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
-.mock-sv{font-family:'JetBrains Mono',monospace;font-size:18px;}
-.mock-sv.g{color:var(--g);}
-.mock-sv.r{color:var(--r);}
-.mock-sv.a{color:var(--a);}
-.mock-trades{padding:0 20px 20px;display:flex;flex-direction:column;gap:8px;}
-.mock-trade{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
-.mock-trade.w{border-left:2px solid var(--g);}
-.mock-trade.l{border-left:2px solid var(--r);}
-.mt-pair{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;}
-.mt-dir{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border-radius:4px;}
-.mt-dir.lg{background:rgba(52,208,88,0.1);color:var(--g);}
-.mt-dir.sh{background:rgba(255,77,77,0.1);color:var(--r);}
-.mt-pnl{font-family:'JetBrains Mono',monospace;font-size:13px;}
-.mt-pnl.g{color:var(--g);}
-.mt-pnl.r{color:var(--r);}
+.hero-proof{display:flex;align-items:center;gap:48px;justify-content:center;margin-top:72px;animation:fadeUp 0.7s 0.45s ease both;}
+.hero-proof-divider{width:1px;height:40px;background:var(--bd);}
+.hp{text-align:center;}
+.hp-num{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--a);letter-spacing:2px;line-height:1;text-shadow:0 0 30px rgba(232,114,42,0.35);}
+.hp-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-top:5px;line-height:1.5;}
 
-/* SECTIONS */
-.section{padding:100px 24px;}
-.container{max-width:1100px;margin:0 auto;}
-.sec-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--a);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
-.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(34px,5vw,54px);letter-spacing:3px;margin-bottom:16px;line-height:1;}
-.sec-sub{color:var(--m);font-size:15px;max-width:480px;line-height:1.7;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
 
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:56px;}
-.feat{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:28px;position:relative;overflow:hidden;transition:all 0.3s;backdrop-filter:blur(10px);}
-.feat:hover{border-color:rgba(232,114,42,0.25);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 40px rgba(232,114,42,0.05);}
-.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--a),transparent);opacity:0;transition:opacity 0.3s;}
+/* ── MOCKUP DEMO ── */
+.demo-section{padding:0 24px 100px;overflow:hidden;}
+.demo-wrap{max-width:960px;margin:0 auto;}
+.demo-label{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;}
+
+.demo-frame{background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.09);border-radius:20px;overflow:hidden;box-shadow:0 48px 140px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(232,114,42,0.05);}
+.demo-bar{height:44px;background:rgba(255,255,255,0.028);display:flex;align-items:center;gap:8px;padding:0 18px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.d-dot{width:11px;height:11px;border-radius:50%;}
+.demo-url{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.18);}
+.demo-tabs{display:flex;gap:3px;padding:3px;background:rgba(255,255,255,0.03);border-radius:9px;border:1px solid rgba(255,255,255,0.06);margin-right:auto;}
+.demo-tab{padding:6px 16px;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--m);cursor:pointer;transition:all 0.2s;border:none;background:transparent;}
+.demo-tab.on{background:rgba(255,255,255,0.08);color:var(--t);}
+
+.demo-content{padding:18px 20px;}
+.demo-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}
+.ds{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:13px 15px;}
+.ds-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.ds-v{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;}
+.ds-v.g{color:var(--g);}.ds-v.r{color:var(--r);}.ds-v.a{color:var(--a);}
+
+.demo-panel{display:none;}
+.demo-panel.on{display:block;}
+
+/* Journal panel */
+.demo-trades{display:flex;flex-direction:column;gap:7px;}
+.dt{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.dt.w{border-left:2px solid var(--g);}.dt.l{border-left:2px solid var(--r);}
+.dt-l{display:flex;align-items:center;gap:9px;}
+.dt-pair{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;}
+.dt-dir{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border-radius:4px;}
+.dt-dir.long{background:rgba(52,208,88,0.1);color:var(--g);}
+.dt-dir.short{background:rgba(255,77,77,0.1);color:var(--r);}
+.dt-pnl{font-family:'JetBrains Mono',monospace;font-size:13px;}
+.dt-em{display:flex;gap:4px;align-items:center;}
+.dt-dot{width:4px;height:4px;border-radius:50%;}
+
+/* Analytics panel */
+.demo-analytics{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.da-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:16px;}
+.da-title{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:var(--m);margin-bottom:12px;}
+.da-bar-row{display:flex;flex-direction:column;gap:5px;margin-bottom:9px;}
+.da-bar-head{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);}
+.da-bar-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.da-bar-fill{height:100%;border-radius:2px;}
+
+/* Profile panel */
+.demo-profile{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dp-archetype{background:rgba(232,114,42,0.06);border:1px solid rgba(232,114,42,0.2);border-radius:11px;padding:16px;grid-column:1/-1;}
+.dp-arch-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--a);letter-spacing:2px;margin-bottom:6px;}
+.dp-arch-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:4px;}
+.dp-arch-desc{font-family:'Syne',sans-serif;font-size:11px;color:var(--m);}
+.dp-radar{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:16px;display:flex;align-items:center;justify-content:center;}
+.dp-insight{background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.15);border-radius:11px;padding:16px;}
+.dp-in-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--g);letter-spacing:2px;margin-bottom:8px;}
+.dp-in-text{font-family:'Syne',sans-serif;font-size:11px;color:var(--m);line-height:1.5;}
+
+/* ── FEATURES ── */
+.section{padding:110px 24px;}
+.container{max-width:1140px;margin:0 auto;}
+.sec-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--a);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.sec-eyebrow::before{content:'';width:24px;height:1px;background:var(--a);}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,58px);letter-spacing:2px;line-height:0.95;margin-bottom:16px;}
+.sec-sub{color:var(--m);font-size:16px;max-width:500px;line-height:1.75;}
+
+/* Feature cards - two layouts */
+.feats-main{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:60px;}
+.feat{background:rgba(255,255,255,0.022);border:1px solid var(--bd);border-radius:18px;padding:30px;position:relative;overflow:hidden;transition:all 0.3s;backdrop-filter:blur(10px);}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.5),transparent);opacity:0;transition:opacity 0.3s;}
+.feat:hover{border-color:rgba(232,114,42,0.22);transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,0.35),0 0 40px rgba(232,114,42,0.05);}
 .feat:hover::before{opacity:1;}
-.feat-icon{font-size:28px;margin-bottom:16px;}
-.feat-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;margin-bottom:8px;}
-.feat-desc{font-family:'Syne',sans-serif;font-size:13px;color:var(--m);line-height:1.6;}
+.feat-new{position:absolute;top:16px;right:16px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--g);background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.2);border-radius:4px;padding:2px 8px;}
+.feat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px;background:rgba(255,255,255,0.04);border:1px solid var(--bd);}
+.feat-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:10px;color:var(--t);}
+.feat-desc{font-size:13px;color:var(--m);line-height:1.65;}
+.feat-desc strong{color:rgba(255,255,255,0.7);}
 
-.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:56px;max-width:680px;}
-.plan{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:20px;padding:36px;position:relative;backdrop-filter:blur(10px);transition:all 0.3s;}
-.plan.featured{border-color:rgba(232,114,42,0.35);background:rgba(232,114,42,0.04);box-shadow:0 0 60px rgba(232,114,42,0.08);}
-.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--a),#c85e18);color:#fff;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;padding:4px 16px;border-radius:10px;text-transform:uppercase;white-space:nowrap;box-shadow:0 4px 12px rgba(232,114,42,0.4);}
-.plan-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;margin-bottom:6px;color:var(--m);}
-.plan-price{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;color:var(--a);line-height:1;text-shadow:0 0 40px rgba(232,114,42,0.3);}
-.plan-period{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:24px;}
-.plan-features{list-style:none;margin-bottom:28px;}
-.plan-features li{font-family:'Syne',sans-serif;font-size:13px;color:var(--m);padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;}
-.plan-features li::before{content:'✓';color:var(--a);font-weight:700;flex-shrink:0;}
-.plan-btn{width:100%;padding:14px;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all 0.25s;text-decoration:none;display:block;text-align:center;}
-.plan-btn.primary{background:linear-gradient(135deg,var(--a),#c85e18);color:#fff;box-shadow:0 4px 20px rgba(232,114,42,0.38);}
-.plan-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(232,114,42,0.5);}
+/* WIDE feat */
+.feat.wide{grid-column:span 2;}
+.feat.wide .feat-inner{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;}
+.feat-visual{border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);}
+
+/* ── HOW IT WORKS ── */
+.how-section{padding:0 24px 110px;}
+.steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:60px;position:relative;}
+.steps-row::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.2),rgba(232,114,42,0.4),rgba(232,114,42,0.2),transparent);}
+.step{text-align:center;padding:0 20px;}
+.step-num{width:56px;height:56px;border-radius:50%;border:1px solid rgba(232,114,42,0.3);background:rgba(232,114,42,0.06);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--a);margin:0 auto 20px;position:relative;z-index:1;box-shadow:0 0 24px rgba(232,114,42,0.12);}
+.step-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;margin-bottom:8px;}
+.step-desc{font-size:13px;color:var(--m);line-height:1.6;}
+
+/* ── PRICING ── */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:700px;margin-top:60px;}
+.plan{background:rgba(255,255,255,0.022);border:1px solid var(--bd);border-radius:22px;padding:38px;position:relative;backdrop-filter:blur(10px);transition:all 0.3s;}
+.plan.featured{border-color:rgba(232,114,42,0.3);background:rgba(232,114,42,0.035);box-shadow:0 0 80px rgba(232,114,42,0.07);}
+.plan-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--a),#c85e18);color:#fff;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;padding:4px 18px;border-radius:10px;text-transform:uppercase;white-space:nowrap;box-shadow:0 4px 16px rgba(232,114,42,0.4);}
+.plan-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;margin-bottom:8px;color:var(--m);}
+.plan-price{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:2px;color:var(--a);line-height:1;text-shadow:0 0 40px rgba(232,114,42,0.25);}
+.plan-period{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:28px;margin-top:2px;}
+.plan-features{list-style:none;margin-bottom:30px;}
+.plan-features li{font-size:13px;color:var(--m);padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;}
+.plan-features li::before{content:'✓';color:var(--a);font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.plan-btn{width:100%;padding:15px;border:none;border-radius:13px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;transition:all 0.25s;text-decoration:none;display:block;text-align:center;}
+.plan-btn.primary{background:linear-gradient(135deg,var(--a),#c85e18);color:#fff;box-shadow:0 4px 24px rgba(232,114,42,0.35);}
+.plan-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(232,114,42,0.5);}
 .plan-btn.ghost{background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--m);}
 .plan-btn.ghost:hover{border-color:rgba(232,114,42,0.35);color:var(--a);}
 
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:56px;}
-.step{text-align:center;}
-.step-num{width:54px;height:54px;border-radius:50%;border:1px solid rgba(232,114,42,0.3);background:rgba(232,114,42,0.06);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--a);margin:0 auto 16px;box-shadow:0 0 20px rgba(232,114,42,0.1);}
-.step-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:8px;}
-.step-desc{font-family:'Syne',sans-serif;font-size:12px;color:var(--m);line-height:1.5;}
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--bd);padding:40px 48px;display:flex;align-items:center;justify-content:space-between;}
+.footer-brand{display:flex;align-items:center;gap:10px;}
+.footer-logo-img{width:24px;height:24px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 6px rgba(255,255,255,0.4)) drop-shadow(0 0 14px rgba(255,255,255,0.15));opacity:0.6;}
+.footer-logo-text{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:4px;color:rgba(255,255,255,0.2);}
+.footer-copy{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:1px;}
 
-footer{border-top:1px solid var(--bd);padding:36px 48px;display:flex;align-items:center;justify-content:space-between;}
-.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:rgba(255,255,255,0.2);}
-.footer-copy{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:1px;}
+/* ── GLOW DIVIDER ── */
+.glow-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);margin:0;}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
-@media(max-width:768px){nav{padding:0 20px;}.nav-links{display:none;}.features-grid{grid-template-columns:1fr;}.pricing-grid{grid-template-columns:1fr;}.steps{grid-template-columns:1fr 1fr;}.mockup-body{grid-template-columns:1fr 1fr;}footer{flex-direction:column;gap:14px;text-align:center;}}
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-d1{transition-delay:0.1s;}.reveal-d2{transition-delay:0.2s;}.reveal-d3{transition-delay:0.3s;}.reveal-d4{transition-delay:0.4s;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:0 20px;}.nav-links{display:none;}
+  .feats-main{grid-template-columns:1fr;}.feat.wide{grid-column:span 1;}
+  .feat.wide .feat-inner{grid-template-columns:1fr;}
+  .pricing-grid{grid-template-columns:1fr;}
+  .steps-row{grid-template-columns:1fr 1fr;gap:32px;}.steps-row::before{display:none;}
+  footer{flex-direction:column;gap:16px;text-align:center;padding:32px 24px;}
+  .hero-proof{flex-direction:column;gap:24px;}.hero-proof-divider{display:none;}
+  .demo-stats{grid-template-columns:1fr 1fr;}
+  .demo-analytics,.demo-profile{grid-template-columns:1fr;}
+  .dp-archetype{grid-column:auto;}
+}
 </style>
 </head>
 <body>
+
+<!-- NAV -->
 <nav>
-  <div class="nav-logo">ORBITUM</div>
+  <div class="nav-brand">
+    <img class="nav-logo-img" src="orbitum-logo.jpg" alt="Orbitum" onerror="this.style.display='none'">
+    <span class="nav-logo-text">ORBITUM</span>
+  </div>
   <div class="nav-links">
     <a href="#features">Функции</a>
-    <a href="#pricing">Цены</a>
     <a href="#how">Как работает</a>
+    <a href="#pricing">Цены</a>
     <div id="nav-auth"><a href="login.html" class="nav-cta">ВОЙТИ</a></div>
   </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-orb hero-orb1"></div>
   <div class="hero-orb hero-orb2"></div>
-  <div class="hero-tag">Trading Journal v2.0</div>
-  <h1>СТАНЬ<br><span>ЛУЧШИМ</span><br>ТРЕЙДЕРОМ</h1>
-  <p class="hero-sub">Записывай сделки, отслеживай эмоции, находи паттерны которые тебя сливают. Профессиональный журнал трейдера.</p>
+  <div class="hero-orb hero-orb3"></div>
+
+  <div class="hero-eyebrow">Trading Journal · v2.0</div>
+
+  <h1 class="hero-title">
+    ТОРГУЙ<br><em>ОСОЗНАННО</em><br>РАСТИ БЫСТРО
+  </h1>
+
+  <p class="hero-sub">
+    Журнал сделок с <strong>AI-анализом</strong>, психологическим профилем и геймификацией.<br>
+    Найди паттерны которые тебя сливают — и устрани их.
+  </p>
+
   <div class="hero-btns">
-    <a href="login.html" class="btn-primary" id="hero-cta">ПОЛУЧИТЬ ДОСТУП</a>
-    <a href="#pricing" class="btn-ghost">ПОСМОТРЕТЬ ПЛАНЫ</a>
+    <a href="login.html" class="btn-primary" id="hero-cta">НАЧАТЬ БЕСПЛАТНО</a>
+    <a href="#features" class="btn-ghost">КАК ЭТО РАБОТАЕТ</a>
   </div>
-  <div class="hero-stats">
-    <div class="hs"><div class="hs-n">94%</div><div class="hs-l">Трейдеров улучшают<br>результат за 30 дней</div></div>
-    <div class="hs"><div class="hs-n">∞</div><div class="hs-l">Сделок можно<br>записать</div></div>
-    <div class="hs"><div class="hs-n">4</div><div class="hs-l">Эмоциональных<br>метрики</div></div>
+
+  <div class="hero-proof">
+    <div class="hp"><div class="hp-num">94%</div><div class="hp-label">Трейдеров улучшают<br>результат за 30 дней</div></div>
+    <div class="hero-proof-divider"></div>
+    <div class="hp"><div class="hp-num">∞</div><div class="hp-label">Безлимит<br>сделок</div></div>
+    <div class="hero-proof-divider"></div>
+    <div class="hp"><div class="hp-num">4</div><div class="hp-label">Эмоциональных<br>метрики</div></div>
+    <div class="hero-proof-divider"></div>
+    <div class="hp"><div class="hp-num">AI</div><div class="hp-label">Проверка<br>сетапа</div></div>
   </div>
 </section>
 
-<div class="mockup-section">
-  <div class="mockup-wrap">
-    <div class="mockup-frame">
-      <div class="mockup-bar">
-        <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
-        <div class="mockup-url">orbitum-journal.vercel.app/journal</div>
+<!-- DEMO MOCKUP -->
+<div class="demo-section">
+  <div class="demo-wrap">
+    <div class="demo-label reveal">▸ ЖИВОЙ ДЕМО ИНТЕРФЕЙСА</div>
+    <div class="demo-frame reveal reveal-d1">
+      <div class="demo-bar">
+        <div class="d-dot" style="background:#ff5f57"></div>
+        <div class="d-dot" style="background:#febc2e"></div>
+        <div class="d-dot" style="background:#28c840"></div>
+        <div class="demo-tabs">
+          <button class="demo-tab on" onclick="switchDemo('journal',this)">ЖУРНАЛ</button>
+          <button class="demo-tab" onclick="switchDemo('analytics',this)">АНАЛИТИКА</button>
+          <button class="demo-tab" onclick="switchDemo('profile',this)">ПРОФИЛЬ</button>
+        </div>
+        <div class="demo-url">orbitum-journal.vercel.app</div>
       </div>
-      <div class="mockup-body">
-        <div class="mock-stat"><div class="mock-sl">Сделок</div><div class="mock-sv">47</div></div>
-        <div class="mock-stat"><div class="mock-sl">Винрейт</div><div class="mock-sv g">68%</div></div>
-        <div class="mock-stat"><div class="mock-sl">P&L %</div><div class="mock-sv g">+18.4%</div></div>
-        <div class="mock-stat"><div class="mock-sl">P&L $</div><div class="mock-sv g">+$1,840</div></div>
-      </div>
-      <div class="mock-trades">
-        <div class="mock-trade w"><div style="display:flex;align-items:center;gap:8px"><div class="mt-pair">BTC/USDT</div><div class="mt-dir lg">LONG</div></div><div class="mt-pnl g">+2.4% / +$240</div></div>
-        <div class="mock-trade l"><div style="display:flex;align-items:center;gap:8px"><div class="mt-pair">ETH/USDT</div><div class="mt-dir sh">SHORT</div></div><div class="mt-pnl r">-0.8% / -$80</div></div>
-        <div class="mock-trade w"><div style="display:flex;align-items:center;gap:8px"><div class="mt-pair">SOL/USDT</div><div class="mt-dir lg">LONG</div></div><div class="mt-pnl g">+3.1% / +$310</div></div>
+      <div class="demo-content">
+        <div class="demo-stats">
+          <div class="ds"><div class="ds-l">Сделок</div><div class="ds-v">47</div></div>
+          <div class="ds"><div class="ds-l">Винрейт</div><div class="ds-v g">68%</div></div>
+          <div class="ds"><div class="ds-l">P&L %</div><div class="ds-v g">+18.4%</div></div>
+          <div class="ds"><div class="ds-l">P&L $</div><div class="ds-v g">+$1,840</div></div>
+          <div class="ds"><div class="ds-l">Серия</div><div class="ds-v a">5</div></div>
+        </div>
+
+        <!-- Journal -->
+        <div class="demo-panel on" id="dp-journal">
+          <div class="demo-trades">
+            <div class="dt w">
+              <div class="dt-l"><div class="dt-pair">BTC/USDT</div><div class="dt-dir long">LONG</div></div>
+              <div style="display:flex;align-items:center;gap:16px">
+                <div class="dt-em">
+                  <div class="dt-dot" style="background:var(--g);box-shadow:0 0 4px var(--g)"></div>
+                  <div class="dt-dot" style="background:var(--g);box-shadow:0 0 4px var(--g)"></div>
+                  <div class="dt-dot" style="background:rgba(255,255,255,0.1)"></div>
+                </div>
+                <div class="dt-pnl" style="color:var(--g)">+2.4% / +$240</div>
+              </div>
+            </div>
+            <div class="dt l">
+              <div class="dt-l"><div class="dt-pair">ETH/USDT</div><div class="dt-dir short">SHORT</div></div>
+              <div style="display:flex;align-items:center;gap:16px">
+                <div class="dt-em">
+                  <div class="dt-dot" style="background:var(--r);box-shadow:0 0 4px var(--r)"></div>
+                  <div class="dt-dot" style="background:var(--r);box-shadow:0 0 4px var(--r)"></div>
+                  <div class="dt-dot" style="background:var(--r);box-shadow:0 0 4px var(--r)"></div>
+                </div>
+                <div class="dt-pnl" style="color:var(--r)">-0.8% / -$80</div>
+              </div>
+            </div>
+            <div class="dt w">
+              <div class="dt-l"><div class="dt-pair">SOL/USDT</div><div class="dt-dir long">LONG</div></div>
+              <div style="display:flex;align-items:center;gap:16px">
+                <div class="dt-em">
+                  <div class="dt-dot" style="background:var(--g);box-shadow:0 0 4px var(--g)"></div>
+                  <div class="dt-dot" style="background:rgba(255,255,255,0.1)"></div>
+                  <div class="dt-dot" style="background:rgba(255,255,255,0.1)"></div>
+                </div>
+                <div class="dt-pnl" style="color:var(--g)">+3.1% / +$310</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics -->
+        <div class="demo-panel" id="dp-analytics">
+          <div class="demo-analytics">
+            <div class="da-card">
+              <div class="da-title">Средние эмоции</div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Уверенность</span><span style="color:var(--g)">7.4 / 10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:74%;background:var(--g)"></div></div></div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Фокус</span><span style="color:#3498db">6.8 / 10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:68%;background:#3498db"></div></div></div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Страх</span><span style="color:var(--r)">3.2 / 10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:32%;background:var(--r)"></div></div></div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Жадность</span><span style="color:#f5a623">2.8 / 10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:28%;background:#f5a623"></div></div></div>
+            </div>
+            <div class="da-card">
+              <div class="da-title">Паттерны ошибок</div>
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.15);border-radius:8px;padding:10px 12px;">
+                  <div style="font-family:'Syne',sans-serif;font-size:12px;margin-bottom:2px;">💪 Уверенность = результат</div>
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);">7.4 при прибыли vs 4.1 при убытке</div>
+                </div>
+                <div style="background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.15);border-radius:8px;padding:10px 12px;">
+                  <div style="font-family:'Syne',sans-serif;font-size:12px;margin-bottom:2px;">🎯 Теряешь фокус на убытках</div>
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);">Фокус 5.1 при убытках vs 7.2 при прибыли</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="demo-panel" id="dp-profile">
+          <div class="demo-profile">
+            <div class="dp-archetype">
+              <div class="dp-arch-label">🔥 Архетип трейдера</div>
+              <div class="dp-arch-name">FOMO-ОХОТНИК</div>
+              <div class="dp-arch-desc">Входишь на эмоциях, догоняешь рынок. Лучшие сделки — те, которые пропустил.</div>
+            </div>
+            <div class="dp-radar">
+              <svg width="120" height="120" viewBox="0 0 120 120">
+                <polygon points="60,10 107,37 107,83 60,110 13,83 13,37" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <polygon points="60,25 94,43 94,77 60,95 26,77 26,43" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <polygon points="60,40 81,49 81,71 60,80 39,71 39,49" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <polygon points="60,18 99,68 35,95 35,95 21,55 60,18" fill="rgba(52,208,88,0.15)" stroke="#34d058" stroke-width="1.5"/>
+                <circle cx="60" cy="18" r="3" fill="#34d058"/>
+                <circle cx="99" cy="68" r="3" fill="#34d058"/>
+                <circle cx="35" cy="95" r="3" fill="#34d058"/>
+                <circle cx="21" cy="55" r="3" fill="#34d058"/>
+                <text x="60" y="8" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7" font-family="monospace">УВЕРЕН.</text>
+                <text x="110" y="70" text-anchor="start" fill="rgba(255,255,255,0.35)" font-size="7" font-family="monospace">ДИСЦ.</text>
+                <text x="10" y="105" text-anchor="end" fill="rgba(255,255,255,0.35)" font-size="7" font-family="monospace">ТЕРП.</text>
+                <text x="10" y="58" text-anchor="end" fill="rgba(255,255,255,0.35)" font-size="7" font-family="monospace">РИСК</text>
+              </svg>
+            </div>
+            <div class="dp-insight">
+              <div class="dp-in-label">🤖 AI-инсайт</div>
+              <div class="dp-in-text">Твоя дисциплина выросла на <span style="color:var(--g)">+23%</span> за месяц. Продолжай фиксировать сетапы до входа.</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<div class="glow-divider"></div>
+
+<!-- FEATURES -->
 <section class="section" id="features">
   <div class="container">
-    <div class="sec-label">Возможности</div>
-    <div class="sec-title">ВСЁ ЧТО НУЖНО<br>ТРЕЙДЕРУ</div>
-    <p class="sec-sub">Не просто таблица сделок — полный инструмент психологического анализа твоей торговли.</p>
-    <div class="features-grid">
-      <div class="feat"><div class="feat-icon">📊</div><div class="feat-title">P&L И %</div><div class="feat-desc">Записывай прибыль в долларах и процентах. Автоматический пересчёт от депозита.</div></div>
-      <div class="feat"><div class="feat-icon">🧠</div><div class="feat-title">ЭМОЦИОНАЛЬНЫЙ АНАЛИЗ</div><div class="feat-desc">4 метрики на каждую сделку: уверенность, страх, жадность, фокус. Найди при каких эмоциях ты сливаешь.</div></div>
-      <div class="feat"><div class="feat-icon">📝</div><div class="feat-title">ЖУРНАЛ МЫШЛЕНИЯ</div><div class="feat-desc">Почему вошёл, что чувствовал, какой урок вынес. Через месяц увидишь свои паттерны.</div></div>
-      <div class="feat"><div class="feat-icon">🔒</div><div class="feat-title">ЛИЧНЫЙ КАБИНЕТ</div><div class="feat-desc">Твои данные только твои. Безопасный вход, изолированная история каждого трейдера.</div></div>
-      <div class="feat"><div class="feat-icon">📈</div><div class="feat-title">АНАЛИТИКА</div><div class="feat-desc">Винрейт, P&L, эмоциональный спидометр, паттерны ошибок. Всё в одном дашборде.</div></div>
-      <div class="feat"><div class="feat-icon">⚡</div><div class="feat-title">БЫСТРЫЙ ВВОД</div><div class="feat-desc">Записать сделку за 30 секунд. Минималистичный интерфейс, ничего лишнего.</div></div>
+    <div class="sec-eyebrow reveal">Возможности</div>
+    <div class="sec-title reveal reveal-d1">ВСЁ ЧТО НУЖНО<br><span style="color:var(--a)">ТРЕЙДЕРУ</span></div>
+    <p class="sec-sub reveal reveal-d2">Не просто таблица сделок — полная система роста с AI и психологическим анализом.</p>
+
+    <div class="feats-main">
+
+      <!-- Wide: AI -->
+      <div class="feat wide reveal reveal-d1">
+        <div class="feat-new">НОВОЕ</div>
+        <div class="feat-inner">
+          <div>
+            <div class="feat-icon">🤖</div>
+            <div class="feat-title">AI ПРОВЕРКА СЕТАПА</div>
+            <div class="feat-desc">Перед входом в сделку — ответь на 5 вопросов по SMC/ICT методологии. AI даёт вердикт: <strong>GO / STOP / WAIT</strong> с конкретным объяснением что не так.</div>
+          </div>
+          <div style="background:rgba(52,208,88,0.04);border:1px solid rgba(52,208,88,0.15);border-radius:12px;padding:16px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--g);margin-bottom:8px;">✅ GO — СЕТАП ВАЛИДЕН</div>
+            <div style="font-family:'Syne',sans-serif;font-size:12px;color:var(--m);line-height:1.6;">Структура подтверждена, вход от FVG, стоп за уровень. Психологическое состояние стабильное.<br><span style="color:var(--g)">→ Открывай позицию согласно плану.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Психопрофиль -->
+      <div class="feat reveal reveal-d2">
+        <div class="feat-new">НОВОЕ</div>
+        <div class="feat-icon">🧠</div>
+        <div class="feat-title">ПСИХОЛОГИЧЕСКИЙ ПРОФИЛЬ</div>
+        <div class="feat-desc">Архетип трейдера, радар из 5 черт, тепловая карта по дням и часам. Узнай <strong>кто ты на рынке</strong> — FOMO-охотник, Снайпер или Мститель.</div>
+      </div>
+
+      <!-- Геймификация -->
+      <div class="feat wide reveal reveal-d1">
+        <div class="feat-inner">
+          <div>
+            <div class="feat-icon">🏆</div>
+            <div class="feat-title">ГЕЙМИФИКАЦИЯ РОСТА</div>
+            <div class="feat-desc">6 уровней от Новичка до Мастера. Прогресс-бар по P&L от депозита. Стрик активных дней. <strong>Награды за достижения</strong> — чеклисты, консультации, VIP.</div>
+          </div>
+          <div style="background:rgba(232,114,42,0.05);border:1px solid rgba(232,114,42,0.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+              <span style="font-size:28px">🎯</span>
+              <div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a)">ПРОФИ · Уровень 3</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m)">+24.3% от депозита</div>
+              </div>
+              <div style="margin-left:auto;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);border-radius:8px;padding:6px 10px;text-align:center">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#f5a623">7🔥</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m)">дней</div>
+              </div>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:65%;background:linear-gradient(90deg,var(--a),#ff9a5c);border-radius:3px"></div></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);margin-top:5px">24.3% → 50% · следующий: ЭКСПЕРТ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Обычные фичи -->
+      <div class="feat reveal reveal-d2">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">ЭМОЦИОНАЛЬНАЯ АНАЛИТИКА</div>
+        <div class="feat-desc">4 метрики на каждую сделку: уверенность, страх, жадность, фокус. Спидометр состояния. Сравнение эмоций при победах vs убытках.</div>
+      </div>
+
+      <div class="feat reveal">
+        <div class="feat-icon">📝</div>
+        <div class="feat-title">ЖУРНАЛ МЫШЛЕНИЯ</div>
+        <div class="feat-desc">Почему вошёл, что чувствовал, какой урок вынес. <strong>Паттерн-детектор</strong> сам найдёт повторяющиеся ошибки через месяц ведения журнала.</div>
+      </div>
+
+      <div class="feat reveal reveal-d1">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">БЫСТРЫЙ ВВОД</div>
+        <div class="feat-desc">Записать сделку за <strong>30 секунд</strong>. Авторасчёт P&L от депозита. Фильтры по парам, направлению, результату.</div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<section class="section" id="how" style="padding-top:0">
-  <div class="container">
-    <div class="sec-label">Как работает</div>
-    <div class="sec-title">4 ПРОСТЫХ ШАГА</div>
-    <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-title">РЕГИСТРАЦИЯ</div><div class="step-desc">Создай аккаунт за 30 секунд</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-title">ОПЛАТА USDT</div><div class="step-desc">Переведи на кошелёк, пришли txid</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-title">ДОСТУП</div><div class="step-desc">Активация в течение часа</div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-title">РОСТ</div><div class="step-desc">Записывай, анализируй, расти</div></div>
+<div class="glow-divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="container" style="padding-top:110px;">
+    <div class="sec-eyebrow reveal">Как работает</div>
+    <div class="sec-title reveal reveal-d1">4 ШАГА ДО<br><span style="color:var(--a)">РЕЗУЛЬТАТА</span></div>
+    <div class="steps-row">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div class="step-title">РЕГИСТРАЦИЯ</div>
+        <div class="step-desc">Создай аккаунт за 30 секунд через email</div>
+      </div>
+      <div class="step reveal reveal-d1">
+        <div class="step-num">2</div>
+        <div class="step-title">ОПЛАТА USDT</div>
+        <div class="step-desc">Переведи на кошелёк и пришли txid в поддержку</div>
+      </div>
+      <div class="step reveal reveal-d2">
+        <div class="step-num">3</div>
+        <div class="step-title">ДОСТУП</div>
+        <div class="step-desc">Активация в течение часа — ты внутри</div>
+      </div>
+      <div class="step reveal reveal-d3">
+        <div class="step-num">4</div>
+        <div class="step-title">РОСТ</div>
+        <div class="step-desc">Веди журнал каждый день и смотри как растут результаты</div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="pricing" style="padding-top:0">
+<div class="glow-divider"></div>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
   <div class="container">
-    <div class="sec-label">Тарифы</div>
-    <div class="sec-title">ВЫБЕРИ ПЛАН</div>
+    <div class="sec-eyebrow reveal">Тарифы</div>
+    <div class="sec-title reveal reveal-d1">ВЫБЕРИ<br><span style="color:var(--a)">СВОЙ ПЛАН</span></div>
     <div class="pricing-grid">
-      <div class="plan">
+      <div class="plan reveal reveal-d1">
         <div class="plan-name">Месячный</div>
         <div class="plan-price">$29</div>
         <div class="plan-period">/ месяц · оплата USDT</div>
         <ul class="plan-features">
-          <li>Безлимит сделок</li><li>Все метрики и статистика</li><li>Эмоциональный анализ</li><li>Экспорт данных</li>
+          <li>Безлимит сделок</li>
+          <li>Все метрики и статистика</li>
+          <li>AI-проверка сетапов</li>
+          <li>Эмоциональный анализ</li>
+          <li>Геймификация и уровни</li>
         </ul>
         <a href="login.html?plan=monthly" class="plan-btn ghost">ВЫБРАТЬ</a>
       </div>
-      <div class="plan featured">
+      <div class="plan featured reveal reveal-d2">
         <div class="plan-badge">Лучший выбор</div>
         <div class="plan-name">Навсегда</div>
         <div class="plan-price">$197</div>
         <div class="plan-period">разовая оплата · навсегда</div>
         <ul class="plan-features">
-          <li>Всё из месячного</li><li>Приоритетная поддержка</li><li>Все будущие обновления</li><li>Навсегда без доплат</li>
+          <li>Всё из месячного</li>
+          <li>Психологический профиль</li>
+          <li>Приоритетная поддержка</li>
+          <li>Все будущие обновления</li>
+          <li>Навсегда без доплат</li>
         </ul>
         <a href="login.html?plan=lifetime" class="plan-btn primary">ВЫБРАТЬ</a>
       </div>
@@ -230,18 +535,50 @@ footer{border-top:1px solid var(--bd);padding:36px 48px;display:flex;align-items
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
-  <div class="footer-logo">ORBITUM</div>
+  <div class="footer-brand">
+    <img class="footer-logo-img" src="orbitum-logo.jpg" alt="" onerror="this.style.display='none'">
+    <span class="footer-logo-text">ORBITUM</span>
+  </div>
   <div class="footer-copy">© 2025 ORBITUM JOURNAL · ALL RIGHTS RESERVED</div>
 </footer>
 
 <script>
+// ── AUTH ──
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-async function checkSession(){const{data:{user}}=await sb.auth.getUser();if(!user)return;const{data:p}=await sb.from('profiles').select('role,plan,plan_expires_at,full_name,username').eq('id',user.id).single();const name=p?.full_name||p?.username||user.email;const isAdmin=p?.role==='admin';const hasAccess=isAdmin||p?.plan==='lifetime'||(p?.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());const lkUrl=isAdmin?'admin.html':hasAccess?'journal.html':'pay.html';document.getElementById('nav-auth').innerHTML=`<div class="nav-user"><span class="nav-username">${name}</span><a href="${lkUrl}" class="nav-cta">МОЙ КАБИНЕТ</a><button class="nav-logout" onclick="doLogout()">ВЫЙТИ</button></div>`;document.getElementById('hero-cta').textContent='МОЙ КАБИНЕТ';document.getElementById('hero-cta').href=lkUrl;}
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+async function checkSession(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user)return;
+  const{data:p}=await sb.from('profiles').select('role,plan,plan_expires_at,full_name,username').eq('id',user.id).single();
+  const name=p?.full_name||p?.username||user.email;
+  const isAdmin=p?.role==='admin';
+  const hasAccess=isAdmin||p?.plan==='lifetime'||(p?.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());
+  const lkUrl=isAdmin?'admin.html':hasAccess?'journal.html':'pay.html';
+  document.getElementById('nav-auth').innerHTML=`<div class="nav-user"><span class="nav-username">${name}</span><a href="${lkUrl}" class="nav-cta">МОЙ КАБИНЕТ</a><button class="nav-logout" onclick="doLogout()">ВЫЙТИ</button></div>`;
+  const cta=document.getElementById('hero-cta');
+  if(cta){cta.textContent='МОЙ КАБИНЕТ';cta.href=lkUrl;}
+}
 async function doLogout(){await sb.auth.signOut();window.location.reload();}
 checkSession();
+
+// ── DEMO TABS ──
+function switchDemo(tab, btn){
+  document.querySelectorAll('.demo-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.demo-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('dp-'+tab).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── SCROLL REVEAL ──
+const ro=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 </script>
 </body>
 </html>
