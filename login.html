@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Вход</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500&display=swap" rel="stylesheet">
-<!-- ЗАМЕНИ НА СВОИ ДАННЫЕ SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--a:#e86c2a;--a2:rgba(232,108,42,0.12);--a3:rgba(232,108,42,0.35);--bg:#06080b;--bg2:#0c1018;--bg3:#121820;--bd:rgba(255,255,255,0.07);--t:#efefef;--m:#52606e;--r:#e74c3c;--g:#27ae60;}
@@ -17,12 +16,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--a),transparent);}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:5px;background:linear-gradient(135deg,#fff 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:4px;}
 .sub{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:2px;margin-bottom:32px;}
-
-/* TABS */
 .tabs{display:flex;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:28px;}
 .tab{flex:1;padding:9px;border-radius:6px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
 .tab.active{background:var(--bg2);color:var(--t);box-shadow:0 1px 4px rgba(0,0,0,0.3);}
-
 .field{margin-bottom:16px;}
 .field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
 .field input{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
@@ -35,8 +31,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .msg.ok{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);color:var(--g);}
 .back{display:block;text-align:center;margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
 .back:hover{color:var(--a);}
-
-/* PLAN SELECTOR */
 .plan-sel{display:flex;gap:8px;margin-bottom:16px;}
 .plan-opt{flex:1;padding:12px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg3);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-align:center;cursor:pointer;transition:all 0.2s;}
 .plan-opt.active{border-color:var(--a);color:var(--a);background:var(--a2);}
@@ -88,15 +82,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <script>
-// ====== КОНФИГУРАЦИЯ SUPABASE ======
-const SUPABASE_URL = 'ВСТАВЬ_СВОЙ_URL'; // https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = 'ВСТАВЬ_СВОЙ_ANON_KEY';
-// ==================================
+const SUPABASE_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Читаем план из URL если пришли с лендинга
 const urlPlan = new URLSearchParams(window.location.search).get('plan');
 if (urlPlan) {
   showTab('register');
@@ -141,7 +132,6 @@ async function doLogin() {
     return;
   }
 
-  // Проверяем роль
   const { data: profile } = await sb.from('profiles').select('role,plan,plan_expires_at').eq('id', data.user.id).single();
 
   if (profile?.role === 'admin') {
@@ -175,13 +165,11 @@ async function doRegister() {
     return;
   }
 
-  // Сохраняем выбранный план для страницы оплаты
   localStorage.setItem('orb_plan', selectedPlan);
   showMsg('r-msg', 'Аккаунт создан! Переходим к оплате...', 'ok');
   setTimeout(() => window.location.href = 'pay.html?plan=' + selectedPlan, 1500);
 }
 
-// Enter key
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     if (document.getElementById('form-login').style.display !== 'none') doLogin();
