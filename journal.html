@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBITUM — Журнал</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--a:#e86c2a;--a2:rgba(232,108,42,0.12);--a3:rgba(232,108,42,0.35);--bg:#06080b;--bg2:#0c1018;--bg3:#121820;--bd:rgba(255,255,255,0.06);--t:#efefef;--m:#52606e;--g:#27ae60;--r:#e74c3c;--gd:rgba(39,174,96,0.1);--rd:rgba(231,76,60,0.1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(6,8,11,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:58px;}
+.tlogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;background:linear-gradient(135deg,#fff 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tright{display:flex;align-items:center;gap:14px;}
+.uavatar{width:32px;height:32px;border-radius:50%;background:var(--a2);border:1px solid var(--a);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--a);}
+.uname{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t);}
+.logout{background:none;border:1px solid var(--bd);border-radius:6px;padding:5px 12px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.logout:hover{border-color:var(--r);color:var(--r);}
+
+.main{max-width:980px;margin:0 auto;padding:32px 20px 80px;position:relative;z-index:1;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px;}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;transition:border-color 0.2s;}
+.stat:hover{border-color:rgba(232,108,42,0.2);}
+.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.sv{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:500;}
+.sv.g{color:var(--g);}
+.sv.r{color:var(--r);}
+.sv.a{color:var(--a);}
+
+/* FORM */
+.fcard{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:24px;margin-bottom:28px;}
+.ftitle{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--a);margin-bottom:20px;}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
+.field input,.field select,.field textarea{background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:9px 12px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--a);}
+.field textarea{resize:vertical;min-height:68px;font-family:'Syne',sans-serif;font-size:12px;}
+.dtoggle{display:flex;gap:6px;}
+.dbtn{flex:1;padding:9px;border-radius:6px;border:1px solid var(--bd);background:var(--bg3);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.dbtn.long.active{background:var(--gd);border-color:var(--g);color:var(--g);}
+.dbtn.short.active{background:var(--rd);border-color:var(--r);color:var(--r);}
+.emrow{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+.emf{display:flex;flex-direction:column;gap:5px;}
+.emf label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
+.sw{display:flex;align-items:center;gap:7px;}
+.sw input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--bg3);border-radius:2px;border:none;padding:0;cursor:pointer;}
+.sw input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 6px var(--a3);}
+.sv2{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--a);min-width:16px;text-align:right;}
+.addbtn{width:100%;padding:13px;background:var(--a);border:none;border-radius:8px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;margin-top:4px;box-shadow:0 4px 16px var(--a3);}
+.addbtn:hover{opacity:0.85;transform:translateY(-1px);}
+.addbtn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* LIST */
+.lhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.stitle{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--m);}
+.filters{display:flex;gap:6px;flex-wrap:wrap;}
+.fbtn{padding:5px 12px;border-radius:16px;border:1px solid var(--bd);background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.fbtn.active,.fbtn:hover{border-color:var(--a);color:var(--a);background:var(--a2);}
+.tcard{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;margin-bottom:10px;position:relative;}
+.tcard:hover{border-color:rgba(232,108,42,0.2);}
+.tcard.win{border-left:3px solid var(--g);}
+.tcard.loss{border-left:3px solid var(--r);}
+.tcard.be{border-left:3px solid var(--m);}
+.thead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.tl{display:flex;align-items:center;gap:8px;}
+.tpair{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;}
+.tdir{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:4px;letter-spacing:1px;}
+.tdir.long{background:var(--gd);color:var(--g);}
+.tdir.short{background:var(--rd);color:var(--r);}
+.tr{display:flex;align-items:center;gap:10px;}
+.tpnl{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;}
+.tpnl.p{color:var(--g);}
+.tpnl.n{color:var(--r);}
+.tdate{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);}
+.delbtn{background:none;border:none;color:var(--m);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:all 0.2s;}
+.delbtn:hover{color:var(--r);background:var(--rd);}
+.tmeta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+.mi{display:flex;flex-direction:column;gap:1px;}
+.mil{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
+.miv{font-family:'JetBrains Mono',monospace;font-size:11px;}
+.edots{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.ed{display:flex;align-items:center;gap:4px;}
+.edl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
+.dots{display:flex;gap:2px;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--bd);}
+.dot.on{background:var(--a);}
+.tnotes{font-size:12px;color:var(--m);line-height:1.5;margin-top:6px;padding-top:8px;border-top:1px solid var(--bd);}
+.ntag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;margin-right:5px;}
+.empty{text-align:center;padding:50px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;}
+.loading{text-align:center;padding:40px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:1fr 1fr;}
+  .fg4,.fg3{grid-template-columns:1fr 1fr;}
+  .emrow{grid-template-columns:1fr 1fr;}
+  .topbar{padding:0 16px;}
+  .main{padding:20px 14px 60px;}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tlogo">ORBITUM</div>
+  <div class="tright">
+    <div class="uavatar" id="ua">?</div>
+    <div class="uname" id="un">...</div>
+    <button class="logout" onclick="doLogout()">ВЫЙТИ</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="sl">Сделок</div><div class="sv" id="s-total">—</div></div>
+    <div class="stat"><div class="sl">Винрейт</div><div class="sv g" id="s-wr">—</div></div>
+    <div class="stat"><div class="sl">P&L %</div><div class="sv" id="s-pnl">—</div></div>
+    <div class="stat"><div class="sl">P&L $</div><div class="sv" id="s-usd">—</div></div>
+    <div class="stat"><div class="sl">Серия</div><div class="sv a" id="s-str">—</div></div>
+  </div>
+
+  <!-- FORM -->
+  <div class="fcard">
+    <div class="ftitle">+ НОВАЯ СДЕЛКА</div>
+    <div class="fg4">
+      <div class="field"><label>Пара</label><input id="f-pair" placeholder="BTC/USDT" /></div>
+      <div class="field"><label>Направление</label><div class="dtoggle"><div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div><div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div></div></div>
+      <div class="field"><label>Результат</label><select id="f-res"><option value="">— выбери —</option><option value="win">Прибыль ✓</option><option value="loss">Убыток ✗</option><option value="be">Безубыток</option></select></div>
+      <div class="field"><label>Депозит $</label><input id="f-dep" type="number" placeholder="1000" oninput="recalc()" /></div>
+    </div>
+    <div class="fg4">
+      <div class="field"><label>P&L %</label><input id="f-pnl" type="number" placeholder="+2.5" step="0.01" oninput="fromPct()" /></div>
+      <div class="field"><label>P&L $</label><input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()" /></div>
+      <div class="field"><label>Вход $</label><input id="f-entry" type="number" placeholder="42000" /></div>
+      <div class="field"><label>Выход $</label><input id="f-exit" type="number" placeholder="43500" /></div>
+    </div>
+    <div class="emrow">
+      <div class="emf"><label>Уверенность</label><div class="sw"><input type="range" id="e-conf" min="1" max="10" value="5" oninput="sv('e-conf','sv-conf')"><span class="sv2" id="sv-conf">5</span></div></div>
+      <div class="emf"><label>Страх</label><div class="sw"><input type="range" id="e-fear" min="1" max="10" value="3" oninput="sv('e-fear','sv-fear')"><span class="sv2" id="sv-fear">3</span></div></div>
+      <div class="emf"><label>Жадность</label><div class="sw"><input type="range" id="e-greed" min="1" max="10" value="3" oninput="sv('e-greed','sv-greed')"><span class="sv2" id="sv-greed">3</span></div></div>
+      <div class="emf"><label>Фокус</label><div class="sw"><input type="range" id="e-calm" min="1" max="10" value="7" oninput="sv('e-calm','sv-calm')"><span class="sv2" id="sv-calm">7</span></div></div>
+    </div>
+    <div class="fg3">
+      <div class="field"><label>Почему вошёл / сетап</label><textarea id="f-why" placeholder="Что видел на графике..."></textarea></div>
+      <div class="field"><label>Эмоции / что пошло не так</label><textarea id="f-feel" placeholder="Нарушил план? Поддался..."></textarea></div>
+      <div class="field"><label>Урок из сделки</label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
+    </div>
+    <button class="addbtn" id="btn-add" onclick="addTrade()">ЗАПИСАТЬ СДЕЛКУ</button>
+  </div>
+
+  <!-- TRADE LIST -->
+  <div class="lhead">
+    <div class="stitle">История</div>
+    <div class="filters">
+      <button class="fbtn active" onclick="setF('all',this)">Все</button>
+      <button class="fbtn" onclick="setF('win',this)">Прибыль</button>
+      <button class="fbtn" onclick="setF('loss',this)">Убыток</button>
+      <button class="fbtn" onclick="setF('long',this)">Long</button>
+      <button class="fbtn" onclick="setF('short',this)">Short</button>
+    </div>
+  </div>
+  <div id="trades-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
+</div>
+
+<script>
+// ====== КОНФИГУРАЦИЯ SUPABASE ======
+const SUPABASE_URL = 'ВСТАВЬ_СВОЙ_URL';
+const SUPABASE_ANON_KEY = 'ВСТАВЬ_СВОЙ_ANON_KEY';
+// ==================================
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let allTrades = [];
+let currentDir = 'long';
+let currentFilter = 'all';
+
+// AUTH CHECK
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { window.location.href = 'login.html'; return; }
+
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if (!profile) { window.location.href = 'login.html'; return; }
+
+  // Проверяем доступ
+  const hasAccess = profile.plan === 'lifetime' ||
+    (profile.plan === 'monthly' && new Date(profile.plan_expires_at) > new Date());
+  if (!hasAccess && profile.role !== 'admin') { window.location.href = 'pay.html'; return; }
+
+  currentUser = { ...user, ...profile };
+  document.getElementById('ua').textContent = (profile.full_name || profile.username || 'U')[0].toUpperCase();
+  document.getElementById('un').textContent = profile.full_name || profile.username || user.email;
+
+  await loadTrades();
+}
+
+async function loadTrades() {
+  const { data, error } = await sb.from('trades')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error(error); return; }
+  allTrades = data || [];
+  render();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+function setDir(d) {
+  currentDir = d;
+  document.getElementById('btn-long').classList.toggle('active', d==='long');
+  document.getElementById('btn-short').classList.toggle('active', d==='short');
+}
+
+function sv(id, vid) { document.getElementById(vid).textContent = document.getElementById(id).value; }
+
+function fromPct() {
+  const pct = parseFloat(document.getElementById('f-pnl').value);
+  const dep = parseFloat(document.getElementById('f-dep').value);
+  if (!isNaN(pct) && !isNaN(dep) && dep > 0) document.getElementById('f-usd').value = (dep * pct / 100).toFixed(2);
+}
+function fromUsd() {
+  const usd = parseFloat(document.getElementById('f-usd').value);
+  const dep = parseFloat(document.getElementById('f-dep').value);
+  if (!isNaN(usd) && !isNaN(dep) && dep > 0) document.getElementById('f-pnl').value = (usd / dep * 100).toFixed(2);
+}
+function recalc() { fromPct(); }
+
+async function addTrade() {
+  const pair = document.getElementById('f-pair').value.trim().toUpperCase();
+  const res  = document.getElementById('f-res').value;
+  if (!pair || !res) { alert('Укажи пару и результат'); return; }
+
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true; btn.textContent = 'СОХРАНЯЕМ...';
+
+  const trade = {
+    user_id: currentUser.id,
+    pair, direction: currentDir, result: res,
+    pnl_pct:  parseFloat(document.getElementById('f-pnl').value) || null,
+    pnl_usd:  parseFloat(document.getElementById('f-usd').value) || null,
+    deposit:  parseFloat(document.getElementById('f-dep').value) || null,
+    entry_price: parseFloat(document.getElementById('f-entry').value) || null,
+    exit_price:  parseFloat(document.getElementById('f-exit').value) || null,
+    emotion_conf:  parseInt(document.getElementById('e-conf').value),
+    emotion_fear:  parseInt(document.getElementById('e-fear').value),
+    emotion_greed: parseInt(document.getElementById('e-greed').value),
+    emotion_calm:  parseInt(document.getElementById('e-calm').value),
+    note_why:    document.getElementById('f-why').value.trim() || null,
+    note_feel:   document.getElementById('f-feel').value.trim() || null,
+    note_lesson: document.getElementById('f-lesson').value.trim() || null
+  };
+
+  const { data, error } = await sb.from('trades').insert(trade).select().single();
+  if (error) { alert('Ошибка: ' + error.message); btn.disabled = false; btn.textContent = 'ЗАПИСАТЬ СДЕЛКУ'; return; }
+
+  allTrades.unshift(data);
+  resetForm();
+  render();
+  btn.disabled = false;
+  btn.textContent = 'ЗАПИСАТЬ СДЕЛКУ';
+}
+
+function resetForm() {
+  ['f-pair','f-pnl','f-usd','f-dep','f-entry','f-exit','f-why','f-feel','f-lesson'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-res').value = '';
+  document.getElementById('e-conf').value=5; document.getElementById('sv-conf').textContent=5;
+  document.getElementById('e-fear').value=3; document.getElementById('sv-fear').textContent=3;
+  document.getElementById('e-greed').value=3; document.getElementById('sv-greed').textContent=3;
+  document.getElementById('e-calm').value=7; document.getElementById('sv-calm').textContent=7;
+  setDir('long');
+}
+
+async function deleteTrade(id) {
+  if (!confirm('Удалить сделку?')) return;
+  await sb.from('trades').delete().eq('id', id).eq('user_id', currentUser.id);
+  allTrades = allTrades.filter(t => t.id !== id);
+  render();
+}
+
+function setF(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function dots(val) {
+  return Array.from({length:10},(_,i)=>`<div class="dot${i<val?' on':''}"></div>`).join('');
+}
+
+function render() {
+  const wins = allTrades.filter(t=>t.result==='win').length;
+  const total = allTrades.length;
+  const totalPct = allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const totalUsd = allTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);
+  let best=0,cur=0;
+  [...allTrades].reverse().forEach(t=>{ if(t.result==='win'){cur++;best=Math.max(best,cur);}else cur=0; });
+
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-wr').textContent = total ? Math.round(wins/total*100)+'%' : '—';
+  const pe = document.getElementById('s-pnl');
+  pe.textContent = total ? (totalPct>=0?'+':'')+totalPct.toFixed(1)+'%' : '—';
+  pe.className = 'sv '+(totalPct>0?'g':totalPct<0?'r':'');
+  const ue = document.getElementById('s-usd');
+  ue.textContent = total ? (totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0) : '—';
+  ue.className = 'sv '+(totalUsd>0?'g':totalUsd<0?'r':'');
+  document.getElementById('s-str').textContent = best;
+
+  let filtered = allTrades;
+  if (currentFilter==='win') filtered=allTrades.filter(t=>t.result==='win');
+  else if (currentFilter==='loss') filtered=allTrades.filter(t=>t.result==='loss');
+  else if (currentFilter==='long') filtered=allTrades.filter(t=>t.direction==='long');
+  else if (currentFilter==='short') filtered=allTrades.filter(t=>t.direction==='short');
+
+  const list = document.getElementById('trades-list');
+  if (!filtered.length) { list.innerHTML='<div class="empty">Сделок пока нет. Запиши первую!</div>'; return; }
+
+  list.innerHTML = filtered.map(t => {
+    const d = new Date(t.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const pnlStr = t.pnl_pct!=null ? (t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%' : '';
+    const usdStr = t.pnl_usd!=null ? (t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0) : '';
+    const cls = t.pnl_pct>0?'p':t.pnl_pct<0?'n':'';
+    return `<div class="tcard ${t.result}">
+      <div class="thead">
+        <div class="tl">
+          <div class="tpair">${t.pair}</div>
+          <div class="tdir ${t.direction}">${t.direction.toUpperCase()}</div>
+        </div>
+        <div class="tr">
+          <div class="tpnl ${cls}">${pnlStr}${usdStr?` <span style="opacity:.6;font-size:11px">(${usdStr})</span>`:''}</div>
+          <div class="tdate">${d}</div>
+          <button class="delbtn" onclick="deleteTrade(${t.id})">×</button>
+        </div>
+      </div>
+      <div class="tmeta">
+        ${t.entry_price?`<div class="mi"><div class="mil">Вход</div><div class="miv">${t.entry_price}</div></div>`:''}
+        ${t.exit_price?`<div class="mi"><div class="mil">Выход</div><div class="miv">${t.exit_price}</div></div>`:''}
+        ${t.deposit?`<div class="mi"><div class="mil">Депозит</div><div class="miv">$${t.deposit}</div></div>`:''}
+        <div class="mi"><div class="mil">Итог</div><div class="miv">${t.result==='win'?'✓ Прибыль':t.result==='loss'?'✗ Убыток':'~ Безубыток'}</div></div>
+      </div>
+      <div class="edots">
+        ${t.emotion_conf?`<div class="ed"><span class="edl">УВЕРЕН</span><div class="dots">${dots(t.emotion_conf)}</div></div>`:''}
+        ${t.emotion_fear?`<div class="ed"><span class="edl">СТРАХ</span><div class="dots">${dots(t.emotion_fear)}</div></div>`:''}
+        ${t.emotion_greed?`<div class="ed"><span class="edl">ЖАДН</span><div class="dots">${dots(t.emotion_greed)}</div></div>`:''}
+        ${t.emotion_calm?`<div class="ed"><span class="edl">ФОКУС</span><div class="dots">${dots(t.emotion_calm)}</div></div>`:''}
+      </div>
+      ${(t.note_why||t.note_feel||t.note_lesson)?`<div class="tnotes">
+        ${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}
+        ${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}
+        ${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>

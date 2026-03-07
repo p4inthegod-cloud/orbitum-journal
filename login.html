@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBITUM — Вход</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500&display=swap" rel="stylesheet">
+<!-- ЗАМЕНИ НА СВОИ ДАННЫЕ SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--a:#e86c2a;--a2:rgba(232,108,42,0.12);--a3:rgba(232,108,42,0.35);--bg:#06080b;--bg2:#0c1018;--bg3:#121820;--bd:rgba(255,255,255,0.07);--t:#efefef;--m:#52606e;--r:#e74c3c;--g:#27ae60;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent);pointer-events:none;}
+.glow{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:400px;background:radial-gradient(ellipse,rgba(232,108,42,0.08),transparent 70%);pointer-events:none;}
+.box{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:44px 40px;width:420px;position:relative;overflow:hidden;z-index:1;}
+.box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--a),transparent);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:5px;background:linear-gradient(135deg,#fff 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:4px;}
+.sub{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:2px;margin-bottom:32px;}
+
+/* TABS */
+.tabs{display:flex;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:28px;}
+.tab{flex:1;padding:9px;border-radius:6px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.tab.active{background:var(--bg2);color:var(--t);box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+
+.field{margin-bottom:16px;}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.field input{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
+.field input:focus{border-color:var(--a);}
+.btn{width:100%;padding:13px;background:var(--a);border:none;border-radius:8px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px var(--a3);margin-top:4px;}
+.btn:hover{opacity:0.85;transform:translateY(-1px);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.msg{font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;margin-top:14px;padding:10px;border-radius:6px;display:none;}
+.msg.err{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:var(--r);}
+.msg.ok{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);color:var(--g);}
+.back{display:block;text-align:center;margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.back:hover{color:var(--a);}
+
+/* PLAN SELECTOR */
+.plan-sel{display:flex;gap:8px;margin-bottom:16px;}
+.plan-opt{flex:1;padding:12px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg3);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.plan-opt.active{border-color:var(--a);color:var(--a);background:var(--a2);}
+.plan-price{font-family:'Bebas Neue',sans-serif;font-size:20px;display:block;margin-bottom:2px;}
+.plan-label{font-size:9px;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="box">
+  <div class="logo">ORBITUM</div>
+  <div class="sub" id="sub-text">Trading Journal</div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('login')">ВОЙТИ</button>
+    <button class="tab" onclick="showTab('register')">РЕГИСТРАЦИЯ</button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div id="form-login">
+    <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="trader@email.com" /></div>
+    <div class="field"><label>Пароль</label><input type="password" id="l-pass" placeholder="••••••••" /></div>
+    <button class="btn" id="btn-login" onclick="doLogin()">ВОЙТИ</button>
+    <div class="msg" id="l-msg"></div>
+    <a href="index.html" class="back">← Вернуться на главную</a>
+  </div>
+
+  <!-- REGISTER FORM -->
+  <div id="form-register" style="display:none">
+    <div class="field"><label>Имя / никнейм</label><input type="text" id="r-name" placeholder="Daniel Richmond" /></div>
+    <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="trader@email.com" /></div>
+    <div class="field"><label>Пароль</label><input type="password" id="r-pass" placeholder="мин. 8 символов" /></div>
+    <div class="field" style="margin-bottom:8px"><label>Выбери план</label>
+      <div class="plan-sel">
+        <div class="plan-opt" id="plan-monthly" onclick="selectPlan('monthly')">
+          <span class="plan-price" id="price-m">$29</span>
+          <span class="plan-label">МЕСЯЦ</span>
+        </div>
+        <div class="plan-opt active" id="plan-lifetime" onclick="selectPlan('lifetime')">
+          <span class="plan-price" id="price-l">$197</span>
+          <span class="plan-label">НАВСЕГДА</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn" id="btn-reg" onclick="doRegister()">СОЗДАТЬ АККАУНТ</button>
+    <div class="msg" id="r-msg"></div>
+    <a href="index.html" class="back">← Вернуться на главную</a>
+  </div>
+</div>
+
+<script>
+// ====== КОНФИГУРАЦИЯ SUPABASE ======
+const SUPABASE_URL = 'ВСТАВЬ_СВОЙ_URL'; // https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = 'ВСТАВЬ_СВОЙ_ANON_KEY';
+// ==================================
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Читаем план из URL если пришли с лендинга
+const urlPlan = new URLSearchParams(window.location.search).get('plan');
+if (urlPlan) {
+  showTab('register');
+  selectPlan(urlPlan);
+}
+
+let selectedPlan = urlPlan || 'lifetime';
+
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', (i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('form-login').style.display = t==='login'?'block':'none';
+  document.getElementById('form-register').style.display = t==='register'?'block':'none';
+  document.getElementById('sub-text').textContent = t==='login' ? 'Добро пожаловать назад' : 'Создай аккаунт';
+}
+
+function selectPlan(p) {
+  selectedPlan = p;
+  document.getElementById('plan-monthly').classList.toggle('active', p==='monthly');
+  document.getElementById('plan-lifetime').classList.toggle('active', p==='lifetime');
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+}
+
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) { showMsg('l-msg','Заполни все поля','err'); return; }
+
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'ВХОДИМ...';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+  if (error) {
+    showMsg('l-msg', 'Неверный email или пароль', 'err');
+    btn.disabled = false; btn.textContent = 'ВОЙТИ';
+    return;
+  }
+
+  // Проверяем роль
+  const { data: profile } = await sb.from('profiles').select('role,plan,plan_expires_at').eq('id', data.user.id).single();
+
+  if (profile?.role === 'admin') {
+    window.location.href = 'admin.html';
+  } else if (profile?.plan === 'lifetime' || (profile?.plan === 'monthly' && new Date(profile.plan_expires_at) > new Date())) {
+    window.location.href = 'journal.html';
+  } else {
+    window.location.href = 'pay.html';
+  }
+}
+
+async function doRegister() {
+  const name  = document.getElementById('r-name').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+
+  if (!name || !email || !pass) { showMsg('r-msg','Заполни все поля','err'); return; }
+  if (pass.length < 8) { showMsg('r-msg','Пароль минимум 8 символов','err'); return; }
+
+  const btn = document.getElementById('btn-reg');
+  btn.disabled = true; btn.textContent = 'СОЗДАЁМ...';
+
+  const { data, error } = await sb.auth.signUp({
+    email, password: pass,
+    options: { data: { full_name: name, username: name.toLowerCase().replace(/\s+/g,'_') } }
+  });
+
+  if (error) {
+    showMsg('r-msg', error.message, 'err');
+    btn.disabled = false; btn.textContent = 'СОЗДАТЬ АККАУНТ';
+    return;
+  }
+
+  // Сохраняем выбранный план для страницы оплаты
+  localStorage.setItem('orb_plan', selectedPlan);
+  showMsg('r-msg', 'Аккаунт создан! Переходим к оплате...', 'ok');
+  setTimeout(() => window.location.href = 'pay.html?plan=' + selectedPlan, 1500);
+}
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('form-login').style.display !== 'none') doLogin();
+    else doRegister();
+  }
+});
+</script>
+</body>
+</html>
