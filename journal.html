@@ -108,7 +108,41 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
 .empty{text-align:center;padding:50px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;}
 .loading{text-align:center;padding:40px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
 
-/* LEVEL SYSTEM */
+/* AI ASSISTANT */
+.ai-btn{width:100%;padding:12px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.2);border-radius:12px;color:rgba(52,208,88,0.8);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ai-btn:hover{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.4);}
+.ai-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.ai-modal.open{display:flex;}
+.ai-box{background:#0c1018;border:1px solid rgba(52,208,88,0.2);border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:32px;position:relative;}
+.ai-box::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(52,208,88,0.4),transparent);}
+.ai-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#34d058;margin-bottom:4px;}
+.ai-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1.5px;margin-bottom:24px;}
+.ai-field{margin-bottom:16px;}
+.ai-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+.ai-field textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;color:var(--t);font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;outline:none;resize:vertical;min-height:90px;transition:border-color 0.2s;}
+.ai-field textarea:focus{border-color:rgba(52,208,88,0.4);}
+.ai-field select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;}
+.ai-field select option{background:#0c1018;}
+.ai-check-btn{width:100%;padding:13px;background:linear-gradient(135deg,rgba(52,208,88,0.15),rgba(52,208,88,0.08));border:1px solid rgba(52,208,88,0.35);border-radius:12px;color:#34d058;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(52,208,88,0.1);}
+.ai-check-btn:hover{background:linear-gradient(135deg,rgba(52,208,88,0.25),rgba(52,208,88,0.12));transform:translateY(-1px);}
+.ai-check-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.ai-result{margin-top:20px;border-radius:12px;padding:20px;display:none;}
+.ai-result.go{background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.25);}
+.ai-result.stop{background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.25);}
+.ai-result.wait{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);}
+.ai-verdict{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:10px;}
+.ai-verdict.go{color:#34d058;}
+.ai-verdict.stop{color:#ff4d4d;}
+.ai-verdict.wait{color:#f5a623;}
+.ai-text{font-family:'Syne',sans-serif;font-size:13px;color:var(--m);line-height:1.65;}
+.ck-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--bd);background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;}
+.ck-btn.yes{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.4);color:#34d058;}
+.ck-btn.no{background:rgba(255,77,77,0.12);border-color:rgba(255,77,77,0.4);color:#ff4d4d;}
+
+top:16px;right:20px;background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;transition:color 0.2s;}
+.ai-close:hover{color:var(--t);}
+
+
 .level-bar-wrap{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:20px 24px;margin-bottom:24px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
 .level-bar-wrap::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);}
 .level-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
@@ -261,6 +295,7 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
         <div class="field"><label>Эмоции / что пошло не так</label><textarea id="f-feel" placeholder="Нарушил план? Поддался..."></textarea></div>
         <div class="field"><label>Урок из сделки</label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
       </div>
+      <button class="ai-btn" onclick="openAI()">🤖 ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI</button>
       <button class="addbtn" id="btn-add" onclick="addTrade()">ЗАПИСАТЬ СДЕЛКУ</button>
     </div>
     <div class="lhead">
@@ -322,6 +357,77 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
   </div>
 </div>
 
+<!-- AI ASSISTANT MODAL -->
+<div class="ai-modal" id="ai-modal">
+  <div class="ai-box">
+    <button class="ai-close" onclick="closeAI()">×</button>
+    <div class="ai-title">🤖 AI АССИСТЕНТ</div>
+    <div class="ai-sub">5 вопросов · 30 секунд · честный вердикт</div>
+
+    <!-- CHECKLIST -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;" id="ai-checklist">
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">1 · СТРУКТУРА</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Есть подтверждённый BOS или CHoCH в направлении сделки?</div>
+        <div style="display:flex;gap:8px;">
+          <button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">✓ ДА</button>
+          <button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">✗ НЕТ</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">2 · ТОЧКА ИНТЕРЕСА</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Вход от OB / FVG / BPR? Под уровнем нет незакрытых пулов ликвидности?</div>
+        <div style="display:flex;gap:8px;">
+          <button class="ck-btn" id="ck2-yes" onclick="setCK(2,'yes')">✓ ДА</button>
+          <button class="ck-btn" id="ck2-no" onclick="setCK(2,'no')">✗ НЕТ</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">3 · ПОДТВЕРЖДЕНИЕ</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Есть реакция на младшем ТФ (CHoCH / BOS / сильная свеча от уровня)?</div>
+        <div style="display:flex;gap:8px;">
+          <button class="ck-btn" id="ck3-yes" onclick="setCK(3,'yes')">✓ ДА</button>
+          <button class="ck-btn" id="ck3-no" onclick="setCK(3,'no')">✗ НЕТ</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">4 · РИСК</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Стоп-лосс за уровень, RR не менее 1:2, размер позиции в рамках риска?</div>
+        <div style="display:flex;gap:8px;">
+          <button class="ck-btn" id="ck4-yes" onclick="setCK(4,'yes')">✓ ДА</button>
+          <button class="ck-btn" id="ck4-no" onclick="setCK(4,'no')">✗ НЕТ</button>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;margin-bottom:10px;">5 · ПСИХОЛОГИЯ</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:12px;">Ты спокоен? Нет жадности, страха, желания отыграться?</div>
+        <div style="display:flex;gap:8px;">
+          <button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button>
+          <button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ai-field">
+      <label>Кратко опиши сетап (необязательно)</label>
+      <textarea id="ai-reason" placeholder="BTC/USDT 4H, LONG от OB 42000, BOS на 1H..." rows="2" style="min-height:60px;"></textarea>
+    </div>
+
+    <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
+
+    <div class="ai-result" id="ai-result">
+      <div class="ai-verdict" id="ai-verdict"></div>
+      <div class="ai-text" id="ai-text"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
@@ -345,6 +451,180 @@ function dots(val){return Array.from({length:10},(_,i)=>`<div class="dot${i<val?
 function render(){const wins=allTrades.filter(t=>t.result==='win').length;const total=allTrades.length;const totalPct=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);const totalUsd=allTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);let best=0,cur=0;[...allTrades].reverse().forEach(t=>{if(t.result==='win'){cur++;best=Math.max(best,cur);}else cur=0;});document.getElementById('s-total').textContent=total;document.getElementById('s-wr').textContent=total?Math.round(wins/total*100)+'%':'—';const pe=document.getElementById('s-pnl');pe.textContent=total?(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%':'—';pe.className='sv '+(totalPct>0?'g':totalPct<0?'r':'');const ue=document.getElementById('s-usd');ue.textContent=total?(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0):'—';ue.className='sv '+(totalUsd>0?'g':totalUsd<0?'r':'');document.getElementById('s-str').textContent=best;let filtered=allTrades;if(currentFilter==='win')filtered=allTrades.filter(t=>t.result==='win');else if(currentFilter==='loss')filtered=allTrades.filter(t=>t.result==='loss');else if(currentFilter==='long')filtered=allTrades.filter(t=>t.direction==='long');else if(currentFilter==='short')filtered=allTrades.filter(t=>t.direction==='short');const list=document.getElementById('trades-list');if(!filtered.length){list.innerHTML='<div class="empty">Сделок пока нет. Запиши первую!</div>';return;}list.innerHTML=filtered.map(t=>{const d=new Date(t.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const pnlStr=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'';const usdStr=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';const cls=t.pnl_pct>0?'p':t.pnl_pct<0?'n':'';return`<div class="tcard ${t.result}"><div class="thead"><div class="tl"><div class="tpair">${t.pair}</div><div class="tdir ${t.direction}">${t.direction.toUpperCase()}</div></div><div class="tr"><div class="tpnl ${cls}">${pnlStr}${usdStr?` <span style="opacity:.5;font-size:11px">(${usdStr})</span>`:''}</div><div class="tdate">${d}</div><button class="delbtn" onclick="deleteTrade(${t.id})">×</button></div></div><div class="tmeta">${t.entry_price?`<div class="mi"><div class="mil">Вход</div><div class="miv">${t.entry_price}</div></div>`:''} ${t.exit_price?`<div class="mi"><div class="mil">Выход</div><div class="miv">${t.exit_price}</div></div>`:''} ${t.deposit?`<div class="mi"><div class="mil">Депозит</div><div class="miv">$${t.deposit}</div></div>`:''}<div class="mi"><div class="mil">Итог</div><div class="miv">${t.result==='win'?'✓ Прибыль':t.result==='loss'?'✗ Убыток':'~ Безубыток'}</div></div></div><div class="edots">${t.emotion_conf?`<div class="ed"><span class="edl">УВЕРЕН</span><div class="dots">${dots(t.emotion_conf)}</div></div>`:''} ${t.emotion_fear?`<div class="ed"><span class="edl">СТРАХ</span><div class="dots">${dots(t.emotion_fear)}</div></div>`:''} ${t.emotion_greed?`<div class="ed"><span class="edl">ЖАДН</span><div class="dots">${dots(t.emotion_greed)}</div></div>`:''} ${t.emotion_calm?`<div class="ed"><span class="edl">ФОКУС</span><div class="dots">${dots(t.emotion_calm)}</div></div>`:''}</div>${(t.note_why||t.note_feel||t.note_lesson)?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}</div>`:''}</div>`;}).join('');}
 function renderDashboard(){if(!allTrades.length)return;const avg=key=>{const v=allTrades.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};const avgConf=avg('emotion_conf'),avgFear=avg('emotion_fear'),avgGreed=avg('emotion_greed'),avgCalm=avg('emotion_calm');const score=Math.max(0,Math.min(100,Math.round(((avgConf+avgCalm-avgFear-avgGreed)/20+0.5)*100)));updateSpeedometer(score);document.getElementById('em-bars').innerHTML=[{label:'Уверенность',val:avgConf,color:'#34d058'},{label:'Фокус',val:avgCalm,color:'#3498db'},{label:'Страх',val:avgFear,color:'#ff4d4d'},{label:'Жадность',val:avgGreed,color:'#f5a623'}].map(e=>`<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">${e.label}</span><span class="em-bar-val">${e.val.toFixed(1)} / 10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:${e.val*10}%;background:${e.color}"></div></div></div>`).join('');const wins=allTrades.filter(t=>t.result==='win'),losses=allTrades.filter(t=>t.result==='loss');const emKeys=[{key:'emotion_conf',label:'Уверен'},{key:'emotion_fear',label:'Страх'},{key:'emotion_greed',label:'Жадн'},{key:'emotion_calm',label:'Фокус'}];document.getElementById('em-compare').innerHTML=emKeys.map(e=>{const wA=wins.length?wins.reduce((s,t)=>s+(t[e.key]||0),0)/wins.length:0;const lA=losses.length?losses.reduce((s,t)=>s+(t[e.key]||0),0)/losses.length:0;return`<div class="emc-row"><span class="emc-label">${e.label}</span><div class="emc-bars"><div class="emc-bar emc-win" style="width:${wA*10}%"></div><div class="emc-bar emc-loss" style="width:${lA*10}%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);width:55px;text-align:right">${wA.toFixed(1)} / ${lA.toFixed(1)}</span></div>`;}).join('');const insights=[];const lc=losses.length,wc=wins.length;if(lc>=2){const lF=losses.reduce((s,t)=>s+(t.emotion_fear||0),0)/lc,wF=wc?wins.reduce((s,t)=>s+(t.emotion_fear||0),0)/wc:0;if(lF>wF+1.5)insights.push({icon:'😰',title:'Страх мешает тебе',desc:`Страх ${lF.toFixed(1)} при убытках vs ${wF.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});const lG=losses.reduce((s,t)=>s+(t.emotion_greed||0),0)/lc,wG=wc?wins.reduce((s,t)=>s+(t.emotion_greed||0),0)/wc:0;if(lG>wG+1.5)insights.push({icon:'💰',title:'Жадность сливает депозит',desc:`Жадность ${lG.toFixed(1)} при убытках vs ${wG.toFixed(1)} при прибыли`,badge:'badge-bad',label:'ПРОБЛЕМА'});const wC=wc?wins.reduce((s,t)=>s+(t.emotion_conf||0),0)/wc:0,lC=losses.reduce((s,t)=>s+(t.emotion_conf||0),0)/lc;if(wC>lC+1)insights.push({icon:'💪',title:'Уверенность = результат',desc:`Уверенность ${wC.toFixed(1)} при прибыли vs ${lC.toFixed(1)} при убытке`,badge:'badge-ok',label:'ПАТТЕРН'});const wCa=wc?wins.reduce((s,t)=>s+(t.emotion_calm||0),0)/wc:0,lCa=losses.reduce((s,t)=>s+(t.emotion_calm||0),0)/lc;if(lCa<wCa-1)insights.push({icon:'🎯',title:'Теряешь фокус на убытках',desc:`Фокус ${lCa.toFixed(1)} при убытках vs ${wCa.toFixed(1)} при прибыли`,badge:'badge-warn',label:'ВНИМАНИЕ'});}const wr=allTrades.length?Math.round(wc/allTrades.length*100):0;if(wr>=60)insights.push({icon:'🏆',title:'Отличный винрейт',desc:`${wr}% — выше среднего. Продолжай!`,badge:'badge-ok',label:'ОТЛИЧНО'});else if(wr<40&&allTrades.length>=5)insights.push({icon:'📉',title:'Низкий винрейт',desc:`${wr}% — пересмотри стратегию входа`,badge:'badge-bad',label:'РИСК'});document.getElementById('patterns-list').innerHTML=insights.length?insights.map(i=>`<div class="pattern-item"><div class="pattern-icon">${i.icon}</div><div class="pattern-text"><div class="pattern-title">${i.title}</div><div class="pattern-desc">${i.desc}</div></div><div class="pattern-badge ${i.badge}">${i.label}</div></div>`).join(''):'<div class="empty" style="padding:20px">Накопи больше сделок для анализа</div>';}
 function updateSpeedometer(score){const angle=(score/100)*180-90;document.getElementById('speedo-needle').setAttribute('transform',`rotate(${angle} 110 110)`);document.getElementById('speedo-arc').setAttribute('stroke-dasharray',`${(score/100)*283} 283`);document.getElementById('speedo-score').textContent=score;const d=score>=75?'Состояние потока — торгуй!':score>=55?'Хорошее состояние':score>=40?'Нейтральное состояние':score>=25?'Повышенный стресс':'Высокий стресс — осторожно';document.getElementById('speedo-desc').textContent=d;}
+// ===== AI ASSISTANT =====
+const ckAnswers = {};
+function openAI() {
+  document.getElementById('ai-modal').classList.add('open');
+  document.getElementById('ai-result').style.display='none';
+}
+function closeAI() { document.getElementById('ai-modal').classList.remove('open'); }
+
+function setCK(num, val) {
+  ckAnswers[num] = val;
+  const yes = document.getElementById('ck'+num+'-yes');
+  const no  = document.getElementById('ck'+num+'-no');
+  yes.className = 'ck-btn' + (val==='yes'?' yes':'');
+  no.className  = 'ck-btn' + (val==='no'?' no':'');
+}
+
+async function checkSetup() {
+  const answered = Object.keys(ckAnswers).length;
+  if (answered < 5) { alert('Ответь на все 5 вопросов'); return; }
+
+  const btn = document.getElementById('ai-check-btn');
+  btn.disabled = true; btn.textContent = 'АНАЛИЗИРУЮ...';
+  document.getElementById('ai-result').style.display = 'none';
+
+  const labels = {
+    1: 'Структура (BOS/CHoCH)',
+    2: 'Точка интереса (OB/FVG/BPR)',
+    3: 'Подтверждение на младшем ТФ',
+    4: 'Риск-менеджмент (SL/RR/размер)',
+    5: 'Психологическое состояние'
+  };
+  const answers = Object.entries(ckAnswers).map(([k,v]) => `${labels[k]}: ${v==='yes'?'ДА':'НЕТ'}`).join('\n');
+  const note = document.getElementById('ai-reason').value.trim();
+  const yesCount = Object.values(ckAnswers).filter(v=>v==='yes').length;
+
+  const prompt = `Ты — строгий торговый наставник SMC/ICT методологии. Трейдер ответил на чек-лист перед входом в сделку.
+
+Ответы:
+${answers}
+${note ? `\nДополнение: ${note}` : ''}
+
+Правила методологии:
+- BOS = подтверждение тренда, CHoCH = разворот структуры
+- OB (Order Block) = последняя медвежья/бычья свеча перед BOS
+- FVG = имбаланс (3 свечи, гэп между тенями)
+- BPR = пересечение OB и FVG — сильнейшая зона
+- Вход ТОЛЬКО от подтверждённого уровня с реакцией на младшем ТФ
+- Психология = если не спокоен, сделку не открывать
+
+Дай вердикт в JSON (ТОЛЬКО JSON без markdown):
+{
+  "verdict": "GO" | "STOP" | "WAIT",
+  "title": "короткая фраза до 6 слов",
+  "message": "1-2 предложения — что хорошо и/или что не так",
+  "action": "одно конкретное действие что делать дальше"
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    const result = JSON.parse(text.replace(/```json|```/g,'').trim());
+
+    const v = (result.verdict||'wait').toLowerCase();
+    const resultEl = document.getElementById('ai-result');
+    const verdictEl = document.getElementById('ai-verdict');
+    const textEl = document.getElementById('ai-text');
+
+    resultEl.className = 'ai-result ' + v;
+    verdictEl.className = 'ai-verdict ' + v;
+    const icons = { go:'✅', stop:'🛑', wait:'⏳' };
+    verdictEl.textContent = (icons[v]||'⏳') + ' ' + (result.title || result.verdict);
+    textEl.innerHTML = `<p style="margin-bottom:10px">${result.message||''}</p>${result.action?`<p><span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:#34d058">→ </span>${result.action}</p>`:''}`;
+    resultEl.style.display = 'block';
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  } catch(e) { alert('Ошибка: ' + e.message); }
+
+  btn.disabled = false; btn.textContent = 'ПОЛУЧИТЬ ВЕРДИКТ';
+}
+// ========================
+
+// ===== LEVEL SYSTEM =====
+
+async function checkSetup() {
+  const tf      = document.getElementById('ai-tf').value.trim();
+  const struct  = document.getElementById('ai-struct').value.trim();
+  const poi     = document.getElementById('ai-poi').value.trim();
+  const reason  = document.getElementById('ai-reason').value.trim();
+  const emotion = document.getElementById('ai-emotion').value;
+
+  if (!struct || !poi || !reason) { alert('Заполни хотя бы структуру, точку интереса и причину входа'); return; }
+
+  const btn = document.getElementById('ai-check-btn');
+  btn.disabled = true; btn.textContent = 'АНАЛИЗИРУЮ...';
+  document.getElementById('ai-result').style.display = 'none';
+
+  const emotionMap = { calm:'спокоен, в потоке', fear:'есть страх упустить (FOMO)', greedy:'жадность или желание отыграться', tired:'устал, торгует на автопилоте', revenge:'злость после убытка (ревендж трейдинг)' };
+
+  const prompt = `Ты — строгий торговый наставник по методологии Smart Money Concepts (SMC). Твоя задача — честно оценить сетап трейдера и сказать входить или нет.
+
+Методология которую используют трейдеры:
+- Структура рынка: BOS (Break of Structure) — подтверждение тренда, CHoCH (Change of Character) — разворот
+- Точки интереса: Order Block (OB) — последняя свеча перед BOS, FVG/Imbalance — гэп между тенями свечей, BPR (Balanced Price Range) — пересечение OB и FVG
+- Правила: OB валиден если под ним нет FVG и пулов ликвидности. Входим только от подтверждённых уровней с реакцией на младшем ТФ (CHoCH или BOS)
+- Ликвидность: SSL (sell-side) — под минимумами, BSL (buy-side) — над максимумами. Цена идёт за ликвидностью перед разворотом
+
+Сетап трейдера:
+- Инструмент/ТФ: ${tf || 'не указан'}
+- Структура рынка: ${struct}
+- Точка интереса (OB/FVG/BPR): ${poi}
+- Причина входа: ${reason}
+- Эмоциональное состояние: ${emotionMap[emotion]}
+
+Дай оценку в формате JSON (ТОЛЬКО JSON, без markdown):
+{
+  "verdict": "GO" | "STOP" | "WAIT",
+  "title": "короткая фраза-вердикт (макс 6 слов)",
+  "analysis": "2-3 предложения: что правильно в сетапе и что нет",
+  "risk": "главный риск этого входа",
+  "advice": "конкретный совет что сделать"
+}
+
+Будь честным и строгим. Если эмоциональное состояние плохое — это отдельный повод сказать STOP или WAIT.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+
+    const verdictEl = document.getElementById('ai-verdict');
+    const textEl = document.getElementById('ai-text');
+    const resultEl = document.getElementById('ai-result');
+
+    const v = result.verdict?.toLowerCase() || 'wait';
+    resultEl.className = 'ai-result ' + v;
+    verdictEl.className = 'ai-verdict ' + v;
+
+    const icons = { go: '✅', stop: '🛑', wait: '⏳' };
+    verdictEl.textContent = icons[v] + ' ' + (result.title || result.verdict);
+    textEl.innerHTML = `
+      <p style="margin-bottom:10px">${result.analysis || ''}</p>
+      ${result.risk ? `<p style="margin-bottom:8px"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:#f5a623">⚠ РИСК: </span>${result.risk}</p>` : ''}
+      ${result.advice ? `<p><span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:#34d058">→ СОВЕТ: </span>${result.advice}</p>` : ''}
+    `;
+    resultEl.style.display = 'block';
+
+  } catch(e) {
+    alert('Ошибка AI: ' + e.message);
+  }
+
+  btn.disabled = false; btn.textContent = 'ПРОВЕРИТЬ СЕТАП';
+}
+// ========================
+
 // ===== LEVEL SYSTEM =====
 const LEVELS = [
   { min: 0,   max: 5,   name: 'НОВИЧОК',      icon: '🌱', color: '#52606e', reward: 'Достигни 5% прибыли → получи чек-лист входа в сделку' },
