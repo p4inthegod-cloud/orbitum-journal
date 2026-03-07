@@ -7,51 +7,59 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--a:#e86c2a;--a2:rgba(232,108,42,0.12);--a3:rgba(232,108,42,0.35);--bg:#06080b;--bg2:#0c1018;--bg3:#121820;--bd:rgba(255,255,255,0.07);--t:#efefef;--m:#52606e;--r:#e74c3c;--g:#27ae60;}
+:root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bd:rgba(255,255,255,0.08);--t:#f0f0f0;--m:rgba(255,255,255,0.35);--r:#ff4d4d;--g:#34d058;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black,transparent);pointer-events:none;}
-.box{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:44px 40px;width:100%;max-width:520px;position:relative;overflow:hidden;z-index:1;}
-.box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--a),transparent);}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;background:linear-gradient(135deg,#fff 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:4px;}
-.title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;text-align:center;margin-bottom:4px;}
+body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;overflow:hidden;}
+.orbs{position:fixed;inset:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(232,114,42,0.2),transparent 65%);top:-120px;left:50%;transform:translateX(-50%);animation:f1 9s ease-in-out infinite;}
+.orb2{width:250px;height:250px;background:radial-gradient(circle,rgba(232,114,42,0.1),transparent 65%);bottom:10%;right:-40px;animation:f2 12s ease-in-out infinite;}
+@keyframes f1{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-24px);}}
+@keyframes f2{0%,100%{transform:translateY(0);}50%{transform:translateY(-18px);}}
+.card{width:100%;max-width:500px;background:rgba(255,255,255,0.028);border:1px solid var(--bd);border-radius:24px;padding:44px 40px;position:relative;z-index:1;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 32px 80px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.09);animation:up 0.5s cubic-bezier(0.16,1,0.3,1) both;}
+@keyframes up{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+.card::before{content:'';position:absolute;top:0;left:22%;right:22%;height:1px;background:linear-gradient(90deg,transparent,var(--a),transparent);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:6px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 30%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:4px;}
+.title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;text-align:center;margin-bottom:4px;}
 .sub{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:2px;margin-bottom:32px;}
-.plan-row{display:flex;gap:10px;margin-bottom:28px;}
-.plan-card{flex:1;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;}
-.plan-card.active{border-color:var(--a);background:var(--a2);}
-.plan-card-price{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--a);}
+.plan-row{display:flex;gap:12px;margin-bottom:28px;}
+.plan-card{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:16px;padding:18px;text-align:center;cursor:pointer;transition:all 0.25s;}
+.plan-card:hover{border-color:rgba(255,255,255,0.14);}
+.plan-card.active{border-color:var(--a);background:rgba(232,114,42,0.08);box-shadow:0 0 30px rgba(232,114,42,0.12);}
+.plan-card-price{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--a);letter-spacing:1px;}
 .plan-card-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
-.plan-card-period{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);margin-top:2px;}
-.wallet-block{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:20px;margin-bottom:20px;}
-.wallet-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-.wallet-addr{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t);word-break:break-all;cursor:pointer;transition:border-color 0.2s;}
-.wallet-addr:hover{border-color:var(--a);}
-.copy-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);text-align:right;margin-top:4px;letter-spacing:1px;}
-.net-tag{display:inline-block;padding:4px 10px;border:1px solid var(--g);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);background:rgba(39,174,96,0.08);margin-bottom:12px;}
-.amount-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--bd);margin-top:12px;}
+.plan-card-period{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);margin-top:3px;}
+.wallet-block{background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:16px;padding:20px;margin-bottom:20px;}
+.net-tag{display:inline-block;padding:4px 12px;border:1px solid rgba(52,208,88,0.3);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);background:rgba(52,208,88,0.07);margin-bottom:14px;letter-spacing:1px;}
+.wallet-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.wallet-addr{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:13px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t);word-break:break-all;cursor:pointer;transition:all 0.2s;}
+.wallet-addr:hover{border-color:var(--a);box-shadow:0 0 0 3px rgba(232,114,42,0.08);}
+.copy-hint{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);text-align:right;margin-top:5px;letter-spacing:1px;}
+.amount-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0 0;margin-top:14px;border-top:1px solid rgba(255,255,255,0.06);}
 .amount-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;}
-.amount-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--a);}
-.field{margin-bottom:14px;}
-.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
-.field input{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:11px 14px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;}
-.field input:focus{border-color:var(--a);}
-.btn{width:100%;padding:13px;background:var(--a);border:none;border-radius:8px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px var(--a3);margin-top:4px;}
-.btn:hover{opacity:0.85;}
-.btn:disabled{opacity:0.5;cursor:not-allowed;}
-.msg{font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;margin-top:12px;padding:10px;border-radius:6px;display:none;}
-.msg.err{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:var(--r);}
-.msg.ok{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);color:var(--g);}
-.notice{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);line-height:1.6;margin-top:16px;padding:12px;background:var(--bg3);border-radius:6px;}
-.back{display:block;text-align:center;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
+.amount-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--a);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.field input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:all 0.2s;}
+.field input::placeholder{color:rgba(255,255,255,0.18);}
+.field input:focus{border-color:var(--a);background:rgba(232,114,42,0.04);box-shadow:0 0 0 3px rgba(232,114,42,0.1);}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--a) 0%,#c85e18 100%);border:none;border-radius:12px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 24px rgba(232,114,42,0.38),inset 0 1px 0 rgba(255,255,255,0.14);margin-top:4px;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,114,42,0.5);}
+.btn:disabled{opacity:0.42;cursor:not-allowed;transform:none;}
+.msg{font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;margin-top:12px;padding:11px;border-radius:10px;display:none;}
+.msg.err{background:rgba(255,77,77,0.07);border:1px solid rgba(255,77,77,0.2);color:var(--r);}
+.msg.ok{background:rgba(52,208,88,0.07);border:1px solid rgba(52,208,88,0.2);color:var(--g);}
+.notice{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);line-height:1.7;margin-top:18px;padding:14px 16px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:12px;}
+.back{display:block;text-align:center;margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
 .back:hover{color:var(--a);}
 </style>
 </head>
 <body>
-<div class="box">
+<div class="orbs"><div class="orb orb1"></div><div class="orb orb2"></div></div>
+<div class="card">
   <div class="logo">ORBITUM</div>
   <div class="title">ОПЛАТА ДОСТУПА</div>
   <div class="sub">Оплата в USDT — активация в течение часа</div>
-
   <div class="plan-row">
     <div class="plan-card" id="pc-monthly" onclick="setPlan('monthly')">
       <div class="plan-card-price">$29</div>
@@ -64,7 +72,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div class="plan-card-period">разовая оплата</div>
     </div>
   </div>
-
   <div class="wallet-block">
     <div class="net-tag">USDT TRC20</div>
     <div class="wallet-label">Кошелёк для оплаты</div>
@@ -75,93 +82,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div class="amount-val" id="amount-display">197 USDT</div>
     </div>
   </div>
-
-  <div class="field">
-    <label>TX Hash (после оплаты)</label>
-    <input type="text" id="tx-hash" placeholder="0x1234abcd..." />
-  </div>
-  <div class="field">
-    <label>Твой кошелёк (откуда отправил)</label>
-    <input type="text" id="wallet-from" placeholder="адрес отправителя" />
-  </div>
+  <div class="field"><label>TX Hash (после оплаты)</label><input type="text" id="tx-hash" placeholder="0x1234abcd..." /></div>
+  <div class="field"><label>Твой кошелёк (откуда отправил)</label><input type="text" id="wallet-from" placeholder="адрес отправителя" /></div>
   <button class="btn" id="btn-pay" onclick="submitPayment()">ОТПРАВИТЬ НА ПРОВЕРКУ</button>
   <div class="msg" id="pay-msg"></div>
-
-  <div class="notice">
-    ⚡ После отправки транзакции вставь TX Hash выше.<br>
-    Доступ активируется вручную в течение 1 часа.<br>
-    Вопросы: напиши в Telegram @orbitum_support
-  </div>
+  <div class="notice">⚡ После отправки транзакции вставь TX Hash выше.<br>Доступ активируется вручную в течение 1 часа.<br>Вопросы: напиши в Telegram @orbitum_support</div>
   <a href="login.html" class="back">← Уже есть доступ? Войти</a>
 </div>
-
 <script>
-const SUPABASE_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-
-const WALLET = 'TA8W7XATDuos4W8mnFSiGdNrxsvS5vAnrP';
-const PRICES = { monthly: 29, lifetime: 197 };
-
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let selectedPlan = new URLSearchParams(location.search).get('plan') || localStorage.getItem('orb_plan') || 'lifetime';
+const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const WALLET='TA8W7XATDuos4W8mnFSiGdNrxsvS5vAnrP';
+const PRICES={monthly:29,lifetime:197};
+const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let selectedPlan=new URLSearchParams(location.search).get('plan')||localStorage.getItem('orb_plan')||'lifetime';
 setPlan(selectedPlan);
-
-function setPlan(p) {
-  selectedPlan = p;
-  document.getElementById('pc-monthly').classList.toggle('active', p === 'monthly');
-  document.getElementById('pc-lifetime').classList.toggle('active', p === 'lifetime');
-  document.getElementById('amount-display').textContent = PRICES[p] + ' USDT';
-}
-
-function copyAddr() {
-  navigator.clipboard.writeText(WALLET).then(() => {
-    document.getElementById('copy-hint').textContent = '✓ скопировано!';
-    setTimeout(() => document.getElementById('copy-hint').textContent = 'нажми чтобы скопировать', 2000);
-  });
-}
-
-function showMsg(text, type) {
-  const el = document.getElementById('pay-msg');
-  el.textContent = text;
-  el.className = 'msg ' + type;
-  el.style.display = 'block';
-}
-
-async function submitPayment() {
-  const txHash = document.getElementById('tx-hash').value.trim();
-  const walletFrom = document.getElementById('wallet-from').value.trim();
-  if (!txHash) { showMsg('Вставь TX Hash транзакции', 'err'); return; }
-
-  const btn = document.getElementById('btn-pay');
-  btn.disabled = true; btn.textContent = 'ОТПРАВЛЯЕМ...';
-
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) {
-    showMsg('Сначала войди в аккаунт', 'err');
-    setTimeout(() => window.location.href = 'login.html', 1500);
-    return;
-  }
-
-  const { error } = await sb.from('payments').insert({
-    user_id: user.id,
-    plan: selectedPlan,
-    amount_usdt: PRICES[selectedPlan],
-    tx_hash: txHash,
-    wallet_from: walletFrom,
-    status: 'pending'
-  });
-
-  if (error) {
-    showMsg('Ошибка: ' + error.message, 'err');
-    btn.disabled = false; btn.textContent = 'ОТПРАВИТЬ НА ПРОВЕРКУ';
-    return;
-  }
-
-  showMsg('✓ Заявка отправлена! Проверим в течение часа.', 'ok');
-  btn.textContent = 'ОТПРАВЛЕНО ✓';
-}
+function setPlan(p){selectedPlan=p;document.getElementById('pc-monthly').classList.toggle('active',p==='monthly');document.getElementById('pc-lifetime').classList.toggle('active',p==='lifetime');document.getElementById('amount-display').textContent=PRICES[p]+' USDT';}
+function copyAddr(){navigator.clipboard.writeText(WALLET).then(()=>{document.getElementById('copy-hint').textContent='✓ скопировано!';setTimeout(()=>document.getElementById('copy-hint').textContent='нажми чтобы скопировать',2000);});}
+function showMsg(text,type){const el=document.getElementById('pay-msg');el.textContent=text;el.className='msg '+type;el.style.display='block';}
+async function submitPayment(){const txHash=document.getElementById('tx-hash').value.trim();const walletFrom=document.getElementById('wallet-from').value.trim();if(!txHash){showMsg('Вставь TX Hash транзакции','err');return;}const btn=document.getElementById('btn-pay');btn.disabled=true;btn.textContent='ОТПРАВЛЯЕМ...';const{data:{user}}=await sb.auth.getUser();if(!user){showMsg('Сначала войди в аккаунт','err');setTimeout(()=>window.location.href='login.html',1500);return;}const{error}=await sb.from('payments').insert({user_id:user.id,plan:selectedPlan,amount_usdt:PRICES[selectedPlan],tx_hash:txHash,wallet_from:walletFrom,status:'pending'});if(error){showMsg('Ошибка: '+error.message,'err');btn.disabled=false;btn.textContent='ОТПРАВИТЬ НА ПРОВЕРКУ';return;}showMsg('✓ Заявка отправлена! Проверим в течение часа.','ok');btn.textContent='ОТПРАВЛЕНО ✓';}
 </script>
 </body>
 </html>
