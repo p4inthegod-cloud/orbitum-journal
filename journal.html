@@ -509,17 +509,13 @@ ${note ? `\nДополнение: ${note}` : ''}
 }`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ prompt })
     });
     const data = await res.json();
-    const text = data.content?.[0]?.text || '';
+    const text = data.text || '';
     const result = JSON.parse(text.replace(/```json|```/g,'').trim());
 
     const v = (result.verdict||'wait').toLowerCase();
