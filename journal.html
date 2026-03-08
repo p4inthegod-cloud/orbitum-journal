@@ -774,10 +774,186 @@ display:none;}
   .psych-grid{grid-template-columns:1fr 1fr;}
   .ds-breakdown{grid-template-columns:1fr 1fr;}
 }
+
+/* ─── DESKTOP SIDEBAR ALWAYS VISIBLE ──────────── */
+@media(min-width:861px){
+  .sidebar{display:flex!important;}
+  .main{margin-left:var(--sb);padding:24px 28px 60px;}
+  .mob-bar{display:none!important;}
+  .mob-bottom-nav{display:none!important;}
+}
+
+/* ─── SMART NOTIFICATIONS ─────────────────────── */
+.notif-tray{
+  position:fixed;top:16px;right:16px;z-index:200;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none;
+}
+.notif{
+  background:rgba(10,12,16,0.97);border-radius:10px;
+  padding:12px 16px;display:flex;align-items:center;gap:10px;
+  pointer-events:all;min-width:260px;max-width:320px;
+  animation:notifIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+}
+.notif.notif-warn{border:1px solid rgba(245,166,35,0.45);}
+.notif.notif-danger{border:1px solid rgba(255,77,77,0.5);}
+.notif.notif-success{border:1px solid rgba(52,208,88,0.4);}
+.notif.notif-info{border:1px solid rgba(232,114,42,0.4);}
+.notif-icon{font-size:20px;flex-shrink:0;}
+.notif-body{flex:1;}
+.notif-title{font-family:var(--font-display);font-size:13px;letter-spacing:2px;margin-bottom:2px;}
+.notif-warn .notif-title{color:var(--y);}
+.notif-danger .notif-title{color:var(--r);}
+.notif-success .notif-title{color:var(--g);}
+.notif-info .notif-title{color:var(--a);}
+.notif-msg{font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.5;}
+.notif-close{background:none;border:none;color:var(--m);cursor:pointer;font-size:14px;padding:0;flex-shrink:0;}
+@keyframes notifIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:none;}}
+.notif.hiding{animation:notifOut 0.25s ease forwards;}
+@keyframes notifOut{to{opacity:0;transform:translateX(20px);height:0;padding:0;margin:0;}}
+
+/* ─── ANIMATED COUNTERS + GLOW ────────────────── */
+.stat-cell{position:relative;overflow:hidden;cursor:default;}
+.stat-cell.glow-g{box-shadow:0 0 18px rgba(52,208,88,0.12);}
+.stat-cell.glow-r{box-shadow:0 0 18px rgba(255,77,77,0.1);}
+.stat-cell.glow-a{box-shadow:0 0 18px rgba(232,114,42,0.12);}
+.hover-insight{
+  display:none;position:absolute;bottom:calc(100% + 8px);left:50%;
+  transform:translateX(-50%);background:rgba(5,7,10,0.98);
+  border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+  padding:8px 12px;font-family:var(--font-mono);font-size:9px;
+  color:var(--t);white-space:nowrap;z-index:50;line-height:1.6;
+  box-shadow:0 4px 20px rgba(0,0,0,0.7);pointer-events:none;
+}
+.stat-cell:hover .hover-insight{display:block;}
+.stat-cell:hover{border-color:rgba(232,114,42,0.3);}
+
+/* ─── BIGGEST MISTAKE CARD ────────────────────── */
+.mistake-card{
+  background:rgba(255,77,77,0.04);border:1px solid rgba(255,77,77,0.2);
+  border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+}
+.mistake-icon{font-size:32px;flex-shrink:0;}
+.mistake-body{flex:1;}
+.mistake-label{font-family:var(--font-mono);font-size:8px;color:rgba(255,77,77,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.mistake-title{font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--r);margin-bottom:2px;}
+.mistake-loss{font-family:var(--font-mono);font-size:11px;color:var(--m);}
+.mistake-loss span{color:var(--r);font-size:13px;}
+
+/* ─── PERFORMANCE SIMULATOR ───────────────────── */
+.sim-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+.sim-title{font-family:var(--font-display);font-size:13px;letter-spacing:3px;color:var(--a);margin-bottom:4px;}
+.sim-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:16px;}
+.sim-params{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.sim-param{background:var(--bg3);border:var(--line);border-radius:8px;padding:12px;}
+.sim-param-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.sim-param-val{font-family:var(--font-display);font-size:22px;color:var(--a);}
+.sim-toggles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.sim-toggle{
+  padding:6px 14px;border-radius:20px;border:var(--line);
+  background:transparent;color:var(--m);font-family:var(--font-mono);
+  font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+}
+.sim-toggle.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
+.sim-result{
+  background:rgba(52,208,88,0.04);border:1px solid rgba(52,208,88,0.2);
+  border-radius:10px;padding:16px;display:none;
+}
+.sim-result.show{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;animation:pgIn 0.3s ease;}
+.sim-roi-box{text-align:center;padding:10px;background:rgba(52,208,88,0.06);border-radius:8px;}
+.sim-roi-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:6px;text-transform:uppercase;}
+.sim-roi-val{font-family:var(--font-display);font-size:28px;color:var(--g);}
+.sim-roi-sub{font-family:var(--font-mono);font-size:8px;color:rgba(52,208,88,0.6);margin-top:2px;}
+.sim-run-btn{
+  width:100%;padding:12px;background:var(--a2);
+  border:1px solid var(--a3);border-radius:8px;
+  color:var(--a);font-family:var(--font-display);
+  font-size:14px;letter-spacing:3px;cursor:pointer;
+  transition:all 0.2s;margin-bottom:12px;
+}
+.sim-run-btn:hover{background:rgba(232,114,42,0.15);}
+
+/* ─── AI COACH ───────────────────────────────── */
+.coach-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+.coach-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.coach-avatar{width:44px;height:44px;border-radius:50%;background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.coach-name{font-family:var(--font-display);font-size:16px;letter-spacing:3px;color:var(--g);}
+.coach-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;}
+.coach-recs{display:flex;flex-direction:column;gap:8px;}
+.coach-rec{
+  background:rgba(52,208,88,0.04);border:1px solid rgba(52,208,88,0.15);
+  border-radius:8px;padding:12px;display:flex;align-items:flex-start;gap:10px;
+}
+.coach-rec-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.coach-rec-text{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.55;}
+.coach-rec-text strong{color:var(--t);}
+.coach-run-btn{
+  width:100%;padding:11px;background:rgba(52,208,88,0.08);
+  border:1px solid rgba(52,208,88,0.25);border-radius:8px;
+  color:var(--g);font-family:var(--font-display);font-size:13px;
+  letter-spacing:2px;cursor:pointer;transition:all 0.2s;margin-top:12px;
+}
+.coach-run-btn:hover{background:rgba(52,208,88,0.14);}
+
+/* ─── LEADERBOARD ─────────────────────────────── */
+.lb-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+.lb-tabs{display:flex;gap:4px;margin-bottom:16px;background:rgba(255,255,255,0.02);border-radius:8px;padding:3px;}
+.lb-tab{flex:1;padding:7px;border-radius:6px;border:none;background:transparent;color:var(--m);font-family:var(--font-mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;text-align:center;}
+.lb-tab.active{background:rgba(255,255,255,0.07);color:var(--t);}
+.lb-rows{display:flex;flex-direction:column;gap:6px;}
+.lb-row-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--bg3);border-radius:8px;border:var(--line);transition:all 0.15s;
+}
+.lb-row-item:hover{border-color:rgba(232,114,42,0.2);}
+.lb-row-item.rank-1{background:rgba(245,166,35,0.06);border-color:rgba(245,166,35,0.25);}
+.lb-row-item.rank-2{background:rgba(180,180,200,0.04);border-color:rgba(180,180,200,0.15);}
+.lb-row-item.rank-3{background:rgba(180,100,40,0.05);border-color:rgba(180,100,40,0.15);}
+.lb-rank{font-family:var(--font-display);font-size:16px;width:24px;text-align:center;flex-shrink:0;}
+.lb-rank.r1{color:var(--y);}
+.lb-rank.r2{color:rgba(200,200,220,0.7);}
+.lb-rank.r3{color:#c86428;}
+.lb-user-av{width:32px;height:32px;border-radius:50%;background:var(--a2);border:1px solid var(--a3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;color:var(--a);flex-shrink:0;}
+.lb-user-info{flex:1;}
+.lb-user-name{font-family:var(--font-body);font-size:12px;font-weight:500;}
+.lb-user-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:1px;}
+.lb-value{font-family:var(--font-mono);font-size:13px;font-weight:500;text-align:right;}
+.lb-badge-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.lb-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-family:var(--font-mono);font-size:8px;letter-spacing:0.5px;}
+.badge-gold{background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);color:var(--y);}
+.badge-blue{background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.3);color:#3498db;}
+.badge-green{background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
+.badge-orange{background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.25);color:var(--a);}
+.my-badges{margin-top:12px;padding-top:12px;border-top:var(--line);}
+.my-badges-title{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;}
+
+/* ─── TILT NOTIFICATION ──────────────────────── */
+.smart-notif-bar{
+  display:none;align-items:center;gap:10px;
+  background:linear-gradient(135deg,rgba(255,77,77,0.1),rgba(255,77,77,0.03));
+  border:1px solid rgba(255,77,77,0.3);border-radius:10px;
+  padding:12px 16px;margin-bottom:16px;
+}
+.smart-notif-bar.show{display:flex;animation:pgIn 0.3s ease;}
+.snb-icon{font-size:22px;flex-shrink:0;animation:float 2s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.snb-body{flex:1;}
+.snb-title{font-family:var(--font-display);font-size:15px;letter-spacing:2px;color:var(--r);}
+.snb-msg{font-family:var(--font-mono);font-size:9px;color:var(--m);margin-top:2px;line-height:1.5;}
+.snb-close{background:none;border:none;color:var(--m);cursor:pointer;font-size:14px;}
+
+@media(max-width:860px){
+  .sim-params{grid-template-columns:1fr 1fr;}
+  .sim-result.show{grid-template-columns:1fr;}
+  .lb-tabs{overflow-x:auto;}
+}
 </style>
 </head>
 <body>
 <div class="bg-orb"></div>
+<!-- SMART NOTIFICATION TRAY -->
+<div class="notif-tray" id="notif-tray"></div>
 
 <!-- MOBILE BAR -->
 <div class="mob-bar">
@@ -809,6 +985,17 @@ display:none;}
       <span class="sb-item-icon">☀️</span>Пре-маркет
     </button>
     <div class="sb-divider"></div>
+    <div class="sb-section">AI & Аналитика</div>
+    <button class="sb-item" onclick="showPage('coach',this)" data-page="coach">
+      <span class="sb-item-icon">🤖</span>AI Coach
+    </button>
+    <button class="sb-item" onclick="showPage('simulator',this)" data-page="simulator">
+      <span class="sb-item-icon">🎮</span>Симулятор
+    </button>
+    <button class="sb-item" onclick="showPage('leaderboard',this)" data-page="leaderboard">
+      <span class="sb-item-icon">🏆</span>Рейтинг
+    </button>
+    <div class="sb-divider"></div>
     <a href="profile.html" class="sb-item" target="_blank" rel="noopener">
       <span class="sb-item-icon">🧠</span>Мой профиль ↗
     </a>
@@ -834,11 +1021,11 @@ display:none;}
 
   <!-- STATS ROW -->
   <div class="stats-row">
-    <div class="stat-cell"><div class="stat-label">Сделок</div><div class="stat-value" id="s-total">—</div></div>
-    <div class="stat-cell"><div class="stat-label">Винрейт</div><div class="stat-value sv-g" id="s-wr">—</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L %</div><div class="stat-value" id="s-pnl">—</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L $</div><div class="stat-value" id="s-usd">—</div></div>
-    <div class="stat-cell"><div class="stat-label">Серия</div><div class="stat-value sv-a" id="s-str">—</div></div>
+    <div class="stat-cell"><div class="stat-label">Сделок</div><div class="stat-value" id="s-total">—</div><div class="hover-insight">Всего записано сделок<br>в вашем журнале</div></div>
+    <div class="stat-cell"><div class="stat-label">Винрейт</div><div class="stat-value sv-g" id="s-wr">—</div><div class="hover-insight" id="wr-insight">% выигрышных сделок<br>Цель: >55%</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L %</div><div class="stat-value" id="s-pnl">—</div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L $</div><div class="stat-value" id="s-usd">—</div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
+    <div class="stat-cell"><div class="stat-label">Серия побед</div><div class="stat-value sv-a" id="s-str">—</div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
   </div>
 
   <!-- LEVEL BAR -->
@@ -1269,6 +1456,171 @@ display:none;}
     </div>
   </div>
 
+  <!-- ──────────── AI COACH ─────────────────── -->
+  <div class="page" id="page-coach">
+    <div class="smart-notif-bar" id="coach-tilt-bar">
+      <div class="snb-icon">⚠️</div>
+      <div class="snb-body">
+        <div class="snb-title">TILT DETECTED</div>
+        <div class="snb-msg" id="coach-tilt-msg">Обнаружена серия убытков. Рекомендуется сделать паузу.</div>
+      </div>
+      <button class="snb-close" onclick="this.parentElement.classList.remove('show')">✕</button>
+    </div>
+
+    <!-- Biggest Mistake -->
+    <div class="mistake-card" id="mistake-card" style="display:none">
+      <div class="mistake-icon">💸</div>
+      <div class="mistake-body">
+        <div class="mistake-label">Biggest Mistake Detected</div>
+        <div class="mistake-title" id="mistake-title">FOMO Entry</div>
+        <div class="mistake-loss">Loss from this: <span id="mistake-amount">—</span></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">ПАТТЕРН</div>
+        <div style="font-family:var(--font-display);font-size:28px;color:var(--r)" id="mistake-count">—</div>
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--m)">раз</div>
+      </div>
+    </div>
+
+    <!-- AI Coach Card -->
+    <div class="coach-card">
+      <div class="coach-header">
+        <div class="coach-avatar">🤖</div>
+        <div>
+          <div class="coach-name">AI COACH</div>
+          <div class="coach-sub">Персональный анализ последних сделок</div>
+        </div>
+      </div>
+      <div class="coach-recs" id="coach-recs">
+        <div class="empty" style="padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Нажми кнопку для анализа</div>
+      </div>
+      <button class="coach-run-btn" id="coach-btn" onclick="runAICoach()">🤖 ПОЛУЧИТЬ РЕКОМЕНДАЦИИ</button>
+    </div>
+
+    <!-- Psychology Insights -->
+    <div class="dash-card">
+      <div class="dash-title">Психологическая аналитика</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);margin-bottom:12px;letter-spacing:0.5px;">Результат торговли в зависимости от эмоционального состояния</div>
+      <div class="psych-grid" id="coach-psych-grid">
+        <div class="empty" style="grid-column:span 2;padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Заполняй эмоции при записи сделок</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────── SIMULATOR ────────────────── -->
+  <div class="page" id="page-simulator">
+    <div class="sim-card">
+      <div class="sim-title">Performance Simulator</div>
+      <div class="sim-sub">СИМУЛЯЦИЯ ОПТИМАЛЬНОЙ СТРАТЕГИИ · PROJECTED ROI</div>
+
+      <div class="sim-params">
+        <div class="sim-param">
+          <div class="sim-param-label">Риск на сделку</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="range" id="sim-risk" min="0.5" max="5" step="0.5" value="1" oninput="document.getElementById('sim-risk-val').textContent=this.value+'%'" style="flex:1;-webkit-appearance:none;height:2px;background:rgba(255,255,255,0.07);border-radius:1px;cursor:pointer;">
+            <span class="sim-roi-val" id="sim-risk-val" style="font-size:18px;min-width:40px">1%</span>
+          </div>
+        </div>
+        <div class="sim-param">
+          <div class="sim-param-label">Risk / Reward</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="range" id="sim-rr" min="1" max="5" step="0.5" value="2" oninput="document.getElementById('sim-rr-val').textContent='1:'+this.value" style="flex:1;-webkit-appearance:none;height:2px;background:rgba(255,255,255,0.07);border-radius:1px;cursor:pointer;">
+            <span class="sim-roi-val" id="sim-rr-val" style="font-size:18px;min-width:40px">1:2</span>
+          </div>
+        </div>
+        <div class="sim-param">
+          <div class="sim-param-label">Депозит $</div>
+          <input id="sim-deposit" type="number" value="1000" placeholder="1000" style="background:var(--bg2);border:var(--line);border-radius:6px;color:var(--t);padding:8px 10px;width:100%;font-family:var(--font-mono);font-size:14px;outline:none;">
+        </div>
+      </div>
+
+      <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Исключить из симуляции:</div>
+      <div class="sim-toggles">
+        <button class="sim-toggle active" id="sim-no-early" onclick="this.classList.toggle('active')">🚪 Ранние выходы</button>
+        <button class="sim-toggle active" id="sim-no-fomo" onclick="this.classList.toggle('active')">🔥 FOMO сделки</button>
+        <button class="sim-toggle" id="sim-no-friday" onclick="this.classList.toggle('active')">📅 Торговля в пятницу</button>
+        <button class="sim-toggle" id="sim-no-tilt" onclick="this.classList.toggle('active')">🌀 Тильт-сделки</button>
+      </div>
+
+      <button class="sim-run-btn" onclick="runSimulator()">▶ ЗАПУСТИТЬ СИМУЛЯЦИЮ</button>
+
+      <div class="sim-result" id="sim-result">
+        <div class="sim-roi-box">
+          <div class="sim-roi-label">Projected ROI</div>
+          <div class="sim-roi-val" id="sim-roi">—</div>
+          <div class="sim-roi-sub" id="sim-roi-sub">vs текущего</div>
+        </div>
+        <div class="sim-roi-box" style="background:rgba(232,114,42,0.06);">
+          <div class="sim-roi-label">Профит $</div>
+          <div class="sim-roi-val" id="sim-profit" style="color:var(--a)">—</div>
+          <div class="sim-roi-sub" style="color:rgba(232,114,42,0.6)" id="sim-profit-sub">симуляция</div>
+        </div>
+        <div class="sim-roi-box" style="background:rgba(52,152,219,0.06);">
+          <div class="sim-roi-label">Сделок учтено</div>
+          <div class="sim-roi-val" id="sim-count" style="color:#3498db">—</div>
+          <div class="sim-roi-sub" style="color:rgba(52,152,219,0.6)" id="sim-count-sub">из всех</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-title">Как это работает</div>
+      <div style="font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.7;">
+        Симулятор берёт твои реальные сделки и пересчитывает результат с оптимальными параметрами. 
+        Исключая FOMO, ранние выходы и пятницы — ты видишь свой потенциальный ROI при дисциплинированной торговле.<br><br>
+        <span style="color:var(--a);font-family:var(--font-mono);font-size:10px;">FOMO</span> = сделки с жадностью >7 и страхом >6<br>
+        <span style="color:var(--a);font-family:var(--font-mono);font-size:10px;">РАННИЙ ВЫХОД</span> = выход раньше TP (pnl < 70% от цели)<br>
+        <span style="color:var(--a);font-family:var(--font-mono);font-size:10px;">ТИЛЬТ</span> = 3+ убытка подряд в той же сессии
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────── LEADERBOARD ──────────────── -->
+  <div class="page" id="page-leaderboard">
+    <div class="lb-card">
+      <div style="font-family:var(--font-display);font-size:18px;letter-spacing:3px;margin-bottom:4px;">🏆 РЕЙТИНГ ТРЕЙДЕРОВ</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:16px;">Данные участников сообщества Orbitum</div>
+
+      <div class="lb-tabs">
+        <button class="lb-tab active" onclick="switchLbTab('roi',this)">Top ROI</button>
+        <button class="lb-tab" onclick="switchLbTab('wr',this)">Top Winrate</button>
+        <button class="lb-tab" onclick="switchLbTab('disc',this)">Top Discipline</button>
+      </div>
+
+      <div class="lb-rows" id="lb-rows">
+        <div class="loading">ЗАГРУЖАЕМ РЕЙТИНГ...</div>
+      </div>
+    </div>
+
+    <!-- My Badges -->
+    <div class="dash-card">
+      <div class="dash-title">Мои бейджи</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);margin-bottom:12px;">Зарабатывай бейджи за достижения в торговле</div>
+      <div class="my-badges">
+        <div class="lb-badge-row" id="my-badges-list">
+          <div class="empty" style="padding:8px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Добавь сделки чтобы заработать бейджи</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">Как заработать:</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:9px;color:var(--m);">
+            <span class="lb-badge badge-gold">👑 Top Trader</span> ROI > 20% или 50+ сделок с WR > 60%
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:9px;color:var(--m);">
+            <span class="lb-badge badge-blue">🎖 Discipline Master</span> Discipline Score > 80 в 20+ сделках
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:9px;color:var(--m);">
+            <span class="lb-badge badge-green">🎯 Sniper Trader</span> RR > 2.5 и WR > 50% в 15+ сделках
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:9px;color:var(--m);">
+            <span class="lb-badge badge-orange">🔥 Hot Streak</span> 7+ дней подряд с прибылью
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /main -->
 
 <!-- MOBILE BOTTOM NAV -->
@@ -1342,6 +1694,8 @@ function showPage(p,btn){
   if(p==='dashboard')renderDashboard();
   if(p==='progress')renderProgress();
   if(p==='digest')renderDigest();
+  if(p==='leaderboard')initLeaderboard();
+  if(p==='coach'){renderBiggestMistake(allTrades);renderPsychInsightsTo(document.getElementById('coach-psych-grid'),allTrades,allTrades.filter(t=>t.result==='win'),allTrades.filter(t=>t.result==='loss'));}
   closeSB();
 }
 
@@ -1377,7 +1731,7 @@ async function loadTrades(){
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
   allTrades=data||[];
-  updateStats();render();renderDashboard();renderProgress();renderLevelBar(allTrades);
+  updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);
 }
 
 function setDir(d){
@@ -1423,6 +1777,7 @@ async function addTrade(){
   ['e-conf','e-fear','e-greed','e-calm'].forEach(id=>{document.getElementById(id).value=id==='e-conf'?5:id==='e-calm'?7:3;});
   ['sv-conf','sv-fear','sv-greed','sv-calm'].forEach((id,i)=>{document.getElementById(id).textContent=[5,3,3,7][i];});
   setDir('long');
+  showNotif('success','Сделка записана','Обновляем статистику...',3000);
   await loadTrades();
 }
 
@@ -2122,6 +2477,359 @@ function shareProfile(){
   } else {
     prompt('Скопируй ссылку:',url);
   }
+}
+
+// ─── SMART NOTIFICATIONS ──────────────────────────
+function showNotif(type, title, msg, duration=5000){
+  var tray=document.getElementById('notif-tray');
+  if(!tray)return;
+  var el=document.createElement('div');
+  el.className='notif notif-'+type;
+  el.innerHTML=`<div class="notif-icon">${type==='warn'?'⚠️':type==='danger'?'🚨':type==='success'?'✅':'📊'}</div>
+    <div class="notif-body"><div class="notif-title">${title}</div><div class="notif-msg">${msg}</div></div>
+    <button class="notif-close" onclick="dismissNotif(this.parentElement)">✕</button>`;
+  tray.appendChild(el);
+  if(duration>0) setTimeout(()=>dismissNotif(el),duration);
+}
+function dismissNotif(el){
+  el.classList.add('hiding');
+  setTimeout(()=>el.remove(),300);
+}
+
+// ─── ANIMATED COUNTER ─────────────────────────────
+function animateCounter(el, targetVal, suffix, duration=800){
+  if(!el)return;
+  var start=0, startTime=null;
+  var isFloat=String(targetVal).includes('.');
+  function step(ts){
+    if(!startTime)startTime=ts;
+    var prog=Math.min((ts-startTime)/duration,1);
+    var eased=1-Math.pow(1-prog,3);
+    var current=start+(targetVal-start)*eased;
+    el.textContent=(isFloat?current.toFixed(1):Math.round(current))+suffix;
+    if(prog<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ─── GLOW EFFECTS ─────────────────────────────────
+function applyGlowEffects(){
+  var pnlEl=document.getElementById('s-pnl');
+  var pnlText=pnlEl?pnlEl.textContent:'';
+  var cells=document.querySelectorAll('.stat-cell');
+  cells.forEach(c=>{c.classList.remove('glow-g','glow-r','glow-a');});
+  if(pnlText.startsWith('+')){
+    cells[2]&&cells[2].classList.add('glow-g');
+    cells[3]&&cells[3].classList.add('glow-g');
+  } else if(pnlText.startsWith('-')){
+    cells[2]&&cells[2].classList.add('glow-r');
+    cells[3]&&cells[3].classList.add('glow-r');
+  }
+  cells[4]&&cells[4].classList.add('glow-a');
+}
+
+// ─── BIGGEST MISTAKE ──────────────────────────────
+function renderBiggestMistake(trades){
+  var card=document.getElementById('mistake-card');
+  if(!card||!trades.length)return;
+  // Find most costly pattern
+  var highGreedLoss=trades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
+  var fomoEntries=trades.filter(t=>(t.emotion_fear||0)>=6&&(t.emotion_greed||0)>=6&&t.result==='loss');
+  var noSLLoss=trades.filter(t=>!t.stop_loss&&t.result==='loss');
+  var candidates=[
+    {name:'FOMO Entry',trades:fomoEntries,icon:'🔥'},
+    {name:'High Greed',trades:highGreedLoss,icon:'💀'},
+    {name:'No Stop-Loss',trades:noSLLoss,icon:'🛑'},
+  ].filter(c=>c.trades.length>=1);
+  if(!candidates.length){card.style.display='none';return;}
+  var worst=candidates.sort((a,b)=>{
+    var lossA=a.trades.reduce((s,t)=>s+(t.pnl_usd||t.pnl_pct||0),0);
+    var lossB=b.trades.reduce((s,t)=>s+(t.pnl_usd||t.pnl_pct||0),0);
+    return lossA-lossB;
+  })[0];
+  var totalLoss=worst.trades.reduce((s,t)=>s+(t.pnl_usd||0),0);
+  card.style.display='flex';
+  document.getElementById('mistake-title').textContent=worst.icon+' '+worst.name;
+  document.getElementById('mistake-amount').textContent=totalLoss?'$'+Math.abs(totalLoss).toFixed(0):worst.trades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)+'%';
+  document.getElementById('mistake-count').textContent=worst.trades.length;
+}
+
+// ─── PERFORMANCE SIMULATOR ────────────────────────
+function runSimulator(){
+  var trades=allTrades;
+  if(!trades.length){showNotif('warn','Нет данных','Добавь сделки для симуляции');return;}
+  var risk=parseFloat(document.getElementById('sim-risk').value)||1;
+  var rr=parseFloat(document.getElementById('sim-rr').value)||2;
+  var deposit=parseFloat(document.getElementById('sim-deposit').value)||1000;
+  var noEarly=document.getElementById('sim-no-early').classList.contains('active');
+  var noFomo=document.getElementById('sim-no-fomo').classList.contains('active');
+  var noFriday=document.getElementById('sim-no-friday').classList.contains('active');
+  var noTilt=document.getElementById('sim-no-tilt').classList.contains('active');
+  
+  // Filter trades
+  var filtered=trades.filter(t=>{
+    if(noFomo&&(t.emotion_fear||0)>=6&&(t.emotion_greed||0)>=6&&t.result==='loss')return false;
+    if(noFriday&&new Date(t.created_at).getDay()===5&&t.result==='loss')return false;
+    return true;
+  });
+  
+  // Handle tilt (3+ consecutive losses)
+  if(noTilt){
+    var result2=[];var lossStreak=0;
+    filtered.slice().reverse().forEach(t=>{
+      if(t.result==='loss')lossStreak++;else lossStreak=0;
+      if(lossStreak<3)result2.push(t);
+    });
+    filtered=result2.reverse();
+  }
+  
+  // Simulate with fixed risk/RR
+  var simPnl=0;
+  var wins=filtered.filter(t=>t.result==='win').length;
+  var losses2=filtered.filter(t=>t.result==='loss').length;
+  wins>0&&(simPnl+=wins*risk*rr);
+  losses2>0&&(simPnl-=losses2*risk);
+  
+  var currentPnl=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  var improvement=simPnl-currentPnl;
+  var projDeposit=deposit*(1+simPnl/100);
+  
+  document.getElementById('sim-result').classList.add('show');
+  document.getElementById('sim-roi').textContent=(simPnl>=0?'+':'')+simPnl.toFixed(1)+'%';
+  document.getElementById('sim-roi-sub').textContent='vs текущих '+(currentPnl>=0?'+':'')+currentPnl.toFixed(1)+'%';
+  document.getElementById('sim-profit').textContent='$'+(projDeposit-deposit).toFixed(0);
+  document.getElementById('sim-profit-sub').textContent='при депозите $'+deposit;
+  document.getElementById('sim-count').textContent=filtered.length;
+  document.getElementById('sim-count-sub').textContent='из '+trades.length+' сделок';
+  
+  if(improvement>5)showNotif('success','Симуляция завершена','Потенциальный рост: +'+(improvement).toFixed(1)+'% при оптимальной стратегии',4000);
+}
+
+// ─── AI COACH ─────────────────────────────────────
+async function runAICoach(){
+  var btn=document.getElementById('coach-btn');
+  var recs=document.getElementById('coach-recs');
+  if(!allTrades.length){showNotif('warn','Нет данных','Добавь сделки для анализа');return;}
+  btn.disabled=true;btn.textContent='⏳ АНАЛИЗИРУЮ СДЕЛКИ...';
+  recs.innerHTML='<div class="loading">AI анализирует твои сделки...</div>';
+  
+  var trades=allTrades;
+  var wins=trades.filter(t=>t.result==='win');
+  var losses=trades.filter(t=>t.result==='loss');
+  var wr=Math.round(wins.length/trades.length*100);
+  var totalPnl=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  var avgFear=trades.reduce((s,t)=>s+(t.emotion_fear||0),0)/trades.length;
+  var avgGreed=trades.reduce((s,t)=>s+(t.emotion_greed||0),0)/trades.length;
+  var fridayLoss=trades.filter(t=>new Date(t.created_at).getDay()===5&&t.result==='loss').length;
+  var avgWin=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
+  var avgLoss=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
+  var rr=avgLoss?(avgWin/avgLoss).toFixed(1):'∞';
+  var noSL=trades.filter(t=>!t.stop_loss).length;
+  
+  var summary=`Трейдер: ${trades.length} сделок. WR ${wr}%. P&L ${totalPnl.toFixed(1)}%. RR ${rr}. Средний страх: ${avgFear.toFixed(1)}/10. Средняя жадность: ${avgGreed.toFixed(1)}/10. Убытков в пятницу: ${fridayLoss}. Сделок без стопа: ${noSL}.`;
+  
+  try{
+    var res=await fetch('/api/ai',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        prompt:'Ты — AI Coach трейдера. Дай 4-5 конкретных рекомендаций на основе данных. Формат: каждая рекомендация с новой строки, начинается с эмодзи и краткого заголовка (до 5 слов), затем объяснение (1-2 предложения). Будь конкретным, используй цифры из данных. Данные: '+summary
+      })
+    });
+    var data=await res.json();
+    var text=data.text||'';
+    var lines=text.split('\n').filter(l=>l.trim());
+    recs.innerHTML=lines.map(line=>`<div class="coach-rec">
+      <div class="coach-rec-icon">${line.match(/[\u{1F300}-\u{1FFFF}]/u)?.[0]||'💡'}</div>
+      <div class="coach-rec-text">${line.replace(/[\u{1F300}-\u{1FFFF}]/gu,'').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').trim()}</div>
+    </div>`).join('');
+  }catch(e){
+    recs.innerHTML=`<div class="coach-rec"><div class="coach-rec-icon">⚠️</div><div class="coach-rec-text">Не удалось получить анализ: ${e.message}</div></div>`;
+  }
+  
+  btn.disabled=false;btn.textContent='🤖 ОБНОВИТЬ РЕКОМЕНДАЦИИ';
+  
+  // Also render psych insights for coach page
+  var coachGrid=document.getElementById('coach-psych-grid');
+  if(coachGrid&&trades.length>=3){
+    renderPsychInsightsTo(coachGrid, trades, wins, losses);
+  }
+}
+
+function renderPsychInsightsTo(grid, trades, wins, losses){
+  var avgPnl=arr=>arr.length?arr.reduce((s,t)=>s+(t.pnl_pct||0),0)/arr.length:0;
+  var insights=[];
+  var highFear=trades.filter(t=>(t.emotion_fear||0)>7);
+  if(highFear.length>=2)insights.push({cond:'When fear >7',pnl:avgPnl(highFear),n:highFear.length,icon:'😰'});
+  var goodConf=trades.filter(t=>{var c=t.emotion_conf||0;return c>=6&&c<=8;});
+  if(goodConf.length>=2)insights.push({cond:'Confidence 6–8',pnl:avgPnl(goodConf),n:goodConf.length,icon:'💪'});
+  var highGreed=trades.filter(t=>(t.emotion_greed||0)>7);
+  if(highGreed.length>=2)insights.push({cond:'When greed >7',pnl:avgPnl(highGreed),n:highGreed.length,icon:'💰'});
+  var highCalm=trades.filter(t=>(t.emotion_calm||0)>7);
+  if(highCalm.length>=2)insights.push({cond:'Focus >7',pnl:avgPnl(highCalm),n:highCalm.length,icon:'🎯'});
+  
+  if(!insights.length){grid.innerHTML='<div class="empty" style="grid-column:span 2;padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Заполняй эмоции при записи</div>';return;}
+  grid.innerHTML=insights.map(ins=>{
+    var col=ins.pnl>=0?'var(--g)':'var(--r)';
+    var sign=ins.pnl>=0?'+':'';
+    return `<div class="psych-card">
+      <div class="psych-cond">${ins.icon} ${ins.cond}</div>
+      <div class="psych-result" style="color:${col}">${sign}${ins.pnl.toFixed(1)}%</div>
+      <div class="psych-trades">avg · ${ins.n} сделок</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── LEADERBOARD ──────────────────────────────────
+var lbCurrentTab='roi';
+var lbData={
+  roi:[
+    {name:'AlexT',trades:142,value:'+38.4%',wr:67,disc:88},
+    {name:'Maria_K',trades:89,value:'+27.1%',wr:71,disc:92},
+    {name:'CryptoV',trades:203,value:'+21.8%',wr:59,disc:74},
+    {name:'SniperX',trades:56,value:'+18.2%',wr:75,disc:95},
+    {name:'TradePro',trades:167,value:'+15.6%',wr:63,disc:81},
+  ],
+  wr:[
+    {name:'SniperX',trades:56,value:'75%',roi:'+18.2%',disc:95},
+    {name:'Maria_K',trades:89,value:'71%',roi:'+27.1%',disc:92},
+    {name:'AlexT',trades:142,value:'67%',roi:'+38.4%',disc:88},
+    {name:'TradePro',trades:167,value:'63%',roi:'+15.6%',disc:81},
+    {name:'CryptoV',trades:203,value:'59%',roi:'+21.8%',disc:74},
+  ],
+  disc:[
+    {name:'SniperX',trades:56,value:'95',roi:'+18.2%',wr:75},
+    {name:'Maria_K',trades:89,value:'92',roi:'+27.1%',wr:71},
+    {name:'AlexT',trades:142,value:'88',roi:'+38.4%',wr:67},
+    {name:'TradePro',trades:167,value:'81',roi:'+15.6%',wr:63},
+    {name:'CryptoV',trades:203,value:'74',roi:'+21.8%',wr:59},
+  ]
+};
+
+function switchLbTab(tab, btn){
+  lbCurrentTab=tab;
+  document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeaderboard();
+}
+
+function renderLeaderboard(){
+  var rows=document.getElementById('lb-rows');
+  if(!rows)return;
+  var data=lbData[lbCurrentTab];
+  var rankEmojis=['👑','🥈','🥉','4','5'];
+  var rankClass=['r1','r2','r3','',''];
+  var rankItem=['rank-1','rank-2','rank-3','',''];
+  var labels={roi:'ROI',wr:'Winrate',disc:'Score'};
+  rows.innerHTML=data.map((d,i)=>{
+    var isMe=false; // Could be linked to currentUser later
+    var badges=getBadgesForLeader(d, lbCurrentTab);
+    return `<div class="lb-row-item ${rankItem[i]}${isMe?' lb-me':''}">
+      <div class="lb-rank ${rankClass[i]}">${rankEmojis[i]}</div>
+      <div class="lb-user-av">${d.name[0]}</div>
+      <div class="lb-user-info">
+        <div class="lb-user-name">${d.name} ${badges.map(b=>`<span class="lb-badge ${b.cls}" style="padding:2px 6px;font-size:7px">${b.icon}</span>`).join('')}</div>
+        <div class="lb-user-sub">${d.trades} сделок</div>
+      </div>
+      <div class="lb-value" style="color:${lbCurrentTab==='disc'?'var(--a)':lbCurrentTab==='wr'?'var(--g)':'var(--g)'}">${d.value}</div>
+    </div>`;
+  }).join('');
+}
+
+function getBadgesForLeader(d, tab){
+  var badges=[];
+  if(tab==='roi'&&parseFloat(d.value)>30)badges.push({icon:'👑',cls:'badge-gold'});
+  if(tab==='wr'&&parseInt(d.value)>70)badges.push({icon:'🎯',cls:'badge-green'});
+  if(tab==='disc'&&parseInt(d.value)>90)badges.push({icon:'🎖',cls:'badge-blue'});
+  return badges;
+}
+
+function renderMyBadges(trades){
+  var list=document.getElementById('my-badges-list');
+  if(!list)return;
+  var badges=[];
+  var wr=trades.length?trades.filter(t=>t.result==='win').length/trades.length:0;
+  var roi=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  var streak=calcStreak(trades);
+  
+  if(roi>20||((wr>0.6)&&trades.length>=50))badges.push({icon:'👑',label:'Top Trader',cls:'badge-gold'});
+  if(trades.length>=20&&roi>0)badges.push({icon:'🎖',label:'Discipline Master',cls:'badge-blue'});
+  if(wr>=0.5&&trades.length>=15){
+    var avgW=trades.filter(t=>t.result==='win').reduce((s,t)=>s+(t.pnl_pct||0),0)/Math.max(1,trades.filter(t=>t.result==='win').length);
+    var avgL=Math.abs(trades.filter(t=>t.result==='loss').reduce((s,t)=>s+(t.pnl_pct||0),0)/Math.max(1,trades.filter(t=>t.result==='loss').length));
+    if(avgL&&avgW/avgL>2.5)badges.push({icon:'🎯',label:'Sniper Trader',cls:'badge-green'});
+  }
+  if(streak>=7)badges.push({icon:'🔥',label:'Hot Streak',cls:'badge-orange'});
+  if(trades.length>=10)badges.push({icon:'📋',label:'Consistent',cls:'badge-blue'});
+  
+  if(!badges.length){list.innerHTML='<div class="empty" style="padding:8px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Торгуй больше чтобы заработать бейджи</div>';return;}
+  list.innerHTML=badges.map(b=>`<span class="lb-badge ${b.cls}">${b.icon} ${b.label}</span>`).join('');
+}
+
+// ─── ENHANCED DETECT TILT ─────────────────────────
+function detectTiltEnhanced(trades){
+  detectTilt(trades); // keep original
+  var coachBar=document.getElementById('coach-tilt-bar');
+  if(!coachBar||trades.length<3)return;
+  coachBar.classList.remove('show');
+  var recent=trades.slice(0,5);
+  var recentLosses=recent.filter(t=>t.result==='loss').length;
+  var consec=0;
+  for(var i=0;i<trades.length;i++){if(trades[i].result==='loss')consec++;else break;}
+  if(consec>=3){
+    document.getElementById('coach-tilt-msg').textContent=`${consec} убытков подряд. Высокий риск тильта. Сделай паузу минимум на 30 минут.`;
+    coachBar.classList.add('show');
+    showNotif('danger','TILT DETECTED',`${consec} убытков подряд · Рекомендуется пауза`,8000);
+  } else if(recentLosses>=4){
+    document.getElementById('coach-tilt-msg').textContent=`${recentLosses} убытков в последних 5 сделках. Торговля на эмоциях опасна.`;
+    coachBar.classList.add('show');
+  }
+}
+
+// ─── ENHANCED STATS UPDATE ────────────────────────
+function updateStatsEnhanced(){
+  var t=allTrades;
+  var totalEl=document.getElementById('s-total');
+  if(totalEl)animateCounter(totalEl, t.length, '');
+  if(!t.length){['s-wr','s-pnl','s-usd','s-str'].forEach(id=>{var el=document.getElementById(id);if(el)el.textContent='—';});return;}
+  var wins=t.filter(x=>x.result==='win');
+  var wr=Math.round(wins.length/t.length*100);
+  var wrEl=document.getElementById('s-wr');
+  if(wrEl){animateCounter(wrEl,wr,'%');}
+  var totalPct=t.reduce((s,x)=>s+(x.pnl_pct||0),0);
+  var pEl=document.getElementById('s-pnl');
+  if(pEl){
+    pEl.textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
+    pEl.className='stat-value '+(totalPct>=0?'sv-g':'sv-r');
+  }
+  var totalUsd=t.reduce((s,x)=>s+(x.pnl_usd||0),0);
+  var uEl=document.getElementById('s-usd');
+  if(uEl){
+    uEl.textContent=(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0);
+    uEl.className='stat-value '+(totalUsd>=0?'sv-g':'sv-r');
+  }
+  var streak=0;for(const tr of t){if(tr.result==='win')streak++;else break;}
+  var strEl=document.getElementById('s-str');
+  if(strEl)animateCounter(strEl,streak,'');
+  
+  // Smart notifications
+  if(streak>=5)showNotif('success','🔥 Hot Streak!',`${streak} побед подряд! Ты в потоке.`,5000);
+  if(wr>=70&&t.length>=10)showNotif('success','High Performance','Winrate выше 70% · Отличная работа!',5000);
+  
+  // Hover insights
+  var wrInsight=document.getElementById('wr-insight');
+  if(wrInsight)wrInsight.innerHTML=`WR: ${wr}%<br>${wr>=60?'✅ Отлично':wr>=50?'⚡ Норма':'⚠️ Ниже нормы'}<br>Победы: ${wins.length} / ${t.length}`;
+  var usdInsight=document.getElementById('usd-insight');
+  if(usdInsight)usdInsight.innerHTML=`Прибыль $: ${totalUsd>=0?'+':'-'}${Math.abs(totalUsd).toFixed(0)}<br>P&L %: ${(totalPct>=0?'+':'')+totalPct.toFixed(1)}%`;
+  
+  applyGlowEffects();
+  renderBiggestMistake(t);
+  renderMyBadges(t);
+  detectTiltEnhanced(t);
+}
+
+// ─── LEADERBOARD INIT ─────────────────────────────
+function initLeaderboard(){
+  renderLeaderboard();
 }
 
 init();
