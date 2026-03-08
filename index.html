@@ -3,938 +3,555 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Психологический профиль</title>
+<title>ORBITUM — Торговый журнал нового поколения</title>
+<meta name="description" content="Журнал сделок с AI-анализом, психологическим профилем и геймификацией. Найди паттерны которые тебя сливают — и устрани их.">
+<meta name="theme-color" content="#040507">
+<meta property="og:title" content="ORBITUM — Торговый журнал">
+<meta property="og:description" content="AI-чекер сетапов, психологический профиль, 6 уровней роста. Торгуй осознанно.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* ======== SHARED SIDEBAR ======== */
-*{-webkit-user-select:none;user-select:none;}
+:root{
+  --a:#ff6b2b;--ag:linear-gradient(135deg,#ff6b2b,#e8450a);
+  --bg:#040507;--bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.1);
+  --t:#f5f5f7;--t2:rgba(245,245,247,0.6);--t3:rgba(245,245,247,0.28);
+  --g:#30d158;--r:#ff453a;--radius:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
 input,textarea{-webkit-user-select:text;user-select:text;}
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(3,4,7,0.98);border-right:1px solid var(--bd);backdrop-filter:blur(24px);display:flex;flex-direction:column;z-index:100;}
-.sidebar-logo{padding:0 16px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--bd);flex-shrink:0;}
-.slogo-canvas{display:none;}
-.slogo-inner{display:flex;align-items:center;gap:10px;}
-.slogo-img{display:none;}
-.slogo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#f2f2f2;}
-.sidenav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
-.snav-sec{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:2px;padding:10px 10px 4px;text-transform:uppercase;}
-.snav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;text-decoration:none;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;transition:all 0.18s;border:1px solid transparent;width:100%;text-align:left;background:none;cursor:pointer;}
-.snav-item:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.06);}
-.snav-item.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.22);color:var(--a);}
-.snav-item.admin-link{color:rgba(245,166,35,0.55);}
-.snav-item.admin-link:hover,.snav-item.admin-link.active{background:rgba(245,166,35,0.07);border-color:rgba(245,166,35,0.2);color:#f5a623;}
-.snav-icon{font-size:15px;flex-shrink:0;width:18px;text-align:center;}
-.snav-div{height:1px;background:var(--bd);margin:5px 4px;}
-.sidebar-footer{padding:10px 8px;border-top:1px solid var(--bd);flex-shrink:0;}
-.sf-user{display:flex;align-items:center;gap:9px;margin-bottom:7px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:8px;}
-.sf-avatar{width:30px;height:30px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a);flex-shrink:0;}
-.sf-info{overflow:hidden;flex:1;}
-.sf-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t);}
-.sf-plan{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;margin-top:1px;}
-.sf-logout{width:100%;padding:7px;background:none;border:1px solid var(--bd);border-radius:7px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
-.sf-logout:hover{border-color:var(--r);color:var(--r);}
-/* mobile */
-.mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(3,4,7,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:54px;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
-.mob-logo-wrap{display:flex;align-items:center;gap:8px;}
-.mob-logo-img{display:none;}
-.mob-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#f2f2f2;}
-.mob-right{display:flex;align-items:center;gap:8px;}
-.mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 44px;height:62px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,5,7,0.7);backdrop-filter:blur(32px) saturate(180%);-webkit-backdrop-filter:blur(32px);border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.4s;}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:var(--t);}
+.nav-center{display:flex;align-items:center;gap:34px;}
+.nav-center a{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.2s;}
+.nav-center a:hover{color:var(--t);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-pill{padding:8px 20px;background:rgba(255,107,43,0.1);border:1px solid rgba(255,107,43,0.22);border-radius:50px;color:rgba(255,140,80,0.9);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;text-decoration:none;transition:all 0.25s;white-space:nowrap;}
+.nav-pill:hover{background:rgba(255,107,43,0.18);border-color:rgba(255,107,43,0.42);}
+.nav-pill.solid{background:var(--ag);border:none;color:#fff;box-shadow:0 2px 18px rgba(255,107,43,0.38);}
+.nav-pill.solid:hover{transform:translateY(-1px);box-shadow:0 4px 28px rgba(255,107,43,0.55);}
+.nav-user-wrap{display:flex;align-items:center;gap:10px;}
+.nav-username{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);letter-spacing:1px;}
+.nav-logout-btn{background:none;border:1px solid var(--bd);border-radius:6px;padding:6px 12px;color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.nav-logout-btn:hover{border-color:var(--r);color:var(--r);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:110px 24px 80px;position:relative;z-index:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 20px;background:rgba(255,107,43,0.07);border:1px solid rgba(255,107,43,0.18);border-radius:50px;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,140,80,0.85);letter-spacing:2px;text-transform:uppercase;margin-bottom:36px;animation:fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;}
+.hero-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--a);box-shadow:0 0 6px var(--a),0 0 14px rgba(255,107,43,0.5);animation:pulse 2.4s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.35;transform:scale(0.8);}}
+.hero-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(68px,12vw,130px);letter-spacing:2px;line-height:0.86;margin-bottom:32px;animation:fadeUp 0.8s 0.08s cubic-bezier(0.16,1,0.3,1) both;}
+.line-dim{color:rgba(245,245,247,0.17);}
+.line-accent{background:linear-gradient(135deg,#ff9060 20%,#ff4500 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(255,107,43,0.28));}
+.hero-sub{font-size:clamp(15px,1.6vw,17px);color:var(--t2);max-width:470px;line-height:1.8;margin-bottom:52px;animation:fadeUp 0.8s 0.16s cubic-bezier(0.16,1,0.3,1) both;}
+.hero-sub b{color:rgba(245,245,247,0.85);font-weight:600;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.8s 0.24s cubic-bezier(0.16,1,0.3,1) both;}
+.btn-cta{padding:17px 48px;background:var(--ag);border:none;border-radius:50px;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.3px;cursor:pointer;text-decoration:none;box-shadow:0 8px 40px rgba(255,107,43,0.45),inset 0 1px 0 rgba(255,255,255,0.1);transition:all 0.3s cubic-bezier(0.16,1,0.3,1);display:inline-block;position:relative;overflow:hidden;}
+.btn-cta::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.1),transparent 60%);border-radius:50px;pointer-events:none;}
+.btn-cta:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 16px 56px rgba(255,107,43,0.58);}
+.btn-ghost-pill{padding:17px 48px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:50px;color:var(--t2);font-family:'Syne',sans-serif;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.3s;display:inline-block;backdrop-filter:blur(8px);}
+.btn-ghost-pill:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.18);color:var(--t);}
+.proof-strip{display:flex;align-items:center;gap:52px;justify-content:center;margin-top:78px;animation:fadeUp 0.8s 0.35s cubic-bezier(0.16,1,0.3,1) both;}
+.proof-div{width:1px;height:36px;background:var(--bd2);}
+.proof-item{text-align:center;}
+.proof-num{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;line-height:1;background:linear-gradient(135deg,#ff9060,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.proof-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
+.scroll-hint{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;animation:fadeUp 0.8s 0.55s cubic-bezier(0.16,1,0.3,1) both;}
+.scroll-hint span{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:2px;}
+.scroll-arrow{width:1px;height:34px;background:linear-gradient(180deg,var(--t3),transparent);animation:scrollBob 2s ease-in-out infinite;}
+@keyframes scrollBob{0%,100%{opacity:0.3;transform:scaleY(0.65);}50%{opacity:1;transform:scaleY(1);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:none;}}
+
+/* DEMO */
+.demo-section{padding:0 24px 120px;position:relative;z-index:1;}
+.section-label{text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;margin-bottom:22px;}
+.demo-float{max-width:980px;margin:0 auto;position:relative;}
+.demo-float::before{content:'';position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(255,107,43,0.28),rgba(255,107,43,0.04) 50%,rgba(255,255,255,0.02));border-radius:26px;z-index:-1;}
+.demo-frame{background:rgba(10,12,18,0.96);border:1px solid rgba(255,255,255,0.07);border-radius:24px;overflow:hidden;box-shadow:0 60px 160px rgba(0,0,0,0.85),inset 0 0 0 1px rgba(255,255,255,0.04),0 0 120px rgba(255,107,43,0.07);}
+.demo-bar{height:44px;background:rgba(255,255,255,0.022);display:flex;align-items:center;padding:0 18px;gap:12px;border-bottom:1px solid rgba(255,255,255,0.055);}
+.dtb-dots{display:flex;gap:6px;}
+.dtb-dot{width:10px;height:10px;border-radius:50%;}
+.dtb-dot:nth-child(1){background:#ff5f57;}.dtb-dot:nth-child(2){background:#febc2e;}.dtb-dot:nth-child(3){background:#28c840;}
+.dtb-tabs{display:flex;gap:2px;padding:3px;background:rgba(255,255,255,0.04);border-radius:9px;border:1px solid rgba(255,255,255,0.055);margin:0 auto;}
+.dtb-tab{padding:5px 18px;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--t3);cursor:pointer;transition:all 0.2s;border:none;background:transparent;}
+.dtb-tab.on{background:rgba(255,255,255,0.08);color:var(--t);}
+.demo-body{padding:20px 22px 22px;}
+.demo-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+.ds{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.055);border-radius:12px;padding:14px 14px 12px;transition:border-color 0.25s;}
+.ds:hover{border-color:rgba(255,107,43,0.22);}
+.ds-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.ds-v{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;}
+.ds-v.g{color:var(--g);}.ds-v.r{color:var(--r);}.ds-v.a{color:var(--a);}
+.demo-panel{display:none;animation:panelIn 0.35s cubic-bezier(0.16,1,0.3,1) both;}
+.demo-panel.on{display:block;}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.demo-form{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.055);border-radius:14px;padding:18px 20px;margin-bottom:12px;position:relative;overflow:hidden;}
+.demo-form::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,43,0.5),transparent);}
+.demo-form-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--a);margin-bottom:13px;}
+.demo-form-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.demo-field{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:9px 12px;}
+.demo-field-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.demo-field-v{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t);}
+.demo-field-v.g{color:var(--g);}.demo-field-v.a{color:var(--a);}
+.demo-trades{display:flex;flex-direction:column;gap:7px;}
+.dt{background:rgba(255,255,255,0.024);border:1px solid rgba(255,255,255,0.055);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;}
+.dt:hover{border-color:rgba(255,107,43,0.18);}
+.dt.w{border-left:2px solid var(--g);}.dt.l{border-left:2px solid var(--r);}
+.dt-l{display:flex;align-items:center;gap:10px;}
+.dt-pair{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;}
+.dt-dir{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border-radius:4px;letter-spacing:1px;}
+.dt-dir.long{background:rgba(48,209,88,0.1);color:var(--g);}.dt-dir.short{background:rgba(255,69,58,0.1);color:var(--r);}
+.dt-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);}
+.dt-pnl{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;}
+.dt-pnl.pos{color:var(--g);}.dt-pnl.neg{color:var(--r);}
+.demo-analytics{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.da-card{background:rgba(255,255,255,0.024);border:1px solid rgba(255,255,255,0.055);border-radius:12px;padding:16px;}
+.da-title{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2.5px;color:var(--t3);margin-bottom:14px;}
+.da-bar-row{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.da-bar-head{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);}
+.da-bar-track{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;}
+.da-bar-fill{height:100%;border-radius:2px;}
+.demo-profile{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dp-arch{background:rgba(255,107,43,0.04);border:1px solid rgba(255,107,43,0.17);border-radius:12px;padding:16px;grid-column:1/-1;position:relative;overflow:hidden;}
+.dp-arch::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(255,107,43,0.07),transparent 60%);pointer-events:none;}
+.dp-arch-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,140,80,0.65);letter-spacing:2px;margin-bottom:7px;}
+.dp-arch-name{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:2px;margin-bottom:5px;}
+.dp-arch-desc{font-family:'Syne',sans-serif;font-size:11px;color:var(--t3);line-height:1.5;}
+.dp-radar{background:rgba(255,255,255,0.024);border:1px solid rgba(255,255,255,0.055);border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:center;}
+.dp-insight{background:rgba(48,209,88,0.04);border:1px solid rgba(48,209,88,0.14);border-radius:12px;padding:16px;}
+.dp-ins-l{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--g);letter-spacing:2px;margin-bottom:8px;}
+.dp-ins-t{font-family:'Syne',sans-serif;font-size:11px;color:var(--t3);line-height:1.6;}
+
+/* DIVIDER */
+.glow-div{height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,43,0.22),transparent);margin:0;}
+
+/* SECTIONS */
+.section{padding:120px 24px;position:relative;z-index:1;}
+.container{max-width:1080px;margin:0 auto;}
+.s-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--a);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;}
+.s-eyebrow::before{content:'';width:22px;height:1px;background:var(--a);}
+.s-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,5.5vw,62px);letter-spacing:1px;line-height:0.92;margin-bottom:18px;}
+.s-sub{color:var(--t2);font-size:16px;max-width:480px;line-height:1.8;font-weight:400;}
+
+/* FEATURES */
+.feats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:64px;}
+.feat-card{background:rgba(255,255,255,0.018);border:1px solid var(--bd);border-radius:var(--radius);padding:32px;position:relative;overflow:hidden;transition:all 0.35s cubic-bezier(0.16,1,0.3,1);}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,43,0.6),transparent);opacity:0;transition:opacity 0.35s;}
+.feat-card:hover{border-color:rgba(255,107,43,0.2);transform:translateY(-5px);box-shadow:0 28px 70px rgba(0,0,0,0.45),0 0 60px rgba(255,107,43,0.05);background:rgba(255,107,43,0.02);}
+.feat-card:hover::before{opacity:1;}
+.feat-card.span2{grid-column:span 2;}
+.feat-inner{display:flex;gap:26px;align-items:flex-start;}
+.feat-inner-text{flex:1;}
+.feat-tag{position:absolute;top:18px;right:18px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--g);background:rgba(48,209,88,0.09);border:1px solid rgba(48,209,88,0.18);border-radius:4px;padding:3px 9px;}
+.feat-icon{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:20px;transition:all 0.35s;flex-shrink:0;}
+.feat-card:hover .feat-icon{background:rgba(255,107,43,0.08);border-color:rgba(255,107,43,0.2);}
+.feat-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:11px;color:var(--t);}
+.feat-desc{font-size:13px;color:var(--t2);line-height:1.7;}
+.feat-desc b{color:rgba(245,245,247,0.82);}
+.ai-demo-box{background:rgba(48,209,88,0.04);border:1px solid rgba(48,209,88,0.17);border-radius:14px;padding:18px 20px;min-width:210px;flex-shrink:0;}
+.ai-verdict-big{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--g);letter-spacing:2px;margin-bottom:7px;}
+.ai-verdict-text{font-family:'Syne',sans-serif;font-size:12px;color:var(--t2);line-height:1.6;}
+.ai-verdict-action{margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);letter-spacing:0.5px;}
+.level-demo-box{background:rgba(255,107,43,0.04);border:1px solid rgba(255,107,43,0.17);border-radius:14px;padding:16px;min-width:200px;flex-shrink:0;}
+
+/* HOW */
+.how-section{padding:0 24px 130px;position:relative;z-index:1;}
+.steps-track{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:72px;position:relative;}
+.steps-line{position:absolute;top:32px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,43,0.35),var(--a),rgba(255,107,43,0.35),transparent);}
+.step{text-align:center;padding:0 18px;}
+.step-bubble{width:64px;height:64px;border-radius:50%;background:rgba(255,107,43,0.07);border:1px solid rgba(255,107,43,0.24);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--a);margin:0 auto 22px;position:relative;z-index:1;box-shadow:0 0 28px rgba(255,107,43,0.12);transition:all 0.3s;}
+.step:hover .step-bubble{background:rgba(255,107,43,0.14);box-shadow:0 0 48px rgba(255,107,43,0.28);transform:scale(1.05);}
+.step-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;margin-bottom:8px;}
+.step-desc{font-size:13px;color:var(--t2);line-height:1.65;}
+
+/* REVIEWS */
+.reviews-section{padding:0 24px 120px;position:relative;z-index:1;}
+.reviews-track{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:60px;}
+.review{background:rgba(255,255,255,0.017);border:1px solid var(--bd);border-radius:var(--radius);padding:26px 28px;transition:all 0.3s;}
+.review:hover{border-color:rgba(255,107,43,0.17);transform:translateY(-4px);}
+.review-stars{display:flex;gap:3px;margin-bottom:14px;}
+.star{color:var(--a);font-size:14px;}
+.review-text{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:18px;font-style:italic;}
+.review-author{display:flex;align-items:center;gap:10px;}
+.review-ava{width:32px;height:32px;border-radius:50%;background:rgba(255,107,43,0.11);border:1px solid rgba(255,107,43,0.24);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--a);flex-shrink:0;}
+.review-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;}
+.review-role{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1px;margin-top:2px;}
+
+/* PRICING */
+.pricing-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:680px;margin:64px 0 0;}
+.price-card{background:rgba(255,255,255,0.019);border:1px solid var(--bd);border-radius:24px;padding:40px 36px;position:relative;transition:all 0.35s;backdrop-filter:blur(10px);}
+.price-card:hover{border-color:rgba(255,255,255,0.11);transform:translateY(-3px);}
+.price-card.hot{background:rgba(255,107,43,0.04);border-color:rgba(255,107,43,0.26);box-shadow:0 0 80px rgba(255,107,43,0.07),inset 0 0 0 1px rgba(255,107,43,0.08);}
+.price-card.hot:hover{border-color:rgba(255,107,43,0.48);}
+.price-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--ag);color:#fff;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;padding:5px 20px;border-radius:50px;white-space:nowrap;box-shadow:0 4px 20px rgba(255,107,43,0.48);}
+.price-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--t2);text-transform:uppercase;margin-bottom:10px;}
+.price-amount{font-family:'Bebas Neue',sans-serif;font-size:62px;letter-spacing:1px;line-height:1;}
+.price-card.hot .price-amount{background:linear-gradient(135deg,var(--t) 30%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.price-card:not(.hot) .price-amount{color:var(--t);}
+.price-period{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);letter-spacing:1px;margin-bottom:32px;margin-top:2px;}
+.price-feats{list-style:none;margin-bottom:32px;}
+.price-feats li{font-size:13px;color:var(--t2);padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:10px;}
+.price-feats li::before{content:'✓';color:var(--a);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0;}
+.price-btn{width:100%;padding:15px;border:none;border-radius:14px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.25s;text-decoration:none;display:block;text-align:center;letter-spacing:0.2px;}
+.price-btn.primary{background:var(--ag);color:#fff;box-shadow:0 4px 26px rgba(255,107,43,0.38);}
+.price-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 38px rgba(255,107,43,0.56);}
+.price-btn.outline{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:var(--t2);}
+.price-btn.outline:hover{background:rgba(255,255,255,0.07);color:var(--t);}
+
+/* CTA BOTTOM */
+.cta-section{padding:0 24px 140px;position:relative;z-index:1;text-align:center;}
+.cta-card{max-width:680px;margin:0 auto;background:rgba(255,107,43,0.04);border:1px solid rgba(255,107,43,0.17);border-radius:32px;padding:70px 48px;position:relative;overflow:hidden;}
+.cta-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,107,43,0.11),transparent 55%);pointer-events:none;}
+.cta-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,68px);letter-spacing:2px;line-height:0.9;margin-bottom:20px;}
+.cta-title span{color:var(--a);}
+.cta-desc{font-size:15px;color:var(--t2);line-height:1.75;margin-bottom:40px;max-width:420px;margin-left:auto;margin-right:auto;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--bd);padding:38px 48px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
+.footer-brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.footer-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:4px;color:rgba(245,245,247,0.18);}
+.footer-copy{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1px;}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1);}
+.reveal.visible{opacity:1;transform:none;}
+.d1{transition-delay:0.08s;}.d2{transition-delay:0.16s;}.d3{transition-delay:0.24s;}.d4{transition-delay:0.32s;}
+
+/* RESPONSIVE */
 @media(max-width:900px){
-  .sidebar{transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar.open{transform:translateX(0);}
-  .sidebar-overlay.open{display:block;}
-  .mob-topbar{display:flex;}
+  nav{padding:0 20px;}.nav-center{display:none;}
+  .feats-grid{grid-template-columns:1fr;}.feat-card.span2{grid-column:1;}
+  .feat-inner{flex-direction:column;}
+  .steps-track{grid-template-columns:1fr 1fr;gap:36px;}.steps-line{display:none;}
+  .pricing-wrap{grid-template-columns:1fr;}
+  .reviews-track{grid-template-columns:1fr;}
+  footer{flex-direction:column;gap:14px;text-align:center;padding:32px 24px;}
+  .demo-stats{grid-template-columns:repeat(3,1fr);}
+  .demo-analytics,.demo-profile{grid-template-columns:1fr;}
+  .dp-arch{grid-column:auto;}
+  .proof-strip{gap:28px;}
+  .cta-card{padding:48px 28px;}
 }
-
-:root {
-    --green: #4ddb96;
-    --green-dim: rgba(77,219,150,0.18);
-    --green-border: rgba(77,219,150,0.4);
-    --red: #f07070;
-    --red-dim: rgba(240,112,112,0.18);
-    --red-border: rgba(240,112,112,0.4);
-    --orange: #f0b55a;
-    --orange-dim: rgba(240,181,90,0.18);
-    --orange-border: rgba(240,181,90,0.4);
-    --bg: #0d0d0f;
-    --card: rgba(255,255,255,0.03);
-    --border: rgba(255,255,255,0.07);
-    --text: #ffffff;
-    --text-dim: rgba(255,255,255,0.5);
-    --text-faint: rgba(255,255,255,0.25);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    min-height: 100vh;
-    background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-
-  .wrap { max-width: 700px; margin: 0 auto; width: 100%; }
-
-  /* HEADER */
-  .header { margin-bottom: 28px; animation: slideIn .5s ease both; }
-  .header-tag { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-  .tag-text { font-size: 11px; color: rgba(126,203,161,0.6); letter-spacing: 2px; }
-  .title { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; line-height: 1; }
-  .title span { color: var(--green); }
-  .subtitle { color: var(--text-faint); font-size: 12px; margin-top: 8px; letter-spacing: .5px; }
-
-  /* TABS */
-  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; }
-  .tab {
-    flex: 1; padding: 10px; border-radius: 7px; border: none; cursor: pointer;
-    background: transparent; color: var(--text-faint);
-    font-size: 11px; font-family: 'JetBrains Mono', monospace;
-    font-weight: 700; letter-spacing: 1px; transition: all .2s ease;
-  }
-  .tab.active { background: var(--green-dim); color: var(--green); }
-
-  /* PANELS */
-  .panel { display: none; animation: slideIn .4s ease both; }
-  .panel.active { display: flex; flex-direction: column; gap: 16px; }
-
-  /* CARDS */
-  .card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 20px;
-  }
-  .card-label { font-size: 10px; color: var(--text-faint); letter-spacing: 2px; margin-bottom: 14px; }
-
-  /* ARCHETYPE */
-  .archetype-card {
-    background: linear-gradient(135deg, var(--red-dim), rgba(224,138,138,0.04));
-    border: 1px solid var(--red-border); border-radius: 14px; padding: 20px;
-    position: relative; overflow: hidden;
-  }
-  .archetype-bg-icon {
-    position: absolute; top: -20px; right: -20px; font-size: 80px;
-    opacity: .07; animation: float 4s ease-in-out infinite; pointer-events: none;
-  }
-  .archetype-body { display: flex; align-items: center; gap: 14px; }
-  .archetype-icon { font-size: 40px; animation: float 3s ease-in-out infinite; }
-  .archetype-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--red); }
-  .archetype-desc { color: var(--text-dim); font-size: 12px; margin-top: 4px; line-height: 1.5; }
-  .archetype-chips { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-  .chip {
-    padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);
-    background: transparent; color: var(--text-faint);
-    font-size: 11px; cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all .2s;
-  }
-  .chip.active-chip { border-color: var(--red); background: var(--red-dim); color: var(--red); }
-
-  /* STATS ROW */
-  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-  .stat-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px; text-align: center;
-  }
-  .stat-label { font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; margin-bottom: 6px; }
-  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; }
-  .stat-sub { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
-  .c-red { color: var(--red); }
-  .c-green { color: var(--green); }
-  .c-orange { color: var(--orange); }
-
-  /* RADAR */
-  .radar-wrap {
-    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
-  }
-  .traits { flex: 1; min-width: 160px; }
-  .trait { margin-bottom: 10px; }
-  .trait-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .trait-name { font-size: 11px; color: var(--text-dim); }
-  .trait-val { font-size: 11px; font-weight: 700; }
-  .bar-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; }
-  .bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
-
-  /* INSIGHT */
-  .insight {
-    background: var(--green-dim); border: 1px solid var(--green-border);
-    border-radius: 12px; padding: 16px;
-  }
-  .insight-label { font-size: 10px; color: var(--green); letter-spacing: 2px; margin-bottom: 8px; }
-  .insight-text { color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.7; }
-  .insight-text .hl-red { color: var(--red); font-weight: 700; }
-  .insight-text .hl-green { color: var(--green); font-weight: 700; }
-
-  /* PATTERNS */
-  .pattern-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .pattern-count { text-align: right; }
-  .pattern-count-num { color: var(--red); font-weight: 700; font-size: 18px; }
-  .pattern-count-label { color: var(--text-faint); font-size: 9px; letter-spacing: 1px; }
-
-  .pattern-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px; cursor: pointer; transition: all .3s ease;
-  }
-  .pattern-card.open { background: var(--red-dim); border-color: var(--red-border); }
-  .pattern-top { display: flex; justify-content: space-between; align-items: center; }
-  .pattern-left { display: flex; align-items: center; gap: 12px; }
-  .pattern-icon-box {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: var(--red-dim); display: flex; align-items: center; justify-content: center; font-size: 18px;
-  }
-  .pattern-icon-box.medium { background: var(--orange-dim); }
-  .pattern-icon-box.positive { background: var(--green-dim); }
-  .pattern-title { color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .3px; }
-  .pattern-subtitle { color: var(--text-faint); font-size: 11px; margin-top: 2px; }
-  .pattern-right { display: flex; align-items: center; gap: 10px; }
-  .badge {
-    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .5px;
-  }
-  .badge-red { background: var(--red-dim); color: var(--red); }
-  .badge-orange { background: var(--orange-dim); color: var(--orange); }
-  .badge-green { background: var(--green-dim); color: var(--green); }
-  .chevron { color: var(--text-faint); font-size: 12px; transition: transform .3s; }
-  .open .chevron { transform: rotate(180deg); }
-
-  .pattern-body {
-    display: none; margin-top: 14px; padding-top: 14px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-  }
-  .open .pattern-body { display: block; }
-  .pattern-desc { color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
-  .rec-box {
-    background: var(--green-dim); border: 1px solid var(--green-border);
-    border-radius: 8px; padding: 10px 14px;
-  }
-  .rec-label { color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
-  .rec-text { color: rgba(126,203,161,0.6); font-size: 12px; line-height: 1.5; }
-  .trade-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .trade-tag {
-    padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05);
-    color: var(--text-faint); font-size: 11px;
-  }
-
-  /* HEATMAP */
-  .day-bars { display: flex; gap: 8px; margin-bottom: 28px; }
-  .day-bar { flex: 1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-  .day-bar-fill { transition: height .8s ease; min-height: 20px; }
-  .day-bar-info { padding: 8px 4px; text-align: center; background: rgba(255,255,255,0.02); }
-  .day-bar-pnl { font-size: 12px; font-weight: 700; }
-  .day-bar-name { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
-
-  .emotion-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 28px; }
-  .emotion-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px;
-  }
-  .emotion-name { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; letter-spacing: .5px; }
-  .emotion-cols { display: flex; gap: 6px; }
-  .emotion-col { flex: 1; text-align: center; border-radius: 6px; padding: 8px 4px; }
-  .emotion-col.pos { background: var(--green-dim); }
-  .emotion-col.neg { background: var(--red-dim); }
-  .emotion-col-val { font-size: 16px; font-weight: 700; }
-  .emotion-col.pos .emotion-col-val { color: var(--green); }
-  .emotion-col.neg .emotion-col-val { color: var(--red); }
-  .emotion-col-label { font-size: 9px; margin-top: 2px; }
-  .emotion-col.pos .emotion-col-label { color: rgba(126,203,161,0.5); }
-  .emotion-col.neg .emotion-col-label { color: rgba(224,138,138,0.5); }
-
-  .hour-grid { display: grid; grid-template-columns: repeat(12,1fr); gap: 4px; margin-bottom: 10px; }
-  .hour-cell {
-    height: 32px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);
-    background: rgba(255,255,255,0.04);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 8px; color: var(--text-faint); transition: opacity .2s;
-    cursor: default;
-  }
-  .hour-cell.win { background: rgba(77,219,150,0.45); border-color: rgba(77,219,150,0.4); color: rgba(255,255,255,0.7); }
-  .hour-cell.loss { background: rgba(240,112,112,0.45); border-color: rgba(240,112,112,0.4); color: rgba(255,255,255,0.7); }
-  .legend { display: flex; gap: 16px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-faint); }
-  .legend-dot { width: 12px; height: 12px; border-radius: 2px; }
-
-  /* ANIMATIONS */
-  @keyframes slideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-
-/* mobile */
-
-@media(max-width:900px){
-  
-  
-  
-  
-}
-
-  
-  
-  .main-content{margin-left:0!important;padding-top:0!important;}
-}
-
-@media(max-width:768px){body{padding:0;}}
-
-.profile-wrap{margin-left:220px;padding:28px 32px 80px;}
-@media(max-width:900px){.profile-wrap{margin-left:0;padding:10px 10px 60px;}}</style>
+</style>
 </head>
 <body>
-<!-- MOB TOPBAR -->
-<div class="mob-topbar">
-  <div class="mob-logo-wrap">
-    <img class="mob-logo-img" src="orbitum-logo.jpg" alt="">
-    <span class="mob-logo-text">ORBITUM</span>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <span class="nav-logo-text">ORBITUM</span>
+  </a>
+  <div class="nav-center">
+    <a href="#features">Функции</a>
+    <a href="#how">Как работает</a>
+    <a href="#pricing">Цены</a>
   </div>
-  <div class="mob-right" id="mob-extra"></div>
-  <button class="mob-burger" onclick="openSidebar()">☰</button>
+  <div class="nav-right">
+    <div id="nav-auth"><a href="login.html" class="nav-pill solid">ВОЙТИ</a></div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><div class="hero-badge-dot"></div>Trading Journal · v2.0</div>
+  <h1 class="hero-h1">
+    <span class="line-dim">ТОРГУЙ</span><br>
+    <span class="line-accent">ОСОЗНАННО</span><br>
+    <span class="line-dim">РАСТИ БЫСТРО</span>
+  </h1>
+  <p class="hero-sub">Журнал сделок с <b>AI-анализом</b>, психологическим профилем и геймификацией. Найди паттерны которые тебя сливают — и устрани их.</p>
+  <div class="hero-btns">
+    <a href="login.html" class="btn-cta" id="hero-cta">Начать сейчас</a>
+    <a href="#features" class="btn-ghost-pill">Как это работает</a>
+  </div>
+  <div class="proof-strip">
+    <div class="proof-item"><div class="proof-num">30с</div><div class="proof-label">Запись сделки</div></div>
+    <div class="proof-div"></div>
+    <div class="proof-item"><div class="proof-num">AI</div><div class="proof-label">Чекер сетапа</div></div>
+    <div class="proof-div"></div>
+    <div class="proof-item"><div class="proof-num">6</div><div class="proof-label">Уровней роста</div></div>
+  </div>
+  <div class="scroll-hint" onclick="document.querySelector('.demo-section').scrollIntoView({behavior:'smooth'})">
+    <span>СМОТРЕТЬ ДЕМО</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<div class="demo-section">
+  <p class="section-label reveal">Живая демонстрация</p>
+  <div class="demo-float reveal d1">
+    <div class="demo-frame">
+      <div class="demo-bar">
+        <div class="dtb-dots"><div class="dtb-dot"></div><div class="dtb-dot"></div><div class="dtb-dot"></div></div>
+        <div class="dtb-tabs">
+          <button class="dtb-tab on" onclick="switchDemo('journal',this)">ЖУРНАЛ</button>
+          <button class="dtb-tab" onclick="switchDemo('analytics',this)">АНАЛИТИКА</button>
+          <button class="dtb-tab" onclick="switchDemo('profile',this)">ПРОФИЛЬ</button>
+        </div>
+        <div style="width:60px"></div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-stats">
+          <div class="ds"><div class="ds-l">Сделок</div><div class="ds-v a">24</div></div>
+          <div class="ds"><div class="ds-l">Винрейт</div><div class="ds-v g">63%</div></div>
+          <div class="ds"><div class="ds-l">P&L %</div><div class="ds-v g">+18.4%</div></div>
+          <div class="ds"><div class="ds-l">P&L $</div><div class="ds-v g">+$368</div></div>
+          <div class="ds"><div class="ds-l">Серия</div><div class="ds-v a">5🔥</div></div>
+        </div>
+        <!-- Journal -->
+        <div class="demo-panel on" id="dp-journal">
+          <div class="demo-form">
+            <div class="demo-form-title">+ Новая сделка</div>
+            <div class="demo-form-row">
+              <div class="demo-field"><div class="demo-field-l">Пара</div><div class="demo-field-v a">BTC/USDT</div></div>
+              <div class="demo-field"><div class="demo-field-l">Направление</div><div class="demo-field-v g">LONG</div></div>
+              <div class="demo-field"><div class="demo-field-l">Результат</div><div class="demo-field-v g">Прибыль ✓</div></div>
+              <div class="demo-field"><div class="demo-field-l">P&L %</div><div class="demo-field-v g">+3.2%</div></div>
+            </div>
+          </div>
+          <div class="demo-trades">
+            <div class="dt w"><div class="dt-l"><div class="dt-pair">ETH/USDT</div><div class="dt-dir long">LONG</div><div class="dt-meta">25 Фев · 14:30</div></div><div class="dt-pnl pos">+$124 · +4.1%</div></div>
+            <div class="dt l"><div class="dt-l"><div class="dt-pair">BTC/USDT</div><div class="dt-dir short">SHORT</div><div class="dt-meta">24 Фев · 19:15</div></div><div class="dt-pnl neg">−$67 · −2.3%</div></div>
+            <div class="dt w"><div class="dt-l"><div class="dt-pair">SOL/USDT</div><div class="dt-dir long">LONG</div><div class="dt-meta">23 Фев · 10:05</div></div><div class="dt-pnl pos">+$89 · +5.8%</div></div>
+          </div>
+        </div>
+        <!-- Analytics -->
+        <div class="demo-panel" id="dp-analytics">
+          <div class="demo-analytics">
+            <div class="da-card">
+              <div class="da-title">Средние эмоции</div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Уверенность</span><span>7.2/10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:72%;background:var(--a)"></div></div></div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Фокус</span><span>6.8/10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:68%;background:var(--g)"></div></div></div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Страх</span><span>3.1/10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:31%;background:var(--r)"></div></div></div>
+              <div class="da-bar-row"><div class="da-bar-head"><span>Жадность</span><span>4.2/10</span></div><div class="da-bar-track"><div class="da-bar-fill" style="width:42%;background:var(--r)"></div></div></div>
+            </div>
+            <div class="da-card">
+              <div class="da-title">Паттерны ошибок</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="background:rgba(255,69,58,0.07);border:1px solid rgba(255,69,58,0.18);border-radius:9px;padding:10px 12px;"><div style="font-family:'Syne',sans-serif;font-size:12px;margin-bottom:2px">🔥 FOMO по пятницам 17-19ч</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)">3 убытка · −$312</div></div>
+                <div style="background:rgba(48,209,88,0.05);border:1px solid rgba(48,209,88,0.15);border-radius:9px;padding:10px 12px;"><div style="font-family:'Syne',sans-serif;font-size:12px;margin-bottom:2px">🎯 Откат к EMA — суперсила</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)">5 из 5 прибыльных · avg +4.8%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Profile -->
+        <div class="demo-panel" id="dp-profile">
+          <div class="demo-profile">
+            <div class="dp-arch"><div class="dp-arch-label">🔥 Архетип трейдера</div><div class="dp-arch-name">FOMO-ОХОТНИК</div><div class="dp-arch-desc">Входишь на эмоциях, догоняешь рынок. Лучшие сделки — те, которые пропустил.</div></div>
+            <div class="dp-radar">
+              <svg width="120" height="120" viewBox="0 0 120 120">
+                <polygon points="60,10 107,37 107,83 60,110 13,83 13,37" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <polygon points="60,25 94,43 94,77 60,95 26,77 26,43" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <polygon points="60,18 99,68 35,95 21,55 60,18" fill="rgba(255,107,43,0.12)" stroke="rgba(255,107,43,0.7)" stroke-width="1.5"/>
+                <circle cx="60" cy="18" r="3" fill="#ff6b2b"/><circle cx="99" cy="68" r="3" fill="#ff6b2b"/><circle cx="35" cy="95" r="3" fill="#ff6b2b"/><circle cx="21" cy="55" r="3" fill="#ff6b2b"/>
+                <text x="60" y="8" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="7" font-family="monospace">УВЕР.</text>
+                <text x="113" y="70" text-anchor="start" fill="rgba(255,255,255,0.3)" font-size="7" font-family="monospace">ДИSC.</text>
+                <text x="9" y="105" text-anchor="end" fill="rgba(255,255,255,0.3)" font-size="7" font-family="monospace">ТЕРП.</text>
+                <text x="8" y="58" text-anchor="end" fill="rgba(255,255,255,0.3)" font-size="7" font-family="monospace">РИСК</text>
+              </svg>
+            </div>
+            <div class="dp-insight"><div class="dp-ins-l">🤖 AI-инсайт</div><div class="dp-ins-t">Дисциплина выросла на <span style="color:var(--g)">+23%</span> за месяц. Закрой торговлю по пятницам после 17:00 — PnL вырастет на <span style="color:var(--g)">+29%</span>.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <canvas class="slogo-canvas" id="logo-canvas"></canvas>
-    <div class="slogo-inner">
-      <img class="slogo-img" src="orbitum-logo.jpg" alt="">
-      <span class="slogo-text">ORBITUM</span>
+
+<div class="glow-div"></div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="s-eyebrow reveal">Возможности</div>
+    <div class="s-title reveal d1">ВСЁ ЧТО НУЖНО<br><span style="color:var(--a)">ТРЕЙДЕРУ</span></div>
+    <p class="s-sub reveal d2">Не просто таблица — полная система роста с AI, психологическим анализом и геймификацией.</p>
+    <div class="feats-grid">
+      <div class="feat-card span2 reveal">
+        <div class="feat-tag">НОВОЕ</div>
+        <div class="feat-inner">
+          <div class="feat-inner-text">
+            <div class="feat-icon">🤖</div>
+            <div class="feat-title">AI ПРОВЕРКА СЕТАПА</div>
+            <div class="feat-desc">Перед входом в сделку — ответь на 5 вопросов по SMC/ICT. AI выдаёт вердикт: <b>GO / STOP / WAIT</b> с конкретным объяснением что не так.</div>
+          </div>
+          <div class="ai-demo-box">
+            <div class="ai-verdict-big">✅ GO</div>
+            <div class="ai-verdict-text">Структура подтверждена. Вход от FVG, стоп за уровень. Состояние стабильное.</div>
+            <div class="ai-verdict-action">→ Открывай согласно плану</div>
+          </div>
+        </div>
+      </div>
+      <div class="feat-card reveal d1">
+        <div class="feat-tag">НОВОЕ</div>
+        <div class="feat-icon">🧠</div>
+        <div class="feat-title">ПСИХОЛОГИЧЕСКИЙ ПРОФИЛЬ</div>
+        <div class="feat-desc">Архетип трейдера, радар из 5 черт, тепловая карта по дням и часам. Узнай <b>кто ты на рынке</b> — FOMO-охотник, Снайпер или Мститель.</div>
+      </div>
+      <div class="feat-card span2 reveal">
+        <div class="feat-inner">
+          <div class="feat-inner-text">
+            <div class="feat-icon">🏆</div>
+            <div class="feat-title">ГЕЙМИФИКАЦИЯ РОСТА</div>
+            <div class="feat-desc">6 уровней от Новичка до Мастера. Прогресс-бар по P&L. Стрик активных дней. <b>Реальные награды</b> за достижения.</div>
+          </div>
+          <div class="level-demo-box">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="font-size:24px">🎯</span><div><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--a);letter-spacing:1px">ПРОФИ · Уровень 3</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)">+24.3% от депозита</div></div><div style="margin-left:auto;background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.18);border-radius:8px;padding:6px 9px;text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:#f5a623">7🔥</div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3)">дней</div></div></div>
+            <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-bottom:5px"><div style="height:100%;width:65%;background:linear-gradient(90deg,var(--a),#ff9a5c);border-radius:3px"></div></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)">24.3% → 50% · след: ЭКСПЕРТ</div>
+          </div>
+        </div>
+      </div>
+      <div class="feat-card reveal"><div class="feat-icon">📊</div><div class="feat-title">ЭМОЦИОНАЛЬНАЯ АНАЛИТИКА</div><div class="feat-desc">4 метрики на сделку: уверенность, страх, жадность, фокус. Паттерн-детектор сам найдёт твои поведенческие ловушки.</div></div>
+      <div class="feat-card reveal d1"><div class="feat-icon">📝</div><div class="feat-title">ЖУРНАЛ МЫШЛЕНИЯ</div><div class="feat-desc">Почему вошёл, что чувствовал, какой урок вынес. <b>30 секунд</b> на запись — авторасчёт P&L, история всегда под рукой.</div></div>
+      <div class="feat-card reveal d2"><div class="feat-icon">⚡</div><div class="feat-title">БЫСТРЫЙ ВВОД</div><div class="feat-desc">Записать сделку за <b>30 секунд</b>. Авторасчёт P&L от депозита. Фильтры по парам, направлению, результату.</div></div>
     </div>
   </div>
-  <nav class="sidenav">
-    <div class="snav-sec">Кабинет</div>
-    <a href="journal.html" class="snav-item "><span class="snav-icon">📋</span>ЖУРНАЛ СДЕЛОК</a>
-    <a href="profile.html" class="snav-item active"><span class="snav-icon">🧠</span>ПРОФИЛЬ</a>
-    <div class="snav-div" id="admin-divider" style="display:none"></div>
-    <a href="admin.html" class="snav-item admin-link " id="snav-admin" style="display:none"><span class="snav-icon">⚙️</span>АДМИН</a>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="sf-user">
-      <div class="sf-avatar" id="sf-avatar">?</div>
-      <div class="sf-info"><div class="sf-name" id="sf-name">...</div><div class="sf-plan" id="sf-plan">—</div></div>
-    </div>
-    <button class="sf-logout" onclick="doLogout()">ВЫЙТИ</button>
-  </div>
-</div>
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+</section>
 
-<div class="profile-wrap"><div class="wrap" style="max-width:700px;margin:0 auto;">
+<div class="glow-div"></div>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-tag">
-      <div class="dot"></div>
-      <span class="tag-text">АНАЛИТИКА ТРЕЙДЕРА</span>
-    </div>
-    <h1 class="title">ПСИХОЛОГИЧЕСКИЙ<br><span>ПРОФИЛЬ</span></h1>
-    <p class="subtitle">На основе 8 сделок · последние 30 дней</p>
-  </div>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('profile',this)">ПРОФИЛЬ</button>
-    <button class="tab" onclick="switchTab('patterns',this)">ПАТТЕРНЫ</button>
-    <button class="tab" onclick="switchTab('heatmap',this)">ТЕПЛОВАЯ КАРТА</button>
-  </div>
-
-  <!-- PROFILE PANEL -->
-  <div id="panel-profile" class="panel active">
-
-    <!-- Archetype -->
-    <div class="archetype-card" id="archetype-card">
-      <div class="archetype-bg-icon" id="archetype-bg">🔥</div>
-      <div class="card-label">АРХЕТИП ТРЕЙДЕРА</div>
-      <div class="archetype-body">
-        <div class="archetype-icon" id="archetype-icon">🔥</div>
-        <div>
-          <div class="archetype-name" id="archetype-name">FOMO-ОХОТНИК</div>
-          <div class="archetype-desc" id="archetype-desc">Входишь на эмоциях, догоняешь рынок. Лучшие сделки — те, которые пропустил.</div>
-        </div>
-      </div>
-      <div class="archetype-chips">
-        <button class="chip active-chip" onclick="setArchetype(this,'🔥','FOMO-ОХОТНИК','Входишь на эмоциях, догоняешь рынок. Лучшие сделки — те, которые пропустил.')">🔥 FOMO-охотник</button>
-        <button class="chip" onclick="setArchetype(this,'🦊','ОСТОРОЖНЫЙ ЛИС','Закрываешь прибыль слишком рано. Страх мешает дать сделке дышать.')">🦊 Осторожный лис</button>
-        <button class="chip" onclick="setArchetype(this,'🎯','СНАЙПЕР','Редкие, точные входы. Ждёшь своего момента и берёшь максимум.')">🎯 Снайпер</button>
-        <button class="chip" onclick="setArchetype(this,'⚡','МСТИТЕЛЬ','После убытка удваиваешь ставки. Месть рынку дорого обходится.')">⚡ Мститель</button>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card" style="animation-delay:.05s">
-        <div class="stat-label">ВИН-РЕЙТ</div>
-        <div class="stat-value c-red">37.5%</div>
-        <div class="stat-sub">3 из 8</div>
-      </div>
-      <div class="stat-card" style="animation-delay:.1s">
-        <div class="stat-label">ЛУЧШИЙ ДЕНЬ</div>
-        <div class="stat-value c-green">Среда</div>
-        <div class="stat-sub">+$110</div>
-      </div>
-      <div class="stat-card" style="animation-delay:.15s">
-        <div class="stat-label">ХУДШИЙ ДЕНЬ</div>
-        <div class="stat-value c-red">Пятница</div>
-        <div class="stat-sub">−$298</div>
-      </div>
-    </div>
-
-    <!-- Radar + traits -->
-    <div class="card">
-      <div class="card-label">ЧЕРТЫ ХАРАКТЕРА</div>
-      <div class="radar-wrap">
-        <svg width="200" height="200" style="flex-shrink:0;overflow:visible" id="radar-svg"></svg>
-        <div class="traits">
-          <div class="trait"><div class="trait-row"><span class="trait-name">Уверенность</span><span class="trait-val c-orange">5.2</span></div><div class="bar-track"><div class="bar-fill" style="width:52%;background:var(--orange)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Дисциплина</span><span class="trait-val c-red">4.8</span></div><div class="bar-track"><div class="bar-fill" style="width:48%;background:var(--red)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Терпение</span><span class="trait-val c-red">3.9</span></div><div class="bar-track"><div class="bar-fill" style="width:39%;background:var(--red)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Контроль риска</span><span class="trait-val c-red">4.1</span></div><div class="bar-track"><div class="bar-fill" style="width:41%;background:var(--red)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Фокус</span><span class="trait-val c-green">6.3</span></div><div class="bar-track"><div class="bar-fill" style="width:63%;background:var(--green)"></div></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Insight -->
-    <div class="insight">
-      <div class="insight-label">🧠 AI-ИНСАЙТ</div>
-      <p class="insight-text">
-        Твой главный враг — <span class="hl-red">пятничный FOMO</span>. 37% всех потерь происходит в один временной слот. Закрой торговлю по пятницам после 17:00 — и твой PnL вырастет на <span class="hl-green">+29.8% мгновенно</span>. Паттерн "Откат к EMA" — твоя единственная статистически подтверждённая точка входа. Остальное — азарт.
-      </p>
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="container" style="padding-top:120px">
+    <div class="s-eyebrow reveal">Как работает</div>
+    <div class="s-title reveal d1">4 ШАГА ДО<br><span style="color:var(--a)">РЕЗУЛЬТАТА</span></div>
+    <div class="steps-track">
+      <div class="steps-line"></div>
+      <div class="step reveal"><div class="step-bubble">1</div><div class="step-title">РЕГИСТРАЦИЯ</div><div class="step-desc">Создай аккаунт за 30 секунд через email</div></div>
+      <div class="step reveal d1"><div class="step-bubble">2</div><div class="step-title">ОПЛАТА USDT</div><div class="step-desc">Переведи на кошелёк и пришли txid в поддержку</div></div>
+      <div class="step reveal d2"><div class="step-bubble">3</div><div class="step-title">ДОСТУП</div><div class="step-desc">Активация в течение часа — ты внутри</div></div>
+      <div class="step reveal d3"><div class="step-bubble">4</div><div class="step-title">РОСТ</div><div class="step-desc">Веди журнал каждый день и смотри как растут результаты</div></div>
     </div>
   </div>
+</section>
 
-  <!-- PATTERNS PANEL -->
-  <div id="panel-patterns" class="panel">
-    <div class="pattern-header">
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px">ПАТТЕРНЫ ОШИБОК</div>
-        <div style="color:var(--text-faint);font-size:11px">Нажми чтобы раскрыть · 4 паттерна найдено</div>
-      </div>
-      <div class="pattern-count">
-        <div class="pattern-count-num">4</div>
-        <div class="pattern-count-label">КРИТИЧЕСКИХ</div>
-      </div>
+<div class="glow-div"></div>
+
+<!-- REVIEWS -->
+<section class="reviews-section">
+  <div class="container">
+    <div class="s-eyebrow reveal">Отзывы</div>
+    <div class="s-title reveal d1">ЧТО ГОВОРЯТ<br><span style="color:var(--a)">ТРЕЙДЕРЫ</span></div>
+    <div class="reviews-track">
+      <div class="review reveal"><div class="review-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div><div class="review-text">«За 3 месяца вырос с 38% до 64% вин-рейт. Главное открытие — я сливал каждую пятницу вечером. Orbitum показал это через неделю ведения.»</div><div class="review-author"><div class="review-ava">A</div><div><div class="review-name">Alex_trader</div><div class="review-role">Фьючерсы · 2 года</div></div></div></div>
+      <div class="review reveal d1"><div class="review-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div><div class="review-text">«AI чекер сетапов — убийственная фича. Несколько раз остановил меня от плохих входов. Просто ответил "нет" на вопрос — и передумал.»</div><div class="review-author"><div class="review-ava">K</div><div><div class="review-name">k0zel_trades</div><div class="review-role">Спот · 4 года</div></div></div></div>
+      <div class="review reveal d2"><div class="review-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div><div class="review-text">«Геймификация неожиданно мотивирует. Я не мог пропустить день чтобы не сломать стрик. Дисциплина выросла сама собой.»</div><div class="review-author"><div class="review-ava">M</div><div><div class="review-name">m4rtini_fx</div><div class="review-role">Форекс · 3 года</div></div></div></div>
     </div>
+  </div>
+</section>
 
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box">🔥</div>
-          <div><div class="pattern-title">FOMO по пятницам 17–19:00</div><div class="pattern-subtitle">3 сделки · 100% убыточных</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-red">−$847 потерь</span><span class="chevron">▼</span></div>
-      </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Каждую пятницу вечером ты входишь в BTC/USDT на пробое уровня. Жадность 8–9/10, страх 7–8/10. Все три сделки — убыточные. Скорее всего это реакция на дневные движения после рабочей недели.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Запрети себе торговать BTC/USDT в пятницу после 17:00. Поставь напоминание в календарь.</div></div>
-        <div class="trade-tags"><span class="trade-tag">BTC пт 17:10 −8.2%</span><span class="trade-tag">BTC пт 18:33 −12.5%</span><span class="trade-tag">BTC пт 19:01 −9.1%</span></div>
-      </div>
-    </div>
+<div class="glow-div"></div>
 
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box">💀</div>
-          <div><div class="pattern-title">Жадность >7 = убыток</div><div class="pattern-subtitle">5 из 6 сделок с жадн. >7 убыточны</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-red">−$312 потерь</span><span class="chevron">▼</span></div>
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="s-eyebrow reveal">Тарифы</div>
+    <div class="s-title reveal d1">ВЫБЕРИ<br><span style="color:var(--a)">СВОЙ ПЛАН</span></div>
+    <div class="pricing-wrap">
+      <div class="price-card reveal d1">
+        <div class="price-name">Месячный</div>
+        <div class="price-amount">$29</div>
+        <div class="price-period">в месяц · оплата USDT</div>
+        <ul class="price-feats"><li>Безлимит сделок</li><li>Все метрики и статистика</li><li>AI-проверка сетапов</li><li>Эмоциональный анализ</li><li>Геймификация и уровни</li></ul>
+        <a href="login.html?plan=monthly" class="price-btn outline">Выбрать</a>
       </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Чёткая корреляция: когда жадность выше 7, вин-рейт падает до 16%. Когда жадность ≤4 — вин-рейт 100%. Твой злейший враг — это ты сам в состоянии эйфории.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Добавь блокировку: если выставил жадность >7 — система спрашивает «Уверен?» с паузой 60 секунд.</div></div>
-        <div class="trade-tags"><span class="trade-tag">Жадность 9 → −12.5%</span><span class="trade-tag">Жадность 8 → −8.2%</span><span class="trade-tag">Жадность 7 → −5.3%</span></div>
-      </div>
-    </div>
-
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box medium">⏰</div>
-          <div><div class="pattern-title">Утренние сделки (8–10:00) — слив</div><div class="pattern-subtitle">Пн–Вт, 2 из 2 убыточных</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-orange">+$291 при исправлении</span><span class="chevron">▼</span></div>
-      </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Понедельник 8–9 утра — твоё слабое место. Фокус на минимуме (2–3), входишь импульсно. Вероятно, не успел настроиться на рынок после выходных.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Первый час после открытия рынка — только наблюдение. Никаких сделок до 10:00 в понедельник.</div></div>
-        <div class="trade-tags"><span class="trade-tag">Пн 08:14 BNB −6.7%</span><span class="trade-tag">Пн 09:02 SOL −5.3%</span></div>
-      </div>
-    </div>
-
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box positive">🎯</div>
-          <div><div class="pattern-title">Откат к EMA — золотая жила</div><div class="pattern-subtitle">3 из 3 прибыльных · avg +5.0%</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-green">Твоя суперсила</span><span class="chevron">▼</span></div>
-      </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Паттерн «Откат к EMA» работает у тебя идеально: 100% вин-рейт, высокий фокус (8–9), низкая жадность. Это твой краевой сетап — именно здесь ты торгуешь как профи.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Увеличь размер позиции на этом паттерне. Это единственное место где твоя статистика говорит «вход оправдан».</div></div>
-        <div class="trade-tags"><span class="trade-tag">ETH EMA +4.1%</span><span class="trade-tag">ETH EMA +7.8%</span><span class="trade-tag">ADA EMA +3.2%</span></div>
+      <div class="price-card hot reveal d2">
+        <div class="price-badge">Лучший выбор</div>
+        <div class="price-name">Навсегда</div>
+        <div class="price-amount">$197</div>
+        <div class="price-period">разовая оплата · навсегда</div>
+        <ul class="price-feats"><li>Всё из месячного</li><li>Психологический профиль</li><li>Приоритетная поддержка</li><li>Все будущие обновления</li><li>Навсегда без доплат</li></ul>
+        <a href="login.html?plan=lifetime" class="price-btn primary">Выбрать</a>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- HEATMAP PANEL -->
-  <div id="panel-heatmap" class="panel">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:6px">ТЕПЛОВАЯ КАРТА</div>
-    <div style="color:var(--text-faint);font-size:11px;margin-bottom:24px">Когда ты теряешь деньги</div>
-
-    <!-- Day bars -->
-    <div class="card-label">ПРИБЫЛЬ ПО ДНЯМ НЕДЕЛИ</div>
-    <div class="day-bars">
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:90px;background:rgba(240,112,112,0.45)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-red">−12%</div><div class="day-bar-name">Пн</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:30px;background:rgba(77,219,150,0.45)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-green">+4.1%</div><div class="day-bar-name">Вт</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:55px;background:rgba(77,219,150,0.5)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-green">+11%</div><div class="day-bar-name">Ср</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:20px;background:rgba(255,255,255,0.05)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl" style="color:var(--text-faint)">—</div><div class="day-bar-name">Чт</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:120px;background:rgba(240,112,112,0.55)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-red">−29.8%</div><div class="day-bar-name">Пт</div></div>
-      </div>
-    </div>
-
-    <!-- Emotion correlations -->
-    <div class="card-label" style="margin-top:8px">ВЛИЯНИЕ ЭМОЦИЙ НА РЕЗУЛЬТАТ</div>
-    <div class="emotion-grid">
-      <div class="emotion-card">
-        <div class="emotion-name">Жадность</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">100%</div><div class="emotion-col-label">вин при ≤4</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">16%</div><div class="emotion-col-label">вин при ≥7</div></div>
-        </div>
-      </div>
-      <div class="emotion-card">
-        <div class="emotion-name">Страх</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">100%</div><div class="emotion-col-label">вин при ≤3</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">20%</div><div class="emotion-col-label">вин при ≥6</div></div>
-        </div>
-      </div>
-      <div class="emotion-card">
-        <div class="emotion-name">Уверенность</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">90%</div><div class="emotion-col-label">вин при ≥7</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">15%</div><div class="emotion-col-label">вин при ≤4</div></div>
-        </div>
-      </div>
-      <div class="emotion-card">
-        <div class="emotion-name">Фокус</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">88%</div><div class="emotion-col-label">вин при ≥7</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">10%</div><div class="emotion-col-label">вин при ≤4</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hour heatmap -->
-    <div class="card-label" style="margin-top:8px">АКТИВНОСТЬ ПО ЧАСАМ</div>
-    <div class="hour-grid" id="hour-grid"></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(77,219,150,0.45)"></div>Прибыльная сделка</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(240,112,112,0.45)"></div>Убыточная сделка</div>
-    </div>
+<!-- BOTTOM CTA -->
+<section class="cta-section">
+  <div class="cta-card reveal">
+    <div class="cta-title">ГОТОВ РАСТИ<br><span>БЫСТРЕЕ?</span></div>
+    <div class="cta-desc">Начни вести осознанный журнал, найди свои поведенческие паттерны и расти как трейдер каждый месяц.</div>
+    <a href="login.html" class="btn-cta" style="font-size:16px;padding:18px 52px" id="cta-bottom">Начать сейчас</a>
   </div>
+</section>
 
-</div>
+<!-- FOOTER -->
+<footer>
+  <a class="footer-brand" href="#"><span class="footer-name">ORBITUM</span></a>
+  <div class="footer-copy">© 2026 ORBITUM JOURNAL · ALL RIGHTS RESERVED</div>
+</footer>
 
 <script>
-const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const {createClient}=supabase; const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let allTrades=[];
-
-
-async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
-
-async function initProfile(){
-  const{data:{user}}=await sb.auth.getUser();
-  if(!user){window.location.href='login.html';return;}
-  const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
-  if(!p){window.location.href='login.html';return;}
-  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());
-  if(!hasAccess&&p.role!=='admin'){window.location.href='pay.html';return;}
-  // fill sidebar
-  document.getElementById('sf-avatar').textContent=(p.full_name||p.username||'U')[0].toUpperCase();
-  document.getElementById('sf-name').textContent=p.full_name||p.username||user.email;
-  document.getElementById('sf-plan').textContent=p.plan==='lifetime'?'∞ НАВСЕГДА':p.plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-  if(p.role==='admin'){document.getElementById('snav-admin').style.display='flex';document.getElementById('admin-divider').style.display='block';}
-  // update subtitle with real username
-  document.querySelector('.subtitle').textContent=(p.full_name||p.username||user.email)+' · последние 30 дней';
-  // load trades
-  const{data:trades}=await sb.from('trades').select('*').eq('user_id',user.id).order('created_at',{ascending:false});
-  allTrades=trades||[];
-  computeRealStats(allTrades);
-}
-
-function computeRealStats(trades){
-  // update subtitle
-  document.querySelector('.subtitle').textContent=(document.querySelector('.subtitle').textContent.split('·')[0]).trim()+` · ${trades.length} сделок`;
-  if(!trades.length) return;
-  const wins=trades.filter(t=>t.result==='win');
-  const losses=trades.filter(t=>t.result==='loss');
-  const wr=Math.round(wins.length/trades.length*100);
-
-  // update first stat-card (win rate)
-  const statCards=document.querySelectorAll('.stat-card');
-  if(statCards[0]){
-    const sv=statCards[0].querySelector('.stat-value');
-    const ss=statCards[0].querySelector('.stat-sub');
-    if(sv){sv.textContent=wr+'%';sv.className='stat-value '+(wr>=50?'c-green':'c-red');}
-    if(ss)ss.textContent=wins.length+' из '+trades.length;
+// CANVAS BG
+(function(){
+  const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');
+  let W,H,orbs,pts;
+  function resize(){
+    W=c.width=window.innerWidth;H=c.height=window.innerHeight;
+    orbs=[
+      {x:W*0.5,y:-H*0.1,r:Math.min(W,H)*0.78,col:'rgba(255,107,43,0.07)',vx:0,vy:0.1},
+      {x:W*0.88,y:H*0.72,r:Math.min(W,H)*0.42,col:'rgba(255,107,43,0.038)',vx:-0.05,vy:-0.04},
+      {x:W*0.1,y:H*0.62,r:Math.min(W,H)*0.36,col:'rgba(80,140,255,0.028)',vx:0.04,vy:0.03},
+    ];
+    pts=Array.from({length:55},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*0.85+0.15,vx:(Math.random()-0.5)*0.16,vy:(Math.random()-0.5)*0.16,a:Math.random()*0.35+0.04,ph:Math.random()*Math.PI*2}));
   }
-
-  // best/worst days
-  const byDay={};
-  trades.forEach(t=>{
-    const day=new Date(t.created_at).toLocaleDateString('ru-RU',{weekday:'short'});
-    if(!byDay[day])byDay[day]={pnl:0,cnt:0};
-    byDay[day].pnl+=(t.pnl_pct||0);byDay[day].cnt++;
-  });
-  const days=Object.entries(byDay);
-  if(days.length){
-    const best=days.reduce((a,b)=>b[1].pnl>a[1].pnl?b:a);
-    const worst=days.reduce((a,b)=>b[1].pnl<a[1].pnl?b:a);
-    if(statCards[1]){const sv=statCards[1].querySelector('.stat-value');const ss=statCards[1].querySelector('.stat-sub');if(sv)sv.textContent=best[0];if(ss)ss.textContent=(best[1].pnl>=0?'+':'')+best[1].pnl.toFixed(1)+'%';}
-    if(statCards[2]){const sv=statCards[2].querySelector('.stat-value');const ss=statCards[2].querySelector('.stat-sub');if(sv)sv.textContent=worst[0];if(ss)ss.textContent=worst[1].pnl.toFixed(1)+'%';}
-  }
-
-  // radar traits from emotions
-  const avg=key=>{const v=trades.map(t=>t[key]).filter(x=>x!=null);return v.length?(v.reduce((s,x)=>s+x,0)/v.length):5;};
-  const conf=avg('emotion_conf'),fear=avg('emotion_fear'),greed=avg('emotion_greed'),calm=avg('emotion_calm');
-  const discipline=Math.max(0,10-greed);
-  const patience=Math.max(0,10-fear);
-  const riskControl=Math.max(0,(conf+discipline)/2);
-  const radarVals=[conf,discipline,patience,riskControl,calm];
-
-  // update trait bars
-  const traitBars=document.querySelectorAll('.bar-fill');
-  const traitVals=document.querySelectorAll('.trait-val');
-  radarVals.forEach((v,i)=>{
-    if(traitBars[i]){traitBars[i].style.width=(v/10*100)+'%';}
-    if(traitVals[i]){traitVals[i].textContent=v.toFixed(1);}
-  });
-
-  // update day heatmap bars (real data)
-  updateDayBars(trades);
-  // update emotion grid (real data)
-  updateEmotionGrid(trades,wins,losses);
-  // update patterns (real data)
-  updatePatterns(trades,wins,losses);
-  // update insight
-  updateInsight(trades,wins,losses);
-  // update hour heatmap (real data)
-  updateHourGrid(trades);
-  // rebuild radar
-  rebuildRadar(radarVals);
-}
-
-function updateDayBars(trades){
-  const days=['Пн','Вт','Ср','Чт','Пт'];
-  const dayMap={'Monday':'Пн','Tuesday':'Вт','Wednesday':'Ср','Thursday':'Чт','Friday':'Пт'};
-  const stats={Пн:{pnl:0},Вт:{pnl:0},Ср:{pnl:0},Чт:{pnl:0},Пт:{pnl:0}};
-  trades.forEach(t=>{
-    const en=new Date(t.created_at).toLocaleDateString('en-US',{weekday:'long'});
-    const ru=dayMap[en];
-    if(ru)stats[ru].pnl+=(t.pnl_pct||0);
-  });
-  const bars=document.querySelectorAll('.day-bar');
-  days.forEach((day,i)=>{
-    if(!bars[i])return;
-    const pnl=stats[day].pnl;
-    const fill=bars[i].querySelector('.day-bar-fill');
-    const pnlEl=bars[i].querySelector('.day-bar-pnl');
-    const maxH=120,minH=20;
-    const h=minH+Math.min(1,Math.abs(pnl)/30)*(maxH-minH);
-    const isPos=pnl>0,isZero=pnl===0;
-    fill.style.height=h+'px';
-    fill.style.background=isZero?'rgba(255,255,255,0.05)':isPos?'rgba(77,219,150,0.45)':'rgba(240,112,112,0.45)';
-    pnlEl.className='day-bar-pnl '+(isZero?'':(isPos?'c-green':'c-red'));
-    pnlEl.textContent=isZero?'—':(pnl>=0?'+':'')+pnl.toFixed(1)+'%';
-  });
-}
-
-function updateEmotionGrid(trades,wins,losses){
-  const avg=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
-  const grid=document.querySelector('.emotion-grid');
-  if(!grid)return;
-  const emotions=[
-    {name:'Жадность',wKey:'emotion_greed',lKey:'emotion_greed',winWhen:'≤4',loseWhen:'≥7'},
-    {name:'Страх',wKey:'emotion_fear',lKey:'emotion_fear',winWhen:'≤3',loseWhen:'≥6'},
-    {name:'Уверенность',wKey:'emotion_conf',lKey:'emotion_conf',winWhen:'≥7',loseWhen:'≤4'},
-    {name:'Фокус',wKey:'emotion_calm',lKey:'emotion_calm',winWhen:'≥7',loseWhen:'≤4'},
-  ];
-  const cards=grid.querySelectorAll('.emotion-card');
-  emotions.forEach((e,i)=>{
-    if(!cards[i])return;
-    const wV=avg(wins,e.wKey);
-    const lV=avg(losses,e.lKey);
-    const vals=cards[i].querySelectorAll('.emotion-col-val');
-    if(vals[0])vals[0].textContent=wV.toFixed(0);
-    if(vals[1])vals[1].textContent=lV.toFixed(0);
-  });
-}
-
-function updatePatterns(trades,wins,losses){
-  // Build dynamic patterns from real trade data
-  const patterns=[];
-
-  // FOMO pattern: losses in 17-19 on Fridays
-  const fridayEvening=trades.filter(t=>{
-    const d=new Date(t.created_at);
-    return d.getDay()===5&&d.getHours()>=17&&d.getHours()<19&&t.result==='loss';
-  });
-  if(fridayEvening.length>=1){
-    const pnl=fridayEvening.reduce((s,t)=>s+(t.pnl_usd||0),0);
-    patterns.push({icon:'🔥',color:'badge-red',title:'FOMO по пятницам 17–19:00',sub:`${fridayEvening.length} сделок · 100% убыточных`,badge:`−$${Math.abs(pnl).toFixed(0)} потерь`,desc:'Паттерн выявлен: убыточные входы каждую пятницу вечером. Вероятно реакция на дневные движения после рабочей недели.',rec:'Запрети себе торговать в пятницу после 17:00. Поставь напоминание.'});
-  }
-
-  // Greed pattern
-  const greedyLoss=trades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
-  const greedyAll=trades.filter(t=>(t.emotion_greed||0)>=7);
-  if(greedyLoss.length>=1){
-    const pnl=greedyLoss.reduce((s,t)=>s+(t.pnl_usd||0),0);
-    patterns.push({icon:'💀',color:'badge-red',title:'Жадность >7 = убыток',sub:`${greedyLoss.length} из ${greedyAll.length} сделок с жадн. >7 убыточны`,badge:`−$${Math.abs(pnl).toFixed(0)} потерь`,desc:`Чёткая корреляция: при жадности ≥7 вин-рейт падает до ${greedyAll.length?Math.round((greedyAll.length-greedyLoss.length)/greedyAll.length*100):0}%. Твой злейший враг — ты сам в состоянии эйфории.`,rec:'Добавь правило: жадность ≥7 → обязательная пауза 5 минут перед входом.'});
-  }
-
-  // Morning losses
-  const morningLoss=trades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=8&&h<10&&t.result==='loss';});
-  if(morningLoss.length>=1){
-    patterns.push({icon:'⏰',color:'badge-orange',title:'Утренние сделки (8–10:00) — риск',sub:`${morningLoss.length} убыточных в 8-10ч`,badge:'⚠ Риск-зона',desc:'Первые часы торговли — слабое место. Фокус минимальный, рынок ещё не определился с направлением.',rec:'Первый час после открытия — только наблюдение. Никаких входов до 10:00.'});
-  }
-
-  // Superpower: high confidence wins
-  const confWins=trades.filter(t=>(t.emotion_conf||0)>=7&&t.result==='win');
-  if(confWins.length>=2){
-    const avgPnl=confWins.reduce((s,t)=>s+(t.pnl_pct||0),0)/confWins.length;
-    patterns.push({icon:'🎯',color:'badge-green',title:'Высокая уверенность → победа',sub:`${confWins.length} из ${confWins.length} прибыльных · avg +${avgPnl.toFixed(1)}%`,badge:'Твоя суперсила',desc:`При уверенности ≥7 вин-рейт ${Math.round(confWins.length/trades.filter(t=>(t.emotion_conf||0)>=7).length*100)||100}%. Это твоя сильнейшая точка входа.`,rec:'Увеличь размер позиции когда уверенность ≥7. Это статистически подтверждено.'});
-  }
-
-  const container=document.getElementById('panel-patterns');
-  if(!container)return;
-
-  // update count
-  const countEl=container.querySelector('.pattern-count-num');
-  const countBad=patterns.filter(p=>p.color==='badge-red').length;
-  if(countEl)countEl.textContent=countBad;
-  const subEl=container.querySelector('[style*="color:var(--text-faint)"]');
-  if(subEl)subEl.textContent=`Нажми чтобы раскрыть · ${patterns.length} паттерн${patterns.length===1?'':'а'} найдено`;
-
-  // replace pattern cards
-  const oldCards=container.querySelectorAll('.pattern-card');
-  oldCards.forEach(c=>c.remove());
-
-  const insertAfter=container.querySelector('.pattern-header');
-  patterns.forEach(p=>{
-    const div=document.createElement('div');
-    div.className='pattern-card';
-    div.onclick=function(){togglePattern(this);};
-    div.innerHTML=`<div class="pattern-top">
-      <div class="pattern-left">
-        <div class="pattern-icon-box ${p.color==='badge-green'?'positive':p.color==='badge-orange'?'medium':''}">${p.icon}</div>
-        <div><div class="pattern-title">${p.title}</div><div class="pattern-subtitle">${p.sub}</div></div>
-      </div>
-      <div class="pattern-right"><span class="badge ${p.color}">${p.badge}</span><span class="chevron">▼</span></div>
-    </div>
-    <div class="pattern-body">
-      <p class="pattern-desc">${p.desc}</p>
-      <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">${p.rec}</div></div>
-    </div>`;
-    if(insertAfter)insertAfter.after(div);
-    else container.appendChild(div);
-  });
-
-  if(!patterns.length){
-    const empty=document.createElement('div');
-    empty.style.cssText='color:var(--text-faint);font-size:12px;padding:20px;text-align:center';
-    empty.textContent='Недостаточно сделок для анализа паттернов. Добавь больше сделок в журнал.';
-    container.appendChild(empty);
-  }
-}
-
-function updateHourGrid(trades){
-  const grid=document.getElementById('hour-grid');
-  if(!grid)return;
-  grid.innerHTML='';
-  // build hour map from real trades
-  const hourMap={};
-  trades.forEach(t=>{
-    const h=new Date(t.created_at).getHours();
-    if(!hourMap[h])hourMap[h]=[];
-    hourMap[h].push(t.result);
-  });
-  for(let h=0;h<24;h++){
-    const cell=document.createElement('div');
-    cell.className='hour-cell';
-    cell.textContent=h;
-    if(hourMap[h]&&hourMap[h].length){
-      const wins=hourMap[h].filter(r=>r==='win').length;
-      const losses=hourMap[h].filter(r=>r==='loss').length;
-      // dominant result
-      if(wins>losses)cell.classList.add('win');
-      else if(losses>wins)cell.classList.add('loss');
-      else cell.classList.add('win'); // tie → green
-      cell.title=`${h}:00 · ${wins}W/${losses}L`;
-    }
-    grid.appendChild(cell);
-  }
-}
-
-function updateInsight(trades,wins,losses){
-  const insightText=document.querySelector('.insight-text');
-  if(!insightText||!trades.length)return;
-  const wr=Math.round(wins.length/trades.length*100);
-  const avg=key=>{const v=trades.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:5;};
-  const avgGreed=avg('emotion_greed');
-  const avgFear=avg('emotion_fear');
-  let msg='';
-  if(avgGreed>6)msg+=`Средняя жадность <span class="hl-red">${avgGreed.toFixed(1)}/10</span> — слишком высокая. `;
-  if(avgFear>6)msg+=`Страх <span class="hl-red">${avgFear.toFixed(1)}/10</span> мешает торговле. `;
-  if(wr>=60)msg+=`Отличный вин-рейт <span class="hl-green">${wr}%</span> — ты на правильном пути! `;
-  else if(wr<40)msg+=`Вин-рейт <span class="hl-red">${wr}%</span> — пересмотри точки входа. `;
-  if(!msg)msg=`Вин-рейт <span class="hl-green">${wr}%</span> из ${trades.length} сделок. Продолжай вести журнал.`;
-  insightText.innerHTML=msg;
-}
-
-function rebuildRadar(vals){
-  const svg=document.getElementById('radar-svg');
-  if(!svg)return;
-  while(svg.firstChild)svg.removeChild(svg.firstChild);
-  const ns='http://www.w3.org/2000/svg',cx=100,cy=100,r=75,n=vals.length;
-  [2,4,6,8,10].forEach(lv=>{
-    const pts=vals.map((_,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const rv=(lv/10)*r;return`${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');
-    const p=document.createElementNS(ns,'polygon');p.setAttribute('points',pts);p.setAttribute('fill','none');p.setAttribute('stroke','rgba(255,255,255,0.07)');p.setAttribute('stroke-width','1');svg.appendChild(p);
-  });
-  vals.forEach((_,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const l=document.createElementNS(ns,'line');l.setAttribute('x1',cx);l.setAttribute('y1',cy);l.setAttribute('x2',cx+r*Math.cos(a));l.setAttribute('y2',cy+r*Math.sin(a));l.setAttribute('stroke','rgba(255,255,255,0.1)');l.setAttribute('stroke-width','1');svg.appendChild(l);});
-  const pts=vals.map((v,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const rv=(v/10)*r;return`${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');
-  const poly=document.createElementNS(ns,'polygon');poly.setAttribute('points',pts);poly.setAttribute('fill','rgba(77,219,150,0.18)');poly.setAttribute('stroke','#4ddb96');poly.setAttribute('stroke-width','2');svg.appendChild(poly);
-  vals.forEach((v,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const rv=(v/10)*r;const c=document.createElementNS(ns,'circle');c.setAttribute('cx',cx+rv*Math.cos(a));c.setAttribute('cy',cy+rv*Math.sin(a));c.setAttribute('r','4');c.setAttribute('fill','#4ddb96');svg.appendChild(c);});
-  const labels=['Уверенность','Дисциплина','Терпение','Контроль риска','Фокус'];
-  labels.forEach((label,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const lx=cx+(r+22)*Math.cos(a);const ly=cy+(r+22)*Math.sin(a);const t=document.createElementNS(ns,'text');t.setAttribute('x',lx);t.setAttribute('y',ly);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.style.cssText='font-size:9px;fill:rgba(255,255,255,0.4);font-family:monospace;letter-spacing:0.5px';t.textContent=label;svg.appendChild(t);});
-}
-
-
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('open');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
-function initLogoParticles(){ /* removed */ }
-function fillSidebar(displayName,initials,plan,isAdmin){
-  document.getElementById('sf-avatar').textContent=initials;
-  document.getElementById('sf-name').textContent=displayName;
-  document.getElementById('sf-plan').textContent=plan==='lifetime'?'∞ НАВСЕГДА':plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-  if(isAdmin){
-    const d=document.getElementById('admin-divider');if(d)d.style.display='block';
-    const a=document.getElementById('snav-admin');if(a)a.style.display='flex';
-  }
-}
-
-// TABS
-
-function switchTab(id, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + id).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ARCHETYPE
-function setArchetype(btn, icon, name, desc) {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
-  btn.classList.add('active-chip');
-  document.getElementById('archetype-icon').textContent = icon;
-  document.getElementById('archetype-bg').textContent = icon;
-  document.getElementById('archetype-name').textContent = name;
-  document.getElementById('archetype-desc').textContent = desc;
-}
-
-// PATTERN TOGGLE
-function togglePattern(card) {
-  card.classList.toggle('open');
-}
-
-// RADAR SVG
-(function() {
-  const svg = document.getElementById('radar-svg');
-  const cx = 100, cy = 100, r = 75;
-  const vals = [5.2, 4.8, 3.9, 4.1, 6.3];
-  const n = vals.length;
-  const ns = 'http://www.w3.org/2000/svg';
-
-  // grid
-  [2,4,6,8,10].forEach(lv => {
-    const pts = vals.map((_,i) => {
-      const a = -Math.PI/2 + i*(2*Math.PI/n);
-      const rv = (lv/10)*r;
-      return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;
-    }).join(' ');
-    const p = document.createElementNS(ns,'polygon');
-    p.setAttribute('points', pts);
-    p.setAttribute('fill','none');
-    p.setAttribute('stroke','rgba(255,255,255,0.07)');
-    p.setAttribute('stroke-width','1');
-    svg.appendChild(p);
-  });
-
-  // axes
-  vals.forEach((_,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const l = document.createElementNS(ns,'line');
-    l.setAttribute('x1',cx); l.setAttribute('y1',cy);
-    l.setAttribute('x2',cx+r*Math.cos(a)); l.setAttribute('y2',cy+r*Math.sin(a));
-    l.setAttribute('stroke','rgba(255,255,255,0.1)'); l.setAttribute('stroke-width','1');
-    svg.appendChild(l);
-  });
-
-  // fill
-  const pts = vals.map((v,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const rv = (v/10)*r;
-    return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;
-  }).join(' ');
-  const poly = document.createElementNS(ns,'polygon');
-  poly.setAttribute('points', pts);
-  poly.setAttribute('fill','rgba(77,219,150,0.18)');
-  poly.setAttribute('stroke','#4ddb96');
-  poly.setAttribute('stroke-width','2');
-  svg.appendChild(poly);
-
-  // dots
-  vals.forEach((v,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const rv = (v/10)*r;
-    const c = document.createElementNS(ns,'circle');
-    c.setAttribute('cx', cx+rv*Math.cos(a));
-    c.setAttribute('cy', cy+rv*Math.sin(a));
-    c.setAttribute('r','4');
-    c.setAttribute('fill','#4ddb96');
-    svg.appendChild(c);
-  });
-
-  // labels
-  const labels = ['Уверенность','Дисциплина','Терпение','Контроль\nриска','Фокус'];
-  labels.forEach((label,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const lx = cx+(r+22)*Math.cos(a);
-    const ly = cy+(r+22)*Math.sin(a);
-    const t = document.createElementNS(ns,'text');
-    t.setAttribute('x',lx); t.setAttribute('y',ly);
-    t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
-    t.style.cssText = 'font-size:9px;fill:rgba(255,255,255,0.4);font-family:monospace;letter-spacing:0.5px';
-    t.textContent = label.replace('\n',' ');
-    svg.appendChild(t);
-  });
+  resize();window.addEventListener('resize',resize);
+  let t=0;
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    orbs.forEach(o=>{o.x+=o.vx;o.y+=o.vy;const g=ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r);g.addColorStop(0,o.col);g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();});
+    ctx.strokeStyle='rgba(255,255,255,0.015)';ctx.lineWidth=1;
+    for(let x=0;x<W;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    t+=0.007;
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${p.a*(0.5+0.5*Math.sin(t+p.ph))})`;ctx.fill();});
+    requestAnimationFrame(draw);
+  })();
 })();
 
-// Hour grid is now populated by updateHourGrid() with real trade data
-initProfile();
+// AUTH
+const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+async function checkSession(){
+  const{data:{user}}=await sb.auth.getUser();if(!user)return;
+  const{data:p}=await sb.from('profiles').select('role,plan,plan_expires_at,full_name,username').eq('id',user.id).single();
+  const name=p?.full_name||p?.username||user.email;
+  const isAdmin=p?.role==='admin';
+  const hasAccess=isAdmin||p?.plan==='lifetime'||(p?.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());
+  const url=isAdmin?'admin.html':hasAccess?'journal.html':'pay.html';
+  document.getElementById('nav-auth').innerHTML=`<div class="nav-user-wrap"><span class="nav-username">${name}</span><a href="${url}" class="nav-pill solid">МОЙ КАБИНЕТ</a><button class="nav-logout-btn" onclick="doLogout()">ВЫЙТИ</button></div>`;
+  const c1=document.getElementById('hero-cta');if(c1){c1.textContent='МОЙ КАБИНЕТ';c1.href=url;}
+  const c2=document.getElementById('cta-bottom');if(c2){c2.textContent='МОЙ КАБИНЕТ';c2.href=url;}
+}
+async function doLogout(){await sb.auth.signOut();window.location.reload();}
+checkSession();
+
+// DEMO TABS
+function switchDemo(tab,btn){
+  document.querySelectorAll('.demo-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.dtb-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('dp-'+tab).classList.add('on');btn.classList.add('on');
+}
+
+// NAV opacity on scroll
+window.addEventListener('scroll',()=>{
+  document.querySelector('nav').style.background=window.scrollY>20?'rgba(4,5,7,0.88)':'rgba(4,5,7,0.7)';
+});
+
+// SCROLL REVEAL
+const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 </script>
-</div>
 </body>
 </html>
