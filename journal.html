@@ -372,6 +372,7 @@ display:none;}
 .pm-header-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(232,114,42,0.5),transparent);
+  pointer-events:none;
 }
 .pm-header-card::after{
   content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
@@ -393,6 +394,7 @@ display:none;}
 .pm-section-card::before{
   content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
   background:linear-gradient(90deg,transparent,rgba(232,114,42,0.25),transparent);
+  pointer-events:none;
 }
 .pm-section-title{
   font-family:var(--font-mono);font-size:8px;letter-spacing:2.5px;
@@ -401,11 +403,12 @@ display:none;}
 }
 .pm-section-title::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--a);box-shadow:0 0 6px var(--a);flex-shrink:0;}
 
-.pm-checklist{display:flex;flex-direction:column;gap:6px;}
+.pm-checklist{display:flex;flex-direction:column;gap:6px;position:relative;z-index:1;}
 .pm-item{
   display:flex;align-items:center;gap:12px;padding:11px 14px;
   background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
   border-radius:8px;cursor:pointer;transition:all 0.2s;
+  position:relative;z-index:1;
 }
 .pm-item:hover{
   border-color:rgba(232,114,42,0.2);
@@ -2698,6 +2701,91 @@ function shareProfile(){
   } else {
     prompt('Скопируй ссылку:',url);
   }
+}
+
+// ─── PRE-MARKET CHECKLIST ─────────────────────────
+var pmMood='😐 Ровно';
+function togglePM(el){
+  el.classList.toggle('checked');
+  updatePMStatus();
+}
+function setPMMood(btn,mood){
+  pmMood=mood;
+  document.querySelectorAll('.pm-mood-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function updatePMStatus(){
+  var items=document.querySelectorAll('.pm-item');
+  var checked=document.querySelectorAll('.pm-item.checked').length;
+  var total=items.length;
+  var bar=document.getElementById('pm-status-bar');
+  if(!bar)return;
+  bar.className='pm-status';
+  if(checked===total){
+    bar.classList.add('ready');
+    bar.textContent='✅ Готов к торговле! Все пункты выполнены.';
+  } else if(checked>=total/2){
+    bar.classList.add('partial');
+    bar.textContent='⚡ '+checked+' из '+total+' пунктов · Почти готов';
+  } else {
+    bar.classList.add('notready');
+    bar.textContent='⏳ '+checked+' из '+total+' · Отметь все пункты перед входом в рынок';
+  }
+}
+function savePMChecklist(){
+  var checked=document.querySelectorAll('.pm-item.checked').length;
+  var total=document.querySelectorAll('.pm-item').length;
+  var loss=document.getElementById('pm-loss-limit').value||null;
+  var trades=document.getElementById('pm-trade-limit').value||null;
+  var goal=document.getElementById('pm-goal').value||null;
+  var score=Math.round(checked/total*100);
+  var key='pm_history';
+  var hist=JSON.parse(localStorage.getItem(key)||'[]');
+  hist.unshift({date:new Date().toISOString(),mood:pmMood,score,checked,total,loss,trades,goal});
+  if(hist.length>14)hist=hist.slice(0,14);
+  localStorage.setItem(key,JSON.stringify(hist));
+  updatePMStreakFromHistory(hist);
+  renderPMHistoryFromData(hist);
+  var btn=document.querySelector('.pm-save-btn');
+  if(btn){var orig=btn.textContent;btn.textContent='✅ СЕССИЯ НАЧАТА!';btn.style.background='linear-gradient(135deg,#34d058,#1a9e3a)';setTimeout(()=>{btn.textContent=orig;btn.style.background='';},2500);}
+  showNotif('success','Сессия начата','Лимиты и чеклист сохранены',3000);
+}
+function renderPMHistory(){
+  var hist=JSON.parse(localStorage.getItem('pm_history')||'[]');
+  updatePMStreakFromHistory(hist);
+  renderPMHistoryFromData(hist);
+}
+function renderPMStreak(){
+  var hist=JSON.parse(localStorage.getItem('pm_history')||'[]');
+  updatePMStreakFromHistory(hist);
+}
+function updatePMStreakFromHistory(hist){
+  if(!hist.length){var el=document.getElementById('pm-streak-num');if(el)el.textContent='0';return;}
+  var streak=0;var now=new Date();
+  for(var i=0;i<365;i++){
+    var d=new Date(now);d.setDate(d.getDate()-i);
+    var ds=d.toDateString();
+    var found=hist.find(h=>new Date(h.date).toDateString()===ds);
+    if(found)streak++;else if(i>0)break;
+  }
+  var el=document.getElementById('pm-streak-num');
+  if(el){el.textContent=streak;if(streak>=7)el.style.color='#ff4d4d';else if(streak>=3)el.style.color='#f5a623';}
+}
+function renderPMHistoryFromData(hist){
+  var el=document.getElementById('pm-history');
+  if(!el)return;
+  if(!hist.length){el.innerHTML='<div class="empty" style="padding:14px">Нет данных</div>';return;}
+  el.innerHTML=hist.slice(0,7).map(h=>{
+    var d=new Date(h.date);
+    var label=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
+    var col=h.score>=100?'var(--g)':h.score>=50?'var(--y)':'var(--r)';
+    return `<div class="pm-history-item">
+      <span class="pm-h-date">${label}</span>
+      <span class="pm-h-mood">${(h.mood||'').split(' ')[0]}</span>
+      <div class="pm-h-bar"><div class="pm-h-fill" style="width:${h.score}%;background:${col}"></div></div>
+      <span style="font-family:var(--font-mono);font-size:9px;color:${col}">${h.score}%</span>
+    </div>`;
+  }).join('');
 }
 
 // ─── SMART NOTIFICATIONS ──────────────────────────
