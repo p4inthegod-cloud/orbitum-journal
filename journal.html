@@ -96,24 +96,59 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .sidebar.open{transform:translateX(0);}
   .sb-overlay.open{display:block;}
   .mob-bar{display:flex;}
-  .main{margin-left:0;padding:12px 12px 80px;}
-  .stats-row{grid-template-columns:1fr 1fr;}
-  .fg4,.fg3{grid-template-columns:1fr 1fr;}
-  .emrow{grid-template-columns:1fr 1fr;}
-  .dash-grid{grid-template-columns:1fr;}
-  .pm-grid{grid-template-columns:1fr;}
-  .chat-layout{grid-template-columns:1fr;height:calc(100vh - 140px);}
-  .chat-sidebar{display:none;}
-  .topnav{width:100%;overflow-x:auto;flex-wrap:nowrap;}
+  .main{margin-left:0;padding:10px 10px 90px;}
+
+  /* stats: 2+2+1 → compact 2x2 + 1 centered */
+  .stats-row{grid-template-columns:1fr 1fr;gap:6px;}
+  .stat-cell:nth-child(5){grid-column:span 2;}
+  .stat-value{font-size:16px;}
+  .stat-label{font-size:7px;}
+
+  /* level bar mobile */
+  .lb-row{flex-direction:column;gap:10px;align-items:flex-start;}
+  .lb-right{align-items:flex-start;}
+  .lb-streak{font-size:13px;padding:7px 12px;}
+  .level-bar{padding:12px 14px;}
+
+  /* tabs: scroll horizontal, sticky */
+  .topnav{
+    width:100%;overflow-x:auto;flex-wrap:nowrap;
+    position:sticky;top:48px;z-index:80;
+    background:rgba(5,7,10,0.97);backdrop-filter:blur(16px);
+    margin:0 -10px 12px;padding:8px 10px 8px;width:calc(100% + 20px);
+    border-bottom:1px solid rgba(255,255,255,0.07);border-radius:0;
+  }
   .topnav::-webkit-scrollbar{display:none;}
-  .tnav{padding:6px 10px;font-size:9px;white-space:nowrap;flex-shrink:0;}
-  .pm-cols{grid-template-columns:1fr;}
-  .month-grid{grid-template-columns:1fr;}
-  .digest-grid{grid-template-columns:1fr;}
-  .fcard{padding:14px;}
+  .tnav{padding:7px 12px;font-size:9px;white-space:nowrap;flex-shrink:0;}
+
+  /* form fields on mobile */
   .fg4{grid-template-columns:1fr 1fr;}
   .fg3{grid-template-columns:1fr;}
   .emrow{grid-template-columns:1fr 1fr;}
+  .fcard{padding:12px 12px;}
+  .fcard-title{font-size:13px;}
+
+  /* dashboard */
+  .dash-grid{grid-template-columns:1fr;}
+  .pm-grid{grid-template-columns:1fr;}
+  .pm-cols{grid-template-columns:1fr;}
+  .month-grid{grid-template-columns:1fr;}
+  .digest-grid{grid-template-columns:1fr;}
+
+  /* AI chat */
+  .chat-layout{grid-template-columns:1fr;height:calc(100dvh - 200px);}
+  .chat-sidebar{display:none;}
+
+  /* trade list items */
+  .trade-pair{font-size:15px;}
+  .trade-pnl-pct,.trade-pnl-usd{font-size:11px;}
+}
+
+/* extra small screens */
+@media(max-width:400px){
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .tnav{padding:6px 10px;font-size:8px;}
+  .fcard{padding:10px;}
 }
 
 /* ─── MAIN ────────────────────────────────── */
@@ -619,7 +654,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 <!-- MOBILE BAR -->
 <div class="mob-bar">
-  <a href="index.html" class="mob-logo" style="text-decoration:none;color:inherit">ORBITUM</a>
+  <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+    <img src="orbitum-logo.jpg" style="width:22px;height:22px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 6px rgba(255,255,255,0.5));border-radius:0;" onerror="this.style.display='none'" alt="">
+    <span class="mob-logo">ORBITUM</span>
+  </a>
   <button class="mob-burger" onclick="openSB()">☰</button>
 </div>
 
@@ -1021,15 +1059,31 @@ function updateMobNav(p){
   if(btn)btn.classList.add('active');
 }
 
+let aiChatInitialized=false;
 function showPage(p, btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   document.querySelectorAll('.sb-item[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
   document.querySelectorAll('.tnav[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
   updateMobNav(p);
-  if(p==='dashboard') renderDashboard();
-  if(p==='digest') renderDigest();
-  closeSB();
+  if(p==='dashboard')renderDashboard();
+  if(p==='aichat'&&!aiChatInitialized){
+    aiChatInitialized=true;
+    setTimeout(()=>{
+      const wins=allTrades.filter(t=>t.result==='win');
+      const total=allTrades.length;
+      const wr=total?Math.round(wins.length/total*100):0;
+      const pnl=total?allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1):'0';
+      const avgWin=wins.length?(wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length).toFixed(1):0;
+      const losses=allTrades.filter(t=>t.result==='loss');
+      const avgLoss=losses.length?(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length).toFixed(1):0;
+      if(total>=2){
+        addMsg('ai',formatAIText('**Привет, я Макс — твой торговый аналитик.**\n\nПроверил твои данные:\n📊 **'+total+' сделок** · WR **'+wr+'%** · P&L **'+(pnl>0?'+':'')+pnl+'%**\n✅ Средний выигрыш: **+'+avgWin+'%** | ⚠️ Средний убыток: **'+avgLoss+'%**\n\nЧто хочешь разобрать?'));
+      } else {
+        addMsg('ai',formatAIText('**Привет, я Макс — твой торговый аналитик.**\n\nЗапиши минимум 2 сделки — разберём статистику конкретно. Пока задавай вопросы по SMC/ICT или риск-менеджменту.'));
+      }
+    },400);
+  }
 }
 
 // ─── INIT ─────────────────────────────────────────
@@ -1413,11 +1467,44 @@ async function sendChatMessage(){
   chatHistory.push({role:'user',content:text});
   addTyping();
 
-  const tradesSummary=allTrades.length
-    ?`Трейдер имеет ${allTrades.length} сделок. WR: ${Math.round(allTrades.filter(t=>t.result==='win').length/allTrades.length*100)}%. Общий P&L: ${allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)}%.`
-    :'Трейдер пока не записал сделок.';
+  // Build rich analytics context for AI
+  const wins=allTrades.filter(t=>t.result==='win');
+  const losses=allTrades.filter(t=>t.result==='loss');
+  const wr=allTrades.length?Math.round(wins.length/allTrades.length*100):0;
+  const totalPnl=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const avgWin=wins.length?(wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length).toFixed(2):0;
+  const avgLoss=losses.length?(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length).toFixed(2):0;
+  const rrRatio=avgLoss!=0?Math.abs(avgWin/avgLoss).toFixed(2):'—';
+  const lastTrades=allTrades.slice(-5).map(t=>`${t.pair||'?'} ${t.direction||''} ${t.result} ${t.pnl_pct?t.pnl_pct.toFixed(1)+'%':''} | эмоции: уверен.${t.emotion_conf||'?'} страх${t.emotion_fear||'?'} жадн.${t.emotion_greed||'?'}`).join('\n');
+  const avgConfWin=wins.length?(wins.reduce((s,t)=>s+(t.emotion_conf||5),0)/wins.length).toFixed(1):0;
+  const avgConfLoss=losses.length?(losses.reduce((s,t)=>s+(t.emotion_conf||5),0)/losses.length).toFixed(1):0;
+  const pairs=allTrades.reduce((acc,t)=>{if(t.pair){acc[t.pair]=(acc[t.pair]||0)+1;}return acc;},{});
+  const topPair=Object.entries(pairs).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
 
-  const systemPrompt=`Ты — AI советник трейдера в приложении ORBITUM. Ты эксперт по SMC/ICT, Wyckoff, психологии трейдинга и риск-менеджменту.\n\nКонтекст пользователя: ${tradesSummary}\n\nОтвечай на русском языке. Будь конкретным, практичным и прямым. Используй **жирный** текст для ключевых моментов. Не пиши лишних вступлений. Структурируй ответ — короткие абзацы. Максимум 250 слов.`;
+  const tradesSummary=allTrades.length>=2?`
+СТАТИСТИКА ТРЕЙДЕРА (${allTrades.length} сделок):
+- Винрейт: ${wr}% | P&L: ${totalPnl.toFixed(1)}%
+- Средний выигрыш: +${avgWin}% | Средний убыток: ${avgLoss}%
+- Risk/Reward: ${rrRatio}
+- Любимая пара: ${topPair}
+- Уверенность при победах: ${avgConfWin}/10 | при убытках: ${avgConfLoss}/10
+- Последние 5 сделок:\n${lastTrades}
+  `.trim():'Трейдер пока не записал достаточно сделок (нужно минимум 2).';
+
+  const systemPrompt=`Ты — Макс, личный торговый аналитик пользователя в приложении ORBITUM. Ты говоришь как опытный трейдер-наставник: прямо, конкретно, иногда жёстко честно — без воды и без общих слов.
+
+ПРАВИЛА:
+- Анализируй КОНКРЕТНЫЕ данные пользователя, не теорию
+- Называй цифры: "твой WR ${wr}%", "средний убыток ${avgLoss}%"
+- Если видишь проблему — говори прямо: "вот что тебя сливает"
+- Если видишь прогресс — отмечай конкретно
+- Используй **жирный** для ключевых выводов
+- Эмодзи для структуры: 📊 для статистики, ⚠️ для проблем, 💡 для советов, ✅ для хорошего
+- Максимум 200 слов. Никаких вступлений типа "Конечно!" или "Отличный вопрос!"
+- Если спрашивают теорию SMC/ICT — объясняй кратко с примерами
+
+ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:
+${tradesSummary}`;
 
   const fullPrompt=`${systemPrompt}\n\nИстория диалога:\n${chatHistory.slice(0,-1).map(m=>`${m.role==='user'?'Пользователь':'AI'}: ${m.content}`).join('\n')}\n\nПользователь: ${text}`;
 
@@ -1459,7 +1546,22 @@ async function checkSetup(){
   const labels={1:'Структура (BOS/CHoCH)',2:'Точка интереса (OB/FVG/BPR)',3:'Подтверждение на младшем ТФ',4:'Риск-менеджмент (SL/RR/размер)',5:'Психологическое состояние'};
   const answers=Object.entries(ckAnswers).map(([k,v])=>`${labels[k]}: ${v==='yes'?'ДА':'НЕТ'}`).join('\n');
   const note=document.getElementById('ai-reason').value.trim();
-  const prompt=`Ты — строгий торговый наставник SMC/ICT. Трейдер ответил на чек-лист.\n\nОтветы:\n${answers}${note?'\nДополнение: '+note:''}\n\nДай вердикт ТОЛЬКО в JSON без markdown:\n{"verdict":"GO"|"STOP"|"WAIT","title":"фраза до 6 слов","message":"1-2 предложения","action":"одно действие"}`;
+  const tradeStats=allTrades.length>=3?`Статистика трейдера: WR ${Math.round(allTrades.filter(t=>t.result==='win').length/allTrades.length*100)}%, ${allTrades.length} сделок, средний P&L ${(allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0)/allTrades.length).toFixed(1)}%`:'';
+  const prompt=`Ты — Макс, строгий торговый наставник SMC/ICT с 10 годами опыта. Трейдер хочет войти в сделку.
+
+ЧЕКЛИСТ ОТВЕТОВ:
+${answers}${note?'\nДетали от трейдера: '+note:''}
+${tradeStats}
+
+Проанализируй каждый пункт и дай честный вердикт.
+
+Ответь ТОЛЬКО JSON без markdown:
+{"verdict":"GO"|"STOP"|"WAIT","title":"короткая фраза до 6 слов","message":"2-3 конкретных предложения с анализом — почему такой вердикт, что конкретно плохо или хорошо","action":"одно конкретное действие прямо сейчас","risk":"low"|"medium"|"high"}
+
+Правила вердикта:
+- GO: все 5 пунктов ДА → можно входить, но назови риски
+- STOP: структура или РМ НЕТ → запрещай, объясняй почему это слив
+- WAIT: 3-4 пункта ДА → жди подтверждения, скажи чего именно ждать`;
   try{
     const res=await fetch('/api/ai',{
       method:'POST',
@@ -1474,7 +1576,13 @@ async function checkSetup(){
     const verdictEl=document.getElementById('ai-verdict');
     verdictEl.className='ai-verdict '+v;
     verdictEl.textContent=({go:'✅',stop:'🛑',wait:'⏳'}[v]||'⏳')+' '+(result.title||result.verdict);
-    document.getElementById('ai-text').innerHTML=`<p style="margin-bottom:7px">${result.message||''}</p>${result.action?`<p style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:#34d058">→ ${result.action}</p>`:''}`;
+    const riskColor={'low':'#34d058','medium':'#f5a623','high':'#ff4d4d'}[result.risk]||'var(--m)';
+    const riskLabel={'low':'РИСК НИЗКИЙ','medium':'РИСК СРЕДНИЙ','high':'РИСК ВЫСОКИЙ'}[result.risk]||'';
+    document.getElementById('ai-text').innerHTML=`
+      <p style="margin-bottom:10px;font-size:13px;line-height:1.6;">${result.message||''}</p>
+      ${result.action?`<p style="font-family:var(--font-mono);font-size:10px;letter-spacing:1px;color:#34d058;padding:8px 10px;background:rgba(52,208,88,0.07);border-radius:6px;border-left:2px solid #34d058;">→ ${result.action}</p>`:''}
+      ${result.risk?`<p style="font-family:var(--font-mono);font-size:8px;letter-spacing:2px;color:${riskColor};margin-top:8px;">${riskLabel}</p>`:''}
+    `;
     resultEl.style.display='block';
     resultEl.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){alert('Ошибка: '+e.message);}
