@@ -3,975 +3,900 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Психологический профиль</title>
+<title>ORBITUM — Профиль трейдера</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* ======== SHARED SIDEBAR ======== */
-*{-webkit-user-select:none;user-select:none;}
-input,textarea{-webkit-user-select:text;user-select:text;}
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(3,4,7,0.98);border-right:1px solid var(--bd);backdrop-filter:blur(24px);display:flex;flex-direction:column;z-index:100;}
-.sidebar-logo{padding:0 16px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--bd);flex-shrink:0;}
-.slogo-canvas{display:none;}
-.slogo-inner{display:flex;align-items:center;gap:10px;}
-.slogo-img{display:none;}
-.slogo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#f2f2f2;}
-.sidenav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
-.snav-sec{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:2px;padding:10px 10px 4px;text-transform:uppercase;}
-.snav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;text-decoration:none;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;transition:all 0.18s;border:1px solid transparent;width:100%;text-align:left;background:none;cursor:pointer;}
-.snav-item:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.06);}
-.snav-item.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.22);color:var(--a);}
-.snav-item.admin-link{color:rgba(245,166,35,0.55);}
-.snav-item.admin-link:hover,.snav-item.admin-link.active{background:rgba(245,166,35,0.07);border-color:rgba(245,166,35,0.2);color:#f5a623;}
-.snav-icon{font-size:15px;flex-shrink:0;width:18px;text-align:center;}
-.snav-div{height:1px;background:var(--bd);margin:5px 4px;}
-.sidebar-footer{padding:10px 8px;border-top:1px solid var(--bd);flex-shrink:0;}
-.sf-user{display:flex;align-items:center;gap:9px;margin-bottom:7px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:8px;}
-.sf-avatar{width:30px;height:30px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a);flex-shrink:0;}
-.sf-info{overflow:hidden;flex:1;}
-.sf-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t);}
-.sf-plan{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;margin-top:1px;}
-.sf-logout{width:100%;padding:7px;background:none;border:1px solid var(--bd);border-radius:7px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
-.sf-logout:hover{border-color:var(--r);color:var(--r);}
-/* mobile */
-.mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(3,4,7,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:54px;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
-.mob-logo-wrap{display:flex;align-items:center;gap:8px;}
-.mob-logo-img{display:none;}
-.mob-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#f2f2f2;}
-.mob-right{display:flex;align-items:center;gap:8px;}
-.mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99;}
-@media(max-width:900px){
-  .sidebar{transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar.open{transform:translateX(0);}
-  .sidebar-overlay.open{display:block;}
-  .mob-topbar{display:flex;}
+:root{
+  --a:#e8722a;--a2:rgba(232,114,42,0.12);--a3:rgba(232,114,42,0.35);
+  --bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);
+  --bd:rgba(255,255,255,0.07);--t:#ebebeb;--m:rgba(255,255,255,0.4);--m2:rgba(255,255,255,0.6);
+  --g:#34d058;--r:#ff4d4d;--y:#f5a623;
+  --gd:rgba(52,208,88,0.08);--rd:rgba(255,77,77,0.08);
+  --font-mono:'JetBrains Mono',monospace;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'Syne',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-height:100vh;}
+
+/* ── BG ATMOSPHERE ── */
+.bg-layer{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.bg-orb1{
+  position:absolute;width:800px;height:800px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 60%);
+  filter:blur(120px);top:-300px;left:50%;transform:translateX(-50%);
+}
+.bg-orb2{
+  position:absolute;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(52,208,88,0.025),transparent 65%);
+  filter:blur(100px);bottom:-200px;right:-100px;
+}
+.bg-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:40px 40px;
 }
 
-:root {
-    --green: #4ddb96;
-    --green-dim: rgba(77,219,150,0.18);
-    --green-border: rgba(77,219,150,0.4);
-    --red: #f07070;
-    --red-dim: rgba(240,112,112,0.18);
-    --red-border: rgba(240,112,112,0.4);
-    --orange: #f0b55a;
-    --orange-dim: rgba(240,181,90,0.18);
-    --orange-border: rgba(240,181,90,0.4);
-    --bg: #0d0d0f;
-    --card: rgba(255,255,255,0.03);
-    --border: rgba(255,255,255,0.07);
-    --text: #ffffff;
-    --text-dim: rgba(255,255,255,0.5);
-    --text-faint: rgba(255,255,255,0.25);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    min-height: 100vh;
-    background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+/* ── TOP NAV ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(5,7,10,0.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  height:54px;display:flex;align-items:center;
+  padding:0 32px;gap:12px;
+}
+.tb-logo{
+  font-family:var(--font-display);font-size:20px;letter-spacing:5px;
+  color:var(--t);text-decoration:none;
+  text-shadow:0 0 20px rgba(255,255,255,0.1);
+}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a),0 0 16px rgba(232,114,42,0.4);}
+.tb-spacer{flex:1;}
+.tb-back{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:8px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);color:var(--m);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  text-decoration:none;transition:all 0.15s;
+}
+.tb-back:hover{border-color:var(--a3);color:var(--a);background:var(--a2);}
+.tb-badge{
+  background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.25);
+  border-radius:6px;padding:3px 10px;
+  font-family:var(--font-mono);font-size:8px;color:var(--a);letter-spacing:2px;
+}
+.tb-share-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:8px;background:var(--a2);border:1px solid var(--a3);
+  color:var(--a);font-family:var(--font-mono);font-size:9px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+}
+.tb-share-btn:hover{background:rgba(232,114,42,0.2);}
 
-  .wrap { max-width: 700px; margin: 0 auto; width: 100%; }
+/* ── LAYOUT ── */
+.wrap{max-width:960px;margin:0 auto;padding:32px 24px 80px;position:relative;z-index:1;}
 
-  /* HEADER */
-  .header { margin-bottom: 28px; animation: slideIn .5s ease both; }
-  .header-tag { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-  .tag-text { font-size: 11px; color: rgba(126,203,161,0.6); letter-spacing: 2px; }
-  .title { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; line-height: 1; }
-  .title span { color: var(--green); }
-  .subtitle { color: var(--text-faint); font-size: 12px; margin-top: 8px; letter-spacing: .5px; }
+/* ── HERO SECTION ── */
+.hero{
+  position:relative;overflow:hidden;
+  background:rgba(255,255,255,0.018);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;padding:32px;margin-bottom:16px;
+}
+.hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),rgba(232,114,42,0.3),transparent);
+}
+.hero::after{
+  content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;
+  border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.07),transparent 65%);
+  pointer-events:none;
+}
+.hero-top{display:flex;align-items:flex-start;gap:20px;margin-bottom:24px;}
+.hero-avatar{
+  width:72px;height:72px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(232,114,42,0.3),rgba(232,114,42,0.1));
+  border:2px solid rgba(232,114,42,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:32px;color:var(--a);
+  box-shadow:0 0 30px rgba(232,114,42,0.2),inset 0 0 20px rgba(232,114,42,0.05);
+  position:relative;z-index:1;
+}
+.hero-info{flex:1;position:relative;z-index:1;}
+.hero-name{
+  font-family:var(--font-display);font-size:32px;letter-spacing:4px;
+  color:var(--t);line-height:1;margin-bottom:4px;
+  text-shadow:0 0 30px rgba(255,255,255,0.1);
+}
+.hero-handle{font-family:var(--font-mono);font-size:10px;color:var(--m);letter-spacing:1.5px;margin-bottom:10px;}
+.hero-badges{display:flex;flex-wrap:wrap;gap:6px;}
+.hbadge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-family:var(--font-mono);font-size:8px;
+  letter-spacing:0.5px;transition:all 0.2s;
+}
+.hbadge-gold{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:var(--y);box-shadow:0 0 10px rgba(245,166,35,0.1);}
+.hbadge-green{background:rgba(52,208,88,0.08);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
+.hbadge-orange{background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);color:var(--a);}
+.hbadge-blue{background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.25);color:#3498db;}
+.hero-right{display:flex;flex-direction:column;gap:8px;align-items:flex-end;position:relative;z-index:1;}
+.hero-stat-big{text-align:right;}
+.hsb-val{
+  font-family:var(--font-display);font-size:38px;letter-spacing:2px;
+  text-shadow:0 0 20px currentColor;
+}
+.hsb-val.pos{color:var(--g);text-shadow:0 0 24px rgba(52,208,88,0.4);}
+.hsb-val.neg{color:var(--r);}
+.hsb-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-align:right;}
+.hero-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.hm-cell{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;}
+.hm-label{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.hm-val{font-family:var(--font-mono);font-size:18px;font-weight:500;}
+.hm-val.g{color:var(--g);text-shadow:0 0 12px rgba(52,208,88,0.35);}
+.hm-val.a{color:var(--a);text-shadow:0 0 12px rgba(232,114,42,0.35);}
+.hm-val.y{color:var(--y);text-shadow:0 0 12px rgba(245,166,35,0.3);}
 
-  /* TABS */
-  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; }
-  .tab {
-    flex: 1; padding: 10px; border-radius: 7px; border: none; cursor: pointer;
-    background: transparent; color: var(--text-faint);
-    font-size: 11px; font-family: 'JetBrains Mono', monospace;
-    font-weight: 700; letter-spacing: 1px; transition: all .2s ease;
-  }
-  .tab.active { background: var(--green-dim); color: var(--green); }
+/* ── VISIBILITY TOGGLE ── */
+.vis-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  color:var(--m);font-family:var(--font-mono);font-size:8px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+}
+.vis-toggle:hover{border-color:var(--a3);color:var(--a);}
+.vis-toggle.public{background:var(--gd);border-color:rgba(52,208,88,0.3);color:var(--g);}
 
-  /* PANELS */
-  .panel { display: none; animation: slideIn .4s ease both; }
-  .panel.active { display: flex; flex-direction: column; gap: 16px; }
+/* ── SECTION CARD ── */
+.section-card{
+  background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;
+}
+.section-card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);
+}
+.sc-title{
+  font-family:var(--font-display);font-size:12px;letter-spacing:3px;
+  color:rgba(232,114,42,0.8);margin-bottom:16px;
+  text-shadow:0 0 14px rgba(232,114,42,0.3);
+  display:flex;align-items:center;gap:8px;
+}
+.sc-title-dot{width:4px;height:4px;border-radius:50%;background:var(--a);box-shadow:0 0 6px var(--a);}
 
-  /* CARDS */
-  .card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 20px;
-  }
-  .card-label { font-size: 10px; color: var(--text-faint); letter-spacing: 2px; margin-bottom: 14px; }
+/* ── EQUITY CURVE ── */
+.equity-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.equity-delta{
+  font-family:var(--font-display);font-size:22px;letter-spacing:2px;
+}
+.equity-delta.pos{color:var(--g);text-shadow:0 0 16px rgba(52,208,88,0.4);}
+.equity-delta.neg{color:var(--r);}
+.equity-period{
+  display:flex;gap:4px;
+}
+.ep-btn{
+  padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.07);
+  background:transparent;color:var(--m);font-family:var(--font-mono);
+  font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+}
+.ep-btn.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
+#equity-canvas{width:100%;height:160px;display:block;}
 
-  /* ARCHETYPE */
-  .archetype-card {
-    background: linear-gradient(135deg, var(--red-dim), rgba(224,138,138,0.04));
-    border: 1px solid var(--red-border); border-radius: 14px; padding: 20px;
-    position: relative; overflow: hidden;
-  }
-  .archetype-bg-icon {
-    position: absolute; top: -20px; right: -20px; font-size: 80px;
-    opacity: .07; animation: float 4s ease-in-out infinite; pointer-events: none;
-  }
-  .archetype-body { display: flex; align-items: center; gap: 14px; }
-  .archetype-icon { font-size: 40px; animation: float 3s ease-in-out infinite; }
-  .archetype-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--red); }
-  .archetype-desc { color: var(--text-dim); font-size: 12px; margin-top: 4px; line-height: 1.5; }
-  .archetype-chips { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-  .chip {
-    padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);
-    background: transparent; color: var(--text-faint);
-    font-size: 11px; cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all .2s;
-  }
-  .chip.active-chip { border-color: var(--red); background: var(--red-dim); color: var(--red); }
+/* ── PSYCHOLOGY PORTRAIT ── */
+.psych-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.psych-block{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:14px;
+}
+.pb-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.pb-val{font-family:var(--font-display);font-size:22px;letter-spacing:1px;margin-bottom:2px;}
+.pb-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);}
+.pb-val.pos{color:var(--g);text-shadow:0 0 14px rgba(52,208,88,0.35);}
+.pb-val.neg{color:var(--r);}
+.pb-val.neutral{color:var(--a);text-shadow:0 0 14px rgba(232,114,42,0.3);}
 
-  /* STATS ROW */
-  .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-  .stat-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px; text-align: center;
-  }
-  .stat-label { font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; margin-bottom: 6px; }
-  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; }
-  .stat-sub { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
-  .c-red { color: var(--red); }
-  .c-green { color: var(--green); }
-  .c-orange { color: var(--orange); }
+/* ── DISCIPLINE RING ── */
+.disc-wrap{display:flex;align-items:center;gap:20px;}
+.disc-ring-svg{flex-shrink:0;}
+.disc-info{flex:1;}
+.disc-level{font-family:var(--font-display);font-size:18px;letter-spacing:2px;margin-bottom:3px;}
+.disc-desc{font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.5;}
+.disc-bars{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.db-row{display:flex;flex-direction:column;gap:3px;}
+.db-head{display:flex;justify-content:space-between;}
+.db-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;}
+.db-val{font-family:var(--font-mono);font-size:9px;color:var(--t);}
+.db-track{height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;}
+.db-fill{height:100%;border-radius:1px;transition:width 1s ease;}
 
-  /* RADAR */
-  .radar-wrap {
-    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
-  }
-  .traits { flex: 1; min-width: 160px; }
-  .trait { margin-bottom: 10px; }
-  .trait-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .trait-name { font-size: 11px; color: var(--text-dim); }
-  .trait-val { font-size: 11px; font-weight: 700; }
-  .bar-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; }
-  .bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+/* ── EMOTION PROFILE ── */
+.emo-radar{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.er-item{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+  border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;
+}
+.er-icon{font-size:18px;flex-shrink:0;}
+.er-body{flex:1;}
+.er-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.er-bar-track{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:3px;}
+.er-bar-fill{height:100%;border-radius:2px;}
+.er-val{font-family:var(--font-display);font-size:14px;}
 
-  /* INSIGHT */
-  .insight {
-    background: var(--green-dim); border: 1px solid var(--green-border);
-    border-radius: 12px; padding: 16px;
-  }
-  .insight-label { font-size: 10px; color: var(--green); letter-spacing: 2px; margin-bottom: 8px; }
-  .insight-text { color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.7; }
-  .insight-text .hl-red { color: var(--red); font-weight: 700; }
-  .insight-text .hl-green { color: var(--green); font-weight: 700; }
+/* ── PSYCH INSIGHTS (fear/confidence correlations) ── */
+.insight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.insight-card{
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;padding:14px;
+}
+.ic-cond{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:6px;}
+.ic-result{font-family:var(--font-display);font-size:26px;letter-spacing:1px;}
+.ic-result.pos{color:var(--g);text-shadow:0 0 16px rgba(52,208,88,0.35);}
+.ic-result.neg{color:var(--r);text-shadow:0 0 16px rgba(255,77,77,0.3);}
+.ic-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:2px;}
 
-  /* PATTERNS */
-  .pattern-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .pattern-count { text-align: right; }
-  .pattern-count-num { color: var(--red); font-weight: 700; font-size: 18px; }
-  .pattern-count-label { color: var(--text-faint); font-size: 9px; letter-spacing: 1px; }
+/* ── BEST PAIRS ── */
+.pairs-wrap{display:flex;flex-direction:column;gap:8px;}
+.pair-row{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);
+  border-radius:9px;transition:all 0.15s;
+}
+.pair-row:hover{border-color:rgba(232,114,42,0.2);}
+.pair-rank{font-family:var(--font-display);font-size:14px;color:var(--m);width:20px;flex-shrink:0;}
+.pair-name{font-family:var(--font-display);font-size:18px;letter-spacing:2px;flex:1;}
+.pair-stats{display:flex;gap:16px;}
+.ps-item{text-align:right;}
+.ps-val{font-family:var(--font-mono);font-size:11px;}
+.ps-val.g{color:var(--g);}
+.ps-val.r{color:var(--r);}
+.ps-val.a{color:var(--a);}
+.ps-label{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px;}
 
-  .pattern-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px; cursor: pointer; transition: all .3s ease;
-  }
-  .pattern-card.open { background: var(--red-dim); border-color: var(--red-border); }
-  .pattern-top { display: flex; justify-content: space-between; align-items: center; }
-  .pattern-left { display: flex; align-items: center; gap: 12px; }
-  .pattern-icon-box {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: var(--red-dim); display: flex; align-items: center; justify-content: center; font-size: 18px;
-  }
-  .pattern-icon-box.medium { background: var(--orange-dim); }
-  .pattern-icon-box.positive { background: var(--green-dim); }
-  .pattern-title { color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .3px; }
-  .pattern-subtitle { color: var(--text-faint); font-size: 11px; margin-top: 2px; }
-  .pattern-right { display: flex; align-items: center; gap: 10px; }
-  .badge {
-    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .5px;
-  }
-  .badge-red { background: var(--red-dim); color: var(--red); }
-  .badge-orange { background: var(--orange-dim); color: var(--orange); }
-  .badge-green { background: var(--green-dim); color: var(--green); }
-  .chevron { color: var(--text-faint); font-size: 12px; transition: transform .3s; }
-  .open .chevron { transform: rotate(180deg); }
+/* ── RECENT ACTIVITY (heatmap) ── */
+.hm-weeks-pub{display:flex;gap:3px;}
+.hm-week-pub{display:flex;flex-direction:column;gap:3px;}
+.hm-cell-pub{
+  width:12px;height:12px;border-radius:2px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;transition:transform 0.1s;
+  position:relative;
+}
+.hm-cell-pub:hover{transform:scale(1.5);z-index:10;}
+.hm-cell-pub:hover .hm-tip-pub{display:block;}
+.hm-tip-pub{
+  display:none;position:absolute;bottom:130%;left:50%;transform:translateX(-50%);
+  background:rgba(5,7,10,0.98);border:1px solid rgba(255,255,255,0.12);
+  border-radius:7px;padding:6px 10px;font-family:var(--font-mono);font-size:8px;
+  white-space:nowrap;z-index:30;color:var(--t);pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+.hm-month-pub{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.2);height:14px;display:flex;align-items:center;justify-content:center;}
 
-  .pattern-body {
-    display: none; margin-top: 14px; padding-top: 14px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-  }
-  .open .pattern-body { display: block; }
-  .pattern-desc { color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
-  .rec-box {
-    background: var(--green-dim); border: 1px solid var(--green-border);
-    border-radius: 8px; padding: 10px 14px;
-  }
-  .rec-label { color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
-  .rec-text { color: rgba(126,203,161,0.6); font-size: 12px; line-height: 1.5; }
-  .trade-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .trade-tag {
-    padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05);
-    color: var(--text-faint); font-size: 11px;
-  }
+/* ── BEST/WORST TRADE ── */
+.trade-showcase{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ts-card{
+  padding:14px 16px;border-radius:10px;
+}
+.ts-card.best{background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.2);}
+.ts-card.worst{background:rgba(255,77,77,0.05);border:1px solid rgba(255,77,77,0.15);}
+.ts-label{font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.ts-card.best .ts-label{color:rgba(52,208,88,0.6);}
+.ts-card.worst .ts-label{color:rgba(255,77,77,0.6);}
+.ts-pair{font-family:var(--font-display);font-size:20px;letter-spacing:2px;margin-bottom:2px;}
+.ts-pnl{font-family:var(--font-display);font-size:28px;letter-spacing:1px;}
+.ts-card.best .ts-pnl{color:var(--g);text-shadow:0 0 16px rgba(52,208,88,0.4);}
+.ts-card.worst .ts-pnl{color:var(--r);}
+.ts-meta{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:4px;}
 
-  /* HEATMAP */
-  .day-bars { display: flex; gap: 8px; margin-bottom: 28px; }
-  .day-bar { flex: 1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-  .day-bar-fill { transition: height .8s ease; min-height: 20px; }
-  .day-bar-info { padding: 8px 4px; text-align: center; background: rgba(255,255,255,0.02); }
-  .day-bar-pnl { font-size: 12px; font-weight: 700; }
-  .day-bar-name { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
-
-  .emotion-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 28px; }
-  .emotion-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 14px;
-  }
-  .emotion-name { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; letter-spacing: .5px; }
-  .emotion-cols { display: flex; gap: 6px; }
-  .emotion-col { flex: 1; text-align: center; border-radius: 6px; padding: 8px 4px; }
-  .emotion-col.pos { background: var(--green-dim); }
-  .emotion-col.neg { background: var(--red-dim); }
-  .emotion-col-val { font-size: 16px; font-weight: 700; }
-  .emotion-col.pos .emotion-col-val { color: var(--green); }
-  .emotion-col.neg .emotion-col-val { color: var(--red); }
-  .emotion-col-label { font-size: 9px; margin-top: 2px; }
-  .emotion-col.pos .emotion-col-label { color: rgba(126,203,161,0.5); }
-  .emotion-col.neg .emotion-col-label { color: rgba(224,138,138,0.5); }
-
-  .hour-grid { display: grid; grid-template-columns: repeat(12,1fr); gap: 4px; margin-bottom: 10px; }
-  .hour-cell {
-    height: 32px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);
-    background: rgba(255,255,255,0.04);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 8px; color: var(--text-faint); transition: opacity .2s;
-    cursor: default;
-  }
-  .hour-cell.win { background: rgba(77,219,150,0.45); border-color: rgba(77,219,150,0.4); color: rgba(255,255,255,0.7); }
-  .hour-cell.loss { background: rgba(240,112,112,0.45); border-color: rgba(240,112,112,0.4); color: rgba(255,255,255,0.7); }
-  .legend { display: flex; gap: 16px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-faint); }
-  .legend-dot { width: 12px; height: 12px; border-radius: 2px; }
-
-  /* ANIMATIONS */
-  @keyframes slideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-
-/* mobile */
-
-@media(max-width:900px){
-  
-  
-  
-  
+/* ── PUBLIC TRADES FEED ── */
+.feed-empty{
+  text-align:center;padding:40px 20px;
+  font-family:var(--font-mono);font-size:10px;color:var(--m);letter-spacing:1px;
+}
+.feed-trade{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:14px 16px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;transition:all 0.15s;
+}
+.feed-trade.win{border-left:2px solid var(--g);}
+.feed-trade.loss{border-left:2px solid var(--r);}
+.feed-trade:hover{border-color:rgba(232,114,42,0.2);}
+.ft-pair{font-family:var(--font-display);font-size:18px;letter-spacing:2px;min-width:80px;}
+.ft-dir{font-family:var(--font-mono);font-size:8px;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
+.ft-dir.long{background:var(--gd);color:var(--g);}
+.ft-dir.short{background:var(--rd);color:var(--r);}
+.ft-pnl{font-family:var(--font-mono);font-size:13px;margin-left:auto;}
+.ft-pnl.p{color:var(--g);}
+.ft-pnl.n{color:var(--r);}
+.ft-setup{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-left:8px;}
+.ft-note{
+  font-family:var(--font-body);font-size:11px;color:var(--m);
+  width:100%;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);
+  line-height:1.5;
 }
 
-  
-  
-  .main-content{margin-left:0!important;padding-top:0!important;}
+/* ── PRIVATE OVERLAY ── */
+.private-blur{
+  position:relative;
 }
+.private-overlay{
+  position:absolute;inset:0;z-index:10;
+  background:rgba(5,7,10,0.7);backdrop-filter:blur(8px);
+  border-radius:10px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+}
+.po-icon{font-size:28px;}
+.po-text{font-family:var(--font-mono);font-size:10px;color:var(--m);letter-spacing:1px;}
 
-@media(max-width:768px){body{padding:0;}}
+/* ── LOADING / EMPTY ── */
+.loading-state{text-align:center;padding:60px;font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:2px;}
+.not-found{text-align:center;padding:80px 20px;}
+.nf-title{font-family:var(--font-display);font-size:40px;letter-spacing:4px;color:var(--a);margin-bottom:8px;text-shadow:0 0 20px rgba(232,114,42,0.4);}
+.nf-sub{font-family:var(--font-mono);font-size:11px;color:var(--m);}
 
-.profile-wrap{margin-left:220px;padding:28px 32px 80px;}
-@media(max-width:900px){.profile-wrap{margin-left:0;padding:10px 10px 60px;}}</style>
+/* ── OWN PROFILE BANNER ── */
+.own-banner{
+  background:rgba(232,114,42,0.06);border:1px solid rgba(232,114,42,0.2);
+  border-radius:10px;padding:12px 16px;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.ob-text{font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:0.5px;flex:1;}
+.ob-btn{
+  padding:6px 14px;border-radius:7px;background:var(--a2);
+  border:1px solid var(--a3);color:var(--a);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  cursor:pointer;transition:all 0.15s;text-decoration:none;
+  white-space:nowrap;
+}
+.ob-btn:hover{background:rgba(232,114,42,0.2);}
+
+/* ── TWO-COL LAYOUT ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.two-col .section-card{margin-bottom:0;}
+
+/* ── FOLLOW BUTTON ── */
+.follow-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 16px;border-radius:8px;
+  background:var(--a2);border:1px solid var(--a3);
+  color:var(--a);font-family:var(--font-mono);font-size:9px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+}
+.follow-btn:hover{background:rgba(232,114,42,0.2);box-shadow:0 0 16px rgba(232,114,42,0.15);}
+.follow-btn.following{background:var(--gd);border-color:rgba(52,208,88,0.3);color:var(--g);}
+
+@media(max-width:700px){
+  .hero-top{flex-direction:column;}
+  .hero-right{align-items:flex-start;}
+  .hero-meta{grid-template-columns:repeat(2,1fr);}
+  .psych-grid2{grid-template-columns:1fr;}
+  .trade-showcase{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+  .insight-grid{grid-template-columns:1fr;}
+  .emo-radar{grid-template-columns:1fr;}
+  .wrap{padding:16px 14px 60px;}
+  .topbar{padding:0 16px;}
+}
+</style>
 </head>
 <body>
-<!-- MOB TOPBAR -->
-<div class="mob-topbar">
-  <div class="mob-logo-wrap">
-    <img class="mob-logo-img" src="orbitum-logo.jpg" alt="">
-    <span class="mob-logo-text">ORBITUM</span>
-  </div>
-  <div class="mob-right" id="mob-extra"></div>
-  <button class="mob-burger" onclick="openSidebar()">☰</button>
+<div class="bg-layer">
+  <div class="bg-orb1"></div>
+  <div class="bg-orb2"></div>
+  <div class="bg-grid"></div>
 </div>
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <canvas class="slogo-canvas" id="logo-canvas"></canvas>
-    <div class="slogo-inner">
-      <img class="slogo-img" src="orbitum-logo.jpg" alt="">
-      <span class="slogo-text">ORBITUM</span>
-    </div>
-  </div>
-  <nav class="sidenav">
-    <div class="snav-sec">Кабинет</div>
-    <a href="journal.html" class="snav-item "><span class="snav-icon">📋</span>ЖУРНАЛ СДЕЛОК</a>
-    <a href="profile.html" class="snav-item active"><span class="snav-icon">🧠</span>ПРОФИЛЬ</a>
-    <div class="snav-div" id="admin-divider" style="display:none"></div>
-    <a href="admin.html" class="snav-item admin-link " id="snav-admin" style="display:none"><span class="snav-icon">⚙️</span>АДМИН</a>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="sf-user">
-      <div class="sf-avatar" id="sf-avatar">?</div>
-      <div class="sf-info"><div class="sf-name" id="sf-name">...</div><div class="sf-plan" id="sf-plan">—</div></div>
-    </div>
-    <button class="sf-logout" onclick="doLogout()">ВЫЙТИ</button>
-  </div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="index.html" class="tb-logo" style="text-decoration:none">ORBITUM</a>
+  <div class="tb-dot"></div>
+  <span class="tb-badge">ПРОФИЛЬ ТРЕЙДЕРА</span>
+  <div class="tb-spacer"></div>
+  <button class="tb-share-btn" id="copy-btn" onclick="copyLink()">🔗 Копировать ссылку</button>
+  <a href="journal.html" class="tb-back" style="margin-left:4px">← Журнал</a>
 </div>
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-<div class="profile-wrap"><div class="wrap" style="max-width:700px;margin:0 auto;">
-
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-tag">
-      <div class="dot"></div>
-      <span class="tag-text">АНАЛИТИКА ТРЕЙДЕРА</span>
-    </div>
-    <h1 class="title">ПСИХОЛОГИЧЕСКИЙ<br><span>ПРОФИЛЬ</span></h1>
-    <p class="subtitle">На основе 8 сделок · последние 30 дней</p>
-  </div>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('profile',this)">ПРОФИЛЬ</button>
-    <button class="tab" onclick="switchTab('patterns',this)">ПАТТЕРНЫ</button>
-    <button class="tab" onclick="switchTab('heatmap',this)">ТЕПЛОВАЯ КАРТА</button>
-  </div>
-
-  <!-- PROFILE PANEL -->
-  <div id="panel-profile" class="panel active">
-
-    <!-- Archetype -->
-    <div class="archetype-card" id="archetype-card">
-      <div class="archetype-bg-icon" id="archetype-bg">🔥</div>
-      <div class="card-label">АРХЕТИП ТРЕЙДЕРА</div>
-      <div class="archetype-body">
-        <div class="archetype-icon" id="archetype-icon">🔥</div>
-        <div>
-          <div class="archetype-name" id="archetype-name">FOMO HUNTER</div>
-          <div class="archetype-desc" id="archetype-desc">Chases moves, enters on emotions. Best trades are the ones you miss.</div>
-        </div>
-      </div>
-      <div class="archetype-chips">
-        <button class="chip active-chip" onclick="setArchetype(this,'🔥','FOMO HUNTER','Chases moves, enters on emotions. Best trades are the ones you miss.')">🔥 FOMO Hunter</button>
-        <button class="chip" onclick="setArchetype(this,'🦊','RISK TAKER','High risk mindset. Needs stricter stop discipline.')">🦊 Risk Taker</button>
-        <button class="chip" onclick="setArchetype(this,'🎯','SNIPER','Rare, precise entries. Waits for the perfect setup.')">🎯 Sniper</button>
-        <button class="chip" onclick="setArchetype(this,'⚡','AVENGER','Revenge trades after losses. Costs you more each time.')">⚡ Avenger</button>
-        <button class="chip" onclick="setArchetype(this,'💧','LIQUIDITY HUNTER','Trades liquidity zones. Strong SMC/ICT understanding.')">💧 Liquidity Hunter</button>
-        <button class="chip" onclick="setArchetype(this,'🌪','OVERTRADER','Too many trades. Less is more.')">🌪 Overtrader</button>
-        <button class="chip" onclick="setArchetype(this,'🧘','PATIENT TRADER','Disciplined, systematic. Follows the plan.')">🧘 Patient Trader</button>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card" style="animation-delay:.05s">
-        <div class="stat-label">ВИН-РЕЙТ</div>
-        <div class="stat-value c-red">37.5%</div>
-        <div class="stat-sub">3 из 8</div>
-      </div>
-      <div class="stat-card" style="animation-delay:.1s">
-        <div class="stat-label">ЛУЧШИЙ ДЕНЬ</div>
-        <div class="stat-value c-green">Среда</div>
-        <div class="stat-sub">+$110</div>
-      </div>
-      <div class="stat-card" style="animation-delay:.15s">
-        <div class="stat-label">ХУДШИЙ ДЕНЬ</div>
-        <div class="stat-value c-red">Пятница</div>
-        <div class="stat-sub">−$298</div>
-      </div>
-    </div>
-
-    <!-- Radar + traits -->
-    <div class="card">
-      <div class="card-label">ЧЕРТЫ ХАРАКТЕРА</div>
-      <div class="radar-wrap">
-        <svg width="200" height="200" style="flex-shrink:0;overflow:visible" id="radar-svg"></svg>
-        <div class="traits">
-          <div class="trait"><div class="trait-row"><span class="trait-name">Уверенность</span><span class="trait-val c-orange">5.2</span></div><div class="bar-track"><div class="bar-fill" style="width:52%;background:var(--orange)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Дисциплина</span><span class="trait-val c-red">4.8</span></div><div class="bar-track"><div class="bar-fill" style="width:48%;background:var(--red)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Терпение</span><span class="trait-val c-red">3.9</span></div><div class="bar-track"><div class="bar-fill" style="width:39%;background:var(--red)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Контроль риска</span><span class="trait-val c-red">4.1</span></div><div class="bar-track"><div class="bar-fill" style="width:41%;background:var(--red)"></div></div></div>
-          <div class="trait"><div class="trait-row"><span class="trait-name">Фокус</span><span class="trait-val c-green">6.3</span></div><div class="bar-track"><div class="bar-fill" style="width:63%;background:var(--green)"></div></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Insight -->
-    <div class="insight">
-      <div class="insight-label">🧠 AI-ИНСАЙТ</div>
-      <p class="insight-text">
-        Твой главный враг — <span class="hl-red">пятничный FOMO</span>. 37% всех потерь происходит в один временной слот. Закрой торговлю по пятницам после 17:00 — и твой PnL вырастет на <span class="hl-green">+29.8% мгновенно</span>. Паттерн "Откат к EMA" — твоя единственная статистически подтверждённая точка входа. Остальное — азарт.
-      </p>
-    </div>
-  </div>
-
-  <!-- PATTERNS PANEL -->
-  <div id="panel-patterns" class="panel">
-    <div class="pattern-header">
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px">ПАТТЕРНЫ ОШИБОК</div>
-        <div style="color:var(--text-faint);font-size:11px">Нажми чтобы раскрыть · 4 паттерна найдено</div>
-      </div>
-      <div class="pattern-count">
-        <div class="pattern-count-num">4</div>
-        <div class="pattern-count-label">КРИТИЧЕСКИХ</div>
-      </div>
-    </div>
-
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box">🔥</div>
-          <div><div class="pattern-title">FOMO по пятницам 17–19:00</div><div class="pattern-subtitle">3 сделки · 100% убыточных</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-red">−$847 потерь</span><span class="chevron">▼</span></div>
-      </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Каждую пятницу вечером ты входишь в BTC/USDT на пробое уровня. Жадность 8–9/10, страх 7–8/10. Все три сделки — убыточные. Скорее всего это реакция на дневные движения после рабочей недели.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Запрети себе торговать BTC/USDT в пятницу после 17:00. Поставь напоминание в календарь.</div></div>
-        <div class="trade-tags"><span class="trade-tag">BTC пт 17:10 −8.2%</span><span class="trade-tag">BTC пт 18:33 −12.5%</span><span class="trade-tag">BTC пт 19:01 −9.1%</span></div>
-      </div>
-    </div>
-
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box">💀</div>
-          <div><div class="pattern-title">Жадность >7 = убыток</div><div class="pattern-subtitle">5 из 6 сделок с жадн. >7 убыточны</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-red">−$312 потерь</span><span class="chevron">▼</span></div>
-      </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Чёткая корреляция: когда жадность выше 7, вин-рейт падает до 16%. Когда жадность ≤4 — вин-рейт 100%. Твой злейший враг — это ты сам в состоянии эйфории.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Добавь блокировку: если выставил жадность >7 — система спрашивает «Уверен?» с паузой 60 секунд.</div></div>
-        <div class="trade-tags"><span class="trade-tag">Жадность 9 → −12.5%</span><span class="trade-tag">Жадность 8 → −8.2%</span><span class="trade-tag">Жадность 7 → −5.3%</span></div>
-      </div>
-    </div>
-
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box medium">⏰</div>
-          <div><div class="pattern-title">Утренние сделки (8–10:00) — слив</div><div class="pattern-subtitle">Пн–Вт, 2 из 2 убыточных</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-orange">+$291 при исправлении</span><span class="chevron">▼</span></div>
-      </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Понедельник 8–9 утра — твоё слабое место. Фокус на минимуме (2–3), входишь импульсно. Вероятно, не успел настроиться на рынок после выходных.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Первый час после открытия рынка — только наблюдение. Никаких сделок до 10:00 в понедельник.</div></div>
-        <div class="trade-tags"><span class="trade-tag">Пн 08:14 BNB −6.7%</span><span class="trade-tag">Пн 09:02 SOL −5.3%</span></div>
-      </div>
-    </div>
-
-    <div class="pattern-card" onclick="togglePattern(this)">
-      <div class="pattern-top">
-        <div class="pattern-left">
-          <div class="pattern-icon-box positive">🎯</div>
-          <div><div class="pattern-title">Откат к EMA — золотая жила</div><div class="pattern-subtitle">3 из 3 прибыльных · avg +5.0%</div></div>
-        </div>
-        <div class="pattern-right"><span class="badge badge-green">Твоя суперсила</span><span class="chevron">▼</span></div>
-      </div>
-      <div class="pattern-body">
-        <p class="pattern-desc">Паттерн «Откат к EMA» работает у тебя идеально: 100% вин-рейт, высокий фокус (8–9), низкая жадность. Это твой краевой сетап — именно здесь ты торгуешь как профи.</p>
-        <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">Увеличь размер позиции на этом паттерне. Это единственное место где твоя статистика говорит «вход оправдан».</div></div>
-        <div class="trade-tags"><span class="trade-tag">ETH EMA +4.1%</span><span class="trade-tag">ETH EMA +7.8%</span><span class="trade-tag">ADA EMA +3.2%</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HEATMAP PANEL -->
-  <div id="panel-heatmap" class="panel">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:6px">ТЕПЛОВАЯ КАРТА</div>
-    <div style="color:var(--text-faint);font-size:11px;margin-bottom:24px">Когда ты теряешь деньги</div>
-
-    <!-- Day bars -->
-    <div class="card-label">ПРИБЫЛЬ ПО ДНЯМ НЕДЕЛИ</div>
-    <div class="day-bars">
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:90px;background:rgba(240,112,112,0.45)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-red">−12%</div><div class="day-bar-name">Пн</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:30px;background:rgba(77,219,150,0.45)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-green">+4.1%</div><div class="day-bar-name">Вт</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:55px;background:rgba(77,219,150,0.5)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-green">+11%</div><div class="day-bar-name">Ср</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:20px;background:rgba(255,255,255,0.05)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl" style="color:var(--text-faint)">—</div><div class="day-bar-name">Чт</div></div>
-      </div>
-      <div class="day-bar">
-        <div class="day-bar-fill" style="height:120px;background:rgba(240,112,112,0.55)"></div>
-        <div class="day-bar-info"><div class="day-bar-pnl c-red">−29.8%</div><div class="day-bar-name">Пт</div></div>
-      </div>
-    </div>
-
-    <!-- Emotion correlations -->
-    <div class="card-label" style="margin-top:8px">ВЛИЯНИЕ ЭМОЦИЙ НА РЕЗУЛЬТАТ</div>
-    <div class="emotion-grid">
-      <div class="emotion-card">
-        <div class="emotion-name">Жадность</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">100%</div><div class="emotion-col-label">вин при ≤4</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">16%</div><div class="emotion-col-label">вин при ≥7</div></div>
-        </div>
-      </div>
-      <div class="emotion-card">
-        <div class="emotion-name">Страх</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">100%</div><div class="emotion-col-label">вин при ≤3</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">20%</div><div class="emotion-col-label">вин при ≥6</div></div>
-        </div>
-      </div>
-      <div class="emotion-card">
-        <div class="emotion-name">Уверенность</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">90%</div><div class="emotion-col-label">вин при ≥7</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">15%</div><div class="emotion-col-label">вин при ≤4</div></div>
-        </div>
-      </div>
-      <div class="emotion-card">
-        <div class="emotion-name">Фокус</div>
-        <div class="emotion-cols">
-          <div class="emotion-col pos"><div class="emotion-col-val">88%</div><div class="emotion-col-label">вин при ≥7</div></div>
-          <div class="emotion-col neg"><div class="emotion-col-val">10%</div><div class="emotion-col-label">вин при ≤4</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hour heatmap -->
-    <div class="card-label" style="margin-top:8px">АКТИВНОСТЬ ПО ЧАСАМ</div>
-    <div class="hour-grid" id="hour-grid"></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(77,219,150,0.45)"></div>Прибыльная сделка</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(240,112,112,0.45)"></div>Убыточная сделка</div>
-    </div>
-  </div>
-
+<div class="wrap" id="main-wrap">
+  <div class="loading-state" id="loading">⏳ ЗАГРУЖАЕМ ПРОФИЛЬ...</div>
 </div>
 
 <script>
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const {createClient}=supabase; const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let allTrades=[];
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
+let profileUser=null, trades=[], currentUser=null, isOwnProfile=false;
 
-async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
+async function init(){
+  // Get uid from URL or own user
+  const params=new URLSearchParams(location.search);
+  let uid=params.get('uid');
 
-async function initProfile(){
-  const{data:{user}}=await sb.auth.getUser();
-  if(!user){window.location.href='login.html';return;}
-  const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
-  if(!p){window.location.href='login.html';return;}
-  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());
-  if(!hasAccess&&p.role!=='admin'){window.location.href='pay.html';return;}
-  // fill sidebar
-  document.getElementById('sf-avatar').textContent=(p.full_name||p.username||'U')[0].toUpperCase();
-  document.getElementById('sf-name').textContent=p.full_name||p.username||user.email;
-  document.getElementById('sf-plan').textContent=p.plan==='lifetime'?'∞ НАВСЕГДА':p.plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-  if(p.role==='admin'){document.getElementById('snav-admin').style.display='flex';document.getElementById('admin-divider').style.display='block';}
-  // update subtitle with real username
-  document.querySelector('.subtitle').textContent=(p.full_name||p.username||user.email)+' · последние 30 дней';
-  // load trades
-  const{data:trades}=await sb.from('trades').select('*').eq('user_id',user.id).order('created_at',{ascending:false});
-  allTrades=trades||[];
-  computeRealStats(allTrades);
+  const {data:{user}}=await sb.auth.getUser();
+  currentUser=user;
+
+  if(!uid && user) uid=user.id;
+  if(!uid){showNotFound('Укажи uid в URL или войди в аккаунт');return;}
+  isOwnProfile=user&&user.id===uid;
+
+  const {data:profile,error}=await sb.from('profiles').select('*').eq('id',uid).single();
+  if(error||!profile){showNotFound('Профиль не найден');return;}
+  profileUser=profile;
+
+  const {data:tradeData}=await sb.from('trades').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+  trades=tradeData||[];
+
+  render(profile, trades);
 }
 
-function computeRealStats(trades){
-  // update subtitle
-  document.querySelector('.subtitle').textContent=(document.querySelector('.subtitle').textContent.split('·')[0]).trim()+` · ${trades.length} сделок`;
-  if(!trades.length) return;
+function render(p, trades){
+  const wrap=document.getElementById('main-wrap');
   const wins=trades.filter(t=>t.result==='win');
   const losses=trades.filter(t=>t.result==='loss');
-  const wr=Math.round(wins.length/trades.length*100);
+  const wr=trades.length?Math.round(wins.length/trades.length*100):0;
+  const totalPnl=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const avgWin=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
+  const avgLoss=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
+  const rr=avgLoss?(avgWin/avgLoss).toFixed(1):'∞';
 
-  // update first stat-card (win rate)
-  const statCards=document.querySelectorAll('.stat-card');
-  if(statCards[0]){
-    const sv=statCards[0].querySelector('.stat-value');
-    const ss=statCards[0].querySelector('.stat-sub');
-    if(sv){sv.textContent=wr+'%';sv.className='stat-value '+(wr>=50?'c-green':'c-red');}
-    if(ss)ss.textContent=wins.length+' из '+trades.length;
-  }
-
-  // best/worst days
+  // Discipline score calc
+  const withSL=trades.filter(t=>t.stop_loss).length;
+  const slScore=trades.length?Math.round(withSL/trades.length*100):0;
+  const avgFear=avg(trades,'emotion_fear');
+  const avgConf=avg(trades,'emotion_conf');
+  const avgGreed=avg(trades,'emotion_greed');
+  const avgCalm=avg(trades,'emotion_calm');
+  const emotionScore=Math.round(((10-avgFear)/10*25)+((10-avgGreed)/10*25)+(avgConf/10*25)+(avgCalm/10*25));
+  const withSetup=trades.filter(t=>t.setup_type).length;
+  const setupScore=trades.length?Math.round(withSetup/trades.length*100):0;
   const byDay={};
-  trades.forEach(t=>{
-    const day=new Date(t.created_at).toLocaleDateString('ru-RU',{weekday:'short'});
-    if(!byDay[day])byDay[day]={pnl:0,cnt:0};
-    byDay[day].pnl+=(t.pnl_pct||0);byDay[day].cnt++;
-  });
-  const days=Object.entries(byDay);
-  if(days.length){
-    const best=days.reduce((a,b)=>b[1].pnl>a[1].pnl?b:a);
-    const worst=days.reduce((a,b)=>b[1].pnl<a[1].pnl?b:a);
-    if(statCards[1]){const sv=statCards[1].querySelector('.stat-value');const ss=statCards[1].querySelector('.stat-sub');if(sv)sv.textContent=best[0];if(ss)ss.textContent=(best[1].pnl>=0?'+':'')+best[1].pnl.toFixed(1)+'%';}
-    if(statCards[2]){const sv=statCards[2].querySelector('.stat-value');const ss=statCards[2].querySelector('.stat-sub');if(sv)sv.textContent=worst[0];if(ss)ss.textContent=worst[1].pnl.toFixed(1)+'%';}
-  }
+  trades.forEach(t=>{const d=new Date(t.created_at).toDateString();byDay[d]=(byDay[d]||0)+1;});
+  const avgPD=Object.values(byDay).length?Object.values(byDay).reduce((s,v)=>s+v,0)/Object.values(byDay).length:1;
+  const consistScore=Math.round(Math.max(0,100-(avgPD-3)*20)*0.5+wr*0.5);
+  const disciplineScore=Math.round(slScore*0.3+emotionScore*0.3+setupScore*0.2+consistScore*0.2);
 
-  // radar traits from emotions
-  const avg=key=>{const v=trades.map(t=>t[key]).filter(x=>x!=null);return v.length?(v.reduce((s,x)=>s+x,0)/v.length):5;};
-  const conf=avg('emotion_conf'),fear=avg('emotion_fear'),greed=avg('emotion_greed'),calm=avg('emotion_calm');
-  const discipline=Math.max(0,10-greed);
-  const patience=Math.max(0,10-fear);
-  const riskControl=Math.max(0,(conf+discipline)/2);
-  const radarVals=[conf,discipline,patience,riskControl,calm];
+  // Badges
+  const badges=calcBadges(trades,totalPnl,wr,disciplineScore,avgWin,avgLoss);
 
-  // update trait bars
-  const traitBars=document.querySelectorAll('.bar-fill');
-  const traitVals=document.querySelectorAll('.trait-val');
-  radarVals.forEach((v,i)=>{
-    if(traitBars[i]){traitBars[i].style.width=(v/10*100)+'%';}
-    if(traitVals[i]){traitVals[i].textContent=v.toFixed(1);}
-  });
+  // Best/worst trade
+  const bestTrade=trades.length?trades.reduce((b,t)=>(t.pnl_pct||0)>(b.pnl_pct||0)?t:b,trades[0]):null;
+  const worstTrade=trades.length?trades.reduce((b,t)=>(t.pnl_pct||0)<(b.pnl_pct||0)?t:b,trades[0]):null;
 
-  // update day heatmap bars (real data)
-  updateDayBars(trades);
-  // update emotion grid (real data)
-  updateEmotionGrid(trades,wins,losses);
-  // update patterns (real data)
-  updatePatterns(trades,wins,losses);
-  // update insight
-  updateInsight(trades,wins,losses);
-  // update hour heatmap (real data)
-  updateHourGrid(trades);
-  // rebuild radar
-  rebuildRadar(radarVals);
-  autoDetectArchetype(trades, wins, losses, conf, fear, greed, calm);
-}
+  // Streak
+  const streak=calcStreak(trades);
 
-function autoDetectArchetype(trades, wins, losses, conf, fear, greed, calm){
-  if(trades.length < 2) return;
-  const wr = wins.length/trades.length;
-  const avgPnl = trades.reduce((s,t)=>s+(t.pnl_pct||0),0)/trades.length;
-  const byDay={};
-  trades.slice(0,30).forEach(t=>{const d=new Date(t.created_at).toDateString();byDay[d]=(byDay[d]||0)+1;});
-  const avgPerDay=Object.values(byDay).reduce((s,v)=>s+v,0)/Math.max(1,Object.keys(byDay).length);
-  let maxLoss=0,cur=0;
-  trades.forEach(t=>{if(t.result==='loss'){cur++;maxLoss=Math.max(maxLoss,cur);}else cur=0;});
-  let revenge=0;
-  for(let i=1;i<trades.length;i++){if(trades[i].result==='loss'&&(trades[i-1].pnl_pct||0)<(trades[i].pnl_pct||0)*-1.5)revenge++;}
-  const liq=trades.filter(t=>{const s=(t.setup_type||'').toLowerCase();return s==='liquidity'||s==='ob'||s==='bos';}).length;
-  let icon,name,desc;
-  if(avgPerDay>=5||(trades.length>20&&avgPerDay>=3)){icon='🌪';name='OVERTRADER';desc='Too many trades, quality suffers. Trade setups, not screen time.';}
-  else if(revenge>=2||maxLoss>=4){icon='⚡';name='AVENGER';desc='Revenge trades after losses. Every revenge entry costs more than the original.';}
-  else if(greed>=7||(fear<=3&&avgPnl<0)){icon='🔥';name='FOMO HUNTER';desc='Enters on emotions, chases moves. Best trades are always the ones you miss.';}
-  else if(fear>=6.5&&wr<0.55){icon='🦊';name='RISK TAKER';desc='High risk without proper stops. One bad trade can wipe weeks of gains.';}
-  else if(liq>=trades.length*0.35&&trades.length>=5){icon='💧';name='LIQUIDITY HUNTER';desc='Strong SMC/ICT instincts. Good at reading liquidity and order blocks.';}
-  else if(wr>=0.6&&avgPerDay<=2&&trades.length>=5){icon='🎯';name='SNIPER';desc='Rare, precise entries. Waits for the perfect setup — and usually gets it.';}
-  else if(conf>=6.5&&fear<=4&&calm>=6){icon='🧘';name='PATIENT TRADER';desc='Disciplined and systematic. Follows the plan, controls emotions.';}
-  else{icon='📈';name='DEVELOPING';desc='Still forming your trading style. Keep journaling — your pattern will emerge.';}
-  const $=id=>document.getElementById(id);
-  if($('archetype-icon'))$('archetype-icon').textContent=icon;
-  if($('archetype-bg'))$('archetype-bg').textContent=icon;
-  if($('archetype-name'))$('archetype-name').textContent=name;
-  if($('archetype-desc'))$('archetype-desc').textContent=desc;
-  document.querySelectorAll('.chip').forEach(c=>{
-    c.classList.remove('active-chip');
-    if(c.textContent.toUpperCase().includes(name.split(' ')[0])||c.textContent.includes(icon))c.classList.add('active-chip');
-  });
-}
+  // Pairs breakdown
+  const pairs=calcPairs(trades);
 
+  const displayName=p.full_name||p.username||'Трейдер';
+  const initial=(displayName[0]||'T').toUpperCase();
 
-function updateDayBars(trades){
-  const days=['Пн','Вт','Ср','Чт','Пт'];
-  const dayMap={'Monday':'Пн','Tuesday':'Вт','Wednesday':'Ср','Thursday':'Чт','Friday':'Пт'};
-  const stats={Пн:{pnl:0},Вт:{pnl:0},Ср:{pnl:0},Чт:{pnl:0},Пт:{pnl:0}};
-  trades.forEach(t=>{
-    const en=new Date(t.created_at).toLocaleDateString('en-US',{weekday:'long'});
-    const ru=dayMap[en];
-    if(ru)stats[ru].pnl+=(t.pnl_pct||0);
-  });
-  const bars=document.querySelectorAll('.day-bar');
-  days.forEach((day,i)=>{
-    if(!bars[i])return;
-    const pnl=stats[day].pnl;
-    const fill=bars[i].querySelector('.day-bar-fill');
-    const pnlEl=bars[i].querySelector('.day-bar-pnl');
-    const maxH=120,minH=20;
-    const h=minH+Math.min(1,Math.abs(pnl)/30)*(maxH-minH);
-    const isPos=pnl>0,isZero=pnl===0;
-    fill.style.height=h+'px';
-    fill.style.background=isZero?'rgba(255,255,255,0.05)':isPos?'rgba(77,219,150,0.45)':'rgba(240,112,112,0.45)';
-    pnlEl.className='day-bar-pnl '+(isZero?'':(isPos?'c-green':'c-red'));
-    pnlEl.textContent=isZero?'—':(pnl>=0?'+':'')+pnl.toFixed(1)+'%';
-  });
-}
+  wrap.innerHTML=`
+  ${isOwnProfile?`<div class="own-banner">
+    <span style="font-size:18px">🌐</span>
+    <span class="ob-text">Это ваш публичный профиль. Поделитесь ссылкой — другие трейдеры увидят вашу статистику и психологию.</span>
+    <a href="journal.html" class="ob-btn">← В Журнал</a>
+  </div>`:''}
 
-function updateEmotionGrid(trades,wins,losses){
-  const avg=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
-  const grid=document.querySelector('.emotion-grid');
-  if(!grid)return;
-  const emotions=[
-    {name:'Жадность',wKey:'emotion_greed',lKey:'emotion_greed',winWhen:'≤4',loseWhen:'≥7'},
-    {name:'Страх',wKey:'emotion_fear',lKey:'emotion_fear',winWhen:'≤3',loseWhen:'≥6'},
-    {name:'Уверенность',wKey:'emotion_conf',lKey:'emotion_conf',winWhen:'≥7',loseWhen:'≤4'},
-    {name:'Фокус',wKey:'emotion_calm',lKey:'emotion_calm',winWhen:'≥7',loseWhen:'≤4'},
-  ];
-  const cards=grid.querySelectorAll('.emotion-card');
-  emotions.forEach((e,i)=>{
-    if(!cards[i])return;
-    const wV=avg(wins,e.wKey);
-    const lV=avg(losses,e.lKey);
-    const vals=cards[i].querySelectorAll('.emotion-col-val');
-    if(vals[0])vals[0].textContent=wV.toFixed(0);
-    if(vals[1])vals[1].textContent=lV.toFixed(0);
-  });
-}
-
-function updatePatterns(trades,wins,losses){
-  // Build dynamic patterns from real trade data
-  const patterns=[];
-
-  // FOMO pattern: losses in 17-19 on Fridays
-  const fridayEvening=trades.filter(t=>{
-    const d=new Date(t.created_at);
-    return d.getDay()===5&&d.getHours()>=17&&d.getHours()<19&&t.result==='loss';
-  });
-  if(fridayEvening.length>=1){
-    const pnl=fridayEvening.reduce((s,t)=>s+(t.pnl_usd||0),0);
-    patterns.push({icon:'🔥',color:'badge-red',title:'FOMO по пятницам 17–19:00',sub:`${fridayEvening.length} сделок · 100% убыточных`,badge:`−$${Math.abs(pnl).toFixed(0)} потерь`,desc:'Паттерн выявлен: убыточные входы каждую пятницу вечером. Вероятно реакция на дневные движения после рабочей недели.',rec:'Запрети себе торговать в пятницу после 17:00. Поставь напоминание.'});
-  }
-
-  // Greed pattern
-  const greedyLoss=trades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
-  const greedyAll=trades.filter(t=>(t.emotion_greed||0)>=7);
-  if(greedyLoss.length>=1){
-    const pnl=greedyLoss.reduce((s,t)=>s+(t.pnl_usd||0),0);
-    patterns.push({icon:'💀',color:'badge-red',title:'Жадность >7 = убыток',sub:`${greedyLoss.length} из ${greedyAll.length} сделок с жадн. >7 убыточны`,badge:`−$${Math.abs(pnl).toFixed(0)} потерь`,desc:`Чёткая корреляция: при жадности ≥7 вин-рейт падает до ${greedyAll.length?Math.round((greedyAll.length-greedyLoss.length)/greedyAll.length*100):0}%. Твой злейший враг — ты сам в состоянии эйфории.`,rec:'Добавь правило: жадность ≥7 → обязательная пауза 5 минут перед входом.'});
-  }
-
-  // Morning losses
-  const morningLoss=trades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=8&&h<10&&t.result==='loss';});
-  if(morningLoss.length>=1){
-    patterns.push({icon:'⏰',color:'badge-orange',title:'Утренние сделки (8–10:00) — риск',sub:`${morningLoss.length} убыточных в 8-10ч`,badge:'⚠ Риск-зона',desc:'Первые часы торговли — слабое место. Фокус минимальный, рынок ещё не определился с направлением.',rec:'Первый час после открытия — только наблюдение. Никаких входов до 10:00.'});
-  }
-
-  // Superpower: high confidence wins
-  const confWins=trades.filter(t=>(t.emotion_conf||0)>=7&&t.result==='win');
-  if(confWins.length>=2){
-    const avgPnl=confWins.reduce((s,t)=>s+(t.pnl_pct||0),0)/confWins.length;
-    patterns.push({icon:'🎯',color:'badge-green',title:'Высокая уверенность → победа',sub:`${confWins.length} из ${confWins.length} прибыльных · avg +${avgPnl.toFixed(1)}%`,badge:'Твоя суперсила',desc:`При уверенности ≥7 вин-рейт ${Math.round(confWins.length/trades.filter(t=>(t.emotion_conf||0)>=7).length*100)||100}%. Это твоя сильнейшая точка входа.`,rec:'Увеличь размер позиции когда уверенность ≥7. Это статистически подтверждено.'});
-  }
-
-  const container=document.getElementById('panel-patterns');
-  if(!container)return;
-
-  // update count
-  const countEl=container.querySelector('.pattern-count-num');
-  const countBad=patterns.filter(p=>p.color==='badge-red').length;
-  if(countEl)countEl.textContent=countBad;
-  const subEl=container.querySelector('[style*="color:var(--text-faint)"]');
-  if(subEl)subEl.textContent=`Нажми чтобы раскрыть · ${patterns.length} паттерн${patterns.length===1?'':'а'} найдено`;
-
-  // replace pattern cards
-  const oldCards=container.querySelectorAll('.pattern-card');
-  oldCards.forEach(c=>c.remove());
-
-  const insertAfter=container.querySelector('.pattern-header');
-  patterns.forEach(p=>{
-    const div=document.createElement('div');
-    div.className='pattern-card';
-    div.onclick=function(){togglePattern(this);};
-    div.innerHTML=`<div class="pattern-top">
-      <div class="pattern-left">
-        <div class="pattern-icon-box ${p.color==='badge-green'?'positive':p.color==='badge-orange'?'medium':''}">${p.icon}</div>
-        <div><div class="pattern-title">${p.title}</div><div class="pattern-subtitle">${p.sub}</div></div>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <div class="hero-avatar" id="hero-av">${initial}</div>
+      <div class="hero-info">
+        <div class="hero-name">${displayName}</div>
+        <div class="hero-handle">ORBITUM · ${trades.length} сделок · ${p.plan==='lifetime'?'∞ PRO':p.plan==='monthly'?'MONTHLY':'FREE'}</div>
+        <div class="hero-badges" id="hero-badges">
+          ${badges.map(b=>`<span class="hbadge ${b.cls}">${b.icon} ${b.name}</span>`).join('')}
+          ${badges.length===0?'<span style="font-family:var(--font-mono);font-size:9px;color:var(--m)">Бейджи появятся после первых сделок</span>':''}
+        </div>
       </div>
-      <div class="pattern-right"><span class="badge ${p.color}">${p.badge}</span><span class="chevron">▼</span></div>
+      <div class="hero-right">
+        <div class="hero-stat-big">
+          <div class="hsb-val ${totalPnl>=0?'pos':'neg'}">${(totalPnl>=0?'+':'')}${totalPnl.toFixed(1)}%</div>
+          <div class="hsb-label">Общий ROI</div>
+        </div>
+        ${isOwnProfile?'':'<button class="follow-btn" onclick="toggleFollow()">+ FOLLOW</button>'}
+      </div>
     </div>
-    <div class="pattern-body">
-      <p class="pattern-desc">${p.desc}</p>
-      <div class="rec-box"><div class="rec-label">💡 РЕКОМЕНДАЦИЯ</div><div class="rec-text">${p.rec}</div></div>
-    </div>`;
-    if(insertAfter)insertAfter.after(div);
-    else container.appendChild(div);
-  });
+    <div class="hero-meta">
+      <div class="hm-cell"><div class="hm-label">Винрейт</div><div class="hm-val g">${trades.length?wr+'%':'—'}</div></div>
+      <div class="hm-cell"><div class="hm-label">Risk / Reward</div><div class="hm-val a">${trades.length?rr:'—'}</div></div>
+      <div class="hm-cell"><div class="hm-label">Discipline</div><div class="hm-val a">${trades.length?disciplineScore+'/100':'—'}</div></div>
+      <div class="hm-cell"><div class="hm-label">Стрик</div><div class="hm-val y">${streak>0?'🔥 '+streak+' дн':'—'}</div></div>
+    </div>
+  </div>
 
-  if(!patterns.length){
-    const empty=document.createElement('div');
-    empty.style.cssText='color:var(--text-faint);font-size:12px;padding:20px;text-align:center';
-    empty.textContent='Недостаточно сделок для анализа паттернов. Добавь больше сделок в журнал.';
-    container.appendChild(empty);
-  }
+  <!-- EQUITY CURVE -->
+  <div class="section-card">
+    <div class="equity-header">
+      <div class="sc-title"><div class="sc-title-dot"></div>КРИВАЯ КАПИТАЛА</div>
+      <div class="equity-delta ${totalPnl>=0?'pos':'neg'}" id="eq-delta">${(totalPnl>=0?'+':'')}${totalPnl.toFixed(1)}%</div>
+    </div>
+    <canvas id="eq-canvas" style="width:100%;height:150px;display:block;"></canvas>
+    ${!trades.length?`<div class="feed-empty">Нет данных для графика</div>`:''}
+  </div>
+
+  <!-- PSYCHOLOGY & DISCIPLINE -->
+  <div class="two-col">
+    <!-- Discipline -->
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>DISCIPLINE SCORE</div>
+      <div class="disc-wrap">
+        <svg class="disc-ring-svg" width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+          <circle id="disc-ring" cx="36" cy="36" r="28" fill="none" stroke="${disciplineScore>=70?'#e8722a':'#ff4d4d'}" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="${(176*disciplineScore/100).toFixed(0)} 176" transform="rotate(-90 36 36)"
+            style="transition:stroke-dasharray 1s ease"/>
+          <text x="36" y="40" text-anchor="middle" fill="white" font-family="Bebas Neue" font-size="18">${trades.length?disciplineScore:'—'}</text>
+        </svg>
+        <div class="disc-info">
+          <div class="disc-level" style="color:${disciplineScore>=90?'var(--g)':disciplineScore>=70?'var(--a)':disciplineScore>=40?'var(--y)':'var(--r)'}">${
+            disciplineScore>=90?'ПРОФЕССИОНАЛ':disciplineScore>=70?'ДИСЦИПЛИНИРОВАННЫЙ':disciplineScore>=40?'НЕСТАБИЛЬНЫЙ':'GAMBLING'
+          }</div>
+          <div class="disc-desc">${
+            disciplineScore>=90?'Системная торговля без эмоций':
+            disciplineScore>=70?'Хорошее следование плану':
+            disciplineScore>=40?'Эмоции влияют на результат':
+            'Торговля без системы'
+          }</div>
+        </div>
+      </div>
+      <div class="disc-bars" style="margin-top:14px">
+        ${[
+          {l:'Риск-менеджмент',v:slScore,c:'#e8722a'},
+          {l:'Эмоции',v:emotionScore,c:'#9b59b6'},
+          {l:'Сетапы',v:setupScore,c:'#34d058'},
+          {l:'Консистентность',v:consistScore,c:'#3498db'},
+        ].map(b=>`<div class="db-row">
+          <div class="db-head"><span class="db-label">${b.l}</span><span class="db-val">${b.v}/100</span></div>
+          <div class="db-track"><div class="db-fill" style="width:${b.v}%;background:${b.c}"></div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Emotion Profile -->
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>ЭМОЦИОНАЛЬНЫЙ ПРОФИЛЬ</div>
+      <div class="emo-radar">
+        ${[
+          {icon:'💪',label:'Уверенность',key:'emotion_conf',col:'#e8722a'},
+          {icon:'😰',label:'Страх',key:'emotion_fear',col:'#ff4d4d'},
+          {icon:'💰',label:'Жадность',key:'emotion_greed',col:'#f5a623'},
+          {icon:'🎯',label:'Фокус',key:'emotion_calm',col:'#34d058'},
+        ].map(e=>{
+          const v=avg(trades,e.key);
+          const pct=v/10*100;
+          return `<div class="er-item">
+            <div class="er-icon">${e.icon}</div>
+            <div class="er-body">
+              <div class="er-label">${e.label}</div>
+              <div class="er-bar-track"><div class="er-bar-fill" style="width:${pct}%;background:${e.col}"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:2px">
+                <span class="er-val" style="color:${e.col};font-size:13px">${v.toFixed(1)}</span>
+                <span style="font-family:var(--font-mono);font-size:8px;color:var(--m)">/10</span>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- PSYCHOLOGY INSIGHTS -->
+  <div class="section-card">
+    <div class="sc-title"><div class="sc-title-dot"></div>ПСИХОЛОГИЧЕСКИЙ ПАТТЕРН</div>
+    <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:12px;">Как эмоции влияют на результат торговли</div>
+    <div class="insight-grid" id="insight-grid">
+      ${renderInsights(trades)}
+    </div>
+  </div>
+
+  <!-- BEST/WORST TRADE + PAIRS -->
+  <div class="two-col">
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>ЛУЧШАЯ / ХУДШАЯ СДЕЛКА</div>
+      <div class="trade-showcase">
+        <div class="ts-card best">
+          <div class="ts-label">🏆 Лучшая</div>
+          <div class="ts-pair">${bestTrade?bestTrade.pair:'—'}</div>
+          <div class="ts-pnl">${bestTrade?'+'+(bestTrade.pnl_pct||0).toFixed(1)+'%':'—'}</div>
+          <div class="ts-meta">${bestTrade?new Date(bestTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}):'нет данных'}</div>
+        </div>
+        <div class="ts-card worst">
+          <div class="ts-label">💀 Худшая</div>
+          <div class="ts-pair">${worstTrade?worstTrade.pair:'—'}</div>
+          <div class="ts-pnl">${worstTrade?(worstTrade.pnl_pct||0).toFixed(1)+'%':'—'}</div>
+          <div class="ts-meta">${worstTrade?new Date(worstTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}):'нет данных'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>ТОП ПАРЫ</div>
+      <div class="pairs-wrap">
+        ${pairs.length?pairs.slice(0,4).map((pair,i)=>`
+          <div class="pair-row">
+            <div class="pair-rank">#${i+1}</div>
+            <div class="pair-name">${pair.name}</div>
+            <div class="pair-stats">
+              <div class="ps-item">
+                <div class="ps-val ${pair.wr>=50?'g':'r'}">${pair.wr}%</div>
+                <div class="ps-label">WR</div>
+              </div>
+              <div class="ps-item">
+                <div class="ps-val ${pair.pnl>=0?'g':'r'}">${(pair.pnl>=0?'+':'')+pair.pnl.toFixed(1)}%</div>
+                <div class="ps-label">P&L</div>
+              </div>
+              <div class="ps-item">
+                <div class="ps-val a">${pair.n}</div>
+                <div class="ps-label">сд.</div>
+              </div>
+            </div>
+          </div>
+        `).join(''):`<div class="feed-empty">Нет данных по парам</div>`}
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY HEATMAP -->
+  <div class="section-card">
+    <div class="sc-title" style="margin-bottom:14px"><div class="sc-title-dot"></div>АКТИВНОСТЬ</div>
+    <div id="hm-pub-wrap" style="overflow-x:auto;"></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-family:var(--font-mono);font-size:8px;color:var(--m);">
+      Меньше
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,0.04)"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(52,208,88,0.3)"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:#34d058"></div>
+      Больше
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,77,77,0.5);margin-left:8px"></div>
+      Убыток
+    </div>
+  </div>
+
+  <!-- PUBLIC TRADES FEED -->
+  <div class="section-card">
+    <div class="sc-title" style="margin-bottom:4px"><div class="sc-title-dot"></div>ПУБЛИЧНЫЕ СДЕЛКИ</div>
+    <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:14px;">
+      ${isOwnProfile?'Нажми «Опубликовать» на любой сделке в журнале чтобы показать её здесь':'Сделки которые трейдер решил сделать публичными'}
+    </div>
+    <div id="public-feed">
+      ${renderPublicFeed(trades)}
+    </div>
+  </div>
+  `;
+
+  // Render equity canvas
+  setTimeout(()=>{
+    renderEquity(trades);
+    renderHeatmapPub(trades);
+  },50);
 }
 
-function updateHourGrid(trades){
-  const grid=document.getElementById('hour-grid');
-  if(!grid)return;
-  grid.innerHTML='';
-  // build hour map from real trades
-  const hourMap={};
+function avg(arr,key){
+  const v=arr.map(t=>t[key]).filter(x=>x!=null);
+  return v.length?v.reduce((s,x)=>s+x,0)/v.length:5;
+}
+
+function calcStreak(trades){
+  if(!trades.length)return 0;
+  const days=new Set(trades.map(t=>new Date(t.created_at).toDateString()));
+  let streak=0;const now=new Date();
+  for(let i=0;i<365;i++){const d=new Date(now);d.setDate(d.getDate()-i);if(days.has(d.toDateString()))streak++;else if(i>0)break;}
+  return streak;
+}
+
+function calcPairs(trades){
+  const pm={};
   trades.forEach(t=>{
-    const h=new Date(t.created_at).getHours();
-    if(!hourMap[h])hourMap[h]=[];
-    hourMap[h].push(t.result);
+    if(!t.pair)return;
+    if(!pm[t.pair])pm[t.pair]={n:0,w:0,pnl:0};
+    pm[t.pair].n++;
+    if(t.result==='win')pm[t.pair].w++;
+    pm[t.pair].pnl+=(t.pnl_pct||0);
   });
-  for(let h=0;h<24;h++){
-    const cell=document.createElement('div');
-    cell.className='hour-cell';
-    cell.textContent=h;
-    if(hourMap[h]&&hourMap[h].length){
-      const wins=hourMap[h].filter(r=>r==='win').length;
-      const losses=hourMap[h].filter(r=>r==='loss').length;
-      // dominant result
-      if(wins>losses)cell.classList.add('win');
-      else if(losses>wins)cell.classList.add('loss');
-      else cell.classList.add('win'); // tie → green
-      cell.title=`${h}:00 · ${wins}W/${losses}L`;
+  return Object.keys(pm).map(name=>({
+    name,n:pm[name].n,
+    wr:Math.round(pm[name].w/pm[name].n*100),
+    pnl:pm[name].pnl
+  })).sort((a,b)=>b.n-a.n);
+}
+
+function calcBadges(trades,roi,wr,disc,avgW,avgL){
+  const badges=[];
+  if(roi>20||(wr>=60&&trades.length>=50))badges.push({icon:'👑',name:'Top Trader',cls:'hbadge-gold'});
+  if(disc>=80&&trades.length>=20)badges.push({icon:'🎖',name:'Discipline Master',cls:'hbadge-blue'});
+  if(wr>=50&&trades.length>=15&&avgL>0&&avgW/avgL>2.5)badges.push({icon:'🎯',name:'Sniper',cls:'hbadge-green'});
+  if(calcStreak(trades)>=7)badges.push({icon:'🔥',name:'Hot Streak',cls:'hbadge-orange'});
+  if(trades.length>=100)badges.push({icon:'📋',name:'Veteran',cls:'hbadge-blue'});
+  return badges;
+}
+
+function renderInsights(trades){
+  if(trades.length<3)return `<div style="grid-column:span 2;text-align:center;padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Нужно больше сделок для анализа</div>`;
+  const avgPnl=arr=>arr.length?arr.reduce((s,t)=>s+(t.pnl_pct||0),0)/arr.length:0;
+  const insights=[];
+
+  const hFear=trades.filter(t=>(t.emotion_fear||0)>7);
+  if(hFear.length>=2){const p=avgPnl(hFear);insights.push({cond:'Страх > 7',pnl:p,n:hFear.length,icon:'😰'});}
+  const gConf=trades.filter(t=>{const c=t.emotion_conf||0;return c>=6&&c<=8;});
+  if(gConf.length>=2){const p=avgPnl(gConf);insights.push({cond:'Уверенность 6–8',pnl:p,n:gConf.length,icon:'💪'});}
+  const hGreed=trades.filter(t=>(t.emotion_greed||0)>7);
+  if(hGreed.length>=2){const p=avgPnl(hGreed);insights.push({cond:'Жадность > 7',pnl:p,n:hGreed.length,icon:'💰'});}
+  const hCalm=trades.filter(t=>(t.emotion_calm||0)>7);
+  if(hCalm.length>=2){const p=avgPnl(hCalm);insights.push({cond:'Фокус > 7',pnl:p,n:hCalm.length,icon:'🎯'});}
+
+  if(!insights.length)return `<div style="grid-column:span 2;text-align:center;padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Нет данных — нужно заполнять эмоции в сделках</div>`;
+  return insights.map(ins=>{
+    const pos=ins.pnl>=0;
+    return `<div class="insight-card">
+      <div class="ic-cond">${ins.icon} ${ins.cond}</div>
+      <div class="ic-result ${pos?'pos':'neg'}">${pos?'+':''}${ins.pnl.toFixed(1)}%</div>
+      <div class="ic-sub">avg из ${ins.n} сделок</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPublicFeed(trades){
+  // Show trades that have notes (treat as "shared") — up to 10 most recent
+  const shown=trades.filter(t=>t.note_why||t.note_lesson).slice(0,10);
+  if(!shown.length)return `<div class="feed-empty">Публичных сделок нет</div>`;
+  return shown.map(t=>{
+    const pnl=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'—';
+    const d=new Date(t.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+    const cls=t.result==='win'?'win':'loss';
+    const pnlCls=t.result==='win'?'p':'n';
+    return `<div class="feed-trade ${cls}">
+      <div class="ft-pair">${t.pair||'?'}</div>
+      <span class="ft-dir ${t.direction||'long'}">${(t.direction||'').toUpperCase()}</span>
+      ${t.setup_type?`<span class="ft-setup">${t.setup_type}</span>`:''}
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--m);margin-left:4px">${d}</span>
+      <span class="ft-pnl ${pnlCls}">${pnl}</span>
+      ${t.note_why||t.note_lesson?`<div class="ft-note">${t.note_why||''} ${t.note_lesson?`<span style="color:rgba(52,208,88,0.6);font-family:var(--font-mono);font-size:9px">💡 ${t.note_lesson}</span>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderEquity(trades){
+  const canvas=document.getElementById('eq-canvas');
+  if(!canvas||trades.length<2)return;
+  const sorted=[...trades].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const W=canvas.parentElement.offsetWidth||700,H=150;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  let cum=0;
+  const pts=[{y:0}];
+  sorted.forEach(t=>{cum+=(t.pnl_pct||0);pts.push({y:cum,res:t.result});});
+
+  const minY=Math.min(...pts.map(p=>p.y));
+  const maxY=Math.max(...pts.map(p=>p.y));
+  const rng=maxY-minY||1;
+  const px=16,py=12,cW=W-px*2,cH=H-py*2;
+  const tx=i=>px+i/(pts.length-1)*cW;
+  const ty=v=>py+cH-((v-minY)/rng)*cH;
+
+  // Zero line
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(px,ty(0));ctx.lineTo(px+cW,ty(0));ctx.stroke();
+  ctx.setLineDash([]);
+
+  const isGreen=cum>=0;
+  const color=isGreen?'#34d058':'#ff4d4d';
+
+  // Fill gradient
+  const grad=ctx.createLinearGradient(0,py,0,H);
+  grad.addColorStop(0,isGreen?'rgba(52,208,88,0.2)':'rgba(255,77,77,0.18)');
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad;
+  ctx.beginPath();
+  ctx.moveTo(tx(0),ty(0));
+  pts.forEach((p,i)=>ctx.lineTo(tx(i),ty(p.y)));
+  ctx.lineTo(tx(pts.length-1),ty(0));
+  ctx.closePath();ctx.fill();
+
+  // Line
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.shadowColor=color;ctx.shadowBlur=8;
+  ctx.beginPath();
+  pts.forEach((p,i)=>i===0?ctx.moveTo(tx(i),ty(p.y)):ctx.lineTo(tx(i),ty(p.y)));
+  ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Dots
+  pts.slice(1).forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(tx(i+1),ty(p.y),2.5,0,Math.PI*2);
+    ctx.fillStyle=p.res==='win'?'#34d058':'#ff4d4d';ctx.fill();
+  });
+}
+
+function renderHeatmapPub(trades){
+  const wrap=document.getElementById('hm-pub-wrap');
+  if(!wrap)return;
+  const byDay={};
+  trades.forEach(t=>{
+    if(!t.created_at)return;
+    const d=new Date(t.created_at).toISOString().split('T')[0];
+    if(!byDay[d])byDay[d]={n:0,pnl:0,wins:0};
+    byDay[d].n++;byDay[d].pnl+=(t.pnl_pct||0);
+    if(t.result==='win')byDay[d].wins++;
+  });
+
+  const WEEKS=20;
+  const today=new Date();today.setHours(0,0,0,0);
+  const startDate=new Date(today);startDate.setDate(today.getDate()-(WEEKS*7)+1);
+  const dow=startDate.getDay();
+  const adj=dow===0?-6:1-dow;startDate.setDate(startDate.getDate()+adj);
+
+  const months=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  let lastMo=-1,html='<div class="hm-weeks-pub">';
+
+  for(let w=0;w<WEEKS;w++){
+    html+='<div class="hm-week-pub">';
+    const fd=new Date(startDate);fd.setDate(startDate.getDate()+w*7);
+    const mo=fd.getMonth();
+    html+=`<div class="hm-month-pub">${mo!==lastMo?(lastMo=mo,months[mo]):''}</div>`;
+    for(let d=0;d<7;d++){
+      const dt=new Date(startDate);dt.setDate(startDate.getDate()+w*7+d);
+      const key=dt.toISOString().split('T')[0];
+      const isFuture=dt>today;
+      const dd=byDay[key];
+      let bg='rgba(255,255,255,0.04)',glow='',tip=key;
+      if(!isFuture&&dd){
+        const intensity=Math.min(1,0.25+dd.n*0.2);
+        bg=dd.pnl>=0?`rgba(52,208,88,${intensity})`:`rgba(255,77,77,${intensity})`;
+        if(dd.n>=3)glow=`box-shadow:0 0 6px ${dd.pnl>=0?'rgba(52,208,88,0.4)':'rgba(255,77,77,0.4)'}`;
+        const wr=Math.round(dd.wins/dd.n*100);
+        tip=dt.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'})+` · ${dd.n} сд. · WR ${wr}% · ${(dd.pnl>=0?'+':'')+dd.pnl.toFixed(1)}%`;
+      } else if(!isFuture){
+        tip=dt.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'})+' · нет сделок';
+      }
+      html+=`<div class="hm-cell-pub" style="background:${bg};${glow}"><div class="hm-tip-pub">${tip}</div></div>`;
     }
-    grid.appendChild(cell);
+    html+='</div>';
+  }
+  html+='</div>';
+  wrap.innerHTML=html;
+}
+
+function toggleFollow(){
+  const btn=document.querySelector('.follow-btn');
+  if(!btn)return;
+  const isFollowing=btn.classList.contains('following');
+  btn.classList.toggle('following');
+  btn.textContent=isFollowing?'+ FOLLOW':'✓ FOLLOWING';
+}
+
+function copyLink(){
+  const url=location.href.includes('uid=')
+    ?location.href
+    :(location.origin+'/profile.html?uid='+(profileUser?.id||''));
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(()=>{
+      const btn=document.getElementById('copy-btn');
+      if(btn){const orig=btn.textContent;btn.textContent='✅ Скопировано!';setTimeout(()=>btn.textContent=orig,2500);}
+    });
   }
 }
 
-function updateInsight(trades,wins,losses){
-  const insightText=document.querySelector('.insight-text');
-  if(!insightText||!trades.length)return;
-  const wr=Math.round(wins.length/trades.length*100);
-  const avg=key=>{const v=trades.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:5;};
-  const avgGreed=avg('emotion_greed');
-  const avgFear=avg('emotion_fear');
-  let msg='';
-  if(avgGreed>6)msg+=`Средняя жадность <span class="hl-red">${avgGreed.toFixed(1)}/10</span> — слишком высокая. `;
-  if(avgFear>6)msg+=`Страх <span class="hl-red">${avgFear.toFixed(1)}/10</span> мешает торговле. `;
-  if(wr>=60)msg+=`Отличный вин-рейт <span class="hl-green">${wr}%</span> — ты на правильном пути! `;
-  else if(wr<40)msg+=`Вин-рейт <span class="hl-red">${wr}%</span> — пересмотри точки входа. `;
-  if(!msg)msg=`Вин-рейт <span class="hl-green">${wr}%</span> из ${trades.length} сделок. Продолжай вести журнал.`;
-  insightText.innerHTML=msg;
+function showNotFound(msg){
+  document.getElementById('main-wrap').innerHTML=`<div class="not-found">
+    <div class="nf-title">404</div>
+    <div class="nf-sub">${msg}</div>
+    <a href="journal.html" style="display:inline-block;margin-top:20px;padding:8px 20px;background:var(--a2);border:1px solid var(--a3);border-radius:8px;color:var(--a);font-family:var(--font-mono);font-size:10px;text-decoration:none;letter-spacing:1px">← В журнал</a>
+  </div>`;
 }
 
-function rebuildRadar(vals){
-  const svg=document.getElementById('radar-svg');
-  if(!svg)return;
-  while(svg.firstChild)svg.removeChild(svg.firstChild);
-  const ns='http://www.w3.org/2000/svg',cx=100,cy=100,r=75,n=vals.length;
-  [2,4,6,8,10].forEach(lv=>{
-    const pts=vals.map((_,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const rv=(lv/10)*r;return`${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');
-    const p=document.createElementNS(ns,'polygon');p.setAttribute('points',pts);p.setAttribute('fill','none');p.setAttribute('stroke','rgba(255,255,255,0.07)');p.setAttribute('stroke-width','1');svg.appendChild(p);
-  });
-  vals.forEach((_,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const l=document.createElementNS(ns,'line');l.setAttribute('x1',cx);l.setAttribute('y1',cy);l.setAttribute('x2',cx+r*Math.cos(a));l.setAttribute('y2',cy+r*Math.sin(a));l.setAttribute('stroke','rgba(255,255,255,0.1)');l.setAttribute('stroke-width','1');svg.appendChild(l);});
-  const pts=vals.map((v,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const rv=(v/10)*r;return`${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');
-  const poly=document.createElementNS(ns,'polygon');poly.setAttribute('points',pts);poly.setAttribute('fill','rgba(77,219,150,0.18)');poly.setAttribute('stroke','#4ddb96');poly.setAttribute('stroke-width','2');svg.appendChild(poly);
-  vals.forEach((v,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const rv=(v/10)*r;const c=document.createElementNS(ns,'circle');c.setAttribute('cx',cx+rv*Math.cos(a));c.setAttribute('cy',cy+rv*Math.sin(a));c.setAttribute('r','4');c.setAttribute('fill','#4ddb96');svg.appendChild(c);});
-  const labels=['Уверенность','Дисциплина','Терпение','Контроль риска','Фокус'];
-  labels.forEach((label,i)=>{const a=-Math.PI/2+i*(2*Math.PI/n);const lx=cx+(r+22)*Math.cos(a);const ly=cy+(r+22)*Math.sin(a);const t=document.createElementNS(ns,'text');t.setAttribute('x',lx);t.setAttribute('y',ly);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.style.cssText='font-size:9px;fill:rgba(255,255,255,0.4);font-family:monospace;letter-spacing:0.5px';t.textContent=label;svg.appendChild(t);});
-}
-
-
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('open');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
-function initLogoParticles(){ /* removed */ }
-function fillSidebar(displayName,initials,plan,isAdmin){
-  document.getElementById('sf-avatar').textContent=initials;
-  document.getElementById('sf-name').textContent=displayName;
-  document.getElementById('sf-plan').textContent=plan==='lifetime'?'∞ НАВСЕГДА':plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-  if(isAdmin){
-    const d=document.getElementById('admin-divider');if(d)d.style.display='block';
-    const a=document.getElementById('snav-admin');if(a)a.style.display='flex';
-  }
-}
-
-// TABS
-
-function switchTab(id, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + id).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ARCHETYPE
-function setArchetype(btn, icon, name, desc) {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
-  btn.classList.add('active-chip');
-  document.getElementById('archetype-icon').textContent = icon;
-  document.getElementById('archetype-bg').textContent = icon;
-  document.getElementById('archetype-name').textContent = name;
-  document.getElementById('archetype-desc').textContent = desc;
-}
-
-// PATTERN TOGGLE
-function togglePattern(card) {
-  card.classList.toggle('open');
-}
-
-// RADAR SVG
-(function() {
-  const svg = document.getElementById('radar-svg');
-  const cx = 100, cy = 100, r = 75;
-  const vals = [5.2, 4.8, 3.9, 4.1, 6.3];
-  const n = vals.length;
-  const ns = 'http://www.w3.org/2000/svg';
-
-  // grid
-  [2,4,6,8,10].forEach(lv => {
-    const pts = vals.map((_,i) => {
-      const a = -Math.PI/2 + i*(2*Math.PI/n);
-      const rv = (lv/10)*r;
-      return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;
-    }).join(' ');
-    const p = document.createElementNS(ns,'polygon');
-    p.setAttribute('points', pts);
-    p.setAttribute('fill','none');
-    p.setAttribute('stroke','rgba(255,255,255,0.07)');
-    p.setAttribute('stroke-width','1');
-    svg.appendChild(p);
-  });
-
-  // axes
-  vals.forEach((_,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const l = document.createElementNS(ns,'line');
-    l.setAttribute('x1',cx); l.setAttribute('y1',cy);
-    l.setAttribute('x2',cx+r*Math.cos(a)); l.setAttribute('y2',cy+r*Math.sin(a));
-    l.setAttribute('stroke','rgba(255,255,255,0.1)'); l.setAttribute('stroke-width','1');
-    svg.appendChild(l);
-  });
-
-  // fill
-  const pts = vals.map((v,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const rv = (v/10)*r;
-    return `${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;
-  }).join(' ');
-  const poly = document.createElementNS(ns,'polygon');
-  poly.setAttribute('points', pts);
-  poly.setAttribute('fill','rgba(77,219,150,0.18)');
-  poly.setAttribute('stroke','#4ddb96');
-  poly.setAttribute('stroke-width','2');
-  svg.appendChild(poly);
-
-  // dots
-  vals.forEach((v,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const rv = (v/10)*r;
-    const c = document.createElementNS(ns,'circle');
-    c.setAttribute('cx', cx+rv*Math.cos(a));
-    c.setAttribute('cy', cy+rv*Math.sin(a));
-    c.setAttribute('r','4');
-    c.setAttribute('fill','#4ddb96');
-    svg.appendChild(c);
-  });
-
-  // labels
-  const labels = ['Уверенность','Дисциплина','Терпение','Контроль\nриска','Фокус'];
-  labels.forEach((label,i) => {
-    const a = -Math.PI/2 + i*(2*Math.PI/n);
-    const lx = cx+(r+22)*Math.cos(a);
-    const ly = cy+(r+22)*Math.sin(a);
-    const t = document.createElementNS(ns,'text');
-    t.setAttribute('x',lx); t.setAttribute('y',ly);
-    t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
-    t.style.cssText = 'font-size:9px;fill:rgba(255,255,255,0.4);font-family:monospace;letter-spacing:0.5px';
-    t.textContent = label.replace('\n',' ');
-    svg.appendChild(t);
-  });
-})();
-
-// Hour grid is now populated by updateHourGrid() with real trade data
-initProfile();
+init();
 </script>
-</div>
 </body>
 </html>
