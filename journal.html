@@ -1412,41 +1412,41 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .coach-rec:hover{transform:translateX(2px);}
 /* ── WARNING (yellow — default) ── */
 .coach-rec.warn{
-  background:rgba(245,166,35,0.06);
-  border:1px solid rgba(245,166,35,0.25);
-  box-shadow:0 0 18px rgba(245,166,35,0.07),inset 0 0 30px rgba(245,166,35,0.03);
+  background:rgba(245,166,35,0.04);
+  border:1px solid rgba(245,166,35,0.18);
+  box-shadow:0 0 10px rgba(245,166,35,0.045),inset 0 0 20px rgba(245,166,35,0.02);
 }
 .coach-rec.warn::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(245,166,35,0.6),transparent);
+  background:linear-gradient(90deg,transparent,rgba(245,166,35,0.4),transparent);
 }
-.coach-rec.warn .coach-rec-icon{filter:drop-shadow(0 0 6px rgba(245,166,35,0.8));}
+.coach-rec.warn .coach-rec-icon{filter:drop-shadow(0 0 4px rgba(245,166,35,0.5));}
 .coach-rec.warn .coach-rec-text{color:rgba(245,200,90,0.9);}
 .coach-rec.warn .coach-rec-text strong{color:#ffc947;}
 /* ── CRITICAL (red) ── */
 .coach-rec.crit{
-  background:rgba(255,69,58,0.06);
-  border:1px solid rgba(255,69,58,0.28);
-  box-shadow:0 0 20px rgba(255,69,58,0.1),inset 0 0 30px rgba(255,69,58,0.04);
+  background:rgba(255,69,58,0.04);
+  border:1px solid rgba(255,69,58,0.2);
+  box-shadow:0 0 13px rgba(255,69,58,0.065),inset 0 0 20px rgba(255,69,58,0.025);
 }
 .coach-rec.crit::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,69,58,0.7),transparent);
+  background:linear-gradient(90deg,transparent,rgba(255,69,58,0.45),transparent);
 }
-.coach-rec.crit .coach-rec-icon{filter:drop-shadow(0 0 7px rgba(255,69,58,0.9));}
+.coach-rec.crit .coach-rec-icon{filter:drop-shadow(0 0 5px rgba(255,69,58,0.6));}
 .coach-rec.crit .coach-rec-text{color:rgba(255,120,110,0.9);}
 .coach-rec.crit .coach-rec-text strong{color:#ff6b60;}
 /* ── POSITIVE (green) ── */
 .coach-rec.good{
-  background:rgba(52,208,88,0.05);
-  border:1px solid rgba(52,208,88,0.22);
-  box-shadow:0 0 18px rgba(52,208,88,0.08),inset 0 0 30px rgba(52,208,88,0.03);
+  background:rgba(52,208,88,0.03);
+  border:1px solid rgba(52,208,88,0.16);
+  box-shadow:0 0 10px rgba(52,208,88,0.05),inset 0 0 20px rgba(52,208,88,0.02);
 }
 .coach-rec.good::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(52,208,88,0.6),transparent);
+  background:linear-gradient(90deg,transparent,rgba(52,208,88,0.4),transparent);
 }
-.coach-rec.good .coach-rec-icon{filter:drop-shadow(0 0 6px rgba(52,208,88,0.8));}
+.coach-rec.good .coach-rec-icon{filter:drop-shadow(0 0 4px rgba(52,208,88,0.5));}
 .coach-rec.good .coach-rec-text{color:rgba(100,230,130,0.9);}
 .coach-rec.good .coach-rec-text strong{color:#5dda7e;}
 
@@ -1779,43 +1779,63 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
         </div>
       </div>
 
-      <!-- ROW 2: P&L + Deposit + Leverage + RR -->
-      <div class="fg4" style="margin-bottom:12px">
-        <div class="field field-key">
-          <label>P&L %</label>
-          <input id="f-pnl" type="number" placeholder="+2.5" step="0.01" oninput="fromPct()">
-        </div>
-        <div class="field">
-          <label>P&L $</label>
-          <input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()">
-        </div>
+      <!-- ROW 2: Deposit + Leverage + Risk% (futures-first) -->
+      <div class="fg4" style="margin-bottom:10px">
         <div class="field">
           <label>Депозит $</label>
-          <input id="f-dep" type="number" placeholder="1000" oninput="recalc()">
+          <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
         </div>
         <div class="field">
           <label>Плечо ×</label>
-          <input id="f-lev" type="number" placeholder="1" min="1" max="200">
+          <input id="f-lev" type="number" placeholder="10" min="1" max="200" oninput="calcRR()">
+        </div>
+        <div class="field field-key">
+          <label>Риск %</label>
+          <input id="f-risk" type="number" placeholder="1" step="0.1" min="0.1" max="100" oninput="calcRR()">
+        </div>
+        <div class="field">
+          <label>P&L %</label>
+          <input id="f-pnl" type="number" placeholder="авто" step="0.01" oninput="fromPct()">
         </div>
       </div>
 
-      <!-- ROW 3: Entry / Exit / SL / TP / RR -->
-      <div class="fg4" style="margin-bottom:12px">
+      <!-- ROW 3: Entry / SL / TP → auto RR + P&L $ -->
+      <div class="fg4" style="margin-bottom:10px">
         <div class="field">
           <label>Вход $</label>
           <input id="f-entry" type="number" placeholder="42000" oninput="calcRR()">
-        </div>
-        <div class="field">
-          <label>Выход $</label>
-          <input id="f-exit" type="number" placeholder="43500" oninput="calcRR()">
         </div>
         <div class="field">
           <label>Стоп $</label>
           <input id="f-sl" type="number" placeholder="41000" oninput="calcRR()">
         </div>
         <div class="field">
-          <label>R:R</label>
-          <div class="rr-display" id="rr-val">—</div>
+          <label>Выход $</label>
+          <input id="f-exit" type="number" placeholder="43500" oninput="calcRR()">
+        </div>
+        <div class="field">
+          <label>P&L $</label>
+          <input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()">
+        </div>
+      </div>
+
+      <!-- RR + Risk $ display bar -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">R:R</span>
+          <div class="rr-display" id="rr-val" style="font-size:14px;">—</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">РИСК $</span>
+          <div style="font-family:var(--font-mono);font-size:14px;color:var(--r);" id="risk-usd-val">—</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">ЦЕЛЬ $</span>
+          <div style="font-family:var(--font-mono);font-size:14px;color:var(--g);" id="tp-usd-val">—</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">ПОЗИЦИЯ $</span>
+          <div style="font-family:var(--font-mono);font-size:14px;color:var(--a);" id="pos-size-val">—</div>
         </div>
       </div>
 
@@ -2225,7 +2245,13 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       </div>
       <div class="chat-main">
         <div class="chat-header">
-          <div class="chat-header-title">🤖 AI СОВЕТНИК</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="chat-header-title">🤖 AI СОВЕТНИК</div>
+            <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.22);box-shadow:0 0 10px rgba(232,114,42,0.1);">
+              <span style="font-size:11px;">🔒</span>
+              <span style="font-family:var(--font-mono);font-size:8px;letter-spacing:2px;color:var(--a);text-transform:uppercase;">Особый доступ</span>
+            </div>
+          </div>
           <div class="chat-status"><div class="chat-status-dot"></div>ОНЛАЙН</div>
         </div>
         <div class="chat-messages" id="chat-messages">
@@ -2661,9 +2687,83 @@ function setEm(key,val,btn){
   btn.parentElement.querySelectorAll('.em-opt').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 }
-function recalc(){const dep=parseFloat(document.getElementById('f-dep').value)||0;const pct=parseFloat(document.getElementById('f-pnl').value)||0;if(dep&&pct)document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
-function fromPct(){recalc();}
-function fromUsd(){const dep=parseFloat(document.getElementById('f-dep').value)||0;const usd=parseFloat(document.getElementById('f-usd').value)||0;if(dep&&usd)document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);}
+function recalc(){
+  const dep=parseFloat(document.getElementById('f-dep').value)||0;
+  const pct=parseFloat(document.getElementById('f-pnl').value)||0;
+  if(dep&&pct) document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);
+  calcRR();
+}
+function fromPct(){
+  const dep=parseFloat(document.getElementById('f-dep').value)||0;
+  const pct=parseFloat(document.getElementById('f-pnl').value)||0;
+  if(dep&&pct) document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);
+  calcRR();
+}
+function fromUsd(){
+  const dep=parseFloat(document.getElementById('f-dep').value)||0;
+  const usd=parseFloat(document.getElementById('f-usd').value)||0;
+  if(dep&&usd) document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);
+}
+
+function calcRR(){
+  const entry=parseFloat(document.getElementById('f-entry').value)||0;
+  const sl=parseFloat(document.getElementById('f-sl').value)||0;
+  const exit=parseFloat(document.getElementById('f-exit').value)||0;
+  const dep=parseFloat(document.getElementById('f-dep').value)||0;
+  const lev=parseFloat(document.getElementById('f-lev').value)||1;
+  const riskPct=parseFloat(document.getElementById('f-risk').value)||0;
+  const dir=document.getElementById('btn-long')?.classList.contains('active')?'long':'short';
+
+  const rrEl=document.getElementById('rr-val');
+  const riskUsdEl=document.getElementById('risk-usd-val');
+  const tpUsdEl=document.getElementById('tp-usd-val');
+  const posSizeEl=document.getElementById('pos-size-val');
+
+  // ── Calc R:R ──
+  if(entry&&sl&&exit){
+    const riskDist=Math.abs(entry-sl);
+    const rewardDist=Math.abs(exit-entry);
+    if(riskDist>0){
+      const rr=rewardDist/riskDist;
+      if(rrEl){
+        rrEl.textContent='1 : '+rr.toFixed(2);
+        rrEl.style.color=rr>=2?'var(--g)':rr>=1?'var(--a)':'var(--r)';
+      }
+    }
+  } else {
+    if(rrEl){rrEl.textContent='—';rrEl.style.color='var(--m)';}
+  }
+
+  // ── Calc Risk $ and Position Size ──
+  if(dep&&riskPct&&entry&&sl){
+    const riskUsd=dep*riskPct/100;
+    const riskDist=Math.abs(entry-sl)/entry; // as %
+    const posSize=riskDist>0?(riskUsd/(riskDist)): 0;
+
+    if(riskUsdEl) riskUsdEl.textContent='-$'+riskUsd.toFixed(0);
+    if(posSizeEl) posSizeEl.textContent='$'+Math.round(posSize*lev).toLocaleString();
+
+    // Auto-fill P&L$ if exit known
+    if(exit&&entry){
+      const pnlDist=dir==='long'?(exit-entry)/entry:(entry-exit)/entry;
+      const pnlUsd=posSize*lev*pnlDist;
+      const pnlPct=pnlUsd/dep*100;
+      const usdEl=document.getElementById('f-usd');
+      const pctEl=document.getElementById('f-pnl');
+      if(usdEl&&!usdEl.matches(':focus')) usdEl.value=pnlUsd.toFixed(2);
+      if(pctEl&&!pctEl.matches(':focus')) pctEl.value=pnlPct.toFixed(2);
+      if(tpUsdEl) tpUsdEl.textContent=(pnlUsd>=0?'+$':'-$')+Math.abs(pnlUsd).toFixed(0);
+    }
+  } else {
+    // Fallback: simple R:R-based estimate
+    if(dep&&entry&&sl&&exit){
+      const riskDist=Math.abs(entry-sl)/entry;
+      const pnlDist=dir==='long'?(exit-entry)/entry:(entry-exit)/entry;
+      if(riskUsdEl) riskUsdEl.textContent='—';
+      if(posSizeEl) posSizeEl.textContent='—';
+    }
+  }
+}
 function sv(inputId,spanId){const el=document.getElementById(spanId);if(el)el.textContent=document.getElementById(inputId).value;}
 function setF(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 
@@ -2706,8 +2806,9 @@ async function addTrade(){
   if(error){showNotif('error','Ошибка',error.message,5000);return;}
 
   // Reset form
-  ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-lev','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('rr-val').textContent='—';
+  ['risk-usd-val','tp-usd-val','pos-size-val'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='—';}});
   currentRes='';currentSetup='';
   document.querySelectorAll('.res-btn').forEach(b=>b.className='res-btn');
   document.querySelectorAll('.setup-btn').forEach(b=>b.classList.remove('active'));
@@ -3371,122 +3472,144 @@ async function importCSV(input){
   var file=input.files[0];
   if(!file)return;
   var log=document.getElementById('import-log');
-  if(log){log.style.display='block';log.innerHTML='⏳ Читаем файл...';}
+  if(log){log.style.display='block';log.innerHTML='⏳ Читаем файл <b>'+file.name+'</b>...';}
 
   var ext=file.name.split('.').pop().toLowerCase();
   var rows=[];
+  var sheetUsed='';
 
+  try{
   if(ext==='xlsx'||ext==='xls'){
     if(typeof XLSX==='undefined'){
-      if(log)log.innerHTML='❌ Библиотека XLSX не загружена. Проверь интернет-соединение.';
+      if(log)log.innerHTML='❌ Библиотека XLSX не загружена. Проверь интернет.';
       input.value='';return;
     }
-    // Use FileReader with binary string — most reliable method for SheetJS
-    const binaryStr = await new Promise((resolve,reject)=>{
-      const reader=new FileReader();
-      reader.onload=e=>resolve(e.target.result);
-      reader.onerror=reject;
-      reader.readAsBinaryString(file);
+    const binaryStr = await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=e=>res(e.target.result);
+      r.onerror=rej;
+      r.readAsBinaryString(file);
     });
     var wb=XLSX.read(binaryStr,{type:'binary'});
-    if(log)log.innerHTML='⏳ Листы: '+wb.SheetNames.join(', ')+'...';
-
-    // Priority sheet order for Bybit
-    var sheetPriority=['USDⓢ_M_Perpetual_Futures','Standard_Futures','Coin_M_Perpetual_Futures','Spot_Account'];
+    // Priority: futures sheets first
+    var sheetPriority=['USDⓢ_M_Perpetual_Futures','USDT_Perpetual','Standard_Futures',
+                       'Coin_M_Perpetual_Futures','Futures','Derivatives','Spot_Account'];
     var sheetName=null;
-    for(var sp of sheetPriority){
-      if(wb.SheetNames.includes(sp)){sheetName=sp;break;}
-    }
+    for(var sp of sheetPriority){ if(wb.SheetNames.includes(sp)){sheetName=sp;break;} }
     if(!sheetName) sheetName=wb.SheetNames[0];
-    if(log) log.innerHTML='⏳ Лист: '+sheetName+'...';
-
+    sheetUsed=sheetName;
+    if(log) log.innerHTML='⏳ Лист: <b>'+sheetName+'</b> (из: '+wb.SheetNames.join(', ')+')...';
     var ws=wb.Sheets[sheetName];
-    rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-  } else {
-    // Plain CSV fallback
-    var text=await file.text();
-    var lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
-    if(lines.length<2){if(log)log.innerHTML='❌ Файл пустой';input.value='';return;}
-    var hdrLine=lines[0].replace(/"/g,'').split(',').map(h=>h.trim());
-    for(var i=1;i<lines.length;i++){
-      var vals=lines[i].replace(/"/g,'').split(',').map(v=>v.trim());
+    // Try header row detection (Bybit sometimes has metadata rows before actual headers)
+    var rawRows=XLSX.utils.sheet_to_json(ws,{defval:'',header:1});
+    var headerIdx=0;
+    for(var ri=0;ri<Math.min(10,rawRows.length);ri++){
+      var r0=rawRows[ri];
+      var hasData=r0.some(c=>typeof c==='string'&&c.length>1&&
+        ['symbol','pair','side','type','pnl','profit','time','date','contract','price','qty','size','leverage'].some(k=>c.toLowerCase().includes(k)));
+      if(hasData){headerIdx=ri;break;}
+    }
+    var headers=rawRows[headerIdx].map(h=>(h||'').toString().trim());
+    for(var rj=headerIdx+1;rj<rawRows.length;rj++){
+      var rowArr=rawRows[rj];
       var obj={};
-      hdrLine.forEach((h,idx)=>{obj[h]=vals[idx]||'';});
+      headers.forEach((h,idx)=>{if(h) obj[h]=rowArr[idx]!==undefined?rowArr[idx]:'';});
       rows.push(obj);
     }
+  } else {
+    var text=await file.text();
+    // Auto-detect delimiter: comma, semicolon, or tab
+    var firstLine=text.split('\n')[0]||'';
+    var delim=firstLine.includes('\t')?'\t':firstLine.includes(';')?';':',';
+    var lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+    if(lines.length<2){if(log)log.innerHTML='❌ Файл пустой';input.value='';return;}
+    var hdrLine=lines[0].replace(/"/g,'').split(delim).map(h=>h.trim());
+    for(var i=1;i<lines.length;i++){
+      var vals=lines[i].replace(/"/g,'').split(delim).map(v=>v.trim());
+      var obj2={};
+      hdrLine.forEach((h,idx)=>{obj2[h]=vals[idx]||'';});
+      rows.push(obj2);
+    }
+  }
+  }catch(e){
+    if(log)log.innerHTML='❌ Ошибка чтения файла: '+e.message;
+    input.value='';return;
   }
 
   if(!rows.length){if(log)log.innerHTML='❌ Нет данных в файле';input.value='';return;}
 
-  // ── Column detection ──
-  // Try to find columns by known names (Bybit & generic)
+  // ── Smart column detection (broad matching) ──
   var sample=rows[0];
   var keys=Object.keys(sample);
+  if(log) log.innerHTML='⏳ Колонки: <small style="opacity:0.6">'+keys.slice(0,10).join(' | ')+'</small>';
 
   var findKey=function(variants){
-    return keys.find(k=>variants.some(v=>k.toLowerCase().includes(v.toLowerCase())))||null;
+    return keys.find(k=>variants.some(v=>k.toLowerCase().replace(/[\s_\-\.]/g,'').includes(v.toLowerCase().replace(/[\s_\-\.]/g,''))))||null;
   };
 
-  var kPair  = findKey(['Pair','Symbol','Ticker','pair','symbol']);
-  var kType  = findKey(['Type','Side','Direction','side','direction','type']);
-  var kPnl   = findKey(['Realized PNL','PnL','pnl','profit','Realized']);
-  var kPrice = findKey(['DealPrice','AvgPrice','Price','price','deal']);
-  var kQty   = findKey(['Quantity','Amount','qty','amount','size']);
-  var kSL    = findKey(['stopLossPrice','stop_loss','sl']);
-  var kTP    = findKey(['takeProfitPrice','take_profit','tp']);
-  var kTime  = findKey(['Time','openTime','closeTime','time','date']);
-  var kLev   = findKey(['Leverage','leverage']);
+  // Expanded variants to catch Bybit, Binance, OKX, Bitget, Gate.io formats
+  var kPair = findKey(['Pair','Symbol','Contract','Ticker','pair','symbol','contract','instrument','market','asset']);
+  var kType = findKey(['Type','Side','Direction','OrderSide','side','direction','type','buysell','BuySell','TradeSide']);
+  var kPnl  = findKey(['RealizedPNL','Realized PNL','PNL','PnL','pnl','profit','realizedprofit','ClosedPnL','closedpnl','realisedpnl']);
+  var kPrice= findKey(['DealPrice','AvgPrice','TradePrice','FilledPrice','Price','price','avgprice','dealprice','closeprice']);
+  var kQty  = findKey(['FilledQty','Quantity','Amount','Volume','Size','qty','amount','size','filledqty','filledamount','contracts','contractQty']);
+  var kSL   = findKey(['stopLossPrice','StopLoss','stop_loss','stopPrice','sl']);
+  var kTP   = findKey(['takeProfitPrice','TakeProfit','take_profit','tp']);
+  var kTime = findKey(['CloseTime','OpenTime','Time','CreateTime','time','date','datetime','closetime']);
+  var kLev  = findKey(['Leverage','leverage','lev']);
+  var kDeposit=findKey(['OrderValue','NotionalValue','Value','Margin','margin','ordervalue','notional','positionvalue']);
 
-  if(!kPair||!kType){
-    if(log) log.innerHTML='❌ Не найдены колонки Pair/Type.<br><small style="opacity:0.6">Найдено: '+keys.slice(0,8).join(', ')+'</small>';
-    input.value='';return;
+  // If Pair not found, try to use ANY column that has crypto-like values (BTC, ETH, SOL...)
+  if(!kPair){
+    kPair=keys.find(k=>{
+      var v=(sample[k]||'').toString().toUpperCase();
+      return /BTC|ETH|SOL|BNB|XRP|DOGE|ADA|AVAX|USDT/.test(v);
+    })||null;
   }
+
+  var detectedInfo='Пара: '+(kPair||'❌')+' | Тип: '+(kType||'❌')+' | PNL: '+(kPnl||'❌');
+  if(log) log.innerHTML='⏳ Обнаружено: <small style="opacity:0.7">'+detectedInfo+'</small>';
 
   var toInsert=[];
 
   for(var row of rows){
-    var pairRaw=(row[kPair]||'').toString().toUpperCase().trim();
+    // ── Pair ──
+    var pairRaw = kPair ? (row[kPair]||'').toString().toUpperCase().trim() : '';
     if(!pairRaw) continue;
-
-    // Normalize pair: SOL-USDT → SOL/USDT, SOLUSDT → SOL/USDT
-    var pair=pairRaw.replace('-','/')
-                    .replace('_','/');
+    var pair=pairRaw.replace(/[-_]/g,'/');
     if(pair.indexOf('/')<0){
-      // try to split XXXUSDT
-      var m=pair.match(/^(.+?)(USDT|BUSD|BTC|ETH|BNB)$/);
-      if(m) pair=m[1]+'/'+m[2];
-      else  pair=pair+'/USDT';
+      var m2=pair.match(/^(.+?)(USDT|USDC|BUSD|BTC|ETH|BNB)$/);
+      pair=m2?m2[1]+'/'+m2[2]:pair+'/USDT';
     }
 
-    var typeRaw=(row[kType]||'').toString().toLowerCase().trim();
+    // ── Direction ──
+    var typeRaw=kType?(row[kType]||'').toString().toLowerCase().trim():'';
     var dir='long';
-    if(typeRaw.includes('short')||typeRaw.includes('sell')) dir='short';
-    else if(typeRaw.includes('long')||typeRaw.includes('buy')) dir='long';
+    if(typeRaw.includes('short')||typeRaw.includes('sell')||typeRaw.includes('close short')) dir='short';
+    if(typeRaw.includes('open')&&!typeRaw.includes('close')) continue; // skip open-only rows
 
-    // Skip "open" orders — we only want closed trades with PNL
-    if(typeRaw.includes('open')&&!typeRaw.includes('close')) continue;
+    // ── PNL ──
+    var pnlUsd=kPnl ? (parseFloat((row[kPnl]||'').toString().replace(/[^\d.\-]/g,''))||null) : null;
+    if(pnlUsd===null) continue; // must have PNL to be a closed trade
 
-    var pnlUsd=kPnl?parseFloat(row[kPnl])||null:null;
-    var price=kPrice?parseFloat(row[kPrice])||null:null;
-    var qty=kQty?parseFloat(row[kQty])||null:null;
-
-    // Deposit approximation from Amount column
+    // ── Price / Qty / Deposit ──
+    var price=kPrice?parseFloat((row[kPrice]||'').toString().replace(/[^\d.]/g,''))||null:null;
+    var qty=kQty?parseFloat((row[kQty]||'').toString().replace(/[^\d.]/g,''))||null:null;
     var deposit=null;
-    if(qty&&price) deposit=Math.round(qty*price);
+    if(kDeposit) deposit=parseFloat((row[kDeposit]||'').toString().replace(/[^\d.]/g,''))||null;
+    if(!deposit&&qty&&price) deposit=Math.round(qty*price);
 
-    // PNL % from deposit
+    // ── PNL % ──
     var pnlPct=null;
     if(pnlUsd!=null&&deposit&&deposit>0) pnlPct=parseFloat((pnlUsd/deposit*100).toFixed(2));
 
-    var result=pnlUsd!=null?(pnlUsd>=0?'win':'loss'):null;
-    if(!result) continue;
+    var result=pnlUsd>=0?'win':'loss';
 
     var sl=kSL?parseFloat(row[kSL])||null:null;
     var tp=kTP?parseFloat(row[kTP])||null:null;
-
-    // Note with leverage info
-    var noteWhy='[BYBIT]';
-    if(kLev&&row[kLev]) noteWhy='[BYBIT] Плечо: '+row[kLev]+'x';
+    var lev=kLev?parseInt(row[kLev])||1:1;
+    var noteWhy='[IMPORT]';
+    if(kLev&&row[kLev]) noteWhy='[IMPORT] Плечо: '+lev+'x';
 
     toInsert.push({
       user_id:currentUser.id,
@@ -3497,24 +3620,29 @@ async function importCSV(input){
       entry_price:price,
       stop_loss:sl,
       take_profit:tp,
+      leverage:lev,
       emotion_conf:5,emotion_fear:3,emotion_greed:3,emotion_calm:7,
       note_why:noteWhy
     });
   }
 
   if(!toInsert.length){
-    if(log) log.innerHTML='❌ Не найдено закрытых сделок. Убедись что выбран лист с фьючерсами.';
+    if(log) log.innerHTML='❌ Не найдено закрытых сделок с PNL.<br>'
+      +'<small style="opacity:0.6">Колонки файла: '+keys.slice(0,12).join(', ')+'</small><br>'
+      +'<small style="opacity:0.5">Убедись что это история закрытых сделок (не открытых ордеров).</small>';
     input.value='';return;
   }
 
-  if(log) log.innerHTML='⏳ Импортируем '+toInsert.length+' сделок...';
-  var ok=0;
+  if(log) log.innerHTML='⏳ Загружаем <b>'+toInsert.length+'</b> сделок в Supabase...';
+  var ok=0,fail=0;
   for(var j=0;j<toInsert.length;j+=50){
     var batch=toInsert.slice(j,j+50);
     var res2=await sb.from('trades').insert(batch);
-    if(!res2.error) ok+=batch.length;
+    if(!res2.error) ok+=batch.length; else fail+=batch.length;
   }
-  if(log) log.innerHTML='✅ Импортировано: <strong style="color:var(--g)">'+ok+'</strong> сделок из '+toInsert.length;
+  if(log) log.innerHTML='✅ Импортировано: <strong style="color:var(--g)">'+ok+'</strong> сделок'
+    +(fail?' <span style="color:var(--r)">· ошибок: '+fail+'</span>':'')
+    +' <small style="opacity:0.5">· лист: '+sheetUsed+'</small>';
   input.value='';
   await loadTrades();
 }
