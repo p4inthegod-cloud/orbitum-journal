@@ -67,12 +67,6 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;display:f
     <div class="field"><label>Имя / никнейм</label><input type="text" id="r-name" placeholder="Your Name" /></div>
     <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="trader@mail.com" /></div>
     <div class="field"><label>Пароль</label><input type="password" id="r-pass" placeholder="мин. 8 символов" /></div>
-    <div class="field" style="margin-bottom:8px"><label>Выбери план</label>
-      <div class="plan-sel">
-        <div class="plan-opt" id="plan-monthly" onclick="selectPlan('monthly')"><span class="plan-price">$29</span><span class="plan-label">МЕСЯЦ</span></div>
-        <div class="plan-opt active" id="plan-lifetime" onclick="selectPlan('lifetime')"><span class="plan-price">$197</span><span class="plan-label">НАВСЕГДА</span></div>
-      </div>
-    </div>
     <button class="btn" id="btn-reg" onclick="doRegister()">СОЗДАТЬ АККАУНТ</button>
     <div class="msg" id="r-msg"></div>
     <a href="index.html" class="back">← Вернуться на главную</a>
@@ -83,13 +77,11 @@ const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const urlPlan=new URLSearchParams(window.location.search).get('plan');
-if(urlPlan){showTab('register');selectPlan(urlPlan);}
-let selectedPlan=urlPlan||'lifetime';
+if(urlPlan){showTab('register');}
 function showTab(t){document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='register')));document.getElementById('form-login').style.display=t==='login'?'block':'none';document.getElementById('form-register').style.display=t==='register'?'block':'none';document.getElementById('sub-text').textContent=t==='login'?'Добро пожаловать назад':'Создай аккаунт';}
-function selectPlan(p){selectedPlan=p;document.getElementById('plan-monthly').classList.toggle('active',p==='monthly');document.getElementById('plan-lifetime').classList.toggle('active',p==='lifetime');}
 function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='msg '+type;el.style.display='block';}
-async function doLogin(){const email=document.getElementById('l-email').value.trim();const pass=document.getElementById('l-pass').value;if(!email||!pass){showMsg('l-msg','Заполни все поля','err');return;}const btn=document.getElementById('btn-login');btn.disabled=true;btn.textContent='ВХОДИМ...';const{data,error}=await sb.auth.signInWithPassword({email,password:pass});if(error){showMsg('l-msg','Неверный email или пароль','err');btn.disabled=false;btn.textContent='ВОЙТИ';return;}const{data:profile}=await sb.from('profiles').select('role,plan,plan_expires_at').eq('id',data.user.id).single();if(profile?.role==='admin')window.location.href='admin.html';else if(profile?.plan==='lifetime'||(profile?.plan==='monthly'&&new Date(profile.plan_expires_at)>new Date()))window.location.href='journal.html';else window.location.href='pay.html';}
-async function doRegister(){const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pass=document.getElementById('r-pass').value;if(!name||!email||!pass){showMsg('r-msg','Заполни все поля','err');return;}if(pass.length<8){showMsg('r-msg','Пароль минимум 8 символов','err');return;}const btn=document.getElementById('btn-reg');btn.disabled=true;btn.textContent='СОЗДАЁМ...';const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name,username:name.toLowerCase().replace(/\s+/g,'_')}}});if(error){showMsg('r-msg',error.message,'err');btn.disabled=false;btn.textContent='СОЗДАТЬ АККАУНТ';return;}localStorage.setItem('orb_plan',selectedPlan);showMsg('r-msg','Аккаунт создан! Переходим к оплате...','ok');setTimeout(()=>window.location.href='pay.html?plan='+selectedPlan,1500);}
+async function doLogin(){const email=document.getElementById('l-email').value.trim();const pass=document.getElementById('l-pass').value;if(!email||!pass){showMsg('l-msg','Заполни все поля','err');return;}const btn=document.getElementById('btn-login');btn.disabled=true;btn.textContent='ВХОДИМ...';const{data,error}=await sb.auth.signInWithPassword({email,password:pass});if(error){showMsg('l-msg','Неверный email или пароль','err');btn.disabled=false;btn.textContent='ВОЙТИ';return;}const{data:profile}=await sb.from('profiles').select('role,plan').eq('id',data.user.id).single();if(profile?.role==='admin')window.location.href='admin.html';else window.location.href='journal.html';}
+async function doRegister(){const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pass=document.getElementById('r-pass').value;if(!name||!email||!pass){showMsg('r-msg','Заполни все поля','err');return;}if(pass.length<8){showMsg('r-msg','Пароль минимум 8 символов','err');return;}const btn=document.getElementById('btn-reg');btn.disabled=true;btn.textContent='СОЗДАЁМ...';const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name,username:name.toLowerCase().replace(/\s+/g,'_')}}});if(error){showMsg('r-msg',error.message,'err');btn.disabled=false;btn.textContent='СОЗДАТЬ АККАУНТ';return;}showMsg('r-msg','Аккаунт создан! Загружаем журнал...','ok');setTimeout(()=>window.location.href='journal.html',1200);}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'){if(document.getElementById('form-login').style.display!=='none')doLogin();else doRegister();}});
 </script>
 </body>
