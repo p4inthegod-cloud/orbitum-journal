@@ -4,366 +4,711 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Журнал</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ======== SHARED SIDEBAR ======== */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(3,4,7,0.98);border-right:1px solid var(--bd);backdrop-filter:blur(24px);display:flex;flex-direction:column;z-index:100;}
-.sidebar-logo{padding:0 16px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--bd);flex-shrink:0;position:relative;overflow:hidden;}
-.slogo-canvas{position:absolute;inset:0;pointer-events:none;}
-.slogo-inner{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.slogo-img{width:34px;height:34px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6)) drop-shadow(0 0 20px rgba(255,255,255,0.25)) drop-shadow(0 0 40px rgba(200,200,255,0.15));}
-.slogo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#f2f2f2;text-shadow:0 0 20px rgba(255,255,255,0.15);}
-.sidenav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
-.snav-sec{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:2px;padding:10px 10px 4px;text-transform:uppercase;}
-.snav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;text-decoration:none;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;transition:all 0.18s;border:1px solid transparent;width:100%;text-align:left;background:none;cursor:pointer;}
-.snav-item:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.06);}
-.snav-item.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.22);color:var(--a);}
-.snav-item.admin-link{color:rgba(245,166,35,0.55);}
-.snav-item.admin-link:hover,.snav-item.admin-link.active{background:rgba(245,166,35,0.07);border-color:rgba(245,166,35,0.2);color:#f5a623;}
-.snav-icon{font-size:15px;flex-shrink:0;width:18px;text-align:center;}
-.snav-div{height:1px;background:var(--bd);margin:5px 4px;}
-.sidebar-footer{padding:10px 8px;border-top:1px solid var(--bd);flex-shrink:0;}
-.sf-user{display:flex;align-items:center;gap:9px;margin-bottom:7px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:8px;}
-.sf-avatar{width:30px;height:30px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a);flex-shrink:0;}
-.sf-info{overflow:hidden;flex:1;}
-.sf-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t);}
-.sf-plan{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;margin-top:1px;}
-.sf-logout{width:100%;padding:7px;background:none;border:1px solid var(--bd);border-radius:7px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
-.sf-logout:hover{border-color:var(--r);color:var(--r);}
-/* mobile */
-.mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(3,4,7,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:54px;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
-.mob-logo-wrap{display:flex;align-items:center;gap:8px;}
-.mob-logo-img{width:26px;height:26px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 16px rgba(255,255,255,0.2));}
-.mob-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#f2f2f2;}
-.mob-right{display:flex;align-items:center;gap:8px;}
-.mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99;}
-@media(max-width:900px){
-  .sidebar{transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar.open{transform:translateX(0);}
-  .sidebar-overlay.open{display:block;}
-  .mob-topbar{display:flex;}
+:root{
+  --a:#e8722a; --a2:rgba(232,114,42,0.1); --a3:rgba(232,114,42,0.3);
+  --bg:#05070a; --bg2:rgba(255,255,255,0.02); --bg3:rgba(255,255,255,0.035);
+  --bd:rgba(255,255,255,0.06); --bd2:rgba(255,255,255,0.1);
+  --t:#ebebeb; --m:rgba(255,255,255,0.38); --m2:rgba(255,255,255,0.55);
+  --g:#34d058; --r:#ff4d4d; --y:#f5a623;
+  --gd:rgba(52,208,88,0.08); --rd:rgba(255,77,77,0.08);
+  --sb:220px; --radius:10px;
+  --line:1px solid var(--bd);
+  --font-mono:'JetBrains Mono',monospace;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'Syne',sans-serif;
 }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+input,textarea,select{-webkit-user-select:text;user-select:text;}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font-body);}
 
-:root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);--bd:rgba(255,255,255,0.07);--t:#f0f0f0;--m:rgba(255,255,255,0.35);--g:#34d058;--r:#ff4d4d;--gd:rgba(52,208,88,0.1);--rd:rgba(255,77,77,0.1);}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;}
-.bg-orb{position:fixed;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.07),transparent 65%);filter:blur(100px);top:-250px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:0;}
+/* ─── SIDEBAR ─────────────────────────────── */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:var(--sb);
+  background:rgba(5,7,10,0.97);border-right:var(--line);
+  display:flex;flex-direction:column;z-index:100;
+}
+.sb-logo{
+  height:52px;display:flex;align-items:center;padding:0 16px;
+  border-bottom:var(--line);flex-shrink:0;gap:8px;
+}
+.sb-logo-text{
+  font-family:var(--font-display);font-size:18px;letter-spacing:5px;color:var(--t);
+}
+.sb-logo-dot{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);}
+.sb-nav{flex:1;padding:8px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.sb-section{
+  font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.2);
+  letter-spacing:2px;padding:12px 10px 4px;text-transform:uppercase;
+}
+.sb-item{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;
+  border-radius:6px;text-decoration:none;cursor:pointer;
+  color:var(--m);font-family:var(--font-mono);font-size:10px;
+  letter-spacing:0.5px;transition:all 0.15s;border:1px solid transparent;
+  background:none;width:100%;text-align:left;
+}
+.sb-item:hover{background:rgba(255,255,255,0.03);color:var(--m2);}
+.sb-item.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
+.sb-item-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
+.sb-divider{height:var(--line);background:var(--bd);margin:5px 4px;}
+.sb-footer{
+  padding:8px;border-top:var(--line);flex-shrink:0;
+}
+.sb-user{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:6px;background:var(--bg2);
+  margin-bottom:5px;
+}
+.sb-avatar{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--a2);border:1px solid var(--a3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:12px;color:var(--a);flex-shrink:0;
+}
+.sb-user-info{flex:1;overflow:hidden;}
+.sb-user-name{font-family:var(--font-body);font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-user-plan{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:1px;}
+.sb-logout{
+  width:100%;padding:6px;background:none;border:var(--line);
+  border-radius:5px;color:var(--m);font-family:var(--font-mono);
+  font-size:8px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;
+}
+.sb-logout:hover{border-color:var(--r);color:var(--r);}
 
-/* ── SIDEBAR ── */
-
-/* ── MOBILE ── */
-
-.mob-tabnav{display:flex;gap:2px;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:8px;padding:2px;}
-
-/* ── MAIN ── */
-.main{margin-left:220px;padding:24px 28px 80px;position:relative;z-index:1;min-height:100vh;}
-
-/* ── TOPNAV TABS (inside main, desktop) ── */
-.page-topnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-.tab-nav{display:flex;gap:3px;background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:10px;padding:3px;}
-.tnav{padding:7px 18px;border-radius:8px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
-.tnav.active{background:rgba(255,255,255,0.07);color:var(--t);}
-
-/* ── STATS ── */
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
-.stat{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;backdrop-filter:blur(10px);transition:all 0.25s;}
-.stat:hover{border-color:rgba(232,114,42,0.2);}
-.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-.sv{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500;}
-.sv.g{color:var(--g);}.sv.r{color:var(--r);}.sv.a{color:var(--a);}
-
-.page{display:none;}.page.active{display:block;}
-
-/* ── FORM ── */
-.fcard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:16px;padding:26px;margin-bottom:20px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
-.fcard::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.4),transparent);}
-.ftitle{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--a);margin-bottom:20px;}
-.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
-.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
-.field{display:flex;flex-direction:column;gap:6px;}
-.field label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
-.field input,.field select,.field textarea{background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:all 0.2s;width:100%;}
-.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,0.18);}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--a);background:rgba(232,114,42,0.04);box-shadow:0 0 0 3px rgba(232,114,42,0.08);}
-.field textarea{resize:vertical;min-height:78px;font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;}
-.field select option{background:#0d0f12;}
-.dtoggle{display:flex;gap:6px;}
-.dbtn{flex:1;padding:10px;border-radius:9px;border:1px solid var(--bd);background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-align:center;}
-.dbtn.long.active{background:var(--gd);border-color:rgba(52,208,88,0.4);color:var(--g);}
-.dbtn.short.active{background:var(--rd);border-color:rgba(255,77,77,0.4);color:var(--r);}
-.em-section{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:11px;padding:18px;margin-bottom:12px;}
-.em-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
-.emrow{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:18px;}
-.emf{display:flex;flex-direction:column;gap:7px;}
-.emf label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
-.sw{display:flex;align-items:center;gap:10px;}
-.sw input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;border:none;padding:0;cursor:pointer;}
-.sw input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--a);cursor:pointer;box-shadow:0 0 8px rgba(232,114,42,0.5);}
-.sv2{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a);min-width:18px;text-align:right;}
-.addbtn{width:100%;padding:13px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:11px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.25s;margin-top:4px;box-shadow:0 4px 20px rgba(232,114,42,0.3);}
-.addbtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,114,42,0.45);}
-.addbtn:disabled{opacity:0.42;cursor:not-allowed;transform:none;}
-.ai-btn{width:100%;padding:11px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.2);border-radius:11px;color:rgba(52,208,88,0.8);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
-.ai-btn:hover{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.35);}
-
-/* ── LIST ── */
-.lhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.stitle{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--m);}
-.filters{display:flex;gap:5px;flex-wrap:wrap;}
-.fbtn{padding:5px 12px;border-radius:18px;border:1px solid var(--bd);background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-.fbtn.active,.fbtn:hover{border-color:rgba(232,114,42,0.4);color:var(--a);background:rgba(232,114,42,0.08);}
-.tcard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:13px;padding:18px 20px;margin-bottom:9px;backdrop-filter:blur(10px);transition:all 0.2s;}
-.tcard:hover{border-color:rgba(232,114,42,0.18);box-shadow:0 6px 24px rgba(0,0,0,0.2);}
-.tcard.win{border-left:2px solid var(--g);}.tcard.loss{border-left:2px solid var(--r);}.tcard.be{border-left:2px solid rgba(255,255,255,0.2);}
-.thead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.tl{display:flex;align-items:center;gap:9px;}
-.tpair{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
-.tdir{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:4px;letter-spacing:1px;}
-.tdir.long{background:var(--gd);color:var(--g);}.tdir.short{background:var(--rd);color:var(--r);}
-.tr{display:flex;align-items:center;gap:10px;}
-.tpnl{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;}
-.tpnl.p{color:var(--g);}.tpnl.n{color:var(--r);}
-.tdate{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);}
-.delbtn{background:none;border:none;color:var(--m);cursor:pointer;font-size:15px;padding:2px 7px;border-radius:4px;transition:all 0.2s;}
-.delbtn:hover{color:var(--r);background:var(--rd);}
-.tmeta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:9px;}
-.mi{display:flex;flex-direction:column;gap:2px;}
-.mil{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
-.miv{font-family:'JetBrains Mono',monospace;font-size:11px;}
-.edots{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px;}
-.ed{display:flex;align-items:center;gap:5px;}
-.edl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
-.dots{display:flex;gap:3px;}
-.dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.08);}
-.dot.on{background:var(--a);}
-.tnotes{font-size:12px;color:var(--m);line-height:1.6;margin-top:7px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.05);}
-.ntag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;margin-right:5px;}
-.empty{text-align:center;padding:48px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;}
-.loading{text-align:center;padding:36px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
-
-/* ── LEVEL BAR ── */
-.level-bar-wrap{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:14px;padding:18px 22px;margin-bottom:20px;backdrop-filter:blur(16px);position:relative;overflow:hidden;}
-.level-bar-wrap::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);}
-.level-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
-.level-left{display:flex;align-items:center;gap:12px;}
-.level-badge-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:2px solid rgba(255,255,255,0.1);}
-.level-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;line-height:1;}
-.level-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-top:2px;}
-.level-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.streak-box{display:flex;align-items:center;gap:7px;background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:9px;padding:7px 12px;}
-.streak-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#f5a623;line-height:1;}
-.streak-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
-.level-pnl-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--a);}
-.level-pnl-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
-.level-bar-track{height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:5px;}
-.level-bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(0.16,1,0.3,1);}
-.level-bar-labels{display:flex;justify-content:space-between;margin-bottom:9px;}
-.lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;}
-.level-reward{display:flex;align-items:center;gap:7px;background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.15);border-radius:7px;padding:9px 12px;}
-.reward-text{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(52,208,88,0.8);letter-spacing:0.5px;line-height:1.4;}
-
-/* ── DASHBOARD ── */
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.dash-card{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:14px;padding:22px;backdrop-filter:blur(10px);}
-.dash-title{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;color:var(--m);margin-bottom:18px;}
-.speedo-wrap{display:flex;flex-direction:column;align-items:center;}
-.speedo-svg{width:210px;height:125px;}
-.speedo-val{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--a);text-align:center;line-height:1;}
-.speedo-desc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);text-align:center;margin-top:5px;letter-spacing:1px;}
-.em-bars{display:flex;flex-direction:column;gap:12px;}
-.em-bar-row{display:flex;flex-direction:column;gap:5px;}
-.em-bar-head{display:flex;justify-content:space-between;}
-.em-bar-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
-.em-bar-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t);}
-.em-bar-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
-.em-bar-fill{height:100%;border-radius:2px;transition:width 0.9s cubic-bezier(0.16,1,0.3,1);}
-.patterns{display:flex;flex-direction:column;gap:9px;}
-.pattern-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color 0.2s;}
-.pattern-item:hover{border-color:rgba(255,255,255,0.1);}
-.pattern-icon{font-size:20px;flex-shrink:0;}
-.pattern-text{flex:1;}
-.pattern-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:500;margin-bottom:2px;}
-.pattern-desc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);}
-.pattern-badge{padding:3px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;white-space:nowrap;}
-.badge-warn{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:#f5a623;}
-.badge-ok{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
-.badge-bad{background:var(--rd);border:1px solid rgba(255,77,77,0.3);color:var(--r);}
-.emc-legend{display:flex;gap:14px;margin-bottom:12px;}
-.ecc{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;}
-.ecc-dot{width:7px;height:7px;border-radius:2px;}
-.em-compare{display:flex;flex-direction:column;gap:9px;}
-.emc-row{display:flex;align-items:center;gap:9px;}
-.emc-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);width:65px;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
-.emc-bars{flex:1;display:flex;flex-direction:column;gap:3px;}
-.emc-bar{height:6px;border-radius:3px;min-width:3px;transition:width 0.9s cubic-bezier(0.16,1,0.3,1);}
-.emc-win{background:var(--g);}.emc-loss{background:var(--r);}
-
-/* ── AI MODAL ── */
-.ai-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:20px;}
-.ai-modal.open{display:flex;}
-.ai-box{background:#0c1018;border:1px solid rgba(52,208,88,0.2);border-radius:18px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px;position:relative;}
-.ai-box::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(52,208,88,0.4),transparent);}
-.ai-close{position:absolute;top:14px;right:18px;background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;transition:color 0.2s;}
-.ai-close:hover{color:var(--t);}
-.ai-title{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;color:#34d058;margin-bottom:3px;}
-.ai-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;margin-bottom:20px;}
-.ai-check-btn{width:100%;padding:12px;background:linear-gradient(135deg,rgba(52,208,88,0.15),rgba(52,208,88,0.08));border:1px solid rgba(52,208,88,0.35);border-radius:11px;color:#34d058;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;}
-.ai-check-btn:hover{background:linear-gradient(135deg,rgba(52,208,88,0.25),rgba(52,208,88,0.12));transform:translateY(-1px);}
-.ai-check-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-.ai-result{margin-top:18px;border-radius:11px;padding:18px;display:none;}
-.ai-result.go{background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.25);}
-.ai-result.stop{background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.25);}
-.ai-result.wait{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);}
-.ai-verdict{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;margin-bottom:9px;}
-.ai-verdict.go{color:#34d058;}.ai-verdict.stop{color:#ff4d4d;}.ai-verdict.wait{color:#f5a623;}
-.ai-text{font-family:'Syne',sans-serif;font-size:13px;color:var(--m);line-height:1.6;}
-.ck-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--bd);background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;}
-.ck-btn.yes{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.4);color:#34d058;}
-.ck-btn.no{background:rgba(255,77,77,0.12);border-color:rgba(255,77,77,0.4);color:#ff4d4d;}
-.ai-field{margin-bottom:14px;}
-.ai-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
-.ai-field textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;color:var(--t);font-family:'Syne',sans-serif;font-size:13px;line-height:1.5;outline:none;resize:vertical;min-height:80px;transition:border-color 0.2s;}
-.ai-field textarea:focus{border-color:rgba(52,208,88,0.4);}
-
-@media(max-width:900px){
-  
-  
-  
-  
-  .main{margin-left:0;padding:16px 14px 60px;}
-  .page-topnav .tab-nav{display:none;}
-  .stats{grid-template-columns:1fr 1fr;}
+/* ─── MOBILE ──────────────────────────────── */
+.mob-bar{
+  display:none;position:sticky;top:0;z-index:90;
+  background:rgba(5,7,10,0.96);backdrop-filter:blur(16px);
+  border-bottom:var(--line);height:48px;
+  align-items:center;justify-content:space-between;padding:0 14px;
+}
+.mob-logo{font-family:var(--font-display);font-size:17px;letter-spacing:4px;color:var(--t);}
+.mob-burger{
+  background:none;border:var(--line);border-radius:5px;
+  padding:4px 8px;color:var(--m);font-size:14px;cursor:pointer;
+}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;}
+@media(max-width:860px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar.open{transform:translateX(0);}
+  .sb-overlay.open{display:block;}
+  .mob-bar{display:flex;}
+  .main{margin-left:0;padding:14px 14px 80px;}
+  .stats-row{grid-template-columns:1fr 1fr 1fr;}
   .fg4,.fg3{grid-template-columns:1fr 1fr;}
   .emrow{grid-template-columns:1fr 1fr;}
   .dash-grid{grid-template-columns:1fr;}
-  .level-top{flex-direction:column;}
-  .level-right{width:100%;justify-content:space-between;}
+  .pm-grid{grid-template-columns:1fr;}
+  .chat-layout{grid-template-columns:1fr;}
+  .chat-sidebar{display:none;}
 }
 
-/* mobile */
-
-@media(max-width:900px){
-  
-  
-  
-  
+/* ─── MAIN ────────────────────────────────── */
+.main{margin-left:var(--sb);padding:20px 24px 80px;min-height:100vh;position:relative;z-index:1;}
+.bg-orb{
+  position:fixed;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 65%);
+  filter:blur(100px);top:-200px;left:50%;transform:translateX(-50%);
+  pointer-events:none;z-index:0;
 }
 
-/* page layout */
-.pages-wrap{position:relative;}
-.page{display:none;}.page.active{display:block;}</style>
+/* ─── PAGE SYSTEM ─────────────────────────── */
+.page{display:none;}.page.active{display:block;animation:pgIn 0.2s ease both;}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* ─── TOP NAV ─────────────────────────────── */
+.topnav{
+  display:flex;align-items:center;gap:3px;margin-bottom:18px;
+  background:var(--bg2);border:var(--line);border-radius:8px;
+  padding:3px;width:fit-content;
+}
+.tnav{
+  padding:6px 14px;border-radius:5px;border:none;
+  background:transparent;color:var(--m);
+  font-family:var(--font-mono);font-size:10px;letter-spacing:1px;
+  text-transform:uppercase;cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.tnav.active{background:rgba(255,255,255,0.07);color:var(--t);}
+.tnav:hover:not(.active){color:var(--m2);}
+
+/* ─── STATS ROW ───────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+.stat-cell{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:12px 14px;transition:border-color 0.2s;
+}
+.stat-cell:hover{border-color:var(--a3);}
+.stat-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.stat-value{font-family:var(--font-mono);font-size:18px;font-weight:500;}
+.sv-g{color:var(--g);}.sv-r{color:var(--r);}.sv-a{color:var(--a);}
+
+/* ─── LEVEL BAR ───────────────────────────── */
+.level-bar{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:14px 18px;margin-bottom:16px;position:relative;overflow:hidden;
+}
+.level-bar::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--a3),transparent);
+}
+.lb-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+.lb-left{display:flex;align-items:center;gap:10px;}
+.lb-icon{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;border:1px solid rgba(255,255,255,0.1);
+}
+.lb-name{font-family:var(--font-display);font-size:16px;letter-spacing:2px;line-height:1;}
+.lb-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:2px;}
+.lb-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.streak-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.18);
+  border-radius:6px;padding:5px 10px;
+}
+.streak-num{font-family:var(--font-display);font-size:18px;color:var(--y);line-height:1;}
+.streak-lbl{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px;}
+.lb-track{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;margin-bottom:4px;}
+.lb-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(0.16,1,0.3,1);}
+.lb-labels{display:flex;justify-content:space-between;margin-bottom:8px;}
+.lb-lbl{font-family:var(--font-mono);font-size:8px;color:var(--m);}
+.lb-reward{
+  display:flex;align-items:center;gap:6px;
+  background:var(--gd);border:1px solid rgba(52,208,88,0.14);
+  border-radius:5px;padding:7px 10px;
+}
+.lb-reward-text{font-family:var(--font-mono);font-size:8px;color:rgba(52,208,88,0.75);letter-spacing:0.5px;line-height:1.4;}
+
+/* ─── FORM ────────────────────────────────── */
+.fcard{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;position:relative;overflow:hidden;
+}
+.fcard::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--a3),transparent);
+}
+.fcard-title{font-family:var(--font-display);font-size:13px;letter-spacing:3px;color:var(--a);margin-bottom:16px;}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
+.field input,.field select,.field textarea{
+  background:var(--bg3);border:var(--line);border-radius:7px;
+  padding:9px 11px;color:var(--t);font-family:var(--font-mono);
+  font-size:12px;outline:none;transition:all 0.15s;width:100%;
+}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,0.15);}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--a);background:rgba(232,114,42,0.03);
+}
+.field textarea{resize:vertical;min-height:72px;font-family:var(--font-body);font-size:12px;line-height:1.55;}
+.field select option{background:#0d0f12;}
+.dtoggle{display:flex;gap:5px;}
+.dbtn{
+  flex:1;padding:9px;border-radius:7px;border:var(--line);
+  background:var(--bg3);color:var(--m);font-family:var(--font-mono);
+  font-size:10px;letter-spacing:2px;cursor:pointer;transition:all 0.15s;text-align:center;
+}
+.dbtn.long.active{background:var(--gd);border-color:rgba(52,208,88,0.35);color:var(--g);}
+.dbtn.short.active{background:var(--rd);border-color:rgba(255,77,77,0.35);color:var(--r);}
+.em-section{
+  background:rgba(255,255,255,0.015);border:var(--line);
+  border-radius:8px;padding:14px;margin-bottom:10px;
+}
+.em-title{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.emrow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.emf{display:flex;flex-direction:column;gap:6px;}
+.emf label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
+.sw{display:flex;align-items:center;gap:8px;}
+.sw input[type=range]{
+  flex:1;-webkit-appearance:none;height:2px;
+  background:rgba(255,255,255,0.07);border-radius:1px;border:none;padding:0;cursor:pointer;
+}
+.sw input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--a);cursor:pointer;box-shadow:0 0 6px rgba(232,114,42,0.5);
+}
+.sv2{font-family:var(--font-display);font-size:16px;color:var(--a);min-width:16px;text-align:right;}
+.btn-add{
+  width:100%;padding:11px;
+  background:linear-gradient(135deg,var(--a),#c85e18);border:none;
+  border-radius:8px;color:#fff;font-family:var(--font-display);
+  font-size:14px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;
+  margin-top:3px;box-shadow:0 4px 18px rgba(232,114,42,0.28);
+}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(232,114,42,0.4);}
+.btn-add:disabled{opacity:0.42;cursor:not-allowed;transform:none;}
+.btn-ai{
+  width:100%;padding:10px;
+  background:var(--gd);border:1px solid rgba(52,208,88,0.2);
+  border-radius:8px;color:rgba(52,208,88,0.8);
+  font-family:var(--font-display);font-size:13px;letter-spacing:2px;
+  cursor:pointer;transition:all 0.2s;margin-top:6px;
+}
+.btn-ai:hover{background:rgba(52,208,88,0.12);border-color:rgba(52,208,88,0.35);}
+
+/* ─── TRADES LIST ─────────────────────────── */
+.list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.list-title{font-family:var(--font-display);font-size:13px;letter-spacing:3px;color:var(--m);}
+.filters{display:flex;gap:4px;flex-wrap:wrap;}
+.fbtn{
+  padding:4px 10px;border-radius:14px;border:var(--line);
+  background:transparent;color:var(--m);font-family:var(--font-mono);
+  font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+}
+.fbtn.active,.fbtn:hover{border-color:var(--a3);color:var(--a);background:var(--a2);}
+.tcard{
+  background:var(--bg2);border:var(--line);border-radius:8px;
+  padding:14px 16px;margin-bottom:7px;transition:all 0.15s;
+}
+.tcard:hover{border-color:rgba(232,114,42,0.15);}
+.tcard.win{border-left:2px solid var(--g);}
+.tcard.loss{border-left:2px solid var(--r);}
+.tcard.be{border-left:2px solid rgba(255,255,255,0.15);}
+.th{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.tl{display:flex;align-items:center;gap:8px;}
+.tpair{font-family:var(--font-display);font-size:18px;letter-spacing:2px;}
+.tdir{font-family:var(--font-mono);font-size:8px;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
+.tdir.long{background:var(--gd);color:var(--g);}
+.tdir.short{background:var(--rd);color:var(--r);}
+.tr{display:flex;align-items:center;gap:8px;}
+.tpnl{font-family:var(--font-mono);font-size:13px;font-weight:500;}
+.tpnl.p{color:var(--g);}.tpnl.n{color:var(--r);}
+.tdate{font-family:var(--font-mono);font-size:8px;color:var(--m);}
+.delbtn{
+  background:none;border:none;color:var(--m);cursor:pointer;
+  font-size:13px;padding:2px 5px;border-radius:3px;transition:all 0.15s;
+}
+.delbtn:hover{color:var(--r);background:var(--rd);}
+.tnotes{
+  font-size:11px;color:var(--m);line-height:1.55;
+  margin-top:6px;padding-top:8px;border-top:var(--line);
+}
+.ntag{font-family:var(--font-mono);font-size:7px;letter-spacing:1px;margin-right:4px;}
+.empty{text-align:center;padding:36px;color:var(--m);font-family:var(--font-mono);font-size:10px;letter-spacing:1px;}
+.loading{text-align:center;padding:28px;color:var(--m);font-family:var(--font-mono);font-size:10px;letter-spacing:2px;}
+
+/* ─── DASHBOARD ───────────────────────────── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.dash-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:18px;}
+.dash-title{font-family:var(--font-display);font-size:11px;letter-spacing:3px;color:var(--m);margin-bottom:14px;}
+.speedo-wrap{display:flex;flex-direction:column;align-items:center;}
+.speedo-svg{width:200px;height:115px;}
+.speedo-val{font-family:var(--font-display);font-size:36px;color:var(--a);text-align:center;line-height:1;}
+.speedo-desc{font-family:var(--font-mono);font-size:8px;color:var(--m);text-align:center;margin-top:4px;letter-spacing:1px;}
+.em-bars{display:flex;flex-direction:column;gap:10px;}
+.em-bar-row{display:flex;flex-direction:column;gap:4px;}
+.em-bar-head{display:flex;justify-content:space-between;}
+.em-bar-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
+.em-bar-val{font-family:var(--font-mono);font-size:9px;color:var(--t);}
+.em-bar-track{height:3px;background:rgba(255,255,255,0.05);border-radius:1.5px;overflow:hidden;}
+.em-bar-fill{height:100%;border-radius:1.5px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
+.patterns{display:flex;flex-direction:column;gap:7px;}
+.pattern-item{
+  background:var(--bg3);border:var(--line);border-radius:7px;
+  padding:10px 12px;display:flex;align-items:center;gap:10px;
+}
+.pattern-icon{font-size:17px;flex-shrink:0;}
+.pattern-text{flex:1;}
+.pattern-title{font-family:var(--font-body);font-size:11px;font-weight:500;margin-bottom:1px;}
+.pattern-desc{font-family:var(--font-mono);font-size:8px;color:var(--m);}
+.pattern-badge{padding:2px 8px;border-radius:4px;font-family:var(--font-mono);font-size:7px;letter-spacing:1px;white-space:nowrap;}
+.badge-ok{background:var(--gd);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
+.badge-bad{background:var(--rd);border:1px solid rgba(255,77,77,0.25);color:var(--r);}
+.badge-warn{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.25);color:var(--y);}
+.emc-legend{display:flex;gap:12px;margin-bottom:10px;}
+.ecc{display:flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px;}
+.ecc-dot{width:6px;height:6px;border-radius:2px;}
+.em-compare{display:flex;flex-direction:column;gap:7px;}
+.emc-row{display:flex;align-items:center;gap:8px;}
+.emc-label{font-family:var(--font-mono);font-size:8px;color:var(--m);width:60px;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
+.emc-bars{flex:1;display:flex;flex-direction:column;gap:2px;}
+.emc-bar{height:5px;border-radius:2.5px;min-width:2px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
+.emc-win{background:var(--g);}.emc-loss{background:var(--r);}
+
+/* ─── DIGEST ──────────────────────────────── */
+.digest-header{
+  background:rgba(232,114,42,0.03);border:1px solid rgba(232,114,42,0.13);
+  border-radius:var(--radius);padding:18px 20px;margin-bottom:10px;position:relative;overflow:hidden;
+}
+.digest-header::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--a3),transparent);
+}
+.dh-week{font-family:var(--font-mono);font-size:8px;color:var(--a);letter-spacing:2px;margin-bottom:4px;}
+.dh-title{font-family:var(--font-display);font-size:22px;letter-spacing:2px;margin-bottom:3px;}
+.dh-sub{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.5;}
+.digest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.dg-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:14px 16px;}
+.dg-card.good{background:rgba(52,208,88,0.03);border-color:rgba(52,208,88,0.14);}
+.dg-card.bad{background:rgba(255,77,77,0.03);border-color:rgba(255,77,77,0.13);}
+.dg-label{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.dg-val{font-family:var(--font-display);font-size:24px;letter-spacing:1px;line-height:1;margin-bottom:3px;}
+.dg-desc{font-family:var(--font-body);font-size:11px;color:var(--m);line-height:1.4;}
+.digest-insights{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:16px;margin-bottom:10px;
+}
+.di-label{font-family:var(--font-mono);font-size:8px;color:var(--a);letter-spacing:2px;margin-bottom:10px;}
+.di-items{display:flex;flex-direction:column;gap:7px;}
+.di-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 12px;background:var(--bg3);border:var(--line);border-radius:7px;
+}
+.di-icon{font-size:15px;flex-shrink:0;line-height:1;margin-top:1px;}
+.di-text{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.55;}
+.di-text b{color:var(--t);font-weight:600;}
+.month-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mc-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:16px;}
+.mc-title{font-family:var(--font-display);font-size:10px;letter-spacing:3px;color:var(--m);margin-bottom:12px;}
+.mc-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:var(--line);}
+.mc-row:last-child{border-bottom:none;}
+.mc-key{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;}
+.mc-vals{display:flex;gap:10px;align-items:center;}
+.mc-val{font-family:var(--font-mono);font-size:11px;}
+.mc-val.prev{color:rgba(255,255,255,0.25);}
+.mc-val.curr{color:var(--t);}
+.mc-delta{font-family:var(--font-display);font-size:12px;letter-spacing:1px;}
+.mc-delta.up{color:var(--g);}.mc-delta.down{color:var(--r);}.mc-delta.same{color:var(--m);}
+
+/* ─── PRE-MARKET ──────────────────────────── */
+.pm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pm-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:18px;}
+.pm-card.full{grid-column:1/-1;}
+.pm-title{font-family:var(--font-display);font-size:12px;letter-spacing:3px;color:var(--a);margin-bottom:14px;}
+.pm-checklist{display:flex;flex-direction:column;gap:5px;}
+.pm-item{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;
+  background:var(--bg3);border:var(--line);border-radius:7px;
+  cursor:pointer;transition:all 0.15s;
+}
+.pm-item:hover{border-color:rgba(255,255,255,0.1);}
+.pm-item.checked{background:rgba(52,208,88,0.04);border-color:rgba(52,208,88,0.18);}
+.pm-check{
+  width:17px;height:17px;border-radius:4px;border:var(--line);
+  background:transparent;display:flex;align-items:center;justify-content:center;
+  font-size:9px;flex-shrink:0;transition:all 0.15s;color:transparent;
+}
+.pm-item.checked .pm-check{background:rgba(52,208,88,0.15);border-color:rgba(52,208,88,0.4);color:var(--g);}
+.pm-item-text{font-family:var(--font-body);font-size:12px;color:var(--m);transition:color 0.15s;}
+.pm-item.checked .pm-item-text{color:var(--t);}
+.pm-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.pm-col-title{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.pm-limits{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.pm-limit-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.pm-limit-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0;}
+.pm-limit-input{
+  background:var(--bg3);border:var(--line);border-radius:6px;
+  padding:7px 10px;color:var(--t);font-family:var(--font-mono);
+  font-size:12px;outline:none;transition:all 0.15s;width:110px;text-align:right;
+}
+.pm-limit-input:focus{border-color:var(--a);}
+.pm-moods{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.pm-mood-btn{
+  padding:6px 11px;border-radius:15px;border:var(--line);
+  background:var(--bg3);color:var(--m);font-family:var(--font-mono);
+  font-size:9px;letter-spacing:0.5px;cursor:pointer;transition:all 0.15s;
+}
+.pm-mood-btn.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
+.pm-status{
+  padding:10px 14px;border-radius:8px;font-family:var(--font-mono);
+  font-size:10px;letter-spacing:0.5px;margin-top:12px;
+}
+.pm-status.ready{background:var(--gd);border:1px solid rgba(52,208,88,0.2);color:var(--g);}
+.pm-status.partial{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.18);color:var(--y);}
+.pm-status.notready{background:var(--rd);border:1px solid rgba(255,77,77,0.18);color:var(--r);}
+.pm-save-btn{
+  width:100%;padding:10px;background:linear-gradient(135deg,var(--a),#c85e18);
+  border:none;border-radius:8px;color:#fff;font-family:var(--font-display);
+  font-size:14px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;
+  margin-top:12px;box-shadow:0 3px 14px rgba(232,114,42,0.25);
+}
+.pm-save-btn:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(232,114,42,0.38);}
+.pm-history-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 0;border-bottom:var(--line);
+}
+.pm-history-item:last-child{border-bottom:none;}
+.pm-h-date{font-family:var(--font-mono);font-size:9px;color:var(--m);}
+.pm-h-mood{font-size:12px;}
+.pm-h-bar{flex:1;height:3px;background:rgba(255,255,255,0.05);border-radius:1.5px;margin:0 10px;overflow:hidden;}
+.pm-h-fill{height:100%;border-radius:1.5px;}
+.pm-streak-box{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);
+  border-radius:8px;padding:12px 14px;margin-bottom:12px;
+}
+.pm-streak-num{font-family:var(--font-display);font-size:28px;color:var(--y);}
+.pm-streak-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;}
+
+/* ─── AI CHAT ─────────────────────────────── */
+.chat-layout{display:grid;grid-template-columns:200px 1fr;gap:10px;height:calc(100vh - 180px);min-height:500px;}
+.chat-sidebar{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.chat-sb-title{font-family:var(--font-display);font-size:10px;letter-spacing:3px;color:var(--m);padding:12px 14px;border-bottom:var(--line);}
+.chat-shortcuts{flex:1;padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;}
+.chat-sc{
+  padding:8px 10px;border-radius:6px;cursor:pointer;border:var(--line);
+  background:var(--bg3);transition:all 0.15s;
+}
+.chat-sc:hover{background:rgba(232,114,42,0.06);border-color:var(--a3);}
+.chat-sc-icon{font-size:13px;margin-bottom:3px;}
+.chat-sc-text{font-family:var(--font-body);font-size:11px;color:var(--m);line-height:1.3;}
+.chat-main{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.chat-header{
+  padding:12px 16px;border-bottom:var(--line);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.chat-header-title{font-family:var(--font-display);font-size:13px;letter-spacing:2px;color:var(--t);}
+.chat-status{
+  display:flex;align-items:center;gap:5px;
+  font-family:var(--font-mono);font-size:8px;color:var(--g);letter-spacing:1px;
+}
+.chat-status-dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.chat-messages::-webkit-scrollbar{width:3px;}
+.chat-messages::-webkit-scrollbar-track{background:transparent;}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+.chat-msg{display:flex;gap:8px;animation:msgIn 0.2s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+.chat-msg.user{flex-direction:row-reverse;}
+.msg-avatar{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.msg-avatar.ai{background:var(--gd);border:1px solid rgba(52,208,88,0.2);}
+.msg-avatar.user{background:var(--a2);border:1px solid var(--a3);}
+.msg-bubble{
+  max-width:72%;padding:10px 13px;border-radius:10px;
+  font-family:var(--font-body);font-size:12px;line-height:1.6;
+}
+.chat-msg.ai .msg-bubble{
+  background:var(--bg3);border:var(--line);color:var(--t);
+  border-bottom-left-radius:3px;
+}
+.chat-msg.user .msg-bubble{
+  background:rgba(232,114,42,0.1);border:1px solid var(--a3);
+  color:var(--t);border-bottom-right-radius:3px;
+}
+.msg-bubble p{margin-bottom:6px;}
+.msg-bubble p:last-child{margin-bottom:0;}
+.msg-bubble strong{color:var(--t);font-weight:600;}
+.msg-bubble .tag{
+  display:inline-block;padding:1px 6px;border-radius:3px;
+  font-family:var(--font-mono);font-size:9px;margin:1px 2px;
+}
+.tag.green{background:var(--gd);color:var(--g);}
+.tag.red{background:var(--rd);color:var(--r);}
+.tag.orange{background:var(--a2);color:var(--a);}
+.msg-typing{display:flex;gap:4px;align-items:center;padding:10px 13px;}
+.msg-typing span{width:5px;height:5px;border-radius:50%;background:var(--m);animation:typing 1.2s ease-in-out infinite;}
+.msg-typing span:nth-child(2){animation-delay:0.2s;}
+.msg-typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,80%,100%{transform:scale(0.7);opacity:0.5;}40%{transform:scale(1);opacity:1;}}
+.chat-input-area{
+  padding:12px;border-top:var(--line);flex-shrink:0;
+}
+.chat-input-row{display:flex;gap:7px;align-items:flex-end;}
+.chat-input{
+  flex:1;background:var(--bg3);border:var(--line);border-radius:8px;
+  padding:10px 12px;color:var(--t);font-family:var(--font-body);
+  font-size:13px;outline:none;resize:none;min-height:40px;max-height:120px;
+  transition:border-color 0.15s;line-height:1.5;
+}
+.chat-input:focus{border-color:var(--a);}
+.chat-input::placeholder{color:rgba(255,255,255,0.2);}
+.chat-send{
+  width:36px;height:36px;border-radius:7px;border:none;
+  background:var(--a);color:#fff;font-size:14px;cursor:pointer;
+  transition:all 0.15s;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.chat-send:hover{background:#ff7f3a;transform:scale(1.05);}
+.chat-send:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+
+/* ─── AI SETUP MODAL ──────────────────────── */
+.ai-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.ai-modal.open{display:flex;}
+.ai-box{
+  background:#0a0d12;border:1px solid rgba(52,208,88,0.18);border-radius:14px;
+  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:24px;position:relative;
+}
+.ai-box::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(52,208,88,0.4),transparent);}
+.ai-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--m);font-size:20px;cursor:pointer;transition:color 0.15s;}
+.ai-close:hover{color:var(--t);}
+.ai-title{font-family:var(--font-display);font-size:19px;letter-spacing:3px;color:#34d058;margin-bottom:2px;}
+.ai-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;margin-bottom:16px;}
+.ck-item{
+  background:var(--bg3);border:var(--line);border-radius:8px;
+  padding:11px 13px;margin-bottom:7px;
+}
+.ck-num{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:7px;}
+.ck-q{font-family:var(--font-body);font-size:12px;margin-bottom:9px;}
+.ck-btns{display:flex;gap:6px;}
+.ck-btn{
+  flex:1;padding:7px;border-radius:6px;border:var(--line);
+  background:var(--bg3);color:var(--m);font-family:var(--font-mono);
+  font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:all 0.15s;
+}
+.ck-btn.yes{background:rgba(52,208,88,0.1);border-color:rgba(52,208,88,0.35);color:var(--g);}
+.ck-btn.no{background:rgba(255,77,77,0.1);border-color:rgba(255,77,77,0.35);color:var(--r);}
+.ai-note{margin-bottom:14px;}
+.ai-note label{display:block;font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.ai-note textarea{
+  width:100%;background:var(--bg3);border:var(--line);border-radius:7px;
+  padding:9px 11px;color:var(--t);font-family:var(--font-body);font-size:12px;
+  line-height:1.5;outline:none;resize:vertical;min-height:70px;transition:border-color 0.15s;
+}
+.ai-note textarea:focus{border-color:rgba(52,208,88,0.35);}
+.ai-check-btn{
+  width:100%;padding:11px;
+  background:rgba(52,208,88,0.08);border:1px solid rgba(52,208,88,0.3);
+  border-radius:8px;color:#34d058;font-family:var(--font-display);
+  font-size:14px;letter-spacing:3px;cursor:pointer;transition:all 0.15s;
+}
+.ai-check-btn:hover{background:rgba(52,208,88,0.14);}
+.ai-check-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.ai-result{margin-top:14px;border-radius:9px;padding:14px;display:none;}
+.ai-result.go{background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.2);}
+.ai-result.stop{background:rgba(255,77,77,0.05);border:1px solid rgba(255,77,77,0.2);}
+.ai-result.wait{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.2);}
+.ai-verdict{font-family:var(--font-display);font-size:22px;letter-spacing:3px;margin-bottom:7px;}
+.ai-verdict.go{color:#34d058;}.ai-verdict.stop{color:#ff4d4d;}.ai-verdict.wait{color:#f5a623;}
+.ai-text{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.6;}
+</style>
 </head>
 <body>
 <div class="bg-orb"></div>
-<!-- MOB TOPBAR -->
-<div class="mob-topbar">
-  <div class="mob-logo-wrap">
-    <img class="mob-logo-img" src="orbitum-logo.jpg" alt="">
-    <span class="mob-logo-text">ORBITUM</span>
-  </div>
-  <div class="mob-right" id="mob-extra"></div>
-  <button class="mob-burger" onclick="openSidebar()">☰</button>
+
+<!-- MOBILE BAR -->
+<div class="mob-bar">
+  <div class="mob-logo">ORBITUM</div>
+  <button class="mob-burger" onclick="openSB()">☰</button>
 </div>
+
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <canvas class="slogo-canvas" id="logo-canvas"></canvas>
-    <div class="slogo-inner">
-      <img class="slogo-img" src="orbitum-logo.jpg" alt="">
-      <span class="slogo-text">ORBITUM</span>
-    </div>
+  <div class="sb-logo">
+    <div class="sb-logo-dot"></div>
+    <span class="sb-logo-text">ORBITUM</span>
   </div>
-  <nav class="sidenav">
-    <div class="snav-sec">Кабинет</div>
-    <a href="journal.html" class="snav-item active"><span class="snav-icon">📋</span>ЖУРНАЛ СДЕЛОК</a>
-    <a href="profile.html" class="snav-item "><span class="snav-icon">🧠</span>ПРОФИЛЬ</a>
-    <div class="snav-div" id="admin-divider" style="display:none"></div>
-    <a href="admin.html" class="snav-item admin-link " id="snav-admin" style="display:none"><span class="snav-icon">⚙️</span>АДМИН</a>
+  <nav class="sb-nav">
+    <div class="sb-section">Кабинет</div>
+    <button class="sb-item active" onclick="showPage('journal',this)" data-page="journal">
+      <span class="sb-item-icon">📋</span>Журнал сделок
+    </button>
+    <button class="sb-item" onclick="showPage('dashboard',this)" data-page="dashboard">
+      <span class="sb-item-icon">📊</span>Аналитика
+    </button>
+    <button class="sb-item" onclick="showPage('digest',this)" data-page="digest">
+      <span class="sb-item-icon">📅</span>Дайджест
+    </button>
+    <button class="sb-item" onclick="showPage('premarket',this)" data-page="premarket">
+      <span class="sb-item-icon">☀️</span>Пре-маркет
+    </button>
+    <button class="sb-item" onclick="showPage('aichat',this)" data-page="aichat">
+      <span class="sb-item-icon">🤖</span>AI Советник
+    </button>
+    <div class="sb-divider"></div>
+    <a href="profile.html" class="sb-item">
+      <span class="sb-item-icon">🧠</span>Мой профиль
+    </a>
+    <a href="admin.html" class="sb-item admin-link" id="snav-admin" style="display:none">
+      <span class="sb-item-icon">⚙️</span>Админ
+    </a>
   </nav>
-  <div class="sidebar-footer">
-    <div class="sf-user">
-      <div class="sf-avatar" id="sf-avatar">?</div>
-      <div class="sf-info"><div class="sf-name" id="sf-name">...</div><div class="sf-plan" id="sf-plan">—</div></div>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sf-avatar">?</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sf-name">...</div>
+        <div class="sb-user-plan" id="sf-plan">—</div>
+      </div>
     </div>
-    <button class="sf-logout" onclick="doLogout()">ВЫЙТИ</button>
+    <button class="sb-logout" onclick="doLogout()">ВЫЙТИ</button>
   </div>
 </div>
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-
-</div>
+<div class="sb-overlay" id="sb-overlay" onclick="closeSB()"></div>
 
 <!-- MAIN -->
 <div class="main">
-  <!-- Desktop tab nav -->
-  <div class="page-topnav">
-    <div class="tab-nav">
-      <button class="tnav active" id="desktop-tab-journal" onclick="showPage('journal')" data-page="journal">ЖУРНАЛ</button>
-      <button class="tnav" id="desktop-tab-dash" onclick="showPage('dashboard')" data-page="dashboard">АНАЛИТИКА</button>
-    </div>
-  </div>
 
-  <div class="stats">
-    <div class="stat"><div class="sl">Сделок</div><div class="sv" id="s-total">—</div></div>
-    <div class="stat"><div class="sl">Винрейт</div><div class="sv g" id="s-wr">—</div></div>
-    <div class="stat"><div class="sl">P&L %</div><div class="sv" id="s-pnl">—</div></div>
-    <div class="stat"><div class="sl">P&L $</div><div class="sv" id="s-usd">—</div></div>
-    <div class="stat"><div class="sl">Серия</div><div class="sv a" id="s-str">—</div></div>
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-cell"><div class="stat-label">Сделок</div><div class="stat-value" id="s-total">—</div></div>
+    <div class="stat-cell"><div class="stat-label">Винрейт</div><div class="stat-value sv-g" id="s-wr">—</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L %</div><div class="stat-value" id="s-pnl">—</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L $</div><div class="stat-value" id="s-usd">—</div></div>
+    <div class="stat-cell"><div class="stat-label">Серия</div><div class="stat-value sv-a" id="s-str">—</div></div>
   </div>
 
   <!-- LEVEL BAR -->
-  <div class="level-bar-wrap">
-    <div class="level-top">
-      <div class="level-left">
-        <div class="level-badge-icon" id="level-icon">🌱</div>
+  <div class="level-bar">
+    <div class="lb-row">
+      <div class="lb-left">
+        <div class="lb-icon" id="level-icon">🌱</div>
         <div>
-          <div class="level-name" id="level-name">НОВИЧОК</div>
-          <div class="level-sub" id="level-sub">Уровень 0 · Начни торговать</div>
+          <div class="lb-name" id="level-name">НОВИЧОК</div>
+          <div class="lb-sub" id="level-sub">Уровень 0 · Начни торговать</div>
         </div>
       </div>
-      <div class="level-right">
-        <div class="streak-box">
-          <span style="font-size:18px">🔥</span>
+      <div class="lb-right">
+        <div class="streak-pill">
+          <span style="font-size:15px">🔥</span>
           <div>
             <div class="streak-num" id="streak-num">0</div>
-            <div class="streak-label">ДНЕЙ ПОДРЯД</div>
+            <div class="streak-lbl">ДНЕЙ ПОДРЯД</div>
           </div>
         </div>
         <div>
-          <div class="level-pnl-val" id="level-pnl">0%</div>
-          <div class="level-pnl-label">P&L ОТ ДЕПОЗИТА</div>
+          <div style="font-family:var(--font-display);font-size:16px;color:var(--a)" id="level-pnl">0%</div>
+          <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px">P&L ОТ ДЕПОЗИТА</div>
         </div>
       </div>
     </div>
-    <div class="level-bar-track">
-      <div class="level-bar-fill" id="level-fill" style="width:0%;background:linear-gradient(90deg,var(--a),#ff9a5c)"></div>
+    <div class="lb-track"><div class="lb-fill" id="level-fill" style="width:0%;background:linear-gradient(90deg,var(--a),#ff9a5c)"></div></div>
+    <div class="lb-labels">
+      <span class="lb-lbl" id="level-cur-label">0%</span>
+      <span class="lb-lbl" id="level-next-label">Следующий: 5%</span>
     </div>
-    <div class="level-bar-labels">
-      <span class="lbl" id="level-cur-label">0%</span>
-      <span class="lbl" id="level-next-label">Следующий уровень: 5%</span>
-    </div>
-    <div class="level-reward">
-      <span style="font-size:15px">🎁</span>
-      <span class="reward-text" id="reward-text">Достигни 5% прибыли → получи чек-лист входа в сделку</span>
+    <div class="lb-reward">
+      <span style="font-size:13px">🎁</span>
+      <span class="lb-reward-text" id="reward-text">Достигни 5% прибыли → получи чек-лист входа</span>
     </div>
   </div>
 
-  <!-- JOURNAL PAGE -->
+  <!-- ──────────── JOURNAL ──────────────────── -->
   <div class="page active" id="page-journal">
+    <div class="topnav">
+      <button class="tnav active" onclick="showPage('journal',this)" data-page="journal">📋 ЖУРНАЛ</button>
+      <button class="tnav" onclick="showPage('dashboard',this)" data-page="dashboard">📊 АНАЛИТИКА</button>
+      <button class="tnav" onclick="showPage('digest',this)" data-page="digest">📅 ДАЙДЖЕСТ</button>
+      <button class="tnav" onclick="showPage('premarket',this)" data-page="premarket">☀️ СЕССИЯ</button>
+      <button class="tnav" onclick="showPage('aichat',this)" data-page="aichat">🤖 AI</button>
+    </div>
     <div class="fcard">
-      <div class="ftitle">+ НОВАЯ СДЕЛКА</div>
+      <div class="fcard-title">+ НОВАЯ СДЕЛКА</div>
       <div class="fg4">
-        <div class="field"><label>Пара</label><input id="f-pair" placeholder="BTC/USDT" /></div>
+        <div class="field"><label>Пара</label><input id="f-pair" placeholder="BTC/USDT"></div>
         <div class="field"><label>Направление</label><div class="dtoggle"><div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div><div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div></div></div>
         <div class="field"><label>Результат</label><select id="f-res"><option value="">— выбери —</option><option value="win">Прибыль ✓</option><option value="loss">Убыток ✗</option><option value="be">Безубыток</option></select></div>
-        <div class="field"><label>Депозит $</label><input id="f-dep" type="number" placeholder="1000" oninput="recalc()" /></div>
+        <div class="field"><label>Депозит $</label><input id="f-dep" type="number" placeholder="1000" oninput="recalc()"></div>
       </div>
       <div class="fg4">
-        <div class="field"><label>P&L %</label><input id="f-pnl" type="number" placeholder="+2.5" step="0.01" oninput="fromPct()" /></div>
-        <div class="field"><label>P&L $</label><input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()" /></div>
-        <div class="field"><label>Вход $</label><input id="f-entry" type="number" placeholder="42000" /></div>
-        <div class="field"><label>Выход $</label><input id="f-exit" type="number" placeholder="43500" /></div>
+        <div class="field"><label>P&L %</label><input id="f-pnl" type="number" placeholder="+2.5" step="0.01" oninput="fromPct()"></div>
+        <div class="field"><label>P&L $</label><input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()"></div>
+        <div class="field"><label>Вход $</label><input id="f-entry" type="number" placeholder="42000"></div>
+        <div class="field"><label>Выход $</label><input id="f-exit" type="number" placeholder="43500"></div>
       </div>
       <div class="em-section">
         <div class="em-title">Эмоциональное состояние</div>
@@ -376,14 +721,14 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
       </div>
       <div class="fg3">
         <div class="field"><label>Почему вошёл / сетап</label><textarea id="f-why" placeholder="Что видел на графике..."></textarea></div>
-        <div class="field"><label>Эмоции / что пошло не так</label><textarea id="f-feel" placeholder="Нарушил план? Поддался..."></textarea></div>
+        <div class="field"><label>Эмоции / что пошло не так</label><textarea id="f-feel" placeholder="Нарушил план?..."></textarea></div>
         <div class="field"><label>Урок из сделки</label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
       </div>
-      <button class="ai-btn" onclick="openAI()">🤖 ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI</button>
-      <button class="addbtn" id="btn-add" onclick="addTrade()">ЗАПИСАТЬ СДЕЛКУ</button>
+      <button class="btn-ai" onclick="openAI()">🤖 ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI</button>
+      <button class="btn-add" id="btn-add" onclick="addTrade()">ЗАПИСАТЬ СДЕЛКУ</button>
     </div>
-    <div class="lhead">
-      <div class="stitle">История</div>
+    <div class="list-head">
+      <div class="list-title">История</div>
       <div class="filters">
         <button class="fbtn active" onclick="setF('all',this)">Все</button>
         <button class="fbtn" onclick="setF('win',this)">Прибыль</button>
@@ -395,7 +740,7 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
     <div id="trades-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
   </div>
 
-  <!-- DASHBOARD PAGE -->
+  <!-- ──────────── DASHBOARD ─────────────────── -->
   <div class="page" id="page-dashboard">
     <div class="dash-grid">
       <div class="dash-card">
@@ -403,73 +748,206 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
         <div class="speedo-wrap">
           <svg class="speedo-svg" viewBox="0 0 220 130">
             <defs><linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#ff4d4d"/><stop offset="40%" style="stop-color:#f5a623"/><stop offset="80%" style="stop-color:#34d058"/><stop offset="100%" style="stop-color:#34d058"/></linearGradient></defs>
-            <path d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" stroke-linecap="round"/>
+            <path d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="12" stroke-linecap="round"/>
             <path id="speedo-arc" d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="url(#ag)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 283"/>
-            <line id="speedo-needle" x1="110" y1="110" x2="110" y2="28" stroke="var(--a)" stroke-width="2.5" stroke-linecap="round" transform="rotate(-90 110 110)"/>
-            <circle cx="110" cy="110" r="6" fill="var(--a)" style="filter:drop-shadow(0 0 6px var(--a))"/>
-            <circle cx="110" cy="110" r="3" fill="var(--bg)"/>
-            <text x="12" y="128" fill="rgba(255,255,255,0.25)" font-family="JetBrains Mono" font-size="9">СТРЕСС</text>
-            <text x="165" y="128" fill="rgba(255,255,255,0.25)" font-family="JetBrains Mono" font-size="9">ПОТОК</text>
+            <line id="speedo-needle" x1="110" y1="110" x2="110" y2="28" stroke="var(--a)" stroke-width="2" stroke-linecap="round" transform="rotate(-90 110 110)"/>
+            <circle cx="110" cy="110" r="5" fill="var(--a)" style="filter:drop-shadow(0 0 5px var(--a))"/>
+            <circle cx="110" cy="110" r="2.5" fill="var(--bg)"/>
+            <text x="12" y="128" fill="rgba(255,255,255,0.2)" font-family="JetBrains Mono" font-size="8">СТРЕСС</text>
+            <text x="167" y="128" fill="rgba(255,255,255,0.2)" font-family="JetBrains Mono" font-size="8">ПОТОК</text>
           </svg>
           <div class="speedo-val" id="speedo-score">—</div>
-          <div class="speedo-desc" id="speedo-desc">Недостаточно данных</div>
+          <div class="speedo-desc" id="speedo-desc">Нет данных</div>
         </div>
       </div>
       <div class="dash-card">
         <div class="dash-title">Средние эмоции</div>
-        <div class="em-bars" id="em-bars"><div class="empty" style="padding:16px">Нет данных</div></div>
+        <div class="em-bars" id="em-bars"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
     </div>
     <div class="dash-grid">
       <div class="dash-card">
         <div class="dash-title">Эмоции: победы vs убытки</div>
         <div class="emc-legend"><div class="ecc"><div class="ecc-dot" style="background:var(--g)"></div>ПРИБЫЛЬ</div><div class="ecc"><div class="ecc-dot" style="background:var(--r)"></div>УБЫТОК</div></div>
-        <div class="em-compare" id="em-compare"><div class="empty" style="padding:16px">Нет данных</div></div>
+        <div class="em-compare" id="em-compare"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
       <div class="dash-card">
         <div class="dash-title">Паттерны ошибок</div>
-        <div class="patterns" id="patterns-list"><div class="empty" style="padding:16px">Нет данных</div></div>
+        <div class="patterns" id="patterns-list"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- AI MODAL -->
+  <!-- ──────────── DIGEST ────────────────────── -->
+  <div class="page" id="page-digest">
+    <div class="digest-header">
+      <div class="dh-week" id="digest-week-label">НЕДЕЛЬНЫЙ ДАЙДЖЕСТ</div>
+      <div class="dh-title" id="digest-title">АНАЛИЗ НЕДЕЛИ</div>
+      <div class="dh-sub" id="digest-sub">Добавь сделки чтобы увидеть анализ</div>
+    </div>
+    <div class="digest-grid">
+      <div class="dg-card"><div class="dg-label">Сделок за неделю</div><div class="dg-val" id="dg-trades">—</div><div class="dg-desc" id="dg-trades-desc">—</div></div>
+      <div class="dg-card good"><div class="dg-label">Лучший день</div><div class="dg-val" id="dg-best-day">—</div><div class="dg-desc" id="dg-best-desc">—</div></div>
+      <div class="dg-card bad"><div class="dg-label">Слабый день</div><div class="dg-val" id="dg-worst-day">—</div><div class="dg-desc" id="dg-worst-desc">—</div></div>
+    </div>
+    <div class="digest-insights">
+      <div class="di-label">ВЫВОДЫ НЕДЕЛИ</div>
+      <div class="di-items" id="digest-insights-list"><div class="empty" style="padding:14px">Нет данных</div></div>
+    </div>
+    <div class="month-grid">
+      <div class="mc-card">
+        <div class="mc-title">ЭТОТ МЕСЯЦ VS ПРОШЛЫЙ</div>
+        <div id="month-compare-rows"><div class="empty" style="padding:14px">Нет данных</div></div>
+      </div>
+      <div class="mc-card">
+        <div class="mc-title">ДИНАМИКА ПО НЕДЕЛЯМ</div>
+        <div id="weekly-dynamics"><div class="empty" style="padding:14px">Нет данных</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────── PRE-MARKET ───────────────── -->
+  <div class="page" id="page-premarket">
+    <div class="pm-grid">
+      <div class="pm-card full">
+        <div class="pm-title">☀️ ПОДГОТОВКА К СЕССИИ</div>
+        <div class="pm-cols">
+          <div>
+            <div class="pm-col-title">Технический чек-лист</div>
+            <div class="pm-checklist">
+              <div class="pm-item" id="pm1" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Проверил новости / макро события</div></div>
+              <div class="pm-item" id="pm2" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Определил ключевые уровни на день</div></div>
+              <div class="pm-item" id="pm3" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Есть чёткий план входа и выхода</div></div>
+              <div class="pm-item" id="pm4" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Проверил старший таймфрейм</div></div>
+            </div>
+          </div>
+          <div>
+            <div class="pm-col-title">Психологический чек-лист</div>
+            <div class="pm-checklist">
+              <div class="pm-item" id="pm5" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Выспался, состояние норм</div></div>
+              <div class="pm-item" id="pm6" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Нет эмоций от вчерашних сделок</div></div>
+              <div class="pm-item" id="pm7" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Принял вчерашние убытки</div></div>
+              <div class="pm-item" id="pm8" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Готов пропустить день если нет сетапа</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Лимиты дня</div>
+        <div class="pm-limits">
+          <div class="pm-limit-row"><span class="pm-limit-label">Макс. убыток $</span><input class="pm-limit-input" id="pm-loss-limit" type="number" placeholder="100"></div>
+          <div class="pm-limit-row"><span class="pm-limit-label">Макс. сделок</span><input class="pm-limit-input" id="pm-trade-limit" type="number" placeholder="3"></div>
+          <div class="pm-limit-row"><span class="pm-limit-label">Цель $</span><input class="pm-limit-input" id="pm-goal" type="number" placeholder="200"></div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px">Настроение</div>
+        <div class="pm-moods">
+          <button class="pm-mood-btn" onclick="setPMMood(this,'🔥 Огонь')">🔥 Огонь</button>
+          <button class="pm-mood-btn active" onclick="setPMMood(this,'😐 Ровно')">😐 Ровно</button>
+          <button class="pm-mood-btn" onclick="setPMMood(this,'😴 Устал')">😴 Устал</button>
+          <button class="pm-mood-btn" onclick="setPMMood(this,'😤 Злой')">😤 Злой</button>
+        </div>
+        <div class="pm-status partial" id="pm-status-bar">⏳ Отметь пункты чтобы увидеть готовность</div>
+        <button class="pm-save-btn" onclick="savePMChecklist()">НАЧАТЬ СЕССИЮ ✓</button>
+      </div>
+      <div class="pm-card">
+        <div class="pm-title">🎯 СТРИК ЧЕКЛИСТА</div>
+        <div class="pm-streak-box">
+          <span style="font-size:22px">🎯</span>
+          <div>
+            <div class="pm-streak-num" id="pm-streak-num">0</div>
+            <div class="pm-streak-label">ДНЕЙ ПОДРЯД</div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.6">Трейдеры с ежедневным чеклистом совершают на 40% меньше импульсивных входов.</div>
+      </div>
+      <div class="pm-card">
+        <div class="pm-title">📅 ПОСЛЕДНИЕ СЕССИИ</div>
+        <div id="pm-history"><div class="empty" style="padding:14px">Нет данных</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────── AI CHAT ───────────────────── -->
+  <div class="page" id="page-aichat">
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div class="chat-sb-title">БЫСТРЫЙ ЗАПРОС</div>
+        <div class="chat-shortcuts" id="chat-shortcuts">
+          <div class="chat-sc" onclick="sendShortcut('Разбери актив BTC/USDT — структура, тренд, ключевые уровни сегодня')">
+            <div class="chat-sc-icon">🔍</div>
+            <div class="chat-sc-text">Разбор BTC/USDT</div>
+          </div>
+          <div class="chat-sc" onclick="sendShortcut('Разбери актив ETH/USDT — структура, тренд, ключевые уровни сегодня')">
+            <div class="chat-sc-icon">🔍</div>
+            <div class="chat-sc-text">Разбор ETH/USDT</div>
+          </div>
+          <div class="chat-sc" onclick="sendShortcut('Разбери актив SOL/USDT — структура, тренд, ключевые уровни сегодня')">
+            <div class="chat-sc-icon">🔍</div>
+            <div class="chat-sc-text">Разбор SOL/USDT</div>
+          </div>
+          <div class="chat-sc" onclick="sendShortcut('Какие главные новости и события криптовалютного рынка сейчас влияют на цену?')">
+            <div class="chat-sc-icon">📰</div>
+            <div class="chat-sc-text">Новости рынка</div>
+          </div>
+          <div class="chat-sc" onclick="sendShortcut('Проверь мою психологию трейдера: дай совет как улучшить дисциплину и избежать FOMO')">
+            <div class="chat-sc-icon">🧠</div>
+            <div class="chat-sc-text">Психология</div>
+          </div>
+          <div class="chat-sc" onclick="sendShortcut('Объясни концепцию Order Blocks и как правильно торговать от них по SMC/ICT методологии')">
+            <div class="chat-sc-icon">📚</div>
+            <div class="chat-sc-text">Order Blocks</div>
+          </div>
+          <div class="chat-sc" onclick="sendShortcut('Объясни Fair Value Gap — что это такое и как использовать в торговле')">
+            <div class="chat-sc-icon">📚</div>
+            <div class="chat-sc-text">Fair Value Gap</div>
+          </div>
+          <div class="chat-sc" onclick="sendShortcut('Дай совет по риск-менеджменту — как правильно рассчитывать размер позиции и стоп-лосс')">
+            <div class="chat-sc-icon">🎯</div>
+            <div class="chat-sc-text">Риск-менеджмент</div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-header">
+          <div class="chat-header-title">🤖 AI СОВЕТНИК</div>
+          <div class="chat-status"><div class="chat-status-dot"></div>ОНЛАЙН</div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg ai">
+            <div class="msg-avatar ai">🤖</div>
+            <div class="msg-bubble">
+              <p>Привет! Я твой AI советник по трейдингу.</p>
+              <p>Могу помочь с <strong>разбором активов</strong>, <strong>новостями рынка</strong>, объяснить концепции <span class="tag orange">SMC</span> <span class="tag orange">ICT</span> <span class="tag orange">Wyckoff</span>, дать совет по психологии и риск-менеджменту.</p>
+              <p>Спроси что-нибудь или выбери готовый запрос слева.</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <div class="chat-input-row">
+            <textarea class="chat-input" id="chat-input" placeholder="Спроси что-нибудь..." rows="1" onkeydown="chatKeyDown(event)" oninput="autoResize(this)"></textarea>
+            <button class="chat-send" id="chat-send-btn" onclick="sendChatMessage()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- AI SETUP MODAL -->
 <div class="ai-modal" id="ai-modal">
   <div class="ai-box">
     <button class="ai-close" onclick="closeAI()">×</button>
-    <div class="ai-title">🤖 AI АССИСТЕНТ</div>
-    <div class="ai-sub">5 вопросов · 30 секунд · честный вердикт</div>
-    <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:16px;" id="ai-checklist">
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">1 · СТРУКТУРА</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Есть подтверждённый BOS или CHoCH в направлении сделки?</div>
-        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">✓ ДА</button><button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">✗ НЕТ</button></div>
-      </div>
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">2 · ТОЧКА ИНТЕРЕСА</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Вход от OB / FVG / BPR? Под уровнем нет незакрытых пулов?</div>
-        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck2-yes" onclick="setCK(2,'yes')">✓ ДА</button><button class="ck-btn" id="ck2-no" onclick="setCK(2,'no')">✗ НЕТ</button></div>
-      </div>
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">3 · ПОДТВЕРЖДЕНИЕ</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Есть реакция на младшем ТФ (CHoCH / BOS / сильная свеча)?</div>
-        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck3-yes" onclick="setCK(3,'yes')">✓ ДА</button><button class="ck-btn" id="ck3-no" onclick="setCK(3,'no')">✗ НЕТ</button></div>
-      </div>
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">4 · РИСК</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Стоп-лосс за уровень, RR не менее 1:2, размер в рамках риска?</div>
-        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck4-yes" onclick="setCK(4,'yes')">✓ ДА</button><button class="ck-btn" id="ck4-no" onclick="setCK(4,'no')">✗ НЕТ</button></div>
-      </div>
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:9px;padding:13px 15px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1px;margin-bottom:9px;">5 · ПСИХОЛОГИЯ</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;margin-bottom:11px;">Ты спокоен? Нет жадности, страха, желания отыграться?</div>
-        <div style="display:flex;gap:8px;"><button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button><button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button></div>
-      </div>
+    <div class="ai-title">🤖 AI ЧЕКЕР СЕТАПА</div>
+    <div class="ai-sub">5 ВОПРОСОВ · 30 СЕКУНД · ЧЕСТНЫЙ ВЕРДИКТ</div>
+    <div id="ai-checklist">
+      <div class="ck-item"><div class="ck-num">1 · СТРУКТУРА</div><div class="ck-q">Есть подтверждённый BOS или CHoCH в направлении сделки?</div><div class="ck-btns"><button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">✓ ДА</button><button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">✗ НЕТ</button></div></div>
+      <div class="ck-item"><div class="ck-num">2 · ТОЧКА ИНТЕРЕСА</div><div class="ck-q">Есть Order Block, FVG или BPR в зоне входа?</div><div class="ck-btns"><button class="ck-btn" id="ck2-yes" onclick="setCK(2,'yes')">✓ ДА</button><button class="ck-btn" id="ck2-no" onclick="setCK(2,'no')">✗ НЕТ</button></div></div>
+      <div class="ck-item"><div class="ck-num">3 · ПОДТВЕРЖДЕНИЕ</div><div class="ck-q">Есть подтверждение на младшем таймфрейме?</div><div class="ck-btns"><button class="ck-btn" id="ck3-yes" onclick="setCK(3,'yes')">✓ ДА</button><button class="ck-btn" id="ck3-no" onclick="setCK(3,'no')">✗ НЕТ</button></div></div>
+      <div class="ck-item"><div class="ck-num">4 · РИСК-МЕНЕДЖМЕНТ</div><div class="ck-q">SL за структуру, RR минимум 1:2, размер позиции рассчитан?</div><div class="ck-btns"><button class="ck-btn" id="ck4-yes" onclick="setCK(4,'yes')">✓ ДА</button><button class="ck-btn" id="ck4-no" onclick="setCK(4,'no')">✗ НЕТ</button></div></div>
+      <div class="ck-item"><div class="ck-num">5 · ПСИХОЛОГИЯ</div><div class="ck-q">Ты спокоен? Это не месть рынку и не FOMO?</div><div class="ck-btns"><button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button><button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button></div></div>
     </div>
-    <div class="ai-field">
-      <label>Кратко опиши сетап (необязательно)</label>
-      <textarea id="ai-reason" placeholder="BTC/USDT 4H, LONG от OB 42000..." rows="2" style="min-height:56px;"></textarea>
+    <div class="ai-note" style="margin-top:12px">
+      <label>Дополнительно (необязательно)</label>
+      <textarea id="ai-reason" placeholder="Опиши сетап подробнее..."></textarea>
     </div>
     <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
     <div class="ai-result" id="ai-result">
@@ -484,51 +962,26 @@ const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let currentUser=null,allTrades=[],currentDir='long',currentFilter='all';
+let currentUser=null, allTrades=[], currentFilter='all', currentDir='long';
 
-// ── SIDEBAR ──
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('open');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
+// ─── SIDEBAR ─────────────────────────────────────
+function openSB(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
 
-function initLogoParticles(){
-  const canvas=document.getElementById('logo-canvas');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  canvas.width=220;canvas.height=64;
-  const pts=Array.from({length:22},()=>({
-    x:Math.random()*220,y:Math.random()*64,
-    r:Math.random()*1.2+0.2,
-    vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.25,
-    phase:Math.random()*Math.PI*2
-  }));
-  let t=0;
-  function draw(){
-    ctx.clearRect(0,0,220,64);
-    t+=0.018;
-    pts.forEach(p=>{
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0||p.x>220)p.vx*=-1;
-      if(p.y<0||p.y>64)p.vy*=-1;
-      const a=0.25+0.2*Math.sin(t+p.phase);
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
+// ─── PAGE NAV ─────────────────────────────────────
+function showPage(p, btn){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  // update sidebar buttons
+  document.querySelectorAll('.sb-item[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+  // update topnav tabs
+  document.querySelectorAll('.tnav[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+  if(p==='dashboard') renderDashboard();
+  if(p==='digest') renderDigest();
+  closeSB();
 }
 
-function fillSidebar(displayName,initials,plan,isAdmin){
-  document.getElementById('sf-avatar').textContent=initials;
-  document.getElementById('sf-name').textContent=displayName;
-  document.getElementById('sf-plan').textContent=plan==='lifetime'?'∞ НАВСЕГДА':plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-  if(isAdmin){
-    const d=document.getElementById('admin-divider');if(d)d.style.display='block';
-    const a=document.getElementById('snav-admin');if(a)a.style.display='flex';
-  }
-}
-
-// ── INIT ──
+// ─── INIT ─────────────────────────────────────────
 async function init(){
   const{data:{user}}=await sb.auth.getUser();
   if(!user){window.location.href='login.html';return;}
@@ -537,158 +990,65 @@ async function init(){
   if(!p){window.location.href='login.html';return;}
   const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&new Date(p.plan_expires_at)>new Date());
   if(!hasAccess&&p.role!=='admin'){window.location.href='pay.html';return;}
-  fillSidebar(p.full_name||p.username||user.email,(p.full_name||p.username||'U')[0].toUpperCase(),p.plan,p.role==='admin');
+  // fill sidebar
+  document.getElementById('sf-avatar').textContent=(p.full_name||p.username||'U')[0].toUpperCase();
+  document.getElementById('sf-name').textContent=p.full_name||p.username||user.email;
+  document.getElementById('sf-plan').textContent=p.plan==='lifetime'?'∞ НАВСЕГДА':p.plan==='monthly'?'МЕСЯЧНЫЙ':'—';
+  if(p.role==='admin'){const a=document.getElementById('snav-admin');if(a)a.style.display='flex';}
   await loadTrades();
+  renderPMHistory();renderPMStreak();
 }
+async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
+// ─── TRADES ───────────────────────────────────────
 async function loadTrades(){
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  if(error){console.error('loadTrades error:',error);document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки сделок</div>';return;}
+  if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
   allTrades=data||[];
-  updateStats();
-  render();
-  renderDashboard();
-  renderLevelBar(allTrades);
+  updateStats();render();renderDashboard();renderLevelBar(allTrades);
 }
 
-// ── DIRECTION TOGGLE ──
 function setDir(d){
   currentDir=d;
   document.getElementById('btn-long').classList.toggle('active',d==='long');
   document.getElementById('btn-short').classList.toggle('active',d==='short');
 }
-
-// ── P&L RECALC ──
-function recalc(){
-  const dep=parseFloat(document.getElementById('f-dep').value)||0;
-  const pct=parseFloat(document.getElementById('f-pnl').value)||0;
-  if(dep&&pct){document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
-}
-function fromPct(){
-  const dep=parseFloat(document.getElementById('f-dep').value)||0;
-  const pct=parseFloat(document.getElementById('f-pnl').value)||0;
-  if(dep&&pct){document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
-}
-function fromUsd(){
-  const dep=parseFloat(document.getElementById('f-dep').value)||0;
-  const usd=parseFloat(document.getElementById('f-usd').value)||0;
-  if(dep&&usd){document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);}
-}
-
-// ── SLIDER DISPLAY ──
+function recalc(){const dep=parseFloat(document.getElementById('f-dep').value)||0;const pct=parseFloat(document.getElementById('f-pnl').value)||0;if(dep&&pct)document.getElementById('f-usd').value=(dep*pct/100).toFixed(2);}
+function fromPct(){recalc();}
+function fromUsd(){const dep=parseFloat(document.getElementById('f-dep').value)||0;const usd=parseFloat(document.getElementById('f-usd').value)||0;if(dep&&usd)document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);}
 function sv(inputId,spanId){document.getElementById(spanId).textContent=document.getElementById(inputId).value;}
+function setF(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 
-// ── FILTER ──
-function setF(f,btn){
-  currentFilter=f;
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  render();
-}
-
-// ── ADD TRADE ──
 async function addTrade(){
   const pair=(document.getElementById('f-pair').value||'').trim().toUpperCase();
   const res=document.getElementById('f-res').value;
-  const dep=parseFloat(document.getElementById('f-dep').value)||null;
-  const pnlPct=parseFloat(document.getElementById('f-pnl').value)||null;
-  const pnlUsd=parseFloat(document.getElementById('f-usd').value)||null;
-  const entry=parseFloat(document.getElementById('f-entry').value)||null;
-  const exit=parseFloat(document.getElementById('f-exit').value)||null;
-  const conf=parseInt(document.getElementById('e-conf').value)||5;
-  const fear=parseInt(document.getElementById('e-fear').value)||3;
-  const greed=parseInt(document.getElementById('e-greed').value)||3;
-  const calm=parseInt(document.getElementById('e-calm').value)||7;
-  const why=document.getElementById('f-why').value.trim();
-  const feel=document.getElementById('f-feel').value.trim();
-  const lesson=document.getElementById('f-lesson').value.trim();
   if(!pair){alert('Укажи торговую пару');return;}
   if(!res){alert('Выбери результат');return;}
   const btn=document.getElementById('btn-add');
   btn.disabled=true;btn.textContent='СОХРАНЯЕМ...';
   const{error}=await sb.from('trades').insert([{
     user_id:currentUser.id,pair,direction:currentDir,result:res,
-    deposit:dep,pnl_pct:pnlPct,pnl_usd:pnlUsd,entry_price:entry,exit_price:exit,
-    emotion_conf:conf,emotion_fear:fear,emotion_greed:greed,emotion_calm:calm,
-    setup_notes:why,emotion_notes:feel,lesson
+    deposit:parseFloat(document.getElementById('f-dep').value)||null,
+    pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,
+    pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,
+    entry_price:parseFloat(document.getElementById('f-entry').value)||null,
+    exit_price:parseFloat(document.getElementById('f-exit').value)||null,
+    emotion_conf:parseInt(document.getElementById('e-conf').value)||5,
+    emotion_fear:parseInt(document.getElementById('e-fear').value)||3,
+    emotion_greed:parseInt(document.getElementById('e-greed').value)||3,
+    emotion_calm:parseInt(document.getElementById('e-calm').value)||7,
+    setup_notes:document.getElementById('f-why').value.trim(),
+    emotion_notes:document.getElementById('f-feel').value.trim(),
+    lesson:document.getElementById('f-lesson').value.trim()
   }]);
   btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
   if(error){alert('Ошибка: '+error.message);return;}
-  // reset form
-  document.getElementById('f-pair').value='';
+  ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-why','f-feel','f-lesson'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-res').value='';
-  document.getElementById('f-dep').value='';
-  document.getElementById('f-pnl').value='';
-  document.getElementById('f-usd').value='';
-  document.getElementById('f-entry').value='';
-  document.getElementById('f-exit').value='';
-  document.getElementById('f-why').value='';
-  document.getElementById('f-feel').value='';
-  document.getElementById('f-lesson').value='';
   ['e-conf','e-fear','e-greed','e-calm'].forEach(id=>{document.getElementById(id).value=id==='e-conf'?5:id==='e-calm'?7:3;});
   ['sv-conf','sv-fear','sv-greed','sv-calm'].forEach((id,i)=>{document.getElementById(id).textContent=[5,3,3,7][i];});
   setDir('long');
   await loadTrades();
-}
-
-// ── STATS BAR ──
-function updateStats(){
-  const t=allTrades;
-  document.getElementById('s-total').textContent=t.length||'—';
-  if(!t.length){['s-wr','s-pnl','s-usd','s-str'].forEach(id=>{document.getElementById(id).textContent='—';});return;}
-  const wins=t.filter(x=>x.result==='win');
-  const wr=Math.round(wins.length/t.length*100);
-  document.getElementById('s-wr').textContent=wr+'%';
-  const totalPct=t.reduce((s,x)=>s+(x.pnl_pct||0),0);
-  const pEl=document.getElementById('s-pnl');
-  pEl.textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
-  pEl.className='sv '+(totalPct>=0?'g':'r');
-  const totalUsd=t.reduce((s,x)=>s+(x.pnl_usd||0),0);
-  const uEl=document.getElementById('s-usd');
-  uEl.textContent=(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0);
-  uEl.className='sv '+(totalUsd>=0?'g':'r');
-  // streak (consecutive wins)
-  let streak=0;
-  for(const tr of t){if(tr.result==='win')streak++;else break;}
-  document.getElementById('s-str').textContent=streak;
-}
-
-// ── RENDER TRADES LIST ──
-function render(){
-  const list=document.getElementById('trades-list');
-  let filtered=allTrades;
-  if(currentFilter==='win')filtered=filtered.filter(t=>t.result==='win');
-  else if(currentFilter==='loss')filtered=filtered.filter(t=>t.result==='loss');
-  else if(currentFilter==='long')filtered=filtered.filter(t=>t.direction==='long');
-  else if(currentFilter==='short')filtered=filtered.filter(t=>t.direction==='short');
-  if(!filtered.length){list.innerHTML='<div class="empty">Сделок нет. Добавь первую!</div>';return;}
-  list.innerHTML=filtered.map(t=>{
-    const pnl=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'—';
-    const usd=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';
-    const cls=t.result==='win'?'win':t.result==='loss'?'loss':'be';
-    const pnlCls=t.result==='win'?'p':t.result==='loss'?'n':'';
-    const date=new Date(t.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
-    const dirCls=t.direction||'long';
-    const dots=(key,max=10)=>{const v=t[key]||0;return Array.from({length:10},(_,i)=>`<div class="dot${i<v?' on':''}"></div>`).join('');};
-    return`<div class="tcard ${cls}">
-      <div class="thead">
-        <div class="tl">
-          <div class="tpair">${t.pair||'?'}</div>
-          <div class="tdir ${dirCls}">${(t.direction||'').toUpperCase()}</div>
-        </div>
-        <div class="tr">
-          <div class="tpnl ${pnlCls}">${pnl}${usd?` <span style="font-size:10px;opacity:0.6">${usd}</span>`:''}</div>
-          <div class="tdate">${date}</div>
-          <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
-        </div>
-      </div>
-      ${t.setup_notes||t.emotion_notes||t.lesson?`<div class="tnotes">
-        ${t.setup_notes?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.setup_notes}<br>`:''}
-        ${t.emotion_notes?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.emotion_notes}<br>`:''}
-        ${t.lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.lesson}`:''}
-      </div>`:''}
-    </div>`;
-  }).join('');
 }
 
 async function deleteTrade(id){
@@ -697,78 +1057,68 @@ async function deleteTrade(id){
   await loadTrades();
 }
 
-async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
-
-// ── RENDER DASHBOARD ──
-function renderDashboard(){
-  if(!allTrades.length){
-    document.getElementById('speedo-score').textContent='—';
-    document.getElementById('speedo-desc').textContent='Нет данных';
-    document.getElementById('em-bars').innerHTML='<div class="empty" style="padding:16px">Нет данных</div>';
-    document.getElementById('em-compare').innerHTML='<div class="empty" style="padding:16px">Нет данных</div>';
-    document.getElementById('patterns-list').innerHTML='<div class="empty" style="padding:16px">Нет данных</div>';
-    return;
-  }
-  const avg=key=>{const v=allTrades.map(t=>t[key]).filter(x=>x!=null);return v.length?(v.reduce((s,x)=>s+x,0)/v.length):5;};
-  const conf=avg('emotion_conf'),fear=avg('emotion_fear'),greed=avg('emotion_greed'),calm=avg('emotion_calm');
-  // emotional index: high conf+calm, low fear+greed = good
-  const score=Math.round(((conf+calm+(10-fear)+(10-greed))/4)*10);
-  const clampedScore=Math.min(100,Math.max(0,score));
-  document.getElementById('speedo-score').textContent=clampedScore;
-  document.getElementById('speedo-desc').textContent=clampedScore>=70?'Состояние потока':clampedScore>=40?'Нейтральное состояние':'Высокий стресс';
-  // needle
-  const arc=Math.PI*(clampedScore/100);
-  const needle=document.getElementById('speedo-needle');
-  const arcEl=document.getElementById('speedo-arc');
-  if(needle)needle.setAttribute('transform',`rotate(${-90+arc*(180/Math.PI)*1} 110 110)`);
-  if(arcEl){const total=283;arcEl.setAttribute('stroke-dasharray',`${total*clampedScore/100} ${total}`);}
-  // avg emotion bars
-  const emKeys=[{label:'Уверенность',key:'emotion_conf',color:'#e8722a'},{label:'Страх',key:'emotion_fear',color:'#ff4d4d'},{label:'Жадность',key:'emotion_greed',color:'#ff4d4d'},{label:'Фокус',key:'emotion_calm',color:'#34d058'}];
-  document.getElementById('em-bars').innerHTML=emKeys.map(e=>{
-    const v=avg(e.key);
-    return`<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">${e.label}</span><span class="em-bar-val">${v.toFixed(1)}/10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:${v*10}%;background:${e.color}"></div></div></div>`;
-  }).join('');
-  // wins vs losses emotions
-  const wins=allTrades.filter(t=>t.result==='win');
-  const losses=allTrades.filter(t=>t.result==='loss');
-  const avgArr=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
-  document.getElementById('em-compare').innerHTML=emKeys.map(e=>{
-    const wV=avgArr(wins,e.key),lV=avgArr(losses,e.key);
-    const max=10;
-    return`<div class="emc-row"><div class="emc-label">${e.label}</div><div class="emc-bars"><div class="emc-bar emc-win" style="width:${wV/max*100}%"></div><div class="emc-bar emc-loss" style="width:${lV/max*100}%"></div></div></div>`;
-  }).join('');
-  // patterns
-  const patterns=[];
-  const fomo=allTrades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=17&&h<19&&t.result==='loss';});
-  if(fomo.length>=2)patterns.push({icon:'🔥',title:'FOMO в вечерние часы',desc:`${fomo.length} убыточных сделок 17-19ч`,badge:'badge-bad'});
-  const greedyLoss=allTrades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
-  if(greedyLoss.length>=2)patterns.push({icon:'💀',title:'Жадность → убыток',desc:`${greedyLoss.length} потерь при жадности ≥7`,badge:'badge-bad'});
-  const highConf=allTrades.filter(t=>(t.emotion_conf||0)>=7&&t.result==='win');
-  if(highConf.length>=2)patterns.push({icon:'🎯',title:'Уверенность → победа',desc:`${highConf.length} побед при уверенности ≥7`,badge:'badge-ok'});
-  const earlyLoss=allTrades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=8&&h<10&&t.result==='loss';});
-  if(earlyLoss.length>=2)patterns.push({icon:'⏰',title:'Утренние сделки — риск',desc:`${earlyLoss.length} убытков в 8-10ч`,badge:'badge-warn'});
-  document.getElementById('patterns-list').innerHTML=patterns.length?patterns.map(p=>`
-    <div class="pattern-item"><div class="pattern-icon">${p.icon}</div><div class="pattern-text"><div class="pattern-title">${p.title}</div><div class="pattern-desc">${p.desc}</div></div><div class="pattern-badge ${p.badge}">${p.badge==='badge-ok'?'ПЛЮС':'МИНУС'}</div></div>
-  `).join(''):'<div class="empty" style="padding:16px">Недостаточно данных для паттернов</div>';
+function updateStats(){
+  const t=allTrades;
+  document.getElementById('s-total').textContent=t.length||'—';
+  if(!t.length){['s-wr','s-pnl','s-usd','s-str'].forEach(id=>document.getElementById(id).textContent='—');return;}
+  const wins=t.filter(x=>x.result==='win');
+  document.getElementById('s-wr').textContent=Math.round(wins.length/t.length*100)+'%';
+  const totalPct=t.reduce((s,x)=>s+(x.pnl_pct||0),0);
+  const pEl=document.getElementById('s-pnl');
+  pEl.textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
+  pEl.className='stat-value '+(totalPct>=0?'sv-g':'sv-r');
+  const totalUsd=t.reduce((s,x)=>s+(x.pnl_usd||0),0);
+  const uEl=document.getElementById('s-usd');
+  uEl.textContent=(totalUsd>=0?'+$':'-$')+Math.abs(totalUsd).toFixed(0);
+  uEl.className='stat-value '+(totalUsd>=0?'sv-g':'sv-r');
+  let streak=0;for(const tr of t){if(tr.result==='win')streak++;else break;}
+  document.getElementById('s-str').textContent=streak;
 }
 
-function showPage(p){
-  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  document.querySelectorAll('.tnav[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
-  if(p==='dashboard')renderDashboard();
+function render(){
+  const list=document.getElementById('trades-list');
+  let f=allTrades;
+  if(currentFilter==='win')f=f.filter(t=>t.result==='win');
+  else if(currentFilter==='loss')f=f.filter(t=>t.result==='loss');
+  else if(currentFilter==='long')f=f.filter(t=>t.direction==='long');
+  else if(currentFilter==='short')f=f.filter(t=>t.direction==='short');
+  if(!f.length){list.innerHTML='<div class="empty">Сделок нет. Добавь первую!</div>';return;}
+  list.innerHTML=f.map(t=>{
+    const pnl=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'—';
+    const usd=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';
+    const cls=t.result==='win'?'win':t.result==='loss'?'loss':'be';
+    const pnlCls=t.result==='win'?'p':t.result==='loss'?'n':'';
+    const date=new Date(t.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+    return`<div class="tcard ${cls}">
+      <div class="th">
+        <div class="tl"><div class="tpair">${t.pair||'?'}</div><div class="tdir ${t.direction||'long'}">${(t.direction||'').toUpperCase()}</div></div>
+        <div class="tr">
+          <div class="tpnl ${pnlCls}">${pnl}${usd?` <span style="font-size:9px;opacity:0.55">${usd}</span>`:''}</div>
+          <div class="tdate">${date}</div>
+          <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
+        </div>
+      </div>
+      ${t.setup_notes||t.emotion_notes||t.lesson?`<div class="tnotes">${t.setup_notes?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.setup_notes}<br>`:''}${t.emotion_notes?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.emotion_notes}<br>`:''}${t.lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.lesson}`:''}</div>`:''}
+    </div>`;
+  }).join('');
 }
 
-// ── LEVEL SYSTEM ──
+// ─── LEVEL SYSTEM ─────────────────────────────────
 const LEVELS=[
-  {min:0,max:5,name:'НОВИЧОК',icon:'🌱',color:'#52606e',reward:'Достигни 5% прибыли → получи чек-лист входа в сделку'},
-  {min:5,max:10,name:'СТАЖЁР',icon:'📈',color:'#3498db',reward:'Достигни 10% → методичка по управлению рисками'},
+  {min:0,max:5,name:'НОВИЧОК',icon:'🌱',color:'#52606e',reward:'Достигни 5% → получи чек-лист входа'},
+  {min:5,max:10,name:'СТАЖЁР',icon:'📈',color:'#3498db',reward:'Достигни 10% → методичка по риск-менеджменту'},
   {min:10,max:20,name:'ТРЕЙДЕР',icon:'⚡',color:'#9b59b6',reward:'Достигни 20% → разбор сделок в приоритете'},
   {min:20,max:50,name:'ПРОФИ',icon:'🎯',color:'#e8722a',reward:'Достигни 50% → бесплатная консультация 1 на 1'},
-  {min:50,max:100,name:'ЭКСПЕРТ',icon:'🔥',color:'#f5a623',reward:'Достигни 100% → вход в VIP комьюнити'},
+  {min:50,max:100,name:'ЭКСПЕРТ',icon:'🔥',color:'#f5a623',reward:'Достигни 100% → VIP комьюнити'},
   {min:100,max:999,name:'МАСТЕР',icon:'👑',color:'#34d058',reward:'Ты в элите. Помогай другим расти!'},
 ];
-function calcStreak(trades){if(!trades.length)return 0;const days=new Set(trades.map(t=>new Date(t.created_at).toDateString()));const today=new Date();let streak=0;for(let i=0;i<365;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(days.has(d.toDateString()))streak++;else if(i>0)break;}return streak;}
+function calcStreak(trades){
+  if(!trades.length)return 0;
+  const days=new Set(trades.map(t=>new Date(t.created_at).toDateString()));
+  let streak=0;const now=new Date();
+  for(let i=0;i<365;i++){const d=new Date(now);d.setDate(d.getDate()-i);if(days.has(d.toDateString()))streak++;else if(i>0)break;}
+  return streak;
+}
 function renderLevelBar(trades){
   const totalPct=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
   const streak=calcStreak(trades);
@@ -776,15 +1126,14 @@ function renderLevelBar(trades){
   const nextLvl=LEVELS[LEVELS.indexOf(lvl)+1];
   const progress=lvl.max===999?100:Math.min(100,Math.max(0,((totalPct-lvl.min)/(lvl.max-lvl.min))*100));
   document.getElementById('level-icon').textContent=lvl.icon;
-  document.getElementById('level-icon').style.background=lvl.color+'22';
-  document.getElementById('level-icon').style.borderColor=lvl.color+'44';
+  document.getElementById('level-icon').style.cssText=`background:${lvl.color}18;border:1px solid ${lvl.color}30;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0`;
   document.getElementById('level-name').textContent=lvl.name;
   document.getElementById('level-name').style.color=lvl.color;
-  document.getElementById('level-sub').textContent=`Уровень ${LEVELS.indexOf(lvl)} · ${totalPct>=0?'+':''}${totalPct.toFixed(1)}% от депозита`;
+  document.getElementById('level-sub').textContent=`Уровень ${LEVELS.indexOf(lvl)} · ${totalPct>=0?'+':''}${totalPct.toFixed(1)}%`;
   document.getElementById('level-fill').style.width=progress+'%';
-  document.getElementById('level-fill').style.background=`linear-gradient(90deg,${lvl.color},${lvl.color}cc)`;
+  document.getElementById('level-fill').style.background=`linear-gradient(90deg,${lvl.color},${lvl.color}bb)`;
   document.getElementById('level-cur-label').textContent=totalPct.toFixed(1)+'%';
-  document.getElementById('level-next-label').textContent=nextLvl?`Следующий уровень: ${lvl.max}%`:'🏆 Максимальный уровень';
+  document.getElementById('level-next-label').textContent=nextLvl?`Следующий: ${lvl.max}%`:'🏆 Максимум';
   document.getElementById('level-pnl').textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
   document.getElementById('reward-text').textContent=lvl.reward;
   document.getElementById('streak-num').textContent=streak;
@@ -792,11 +1141,275 @@ function renderLevelBar(trades){
   else if(streak>=3)document.getElementById('streak-num').style.color='#f5a623';
 }
 
-// ── AI ──
+// ─── DASHBOARD ────────────────────────────────────
+function renderDashboard(){
+  if(!allTrades.length){
+    document.getElementById('speedo-score').textContent='—';
+    document.getElementById('speedo-desc').textContent='Нет данных';
+    ['em-bars','em-compare','patterns-list'].forEach(id=>document.getElementById(id).innerHTML='<div class="empty" style="padding:14px">Нет данных</div>');
+    return;
+  }
+  const avg=key=>{const v=allTrades.map(t=>t[key]).filter(x=>x!=null);return v.length?(v.reduce((s,x)=>s+x,0)/v.length):5;};
+  const conf=avg('emotion_conf'),fear=avg('emotion_fear'),greed=avg('emotion_greed'),calm=avg('emotion_calm');
+  const score=Math.min(100,Math.max(0,Math.round(((conf+calm+(10-fear)+(10-greed))/4)*10)));
+  document.getElementById('speedo-score').textContent=score;
+  document.getElementById('speedo-desc').textContent=score>=70?'Состояние потока':score>=40?'Нейтральное':'Высокий стресс';
+  const needle=document.getElementById('speedo-needle');
+  const arcEl=document.getElementById('speedo-arc');
+  if(needle)needle.setAttribute('transform',`rotate(${-90+(Math.PI*score/100)*(180/Math.PI)} 110 110)`);
+  if(arcEl)arcEl.setAttribute('stroke-dasharray',`${283*score/100} 283`);
+  const emKeys=[{label:'Уверенность',key:'emotion_conf',color:'#e8722a'},{label:'Страх',key:'emotion_fear',color:'#ff4d4d'},{label:'Жадность',key:'emotion_greed',color:'#ff4d4d'},{label:'Фокус',key:'emotion_calm',color:'#34d058'}];
+  document.getElementById('em-bars').innerHTML=emKeys.map(e=>`<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">${e.label}</span><span class="em-bar-val">${avg(e.key).toFixed(1)}/10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:${avg(e.key)*10}%;background:${e.color}"></div></div></div>`).join('');
+  const wins=allTrades.filter(t=>t.result==='win'),losses=allTrades.filter(t=>t.result==='loss');
+  const avgArr=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
+  document.getElementById('em-compare').innerHTML=emKeys.map(e=>`<div class="emc-row"><div class="emc-label">${e.label}</div><div class="emc-bars"><div class="emc-bar emc-win" style="width:${avgArr(wins,e.key)/10*100}%"></div><div class="emc-bar emc-loss" style="width:${avgArr(losses,e.key)/10*100}%"></div></div></div>`).join('');
+  const patterns=[];
+  const fomo=allTrades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=17&&h<19&&t.result==='loss';});
+  if(fomo.length>=2)patterns.push({icon:'🔥',title:'FOMO в вечерние часы',desc:`${fomo.length} убытков 17-19ч`,badge:'badge-bad'});
+  const greedyLoss=allTrades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
+  if(greedyLoss.length>=2)patterns.push({icon:'💀',title:'Жадность → убыток',desc:`${greedyLoss.length} потерь при жадности ≥7`,badge:'badge-bad'});
+  const highConf=allTrades.filter(t=>(t.emotion_conf||0)>=7&&t.result==='win');
+  if(highConf.length>=2)patterns.push({icon:'🎯',title:'Уверенность → победа',desc:`${highConf.length} побед при уверенности ≥7`,badge:'badge-ok'});
+  const earlyLoss=allTrades.filter(t=>{const h=new Date(t.created_at).getHours();return h>=8&&h<10&&t.result==='loss';});
+  if(earlyLoss.length>=2)patterns.push({icon:'⏰',title:'Утренние сделки — риск',desc:`${earlyLoss.length} убытков в 8-10ч`,badge:'badge-warn'});
+  document.getElementById('patterns-list').innerHTML=patterns.length?patterns.map(p=>`<div class="pattern-item"><div class="pattern-icon">${p.icon}</div><div class="pattern-text"><div class="pattern-title">${p.title}</div><div class="pattern-desc">${p.desc}</div></div><div class="pattern-badge ${p.badge}">${p.badge==='badge-ok'?'ПЛЮС':'МИНУС'}</div></div>`).join(''):'<div class="empty" style="padding:14px">Мало данных для паттернов</div>';
+}
+
+// ─── DIGEST ───────────────────────────────────────
+function renderDigest(){
+  const now=new Date(),sw=new Date(now);
+  sw.setDate(now.getDate()-now.getDay()+1);sw.setHours(0,0,0,0);
+  const weekTrades=allTrades.filter(t=>new Date(t.created_at)>=sw);
+  const daysRu=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const wl=sw.toLocaleDateString('ru-RU',{day:'2-digit',month:'long'});
+  const nl=now.toLocaleDateString('ru-RU',{day:'2-digit',month:'long'});
+  document.getElementById('digest-week-label').textContent=`${wl} — ${nl}`;
+  if(!weekTrades.length){
+    document.getElementById('digest-title').textContent='НЕТ ДАННЫХ ЗА НЕДЕЛЮ';
+    document.getElementById('digest-sub').textContent='Добавь сделки чтобы увидеть анализ';
+    ['dg-trades','dg-best-day','dg-worst-day'].forEach(id=>document.getElementById(id).textContent='—');
+    ['dg-trades-desc','dg-best-desc','dg-worst-desc'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('digest-insights-list').innerHTML='<div class="empty" style="padding:14px">Нет данных</div>';
+  } else {
+    const wins=weekTrades.filter(t=>t.result==='win');
+    const wr=Math.round(wins.length/weekTrades.length*100);
+    const totalPnl=weekTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+    document.getElementById('dg-trades').textContent=weekTrades.length;
+    document.getElementById('dg-trades-desc').textContent=`WR ${wr}% · P&L ${totalPnl>=0?'+':''}${totalPnl.toFixed(1)}%`;
+    const byDay={};
+    weekTrades.forEach(t=>{const d=new Date(t.created_at).getDay();if(!byDay[d])byDay[d]={wins:0,total:0,pnl:0};byDay[d].total++;if(t.result==='win')byDay[d].wins++;byDay[d].pnl+=(t.pnl_pct||0);});
+    const days=Object.entries(byDay).map(([d,v])=>({day:parseInt(d),...v,wr:v.wins/v.total}));
+    const sortedByWr=[...days].sort((a,b)=>b.wr-a.wr);
+    const bestDay=sortedByWr[0],worstDay=sortedByWr[sortedByWr.length-1];
+    document.getElementById('dg-best-day').textContent=daysRu[bestDay.day];
+    document.getElementById('dg-best-desc').textContent=`${Math.round(bestDay.wr*100)}% WR · ${bestDay.total} сделок`;
+    document.getElementById('dg-worst-day').textContent=daysRu[worstDay.day];
+    document.getElementById('dg-worst-desc').textContent=`${Math.round(worstDay.wr*100)}% WR · ${worstDay.total} сделок`;
+    const avgGreed=weekTrades.reduce((s,t)=>s+(t.emotion_greed||0),0)/weekTrades.length;
+    const avgConf=weekTrades.reduce((s,t)=>s+(t.emotion_conf||0),0)/weekTrades.length;
+    const insights=[];
+    if(totalPnl>0)insights.push({icon:'📈',text:`Прибыльная неделя: <b>+${totalPnl.toFixed(1)}%</b>. Закрепи этот ритм — повтори те же временные окна.`});
+    if(totalPnl<0)insights.push({icon:'🛑',text:`Убыточная неделя: <b>${totalPnl.toFixed(1)}%</b>. Разбери каждую убыточную сделку — найди общий паттерн.`});
+    if(avgGreed>6)insights.push({icon:'⚠️',text:`Средняя жадность <b>${avgGreed.toFixed(1)}/10</b>. Уменьши размер позиции на следующей неделе.`});
+    if(avgConf>7&&wr>60)insights.push({icon:'🎯',text:`Высокая уверенность <b>${avgConf.toFixed(1)}/10</b> совпадает с хорошим WR. Твоя интуиция работает.`});
+    insights.push({icon:'📅',text:`Лучший день — <b>${daysRu[bestDay.day]}</b>. Планируй главные сделки именно на него.`});
+    document.getElementById('digest-insights-list').innerHTML=insights.map(i=>`<div class="di-item"><div class="di-icon">${i.icon}</div><div class="di-text">${i.text}</div></div>`).join('');
+    document.getElementById('digest-title').textContent=(totalPnl>=0?'ПРИБЫЛЬНАЯ':'УБЫТОЧНАЯ')+' НЕДЕЛЯ';
+    document.getElementById('digest-sub').textContent=`${weekTrades.length} сделок · ${wr}% WR · ${totalPnl>=0?'+':''}${totalPnl.toFixed(1)}% P&L`;
+  }
+  renderMonthCompare();renderWeeklyDynamics();
+}
+function renderMonthCompare(){
+  const now=new Date();
+  const tm=new Date(now.getFullYear(),now.getMonth(),1);
+  const lms=new Date(now.getFullYear(),now.getMonth()-1,1);
+  const lme=new Date(now.getFullYear(),now.getMonth(),0);
+  const thisMonth=allTrades.filter(t=>new Date(t.created_at)>=tm);
+  const lastMonth=allTrades.filter(t=>{const d=new Date(t.created_at);return d>=lms&&d<=lme;});
+  if(!thisMonth.length&&!lastMonth.length){document.getElementById('month-compare-rows').innerHTML='<div class="empty" style="padding:14px">Нет данных</div>';return;}
+  const stat=arr=>({total:arr.length,wr:arr.length?Math.round(arr.filter(t=>t.result==='win').length/arr.length*100):0,pnl:arr.reduce((s,t)=>s+(t.pnl_pct||0),0)});
+  const curr=stat(thisMonth),prev=stat(lastMonth);
+  const rows=[
+    {key:'Сделок',c:curr.total,p:prev.total,fmt:v=>v},
+    {key:'Винрейт',c:curr.wr,p:prev.wr,fmt:v=>v+'%'},
+    {key:'P&L %',c:curr.pnl,p:prev.pnl,fmt:v=>(v>=0?'+':'')+v.toFixed(1)+'%'},
+  ];
+  document.getElementById('month-compare-rows').innerHTML=rows.map(r=>{
+    const delta=r.c-r.p;
+    const cls=delta>0?'up':delta<0?'down':'same';
+    const sign=delta>0?'▲':delta<0?'▼':'—';
+    return`<div class="mc-row"><span class="mc-key">${r.key}</span><div class="mc-vals"><span class="mc-val prev">${r.fmt(r.p)}</span><span class="mc-val curr">${r.fmt(r.c)}</span><span class="mc-delta ${cls}">${sign}</span></div></div>`;
+  }).join('');
+}
+function renderWeeklyDynamics(){
+  if(!allTrades.length)return;
+  const weeks=[];
+  for(let w=4;w>=0;w--){
+    const start=new Date();start.setDate(start.getDate()-start.getDay()+1-w*7);start.setHours(0,0,0,0);
+    const end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59);
+    const wt=allTrades.filter(t=>{const d=new Date(t.created_at);return d>=start&&d<=end;});
+    weeks.push({label:`Нед ${5-w}`,pnl:wt.reduce((s,t)=>s+(t.pnl_pct||0),0),count:wt.length});
+  }
+  const maxAbs=Math.max(...weeks.map(w=>Math.abs(w.pnl)),0.1);
+  document.getElementById('weekly-dynamics').innerHTML=weeks.map(w=>{
+    const pct=Math.round(Math.abs(w.pnl)/maxAbs*100);
+    const col=w.pnl>=0?'var(--g)':'var(--r)';
+    return`<div class="mc-row"><span class="mc-key">${w.label}</span><div style="flex:1;margin:0 10px;height:3px;background:rgba(255,255,255,0.05);border-radius:1.5px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col};border-radius:1.5px;transition:width 0.8s"></div></div><span style="font-family:var(--font-mono);font-size:9px;color:${col}">${w.pnl>=0?'+':''}${w.pnl.toFixed(1)}%</span></div>`;
+  }).join('');
+}
+
+// ─── PRE-MARKET ───────────────────────────────────
+let pmMood='😐 Ровно';
+let pmChecklists=[];
+try{pmChecklists=JSON.parse(localStorage.getItem('orb_pm')||'[]');}catch(e){}
+
+function togglePM(el){
+  el.classList.toggle('checked');
+  el.querySelector('.pm-check').textContent=el.classList.contains('checked')?'✓':'';
+  updatePMStatus();
+}
+function setPMMood(btn,mood){
+  pmMood=mood;
+  document.querySelectorAll('.pm-mood-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function updatePMStatus(){
+  const total=8,checked=document.querySelectorAll('.pm-item.checked').length;
+  const bar=document.getElementById('pm-status-bar');
+  if(checked===total){bar.className='pm-status ready';bar.textContent='✅ ГОТОВ — все пункты выполнены';}
+  else if(checked>=5){bar.className='pm-status partial';bar.textContent=`⚡ ПОЧТИ ГОТОВ — ${total-checked} пунктов осталось`;}
+  else{bar.className='pm-status notready';bar.textContent=`⛔ НЕ ГОТОВ — ${total-checked} пунктов не выполнено`;}
+}
+function savePMChecklist(){
+  const entry={date:new Date().toISOString(),checked:Array.from(document.querySelectorAll('.pm-item.checked')).map(el=>el.id),mood:pmMood,lossLimit:document.getElementById('pm-loss-limit').value,tradeLimit:document.getElementById('pm-trade-limit').value,goal:document.getElementById('pm-goal').value};
+  pmChecklists.unshift(entry);if(pmChecklists.length>30)pmChecklists.pop();
+  try{localStorage.setItem('orb_pm',JSON.stringify(pmChecklists));}catch(e){}
+  renderPMHistory();renderPMStreak();
+  const btn=event.target;
+  btn.textContent='✓ СЕССИЯ НАЧАТА';btn.style.background='linear-gradient(135deg,var(--g),#28a045)';
+  setTimeout(()=>{btn.textContent='НАЧАТЬ СЕССИЮ ✓';btn.style.background='';},2500);
+}
+function renderPMHistory(){
+  if(!pmChecklists.length)return;
+  document.getElementById('pm-history').innerHTML=pmChecklists.slice(0,5).map(e=>{
+    const d=new Date(e.date);
+    const ds=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
+    const pct=Math.round(e.checked.length/8*100);
+    const col=pct===100?'var(--g)':pct>=60?'var(--y)':'var(--r)';
+    return`<div class="pm-history-item"><span class="pm-h-date">${ds}</span><span class="pm-h-mood">${e.mood.split(' ')[0]}</span><div class="pm-h-bar"><div class="pm-h-fill" style="width:${pct}%;background:${col}"></div></div><span style="font-family:var(--font-mono);font-size:9px;color:${col}">${pct}%</span></div>`;
+  }).join('');
+}
+function renderPMStreak(){
+  let streak=0;const now=new Date();
+  for(let i=0;i<365;i++){const d=new Date(now);d.setDate(d.getDate()-i);const ds=d.toDateString();if(pmChecklists.some(e=>new Date(e.date).toDateString()===ds))streak++;else if(i>0)break;}
+  document.getElementById('pm-streak-num').textContent=streak;
+}
+
+// ─── AI CHAT ──────────────────────────────────────
+let chatHistory=[];
+let chatBusy=false;
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+
+function chatKeyDown(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}
+}
+
+function sendShortcut(text){
+  document.getElementById('chat-input').value=text;
+  sendChatMessage();
+}
+
+function addMsg(role,html){
+  const msgs=document.getElementById('chat-messages');
+  const isAI=role==='ai';
+  const div=document.createElement('div');
+  div.className=`chat-msg ${role}`;
+  div.innerHTML=`<div class="msg-avatar ${role}">${isAI?'🤖':'👤'}</div><div class="msg-bubble">${html}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function addTyping(){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className='chat-msg ai';div.id='typing-indicator';
+  div.innerHTML=`<div class="msg-avatar ai">🤖</div><div class="msg-bubble"><div class="msg-typing"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function formatAIText(text){
+  // basic markdown-ish formatting
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`(.*?)`/g,`<span class="tag orange">$1</span>`)
+    .replace(/📈|✅|🔴|🟢/g, m=>`<span>${m}</span>`)
+    .split('\n\n').map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+}
+
+async function sendChatMessage(){
+  if(chatBusy)return;
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';input.style.height='auto';
+  chatBusy=true;
+  document.getElementById('chat-send-btn').disabled=true;
+
+  addMsg('user',text);
+  chatHistory.push({role:'user',content:text});
+
+  addTyping();
+
+  // build system context from user's trades
+  const tradesSummary=allTrades.length
+    ?`Трейдер имеет ${allTrades.length} сделок. WR: ${Math.round(allTrades.filter(t=>t.result==='win').length/allTrades.length*100)}%. Общий P&L: ${allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)}%.`
+    :'Трейдер пока не записал сделок.';
+
+  const systemPrompt=`Ты — AI советник трейдера в приложении ORBITUM. Ты эксперт по SMC/ICT, Wyckoff, психологии трейдинга и риск-менеджменту.
+
+Контекст пользователя: ${tradesSummary}
+
+Отвечай на русском языке. Будь конкретным, практичным и прямым. Используй **жирный** текст для ключевых моментов. Не пиши лишних вступлений типа "конечно" или "безусловно". Структурируй ответ — короткие абзацы. Максимум 250 слов.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:600,
+        system:systemPrompt,
+        messages:chatHistory
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'Не удалось получить ответ.';
+    chatHistory.push({role:'assistant',content:reply});
+    if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);
+    const typing=document.getElementById('typing-indicator');
+    if(typing)typing.remove();
+    addMsg('ai',formatAIText(reply));
+  }catch(e){
+    const typing=document.getElementById('typing-indicator');
+    if(typing)typing.remove();
+    addMsg('ai','<p style="color:var(--r)">Ошибка подключения. Проверь API ключ в настройках.</p>');
+  }
+  chatBusy=false;
+  document.getElementById('chat-send-btn').disabled=false;
+}
+
+// ─── AI SETUP CHECKER ─────────────────────────────
 const ckAnswers={};
 function openAI(){document.getElementById('ai-modal').classList.add('open');document.getElementById('ai-result').style.display='none';}
 function closeAI(){document.getElementById('ai-modal').classList.remove('open');}
-function setCK(num,val){ckAnswers[num]=val;document.getElementById('ck'+num+'-yes').className='ck-btn'+(val==='yes'?' yes':'');document.getElementById('ck'+num+'-no').className='ck-btn'+(val==='no'?' no':'');}
+function setCK(num,val){
+  ckAnswers[num]=val;
+  document.getElementById('ck'+num+'-yes').className='ck-btn'+(val==='yes'?' yes':'');
+  document.getElementById('ck'+num+'-no').className='ck-btn'+(val==='no'?' no':'');
+}
 async function checkSetup(){
   if(Object.keys(ckAnswers).length<5){alert('Ответь на все 5 вопросов');return;}
   const btn=document.getElementById('ai-check-btn');btn.disabled=true;btn.textContent='АНАЛИЗИРУЮ...';
@@ -804,18 +1417,22 @@ async function checkSetup(){
   const labels={1:'Структура (BOS/CHoCH)',2:'Точка интереса (OB/FVG/BPR)',3:'Подтверждение на младшем ТФ',4:'Риск-менеджмент (SL/RR/размер)',5:'Психологическое состояние'};
   const answers=Object.entries(ckAnswers).map(([k,v])=>`${labels[k]}: ${v==='yes'?'ДА':'НЕТ'}`).join('\n');
   const note=document.getElementById('ai-reason').value.trim();
-  const prompt=`Ты — строгий торговый наставник SMC/ICT методологии. Трейдер ответил на чек-лист.\n\nОтветы:\n${answers}${note?'\nДополнение: '+note:''}\n\nДай вердикт в JSON (ТОЛЬКО JSON без markdown):\n{"verdict":"GO"|"STOP"|"WAIT","title":"фраза до 6 слов","message":"1-2 предложения","action":"одно действие"}`;
+  const prompt=`Ты — строгий торговый наставник SMC/ICT. Трейдер ответил на чек-лист.\n\nОтветы:\n${answers}${note?'\nДополнение: '+note:''}\n\nДай вердикт ТОЛЬКО в JSON без markdown:\n{"verdict":"GO"|"STOP"|"WAIT","title":"фраза до 6 слов","message":"1-2 предложения","action":"одно действие"}`;
   try{
-    const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})
+    });
     const data=await res.json();
-    const result=JSON.parse((data.text||'').replace(/```json|```/g,'').trim());
+    const result=JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
     const v=(result.verdict||'wait').toLowerCase();
     const resultEl=document.getElementById('ai-result');
     resultEl.className='ai-result '+v;
     const verdictEl=document.getElementById('ai-verdict');
     verdictEl.className='ai-verdict '+v;
     verdictEl.textContent=({go:'✅',stop:'🛑',wait:'⏳'}[v]||'⏳')+' '+(result.title||result.verdict);
-    document.getElementById('ai-text').innerHTML=`<p style="margin-bottom:9px">${result.message||''}</p>${result.action?`<p><span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:#34d058">→ </span>${result.action}</p>`:''}`;
+    document.getElementById('ai-text').innerHTML=`<p style="margin-bottom:7px">${result.message||''}</p>${result.action?`<p style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:#34d058">→ ${result.action}</p>`:''}`;
     resultEl.style.display='block';
     resultEl.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){alert('Ошибка: '+e.message);}
@@ -823,7 +1440,6 @@ async function checkSetup(){
 }
 
 init();
-initLogoParticles();
 </script>
 </body>
 </html>
