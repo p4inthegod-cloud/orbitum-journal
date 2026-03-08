@@ -92,63 +92,29 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;}
 @media(max-width:860px){
+  .stat-cell:nth-child(5){grid-column:span 2;}
   .sidebar{transform:translateX(-100%);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);}
   .sidebar.open{transform:translateX(0);}
   .sb-overlay.open{display:block;}
   .mob-bar{display:flex;}
-  .main{margin-left:0;padding:10px 10px 90px;}
-
-  /* stats: 2+2+1 → compact 2x2 + 1 centered */
-  .stats-row{grid-template-columns:1fr 1fr;gap:6px;}
-  .stat-cell:nth-child(5){grid-column:span 2;}
-  .stat-value{font-size:16px;}
-  .stat-label{font-size:7px;}
-
-  /* level bar mobile */
-  .lb-row{flex-direction:column;gap:10px;align-items:flex-start;}
-  .lb-right{align-items:flex-start;}
-  .lb-streak{font-size:13px;padding:7px 12px;}
-  .level-bar{padding:12px 14px;}
-
-  /* tabs: scroll horizontal, sticky */
-  .topnav{
-    width:100%;overflow-x:auto;flex-wrap:nowrap;
-    position:sticky;top:48px;z-index:80;
-    background:rgba(5,7,10,0.97);backdrop-filter:blur(16px);
-    margin:0 -10px 12px;padding:8px 10px 8px;width:calc(100% + 20px);
-    border-bottom:1px solid rgba(255,255,255,0.07);border-radius:0;
-  }
-  .topnav::-webkit-scrollbar{display:none;}
-  .tnav{padding:7px 12px;font-size:9px;white-space:nowrap;flex-shrink:0;}
-
-  /* form fields on mobile */
-  .fg4{grid-template-columns:1fr 1fr;}
-  .fg3{grid-template-columns:1fr;}
+  .main{margin-left:0;padding:12px 12px 80px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .fg4,.fg3{grid-template-columns:1fr 1fr;}
   .emrow{grid-template-columns:1fr 1fr;}
-  .fcard{padding:12px 12px;}
-  .fcard-title{font-size:13px;}
-
-  /* dashboard */
   .dash-grid{grid-template-columns:1fr;}
   .pm-grid{grid-template-columns:1fr;}
+  .chat-layout{grid-template-columns:1fr;height:calc(100vh - 140px);}
+  .chat-sidebar{display:none;}
+  .topnav{width:100%;overflow-x:auto;flex-wrap:nowrap;}
+  .topnav::-webkit-scrollbar{display:none;}
+  .tnav{padding:6px 10px;font-size:9px;white-space:nowrap;flex-shrink:0;}
   .pm-cols{grid-template-columns:1fr;}
   .month-grid{grid-template-columns:1fr;}
   .digest-grid{grid-template-columns:1fr;}
-
-  /* AI chat */
-  .chat-layout{grid-template-columns:1fr;height:calc(100dvh - 200px);}
-  .chat-sidebar{display:none;}
-
-  /* trade list items */
-  .trade-pair{font-size:15px;}
-  .trade-pnl-pct,.trade-pnl-usd{font-size:11px;}
-}
-
-/* extra small screens */
-@media(max-width:400px){
-  .stats-row{grid-template-columns:1fr 1fr;}
-  .tnav{padding:6px 10px;font-size:8px;}
-  .fcard{padding:10px;}
+  .fcard{padding:14px;}
+  .fg4{grid-template-columns:1fr 1fr;}
+  .fg3{grid-template-columns:1fr;}
+  .emrow{grid-template-columns:1fr 1fr;}
 }
 
 /* ─── MAIN ────────────────────────────────── */
@@ -266,17 +232,24 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .em-title{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
 .emrow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-.emf{display:flex;flex-direction:column;gap:6px;}
-.emf label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
-.sw{display:flex;align-items:center;gap:8px;}
-.sw input[type=range]{
-  flex:1;-webkit-appearance:none;height:2px;
-  background:rgba(255,255,255,0.07);border-radius:1px;border:none;padding:0;cursor:pointer;
+/* ─── EMOTION COMPACT ─── */
+.em-section-title{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.em-compact-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.em-chip-row{display:flex;flex-direction:column;gap:5px;}
+.em-chip-label{display:flex;justify-content:space-between;align-items:center;}
+.em-chip-name{font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:1px;}
+.em-chip-val{font-family:var(--font-mono);font-size:11px;font-weight:500;}
+.em-chips{display:flex;gap:4px;}
+.em-chip{
+  width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;flex-shrink:0;
 }
-.sw input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
-  background:var(--a);cursor:pointer;box-shadow:0 0 6px rgba(232,114,42,0.5);
-}
+.em-chip:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);}
+.em-chip.selected{border-color:var(--sel-color,var(--a));background:rgba(var(--sel-rgb,232,114,42),0.12);transform:scale(1.08);}
+/* keep hidden inputs for backwards compat */
+.em-hidden{display:none;}
 .sv2{font-family:var(--font-display);font-size:16px;color:var(--a);min-width:16px;text-align:right;}
 .btn-add{
   width:100%;padding:11px;
@@ -647,6 +620,37 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .mob-nav-icon{font-size:16px;line-height:1;}
 .mob-nav-label{font-family:var(--font-mono);font-size:7px;letter-spacing:0.3px;text-transform:uppercase;}
 @media(max-width:860px){.mob-bottom-nav{display:flex;}}
+
+/* ─── PROGRESS PAGE ─────────────────── */
+.progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.progress-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+.pkpi{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:14px 16px;}
+.pkpi-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.pkpi-val{font-family:var(--font-mono);font-size:20px;font-weight:500;}
+.pkpi-sub{font-family:var(--font-mono);font-size:9px;color:var(--m);margin-top:3px;}
+.equity-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+.equity-title{font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.equity-canvas-wrap{position:relative;height:200px;}
+#equity-canvas{width:100%;height:200px;}
+.equity-empty{display:flex;align-items:center;justify-content:center;height:200px;color:var(--m);font-family:var(--font-mono);font-size:11px;}
+.pairs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.pair-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:14px;}
+.pair-name{font-family:var(--font-display);font-size:16px;letter-spacing:1px;margin-bottom:6px;}
+.pair-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.pair-stat{font-family:var(--font-mono);font-size:9px;color:var(--m);}
+.pair-stat span{color:var(--t);}
+.heatmap-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:20px;}
+.hm-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px;}
+.hm-day{height:28px;border-radius:4px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:7px;color:var(--m);position:relative;cursor:default;}
+.hm-day:hover .hm-tip{display:block;}
+.hm-tip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 8px;font-family:var(--font-mono);font-size:9px;white-space:nowrap;z-index:10;color:var(--t);}
+.import-btn{background:rgba(255,255,255,0.04);border:var(--line);border-radius:8px;padding:9px 16px;color:var(--m);font-family:var(--font-mono);font-size:9px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;display:flex;align-items:center;gap:7px;}
+.import-btn:hover{border-color:rgba(232,114,42,0.4);color:var(--a);}
+@media(max-width:860px){
+  .progress-kpis{grid-template-columns:1fr 1fr;}
+  .pairs-grid{grid-template-columns:1fr 1fr;}
+}
+
 </style>
 </head>
 <body>
@@ -654,10 +658,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 <!-- MOBILE BAR -->
 <div class="mob-bar">
-  <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-    <img src="orbitum-logo.jpg" style="width:22px;height:22px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 6px rgba(255,255,255,0.5));border-radius:0;" onerror="this.style.display='none'" alt="">
-    <span class="mob-logo">ORBITUM</span>
-  </a>
+  <a href="index.html" class="mob-logo" style="text-decoration:none;color:inherit">ORBITUM</a>
   <button class="mob-burger" onclick="openSB()">☰</button>
 </div>
 
@@ -674,6 +675,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     </button>
     <button class="sb-item" onclick="showPage('dashboard',this)" data-page="dashboard">
       <span class="sb-item-icon">📊</span>Аналитика
+    </button>
+    <button class="sb-item" onclick="showPage('progress',this)" data-page="progress">
+      <span class="sb-item-icon">📈</span>Прогресс
     </button>
     <button class="sb-item" onclick="showPage('digest',this)" data-page="digest">
       <span class="sb-item-icon">📅</span>Дайджест
@@ -757,6 +761,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <div class="topnav">
       <button class="tnav active" onclick="showPage('journal',this)" data-page="journal">📋 ЖУРНАЛ</button>
       <button class="tnav" onclick="showPage('dashboard',this)" data-page="dashboard">📊 АНАЛИТИКА</button>
+      <button class="tnav" onclick="showPage('progress',this)" data-page="progress">📈 ПРОГРЕСС</button>
       <button class="tnav" onclick="showPage('digest',this)" data-page="digest">📅 ДАЙДЖЕСТ</button>
       <button class="tnav" onclick="showPage('premarket',this)" data-page="premarket">☀️ СЕССИЯ</button>
       <button class="tnav" onclick="showPage('aichat',this)" data-page="aichat">🤖 AI</button>
@@ -777,11 +782,75 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       </div>
       <div class="em-section">
         <div class="em-title">Эмоциональное состояние</div>
-        <div class="emrow">
-          <div class="emf"><label>Уверенность</label><div class="sw"><input type="range" id="e-conf" min="1" max="10" value="5" oninput="sv('e-conf','sv-conf')"><span class="sv2" id="sv-conf">5</span></div></div>
-          <div class="emf"><label>Страх</label><div class="sw"><input type="range" id="e-fear" min="1" max="10" value="3" oninput="sv('e-fear','sv-fear')"><span class="sv2" id="sv-fear">3</span></div></div>
-          <div class="emf"><label>Жадность</label><div class="sw"><input type="range" id="e-greed" min="1" max="10" value="3" oninput="sv('e-greed','sv-greed')"><span class="sv2" id="sv-greed">3</span></div></div>
-          <div class="emf"><label>Фокус</label><div class="sw"><input type="range" id="e-calm" min="1" max="10" value="7" oninput="sv('e-calm','sv-calm')"><span class="sv2" id="sv-calm">7</span></div></div>
+        <div style="margin-bottom:0">
+          <div class="em-section-title">Эмоциональное состояние</div>
+          <div class="em-compact-grid">
+            <!-- Уверенность -->
+            <div class="em-chip-row">
+              <div class="em-chip-label">
+                <span class="em-chip-name">Уверенность</span>
+                <span class="em-chip-val" id="sv-conf" style="color:#e8722a">5</span>
+              </div>
+              <div class="em-chips" id="chips-conf">
+                <div class="em-chip" onclick="setChip('conf',1,this)" title="1">😰</div>
+                <div class="em-chip" onclick="setChip('conf',2,this)" title="2">😟</div>
+                <div class="em-chip" onclick="setChip('conf',4,this)" title="4">😐</div>
+                <div class="em-chip" onclick="setChip('conf',5,this)" title="5" style="--sel-rgb:232,114,42">😊</div>
+                <div class="em-chip" onclick="setChip('conf',7,this)" title="7">💪</div>
+                <div class="em-chip" onclick="setChip('conf',9,this)" title="9">🔥</div>
+              </div>
+              <input type="hidden" id="e-conf" value="5">
+            </div>
+            <!-- Страх -->
+            <div class="em-chip-row">
+              <div class="em-chip-label">
+                <span class="em-chip-name">Страх</span>
+                <span class="em-chip-val" id="sv-fear" style="color:#ff4d4d">3</span>
+              </div>
+              <div class="em-chips" id="chips-fear">
+                <div class="em-chip" onclick="setChip('fear',1,this)" title="1" style="--sel-rgb:52,208,88;--sel-color:#34d058">✅</div>
+                <div class="em-chip" onclick="setChip('fear',2,this)" title="2" style="--sel-rgb:52,208,88;--sel-color:#34d058">😌</div>
+                <div class="em-chip" onclick="setChip('fear',4,this)" title="4">😐</div>
+                <div class="em-chip" onclick="setChip('fear',6,this)" title="6" style="--sel-rgb:255,77,77;--sel-color:#ff4d4d">😟</div>
+                <div class="em-chip" onclick="setChip('fear',8,this)" title="8" style="--sel-rgb:255,77,77;--sel-color:#ff4d4d">😰</div>
+                <div class="em-chip" onclick="setChip('fear',10,this)" title="10" style="--sel-rgb:255,77,77;--sel-color:#ff4d4d">🫨</div>
+              </div>
+              <input type="hidden" id="e-fear" value="3">
+            </div>
+            <!-- Жадность -->
+            <div class="em-chip-row">
+              <div class="em-chip-label">
+                <span class="em-chip-name">Жадность / FOMO</span>
+                <span class="em-chip-val" id="sv-greed" style="color:#ff4d4d">3</span>
+              </div>
+              <div class="em-chips" id="chips-greed">
+                <div class="em-chip" onclick="setChip('greed',1,this)" title="1" style="--sel-rgb:52,208,88;--sel-color:#34d058">🧘</div>
+                <div class="em-chip" onclick="setChip('greed',2,this)" title="2" style="--sel-rgb:52,208,88;--sel-color:#34d058">😌</div>
+                <div class="em-chip" onclick="setChip('greed',4,this)" title="4">🤔</div>
+                <div class="em-chip" onclick="setChip('greed',6,this)" title="6" style="--sel-rgb:245,166,35;--sel-color:#f5a623">😏</div>
+                <div class="em-chip" onclick="setChip('greed',8,this)" title="8" style="--sel-rgb:255,77,77;--sel-color:#ff4d4d">🤑</div>
+                <div class="em-chip" onclick="setChip('greed',10,this)" title="10" style="--sel-rgb:255,77,77;--sel-color:#ff4d4d">💸</div>
+              </div>
+              <input type="hidden" id="e-greed" value="3">
+            </div>
+            <!-- Фокус -->
+            <div class="em-chip-row">
+              <div class="em-chip-label">
+                <span class="em-chip-name">Фокус</span>
+                <span class="em-chip-val" id="sv-calm" style="color:#34d058">7</span>
+              </div>
+              <div class="em-chips" id="chips-calm">
+                <div class="em-chip" onclick="setChip('calm',1,this)" title="1" style="--sel-rgb:255,77,77;--sel-color:#ff4d4d">😵</div>
+                <div class="em-chip" onclick="setChip('calm',3,this)" title="3" style="--sel-rgb:255,77,77;--sel-color:#ff4d4d">🌀</div>
+                <div class="em-chip" onclick="setChip('calm',5,this)" title="5">😐</div>
+                <div class="em-chip" onclick="setChip('calm',7,this)" title="7" style="--sel-rgb:52,208,88;--sel-color:#34d058">🎯</div>
+                <div class="em-chip" onclick="setChip('calm',9,this)" title="9" style="--sel-rgb:52,208,88;--sel-color:#34d058">⚡</div>
+                <div class="em-chip selected" onclick="setChip('calm',10,this)" title="10" style="--sel-rgb:52,208,88;--sel-color:#34d058">🧠</div>
+              </div>
+              <input type="hidden" id="e-calm" value="7">
+            </div>
+          </div>
+        </div></div>
         </div>
       </div>
       <div class="fg3">
@@ -841,6 +910,83 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
         <div class="patterns" id="patterns-list"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
     </div>
+  </div>
+
+  
+  <!-- ──────────── PROGRESS ────────────────────── -->
+  <div class="page" id="page-progress">
+    <div class="progress-header">
+      <div>
+        <div style="font-family:var(--font-display);font-size:22px;letter-spacing:2px;">📈 ПРОГРЕСС</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:1px;margin-top:2px;">Кривая капитала и статистика роста</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="import-btn" onclick="document.getElementById('csv-file-input').click()">
+          📥 Импорт CSV
+        </button>
+        <button class="import-btn" id="pub-share-btn" onclick="shareProfile()">
+          🔗 Публичный профиль
+        </button>
+        <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="importCSV(this)">
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="progress-kpis">
+      <div class="pkpi">
+        <div class="pkpi-label">Макс. прибыльная</div>
+        <div class="pkpi-val sv-g" id="pk-best">—</div>
+        <div class="pkpi-sub" id="pk-best-pair">—</div>
+      </div>
+      <div class="pkpi">
+        <div class="pkpi-label">Макс. убыток</div>
+        <div class="pkpi-val sv-r" id="pk-worst">—</div>
+        <div class="pkpi-sub" id="pk-worst-pair">—</div>
+      </div>
+      <div class="pkpi">
+        <div class="pkpi-label">Risk / Reward</div>
+        <div class="pkpi-val sv-a" id="pk-rr">—</div>
+        <div class="pkpi-sub">avg win / avg loss</div>
+      </div>
+      <div class="pkpi">
+        <div class="pkpi-label">Макс. просадка</div>
+        <div class="pkpi-val sv-r" id="pk-dd">—</div>
+        <div class="pkpi-sub">от пика</div>
+      </div>
+    </div>
+
+    <!-- Equity Curve -->
+    <div class="equity-card">
+      <div class="equity-title">
+        <span>КРИВАЯ КАПИТАЛА</span>
+        <span id="equity-delta" style="font-size:11px;"></span>
+      </div>
+      <div class="equity-canvas-wrap">
+        <canvas id="equity-canvas"></canvas>
+        <div class="equity-empty" id="equity-empty" style="display:none;">Нет данных · Запиши хотя бы 2 сделки</div>
+      </div>
+    </div>
+
+    <!-- By pair -->
+    <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">По парам</div>
+    <div class="pairs-grid" id="pairs-breakdown"></div>
+
+    <!-- Calendar heatmap -->
+    <div class="heatmap-card">
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Активность по дням</div>
+      <div class="hm-grid" id="hm-grid"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-family:var(--font-mono);font-size:8px;color:var(--m);">
+        <span>Меньше</span>
+        <div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.04)"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:rgba(52,208,88,0.2)"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:rgba(52,208,88,0.5)"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:#34d058"></div>
+        <span>Больше</span>
+      </div>
+    </div>
+
+    <!-- Import instructions -->
+    <div id="import-log" style="display:none;background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.15);border-radius:10px;padding:14px;margin-top:12px;font-family:var(--font-mono);font-size:10px;color:var(--m);line-height:1.6;"></div>
   </div>
 
   <!-- ──────────── DIGEST ────────────────────── -->
@@ -1059,31 +1205,15 @@ function updateMobNav(p){
   if(btn)btn.classList.add('active');
 }
 
-let aiChatInitialized=false;
 function showPage(p, btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   document.querySelectorAll('.sb-item[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
   document.querySelectorAll('.tnav[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
   updateMobNav(p);
-  if(p==='dashboard')renderDashboard();
-  if(p==='aichat'&&!aiChatInitialized){
-    aiChatInitialized=true;
-    setTimeout(()=>{
-      const wins=allTrades.filter(t=>t.result==='win');
-      const total=allTrades.length;
-      const wr=total?Math.round(wins.length/total*100):0;
-      const pnl=total?allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1):'0';
-      const avgWin=wins.length?(wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length).toFixed(1):0;
-      const losses=allTrades.filter(t=>t.result==='loss');
-      const avgLoss=losses.length?(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length).toFixed(1):0;
-      if(total>=2){
-        addMsg('ai',formatAIText('**Привет, я Макс — твой торговый аналитик.**\n\nПроверил твои данные:\n📊 **'+total+' сделок** · WR **'+wr+'%** · P&L **'+(pnl>0?'+':'')+pnl+'%**\n✅ Средний выигрыш: **+'+avgWin+'%** | ⚠️ Средний убыток: **'+avgLoss+'%**\n\nЧто хочешь разобрать?'));
-      } else {
-        addMsg('ai',formatAIText('**Привет, я Макс — твой торговый аналитик.**\n\nЗапиши минимум 2 сделки — разберём статистику конкретно. Пока задавай вопросы по SMC/ICT или риск-менеджменту.'));
-      }
-    },400);
-  }
+  if(p==='dashboard') renderDashboard();
+  if(p==='digest') renderDigest();
+  closeSB();
 }
 
 // ─── INIT ─────────────────────────────────────────
@@ -1110,7 +1240,7 @@ async function loadTrades(){
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
   allTrades=data||[];
-  updateStats();render();renderDashboard();renderLevelBar(allTrades);
+  updateStats();render();renderDashboard();renderProgress();renderLevelBar(allTrades);
 }
 
 function setDir(d){
@@ -1467,44 +1597,11 @@ async function sendChatMessage(){
   chatHistory.push({role:'user',content:text});
   addTyping();
 
-  // Build rich analytics context for AI
-  const wins=allTrades.filter(t=>t.result==='win');
-  const losses=allTrades.filter(t=>t.result==='loss');
-  const wr=allTrades.length?Math.round(wins.length/allTrades.length*100):0;
-  const totalPnl=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
-  const avgWin=wins.length?(wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length).toFixed(2):0;
-  const avgLoss=losses.length?(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length).toFixed(2):0;
-  const rrRatio=avgLoss!=0?Math.abs(avgWin/avgLoss).toFixed(2):'—';
-  const lastTrades=allTrades.slice(-5).map(t=>`${t.pair||'?'} ${t.direction||''} ${t.result} ${t.pnl_pct?t.pnl_pct.toFixed(1)+'%':''} | эмоции: уверен.${t.emotion_conf||'?'} страх${t.emotion_fear||'?'} жадн.${t.emotion_greed||'?'}`).join('\n');
-  const avgConfWin=wins.length?(wins.reduce((s,t)=>s+(t.emotion_conf||5),0)/wins.length).toFixed(1):0;
-  const avgConfLoss=losses.length?(losses.reduce((s,t)=>s+(t.emotion_conf||5),0)/losses.length).toFixed(1):0;
-  const pairs=allTrades.reduce((acc,t)=>{if(t.pair){acc[t.pair]=(acc[t.pair]||0)+1;}return acc;},{});
-  const topPair=Object.entries(pairs).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+  const tradesSummary=allTrades.length
+    ?`Трейдер имеет ${allTrades.length} сделок. WR: ${Math.round(allTrades.filter(t=>t.result==='win').length/allTrades.length*100)}%. Общий P&L: ${allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)}%.`
+    :'Трейдер пока не записал сделок.';
 
-  const tradesSummary=allTrades.length>=2?`
-СТАТИСТИКА ТРЕЙДЕРА (${allTrades.length} сделок):
-- Винрейт: ${wr}% | P&L: ${totalPnl.toFixed(1)}%
-- Средний выигрыш: +${avgWin}% | Средний убыток: ${avgLoss}%
-- Risk/Reward: ${rrRatio}
-- Любимая пара: ${topPair}
-- Уверенность при победах: ${avgConfWin}/10 | при убытках: ${avgConfLoss}/10
-- Последние 5 сделок:\n${lastTrades}
-  `.trim():'Трейдер пока не записал достаточно сделок (нужно минимум 2).';
-
-  const systemPrompt=`Ты — Макс, личный торговый аналитик пользователя в приложении ORBITUM. Ты говоришь как опытный трейдер-наставник: прямо, конкретно, иногда жёстко честно — без воды и без общих слов.
-
-ПРАВИЛА:
-- Анализируй КОНКРЕТНЫЕ данные пользователя, не теорию
-- Называй цифры: "твой WR ${wr}%", "средний убыток ${avgLoss}%"
-- Если видишь проблему — говори прямо: "вот что тебя сливает"
-- Если видишь прогресс — отмечай конкретно
-- Используй **жирный** для ключевых выводов
-- Эмодзи для структуры: 📊 для статистики, ⚠️ для проблем, 💡 для советов, ✅ для хорошего
-- Максимум 200 слов. Никаких вступлений типа "Конечно!" или "Отличный вопрос!"
-- Если спрашивают теорию SMC/ICT — объясняй кратко с примерами
-
-ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:
-${tradesSummary}`;
+  const systemPrompt=`Ты — AI советник трейдера в приложении ORBITUM. Ты эксперт по SMC/ICT, Wyckoff, психологии трейдинга и риск-менеджменту.\n\nКонтекст пользователя: ${tradesSummary}\n\nОтвечай на русском языке. Будь конкретным, практичным и прямым. Используй **жирный** текст для ключевых моментов. Не пиши лишних вступлений. Структурируй ответ — короткие абзацы. Максимум 250 слов.`;
 
   const fullPrompt=`${systemPrompt}\n\nИстория диалога:\n${chatHistory.slice(0,-1).map(m=>`${m.role==='user'?'Пользователь':'AI'}: ${m.content}`).join('\n')}\n\nПользователь: ${text}`;
 
@@ -1546,22 +1643,7 @@ async function checkSetup(){
   const labels={1:'Структура (BOS/CHoCH)',2:'Точка интереса (OB/FVG/BPR)',3:'Подтверждение на младшем ТФ',4:'Риск-менеджмент (SL/RR/размер)',5:'Психологическое состояние'};
   const answers=Object.entries(ckAnswers).map(([k,v])=>`${labels[k]}: ${v==='yes'?'ДА':'НЕТ'}`).join('\n');
   const note=document.getElementById('ai-reason').value.trim();
-  const tradeStats=allTrades.length>=3?`Статистика трейдера: WR ${Math.round(allTrades.filter(t=>t.result==='win').length/allTrades.length*100)}%, ${allTrades.length} сделок, средний P&L ${(allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0)/allTrades.length).toFixed(1)}%`:'';
-  const prompt=`Ты — Макс, строгий торговый наставник SMC/ICT с 10 годами опыта. Трейдер хочет войти в сделку.
-
-ЧЕКЛИСТ ОТВЕТОВ:
-${answers}${note?'\nДетали от трейдера: '+note:''}
-${tradeStats}
-
-Проанализируй каждый пункт и дай честный вердикт.
-
-Ответь ТОЛЬКО JSON без markdown:
-{"verdict":"GO"|"STOP"|"WAIT","title":"короткая фраза до 6 слов","message":"2-3 конкретных предложения с анализом — почему такой вердикт, что конкретно плохо или хорошо","action":"одно конкретное действие прямо сейчас","risk":"low"|"medium"|"high"}
-
-Правила вердикта:
-- GO: все 5 пунктов ДА → можно входить, но назови риски
-- STOP: структура или РМ НЕТ → запрещай, объясняй почему это слив
-- WAIT: 3-4 пункта ДА → жди подтверждения, скажи чего именно ждать`;
+  const prompt=`Ты — строгий торговый наставник SMC/ICT. Трейдер ответил на чек-лист.\n\nОтветы:\n${answers}${note?'\nДополнение: '+note:''}\n\nДай вердикт ТОЛЬКО в JSON без markdown:\n{"verdict":"GO"|"STOP"|"WAIT","title":"фраза до 6 слов","message":"1-2 предложения","action":"одно действие"}`;
   try{
     const res=await fetch('/api/ai',{
       method:'POST',
@@ -1576,20 +1658,298 @@ ${tradeStats}
     const verdictEl=document.getElementById('ai-verdict');
     verdictEl.className='ai-verdict '+v;
     verdictEl.textContent=({go:'✅',stop:'🛑',wait:'⏳'}[v]||'⏳')+' '+(result.title||result.verdict);
-    const riskColor={'low':'#34d058','medium':'#f5a623','high':'#ff4d4d'}[result.risk]||'var(--m)';
-    const riskLabel={'low':'РИСК НИЗКИЙ','medium':'РИСК СРЕДНИЙ','high':'РИСК ВЫСОКИЙ'}[result.risk]||'';
-    document.getElementById('ai-text').innerHTML=`
-      <p style="margin-bottom:10px;font-size:13px;line-height:1.6;">${result.message||''}</p>
-      ${result.action?`<p style="font-family:var(--font-mono);font-size:10px;letter-spacing:1px;color:#34d058;padding:8px 10px;background:rgba(52,208,88,0.07);border-radius:6px;border-left:2px solid #34d058;">→ ${result.action}</p>`:''}
-      ${result.risk?`<p style="font-family:var(--font-mono);font-size:8px;letter-spacing:2px;color:${riskColor};margin-top:8px;">${riskLabel}</p>`:''}
-    `;
+    document.getElementById('ai-text').innerHTML=`<p style="margin-bottom:7px">${result.message||''}</p>${result.action?`<p style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:#34d058">→ ${result.action}</p>`:''}`;
     resultEl.style.display='block';
     resultEl.scrollIntoView({behavior:'smooth',block:'nearest'});
   }catch(e){alert('Ошибка: '+e.message);}
   btn.disabled=false;btn.textContent='ПОЛУЧИТЬ ВЕРДИКТ';
 }
 
+function sv(id,sid){document.getElementById(sid).textContent=document.getElementById(id).value;}
+function setChip(metric,val,el){
+  // update hidden input
+  const input=document.getElementById('e-'+metric);
+  if(input)input.value=val;
+  // update displayed value
+  const valEl=document.getElementById('sv-'+metric);
+  if(valEl)valEl.textContent=val;
+  // clear all chips in group, select this one
+  const chips=document.getElementById('chips-'+metric);
+  if(chips){
+    chips.querySelectorAll('.em-chip').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+}
+// Init chip defaults on load
+function initChips(){
+  const defaults={conf:{val:5,idx:3},fear:{val:3,idx:1},greed:{val:3,idx:1},calm:{val:7,idx:3}};
+  Object.entries(defaults).forEach(([m,{val,idx}])=>{
+    const chips=document.getElementById('chips-'+m);
+    if(chips){
+      const els=chips.querySelectorAll('.em-chip');
+      if(els[idx])els[idx].classList.add('selected');
+    }
+  });
+}
+
+// ─── PROGRESS PAGE ────────────────────────────────
+function renderProgress(){
+  if(!allTrades.length){
+    document.getElementById('equity-empty').style.display='flex';
+    document.getElementById('equity-canvas').style.display='none';
+    ['pk-best','pk-worst','pk-rr','pk-dd'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.textContent='—';
+    });
+    document.getElementById('pairs-breakdown').innerHTML='<div class="empty">Нет данных</div>';
+    renderHeatmap([]);
+    return;
+  }
+  document.getElementById('equity-empty').style.display='none';
+  document.getElementById('equity-canvas').style.display='block';
+
+  const sorted=[...allTrades].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+
+  // ── EQUITY CURVE ──
+  const canvas=document.getElementById('equity-canvas');
+  const W=canvas.parentElement.offsetWidth||600;
+  const H=200;
+  canvas.width=W*window.devicePixelRatio;
+  canvas.height=H*window.devicePixelRatio;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+
+  // Build cumulative P&L points
+  let cum=0;
+  const points=sorted.map((t,i)=>{cum+=(t.pnl_pct||0);return{x:i,y:cum,t};});
+  points.unshift({x:-1,y:0}); // start at 0
+
+  const minY=Math.min(0,...points.map(p=>p.y));
+  const maxY=Math.max(0,...points.map(p=>p.y));
+  const rangeY=maxY-minY||1;
+  const padX=30,padY=20;
+  const cW=W-padX*2,cH=H-padY*2;
+
+  const px=i=>padX+(i+1)/(points.length)*cW;
+  const py=v=>padY+cH-((v-minY)/rangeY)*cH;
+
+  // Zero line
+  ctx.strokeStyle='rgba(255,255,255,0.06)';
+  ctx.lineWidth=1;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  const zeroY=py(0);
+  ctx.moveTo(padX,zeroY);ctx.lineTo(padX+cW,zeroY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Area fill
+  const finalY=cum>=0?'rgba(52,208,88,':'rgba(255,77,77,';
+  const grad=ctx.createLinearGradient(0,padY,0,H);
+  grad.addColorStop(0,finalY+'0.2)');
+  grad.addColorStop(1,finalY+'0.01)');
+  ctx.fillStyle=grad;
+  ctx.beginPath();
+  ctx.moveTo(px(-1),py(0));
+  points.forEach((p,i)=>{
+    if(i===0)ctx.lineTo(px(p.x),py(p.y));
+    else{
+      const prev=points[i-1];
+      const cpX=(px(prev.x)+px(p.x))/2;
+      ctx.bezierCurveTo(cpX,py(prev.y),cpX,py(p.y),px(p.x),py(p.y));
+    }
+  });
+  const lastP=points[points.length-1];
+  ctx.lineTo(px(lastP.x),py(0));
+  ctx.closePath();ctx.fill();
+
+  // Line
+  ctx.strokeStyle=cum>=0?'#34d058':'#ff4d4d';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  points.forEach((p,i)=>{
+    if(i===0)ctx.moveTo(px(p.x),py(p.y));
+    else{
+      const prev=points[i-1];
+      const cpX=(px(prev.x)+px(p.x))/2;
+      ctx.bezierCurveTo(cpX,py(prev.y),cpX,py(p.y),px(p.x),py(p.y));
+    }
+  });
+  ctx.stroke();
+
+  // Dots on each trade
+  points.slice(1).forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(px(p.x),py(p.y),3,0,Math.PI*2);
+    ctx.fillStyle=p.t.result==='win'?'#34d058':'#ff4d4d';
+    ctx.fill();
+  });
+
+  // Delta label
+  const deltaEl=document.getElementById('equity-delta');
+  if(deltaEl)deltaEl.textContent=(cum>=0?'+':'')+cum.toFixed(1)+'%';
+  if(deltaEl)deltaEl.style.color=cum>=0?'var(--g)':'var(--r)';
+
+  // ── KPIs ──
+  const best=sorted.reduce((b,t)=>((t.pnl_pct||0)>(b.pnl_pct||0)?t:b),sorted[0]);
+  const worst=sorted.reduce((b,t)=>((t.pnl_pct||0)<(b.pnl_pct||0)?t:b),sorted[0]);
+  const wins=sorted.filter(t=>t.result==='win');
+  const losses=sorted.filter(t=>t.result==='loss');
+  const avgWin=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
+  const avgLoss=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
+  const rr=avgLoss?( avgWin/avgLoss).toFixed(2):'∞';
+
+  // Max drawdown
+  let peak=0,maxDD=0,runCum=0;
+  sorted.forEach(t=>{runCum+=(t.pnl_pct||0);if(runCum>peak)peak=runCum;const dd=peak-runCum;if(dd>maxDD)maxDD=dd;});
+
+  document.getElementById('pk-best').textContent='+'+(best.pnl_pct||0).toFixed(1)+'%';
+  document.getElementById('pk-best-pair').textContent=best.pair||'—';
+  document.getElementById('pk-worst').textContent=(worst.pnl_pct||0).toFixed(1)+'%';
+  document.getElementById('pk-worst-pair').textContent=worst.pair||'—';
+  document.getElementById('pk-rr').textContent=rr;
+  document.getElementById('pk-dd').textContent=maxDD?'-'+maxDD.toFixed(1)+'%':'0%';
+
+  // ── PAIRS BREAKDOWN ──
+  const pairsMap={};
+  sorted.forEach(t=>{
+    if(!t.pair)return;
+    if(!pairsMap[t.pair])pairsMap[t.pair]={trades:0,wins:0,pnl:0};
+    pairsMap[t.pair].trades++;
+    if(t.result==='win')pairsMap[t.pair].wins++;
+    pairsMap[t.pair].pnl+=(t.pnl_pct||0);
+  });
+  const pairsSorted=Object.entries(pairsMap).sort((a,b)=>b[1].trades-a[1].trades).slice(0,6);
+  document.getElementById('pairs-breakdown').innerHTML=pairsSorted.map(([pair,s])=>`
+    <div class="pair-card">
+      <div class="pair-name">${pair}</div>
+      <div class="pair-stats">
+        <div class="pair-stat">WR <span style="color:${s.wins/s.trades>=0.5?'var(--g)':'var(--r)'}">${Math.round(s.wins/s.trades*100)}%</span></div>
+        <div class="pair-stat">P&L <span style="color:${s.pnl>=0?'var(--g)':'var(--r)'}">${s.pnl>=0?'+':''}${s.pnl.toFixed(1)}%</span></div>
+        <div class="pair-stat">${s.trades} сд.</div>
+      </div>
+    </div>
+  `).join('');
+
+  renderHeatmap(sorted);
+}
+
+function renderHeatmap(trades){
+  const grid=document.getElementById('hm-grid');
+  if(!grid)return;
+  // Last 70 days
+  const days=70;
+  const tradesByDay={};
+  trades.forEach(t=>{
+    if(!t.created_at)return;
+    const d=new Date(t.created_at).toISOString().split('T')[0];
+    if(!tradesByDay[d])tradesByDay[d]={count:0,pnl:0};
+    tradesByDay[d].count++;
+    tradesByDay[d].pnl+=(t.pnl_pct||0);
+  });
+
+  const cells=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const key=d.toISOString().split('T')[0];
+    const data=tradesByDay[key];
+    let bg='rgba(255,255,255,0.04)';
+    let tip=key;
+    if(data){
+      const intensity=Math.min(1,data.count/3);
+      bg=data.pnl>=0?`rgba(52,208,88,${0.15+intensity*0.85})`:`rgba(255,77,77,${0.15+intensity*0.85})`;
+      tip=`${key}: ${data.count} сд, P&L ${data.pnl>=0?'+':''}${data.pnl.toFixed(1)}%`;
+    }
+    cells.push(`<div class="hm-day" style="background:${bg}" title="${tip}"><div class="hm-tip">${tip}</div></div>`);
+  }
+  grid.innerHTML=cells.join('');
+}
+
+// ─── IMPORT CSV ────────────────────────────────────
+async function importCSV(input){
+  const file=input.files[0];
+  if(!file)return;
+  const text=await file.text();
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length<2){alert('Файл пустой или некорректный');return;}
+
+  const header=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const log=document.getElementById('import-log');
+  log.style.display='block';
+  log.innerHTML='⏳ Импортируем...';
+
+  // Try to detect Binance / Bybit / custom format
+  const findCol=(variants)=>variants.reduce((f,v)=>{const i=header.findIndex(h=>h.includes(v));return f>=0?f:i;},-1);
+  const colPair=findCol(['pair','symbol','ticker','пара']);
+  const colDir=findCol(['side','direction','type','направление']);
+  const colPnlPct=findCol(['pnl%','pnl_pct','roe%','profit%','%','прибыль%']);
+  const colPnlUsd=findCol(['pnl','profit','realized','usd','прибыль']);
+  const colResult=findCol(['result','win','outcome','результат']);
+
+  let imported=0,skipped=0;
+  const toInsert=[];
+
+  for(let i=1;i<Math.min(lines.length,500);i++){
+    const cols=lines[i].split(',').map(c=>c.trim().replace(/"/g,''));
+    const pair=colPair>=0?(cols[colPair]||'').toUpperCase().replace('USDT','').replace('_','/')||null:null;
+    if(!pair)continue;
+    const pairFull=pair.includes('/')?pair:pair+'/USDT';
+    const dirRaw=colDir>=0?(cols[colDir]||'').toLowerCase():'';
+    const direction=dirRaw.includes('buy')||dirRaw.includes('long')?'long':dirRaw.includes('sell')||dirRaw.includes('short')?'short':'long';
+    const pnlPct=colPnlPct>=0?parseFloat(cols[colPnlPct])||null:null;
+    const pnlUsd=colPnlUsd>=0?parseFloat(cols[colPnlUsd])||null:null;
+    const result=pnlPct!=null?(pnlPct>=0?'win':'loss'):pnlUsd!=null?(pnlUsd>=0?'win':'loss'):null;
+    if(!result){skipped++;continue;}
+
+    toInsert.push({
+      user_id:currentUser.id,
+      pair:pairFull,direction,result,
+      pnl_pct:pnlPct,pnl_usd:pnlUsd,
+      emotion_conf:5,emotion_fear:3,emotion_greed:3,emotion_calm:7,
+      setup_notes:'[импорт CSV]'
+    });
+    imported++;
+  }
+
+  if(!toInsert.length){
+    log.innerHTML='❌ Не удалось распознать колонки. Нужны: pair/symbol, side/direction, pnl или pnl%';
+    input.value='';return;
+  }
+
+  // Insert in batches of 50
+  let ok=0;
+  for(let i=0;i<toInsert.length;i+=50){
+    const batch=toInsert.slice(i,i+50);
+    const{error}=await sb.from('trades').insert(batch);
+    if(!error)ok+=batch.length;
+  }
+
+  log.innerHTML=`✅ Импортировано: <strong style="color:var(--g)">${ok}</strong> сделок · Пропущено: ${skipped}<br>
+<span style="color:var(--m)">Совет: эмоции можно добавить вручную к каждой сделке позже</span>`;
+  input.value='';
+  await loadTrades();
+}
+
+// ─── PUBLIC PROFILE SHARE ──────────────────────────
+function shareProfile(){
+  if(!currentUser)return;
+  const uid=currentUser.id;
+  const url=window.location.origin+'/profile.html?uid='+uid;
+  // Copy to clipboard
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.getElementById('pub-share-btn');
+    const orig=btn.textContent;
+    btn.textContent='✅ Ссылка скопирована!';
+    btn.style.color='var(--g)';
+    setTimeout(()=>{btn.textContent=orig;btn.style.color='';},2500);
+  }).catch(()=>{
+    prompt('Скопируй ссылку:',url);
+  });
+}
+
 init();
+initChips();
 </script>
 </body>
 </html>
