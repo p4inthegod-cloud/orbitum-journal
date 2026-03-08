@@ -217,6 +217,57 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .goal-popup-save:hover{opacity:0.85;}
 
+/* ── BALANCE WIDGET ── */
+.jtb-balance{
+  display:flex;align-items:center;gap:7px;
+  padding:4px 11px 4px 9px;border-radius:7px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);
+  cursor:pointer;transition:all 0.15s;position:relative;min-width:130px;
+}
+.jtb-balance:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.12);}
+.jtb-balance-icon{font-size:13px;line-height:1;flex-shrink:0;}
+.jtb-balance-info{display:flex;flex-direction:column;gap:1px;flex:1;}
+.jtb-balance-label{font-family:var(--font-mono);font-size:7px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;line-height:1;}
+.jtb-balance-val{font-family:var(--font-mono);font-size:11px;line-height:1.2;font-weight:500;}
+.jtb-balance-delta{font-family:var(--font-mono);font-size:8px;line-height:1;}
+/* ── BALANCE POPUP ── */
+.balance-popup{
+  position:absolute;top:calc(100% + 8px);right:0;z-index:200;width:270px;
+  background:rgba(10,12,18,0.98);border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7);
+  display:none;animation:qnoteIn 0.18s cubic-bezier(0.16,1,0.3,1) both;
+}
+.balance-popup.open{display:block;}
+.balance-popup-head{
+  padding:11px 14px 9px;border-bottom:1px solid rgba(255,255,255,0.06);
+  font-family:var(--font-display);font-size:12px;letter-spacing:2px;color:var(--g);
+}
+.balance-popup-body{padding:12px 14px 8px;}
+.balance-popup-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.balance-popup-lbl{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;flex-shrink:0;width:68px;}
+.balance-popup-input{
+  flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;padding:6px 10px;color:var(--t);
+  font-family:var(--font-mono);font-size:12px;outline:none;transition:border-color 0.15s;
+}
+.balance-popup-input:focus{border-color:rgba(52,208,88,0.4);}
+.balance-popup-unit{font-family:var(--font-mono);font-size:10px;color:var(--m);flex-shrink:0;}
+.balance-popup-stats{
+  margin:0 14px 12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+  border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+}
+.bps-item{text-align:center;}
+.bps-label{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-bottom:3px;}
+.bps-val{font-family:var(--font-mono);font-size:10px;}
+.balance-popup-save{
+  width:calc(100% - 28px);margin:0 14px 14px;padding:8px;border:none;border-radius:7px;
+  background:linear-gradient(135deg,#34d058,#28a045);color:#fff;
+  font-family:var(--font-display);font-size:12px;letter-spacing:2px;
+  cursor:pointer;transition:opacity 0.15s;display:block;
+}
+.balance-popup-save:hover{opacity:0.85;}
+
 /* ── QUICK NOTE POPUP ── */
 .qnote-overlay{
   position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.55);
@@ -1498,6 +1549,41 @@ display:none;}
     <button class="jtb-nav" onclick="showPage('leaderboard',this)" data-page="leaderboard">🏆 Рейтинг</button>
   </div>
   <div class="jtb-right">
+    <!-- BALANCE WIDGET -->
+    <div class="jtb-balance" id="jtb-balance-widget" onclick="toggleBalancePopup()" title="Общий баланс">
+      <div class="jtb-balance-icon" id="balance-icon">💰</div>
+      <div class="jtb-balance-info">
+        <div class="jtb-balance-label">Баланс</div>
+        <div class="jtb-balance-val" id="balance-display">$—</div>
+        <div class="jtb-balance-delta" id="balance-delta"></div>
+      </div>
+      <div class="balance-popup" id="balance-popup" onclick="event.stopPropagation()">
+        <div class="balance-popup-head">💰 ОБЩИЙ БАЛАНС</div>
+        <div class="balance-popup-body">
+          <div class="balance-popup-row">
+            <div class="balance-popup-lbl">Стартовый</div>
+            <input class="balance-popup-input" id="balance-start-input" type="number" min="1" step="1" placeholder="1000">
+            <div class="balance-popup-unit">$</div>
+          </div>
+        </div>
+        <div class="balance-popup-stats">
+          <div class="bps-item">
+            <div class="bps-label">Старт</div>
+            <div class="bps-val" id="bps-start" style="color:var(--m)">—</div>
+          </div>
+          <div class="bps-item">
+            <div class="bps-label">P&L $</div>
+            <div class="bps-val" id="bps-pnl">—</div>
+          </div>
+          <div class="bps-item">
+            <div class="bps-label">Баланс</div>
+            <div class="bps-val" id="bps-balance" style="color:var(--g)">—</div>
+          </div>
+        </div>
+        <button class="balance-popup-save" onclick="saveBalance()">СОХРАНИТЬ</button>
+      </div>
+    </div>
+    <div class="jtb-sep-v"></div>
     <!-- DAILY GOAL WIDGET -->
     <div class="jtb-goal" id="jtb-goal-widget" onclick="toggleGoalPopup()" title="Дневная цель в R">
       <div class="jtb-goal-icon" id="goal-icon">🎯</div>
@@ -3893,6 +3979,97 @@ function renderQNotes(){
     </div>`).join('');
 }
 
+/* ── BALANCE WIDGET ── */
+let balanceStart = 1000;
+let balancePopupOpen = false;
+
+try {
+  const bs = JSON.parse(localStorage.getItem('orb_balance') || '{}');
+  if (bs.start) balanceStart = bs.start;
+} catch(e) {}
+
+function toggleBalancePopup() {
+  balancePopupOpen = !balancePopupOpen;
+  const popup = document.getElementById('balance-popup');
+  popup.classList.toggle('open', balancePopupOpen);
+  if (balancePopupOpen) {
+    document.getElementById('balance-start-input').value = balanceStart;
+    updateBalancePopupStats();
+    setTimeout(() => {
+      document.addEventListener('click', closeBalancePopupOutside, {once: true});
+    }, 10);
+  }
+}
+
+function closeBalancePopupOutside(e) {
+  const widget = document.getElementById('jtb-balance-widget');
+  if (!widget || !widget.contains(e.target)) {
+    balancePopupOpen = false;
+    const popup = document.getElementById('balance-popup');
+    if (popup) popup.classList.remove('open');
+  }
+}
+
+function saveBalance() {
+  const val = parseFloat(document.getElementById('balance-start-input').value) || 1000;
+  balanceStart = val;
+  try { localStorage.setItem('orb_balance', JSON.stringify({start: balanceStart})); } catch(e) {}
+  balancePopupOpen = false;
+  document.getElementById('balance-popup').classList.remove('open');
+  updateBalanceWidget();
+}
+
+function getTotalPnlUsd() {
+  if (typeof allTrades === 'undefined' || !allTrades.length) return 0;
+  return allTrades.reduce((s, t) => s + (t.pnl_usd || 0), 0);
+}
+
+function updateBalancePopupStats() {
+  const pnl = getTotalPnlUsd();
+  const current = balanceStart + pnl;
+  const bpsStart = document.getElementById('bps-start');
+  const bpsPnl = document.getElementById('bps-pnl');
+  const bpsBal = document.getElementById('bps-balance');
+  if (bpsStart) bpsStart.textContent = '$' + balanceStart.toLocaleString();
+  if (bpsPnl) {
+    bpsPnl.textContent = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(0);
+    bpsPnl.style.color = pnl >= 0 ? 'var(--g)' : 'var(--r)';
+  }
+  if (bpsBal) {
+    bpsBal.textContent = '$' + Math.max(0, current).toFixed(0);
+    bpsBal.style.color = current >= balanceStart ? 'var(--g)' : 'var(--r)';
+  }
+}
+
+function updateBalanceWidget() {
+  const pnl = getTotalPnlUsd();
+  const current = balanceStart + pnl;
+  const pct = balanceStart > 0 ? (pnl / balanceStart * 100) : 0;
+  const positive = pnl >= 0;
+
+  const display = document.getElementById('balance-display');
+  const delta = document.getElementById('balance-delta');
+  const icon = document.getElementById('balance-icon');
+
+  if (display) {
+    display.textContent = '$' + Math.max(0, current).toLocaleString('en-US', {maximumFractionDigits: 0});
+    display.style.color = positive ? 'var(--g)' : 'var(--r)';
+  }
+  if (delta) {
+    if (pnl !== 0) {
+      delta.textContent = (positive ? '+' : '') + pct.toFixed(1) + '%';
+      delta.style.color = positive ? 'rgba(52,208,88,0.7)' : 'rgba(255,77,77,0.7)';
+    } else {
+      delta.textContent = 'старт: $' + balanceStart.toLocaleString();
+      delta.style.color = 'rgba(255,255,255,0.2)';
+    }
+  }
+  if (icon) icon.textContent = current > balanceStart ? '📈' : current < balanceStart ? '📉' : '💰';
+
+  // Also update popup if open
+  if (balancePopupOpen) updateBalancePopupStats();
+}
+
 /* ── DAILY GOAL IN R ── */
 let goalR = 3;       // target R per day
 let goalRSize = 50;  // $ per 1R
@@ -4000,12 +4177,14 @@ const _origUpdateGoal = typeof updateGoalWidget === 'function' ? updateGoalWidge
 // Run after page loads and whenever trades update
 document.addEventListener('DOMContentLoaded', () => {
   updateGoalWidget();
+  updateBalanceWidget();
 });
 // Also update whenever allTrades changes — patch loadTrades
 (function() {
   const CHECK_INTERVAL = 1500;
   setTimeout(function check() {
     updateGoalWidget();
+    updateBalanceWidget();
     setTimeout(check, CHECK_INTERVAL);
   }, CHECK_INTERVAL);
 })();
