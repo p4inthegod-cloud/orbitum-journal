@@ -3492,8 +3492,18 @@ async function importCSV(input){
     });
     var wb=XLSX.read(binaryStr,{type:'binary'});
     // Priority: futures sheets first
-    var sheetPriority=['USDⓢ_M_Perpetual_Futures','USDT_Perpetual','Standard_Futures',
-                       'Coin_M_Perpetual_Futures','Futures','Derivatives','Spot_Account'];
+    var sheetPriority=[
+      // BingX
+      'Trade History','Closed Positions','Perpetual Futures','PERP Trade History',
+      'Contract Trade History','Futures Trade History',
+      // Bybit
+      'USDⓢ_M_Perpetual_Futures','USDT_Perpetual','Standard_Futures',
+      'Coin_M_Perpetual_Futures',
+      // Binance
+      'Futures','Derivatives','Position History',
+      // Generic
+      'Spot_Account','Sheet1','Sheet0'
+    ];
     var sheetName=null;
     for(var sp of sheetPriority){ if(wb.SheetNames.includes(sp)){sheetName=sp;break;} }
     if(!sheetName) sheetName=wb.SheetNames[0];
@@ -3538,26 +3548,89 @@ async function importCSV(input){
 
   if(!rows.length){if(log)log.innerHTML='❌ Нет данных в файле';input.value='';return;}
 
-  // ── Smart column detection (broad matching) ──
+  // ── Smart column detection (Bybit + BingX + Binance + OKX + Gate.io) ──
   var sample=rows[0];
   var keys=Object.keys(sample);
-  if(log) log.innerHTML='⏳ Колонки: <small style="opacity:0.6">'+keys.slice(0,10).join(' | ')+'</small>';
+  if(log) log.innerHTML='⏳ Читаем колонки...';
 
   var findKey=function(variants){
     return keys.find(k=>variants.some(v=>k.toLowerCase().replace(/[\s_\-\.]/g,'').includes(v.toLowerCase().replace(/[\s_\-\.]/g,''))))||null;
   };
 
-  // Expanded variants to catch Bybit, Binance, OKX, Bitget, Gate.io formats
-  var kPair = findKey(['Pair','Symbol','Contract','Ticker','pair','symbol','contract','instrument','market','asset']);
-  var kType = findKey(['Type','Side','Direction','OrderSide','side','direction','type','buysell','BuySell','TradeSide']);
-  var kPnl  = findKey(['RealizedPNL','Realized PNL','PNL','PnL','pnl','profit','realizedprofit','ClosedPnL','closedpnl','realisedpnl']);
-  var kPrice= findKey(['DealPrice','AvgPrice','TradePrice','FilledPrice','Price','price','avgprice','dealprice','closeprice']);
-  var kQty  = findKey(['FilledQty','Quantity','Amount','Volume','Size','qty','amount','size','filledqty','filledamount','contracts','contractQty']);
-  var kSL   = findKey(['stopLossPrice','StopLoss','stop_loss','stopPrice','sl']);
-  var kTP   = findKey(['takeProfitPrice','TakeProfit','take_profit','tp']);
-  var kTime = findKey(['CloseTime','OpenTime','Time','CreateTime','time','date','datetime','closetime']);
-  var kLev  = findKey(['Leverage','leverage','lev']);
-  var kDeposit=findKey(['OrderValue','NotionalValue','Value','Margin','margin','ordervalue','notional','positionvalue']);
+  var kPair = findKey([
+    // Bybit ClosedPNL / TradeHistory / OrderHistory
+    'Market',
+    // Bybit Spot
+    'Spot Pairs','Spot Pair',
+    // BingX / others
+    'Symbol','Trading Pair','Contract','Pair','Instrument',
+    'Ticker','pair','symbol','contract','instrument','market','asset'
+  ]);
+  var kType = findKey([
+    // Bybit TradeHistory / OrderHistory
+    'Direction',
+    // Bybit ClosedPNL doesn't have Side — we infer from Entry/Exit
+    'Position Side','PositionSide','Side','Type','Order Side',
+    'Buy/Sell','TradeSide','BuySell','OrderSide','direction','side','type'
+  ]);
+  var kPnl = findKey([
+    // Bybit ClosedPNL — exact name
+    'Realized P&L','Realized P&amp;L',
+    // Others
+    'Realized PNL','Realized Profit','PNL','Profit and Loss','Profit/Loss',
+    'Realized Gain','Net Profit','Closed PnL','ClosedPnL',
+    'RealizedPNL','PnL','pnl','profit','realizedprofit','closedpnl','realisedpnl',
+    'Net P&L','P&L'
+  ]);
+  var kEntryPrice = findKey([
+    // Bybit ClosedPNL
+    'Entry Price','EntryPrice',
+    'Open Price','OpenPrice','Avg Entry Price'
+  ]);
+  var kExitPrice = findKey([
+    // Bybit ClosedPNL
+    'Exit Price','ExitPrice',
+    'Close Price','ClosePrice','Avg Exit Price','Avg Close Price'
+  ]);
+  var kPrice= findKey([
+    // Bybit TradeHistory
+    'Filled Price','Avg. Filled Price','Avg Filled Price','AvgFilledPrice',
+    // BingX
+    'Average Price','Avg. Price',
+    // Generic
+    'DealPrice','AvgPrice','TradePrice','FilledPrice','Order Price','Price','price',
+    'avgprice','dealprice','closeprice'
+  ]);
+  var kQty = findKey([
+    // Bybit ClosedPNL / TradeHistory
+    'Order Quantity','Filled Quantity','Filled Qty',
+    // BingX
+    'Filled Amount','Volume','Contracts','Position Size','Qty',
+    // Generic
+    'Quantity','Amount','Size','qty','amount','size',
+    'filledqty','filledamount','contracts','contractQty'
+  ]);
+  var kFilledValue = findKey(['Filled Value','FilledValue','filled value']);
+  var kOrderValue  = findKey(['Order Value','OrderValue']);
+  var kStatus      = findKey(['Order Status','Status','status','orderstatus']);
+  var kTradeType   = findKey(['Trade Type','TradeType','tradetype']); // Bybit: Trade / Liquidation / Funding
+  var kSL   = findKey(['Stop Loss Price','StopLoss','stopLossPrice','stop_loss','stopPrice','sl']);
+  var kTP   = findKey(['Take Profit Price','TakeProfit','takeProfitPrice','take_profit','tp']);
+  var kTime = findKey([
+    // Bybit ClosedPNL
+    'Trade time','Trade Time',
+    // Bybit OrderHistory
+    'Order Time(UTC+0)','Order Time','Create Time',
+    // Generic
+    'Close Time','Open Time','CloseTime','OpenTime',
+    'Time','CreateTime','time','date','datetime','closetime'
+  ]);
+  var kLev  = findKey(['Leverage','leverage','lev','Margin Mode']);
+  var kLev  = findKey(['Leverage','leverage','lev','Margin Mode']);
+  var kDeposit=findKey([
+    'Position Value','Order Value','Notional Value','Margin','Value',
+    'OrderValue','NotionalValue','margin','ordervalue','notional','positionvalue'
+  ]);
 
   // If Pair not found, try to use ANY column that has crypto-like values (BTC, ETH, SOL...)
   if(!kPair){
@@ -3568,7 +3641,29 @@ async function importCSV(input){
   }
 
   var detectedInfo='Пара: '+(kPair||'❌')+' | Тип: '+(kType||'❌')+' | PNL: '+(kPnl||'❌');
-  if(log) log.innerHTML='⏳ Обнаружено: <small style="opacity:0.7">'+detectedInfo+'</small>';
+  // Show ALL found columns for debugging
+  if(log) log.innerHTML='⏳ Обнаружено: <small style="opacity:0.7">'+detectedInfo+'</small><br>'
+    +'<small style="opacity:0.5">Все колонки: '+keys.join(' · ')+'</small>';
+
+  // ── Last resort PNL: find any numeric column with negative/positive values that looks like P&L ──
+  if(!kPnl){
+    // Try any column whose name contains numbers-like data and isn't clearly price/qty
+    var excluded=['price','qty','amount','size','leverage','margin','value','fee','rate'];
+    kPnl=keys.find(k=>{
+      var kl=k.toLowerCase();
+      if(excluded.some(e=>kl.includes(e))) return false;
+      // Check if column has numeric values including negatives
+      var vals=rows.slice(0,20).map(r=>(r[k]||'').toString().trim()).filter(Boolean);
+      var nums=vals.map(v=>parseFloat(v.replace(/[^\d.\-]/g,''))).filter(v=>!isNaN(v));
+      // Good PNL column has both positive and negative values or is small floats
+      if(nums.length<1) return false;
+      var hasNeg=nums.some(v=>v<0);
+      var hasPos=nums.some(v=>v>0);
+      var isSmall=nums.every(v=>Math.abs(v)<10000);
+      return (hasNeg||hasPos)&&isSmall&&nums.length>0;
+    })||null;
+    if(kPnl&&log) log.innerHTML+='<br><small style="color:var(--a)">PNL авто-определён: <b>'+kPnl+'</b></small>';
+  }
 
   var toInsert=[];
 
@@ -3577,39 +3672,72 @@ async function importCSV(input){
     var pairRaw = kPair ? (row[kPair]||'').toString().toUpperCase().trim() : '';
     if(!pairRaw) continue;
     var pair=pairRaw.replace(/[-_]/g,'/');
+    // Bybit Spot: "BTCUSDT" → "BTC/USDT", already has space "BTC USDT" → clean
     if(pair.indexOf('/')<0){
-      var m2=pair.match(/^(.+?)(USDT|USDC|BUSD|BTC|ETH|BNB)$/);
-      pair=m2?m2[1]+'/'+m2[2]:pair+'/USDT';
+      var m2=pair.replace(/\s/g,'').match(/^(.+?)(USDT|USDC|BUSD|BTC|ETH|BNB)$/);
+      pair=m2?m2[1]+'/'+m2[2]:pair.replace(/\s+/,'/');
     }
 
-    // ── Direction ──
+    // ── Skip Funding fee rows (not real trades) ──
+    if(kTradeType){
+      var tradeTypeRaw=(row[kTradeType]||'').toString().toLowerCase().trim();
+      if(tradeTypeRaw==='funding') continue;
+    }
+
+    // ── Skip non-filled orders (Bybit Order History) ──
+    if(kStatus){
+      var statusRaw=(row[kStatus]||'').toString().toLowerCase().trim();
+      if(statusRaw&&statusRaw!=='filled'&&statusRaw!=='completely filled'&&statusRaw!=='partially filled') continue;
+    }
+
+    // ── Direction ── (Bybit ClosedPNL has no Direction col → infer from entry/exit)
     var typeRaw=kType?(row[kType]||'').toString().toLowerCase().trim():'';
     var dir='long';
     if(typeRaw.includes('short')||typeRaw.includes('sell')||typeRaw.includes('close short')) dir='short';
-    if(typeRaw.includes('open')&&!typeRaw.includes('close')) continue; // skip open-only rows
+    // If no direction column — try entry/exit inference (can't reliably infer, default long)
+    if(typeRaw.includes('open position')||typeRaw==='open') continue;
+
+    // ── Entry / Exit prices (Bybit ClosedPNL has both) ──
+    var entryPrice=kEntryPrice?parseFloat((row[kEntryPrice]||'').toString().replace(/[^\d.]/g,''))||null:null;
+    var exitPrice=kExitPrice?parseFloat((row[kExitPrice]||'').toString().replace(/[^\d.]/g,''))||null:null;
+    // Fallback to generic price column
+    var price=entryPrice||(kPrice?parseFloat((row[kPrice]||'').toString().replace(/[^\d.]/g,''))||null:null);
+
+    // ── Qty ──
+    var qty=kQty?parseFloat((row[kQty]||'').toString().replace(/[^\d.]/g,''))||null:null;
+
+    // ── Deposit / trade value ──
+    var deposit=null;
+    if(kFilledValue) deposit=parseFloat((row[kFilledValue]||'').toString().replace(/[^\d.]/g,''))||null;
+    if(!deposit&&kOrderValue) deposit=parseFloat((row[kOrderValue]||'').toString().replace(/[^\d.]/g,''))||null;
+    if(!deposit&&kDeposit) deposit=parseFloat((row[kDeposit]||'').toString().replace(/[^\d.]/g,''))||null;
+    if(!deposit&&qty&&price) deposit=Math.round(qty*price);
 
     // ── PNL ──
-    var pnlUsd=kPnl ? (parseFloat((row[kPnl]||'').toString().replace(/[^\d.\-]/g,''))||null) : null;
-    if(pnlUsd===null) continue; // must have PNL to be a closed trade
+    var pnlUsd=null;
+    var pnlRaw=kPnl?(row[kPnl]||'').toString().trim():'';
+    if(pnlRaw&&pnlRaw!=='-'&&pnlRaw!=='--'&&pnlRaw!=='N/A'&&pnlRaw!==''){
+      var parsed=parseFloat(pnlRaw.replace(/[^\d.\-]/g,''));
+      if(!isNaN(parsed)) pnlUsd=parsed;
+    }
 
-    // ── Price / Qty / Deposit ──
-    var price=kPrice?parseFloat((row[kPrice]||'').toString().replace(/[^\d.]/g,''))||null:null;
-    var qty=kQty?parseFloat((row[kQty]||'').toString().replace(/[^\d.]/g,''))||null:null;
-    var deposit=null;
-    if(kDeposit) deposit=parseFloat((row[kDeposit]||'').toString().replace(/[^\d.]/g,''))||null;
-    if(!deposit&&qty&&price) deposit=Math.round(qty*price);
+    var isSpotOrder=false;
+    if(pnlUsd===null){
+      if(deposit&&deposit>0){ pnlUsd=0; isSpotOrder=true; }
+      else continue;
+    }
 
     // ── PNL % ──
     var pnlPct=null;
-    if(pnlUsd!=null&&deposit&&deposit>0) pnlPct=parseFloat((pnlUsd/deposit*100).toFixed(2));
+    if(deposit&&deposit>0) pnlPct=parseFloat((pnlUsd/deposit*100).toFixed(2));
 
-    var result=pnlUsd>=0?'win':'loss';
+    var result=pnlUsd>0?'win':pnlUsd<0?'loss':'be';
 
     var sl=kSL?parseFloat(row[kSL])||null:null;
     var tp=kTP?parseFloat(row[kTP])||null:null;
-    var lev=kLev?parseInt(row[kLev])||1:1;
-    var noteWhy='[IMPORT]';
-    if(kLev&&row[kLev]) noteWhy='[IMPORT] Плечо: '+lev+'x';
+    var lev=kLev?parseInt((row[kLev]||'').toString().replace(/[^\d]/g,''))||1:1;
+    var exchange=isSpotOrder?'[SPOT]':'[BYBIT]';
+    var noteWhy=exchange+(kLev&&row[kLev]?' Плечо: '+lev+'x':'');
 
     toInsert.push({
       user_id:currentUser.id,
@@ -3617,7 +3745,8 @@ async function importCSV(input){
       pnl_pct:pnlPct,
       pnl_usd:pnlUsd,
       deposit:deposit,
-      entry_price:price,
+      entry_price:entryPrice||price,
+      exit_price:exitPrice||null,
       stop_loss:sl,
       take_profit:tp,
       leverage:lev,
@@ -3627,8 +3756,10 @@ async function importCSV(input){
   }
 
   if(!toInsert.length){
+    var firstRowSample=rows.length>0?Object.entries(rows[0]).slice(0,6).map(([k,v])=>k+': '+String(v).slice(0,20)).join(' | '):'';
     if(log) log.innerHTML='❌ Не найдено закрытых сделок с PNL.<br>'
-      +'<small style="opacity:0.6">Колонки файла: '+keys.slice(0,12).join(', ')+'</small><br>'
+      +'<small style="opacity:0.7">Все колонки ('+keys.length+'шт): <b>'+keys.join(' | ')+'</b></small><br>'
+      +'<small style="opacity:0.5">Первая строка: '+firstRowSample+'</small><br>'
       +'<small style="opacity:0.5">Убедись что это история закрытых сделок (не открытых ордеров).</small>';
     input.value='';return;
   }
