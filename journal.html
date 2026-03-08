@@ -2366,7 +2366,14 @@ async function addTrade(){
   };
   if(currentSetup) insertData.setup_type=currentSetup;
 
-  const{error}=await sb.from('trades').insert([insertData]);
+  let{error}=await sb.from('trades').insert([insertData]);
+  // Fallback: если setup_type ещё не в schema cache — пробуем без неё
+  if(error && error.message && error.message.includes('setup_type')){
+    const fallback={...insertData};
+    delete fallback.setup_type;
+    const res2=await sb.from('trades').insert([fallback]);
+    error=res2.error;
+  }
   btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
   if(error){showNotif('error','Ошибка',error.message,5000);return;}
 
