@@ -19,8 +19,8 @@
 .snav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;text-decoration:none;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;transition:all 0.18s;border:1px solid transparent;width:100%;text-align:left;background:none;cursor:pointer;}
 .snav-item:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.06);}
 .snav-item.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.22);color:var(--a);}
-.snav-item.admin-link{color:rgba(245,166,35,0.55);}
-.snav-item.admin-link:hover,.snav-item.admin-link.active{background:rgba(245,166,35,0.07);border-color:rgba(245,166,35,0.2);color:#f5a623;}
+.snav-item.admin-link{color:rgba(245,166,35,0.75);}
+.snav-item.admin-link:hover,.snav-item.admin-link.active{background:rgba(245,166,35,0.1);border-color:rgba(245,166,35,0.3);color:#f5a623;}
 .snav-icon{font-size:15px;flex-shrink:0;width:18px;text-align:center;}
 .snav-div{height:1px;background:var(--bd);margin:5px 4px;}
 .sidebar-footer{padding:10px 8px;border-top:1px solid var(--bd);flex-shrink:0;}
@@ -39,12 +39,48 @@
 .mob-right{display:flex;align-items:center;gap:8px;}
 .mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99;}
+
+/* ── DESKTOP ALWAYS-SHOW SIDEBAR ── */
+@media(min-width:901px){
+  .sidebar{display:flex!important;transform:none!important;}
+  .mob-topbar{display:none!important;}
+}
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
   .sidebar.open{transform:translateX(0);}
   .sidebar-overlay.open{display:block;}
   .mob-topbar{display:flex;}
 }
+
+/* ── TOP BREADCRUMB NAV ── */
+.topnav-bar{
+  position:sticky;top:0;z-index:80;
+  background:rgba(5,7,10,0.9);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  height:48px;display:flex;align-items:center;
+  padding:0 24px;gap:8px;
+}
+.tnb-back{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:7px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);color:var(--m);
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+  text-decoration:none;
+}
+.tnb-back:hover{border-color:rgba(232,114,42,0.3);color:var(--a);background:rgba(232,114,42,0.05);}
+.tnb-sep{color:rgba(255,255,255,0.15);font-size:11px;}
+.tnb-current{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);letter-spacing:1.5px;text-transform:uppercase;}
+.tnb-spacer{flex:1;}
+.tnb-links{display:flex;gap:4px;}
+.tnb-link{
+  padding:5px 12px;border-radius:7px;border:1px solid transparent;
+  color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+  text-decoration:none;
+}
+.tnb-link:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.07);}
+.tnb-link.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.25);color:var(--a);}
 
 :root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);--bd:rgba(255,255,255,0.07);--t:#f0f0f0;--m:rgba(255,255,255,0.35);--g:#34d058;--r:#ff4d4d;--gd:rgba(52,208,88,0.1);--rd:rgba(255,77,77,0.1);--y:#f5a623;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -129,8 +165,9 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
   
 }
 
-.main{margin-left:220px;padding:28px 28px 80px;position:relative;z-index:1;}
-@media(max-width:900px){.main{margin-left:0;padding:14px 14px 60px;}}</style>
+.main{margin-left:220px;padding:0 28px 80px;position:relative;z-index:1;}
+@media(max-width:900px){.main{margin-left:0;padding:0 14px 60px;}}
+.main-inner{padding-top:24px;}</style>
 </head>
 <body>
 <!-- MOB TOPBAR -->
@@ -152,11 +189,13 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
     </div>
   </div>
   <nav class="sidenav">
-    <div class="snav-sec">Кабинет</div>
-    <a href="journal.html" class="snav-item "><span class="snav-icon">📋</span>ЖУРНАЛ СДЕЛОК</a>
-    <a href="profile.html" class="snav-item "><span class="snav-icon">🧠</span>ПРОФИЛЬ</a>
-    <div class="snav-div" id="admin-divider" style="display:none"></div>
-    <a href="admin.html" class="snav-item admin-link active" id="snav-admin" style="display:none"><span class="snav-icon">⚙️</span>АДМИН</a>
+    <div class="snav-sec">Навигация</div>
+    <a href="index.html" class="snav-item"><span class="snav-icon">🏠</span>ГЛАВНАЯ</a>
+    <a href="journal.html" class="snav-item"><span class="snav-icon">📋</span>ЖУРНАЛ СДЕЛОК</a>
+    <a href="profile.html" class="snav-item" target="_blank"><span class="snav-icon">🧠</span>МОЙ ПРОФИЛЬ ↗</a>
+    <div class="snav-div"></div>
+    <div class="snav-sec">Администрирование</div>
+    <a href="admin.html" class="snav-item admin-link active"><span class="snav-icon">⚙️</span>ПАНЕЛЬ АДМИНА</a>
   </nav>
   <div class="sidebar-footer">
     <div class="sf-user">
@@ -170,6 +209,21 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
 <div class="bg-orb"></div>
 
 <div class="main">
+  <!-- TOP NAV BAR -->
+  <div class="topnav-bar">
+    <a href="index.html" class="tnb-back">← ГЛАВНАЯ</a>
+    <span class="tnb-sep">/</span>
+    <a href="journal.html" class="tnb-back">ЖУРНАЛ</a>
+    <span class="tnb-sep">/</span>
+    <span class="tnb-current">⚙️ АДМИН</span>
+    <div class="tnb-spacer"></div>
+    <div class="tnb-links">
+      <a href="journal.html" class="tnb-link">📋 Журнал</a>
+      <a href="profile.html" class="tnb-link" target="_blank">🧠 Профиль ↗</a>
+    </div>
+  </div>
+
+  <div class="main-inner">
   <div class="tabs">
     <button class="tab active" onclick="showTab('payments')">Оплаты</button>
     <button class="tab" onclick="showTab('users')">Пользователи</button>
@@ -197,7 +251,8 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
     <div class="stitle">Общая статистика</div>
     <div id="team-stats"><div class="loading">ЗАГРУЖАЕМ...</div></div>
   </div>
-</div>
+  </div><!-- /main-inner -->
+</div><!-- /main -->
 <script>
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
@@ -250,10 +305,6 @@ function fillSidebar(displayName,initials,plan,isAdmin){
   document.getElementById('sf-avatar').textContent=initials;
   document.getElementById('sf-name').textContent=displayName;
   document.getElementById('sf-plan').textContent=plan==='lifetime'?'∞ НАВСЕГДА':plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-  if(isAdmin){
-    const d=document.getElementById('admin-divider');if(d)d.style.display='block';
-    const a=document.getElementById('snav-admin');if(a)a.style.display='flex';
-  }
 }
 
 init();
