@@ -555,61 +555,7 @@ let allTrades=[];
 
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
-
-async function loadPublicProfile(uid){
-  document.body.style.overflow='auto';
-  // hide sidebar, show public banner
-  const sb=document.querySelector('.sidebar');
-  const mob=document.querySelector('.mob-topbar,.mob-bar');
-  if(sb)sb.style.display='none';
-  if(mob)mob.style.display='none';
-  const wrap=document.querySelector('.profile-wrap,.main,.wrap');
-  if(wrap)wrap.style.marginLeft='0';
-
-  // Add public badge
-  const badge=document.createElement('div');
-  badge.style.cssText='position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,6,10,0.97);border-bottom:1px solid rgba(255,255,255,0.07);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);';
-  badge.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><img src="orbitum-logo.jpg" style="width:20px;height:20px;mix-blend-mode:screen;filter:drop-shadow(0 0 6px rgba(255,255,255,0.5));" onerror="this.style.display='none'"><span style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:4px;color:#f2f2f2">ORBITUM</span></div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;">ПУБЛИЧНЫЙ ПРОФИЛЬ</div><a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#e8722a;text-decoration:none;border:1px solid rgba(232,114,42,0.3);border-radius:6px;padding:5px 12px;">ПОЛУЧИТЬ ДОСТУП →</a>`;
-  document.body.prepend(badge);
-  document.body.style.paddingTop='54px';
-
-  // Load the profile data
-  const{data:p}=await sb.from('profiles').select('full_name,username,plan').eq('id',uid).single();
-  const{data:trades}=await sb.from('trades').select('*').eq('user_id',uid).order('created_at',{ascending:false});
-
-  if(!p){
-    document.querySelector('.profile-wrap,.main,.wrap').innerHTML='<div style="text-align:center;padding:60px;font-family:JetBrains Mono,monospace;color:rgba(255,255,255,0.3);">Профиль не найден или скрыт</div>';
-    return;
-  }
-
-  // Fill in the profile data
-  allTrades=trades||[];
-  currentProfile=p;
-  const nameEl=document.getElementById('prof-name');
-  const subEl=document.getElementById('prof-sub');
-  if(nameEl)nameEl.textContent=p.full_name||p.username||'Трейдер';
-  if(subEl)subEl.textContent='ORBITUM · '+allTrades.length+' сделок';
-  
-  // Disable all edit buttons
-  document.querySelectorAll('button').forEach(b=>{
-    if(b.textContent.includes('Выйти')||b.textContent.includes('ВЫЙТИ'))b.style.display='none';
-  });
-
-  // Run the analysis
-  if(typeof renderProfile==='function')renderProfile();
-  if(typeof renderPatterns==='function')renderPatterns();
-  if(typeof renderHeatmapProfile==='function')renderHeatmapProfile();
-}
-
 async function initProfile(){
-  // Check for public profile mode
-  const urlParams=new URLSearchParams(window.location.search);
-  const publicUid=urlParams.get('uid');
-  if(publicUid){
-    await loadPublicProfile(publicUid);
-    return;
-  }
-
   const{data:{user}}=await sb.auth.getUser();
   if(!user){window.location.href='login.html';return;}
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
@@ -689,6 +635,76 @@ function computeRealStats(trades){
   updateHourGrid(trades);
   // rebuild radar
   rebuildRadar(radarVals);
+  // AUTO-DETECT ARCHETYPE from real data
+  autoDetectArchetype(trades, wins, losses, conf, fear, greed, calm);
+}
+
+function autoDetectArchetype(trades, wins, losses, conf, fear, greed, calm){
+  if(trades.length < 2) return; // not enough data
+
+  var wr = trades.length ? wins.length/trades.length : 0;
+  var avgPnl = trades.reduce(function(s,t){return s+(t.pnl_pct||0);},0)/trades.length;
+
+  // Count trades per day to detect overtrading
+  var byDay = {};
+  trades.slice(0,20).forEach(function(t){
+    var d = new Date(t.created_at).toDateString();
+    byDay[d] = (byDay[d]||0)+1;
+  });
+  var maxPerDay = Math.max.apply(null, Object.values(byDay));
+  var avgPerDay = Object.values(byDay).reduce(function(s,v){return s+v;},0)/Object.keys(byDay).length;
+
+  // Consecutive losses
+  var maxLossStreak = 0, curLoss = 0;
+  trades.forEach(function(t){
+    if(t.result==='loss'){curLoss++;maxLossStreak=Math.max(maxLossStreak,curLoss);}
+    else curLoss=0;
+  });
+
+  // Determine archetype by dominant pattern
+  var icon, name, desc;
+
+  if(greed >= 6.5 || avgPerDay >= 4){
+    icon='🔥'; name='FOMO-ОХОТНИК';
+    desc='Входишь на эмоциях, догоняешь рынок. Лучшие сделки — те, которые пропустил.';
+  } else if(fear >= 6 && wr >= 0.45){
+    icon='🦊'; name='ОСТОРОЖНЫЙ ЛИС';
+    desc='Закрываешь прибыль слишком рано. Страх мешает дать сделке дышать.';
+  } else if(wr >= 0.6 && trades.length >= 5 && avgPerDay <= 2){
+    icon='🎯'; name='СНАЙПЕР';
+    desc='Редкие, точные входы. Терпеливо ждёшь своего момента.';
+  } else if(maxLossStreak >= 3 && avgPnl < 0){
+    icon='⚡'; name='МСТИТЕЛЬ';
+    desc='После убытков начинаешь торговать агрессивнее, пытаясь отыграться.';
+  } else if(conf >= 7 && fear <= 3){
+    icon='💎'; name='ДИСЦИПЛИНИРОВАННЫЙ';
+    desc='Уверен, спокоен, следуешь плану. Работаешь системно.';
+  } else if(maxPerDay >= 6){
+    icon='🌪'; name='ПЕРЕТОРГОВЩИК';
+    desc='Слишком много сделок. Качество важнее количества.';
+  } else {
+    icon='📈'; name='РАЗВИВАЮЩИЙСЯ';
+    desc='Формируешь свой стиль. Продолжай вести журнал — паттерны станут яснее.';
+  }
+
+  // Update UI
+  var iconEl = document.getElementById('archetype-icon');
+  var bgEl = document.getElementById('archetype-bg');
+  var nameEl = document.getElementById('archetype-name');
+  var descEl = document.getElementById('archetype-desc');
+  if(iconEl) iconEl.textContent = icon;
+  if(bgEl) bgEl.textContent = icon;
+  if(nameEl) nameEl.textContent = name;
+  if(descEl) descEl.textContent = desc;
+
+  // Highlight matching chip
+  document.querySelectorAll('.chip').forEach(function(chip){
+    chip.classList.remove('active-chip');
+    if(chip.textContent.toUpperCase().indexOf(name.split('-')[0]) >= 0 ||
+       chip.textContent.indexOf(icon) >= 0){
+      chip.classList.add('active-chip');
+    }
+  });
 }
 
 function updateDayBars(trades){
