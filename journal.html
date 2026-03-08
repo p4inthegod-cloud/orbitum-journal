@@ -96,14 +96,24 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .sidebar.open{transform:translateX(0);}
   .sb-overlay.open{display:block;}
   .mob-bar{display:flex;}
-  .main{margin-left:0;padding:14px 14px 80px;}
-  .stats-row{grid-template-columns:1fr 1fr 1fr;}
+  .main{margin-left:0;padding:12px 12px 80px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
   .fg4,.fg3{grid-template-columns:1fr 1fr;}
   .emrow{grid-template-columns:1fr 1fr;}
   .dash-grid{grid-template-columns:1fr;}
   .pm-grid{grid-template-columns:1fr;}
-  .chat-layout{grid-template-columns:1fr;}
+  .chat-layout{grid-template-columns:1fr;height:calc(100vh - 140px);}
   .chat-sidebar{display:none;}
+  .topnav{width:100%;overflow-x:auto;flex-wrap:nowrap;}
+  .topnav::-webkit-scrollbar{display:none;}
+  .tnav{padding:6px 10px;font-size:9px;white-space:nowrap;flex-shrink:0;}
+  .pm-cols{grid-template-columns:1fr;}
+  .month-grid{grid-template-columns:1fr;}
+  .digest-grid{grid-template-columns:1fr;}
+  .fcard{padding:14px;}
+  .fg4{grid-template-columns:1fr 1fr;}
+  .fg3{grid-template-columns:1fr;}
+  .emrow{grid-template-columns:1fr 1fr;}
 }
 
 /* ─── MAIN ────────────────────────────────── */
@@ -585,6 +595,23 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .ai-verdict{font-family:var(--font-display);font-size:22px;letter-spacing:3px;margin-bottom:7px;}
 .ai-verdict.go{color:#34d058;}.ai-verdict.stop{color:#ff4d4d;}.ai-verdict.wait{color:#f5a623;}
 .ai-text{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.6;}
+
+/* ─── MOBILE BOTTOM NAV ───────────────────── */
+.mob-bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;
+  background:rgba(5,7,10,0.97);border-top:var(--line);
+  backdrop-filter:blur(16px);padding:5px 4px 10px;
+  justify-content:space-around;gap:2px;
+}
+.mob-nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:5px 8px;border-radius:7px;border:none;background:none;
+  color:var(--m);cursor:pointer;transition:all 0.15s;flex:1;max-width:64px;
+}
+.mob-nav-btn.active{color:var(--a);background:var(--a2);}
+.mob-nav-icon{font-size:16px;line-height:1;}
+.mob-nav-label{font-family:var(--font-mono);font-size:7px;letter-spacing:0.3px;text-transform:uppercase;}
+@media(max-width:860px){.mob-bottom-nav{display:flex;}}
 </style>
 </head>
 <body>
@@ -592,16 +619,16 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 <!-- MOBILE BAR -->
 <div class="mob-bar">
-  <div class="mob-logo">ORBITUM</div>
+  <a href="index.html" class="mob-logo" style="text-decoration:none;color:inherit">ORBITUM</a>
   <button class="mob-burger" onclick="openSB()">☰</button>
 </div>
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <div class="sb-logo">
+  <a href="index.html" class="sb-logo" style="text-decoration:none;cursor:pointer;" title="На главную">
     <div class="sb-logo-dot"></div>
     <span class="sb-logo-text">ORBITUM</span>
-  </div>
+  </a>
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
     <button class="sb-item active" onclick="showPage('journal',this)" data-page="journal">
@@ -620,10 +647,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <span class="sb-item-icon">🤖</span>AI Советник
     </button>
     <div class="sb-divider"></div>
-    <a href="profile.html" class="sb-item">
+    <a href="profile.html" class="sb-item" onclick="window.location.href='profile.html';return false;">
       <span class="sb-item-icon">🧠</span>Мой профиль
     </a>
-    <a href="admin.html" class="sb-item admin-link" id="snav-admin" style="display:none">
+    <a href="admin.html" class="sb-item" id="snav-admin" style="display:none" onclick="window.location.href='admin.html';return false;">
       <span class="sb-item-icon">⚙️</span>Админ
     </a>
   </nav>
@@ -932,6 +959,25 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 </div><!-- /main -->
 
+<!-- MOBILE BOTTOM NAV -->
+<div class="mob-bottom-nav" id="mob-bottom-nav">
+  <button class="mob-nav-btn active" id="mbn-journal" onclick="showPage('journal',this);updateMobNav('journal')">
+    <span class="mob-nav-icon">📋</span><span class="mob-nav-label">Журнал</span>
+  </button>
+  <button class="mob-nav-btn" id="mbn-dashboard" onclick="showPage('dashboard',this);updateMobNav('dashboard')">
+    <span class="mob-nav-icon">📊</span><span class="mob-nav-label">Аналитика</span>
+  </button>
+  <button class="mob-nav-btn" id="mbn-digest" onclick="showPage('digest',this);updateMobNav('digest')">
+    <span class="mob-nav-icon">📅</span><span class="mob-nav-label">Дайджест</span>
+  </button>
+  <button class="mob-nav-btn" id="mbn-premarket" onclick="showPage('premarket',this);updateMobNav('premarket')">
+    <span class="mob-nav-icon">☀️</span><span class="mob-nav-label">Сессия</span>
+  </button>
+  <button class="mob-nav-btn" id="mbn-aichat" onclick="showPage('aichat',this);updateMobNav('aichat')">
+    <span class="mob-nav-icon">🤖</span><span class="mob-nav-label">AI</span>
+  </button>
+</div>
+
 <!-- AI SETUP MODAL -->
 <div class="ai-modal" id="ai-modal">
   <div class="ai-box">
@@ -969,13 +1015,18 @@ function openSB(){document.getElementById('sidebar').classList.add('open');docum
 function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
 
 // ─── PAGE NAV ─────────────────────────────────────
+function updateMobNav(p){
+  document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('mbn-'+p);
+  if(btn)btn.classList.add('active');
+}
+
 function showPage(p, btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  // update sidebar buttons
   document.querySelectorAll('.sb-item[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
-  // update topnav tabs
   document.querySelectorAll('.tnav[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+  updateMobNav(p);
   if(p==='dashboard') renderDashboard();
   if(p==='digest') renderDigest();
   closeSB();
@@ -1360,33 +1411,24 @@ async function sendChatMessage(){
 
   addMsg('user',text);
   chatHistory.push({role:'user',content:text});
-
   addTyping();
 
-  // build system context from user's trades
   const tradesSummary=allTrades.length
     ?`Трейдер имеет ${allTrades.length} сделок. WR: ${Math.round(allTrades.filter(t=>t.result==='win').length/allTrades.length*100)}%. Общий P&L: ${allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)}%.`
     :'Трейдер пока не записал сделок.';
 
-  const systemPrompt=`Ты — AI советник трейдера в приложении ORBITUM. Ты эксперт по SMC/ICT, Wyckoff, психологии трейдинга и риск-менеджменту.
+  const systemPrompt=`Ты — AI советник трейдера в приложении ORBITUM. Ты эксперт по SMC/ICT, Wyckoff, психологии трейдинга и риск-менеджменту.\n\nКонтекст пользователя: ${tradesSummary}\n\nОтвечай на русском языке. Будь конкретным, практичным и прямым. Используй **жирный** текст для ключевых моментов. Не пиши лишних вступлений. Структурируй ответ — короткие абзацы. Максимум 250 слов.`;
 
-Контекст пользователя: ${tradesSummary}
-
-Отвечай на русском языке. Будь конкретным, практичным и прямым. Используй **жирный** текст для ключевых моментов. Не пиши лишних вступлений типа "конечно" или "безусловно". Структурируй ответ — короткие абзацы. Максимум 250 слов.`;
+  const fullPrompt=`${systemPrompt}\n\nИстория диалога:\n${chatHistory.slice(0,-1).map(m=>`${m.role==='user'?'Пользователь':'AI'}: ${m.content}`).join('\n')}\n\nПользователь: ${text}`;
 
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/ai',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:600,
-        system:systemPrompt,
-        messages:chatHistory
-      })
+      body:JSON.stringify({prompt:fullPrompt})
     });
     const data=await res.json();
-    const reply=data.content?.[0]?.text||'Не удалось получить ответ.';
+    const reply=data.text||'Не удалось получить ответ.';
     chatHistory.push({role:'assistant',content:reply});
     if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);
     const typing=document.getElementById('typing-indicator');
@@ -1395,7 +1437,7 @@ async function sendChatMessage(){
   }catch(e){
     const typing=document.getElementById('typing-indicator');
     if(typing)typing.remove();
-    addMsg('ai','<p style="color:var(--r)">Ошибка подключения. Проверь API ключ в настройках.</p>');
+    addMsg('ai','<p style="color:var(--r)">Ошибка подключения к AI. Убедись что GROQ_API_KEY настроен в Vercel.</p>');
   }
   chatBusy=false;
   document.getElementById('chat-send-btn').disabled=false;
@@ -1419,10 +1461,10 @@ async function checkSetup(){
   const note=document.getElementById('ai-reason').value.trim();
   const prompt=`Ты — строгий торговый наставник SMC/ICT. Трейдер ответил на чек-лист.\n\nОтветы:\n${answers}${note?'\nДополнение: '+note:''}\n\nДай вердикт ТОЛЬКО в JSON без markdown:\n{"verdict":"GO"|"STOP"|"WAIT","title":"фраза до 6 слов","message":"1-2 предложения","action":"одно действие"}`;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/ai',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({prompt})
     });
     const data=await res.json();
     const result=JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
