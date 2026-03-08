@@ -816,8 +816,30 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div class="fg4">
         <div class="field"><label>P&L %</label><input id="f-pnl" type="number" placeholder="+2.5" step="0.01" oninput="fromPct()"></div>
         <div class="field"><label>P&L $</label><input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()"></div>
-        <div class="field"><label>Вход $</label><input id="f-entry" type="number" placeholder="42000"></div>
-        <div class="field"><label>Выход $</label><input id="f-exit" type="number" placeholder="43500"></div>
+        <div class="field"><label>Вход $</label><input id="f-entry" type="number" placeholder="42000" oninput="calcRR()"></div>
+        <div class="field"><label>Выход $</label><input id="f-exit" type="number" placeholder="43500" oninput="calcRR()"></div>
+      </div>
+      <div class="fg4" style="margin-top:0">
+        <div class="field"><label>Стоп $</label><input id="f-sl" type="number" placeholder="41000" oninput="calcRR()"></div>
+        <div class="field"><label>Тейк $</label><input id="f-tp" type="number" placeholder="44000" oninput="calcRR()"></div>
+        <div class="field">
+          <label>R:R</label>
+          <div id="rr-val" style="font-family:var(--font-mono);font-size:22px;padding:9px 0;color:var(--a);">—</div>
+        </div>
+        <div class="field">
+          <label>Тип сетапа</label>
+          <select id="f-setup-type" style="background:var(--bg2);border:var(--line);border-radius:6px;color:var(--t);padding:10px 12px;width:100%;font-family:var(--font-mono);font-size:10px;letter-spacing:0.5px;">
+            <option value="">— выбери —</option>
+            <option value="BOS">BOS / CHoCH</option>
+            <option value="FVG">FVG</option>
+            <option value="OB">Order Block</option>
+            <option value="Liquidity">Liquidity Sweep</option>
+            <option value="Wyckoff">Wyckoff</option>
+            <option value="SR">Support / Resistance</option>
+            <option value="Breakout">Breakout</option>
+            <option value="Other">Другое</option>
+          </select>
+        </div>
       </div>
       <div class="em-section">
         <div class="em-title">Эмоциональное состояние</div>
@@ -1179,6 +1201,27 @@ function showPage(p,btn){
 }
 
 // ─── INIT ─────────────────────────────────────────
+
+// ─── R:R CALCULATOR ───────────────────────────────
+function calcRR(){
+  var entry = parseFloat(document.getElementById('f-entry').value);
+  var sl    = parseFloat(document.getElementById('f-sl').value);
+  var tp    = parseFloat(document.getElementById('f-tp').value);
+  var rrEl  = document.getElementById('rr-val');
+  if(!rrEl) return;
+  if(entry && sl && tp && sl !== entry){
+    var risk   = Math.abs(entry - sl);
+    var reward = Math.abs(tp - entry);
+    var rr = reward / risk;
+    rrEl.textContent = '1 : ' + rr.toFixed(1);
+    rrEl.style.color = rr >= 2 ? 'var(--g)' : rr >= 1 ? 'var(--a)' : 'var(--r)';
+    document.getElementById('f-pnl').placeholder = rr >= 2 ? 'хороший RR' : rr >= 1 ? 'минимальный RR' : 'плохой RR';
+  } else {
+    rrEl.textContent = '—';
+    rrEl.style.color = 'var(--a)';
+  }
+}
+
 async function init(){
   const{data:{user}}=await sb.auth.getUser();
   if(!user){window.location.href='login.html';return;}
@@ -1230,6 +1273,9 @@ async function addTrade(){
     pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,
     entry_price:parseFloat(document.getElementById('f-entry').value)||null,
     exit_price:parseFloat(document.getElementById('f-exit').value)||null,
+    stop_loss:parseFloat(document.getElementById('f-sl').value)||null,
+    take_profit:parseFloat(document.getElementById('f-tp').value)||null,
+    setup_type:document.getElementById('f-setup-type').value||null,
     emotion_conf:parseInt(document.getElementById('e-conf').value)||5,
     emotion_fear:parseInt(document.getElementById('e-fear').value)||3,
     emotion_greed:parseInt(document.getElementById('e-greed').value)||3,
