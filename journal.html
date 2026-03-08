@@ -78,6 +78,56 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .sb-logout:hover{border-color:var(--r);color:var(--r);}
 
+/* ─── TOPBAR (desktop) ──────────────────────── */
+.jnl-topbar{
+  display:none; /* shown on desktop via media query */
+  position:sticky;top:0;z-index:85;
+  background:rgba(5,7,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  height:48px;align-items:center;padding:0 22px;gap:10px;
+  margin-left:0;
+}
+.jtb-logo{
+  font-family:var(--font-display);font-size:18px;letter-spacing:5px;
+  color:var(--t);text-decoration:none;
+  text-shadow:0 0 16px rgba(255,255,255,0.08);
+  flex-shrink:0;
+}
+.jtb-dot{
+  width:5px;height:5px;border-radius:50%;flex-shrink:0;
+  background:var(--a);
+  box-shadow:0 0 8px var(--a),0 0 16px rgba(232,114,42,0.4);
+}
+.jtb-badge{
+  background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.25);
+  border-radius:6px;padding:3px 10px;
+  font-family:var(--font-mono);font-size:8px;color:var(--a);letter-spacing:2px;
+  text-transform:uppercase;white-space:nowrap;
+  text-shadow:0 0 10px rgba(232,114,42,0.3);
+}
+.jtb-sep{width:1px;height:18px;background:rgba(255,255,255,0.07);flex-shrink:0;}
+.jtb-navs{display:flex;gap:2px;flex:1;overflow-x:auto;}
+.jtb-nav{
+  padding:5px 12px;border-radius:6px;border:none;
+  background:transparent;color:var(--m);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  text-transform:uppercase;cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.jtb-nav:hover{color:var(--m2);background:rgba(255,255,255,0.03);}
+.jtb-nav.active{background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.2);color:var(--a);}
+.jtb-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.jtb-user{
+  display:flex;align-items:center;gap:7px;padding:4px 10px;
+  border-radius:7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);
+  font-family:var(--font-mono);font-size:9px;color:var(--m);cursor:default;
+}
+.jtb-avatar{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--a2);border:1px solid var(--a3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:10px;color:var(--a);flex-shrink:0;
+}
+
 /* ─── MOBILE ──────────────────────────────── */
 .mob-bar{
   display:flex;position:sticky;top:0;z-index:90;
@@ -984,9 +1034,13 @@ display:none;}
 /* ─── DESKTOP SIDEBAR ALWAYS VISIBLE ──────────── */
 @media(min-width:861px){
   .sidebar{display:flex!important;}
-  .main{margin-left:var(--sb);padding:24px 28px 60px;}
+  .main{margin-left:var(--sb);padding:0 28px 60px;}
   .mob-bar{display:none!important;}
   .mob-bottom-nav{display:none!important;}
+  .jnl-topbar{display:flex;}
+  .jnl-topbar{margin-left:var(--sb);}
+  .topnav{display:none;}/* hide old pill nav — topbar handles it */
+  .stats-row{margin-top:20px;}
 }
 
 /* ─── SMART NOTIFICATIONS ─────────────────────── */
@@ -1221,6 +1275,31 @@ display:none;}
   </div>
 </div>
 <div class="sb-overlay" id="sb-overlay" onclick="closeSB()"></div>
+
+<!-- TOPBAR (desktop) -->
+<div class="jnl-topbar" id="jnl-topbar">
+  <span class="jtb-logo">ORBITUM</span>
+  <div class="jtb-dot"></div>
+  <span class="jtb-badge" id="jtb-page-badge">ЖУРНАЛ СДЕЛОК</span>
+  <div class="jtb-sep"></div>
+  <div class="jtb-navs">
+    <button class="jtb-nav active" onclick="showPage('journal',this)" data-page="journal">📋 Журнал</button>
+    <button class="jtb-nav" onclick="showPage('dashboard',this)" data-page="dashboard">📊 Аналитика</button>
+    <button class="jtb-nav" onclick="showPage('progress',this)" data-page="progress">📈 Прогресс</button>
+    <button class="jtb-nav" onclick="showPage('digest',this)" data-page="digest">📅 Дайджест</button>
+    <button class="jtb-nav" onclick="showPage('premarket',this)" data-page="premarket">☀️ Сессия</button>
+    <button class="jtb-nav" onclick="showPage('aichat',this)" data-page="aichat">🤖 AI Чат</button>
+    <button class="jtb-nav" onclick="showPage('coach',this)" data-page="coach">🧠 AI Коуч</button>
+    <button class="jtb-nav" onclick="showPage('simulator',this)" data-page="simulator">🎮 Симулятор</button>
+    <button class="jtb-nav" onclick="showPage('leaderboard',this)" data-page="leaderboard">🏆 Рейтинг</button>
+  </div>
+  <div class="jtb-right">
+    <div class="jtb-user">
+      <div class="jtb-avatar" id="jtb-avatar">?</div>
+      <span id="jtb-name">...</span>
+    </div>
+  </div>
+</div>
 
 <!-- MAIN -->
 <div class="main">
@@ -1940,6 +2019,11 @@ function showPage(p,btn){
   pg.classList.add('active');
   document.querySelectorAll('.sb-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.tnav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
+  document.querySelectorAll('.jtb-nav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
+  // Update topbar badge
+  const pageNames={journal:'ЖУРНАЛ СДЕЛОК',dashboard:'АНАЛИТИКА',progress:'ПРОГРЕСС',digest:'ДАЙДЖЕСТ',premarket:'ПОДГОТОВКА',aichat:'AI ЧАТ',coach:'AI КОУЧ',simulator:'СИМУЛЯТОР',leaderboard:'РЕЙТИНГ'};
+  const badge=document.getElementById('jtb-page-badge');
+  if(badge)badge.textContent=pageNames[p]||p.toUpperCase();
   updateMobNav(p);
   if(p==='dashboard')renderDashboard();
   if(p==='progress')renderProgress();
@@ -1966,10 +2050,17 @@ async function init(){
   if(!p){window.location.href='login.html';return;}
   const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date())||p.role==='admin';
   
-  // fill sidebar
-  document.getElementById('sf-avatar').textContent=(p.full_name||p.username||'U')[0].toUpperCase();
-  document.getElementById('sf-name').textContent=p.full_name||p.username||user.email;
+  // fill sidebar + topbar
+  const initLetter=(p.full_name||p.username||'U')[0].toUpperCase();
+  const displayName=p.full_name||p.username||user.email;
+  document.getElementById('sf-avatar').textContent=initLetter;
+  document.getElementById('sf-name').textContent=displayName;
   document.getElementById('sf-plan').textContent=hasAccess?(p.plan==='lifetime'?'∞ НАВСЕГДА':'МЕСЯЧНЫЙ'):'PREVIEW';
+  // topbar
+  const jtbAv=document.getElementById('jtb-avatar');
+  const jtbNm=document.getElementById('jtb-name');
+  if(jtbAv)jtbAv.textContent=initLetter;
+  if(jtbNm)jtbNm.textContent=displayName.split(' ')[0].toUpperCase();
   if(p.role==='admin'){const a=document.getElementById('snav-admin');if(a)a.style.display='flex';}
   
   if(!hasAccess){
@@ -2074,7 +2165,8 @@ async function addTrade(){
   if(!res){alert('Выбери результат');return;}
   const btn=document.getElementById('btn-add');
   btn.disabled=true;btn.textContent='СОХРАНЯЕМ...';
-  const{error}=await sb.from('trades').insert([{
+  
+  const insertData={
     user_id:currentUser.id,pair,direction:currentDir,result:res,
     deposit:parseFloat(document.getElementById('f-dep').value)||null,
     pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,
@@ -2083,7 +2175,6 @@ async function addTrade(){
     exit_price:parseFloat(document.getElementById('f-exit').value)||null,
     stop_loss:parseFloat(document.getElementById('f-sl').value)||null,
     take_profit:parseFloat(document.getElementById('f-tp').value)||null,
-    setup_type:document.getElementById('f-setup-type').value||null,
     emotion_conf:parseInt(document.getElementById('e-conf').value)||5,
     emotion_fear:parseInt(document.getElementById('e-fear').value)||3,
     emotion_greed:parseInt(document.getElementById('e-greed').value)||3,
@@ -2091,7 +2182,13 @@ async function addTrade(){
     note_why:document.getElementById('f-why').value.trim(),
     note_feel:document.getElementById('f-feel').value.trim(),
     note_lesson:document.getElementById('f-lesson').value.trim()
-  }]);
+  };
+  
+  // Add setup_type only if field exists (column may not be in DB yet)
+  const setupEl=document.getElementById('f-setup-type');
+  if(setupEl&&setupEl.value) insertData.setup_type=setupEl.value;
+  
+  const{error}=await sb.from('trades').insert([insertData]);
   btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
   if(error){alert('Ошибка: '+error.message);return;}
   ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-why','f-feel','f-lesson'].forEach(id=>document.getElementById(id).value='');
