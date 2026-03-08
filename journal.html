@@ -842,18 +842,33 @@ display:none;}
 /* ─── MOBILE BOTTOM NAV ───────────────────── */
 .mob-bottom-nav{
   display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;
-  background:rgba(5,7,10,0.97);border-top:var(--line);
-  backdrop-filter:blur(16px);padding:5px 4px 10px;
-  justify-content:space-around;gap:2px;
+  background:rgba(5,7,10,0.97);border-top:1px solid rgba(255,255,255,0.06);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:8px 12px 14px;
+  overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+}
+.mob-bottom-nav::-webkit-scrollbar{display:none;}
+.mob-nav-inner{
+  display:flex;gap:6px;align-items:center;
+  width:max-content;padding:0 4px;
 }
 .mob-nav-btn{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:5px 8px;border-radius:7px;border:none;background:none;
-  color:var(--m);cursor:pointer;transition:all 0.15s;flex:1;max-width:64px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:7px 14px;border-radius:10px;border:1px solid transparent;
+  background:rgba(255,255,255,0.03);
+  color:var(--m);cursor:pointer;transition:all 0.18s;
+  white-space:nowrap;flex-shrink:0;
 }
-.mob-nav-btn.active{color:var(--a);background:var(--a2);}
-.mob-nav-icon{font-size:16px;line-height:1;}
-.mob-nav-label{font-family:var(--font-mono);font-size:7px;letter-spacing:0.3px;text-transform:uppercase;}
+.mob-nav-btn.active{
+  color:var(--a);
+  background:rgba(232,114,42,0.1);
+  border-color:rgba(232,114,42,0.25);
+  box-shadow:0 0 14px rgba(232,114,42,0.12);
+}
+.mob-nav-icon{font-size:15px;line-height:1;}
+.mob-nav-label{font-family:var(--font-mono);font-size:7px;letter-spacing:0.5px;text-transform:uppercase;}
 
 /* ─── PROGRESS PAGE ─────────────────────────── */
 .progress-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
@@ -1231,7 +1246,6 @@ display:none;}
 <!-- MOBILE BAR -->
 <div class="mob-bar">
   <a href="index.html" class="mob-logo" style="text-decoration:none;color:inherit">ORBITUM</a>
-  <button class="mob-burger" onclick="openSB()">☰</button>
 </div>
 
 <!-- SIDEBAR -->
@@ -1965,20 +1979,37 @@ display:none;}
 
 </div><!-- /main -->
 
-<!-- MOBILE BOTTOM NAV -->
+<!-- MOBILE BOTTOM NAV (scrollable) -->
 <div class="mob-bottom-nav" id="mob-bottom-nav">
-  <button class="mob-nav-btn active" id="mbn-journal" onclick="showPage('journal',this);updateMobNav('journal')">
-    <span class="mob-nav-icon">📋</span><span class="mob-nav-label">Журнал</span>
-  </button>
-  <button class="mob-nav-btn" id="mbn-dashboard" onclick="showPage('dashboard',this);updateMobNav('dashboard')">
-    <span class="mob-nav-icon">📊</span><span class="mob-nav-label">Аналитика</span>
-  </button>
-  <button class="mob-nav-btn" id="mbn-digest" onclick="showPage('digest',this);updateMobNav('digest')">
-    <span class="mob-nav-icon">📅</span><span class="mob-nav-label">Дайджест</span>
-  </button>
-  <button class="mob-nav-btn" id="mbn-premarket" onclick="showPage('premarket',this);updateMobNav('premarket')">
-    <span class="mob-nav-icon">☀️</span><span class="mob-nav-label">Сессия</span>
-  </button>
+  <div class="mob-nav-inner">
+    <button class="mob-nav-btn active" id="mbn-journal" onclick="showPage('journal',this);updateMobNav('journal')">
+      <span class="mob-nav-icon">📋</span><span class="mob-nav-label">Журнал</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-dashboard" onclick="showPage('dashboard',this);updateMobNav('dashboard')">
+      <span class="mob-nav-icon">📊</span><span class="mob-nav-label">Аналитика</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-progress" onclick="showPage('progress',this);updateMobNav('progress')">
+      <span class="mob-nav-icon">📈</span><span class="mob-nav-label">Прогресс</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-digest" onclick="showPage('digest',this);updateMobNav('digest')">
+      <span class="mob-nav-icon">📅</span><span class="mob-nav-label">Дайджест</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-premarket" onclick="showPage('premarket',this);updateMobNav('premarket')">
+      <span class="mob-nav-icon">☀️</span><span class="mob-nav-label">Сессия</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-aichat" onclick="showPage('aichat',this);updateMobNav('aichat')">
+      <span class="mob-nav-icon">🤖</span><span class="mob-nav-label">AI Чат</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-coach" onclick="showPage('coach',this);updateMobNav('coach')">
+      <span class="mob-nav-icon">🧠</span><span class="mob-nav-label">Коуч</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-simulator" onclick="showPage('simulator',this);updateMobNav('simulator')">
+      <span class="mob-nav-icon">🎮</span><span class="mob-nav-label">Симулятор</span>
+    </button>
+    <button class="mob-nav-btn" id="mbn-leaderboard" onclick="showPage('leaderboard',this);updateMobNav('leaderboard')">
+      <span class="mob-nav-icon">🏆</span><span class="mob-nav-label">Рейтинг</span>
+    </button>
+  </div>
 </div>
 
 <!-- AI SETUP MODAL -->
@@ -2021,7 +2052,17 @@ function closeSB(){document.getElementById('sidebar').classList.remove('open');d
 function updateMobNav(p){
   document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
   const btn=document.getElementById('mbn-'+p);
-  if(btn)btn.classList.add('active');
+  if(btn){
+    btn.classList.add('active');
+    // Scroll active button into center view
+    const nav=document.getElementById('mob-bottom-nav');
+    if(nav){
+      const btnLeft=btn.offsetLeft;
+      const btnWidth=btn.offsetWidth;
+      const navWidth=nav.offsetWidth;
+      nav.scrollTo({left:btnLeft-navWidth/2+btnWidth/2,behavior:'smooth'});
+    }
+  }
 }
 
 var _aiInited=false;
@@ -2871,9 +2912,14 @@ async function importCSV(input){
       if(log)log.innerHTML='❌ Библиотека XLSX не загружена. Проверь интернет-соединение.';
       input.value='';return;
     }
-    var arrayBuf=await file.arrayBuffer();
-    var uint8=new Uint8Array(arrayBuf);
-    var wb=XLSX.read(uint8,{type:'array'});
+    // Use FileReader with binary string — most reliable method for SheetJS
+    const binaryStr = await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=e=>resolve(e.target.result);
+      reader.onerror=reject;
+      reader.readAsBinaryString(file);
+    });
+    var wb=XLSX.read(binaryStr,{type:'binary'});
     if(log)log.innerHTML='⏳ Листы: '+wb.SheetNames.join(', ')+'...';
 
     // Priority sheet order for Bybit
