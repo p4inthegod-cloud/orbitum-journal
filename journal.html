@@ -779,9 +779,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <button class="sb-item" onclick="showPage('premarket',this)" data-page="premarket">
       <span class="sb-item-icon">☀️</span>Пре-маркет
     </button>
-    <button class="sb-item" onclick="showPage('aichat',this)" data-page="aichat">
-      <span class="sb-item-icon">🤖</span>AI Советник
-    </button>
     <div class="sb-divider"></div>
     <a href="profile.html" class="sb-item" onclick="window.location.href='profile.html';return false;">
       <span class="sb-item-icon">🧠</span>Мой профиль
@@ -858,7 +855,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <button class="tnav" onclick="showPage('progress',this)" data-page="progress">📈 ПРОГРЕСС</button>
       <button class="tnav" onclick="showPage('digest',this)" data-page="digest">📅 ДАЙДЖЕСТ</button>
       <button class="tnav" onclick="showPage('premarket',this)" data-page="premarket">☀️ СЕССИЯ</button>
-      <button class="tnav" onclick="showPage('aichat',this)" data-page="aichat">🤖 AI</button>
     </div>
     <div class="fcard">
       <div class="fcard-title">+ НОВАЯ СДЕЛКА</div>
@@ -1238,9 +1234,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <button class="mob-nav-btn" id="mbn-premarket" onclick="showPage('premarket',this);updateMobNav('premarket')">
     <span class="mob-nav-icon">☀️</span><span class="mob-nav-label">Сессия</span>
   </button>
-  <button class="mob-nav-btn" id="mbn-aichat" onclick="showPage('aichat',this);updateMobNav('aichat')">
-    <span class="mob-nav-icon">🤖</span><span class="mob-nav-label">AI</span>
-  </button>
 </div>
 
 <!-- AI SETUP MODAL -->
@@ -1298,45 +1291,16 @@ function showPage(p,btn){
   if(p==='dashboard')renderDashboard();
   if(p==='progress')renderProgress();
   if(p==='digest')renderDigest();
-  if(p==='aichat'&&!_aiInited){
-    _aiInited=true;
-    setTimeout(function(){
-      var total=allTrades.length;
-      var wins=allTrades.filter(function(t){return t.result==='win';});
-      var wr=total?Math.round(wins.length/total*100):0;
-      var pnl=total?allTrades.reduce(function(s,t){return s+(t.pnl_pct||0);},0).toFixed(1):'0';
-      var avgWin=wins.length?(wins.reduce(function(s,t){return s+(t.pnl_pct||0);},0)/wins.length).toFixed(1):0;
-      var losses=allTrades.filter(function(t){return t.result==='loss';});
-      var avgLoss=losses.length?(losses.reduce(function(s,t){return s+(t.pnl_pct||0);},0)/losses.length).toFixed(1):0;
-      var msg=total>=2
-        ?'**Привет, я Макс.** Твои данные: '+total+' сделок, WR '+wr+'%, P&L '+(pnl>0?'+':'')+pnl+'%. Средний выигрыш +'+avgWin+'%, убыток '+avgLoss+'%. Что разбираем?'
-        :'**Привет, я Макс.** Запиши 2+ сделки и разберём статистику. Пока задавай вопросы по SMC/ICT.';
-      addMsg('ai',formatAIText(msg));
-    },350);
-  }
   closeSB();
 }
 
-// ─── INIT ─────────────────────────────────────────
-
-// ─── R:R CALCULATOR ───────────────────────────────
-function calcRR(){
-  var entry = parseFloat(document.getElementById('f-entry').value);
-  var sl    = parseFloat(document.getElementById('f-sl').value);
-  var tp    = parseFloat(document.getElementById('f-tp').value);
-  var rrEl  = document.getElementById('rr-val');
-  if(!rrEl) return;
-  if(entry && sl && tp && sl !== entry){
-    var risk   = Math.abs(entry - sl);
-    var reward = Math.abs(tp - entry);
-    var rr = reward / risk;
-    rrEl.textContent = '1 : ' + rr.toFixed(1);
-    rrEl.style.color = rr >= 2 ? 'var(--g)' : rr >= 1 ? 'var(--a)' : 'var(--r)';
-    document.getElementById('f-pnl').placeholder = rr >= 2 ? 'хороший RR' : rr >= 1 ? 'минимальный RR' : 'плохой RR';
-  } else {
-    rrEl.textContent = '—';
-    rrEl.style.color = 'var(--a)';
-  }
+// ─── FORMAT AI TEXT ────────────────────────────────
+function formatAIText(text){
+  if(!text) return '';
+  return '<p>'+text
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .split('\n\n').join('</p><p style="margin-top:8px">')
+    .split('\n').join('<br>')+'</p>';
 }
 
 async function init(){
@@ -1397,9 +1361,9 @@ async function addTrade(){
     emotion_fear:parseInt(document.getElementById('e-fear').value)||3,
     emotion_greed:parseInt(document.getElementById('e-greed').value)||3,
     emotion_calm:parseInt(document.getElementById('e-calm').value)||7,
-    setup_notes:document.getElementById('f-why').value.trim(),
-    emotion_notes:document.getElementById('f-feel').value.trim(),
-    lesson:document.getElementById('f-lesson').value.trim()
+    note_why:document.getElementById('f-why').value.trim(),
+    note_feel:document.getElementById('f-feel').value.trim(),
+    note_lesson:document.getElementById('f-lesson').value.trim()
   }]);
   btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
   if(error){alert('Ошибка: '+error.message);return;}
@@ -1458,7 +1422,7 @@ function render(){
           <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
         </div>
       </div>
-      ${t.setup_notes||t.emotion_notes||t.lesson?`<div class="tnotes">${t.setup_notes?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.setup_notes}<br>`:''}${t.emotion_notes?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.emotion_notes}<br>`:''}${t.lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.lesson}`:''}</div>`:''}
+      ${t.note_why||t.note_feel||t.note_lesson?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -2019,7 +1983,7 @@ async function importCSV(input){
     var usd=cUsd>=0?parseFloat(cols[cUsd])||null:null;
     var res=pct!=null?(pct>=0?'win':'loss'):usd!=null?(usd>=0?'win':'loss'):null;
     if(!res)continue;
-    toInsert.push({user_id:currentUser.id,pair:pair,direction:dir,result:res,pnl_pct:pct,pnl_usd:usd,emotion_conf:5,emotion_fear:3,emotion_greed:3,emotion_calm:7,setup_notes:'[CSV]'});
+    toInsert.push({user_id:currentUser.id,pair:pair,direction:dir,result:res,pnl_pct:pct,pnl_usd:usd,emotion_conf:5,emotion_fear:3,emotion_greed:3,emotion_calm:7,note_why:'[CSV]'});
   }
   var log=document.getElementById('import-log');
   if(!toInsert.length){if(log){log.style.display='block';log.innerHTML='❌ Не распознаны колонки. Нужны: pair/symbol, side/direction, pnl%';}input.value='';return;}
