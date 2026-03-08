@@ -110,7 +110,11 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   text-shadow:0 0 10px rgba(232,114,42,0.3);
 }
 .jtb-sep{width:1px;height:18px;background:rgba(255,255,255,0.07);flex-shrink:0;}
-.jtb-navs{display:flex;gap:2px;flex:1;overflow-x:auto;}
+.jtb-navs{
+  display:flex;gap:2px;flex:1;overflow-x:auto;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.jtb-navs::-webkit-scrollbar{display:none;}
 .jtb-nav{
   padding:5px 12px;border-radius:6px;border:none;
   background:transparent;color:var(--m);
@@ -1037,14 +1041,18 @@ display:none;}
 
 /* ─── DESKTOP SIDEBAR ALWAYS VISIBLE ──────────── */
 @media(min-width:861px){
-  .sidebar{display:flex!important;}
-  .main{margin-left:var(--sb);padding:0 28px 60px;}
+  /* ── SIDEBAR HIDDEN ON DESKTOP — topbar takes over ── */
+  .sidebar{display:none!important;}
+  .sb-overlay{display:none!important;}
   .mob-bar{display:none!important;}
   .mob-bottom-nav{display:none!important;}
-  .jnl-topbar{display:flex;}
-  .jnl-topbar{margin-left:var(--sb);}
-  .topnav{display:none;}/* hide old pill nav — topbar handles it */
-  .stats-row{margin-top:20px;}
+  /* ── TOPBAR FULL WIDTH ── */
+  .jnl-topbar{display:flex;margin-left:0;}
+  /* ── MAIN NO SIDEBAR OFFSET ── */
+  .main{margin-left:0;padding:0 32px 60px;}
+  /* ── HIDE OLD PILL NAV ── */
+  .topnav{display:none;}
+  .stats-row{margin-top:24px;}
 }
 
 /* ─── SMART NOTIFICATIONS ─────────────────────── */
