@@ -781,7 +781,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
         <div class="field"><label>Выход $</label><input id="f-exit" type="number" placeholder="43500"></div>
       </div>
       <div class="em-section">
-        <div class="em-title">Эмоциональное состояние</div>
         <div style="margin-bottom:0">
           <div class="em-section-title">Эмоциональное состояние</div>
           <div class="em-compact-grid">
@@ -1205,14 +1204,45 @@ function updateMobNav(p){
   if(btn)btn.classList.add('active');
 }
 
+let _aiChatInited=false;
 function showPage(p, btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
+  const pg=document.getElementById('page-'+p);
+  if(!pg)return;
+  pg.classList.add('active');
   document.querySelectorAll('.sb-item[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
   document.querySelectorAll('.tnav[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
   updateMobNav(p);
-  if(p==='dashboard') renderDashboard();
-  if(p==='digest') renderDigest();
+  if(p==='dashboard')renderDashboard();
+  if(p==='progress')renderProgress();
+  if(p==='digest')renderDigest();
+  if(p==='aichat'&&!_aiChatInited){
+    _aiChatInited=true;
+    setTimeout(()=>{
+      const total=allTrades.length;
+      const wins=allTrades.filter(t=>t.result==='win');
+      const wr=total?Math.round(wins.length/total*100):0;
+      const pnl=total?allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1):'0';
+      const avgWin=wins.length?(wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length).toFixed(1):0;
+      const losses=allTrades.filter(t=>t.result==='loss');
+      const avgLoss=losses.length?(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length).toFixed(1):0;
+      if(total>=2){
+        addMsg('ai',formatAIText('**Привет, я Макс — твой торговый аналитик.**
+
+Проверил твои данные:
+📊 **'+total+' сделок** · WR **'+wr+'%** · P&L **'+(pnl>0?'+':'')+pnl+'%**
+✅ Средний выигрыш: **+'+avgWin+'%** | ⚠️ Средний убыток: **'+avgLoss+'%**
+
+Что хочешь разобрать? Можешь спросить про конкретную сделку, паттерны или риск-менеджмент.'));
+      } else {
+        addMsg('ai',formatAIText('**Привет, я Макс — твой торговый аналитик.**
+
+Запиши хотя бы 2 сделки — смогу разобрать твою статистику конкретно.
+
+А пока задавай вопросы по SMC/ICT, психологии торговли или риск-менеджменту.'));
+      }
+    },350);
+  }
   closeSB();
 }
 
@@ -1597,11 +1627,24 @@ async function sendChatMessage(){
   chatHistory.push({role:'user',content:text});
   addTyping();
 
-  const tradesSummary=allTrades.length
-    ?`Трейдер имеет ${allTrades.length} сделок. WR: ${Math.round(allTrades.filter(t=>t.result==='win').length/allTrades.length*100)}%. Общий P&L: ${allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)}%.`
-    :'Трейдер пока не записал сделок.';
+  const _wins=allTrades.filter(t=>t.result==='win');
+  const _losses=allTrades.filter(t=>t.result==='loss');
+  const _wr=allTrades.length?Math.round(_wins.length/allTrades.length*100):0;
+  const _pnl=allTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const _avgW=_wins.length?(_wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/_wins.length).toFixed(1):0;
+  const _avgL=_losses.length?(_losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/_losses.length).toFixed(1):0;
+  const _rr=_avgL!=0?Math.abs(_avgW/_avgL).toFixed(2):'—';
+  const _last=allTrades.slice(0,5).map(t=>`${t.pair||'?'} ${t.direction||''} ${t.result} ${(t.pnl_pct||0).toFixed(1)}% | conf:${t.emotion_conf||'?'} fear:${t.emotion_fear||'?'}`).join(' | ');
+  const _confW=_wins.length?(_wins.reduce((s,t)=>s+(t.emotion_conf||5),0)/_wins.length).toFixed(1):0;
+  const _confL=_losses.length?(_losses.reduce((s,t)=>s+(t.emotion_conf||5),0)/_losses.length).toFixed(1):0;
+  const tradesSummary=allTrades.length>=2
+    ?`${allTrades.length} сделок, WR:${_wr}%, P&L:${_pnl.toFixed(1)}%, avgWin:+${_avgW}%, avgLoss:${_avgL}%, R/R:${_rr}, уверенность при победах:${_confW} при убытках:${_confL}. Последние: ${_last}`
+    :'Мало данных — записано менее 2 сделок.';
 
-  const systemPrompt=`Ты — AI советник трейдера в приложении ORBITUM. Ты эксперт по SMC/ICT, Wyckoff, психологии трейдинга и риск-менеджменту.\n\nКонтекст пользователя: ${tradesSummary}\n\nОтвечай на русском языке. Будь конкретным, практичным и прямым. Используй **жирный** текст для ключевых моментов. Не пиши лишних вступлений. Структурируй ответ — короткие абзацы. Максимум 250 слов.`;
+  const systemPrompt=`Ты — Макс, торговый аналитик в ORBITUM. Отвечай по-русски, прямо, без воды. Используй **жирный** и эмодзи 📊⚠️💡✅. Максимум 180 слов. Без вступлений. Анализируй конкретные цифры.
+
+ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:
+${tradesSummary}`;
 
   const fullPrompt=`${systemPrompt}\n\nИстория диалога:\n${chatHistory.slice(0,-1).map(m=>`${m.role==='user'?'Пользователь':'AI'}: ${m.content}`).join('\n')}\n\nПользователь: ${text}`;
 
@@ -1651,13 +1694,14 @@ async function checkSetup(){
       body:JSON.stringify({prompt})
     });
     const data=await res.json();
-    const result=JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
+    const result=JSON.parse((data.text||'{}').replace(/```json|```/g,'').trim());
     const v=(result.verdict||'wait').toLowerCase();
     const resultEl=document.getElementById('ai-result');
     resultEl.className='ai-result '+v;
     const verdictEl=document.getElementById('ai-verdict');
     verdictEl.className='ai-verdict '+v;
-    verdictEl.textContent=({go:'✅',stop:'🛑',wait:'⏳'}[v]||'⏳')+' '+(result.title||result.verdict);
+    const vtitle=result.title||({go:'Сетап валиден',stop:'Не входи',wait:'Жди подтверждения'}[v]||'Анализ готов');
+    verdictEl.textContent=({go:'✅',stop:'🛑',wait:'⏳'}[v]||'⏳')+' '+vtitle;
     document.getElementById('ai-text').innerHTML=`<p style="margin-bottom:7px">${result.message||''}</p>${result.action?`<p style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:#34d058">→ ${result.action}</p>`:''}`;
     resultEl.style.display='block';
     resultEl.scrollIntoView({behavior:'smooth',block:'nearest'});
