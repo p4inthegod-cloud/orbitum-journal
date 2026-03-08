@@ -555,7 +555,61 @@ let allTrades=[];
 
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
+
+async function loadPublicProfile(uid){
+  document.body.style.overflow='auto';
+  // hide sidebar, show public banner
+  const sb=document.querySelector('.sidebar');
+  const mob=document.querySelector('.mob-topbar,.mob-bar');
+  if(sb)sb.style.display='none';
+  if(mob)mob.style.display='none';
+  const wrap=document.querySelector('.profile-wrap,.main,.wrap');
+  if(wrap)wrap.style.marginLeft='0';
+
+  // Add public badge
+  const badge=document.createElement('div');
+  badge.style.cssText='position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,6,10,0.97);border-bottom:1px solid rgba(255,255,255,0.07);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);';
+  badge.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><img src="orbitum-logo.jpg" style="width:20px;height:20px;mix-blend-mode:screen;filter:drop-shadow(0 0 6px rgba(255,255,255,0.5));" onerror="this.style.display='none'"><span style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:4px;color:#f2f2f2">ORBITUM</span></div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;">ПУБЛИЧНЫЙ ПРОФИЛЬ</div><a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#e8722a;text-decoration:none;border:1px solid rgba(232,114,42,0.3);border-radius:6px;padding:5px 12px;">ПОЛУЧИТЬ ДОСТУП →</a>`;
+  document.body.prepend(badge);
+  document.body.style.paddingTop='54px';
+
+  // Load the profile data
+  const{data:p}=await sb.from('profiles').select('full_name,username,plan').eq('id',uid).single();
+  const{data:trades}=await sb.from('trades').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+
+  if(!p){
+    document.querySelector('.profile-wrap,.main,.wrap').innerHTML='<div style="text-align:center;padding:60px;font-family:JetBrains Mono,monospace;color:rgba(255,255,255,0.3);">Профиль не найден или скрыт</div>';
+    return;
+  }
+
+  // Fill in the profile data
+  allTrades=trades||[];
+  currentProfile=p;
+  const nameEl=document.getElementById('prof-name');
+  const subEl=document.getElementById('prof-sub');
+  if(nameEl)nameEl.textContent=p.full_name||p.username||'Трейдер';
+  if(subEl)subEl.textContent='ORBITUM · '+allTrades.length+' сделок';
+  
+  // Disable all edit buttons
+  document.querySelectorAll('button').forEach(b=>{
+    if(b.textContent.includes('Выйти')||b.textContent.includes('ВЫЙТИ'))b.style.display='none';
+  });
+
+  // Run the analysis
+  if(typeof renderProfile==='function')renderProfile();
+  if(typeof renderPatterns==='function')renderPatterns();
+  if(typeof renderHeatmapProfile==='function')renderHeatmapProfile();
+}
+
 async function initProfile(){
+  // Check for public profile mode
+  const urlParams=new URLSearchParams(window.location.search);
+  const publicUid=urlParams.get('uid');
+  if(publicUid){
+    await loadPublicProfile(publicUid);
+    return;
+  }
+
   const{data:{user}}=await sb.auth.getUser();
   if(!user){window.location.href='login.html';return;}
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
