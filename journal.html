@@ -6,6 +6,7 @@
 <title>ORBITUM — Журнал</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{
   --a:#e8722a; --a2:rgba(232,114,42,0.1); --a3:rgba(232,114,42,0.3);
@@ -1544,8 +1545,8 @@ display:none;}
         <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:1px;margin-top:2px;">Кривая капитала · По парам · Активность</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="imp-btn" onclick="document.getElementById('csv-input').click()">📥 Импорт CSV</button>
-        <input type="file" id="csv-input" accept=".csv" style="display:none" onchange="importCSV(this)">
+        <button class="imp-btn" onclick="document.getElementById('csv-input').click()">📥 Импорт CSV / XLSX</button>
+        <input type="file" id="csv-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="importCSV(this)">
       </div>
     </div>
     <div class="progress-kpis">
@@ -2855,43 +2856,145 @@ function renderHeatmap(trades){
   grid.innerHTML=weeksHtml;
 }
 
-// ─── CSV IMPORT ────────────────────────────────────
+// ─── IMPORT (CSV / XLSX) ───────────────────────────
 async function importCSV(input){
   var file=input.files[0];
   if(!file)return;
-  var text=await file.text();
-  var lines=text.split('\n').map(function(l){return l.trim();}).filter(Boolean);
-  if(lines.length<2){alert('Файл пустой');return;}
-  var hdr=lines[0].toLowerCase().split(',').map(function(h){return h.replace(/"/g,'').trim();});
-  var find=function(vs){return vs.reduce(function(f,v){var i=hdr.findIndex(function(h){return h.indexOf(v)>=0;});return f>=0?f:i;},-1);};
-  var cPair=find(['pair','symbol','ticker']);
-  var cDir=find(['side','direction','type']);
-  var cPct=find(['pnl%','roe%','profit%','pnl_pct','%']);
-  var cUsd=find(['pnl','profit','realized']);
-  var toInsert=[];
-  for(var i=1;i<Math.min(lines.length,500);i++){
-    var cols=lines[i].split(',').map(function(c){return c.replace(/"/g,'').trim();});
-    var pair=cPair>=0?(cols[cPair]||'').toUpperCase().replace('USDT','').replace('_','/')||null:null;
-    if(!pair)continue;
-    if(pair.indexOf('/')<0)pair=pair+'/USDT';
-    var dirRaw=cDir>=0?(cols[cDir]||'').toLowerCase():'';
-    var dir=dirRaw.indexOf('buy')>=0||dirRaw.indexOf('long')>=0?'long':'short';
-    var pct=cPct>=0?parseFloat(cols[cPct])||null:null;
-    var usd=cUsd>=0?parseFloat(cols[cUsd])||null:null;
-    var res=pct!=null?(pct>=0?'win':'loss'):usd!=null?(usd>=0?'win':'loss'):null;
-    if(!res)continue;
-    toInsert.push({user_id:currentUser.id,pair:pair,direction:dir,result:res,pnl_pct:pct,pnl_usd:usd,emotion_conf:5,emotion_fear:3,emotion_greed:3,emotion_calm:7,note_why:'[CSV]'});
-  }
   var log=document.getElementById('import-log');
-  if(!toInsert.length){if(log){log.style.display='block';log.innerHTML='❌ Не распознаны колонки. Нужны: pair/symbol, side/direction, pnl%';}input.value='';return;}
-  if(log){log.style.display='block';log.innerHTML='⏳ Импортируем '+toInsert.length+' сделок...';}
+  if(log){log.style.display='block';log.innerHTML='⏳ Читаем файл...';}
+
+  var ext=file.name.split('.').pop().toLowerCase();
+  var rows=[];
+
+  if(ext==='xlsx'||ext==='xls'){
+    // Parse xlsx using SheetJS (available via CDN in head)
+    var arrayBuf=await file.arrayBuffer();
+    var wb=XLSX.read(arrayBuf,{type:'array'});
+
+    // Priority sheet order for Bybit
+    var sheetPriority=['USDⓢ_M_Perpetual_Futures','Standard_Futures','Coin_M_Perpetual_Futures','Spot_Account'];
+    var sheetName=null;
+    for(var sp of sheetPriority){
+      if(wb.SheetNames.includes(sp)){sheetName=sp;break;}
+    }
+    if(!sheetName) sheetName=wb.SheetNames[0];
+    if(log) log.innerHTML='⏳ Лист: '+sheetName+'...';
+
+    var ws=wb.Sheets[sheetName];
+    rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+  } else {
+    // Plain CSV fallback
+    var text=await file.text();
+    var lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+    if(lines.length<2){if(log)log.innerHTML='❌ Файл пустой';input.value='';return;}
+    var hdrLine=lines[0].replace(/"/g,'').split(',').map(h=>h.trim());
+    for(var i=1;i<lines.length;i++){
+      var vals=lines[i].replace(/"/g,'').split(',').map(v=>v.trim());
+      var obj={};
+      hdrLine.forEach((h,idx)=>{obj[h]=vals[idx]||'';});
+      rows.push(obj);
+    }
+  }
+
+  if(!rows.length){if(log)log.innerHTML='❌ Нет данных в файле';input.value='';return;}
+
+  // ── Column detection ──
+  // Try to find columns by known names (Bybit & generic)
+  var sample=rows[0];
+  var keys=Object.keys(sample);
+
+  var findKey=function(variants){
+    return keys.find(k=>variants.some(v=>k.toLowerCase().includes(v.toLowerCase())))||null;
+  };
+
+  var kPair  = findKey(['Pair','Symbol','Ticker','pair','symbol']);
+  var kType  = findKey(['Type','Side','Direction','side','direction','type']);
+  var kPnl   = findKey(['Realized PNL','PnL','pnl','profit','Realized']);
+  var kPrice = findKey(['DealPrice','AvgPrice','Price','price','deal']);
+  var kQty   = findKey(['Quantity','Amount','qty','amount','size']);
+  var kSL    = findKey(['stopLossPrice','stop_loss','sl']);
+  var kTP    = findKey(['takeProfitPrice','take_profit','tp']);
+  var kTime  = findKey(['Time','openTime','closeTime','time','date']);
+  var kLev   = findKey(['Leverage','leverage']);
+
+  if(!kPair||!kType){
+    if(log) log.innerHTML='❌ Не найдены колонки Pair/Type. Найдены: <small>'+keys.slice(0,6).join(', ')+'</small>';
+    input.value='';return;
+  }
+
+  var toInsert=[];
+
+  for(var row of rows){
+    var pairRaw=(row[kPair]||'').toString().toUpperCase().trim();
+    if(!pairRaw) continue;
+
+    // Normalize pair: SOL-USDT → SOL/USDT, SOLUSDT → SOL/USDT
+    var pair=pairRaw.replace('-','/')
+                    .replace('_','/');
+    if(pair.indexOf('/')<0){
+      // try to split XXXUSDT
+      var m=pair.match(/^(.+?)(USDT|BUSD|BTC|ETH|BNB)$/);
+      if(m) pair=m[1]+'/'+m[2];
+      else  pair=pair+'/USDT';
+    }
+
+    var typeRaw=(row[kType]||'').toString().toLowerCase().trim();
+    var dir='long';
+    if(typeRaw.includes('short')||typeRaw.includes('sell')) dir='short';
+    else if(typeRaw.includes('long')||typeRaw.includes('buy')) dir='long';
+
+    // Skip "open" orders — we only want closed trades with PNL
+    if(typeRaw.includes('open')&&!typeRaw.includes('close')) continue;
+
+    var pnlUsd=kPnl?parseFloat(row[kPnl])||null:null;
+    var price=kPrice?parseFloat(row[kPrice])||null:null;
+    var qty=kQty?parseFloat(row[kQty])||null:null;
+
+    // Deposit approximation from Amount column
+    var deposit=null;
+    if(qty&&price) deposit=Math.round(qty*price);
+
+    // PNL % from deposit
+    var pnlPct=null;
+    if(pnlUsd!=null&&deposit&&deposit>0) pnlPct=parseFloat((pnlUsd/deposit*100).toFixed(2));
+
+    var result=pnlUsd!=null?(pnlUsd>=0?'win':'loss'):null;
+    if(!result) continue;
+
+    var sl=kSL?parseFloat(row[kSL])||null:null;
+    var tp=kTP?parseFloat(row[kTP])||null:null;
+
+    // Note with leverage info
+    var noteWhy='[BYBIT]';
+    if(kLev&&row[kLev]) noteWhy='[BYBIT] Плечо: '+row[kLev]+'x';
+
+    toInsert.push({
+      user_id:currentUser.id,
+      pair,direction:dir,result,
+      pnl_pct:pnlPct,
+      pnl_usd:pnlUsd,
+      deposit:deposit,
+      entry_price:price,
+      stop_loss:sl,
+      take_profit:tp,
+      emotion_conf:5,emotion_fear:3,emotion_greed:3,emotion_calm:7,
+      note_why:noteWhy
+    });
+  }
+
+  if(!toInsert.length){
+    if(log) log.innerHTML='❌ Не найдено закрытых сделок. Убедись что выбран лист с фьючерсами.';
+    input.value='';return;
+  }
+
+  if(log) log.innerHTML='⏳ Импортируем '+toInsert.length+' сделок...';
   var ok=0;
   for(var j=0;j<toInsert.length;j+=50){
     var batch=toInsert.slice(j,j+50);
     var res2=await sb.from('trades').insert(batch);
-    if(!res2.error)ok+=batch.length;
+    if(!res2.error) ok+=batch.length;
   }
-  if(log)log.innerHTML='✅ Импортировано: <strong style="color:var(--g)">'+ok+'</strong> сделок';
+  if(log) log.innerHTML='✅ Импортировано: <strong style="color:var(--g)">'+ok+'</strong> сделок из '+toInsert.length;
   input.value='';
   await loadTrades();
 }
