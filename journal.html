@@ -28,7 +28,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .sidebar{
   position:fixed;top:0;left:0;bottom:0;width:var(--sb);
   background:rgba(5,7,10,0.97);border-right:var(--line);
-  display:flex;flex-direction:column;z-index:100;
+  display:none;flex-direction:column;z-index:100;
 }
 .sb-logo{
   height:52px;display:flex;align-items:center;padding:0 16px;
@@ -80,7 +80,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 /* ─── MOBILE ──────────────────────────────── */
 .mob-bar{
-  display:none;position:sticky;top:0;z-index:90;
+  display:flex;position:sticky;top:0;z-index:90;
   background:rgba(5,7,10,0.96);backdrop-filter:blur(16px);
   border-bottom:var(--line);height:48px;
   align-items:center;justify-content:space-between;padding:0 14px;
@@ -89,13 +89,13 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .mob-burger{
   background:none;border:var(--line);border-radius:5px;
   padding:4px 8px;color:var(--m);font-size:14px;cursor:pointer;
-}
+display:none;}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;}
 
 /* ── VERY SMALL SCREENS (iPhone SE, <380px) ── */
 
 /* ─── MAIN ────────────────────────────────── */
-.main{margin-left:var(--sb);padding:20px 24px 80px;min-height:100vh;position:relative;z-index:1;}
+.main{margin-left:0;padding:20px 24px 80px;min-height:100vh;position:relative;z-index:1;}
 .bg-orb{
   position:fixed;width:600px;height:600px;border-radius:50%;
   background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 65%);
@@ -605,11 +605,37 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .pair-name{font-family:var(--font-display);font-size:16px;letter-spacing:1px;margin-bottom:5px;}
 .pair-stat{font-family:var(--font-mono);font-size:9px;color:var(--m);margin-right:10px;}
 .pair-stat span{color:var(--t);}
-.hm-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
-.hm-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px;}
-.hm-cell{height:24px;border-radius:3px;background:rgba(255,255,255,0.04);cursor:default;position:relative;}
+.hm-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+.hm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.hm-title{font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
+.hm-stats{display:flex;gap:14px;}
+.hm-stat{font-family:var(--font-mono);font-size:8px;color:var(--m);}
+.hm-stat strong{color:var(--t);}
+.hm-weeks{display:flex;gap:3px;}
+.hm-week{display:flex;flex-direction:column;gap:3px;}
+.hm-day-label{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.18);height:14px;display:flex;align-items:center;justify-content:center;}
+.hm-cell{
+  width:14px;height:14px;border-radius:3px;
+  background:rgba(255,255,255,0.04);
+  cursor:pointer;position:relative;
+  transition:transform 0.1s,box-shadow 0.2s;
+  border:1px solid rgba(255,255,255,0.03);
+}
+.hm-cell:hover{transform:scale(1.4);z-index:10;box-shadow:0 0 10px rgba(52,208,88,0.3);}
 .hm-cell:hover .hm-tip{display:block;}
-.hm-tip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.92);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:5px 8px;font-family:var(--font-mono);font-size:8px;white-space:nowrap;z-index:20;color:var(--t);pointer-events:none;}
+.hm-tip{
+  display:none;position:absolute;bottom:130%;left:50%;transform:translateX(-50%);
+  background:rgba(5,7,10,0.97);border:1px solid rgba(255,255,255,0.12);
+  border-radius:7px;padding:7px 10px;font-family:var(--font-mono);font-size:9px;
+  white-space:nowrap;z-index:30;color:var(--t);pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+.hm-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:4px solid transparent;border-top-color:rgba(255,255,255,0.12);}
+.hm-month-labels{display:flex;gap:3px;margin-bottom:3px;padding-left:22px;}
+.hm-month-label{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.2);white-space:nowrap;}
+.hm-legend{display:flex;align-items:center;gap:5px;margin-top:10px;font-family:var(--font-mono);font-size:8px;color:var(--m);}
+.hm-legend-item{width:12px;height:12px;border-radius:2px;}
 .imp-btn{background:rgba(255,255,255,0.04);border:var(--line);border-radius:7px;padding:8px 14px;color:var(--m);font-family:var(--font-mono);font-size:9px;cursor:pointer;letter-spacing:1px;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
 .imp-btn:hover{border-color:rgba(232,114,42,0.4);color:var(--a);}
 .share-btn{background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.25);border-radius:7px;padding:8px 14px;color:var(--a);font-family:var(--font-mono);font-size:9px;cursor:pointer;letter-spacing:1px;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
@@ -741,6 +767,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .psych-trades{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:2px;}
 
 @media(max-width:860px){
+  .mob-burger{display:flex!important;}
+  .mob-logo{display:block!important;}
+  .topnav{display:none!important;}
   .setup-grid{grid-template-columns:1fr 1fr;}
   .psych-grid{grid-template-columns:1fr 1fr;}
   .ds-breakdown{grid-template-columns:1fr 1fr;}
@@ -780,8 +809,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <span class="sb-item-icon">☀️</span>Пре-маркет
     </button>
     <div class="sb-divider"></div>
-    <a href="profile.html" class="sb-item" onclick="window.location.href='profile.html';return false;">
-      <span class="sb-item-icon">🧠</span>Мой профиль
+    <a href="profile.html" class="sb-item" target="_blank" rel="noopener">
+      <span class="sb-item-icon">🧠</span>Мой профиль ↗
     </a>
     <a href="admin.html" class="sb-item" id="snav-admin" style="display:none" onclick="window.location.href='admin.html';return false;">
       <span class="sb-item-icon">⚙️</span>Админ
@@ -1053,14 +1082,36 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">По парам</div>
     <div class="pairs-grid" id="pairs-grid"></div>
     <div class="hm-card">
-      <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;">Активность (последние 70 дней)</div>
-      <div class="hm-grid" id="hm-grid"></div>
-      <div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-family:var(--font-mono);font-size:8px;color:var(--m);">
+      <div class="hm-header">
+        <div class="hm-title">Активность</div>
+        <div class="hm-stats">
+          <div class="hm-stat">Всего: <strong id="hm-total">—</strong></div>
+          <div class="hm-stat">Лучший: <strong id="hm-best-day">—</strong></div>
+        </div>
+      </div>
+      <div class="hm-month-labels" id="hm-month-labels"></div>
+      <div style="display:flex;gap:3px;">
+        <div style="display:flex;flex-direction:column;gap:3px;padding-top:0px;">
+          <div class="hm-day-label" style="height:14px"></div>
+          <div class="hm-day-label">Пн</div>
+          <div class="hm-day-label">Вт</div>
+          <div class="hm-day-label">Ср</div>
+          <div class="hm-day-label">Чт</div>
+          <div class="hm-day-label">Пт</div>
+          <div class="hm-day-label">Сб</div>
+          <div class="hm-day-label">Вс</div>
+        </div>
+        <div class="hm-weeks" id="hm-grid"></div>
+      </div>
+      <div class="hm-legend">
         Меньше
-        <div style="width:11px;height:11px;border-radius:2px;background:rgba(255,255,255,0.04)"></div>
-        <div style="width:11px;height:11px;border-radius:2px;background:rgba(52,208,88,0.25)"></div>
-        <div style="width:11px;height:11px;border-radius:2px;background:#34d058"></div>
+        <div class="hm-legend-item" style="background:rgba(255,255,255,0.04)"></div>
+        <div class="hm-legend-item" style="background:rgba(52,208,88,0.2)"></div>
+        <div class="hm-legend-item" style="background:rgba(52,208,88,0.5)"></div>
+        <div class="hm-legend-item" style="background:#34d058"></div>
         Больше
+        <div style="width:12px;height:12px;border-radius:2px;background:rgba(255,77,77,0.5);margin-left:10px;"></div>
+        Убыток
       </div>
     </div>
     <div id="import-log" style="display:none;background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.15);border-radius:8px;padding:12px;font-family:var(--font-mono);font-size:10px;color:var(--m);line-height:1.6;margin-top:4px;"></div>
@@ -1934,28 +1985,88 @@ function renderProgress(){
 function renderHeatmap(trades){
   var grid=document.getElementById('hm-grid');
   if(!grid)return;
+  // Build data map
   var byDay={};
   trades.forEach(function(t){
     if(!t.created_at)return;
     var d=new Date(t.created_at).toISOString().split('T')[0];
-    if(!byDay[d])byDay[d]={n:0,pnl:0};
-    byDay[d].n++;byDay[d].pnl+=(t.pnl_pct||0);
+    if(!byDay[d])byDay[d]={n:0,pnl:0,wins:0};
+    byDay[d].n++;
+    byDay[d].pnl+=(t.pnl_pct||0);
+    if(t.result==='win')byDay[d].wins++;
   });
-  var cells=[];
-  for(var i=69;i>=0;i--){
-    var dt=new Date();dt.setDate(dt.getDate()-i);
-    var key=dt.toISOString().split('T')[0];
-    var d=byDay[key];
-    var bg='rgba(255,255,255,0.04)';
-    var tip=key;
-    if(d){
-      var alpha=Math.min(0.9,0.2+d.n*0.25);
-      bg=d.pnl>=0?'rgba(52,208,88,'+alpha+')':'rgba(255,77,77,'+alpha+')';
-      tip=key+': '+d.n+' сд. '+(d.pnl>=0?'+':'')+d.pnl.toFixed(1)+'%';
-    }
-    cells.push('<div class="hm-cell" style="background:'+bg+'"><div class="hm-tip">'+tip+'</div></div>');
+
+  // Stats
+  var totalEl=document.getElementById('hm-total');
+  var bestEl=document.getElementById('hm-best-day');
+  if(totalEl)totalEl.textContent=trades.length+' сд.';
+  if(Object.keys(byDay).length&&bestEl){
+    var bestDay=Object.entries(byDay).reduce(function(b,e){return e[1].pnl>b[1].pnl?e:b;});
+    var bd=new Date(bestDay[0]);
+    bestEl.textContent=bd.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' +'+bestDay[1].pnl.toFixed(1)+'%';
   }
-  grid.innerHTML=cells.join('');
+
+  // Build 10 weeks × 7 days grid (GitHub-style)
+  var WEEKS=16;
+  var today=new Date();
+  today.setHours(0,0,0,0);
+  // Start from Monday of first week
+  var startDate=new Date(today);
+  startDate.setDate(today.getDate()-(WEEKS*7)+1);
+  // Adjust to nearest Monday
+  var dow=startDate.getDay();
+  var adjust=dow===0?-6:1-dow;
+  startDate.setDate(startDate.getDate()+adjust);
+
+  // Month labels
+  var monthLabels=document.getElementById('hm-month-labels');
+  var months=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  var lastMonth=-1;
+  var mlHtml='';
+  
+  var weeksHtml='';
+  for(var w=0;w<WEEKS;w++){
+    weeksHtml+='<div class="hm-week">';
+    // Month label placeholder (14px height)
+    var firstDayOfWeek=new Date(startDate);
+    firstDayOfWeek.setDate(startDate.getDate()+w*7);
+    var mo=firstDayOfWeek.getMonth();
+    var moLabel='';
+    if(mo!==lastMonth){lastMonth=mo;moLabel=months[mo];}
+    weeksHtml+='<div class="hm-day-label" style="color:rgba(255,255,255,0.3);font-size:7px;height:14px">'+moLabel+'</div>';
+
+    for(var d=0;d<7;d++){
+      var dt=new Date(startDate);
+      dt.setDate(startDate.getDate()+w*7+d);
+      var key=dt.toISOString().split('T')[0];
+      var isFuture=dt>today;
+      var dayData=byDay[key];
+      var bg,tip,glow='';
+      if(isFuture){
+        bg='rgba(255,255,255,0.02)';
+        tip=key;
+      } else if(dayData){
+        var pnl=dayData.pnl;
+        var intensity=Math.min(1,0.25+dayData.n*0.2);
+        if(pnl>=0){
+          bg='rgba(52,208,88,'+intensity+')';
+          glow=dayData.n>=3?'box-shadow:0 0 6px rgba(52,208,88,0.4)':'';
+        } else {
+          bg='rgba(255,77,77,'+intensity+')';
+          glow=dayData.n>=3?'box-shadow:0 0 6px rgba(255,77,77,0.4)':'';
+        }
+        var wr=Math.round(dayData.wins/dayData.n*100);
+        tip=dt.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'})+
+            ' · '+dayData.n+' сд. · WR '+wr+'% · '+(pnl>=0?'+':'')+pnl.toFixed(1)+'%';
+      } else {
+        bg='rgba(255,255,255,0.04)';
+        tip=dt.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'})+' · нет сделок';
+      }
+      weeksHtml+='<div class="hm-cell" style="background:'+bg+';'+glow+'"><div class="hm-tip">'+tip+'</div></div>';
+    }
+    weeksHtml+='</div>';
+  }
+  grid.innerHTML=weeksHtml;
 }
 
 // ─── CSV IMPORT ────────────────────────────────────
