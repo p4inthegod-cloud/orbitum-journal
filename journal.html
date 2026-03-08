@@ -137,6 +137,88 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   font-family:var(--font-display);font-size:10px;color:var(--a);flex-shrink:0;
 }
 
+/* ── TOPBAR ACTION BUTTONS ── */
+.jtb-action-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:7px;border:none;cursor:pointer;
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  text-transform:uppercase;transition:all 0.15s;text-decoration:none;white-space:nowrap;
+}
+.jtb-action-btn.profile{
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
+  color:var(--m);
+}
+.jtb-action-btn.profile:hover{background:rgba(255,255,255,0.06);color:var(--t);border-color:rgba(255,255,255,0.14);}
+.jtb-action-btn.note{
+  background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.2);
+  color:var(--a);
+}
+.jtb-action-btn.note:hover{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);}
+.jtb-sep-v{width:1px;height:18px;background:rgba(255,255,255,0.06);flex-shrink:0;}
+
+/* ── QUICK NOTE POPUP ── */
+.qnote-overlay{
+  position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:flex-end;padding:56px 18px 0;
+}
+.qnote-overlay.open{display:flex;}
+.qnote-popup{
+  width:320px;
+  background:rgba(10,12,18,0.98);border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04);
+  animation:qnoteIn 0.22s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes qnoteIn{from{opacity:0;transform:translateY(-10px) scale(0.97);}to{opacity:1;transform:none;}}
+.qnote-head{
+  padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.qnote-title{font-family:var(--font-display);font-size:13px;letter-spacing:2px;color:var(--a);}
+.qnote-close{background:none;border:none;color:var(--m);font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+.qnote-close:hover{color:var(--t);}
+.qnote-body{padding:12px 14px;}
+.qnote-label{font-family:var(--font-mono);font-size:8px;letter-spacing:2px;color:var(--m);text-transform:uppercase;margin-bottom:6px;}
+.qnote-type-row{display:flex;gap:5px;margin-bottom:10px;}
+.qnote-type{
+  padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);color:var(--m);
+  font-family:var(--font-mono);font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.12s;
+}
+.qnote-type.active,.qnote-type:hover{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.3);color:var(--a);}
+.qnote-textarea{
+  width:100%;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;padding:10px 12px;color:var(--t);
+  font-family:var(--font-mono);font-size:11px;line-height:1.6;
+  resize:none;height:90px;outline:none;transition:border-color 0.15s;
+}
+.qnote-textarea:focus{border-color:rgba(232,114,42,0.35);}
+.qnote-textarea::placeholder{color:rgba(255,255,255,0.2);}
+.qnote-footer{padding:0 14px 14px;display:flex;gap:7px;}
+.qnote-save{
+  flex:1;padding:9px;border:none;border-radius:8px;cursor:pointer;
+  background:var(--a);color:#fff;font-family:var(--font-display);font-size:12px;letter-spacing:2px;
+  transition:all 0.15s;
+}
+.qnote-save:hover{opacity:0.88;transform:translateY(-1px);}
+.qnote-list{
+  border-top:1px solid rgba(255,255,255,0.05);padding:10px 14px;
+  max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;
+}
+.qnote-list::-webkit-scrollbar{width:3px;}
+.qnote-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+.qnote-item{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+  border-radius:7px;padding:7px 10px;position:relative;
+}
+.qnote-item-type{font-family:var(--font-mono);font-size:7px;letter-spacing:1px;color:var(--a);margin-bottom:3px;text-transform:uppercase;}
+.qnote-item-text{font-family:var(--font-mono);font-size:10px;color:var(--m2);line-height:1.5;}
+.qnote-item-del{
+  position:absolute;top:5px;right:7px;background:none;border:none;
+  color:rgba(255,255,255,0.15);font-size:12px;cursor:pointer;
+}
+.qnote-item-del:hover{color:var(--r);}
+
 /* ─── MOBILE ──────────────────────────────── */
 .mob-bar{
   display:flex;position:sticky;top:0;z-index:90;
@@ -1355,6 +1437,13 @@ display:none;}
     <button class="jtb-nav" onclick="showPage('leaderboard',this)" data-page="leaderboard">🏆 Рейтинг</button>
   </div>
   <div class="jtb-right">
+    <a href="profile.html" class="jtb-action-btn profile" title="Мой профиль">
+      🧠 Профиль
+    </a>
+    <button class="jtb-action-btn note" onclick="openQNote()" title="Быстрая заметка">
+      ✏️ Заметка
+    </button>
+    <div class="jtb-sep-v"></div>
     <div class="jtb-user">
       <div class="jtb-avatar" id="jtb-avatar">?</div>
       <span id="jtb-name">...</span>
@@ -2366,14 +2455,7 @@ async function addTrade(){
   };
   if(currentSetup) insertData.setup_type=currentSetup;
 
-  let{error}=await sb.from('trades').insert([insertData]);
-  // Fallback: если setup_type ещё не в schema cache — пробуем без неё
-  if(error && error.message && error.message.includes('setup_type')){
-    const fallback={...insertData};
-    delete fallback.setup_type;
-    const res2=await sb.from('trades').insert([fallback]);
-    error=res2.error;
-  }
+  const{error}=await sb.from('trades').insert([insertData]);
   btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
   if(error){showNotif('error','Ошибка',error.message,5000);return;}
 
@@ -3644,6 +3726,85 @@ function initLeaderboard(){
 }
 
 init();
+</script>
+<!-- QUICK NOTE POPUP -->
+<div class="qnote-overlay" id="qnote-overlay" onclick="closeQNote(event)">
+  <div class="qnote-popup" onclick="event.stopPropagation()">
+    <div class="qnote-head">
+      <div class="qnote-title">✏️ БЫСТРАЯ ЗАМЕТКА</div>
+      <button class="qnote-close" onclick="closeQNote()">✕</button>
+    </div>
+    <div class="qnote-body">
+      <div class="qnote-label">Тип</div>
+      <div class="qnote-type-row">
+        <button class="qnote-type active" onclick="setQNoteType('💡 Идея',this)">💡 Идея</button>
+        <button class="qnote-type" onclick="setQNoteType('⚠️ Риск',this)">⚠️ Риск</button>
+        <button class="qnote-type" onclick="setQNoteType('📌 Уровень',this)">📌 Уровень</button>
+        <button class="qnote-type" onclick="setQNoteType('🧠 Мысль',this)">🧠 Мысль</button>
+      </div>
+      <div class="qnote-label">Заметка</div>
+      <textarea class="qnote-textarea" id="qnote-text" placeholder="Запиши мысль прямо сейчас..."></textarea>
+    </div>
+    <div class="qnote-footer">
+      <button class="qnote-save" onclick="saveQNote()">СОХРАНИТЬ</button>
+    </div>
+    <div class="qnote-list" id="qnote-list"></div>
+  </div>
+</div>
+
+<script>
+/* ── QUICK NOTE ── */
+let qNoteType='💡 Идея';
+let qNotes=[];
+try{qNotes=JSON.parse(localStorage.getItem('orb_qnotes')||'[]');}catch(e){}
+
+function openQNote(){
+  document.getElementById('qnote-overlay').classList.add('open');
+  renderQNotes();
+  setTimeout(()=>document.getElementById('qnote-text').focus(),120);
+}
+function closeQNote(e){
+  if(e&&e.target!==document.getElementById('qnote-overlay'))return;
+  document.getElementById('qnote-overlay').classList.remove('open');
+}
+function setQNoteType(type,btn){
+  qNoteType=type;
+  document.querySelectorAll('.qnote-type').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function saveQNote(){
+  const text=document.getElementById('qnote-text').value.trim();
+  if(!text)return;
+  qNotes.unshift({type:qNoteType,text,time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
+  if(qNotes.length>20)qNotes.pop();
+  try{localStorage.setItem('orb_qnotes',JSON.stringify(qNotes));}catch(e){}
+  document.getElementById('qnote-text').value='';
+  renderQNotes();
+  // flash save button
+  const btn=document.querySelector('.qnote-save');
+  btn.textContent='✓ СОХРАНЕНО';btn.style.background='#34d058';
+  setTimeout(()=>{btn.textContent='СОХРАНИТЬ';btn.style.background='';},1600);
+}
+function deleteQNote(i){
+  qNotes.splice(i,1);
+  try{localStorage.setItem('orb_qnotes',JSON.stringify(qNotes));}catch(e){}
+  renderQNotes();
+}
+function renderQNotes(){
+  const el=document.getElementById('qnote-list');
+  if(!qNotes.length){el.innerHTML='<div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.15);text-align:center;padding:6px 0;">Заметок пока нет</div>';return;}
+  el.innerHTML=qNotes.map((n,i)=>`
+    <div class="qnote-item">
+      <div class="qnote-item-type">${n.type} · ${n.time}</div>
+      <div class="qnote-item-text">${n.text}</div>
+      <button class="qnote-item-del" onclick="deleteQNote(${i})">✕</button>
+    </div>`).join('');
+}
+
+// Close with Escape
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')document.getElementById('qnote-overlay').classList.remove('open');
+});
 </script>
 </body>
 </html>
