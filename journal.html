@@ -156,6 +156,67 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .jtb-action-btn.note:hover{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);}
 .jtb-sep-v{width:1px;height:18px;background:rgba(255,255,255,0.06);flex-shrink:0;}
 
+/* ── DAILY GOAL WIDGET ── */
+.jtb-goal{
+  display:flex;align-items:center;gap:7px;
+  padding:4px 10px 4px 8px;border-radius:7px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);
+  cursor:pointer;transition:all 0.15s;position:relative;
+  min-width:110px;
+}
+.jtb-goal:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.12);}
+.jtb-goal.achieved{
+  background:rgba(52,208,88,0.07);border-color:rgba(52,208,88,0.25);
+  animation:goalPulse 2s ease infinite;
+}
+@keyframes goalPulse{0%,100%{box-shadow:0 0 0 0 rgba(52,208,88,0.15);}50%{box-shadow:0 0 0 5px rgba(52,208,88,0);}}
+.jtb-goal-icon{font-size:13px;line-height:1;flex-shrink:0;}
+.jtb-goal-info{display:flex;flex-direction:column;gap:1px;flex:1;}
+.jtb-goal-label{font-family:var(--font-mono);font-size:7px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;line-height:1;}
+.jtb-goal-val{font-family:var(--font-mono);font-size:11px;color:var(--t);line-height:1.2;font-weight:500;}
+.jtb-goal-progress{
+  position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:rgba(255,255,255,0.05);border-radius:0 0 7px 7px;overflow:hidden;
+}
+.jtb-goal-fill{height:100%;border-radius:0 0 7px 7px;transition:width 0.5s cubic-bezier(0.16,1,0.3,1);}
+
+/* ── GOAL EDIT POPUP ── */
+.goal-popup{
+  position:absolute;top:calc(100% + 8px);right:0;z-index:200;
+  width:260px;
+  background:rgba(10,12,18,0.98);border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7);
+  display:none;animation:qnoteIn 0.18s cubic-bezier(0.16,1,0.3,1) both;
+}
+.goal-popup.open{display:block;}
+.goal-popup-head{
+  padding:11px 14px 9px;border-bottom:1px solid rgba(255,255,255,0.06);
+  font-family:var(--font-display);font-size:12px;letter-spacing:2px;color:var(--a);
+}
+.goal-popup-body{padding:12px 14px;}
+.goal-popup-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.goal-popup-row:last-child{margin-bottom:0;}
+.goal-popup-lbl{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;flex-shrink:0;width:60px;}
+.goal-popup-input{
+  flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;padding:6px 10px;color:var(--t);
+  font-family:var(--font-mono);font-size:12px;outline:none;transition:border-color 0.15s;
+}
+.goal-popup-input:focus{border-color:rgba(232,114,42,0.4);}
+.goal-popup-unit{font-family:var(--font-mono);font-size:10px;color:var(--m);flex-shrink:0;}
+.goal-popup-today{
+  padding:10px 14px;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.05);
+  font-family:var(--font-mono);font-size:9px;color:var(--m);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.goal-popup-save{
+  width:calc(100% - 28px);margin:10px 14px 14px;padding:8px;border:none;border-radius:7px;
+  background:var(--a);color:#fff;font-family:var(--font-display);font-size:12px;letter-spacing:2px;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.goal-popup-save:hover{opacity:0.85;}
+
 /* ── QUICK NOTE POPUP ── */
 .qnote-overlay{
   position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.55);
@@ -1437,6 +1498,37 @@ display:none;}
     <button class="jtb-nav" onclick="showPage('leaderboard',this)" data-page="leaderboard">🏆 Рейтинг</button>
   </div>
   <div class="jtb-right">
+    <!-- DAILY GOAL WIDGET -->
+    <div class="jtb-goal" id="jtb-goal-widget" onclick="toggleGoalPopup()" title="Дневная цель в R">
+      <div class="jtb-goal-icon" id="goal-icon">🎯</div>
+      <div class="jtb-goal-info">
+        <div class="jtb-goal-label">Цель / день</div>
+        <div class="jtb-goal-val" id="goal-display">— R</div>
+      </div>
+      <div class="jtb-goal-progress"><div class="jtb-goal-fill" id="goal-fill" style="width:0%"></div></div>
+      <!-- inline popup -->
+      <div class="goal-popup" id="goal-popup" onclick="event.stopPropagation()">
+        <div class="goal-popup-head">🎯 ДНЕВНАЯ ЦЕЛЬ</div>
+        <div class="goal-popup-body">
+          <div class="goal-popup-row">
+            <div class="goal-popup-lbl">Цель</div>
+            <input class="goal-popup-input" id="goal-r-input" type="number" min="0.5" max="50" step="0.5" placeholder="3">
+            <div class="goal-popup-unit">R / день</div>
+          </div>
+          <div class="goal-popup-row">
+            <div class="goal-popup-lbl">Размер R</div>
+            <input class="goal-popup-input" id="goal-size-input" type="number" min="1" max="10000" step="1" placeholder="50">
+            <div class="goal-popup-unit">$</div>
+          </div>
+        </div>
+        <div class="goal-popup-today">
+          <span>Сегодня заработано:</span>
+          <span id="goal-today-earned" style="color:var(--g)">0 R</span>
+        </div>
+        <button class="goal-popup-save" onclick="saveGoal()">СОХРАНИТЬ</button>
+      </div>
+    </div>
+    <div class="jtb-sep-v"></div>
     <a href="profile.html" class="jtb-action-btn profile" title="Мой профиль">
       🧠 Профиль
     </a>
@@ -3801,9 +3893,129 @@ function renderQNotes(){
     </div>`).join('');
 }
 
-// Close with Escape
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')document.getElementById('qnote-overlay').classList.remove('open');
+/* ── DAILY GOAL IN R ── */
+let goalR = 3;       // target R per day
+let goalRSize = 50;  // $ per 1R
+let goalPopupOpen = false;
+
+// Load saved settings
+try {
+  const saved = JSON.parse(localStorage.getItem('orb_goal') || '{}');
+  if (saved.r) goalR = saved.r;
+  if (saved.rSize) goalRSize = saved.rSize;
+} catch(e) {}
+
+function toggleGoalPopup() {
+  goalPopupOpen = !goalPopupOpen;
+  const popup = document.getElementById('goal-popup');
+  popup.classList.toggle('open', goalPopupOpen);
+  if (goalPopupOpen) {
+    document.getElementById('goal-r-input').value = goalR;
+    document.getElementById('goal-size-input').value = goalRSize;
+    updateGoalToday();
+    // Close on outside click
+    setTimeout(() => {
+      document.addEventListener('click', closeGoalPopupOutside, {once: true});
+    }, 10);
+  }
+}
+
+function closeGoalPopupOutside(e) {
+  const widget = document.getElementById('jtb-goal-widget');
+  if (!widget.contains(e.target)) {
+    goalPopupOpen = false;
+    document.getElementById('goal-popup').classList.remove('open');
+  }
+}
+
+function saveGoal() {
+  const r = parseFloat(document.getElementById('goal-r-input').value) || 3;
+  const rSize = parseFloat(document.getElementById('goal-size-input').value) || 50;
+  goalR = r;
+  goalRSize = rSize;
+  try { localStorage.setItem('orb_goal', JSON.stringify({r: goalR, rSize: goalRSize})); } catch(e) {}
+  goalPopupOpen = false;
+  document.getElementById('goal-popup').classList.remove('open');
+  updateGoalWidget();
+}
+
+function getTodayR() {
+  // Calculate today's earned R from allTrades
+  if (typeof allTrades === 'undefined' || !allTrades.length) return 0;
+  const today = new Date().toDateString();
+  const todayTrades = allTrades.filter(t => new Date(t.created_at).toDateString() === today);
+  if (!todayTrades.length) return 0;
+  // Sum P&L in $ and divide by R size
+  const totalPnlUsd = todayTrades.reduce((s, t) => s + (t.pnl_usd || 0), 0);
+  return goalRSize > 0 ? totalPnlUsd / goalRSize : 0;
+}
+
+function updateGoalToday() {
+  const earned = getTodayR();
+  const el = document.getElementById('goal-today-earned');
+  if (el) {
+    el.textContent = (earned >= 0 ? '+' : '') + earned.toFixed(1) + ' R';
+    el.style.color = earned >= goalR ? 'var(--g)' : earned > 0 ? 'var(--a)' : 'var(--r)';
+  }
+}
+
+function updateGoalWidget() {
+  const earned = getTodayR();
+  const pct = Math.min(100, Math.max(0, (earned / goalR) * 100));
+  const achieved = earned >= goalR;
+
+  // Display
+  const display = document.getElementById('goal-display');
+  if (display) {
+    if (earned === 0) {
+      display.textContent = goalR + ' R цель';
+      display.style.color = 'var(--t)';
+    } else {
+      display.textContent = earned.toFixed(1) + ' / ' + goalR + ' R';
+      display.style.color = achieved ? 'var(--g)' : earned > 0 ? 'var(--a)' : 'var(--r)';
+    }
+  }
+
+  // Progress bar
+  const fill = document.getElementById('goal-fill');
+  if (fill) {
+    fill.style.width = pct + '%';
+    fill.style.background = achieved
+      ? 'linear-gradient(90deg,#34d058,#28a045)'
+      : earned > 0
+        ? 'linear-gradient(90deg,var(--a),#ff9a5c)'
+        : 'rgba(255,77,77,0.6)';
+  }
+
+  // Icon + glow
+  const icon = document.getElementById('goal-icon');
+  if (icon) icon.textContent = achieved ? '✅' : earned > 0 ? '🔥' : '🎯';
+
+  const widget = document.getElementById('jtb-goal-widget');
+  if (widget) widget.classList.toggle('achieved', achieved);
+}
+
+// Init goal widget after trades load — hook into loadTrades
+const _origUpdateGoal = typeof updateGoalWidget === 'function' ? updateGoalWidget : null;
+// Run after page loads and whenever trades update
+document.addEventListener('DOMContentLoaded', () => {
+  updateGoalWidget();
+});
+// Also update whenever allTrades changes — patch loadTrades
+(function() {
+  const CHECK_INTERVAL = 1500;
+  setTimeout(function check() {
+    updateGoalWidget();
+    setTimeout(check, CHECK_INTERVAL);
+  }, CHECK_INTERVAL);
+})();
+
+// Close goal popup on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && goalPopupOpen) {
+    goalPopupOpen = false;
+    document.getElementById('goal-popup').classList.remove('open');
+  }
 });
 </script>
 </body>
