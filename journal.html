@@ -131,7 +131,7 @@ display:none;}
 .stat-cell:hover{border-color:var(--a3);}
 .stat-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
 .stat-value{font-family:var(--font-mono);font-size:18px;font-weight:500;}
-.sv-g{color:var(--g);}.sv-r{color:var(--r);}.sv-a{color:var(--a);}
+.sv-g{color:var(--g);}.sv-r{color:var(--r);}.sv-a{color:var(--a);text-shadow:0 0 16px rgba(232,114,42,0.5);}
 
 /* ─── LEVEL BAR ───────────────────────────── */
 .level-bar{
@@ -149,7 +149,7 @@ display:none;}
   display:flex;align-items:center;justify-content:center;
   font-size:18px;flex-shrink:0;border:1px solid rgba(255,255,255,0.1);
 }
-.lb-name{font-family:var(--font-display);font-size:16px;letter-spacing:2px;line-height:1;}
+.lb-name{font-family:var(--font-display);font-size:16px;letter-spacing:2px;line-height:1;text-shadow:0 0 14px currentColor;}
 .lb-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:2px;}
 .lb-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .streak-pill{
@@ -157,7 +157,7 @@ display:none;}
   background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.18);
   border-radius:6px;padding:5px 10px;
 }
-.streak-num{font-family:var(--font-display);font-size:18px;color:var(--y);line-height:1;}
+.streak-num{font-family:var(--font-display);font-size:18px;color:var(--y);line-height:1;text-shadow:0 0 14px rgba(245,166,35,0.5);}
 .streak-lbl{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px;}
 .lb-track{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;margin-bottom:4px;}
 .lb-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(0.16,1,0.3,1);}
@@ -179,7 +179,7 @@ display:none;}
   content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
   background:linear-gradient(90deg,transparent,var(--a3),transparent);
 }
-.fcard-title{font-family:var(--font-display);font-size:13px;letter-spacing:3px;color:var(--a);margin-bottom:16px;}
+.fcard-title{font-family:var(--font-display);font-size:13px;letter-spacing:3px;color:var(--a);margin-bottom:16px;text-shadow:0 0 18px rgba(232,114,42,0.45);}
 .fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
 .field{display:flex;flex-direction:column;gap:5px;}
@@ -364,74 +364,251 @@ display:none;}
 .mc-delta.up{color:var(--g);}.mc-delta.down{color:var(--r);}.mc-delta.same{color:var(--m);}
 
 /* ─── PRE-MARKET ──────────────────────────── */
-.pm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.pm-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:18px;}
-.pm-card.full{grid-column:1/-1;}
-.pm-title{font-family:var(--font-display);font-size:12px;letter-spacing:3px;color:var(--a);margin-bottom:14px;}
-.pm-checklist{display:flex;flex-direction:column;gap:5px;}
+.pm-page-wrap{display:flex;flex-direction:column;gap:12px;}
+.pm-header-card{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:20px 24px;position:relative;overflow:hidden;
+}
+.pm-header-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.5),transparent);
+}
+.pm-header-card::after{
+  content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.06),transparent 70%);
+  pointer-events:none;
+}
+.pm-headline{
+  font-family:var(--font-display);font-size:22px;letter-spacing:4px;
+  color:var(--a);text-shadow:0 0 20px rgba(232,114,42,0.4),0 0 40px rgba(232,114,42,0.15);
+  margin-bottom:2px;
+}
+.pm-headline-sub{font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;}
+
+.pm-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pm-section-card{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:18px;position:relative;overflow:hidden;
+}
+.pm-section-card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.25),transparent);
+}
+.pm-section-title{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:2.5px;
+  text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;
+  color:rgba(232,114,42,0.7);text-shadow:0 0 10px rgba(232,114,42,0.3);
+}
+.pm-section-title::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--a);box-shadow:0 0 6px var(--a);flex-shrink:0;}
+
+.pm-checklist{display:flex;flex-direction:column;gap:6px;}
 .pm-item{
-  display:flex;align-items:center;gap:10px;padding:9px 12px;
-  background:var(--bg3);border:var(--line);border-radius:7px;
-  cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;gap:12px;padding:11px 14px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+  border-radius:8px;cursor:pointer;transition:all 0.2s;
 }
-.pm-item:hover{border-color:rgba(255,255,255,0.1);}
-.pm-item.checked{background:rgba(52,208,88,0.04);border-color:rgba(52,208,88,0.18);}
+.pm-item:hover{
+  border-color:rgba(232,114,42,0.2);
+  background:rgba(232,114,42,0.03);
+  box-shadow:0 0 12px rgba(232,114,42,0.06);
+}
+.pm-item.checked{
+  background:rgba(52,208,88,0.04);
+  border-color:rgba(52,208,88,0.2);
+  box-shadow:0 0 12px rgba(52,208,88,0.06);
+}
 .pm-check{
-  width:17px;height:17px;border-radius:4px;border:var(--line);
+  width:18px;height:18px;border-radius:5px;
+  border:1px solid rgba(255,255,255,0.1);
   background:transparent;display:flex;align-items:center;justify-content:center;
-  font-size:9px;flex-shrink:0;transition:all 0.15s;color:transparent;
+  font-size:10px;flex-shrink:0;transition:all 0.2s;color:transparent;
 }
-.pm-item.checked .pm-check{background:rgba(52,208,88,0.15);border-color:rgba(52,208,88,0.4);color:var(--g);}
-.pm-item-text{font-family:var(--font-body);font-size:12px;color:var(--m);transition:color 0.15s;}
-.pm-item.checked .pm-item-text{color:var(--t);}
-.pm-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.pm-col-title{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-.pm-limits{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
-.pm-limit-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.pm-limit-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0;}
+.pm-item.checked .pm-check{
+  background:rgba(52,208,88,0.15);
+  border-color:rgba(52,208,88,0.4);
+  color:var(--g);
+  box-shadow:0 0 8px rgba(52,208,88,0.2);
+}
+.pm-item-text{
+  font-family:var(--font-body);font-size:12px;
+  color:rgba(255,255,255,0.45);transition:all 0.2s;
+}
+.pm-item.checked .pm-item-text{
+  color:rgba(255,255,255,0.75);
+}
+
+/* ── LIMITS ── */
+.pm-limits-card{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:18px 20px;position:relative;overflow:hidden;
+}
+.pm-limits-card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.25),transparent);
+}
+.pm-limits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.pm-limit-field{display:flex;flex-direction:column;gap:6px;}
+.pm-limit-label{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;
+  text-transform:uppercase;color:rgba(232,114,42,0.6);
+  text-shadow:0 0 8px rgba(232,114,42,0.2);
+}
+.pm-limit-input-wrap{position:relative;}
+.pm-limit-prefix{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-family:var(--font-mono);font-size:11px;color:var(--m);pointer-events:none;
+}
 .pm-limit-input{
-  background:var(--bg3);border:var(--line);border-radius:6px;
-  padding:7px 10px;color:var(--t);font-family:var(--font-mono);
-  font-size:12px;outline:none;transition:all 0.15s;width:110px;text-align:right;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;padding:10px 12px 10px 24px;
+  color:var(--t);font-family:var(--font-mono);font-size:14px;
+  outline:none;transition:all 0.2s;width:100%;
 }
-.pm-limit-input:focus{border-color:var(--a);}
-.pm-moods{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.pm-limit-input.no-prefix{padding-left:12px;}
+.pm-limit-input:focus{
+  border-color:rgba(232,114,42,0.4);
+  background:rgba(232,114,42,0.04);
+  box-shadow:0 0 16px rgba(232,114,42,0.1),inset 0 0 8px rgba(232,114,42,0.03);
+}
+.pm-limit-input::placeholder{color:rgba(255,255,255,0.15);}
+
+/* ── MOOD ── */
+.pm-moods-card{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);
+  padding:18px 20px;position:relative;overflow:hidden;
+}
+.pm-moods-card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.25),transparent);
+}
+.pm-moods{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:0;}
 .pm-mood-btn{
-  padding:6px 11px;border-radius:15px;border:var(--line);
-  background:var(--bg3);color:var(--m);font-family:var(--font-mono);
-  font-size:9px;letter-spacing:0.5px;cursor:pointer;transition:all 0.15s;
+  padding:10px 8px;border-radius:10px;
+  border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.025);
+  color:var(--m);font-family:var(--font-mono);
+  font-size:9px;letter-spacing:0.5px;cursor:pointer;
+  transition:all 0.2s;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
 }
-.pm-mood-btn.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
+.pm-mood-emoji{font-size:20px;line-height:1;}
+.pm-mood-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;}
+.pm-mood-btn:hover{
+  border-color:rgba(232,114,42,0.2);
+  background:rgba(232,114,42,0.04);
+  color:var(--m2);
+}
+.pm-mood-btn.active{
+  background:rgba(232,114,42,0.1);
+  border-color:rgba(232,114,42,0.35);
+  color:var(--a);
+  box-shadow:0 0 16px rgba(232,114,42,0.12),inset 0 0 8px rgba(232,114,42,0.05);
+}
+.pm-mood-btn.active .pm-mood-emoji{
+  filter:drop-shadow(0 0 6px rgba(232,114,42,0.5));
+}
+
+/* ── STATUS & SAVE ── */
 .pm-status{
-  padding:10px 14px;border-radius:8px;font-family:var(--font-mono);
-  font-size:10px;letter-spacing:0.5px;margin-top:12px;
+  padding:11px 16px;border-radius:9px;font-family:var(--font-mono);
+  font-size:10px;letter-spacing:0.5px;margin-top:0;
+  display:flex;align-items:center;gap:8px;
 }
-.pm-status.ready{background:var(--gd);border:1px solid rgba(52,208,88,0.2);color:var(--g);}
-.pm-status.partial{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.18);color:var(--y);}
-.pm-status.notready{background:var(--rd);border:1px solid rgba(255,77,77,0.18);color:var(--r);}
+.pm-status.ready{
+  background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.2);color:var(--g);
+  box-shadow:0 0 16px rgba(52,208,88,0.06);
+}
+.pm-status.partial{
+  background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.18);color:var(--y);
+}
+.pm-status.notready{
+  background:rgba(255,77,77,0.05);border:1px solid rgba(255,77,77,0.18);color:var(--r);
+}
 .pm-save-btn{
-  width:100%;padding:10px;background:linear-gradient(135deg,var(--a),#c85e18);
-  border:none;border-radius:8px;color:#fff;font-family:var(--font-display);
-  font-size:14px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;
-  margin-top:12px;box-shadow:0 3px 14px rgba(232,114,42,0.25);
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,rgba(232,114,42,0.9),rgba(180,75,20,0.9));
+  border:1px solid rgba(232,114,42,0.4);border-radius:10px;
+  color:#fff;font-family:var(--font-display);
+  font-size:15px;letter-spacing:4px;cursor:pointer;transition:all 0.25s;
+  box-shadow:0 4px 20px rgba(232,114,42,0.25),0 0 40px rgba(232,114,42,0.08);
+  text-shadow:0 0 10px rgba(255,255,255,0.3);
 }
-.pm-save-btn:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(232,114,42,0.38);}
+.pm-save-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(232,114,42,0.4),0 0 60px rgba(232,114,42,0.12);
+  border-color:rgba(232,114,42,0.6);
+}
 .pm-history-item{
   display:flex;align-items:center;justify-content:space-between;
-  padding:7px 0;border-bottom:var(--line);
+  padding:8px 0;border-bottom:var(--line);
 }
 .pm-history-item:last-child{border-bottom:none;}
 .pm-h-date{font-family:var(--font-mono);font-size:9px;color:var(--m);}
-.pm-h-mood{font-size:12px;}
+.pm-h-mood{font-size:13px;}
 .pm-h-bar{flex:1;height:3px;background:rgba(255,255,255,0.05);border-radius:1.5px;margin:0 10px;overflow:hidden;}
 .pm-h-fill{height:100%;border-radius:1.5px;}
 .pm-streak-box{
-  display:flex;align-items:center;gap:10px;
-  background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);
-  border-radius:8px;padding:12px 14px;margin-bottom:12px;
+  display:flex;align-items:center;gap:12px;
+  background:rgba(245,166,35,0.04);border:1px solid rgba(245,166,35,0.14);
+  border-radius:10px;padding:14px 16px;margin-bottom:12px;
+  box-shadow:0 0 20px rgba(245,166,35,0.05);
 }
-.pm-streak-num{font-family:var(--font-display);font-size:28px;color:var(--y);}
+.pm-streak-num{
+  font-family:var(--font-display);font-size:32px;color:var(--y);
+  text-shadow:0 0 16px rgba(245,166,35,0.4);
+}
 .pm-streak-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;}
+.pm-side-card{
+  background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:18px;
+}
+.pm-side-title{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:2.5px;
+  text-transform:uppercase;margin-bottom:12px;
+  color:rgba(232,114,42,0.7);text-shadow:0 0 10px rgba(232,114,42,0.25);
+  display:flex;align-items:center;gap:6px;
+}
+.pm-side-title::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--a);box-shadow:0 0 6px var(--a);flex-shrink:0;}
+
+/* ── GLOBAL ORANGE GLOW EFFECTS ── */
+.stat-cell{position:relative;overflow:hidden;cursor:default;transition:all 0.2s;}
+.stat-value{
+  text-shadow:0 0 12px currentColor;
+}
+.sv-a{color:var(--a);text-shadow:0 0 16px rgba(232,114,42,0.5)!important;}
+.sv-g{color:var(--g);text-shadow:0 0 14px rgba(52,208,88,0.4)!important;}
+.sv-r{color:var(--r);text-shadow:0 0 14px rgba(255,77,77,0.4)!important;}
+
+.sb-logo-text{
+  text-shadow:0 0 20px rgba(255,255,255,0.1);
+}
+.sb-logo-dot{
+  box-shadow:0 0 8px var(--a),0 0 16px rgba(232,114,42,0.4);
+}
+.fcard-title{
+  text-shadow:0 0 16px rgba(232,114,42,0.4);
+}
+.tpair{
+  text-shadow:0 0 8px rgba(255,255,255,0.08);
+}
+.lb-fill{
+  box-shadow:0 0 10px rgba(232,114,42,0.4);
+}
+.level-bar::before{
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.5),transparent);
+}
+.dash-title{
+  color:rgba(255,255,255,0.5);letter-spacing:2.5px;
+}
+
+@media(max-width:860px){
+  .pm-body{grid-template-columns:1fr;}
+  .pm-limits-grid{grid-template-columns:1fr 1fr;}
+  .pm-moods{grid-template-columns:repeat(4,1fr);}
+}
+@media(max-width:480px){
+  .pm-limits-grid{grid-template-columns:1fr;}
+  .pm-moods{grid-template-columns:repeat(2,1fr);}
+}
 
 /* ─── AI CHAT ─────────────────────────────── */
 .chat-layout{display:grid;grid-template-columns:200px 1fr;gap:10px;height:calc(100vh - 180px);min-height:500px;}
@@ -1248,7 +1425,6 @@ display:none;}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="imp-btn" onclick="document.getElementById('csv-input').click()">📥 Импорт CSV</button>
-        <button class="share-btn" id="share-btn" onclick="shareProfile()">🔗 Поделиться профилем</button>
         <input type="file" id="csv-input" accept=".csv" style="display:none" onchange="importCSV(this)">
       </div>
     </div>
@@ -1334,60 +1510,105 @@ display:none;}
 
   <!-- ──────────── PRE-MARKET ───────────────── -->
   <div class="page" id="page-premarket">
-    <div class="pm-grid">
-      <div class="pm-card full">
-        <div class="pm-title">☀️ ПОДГОТОВКА К СЕССИИ</div>
-        <div class="pm-cols">
-          <div>
-            <div class="pm-col-title">Технический чек-лист</div>
-            <div class="pm-checklist">
-              <div class="pm-item" id="pm1" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Проверил новости / макро события</div></div>
-              <div class="pm-item" id="pm2" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Определил ключевые уровни на день</div></div>
-              <div class="pm-item" id="pm3" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Есть чёткий план входа и выхода</div></div>
-              <div class="pm-item" id="pm4" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Проверил старший таймфрейм</div></div>
+    <div class="pm-page-wrap">
+
+      <!-- Header -->
+      <div class="pm-header-card">
+        <div class="pm-headline">☀ ПОДГОТОВКА К СЕССИИ</div>
+        <div class="pm-headline-sub">Заполни чеклист перед каждой торговой сессией</div>
+      </div>
+
+      <!-- Checklists -->
+      <div class="pm-body">
+        <div class="pm-section-card">
+          <div class="pm-section-title">Технический чек-лист</div>
+          <div class="pm-checklist">
+            <div class="pm-item" id="pm1" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Проверил новости / макро события</div></div>
+            <div class="pm-item" id="pm2" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Определил ключевые уровни на день</div></div>
+            <div class="pm-item" id="pm3" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Есть чёткий план входа и выхода</div></div>
+            <div class="pm-item" id="pm4" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Проверил старший таймфрейм</div></div>
+          </div>
+        </div>
+        <div class="pm-section-card">
+          <div class="pm-section-title">Психологический чек-лист</div>
+          <div class="pm-checklist">
+            <div class="pm-item" id="pm5" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Выспался, состояние норм</div></div>
+            <div class="pm-item" id="pm6" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Нет эмоций от вчерашних сделок</div></div>
+            <div class="pm-item" id="pm7" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Принял вчерашние убытки</div></div>
+            <div class="pm-item" id="pm8" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Готов пропустить день если нет сетапа</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Limits -->
+      <div class="pm-limits-card">
+        <div class="pm-section-title" style="margin-bottom:14px;">Лимиты дня</div>
+        <div class="pm-limits-grid">
+          <div class="pm-limit-field">
+            <div class="pm-limit-label">Макс. убыток</div>
+            <div class="pm-limit-input-wrap">
+              <span class="pm-limit-prefix">$</span>
+              <input class="pm-limit-input" id="pm-loss-limit" type="number" placeholder="100">
             </div>
           </div>
-          <div>
-            <div class="pm-col-title">Психологический чек-лист</div>
-            <div class="pm-checklist">
-              <div class="pm-item" id="pm5" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Выспался, состояние норм</div></div>
-              <div class="pm-item" id="pm6" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Нет эмоций от вчерашних сделок</div></div>
-              <div class="pm-item" id="pm7" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Принял вчерашние убытки</div></div>
-              <div class="pm-item" id="pm8" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Готов пропустить день если нет сетапа</div></div>
+          <div class="pm-limit-field">
+            <div class="pm-limit-label">Макс. сделок</div>
+            <div class="pm-limit-input-wrap">
+              <input class="pm-limit-input no-prefix" id="pm-trade-limit" type="number" placeholder="3">
+            </div>
+          </div>
+          <div class="pm-limit-field">
+            <div class="pm-limit-label">Цель дня</div>
+            <div class="pm-limit-input-wrap">
+              <span class="pm-limit-prefix">$</span>
+              <input class="pm-limit-input" id="pm-goal" type="number" placeholder="200">
             </div>
           </div>
         </div>
-        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Лимиты дня</div>
-        <div class="pm-limits">
-          <div class="pm-limit-row"><span class="pm-limit-label">Макс. убыток $</span><input class="pm-limit-input" id="pm-loss-limit" type="number" placeholder="100"></div>
-          <div class="pm-limit-row"><span class="pm-limit-label">Макс. сделок</span><input class="pm-limit-input" id="pm-trade-limit" type="number" placeholder="3"></div>
-          <div class="pm-limit-row"><span class="pm-limit-label">Цель $</span><input class="pm-limit-input" id="pm-goal" type="number" placeholder="200"></div>
-        </div>
-        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px">Настроение</div>
+      </div>
+
+      <!-- Mood -->
+      <div class="pm-moods-card">
+        <div class="pm-section-title" style="margin-bottom:14px;">Настроение сейчас</div>
         <div class="pm-moods">
-          <button class="pm-mood-btn" onclick="setPMMood(this,'🔥 Огонь')">🔥 Огонь</button>
-          <button class="pm-mood-btn active" onclick="setPMMood(this,'😐 Ровно')">😐 Ровно</button>
-          <button class="pm-mood-btn" onclick="setPMMood(this,'😴 Устал')">😴 Устал</button>
-          <button class="pm-mood-btn" onclick="setPMMood(this,'😤 Злой')">😤 Злой</button>
+          <button class="pm-mood-btn" onclick="setPMMood(this,'🔥 Огонь')">
+            <span class="pm-mood-emoji">🔥</span><span class="pm-mood-label">Огонь</span>
+          </button>
+          <button class="pm-mood-btn active" onclick="setPMMood(this,'😐 Ровно')">
+            <span class="pm-mood-emoji">😐</span><span class="pm-mood-label">Ровно</span>
+          </button>
+          <button class="pm-mood-btn" onclick="setPMMood(this,'😴 Устал')">
+            <span class="pm-mood-emoji">😴</span><span class="pm-mood-label">Устал</span>
+          </button>
+          <button class="pm-mood-btn" onclick="setPMMood(this,'😤 Злой')">
+            <span class="pm-mood-emoji">😤</span><span class="pm-mood-label">Злой</span>
+          </button>
         </div>
-        <div class="pm-status partial" id="pm-status-bar">⏳ Отметь пункты чтобы увидеть готовность</div>
-        <button class="pm-save-btn" onclick="savePMChecklist()">НАЧАТЬ СЕССИЮ ✓</button>
       </div>
-      <div class="pm-card">
-        <div class="pm-title">🎯 СТРИК ЧЕКЛИСТА</div>
-        <div class="pm-streak-box">
-          <span style="font-size:22px">🎯</span>
-          <div>
-            <div class="pm-streak-num" id="pm-streak-num">0</div>
-            <div class="pm-streak-label">ДНЕЙ ПОДРЯД</div>
+
+      <!-- Status + Save -->
+      <div class="pm-status partial" id="pm-status-bar">⏳ Отметь пункты чтобы увидеть готовность</div>
+      <button class="pm-save-btn" onclick="savePMChecklist()">НАЧАТЬ СЕССИЮ ✓</button>
+
+      <!-- Bottom row: streak + history -->
+      <div class="pm-body" style="margin-top:0;">
+        <div class="pm-side-card">
+          <div class="pm-side-title">🎯 Стрик чеклиста</div>
+          <div class="pm-streak-box">
+            <span style="font-size:24px">🎯</span>
+            <div>
+              <div class="pm-streak-num" id="pm-streak-num">0</div>
+              <div class="pm-streak-label">ДНЕЙ ПОДРЯД</div>
+            </div>
           </div>
+          <div style="font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.65;">Трейдеры с ежедневным чеклистом совершают на 40% меньше импульсивных входов.</div>
         </div>
-        <div style="font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.6">Трейдеры с ежедневным чеклистом совершают на 40% меньше импульсивных входов.</div>
+        <div class="pm-side-card">
+          <div class="pm-side-title">📅 Последние сессии</div>
+          <div id="pm-history"><div class="empty" style="padding:14px">Нет данных</div></div>
+        </div>
       </div>
-      <div class="pm-card">
-        <div class="pm-title">📅 ПОСЛЕДНИЕ СЕССИИ</div>
-        <div id="pm-history"><div class="empty" style="padding:14px">Нет данных</div></div>
-      </div>
+
     </div>
   </div>
 
