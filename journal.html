@@ -6,7 +6,7 @@
 <title>ORBITUM — Журнал</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{
   --a:#e8722a; --a2:rgba(232,114,42,0.1); --a3:rgba(232,114,42,0.3);
@@ -2867,9 +2867,14 @@ async function importCSV(input){
   var rows=[];
 
   if(ext==='xlsx'||ext==='xls'){
-    // Parse xlsx using SheetJS (available via CDN in head)
+    if(typeof XLSX==='undefined'){
+      if(log)log.innerHTML='❌ Библиотека XLSX не загружена. Проверь интернет-соединение.';
+      input.value='';return;
+    }
     var arrayBuf=await file.arrayBuffer();
-    var wb=XLSX.read(arrayBuf,{type:'array'});
+    var uint8=new Uint8Array(arrayBuf);
+    var wb=XLSX.read(uint8,{type:'array'});
+    if(log)log.innerHTML='⏳ Листы: '+wb.SheetNames.join(', ')+'...';
 
     // Priority sheet order for Bybit
     var sheetPriority=['USDⓢ_M_Perpetual_Futures','Standard_Futures','Coin_M_Perpetual_Futures','Spot_Account'];
@@ -2918,7 +2923,7 @@ async function importCSV(input){
   var kLev   = findKey(['Leverage','leverage']);
 
   if(!kPair||!kType){
-    if(log) log.innerHTML='❌ Не найдены колонки Pair/Type. Найдены: <small>'+keys.slice(0,6).join(', ')+'</small>';
+    if(log) log.innerHTML='❌ Не найдены колонки Pair/Type.<br><small style="opacity:0.6">Найдено: '+keys.slice(0,8).join(', ')+'</small>';
     input.value='';return;
   }
 
