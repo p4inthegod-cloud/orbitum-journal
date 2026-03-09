@@ -1180,7 +1180,12 @@ function render(p, trades){
           <div class="hsb-val ${totalPnl>=0?'pos':'neg'}">${(totalPnl>=0?'+':'')}${totalPnl.toFixed(1)}%</div>
           <div class="hsb-label">Общий ROI</div>
         </div>
-        ${isOwnProfile?'':'<button class="follow-btn" onclick="toggleFollow()">+ FOLLOW</button>'}
+        ${isOwnProfile?'':
+  `<div style="display:flex;gap:8px;align-items:center">
+    <button class="follow-btn" onclick="toggleFollow()">+ FOLLOW</button>
+    <a href="journal.html?openChat=dm_${p.id}" class="follow-btn" style="text-decoration:none;background:rgba(52,152,219,0.08);border-color:rgba(52,152,219,0.25);color:#3498db" onclick="sessionStorage.setItem('openChatWith',JSON.stringify({id:'${p.id}',name:'${displayName}'}))">💬 Написать</a>
+  </div>`
+}
       </div>
     </div>
     <div class="hero-followers" id="hero-followers">
@@ -1656,17 +1661,8 @@ async function loadNotifs(){
             })
           .subscribe();
       }catch(e){}
-      // Polling каждые 20 сек
-      setInterval(async ()=>{
-        if(!currentUser)return;
-        try{
-          const {data}=await sb.from('notifications')
-            .select('*,profiles:from_user_id(full_name,username)')
-            .eq('user_id',currentUser.id)
-            .order('created_at',{ascending:false}).limit(30);
-          if(data){_notifs=data;renderBell();}
-        }catch(e){}
-      },20000);
+      // Polling каждые 15 сек
+      setInterval(()=>{ if(currentUser) loadNotifs(); }, 15000);
     }
   }catch(e){ _notifs=[]; }
 }
