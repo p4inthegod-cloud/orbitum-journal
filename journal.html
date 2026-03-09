@@ -3165,6 +3165,22 @@ async function loadTrades(){
   if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
   allTrades=data||[];
   updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);
+  // Уведомления — грузим сразу после init
+  loadJournalNotifs();
+  // Realtime — слушаем новые уведомления
+  try{
+    sb.channel('notifs_realtime_'+currentUser.id)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},
+        (payload)=>{
+          _jNotifs.unshift(payload.new);
+          renderJournalBell();
+          // Показываем тост
+          const n=payload.new;
+          const icons={new_follower:'👤',new_idea:'💡',new_message:'💬',unfollow:'👋'};
+          showNotif('info', (icons[n.type]||'🔔')+' Уведомление', n.text||'', 4000);
+        })
+      .subscribe();
+  }catch(e){}
 }
 
 function setDir(d){
@@ -4199,23 +4215,32 @@ async function toggleFollow(targetId,btn){
   if(!currentUser)return;
   const isNow=_ijFollowing.has(targetId);
   try{
+    // Получаем своё имя
+    const {data:myP}=await sb.from('profiles').select('full_name,username').eq('id',currentUser.id).single();
+    const myName=myP?.full_name||myP?.username||'Трейдер';
+
     if(isNow){
       await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('target_id',targetId);
       _ijFollowing.delete(targetId);
       if(btn){btn.textContent='+ Follow';btn.classList.remove('following');}
+      // Уведомление об отписке
+      await sb.from('notifications').insert({
+        user_id:targetId, type:'unfollow',
+        from_user_id:currentUser.id,
+        text:'перестал следить за тобой',
+        read:false, created_at:new Date().toISOString()
+      });
       showNotif('info','Отписался','Ты больше не следишь за этим трейдером',2500);
     } else {
       await sb.from('follows').insert({follower_id:currentUser.id,target_id:targetId});
       _ijFollowing.add(targetId);
       if(btn){btn.textContent='✓ Следишь';btn.classList.add('following');}
-      // Уведомление трейдеру что за ним следят
+      // Уведомление о подписке с именем
       await sb.from('notifications').insert({
-        user_id:targetId,
-        type:'new_follower',
+        user_id:targetId, type:'new_follower',
         from_user_id:currentUser.id,
-        text:'За тобой начал следить новый трейдер!',
-        read:false,
-        created_at:new Date().toISOString()
+        text:'начал следить за тобой!',
+        read:false, created_at:new Date().toISOString()
       });
       showNotif('success','Follow!','Ты теперь следишь за трейдером',2500);
     }
@@ -5241,7 +5266,7 @@ function renderJournalBell(){
   const list=document.getElementById('jnd-list');
   if(!list)return;
   if(!_jNotifs.length){list.innerHTML='<div class="jnd-empty">Уведомлений нет 🎉</div>';return;}
-  const icons={new_follower:'👤',new_idea:'💡',new_message:'💬'};
+  const icons={new_follower:'👤',unfollow:'👋',new_idea:'💡',new_message:'💬'};
   list.innerHTML=_jNotifs.map(n=>{
     // Показываем ник отправителя если есть
     const fromName=n.profiles?.full_name||n.profiles?.username||null;
@@ -5553,8 +5578,7 @@ function openDMWith(userId,userName){
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 
-// Загружаем уведомления после init
-setTimeout(()=>{if(currentUser)loadJournalNotifs();},2000);
+// Уведомления загружаются в init()
 
 
 // ─── HOURLY HEATMAP ────────────────────────────────
