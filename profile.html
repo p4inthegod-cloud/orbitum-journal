@@ -431,6 +431,27 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .two-col .section-card{margin-bottom:0;}
 
+
+/* ── RANKS & NAME COLORS ── */
+.rank-bronze  .hero-name{color:#cd7f32;text-shadow:0 0 12px rgba(205,127,50,0.4);}
+.rank-silver  .hero-name{color:#9ba3af;text-shadow:0 0 12px rgba(155,163,175,0.4);}
+.rank-gold    .hero-name{color:#f5a623;text-shadow:0 0 16px rgba(245,166,35,0.5);}
+.rank-diamond .hero-name{color:#63b3ed;text-shadow:0 0 20px rgba(99,179,237,0.6),0 0 40px rgba(99,179,237,0.3);}
+.rank-master  .hero-name{color:#d946ef;text-shadow:0 0 20px rgba(217,70,239,0.6),0 0 40px rgba(217,70,239,0.25);}
+.rank-owner   .hero-name{color:#ff4d4d!important;text-shadow:0 0 20px rgba(255,77,77,0.7),0 0 50px rgba(255,77,77,0.3)!important;animation:ownerPulse 2s ease-in-out infinite;}
+@keyframes ownerPulse{0%,100%{text-shadow:0 0 20px rgba(255,77,77,0.7),0 0 50px rgba(255,77,77,0.3);}50%{text-shadow:0 0 30px rgba(255,77,77,0.9),0 0 70px rgba(255,77,77,0.5);}}
+.owner-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,77,77,0.15);border:1px solid rgba(255,77,77,0.4);color:#ff4d4d;font-family:var(--font-mono);font-size:7px;letter-spacing:2px;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;}
+.rank-badge-pill{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:7px;letter-spacing:1px;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle;}
+.rank-badge-pill.bronze{background:rgba(205,127,50,0.1);border:1px solid rgba(205,127,50,0.3);color:#cd7f32;}
+.rank-badge-pill.silver{background:rgba(155,163,175,0.1);border:1px solid rgba(155,163,175,0.3);color:#9ba3af;}
+.rank-badge-pill.gold{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:#f5a623;}
+.rank-badge-pill.diamond{background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.35);color:#63b3ed;}
+.rank-badge-pill.master{background:rgba(217,70,239,0.1);border:1px solid rgba(217,70,239,0.35);color:#d946ef;}
+/* FOLLOWERS STAT */
+.hero-followers{display:flex;align-items:center;gap:16px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);}
+.hf-item{font-family:var(--font-mono);font-size:9px;color:var(--m);}
+.hf-item strong{color:var(--t);font-size:11px;margin-right:3px;}
+
 /* ── FOLLOW BUTTON ── */
 .follow-btn{
   display:flex;align-items:center;gap:6px;
@@ -896,6 +917,60 @@ const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 
+
+// ── RANKS ───────────────────────────────────────────
+const OWNER_ID = '474c000f-79d3-4b8f-b9af-e3c581bbffbc'; // ← твой Supabase user id
+
+function getRank(trades, wr, roi){
+  const n = trades.length;
+  if(n === 0) return null;
+  if(n >= 200 && wr >= 65 && roi >= 50)  return {key:'master',  label:'MASTER',  icon:'👑', cls:'master'};
+  if(n >= 100 && wr >= 60 && roi >= 25)  return {key:'diamond', label:'DIAMOND', icon:'💎', cls:'diamond'};
+  if(n >= 50  && wr >= 55 && roi >= 10)  return {key:'gold',    label:'GOLD',    icon:'🥇', cls:'gold'};
+  if(n >= 20  && wr >= 50)               return {key:'silver',  label:'SILVER',  icon:'🥈', cls:'silver'};
+  if(n >= 5)                             return {key:'bronze',  label:'BRONZE',  icon:'🥉', cls:'bronze'};
+  return null;
+}
+
+function applyRankToHero(uid, trades, wr, roi){
+  const hero = document.querySelector('.hero');
+  if(!hero) return;
+
+  const isOwner = uid === OWNER_ID;
+
+  // Убираем старые классы
+  hero.classList.remove('rank-bronze','rank-silver','rank-gold','rank-diamond','rank-master','rank-owner');
+
+  if(isOwner){
+    hero.classList.add('rank-owner');
+  } else {
+    const rank = getRank(trades, wr, roi);
+    if(rank) hero.classList.add('rank-' + rank.key);
+  }
+
+  // Добавляем бейдж рядом с именем
+  const nameEl = document.querySelector('.hero-name');
+  if(!nameEl) return;
+
+  // Убираем старый бейдж если есть
+  nameEl.querySelectorAll('.rank-badge-pill,.owner-badge').forEach(el=>el.remove());
+
+  if(isOwner){
+    const ob = document.createElement('span');
+    ob.className = 'owner-badge';
+    ob.innerHTML = '⚡ OWNER';
+    nameEl.appendChild(ob);
+  } else {
+    const rank = getRank(trades, wr, roi);
+    if(rank){
+      const rb = document.createElement('span');
+      rb.className = 'rank-badge-pill ' + rank.cls;
+      rb.textContent = rank.icon + ' ' + rank.label;
+      nameEl.appendChild(rb);
+    }
+  }
+}
+
 let profileUser=null, trades=[], currentUser=null, isOwnProfile=false;
 
 async function init(){
@@ -932,6 +1007,44 @@ async function init(){
   }
   // Load ideas
   loadIdeas(uid);
+
+  // Загружаем статистику подписок (видна всем)
+  loadFollowStats(uid);
+
+  // Применяем ранг (нужно после render)
+  setTimeout(()=>{
+    const wr2 = trades.length ? Math.round(trades.filter(t=>t.result==='win').length/trades.length*100) : 0;
+    const roi2 = trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+    applyRankToHero(uid, trades, wr2, roi2);
+  }, 100);
+}
+
+async function loadFollowStats(uid){
+  try{
+    const [{data:followers},{data:following}] = await Promise.all([
+      sb.from('follows').select('id',{count:'exact',head:true}).eq('target_id',uid),
+      sb.from('follows').select('id',{count:'exact',head:true}).eq('follower_id',uid)
+    ]);
+    // Supabase возвращает count в заголовках — используем .count
+    const fCount = followers?.length ?? 0;
+    const fgCount = following?.length ?? 0;
+    const fcEl = document.getElementById('followers-count');
+    const fgEl = document.getElementById('following-count');
+    if(fcEl) fcEl.textContent = fCount;
+    if(fgEl) fgEl.textContent = fgCount;
+  } catch(e){
+    // fallback — считаем через select
+    try{
+      const [{data:foll},{data:folg}] = await Promise.all([
+        sb.from('follows').select('id').eq('target_id',uid),
+        sb.from('follows').select('id').eq('follower_id',uid)
+      ]);
+      const fcEl = document.getElementById('followers-count');
+      const fgEl = document.getElementById('following-count');
+      if(fcEl) fcEl.textContent = (foll||[]).length;
+      if(fgEl) fgEl.textContent = (folg||[]).length;
+    } catch(e2){}
+  }
 }
 
 function showLockedProfile(p){
@@ -1069,6 +1182,10 @@ function render(p, trades){
         </div>
         ${isOwnProfile?'':'<button class="follow-btn" onclick="toggleFollow()">+ FOLLOW</button>'}
       </div>
+    </div>
+    <div class="hero-followers" id="hero-followers">
+      <div class="hf-item"><strong id="followers-count">—</strong>подписчиков</div>
+      <div class="hf-item"><strong id="following-count">—</strong>подписок</div>
     </div>
     <div class="hero-meta">
       <div class="hm-cell"><div class="hm-label">Винрейт</div><div class="hm-val g">${trades.length?wr+'%':'—'}</div></div>
@@ -1452,30 +1569,40 @@ async function toggleFollow(){
   const isFollowing=btn.classList.contains('following');
   btn.disabled=true;
   try{
+    // Получаем своё имя один раз
+    const {data:myProf}=await sb.from('profiles').select('full_name,username').eq('id',currentUser.id).single();
+    const fromName=myProf?.full_name||myProf?.username||'Трейдер';
+
     if(isFollowing){
       await sb.from('follows').delete()
         .eq('follower_id',currentUser.id).eq('target_id',targetId);
       btn.classList.remove('following');
       btn.textContent='+ FOLLOW';
+      // Уведомление об отписке
+      await sb.from('notifications').insert({
+        user_id:targetId, type:'unfollow',
+        from_user_id:currentUser.id,
+        text:'перестал следить за тобой',
+        read:false, created_at:new Date().toISOString()
+      });
     } else {
       await sb.from('follows').insert({follower_id:currentUser.id,target_id:targetId});
       btn.classList.add('following');
       btn.textContent='✓ FOLLOWING';
-      // Уведомление трейдеру
-      const myName=(await sb.from('profiles').select('full_name,username').eq('id',currentUser.id).single()).data;
-      const fromName=myName?.full_name||myName?.username||'Трейдер';
+      // Уведомление о подписке
       await sb.from('notifications').insert({
-        user_id:targetId,type:'new_follower',
+        user_id:targetId, type:'new_follower',
         from_user_id:currentUser.id,
-        text:fromName+' начал следить за тобой!',
-        read:false,created_at:new Date().toISOString()
+        text:'начал следить за тобой!',
+        read:false, created_at:new Date().toISOString()
       });
     }
+    // Обновляем счётчик подписчиков
+    loadFollowStats(targetId);
   }catch(e){
-    // Таблица follows не создана — визуальный toggle
     btn.classList.toggle('following');
     btn.textContent=btn.classList.contains('following')?'✓ FOLLOWING':'+ FOLLOW';
-    console.warn('Follow error (нужна таблица follows):',e);
+    console.warn('Follow error:',e);
   }
   btn.disabled=false;
 }
@@ -1514,6 +1641,16 @@ async function loadNotifs(){
       .order('created_at',{ascending:false}).limit(30);
     _notifs = data||[];
     renderBell();
+    // Подписываемся на новые уведомления realtime
+    if(!window._notifSubActive){
+      window._notifSubActive=true;
+      try{
+        sb.channel('profile_notifs_'+currentUser.id)
+          .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},
+            (payload)=>{ _notifs.unshift(payload.new); renderBell(); })
+          .subscribe();
+      }catch(e){}
+    }
   }catch(e){ _notifs=[]; }
 }
 
@@ -1534,7 +1671,7 @@ function renderNotifList(){
     el.innerHTML='<div class="notif-empty">Уведомлений нет 🎉</div>';
     return;
   }
-  const typeIcon={new_follower:'👤',new_idea:'💡',new_message:'💬'};
+  const typeIcon={new_follower:'👤',unfollow:'👋',new_idea:'💡',new_message:'💬'};
   el.innerHTML = _notifs.map(n=>{
     const prof=n.profiles;
     const fromName=prof?.full_name||prof?.username||null;
