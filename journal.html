@@ -1290,7 +1290,29 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .pairs-grid{grid-template-columns:1fr 1fr;}
 }
 
-/* ─── DISCIPLINE SCORE ────────────────────────── */
+/* ─── DATA HINT (порог надёжности) ───────────────── */
+.data-hint{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;border-radius:8px;
+  background:rgba(232,114,42,0.04);border:1px solid rgba(232,114,42,0.12);
+}
+.dh-icon{font-size:18px;flex-shrink:0;}
+.dh-body{flex:1;}
+.dh-text{font-family:var(--font-body);font-size:12px;color:var(--m2);margin-bottom:2px;}
+.dh-text strong{color:var(--a);}
+.dh-sub{font-family:var(--font-mono);font-size:8.5px;color:var(--m);letter-spacing:0.5px;}
+
+/* ─── GLOBAL ANALYTICS HINT ──────────────────────── */
+.analytics-global-hint{
+  display:flex;align-items:center;gap:8px;
+  margin-top:10px;padding:8px 14px;border-radius:7px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+}
+.agh-dot{width:4px;height:4px;border-radius:50%;background:var(--a);opacity:0.5;flex-shrink:0;}
+.agh-text{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:0.3px;line-height:1.5;}
+.agh-text strong{color:rgba(232,114,42,0.7);}
+
+
 .ds-ring-wrap{display:flex;align-items:center;gap:24px;padding:4px 0 14px;}
 .ds-ring-svg{flex-shrink:0;}
 .ds-info{flex:1;}
@@ -2073,6 +2095,14 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);margin-bottom:12px;">AI даёт максимально честный разбор твоей торговли без фильтров.</div>
       <button class="brutal-btn" id="brutal-btn" onclick="runBrutalAnalysis()">💀 ЗАПУСТИТЬ BRUTAL ANALYSIS</button>
       <div class="brutal-result" id="brutal-result"></div>
+    </div>
+
+    <!-- GLOBAL HINT -->
+    <div class="analytics-global-hint" id="analytics-hint">
+      <div class="agh-dot"></div>
+      <div class="agh-text" id="analytics-hint-text">
+        Введи минимум <strong>10 сделок</strong> чтобы начать отслеживать своё психологическое состояние · <strong>5 сделок</strong> для эмоционального профиля · <strong>3 на сетап</strong> для статистики по типам входов
+      </div>
     </div>
 
   </div>
@@ -3047,48 +3077,55 @@ function renderLevelBar(trades){
 // ─── DASHBOARD ────────────────────────────────────
 function renderDashboard(){
   var trades = allTrades;
-
-  // ── TILT DETECTOR ─────────────────────────────
   detectTilt(trades);
+
+  // ── RELIABILITY THRESHOLDS ────────────────────
+  var MIN_EMOTION=5, MIN_PATTERNS=10, MIN_COMPARE=5;
+  function needMore(cur,need,label){
+    var left=need-cur;
+    return '<div class="data-hint"><span class="dh-icon">📊</span><div class="dh-body"><div class="dh-text">Нужно ещё <strong>'+left+' сделок</strong></div><div class="dh-sub">'+label+' — минимум '+need+'</div></div></div>';
+  }
 
   if(!trades.length){
     document.getElementById('speedo-score').textContent='—';
     document.getElementById('speedo-desc').textContent='Нет данных';
     ['em-bars','em-compare','patterns-list'].forEach(function(id){
       var el=document.getElementById(id);
-      if(el) el.innerHTML='<div class="empty" style="padding:14px">Нет данных</div>';
+      if(el) el.innerHTML=needMore(0,MIN_EMOTION,'для точного анализа');
     });
     return;
   }
 
-  var wins  = trades.filter(function(t){return t.result==='win';});
-  var losses= trades.filter(function(t){return t.result==='loss';});
-
-  // ── EMOTION AVERAGES ──────────────────────────
-  var avg = function(key){
+  var wins=trades.filter(function(t){return t.result==='win';});
+  var losses=trades.filter(function(t){return t.result==='loss';});
+  var avg=function(key){
     var v=trades.map(function(t){return t[key];}).filter(function(x){return x!=null;});
-    return v.length ? v.reduce(function(s,x){return s+x;},0)/v.length : 5;
+    return v.length?v.reduce(function(s,x){return s+x;},0)/v.length:5;
   };
-  var avgArr = function(arr,key){
+  var avgArr=function(arr,key){
     var v=arr.map(function(t){return t[key];}).filter(function(x){return x!=null;});
-    return v.length ? v.reduce(function(s,x){return s+x;},0)/v.length : 0;
+    return v.length?v.reduce(function(s,x){return s+x;},0)/v.length:0;
   };
-  var conf=avg('emotion_conf'), fear=avg('emotion_fear'),
-      greed=avg('emotion_greed'), calm=avg('emotion_calm');
-
-  // ── DISCIPLINE SCORE ──────────────────────────
-  renderDisciplineScore(trades, wins, losses, conf, fear, greed, calm);
+  var conf=avg('emotion_conf'),fear=avg('emotion_fear'),greed=avg('emotion_greed'),calm=avg('emotion_calm');
+  renderDisciplineScore(trades,wins,losses,conf,fear,greed,calm);
 
   // ── SPEEDOMETER ───────────────────────────────
-  var score = Math.min(100,Math.max(0,Math.round(((conf+calm+(10-fear)+(10-greed))/4)*10)));
   var scoreEl=document.getElementById('speedo-score');
   var descEl=document.getElementById('speedo-desc');
-  if(scoreEl) scoreEl.textContent=score;
-  if(descEl) descEl.textContent=score>=70?'Состояние потока':score>=40?'Нейтральное':'Высокий стресс';
   var needle=document.getElementById('speedo-needle');
   var arcEl=document.getElementById('speedo-arc');
-  if(needle) needle.setAttribute('transform','rotate('+(Math.round(-90+(score/100)*180))+' 110 110)');
-  if(arcEl) arcEl.setAttribute('stroke-dasharray',(283*score/100).toFixed(0)+' 283');
+  if(trades.length<MIN_EMOTION){
+    if(scoreEl) scoreEl.textContent='?';
+    if(descEl) descEl.textContent='Нужно ещё '+(MIN_EMOTION-trades.length)+' сделок';
+    if(needle) needle.setAttribute('transform','rotate(-90 110 110)');
+    if(arcEl) arcEl.setAttribute('stroke-dasharray','0 283');
+  } else {
+    var score=Math.min(100,Math.max(0,Math.round(((conf+calm+(10-fear)+(10-greed))/4)*10)));
+    if(scoreEl) scoreEl.textContent=score;
+    if(descEl) descEl.textContent=score>=70?'Состояние потока':score>=40?'Нейтральное':'Высокий стресс';
+    if(needle) needle.setAttribute('transform','rotate('+(Math.round(-90+(score/100)*180))+' 110 110)');
+    if(arcEl) arcEl.setAttribute('stroke-dasharray',(283*score/100).toFixed(0)+' 283');
+  }
 
   // ── EM BARS ───────────────────────────────────
   var emKeys=[
@@ -3098,42 +3135,71 @@ function renderDashboard(){
     {label:'Фокус',key:'emotion_calm',color:'#34d058'}
   ];
   var emBars=document.getElementById('em-bars');
-  if(emBars) emBars.innerHTML=emKeys.map(function(e){
-    return '<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">'+e.label+'</span><span class="em-bar-val">'+avg(e.key).toFixed(1)+'/10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:'+avg(e.key)*10+'%;background:'+e.color+'"></div></div></div>';
-  }).join('');
+  if(emBars){
+    if(trades.length<MIN_EMOTION){
+      emBars.innerHTML=needMore(trades.length,MIN_EMOTION,'эмоциональный профиль');
+    } else {
+      emBars.innerHTML=emKeys.map(function(e){
+        return '<div class="em-bar-row"><div class="em-bar-head"><span class="em-bar-label">'+e.label+'</span><span class="em-bar-val">'+avg(e.key).toFixed(1)+'/10</span></div><div class="em-bar-track"><div class="em-bar-fill" style="width:'+avg(e.key)*10+'%;background:'+e.color+'"></div></div></div>';
+      }).join('');
+    }
+  }
 
   // ── EM COMPARE ────────────────────────────────
   var emCmp=document.getElementById('em-compare');
-  if(emCmp) emCmp.innerHTML=emKeys.map(function(e){
-    return '<div class="emc-row"><div class="emc-label">'+e.label+'</div><div class="emc-bars"><div class="emc-bar emc-win" style="width:'+(avgArr(wins,e.key)/10*100)+'%"></div><div class="emc-bar emc-loss" style="width:'+(avgArr(losses,e.key)/10*100)+'%"></div></div></div>';
-  }).join('');
+  if(emCmp){
+    if(trades.length<MIN_COMPARE||wins.length<2||losses.length<2){
+      var left2=Math.max(MIN_COMPARE-trades.length,0);
+      emCmp.innerHTML=left2>0
+        ?needMore(trades.length,MIN_COMPARE,'сравнение эмоций побед/убытков')
+        :'<div class="data-hint"><span class="dh-icon">⚖️</span><div class="dh-body"><div class="dh-text">Нужны победы <strong>и</strong> убытки</div><div class="dh-sub">для сравнения эмоционального состояния</div></div></div>';
+    } else {
+      emCmp.innerHTML=emKeys.map(function(e){
+        return '<div class="emc-row"><div class="emc-label">'+e.label+'</div><div class="emc-bars"><div class="emc-bar emc-win" style="width:'+(avgArr(wins,e.key)/10*100)+'%"></div><div class="emc-bar emc-loss" style="width:'+(avgArr(losses,e.key)/10*100)+'%"></div></div></div>';
+      }).join('');
+    }
+  }
 
-  // ── SETUP STATS ───────────────────────────────
   renderSetupStats(trades);
+  renderPsychInsights(trades,wins,losses);
 
-  // ── PSYCHOLOGY INSIGHTS ───────────────────────
-  renderPsychInsights(trades, wins, losses);
+  // ── GLOBAL HINT UPDATE ────────────────────────
+  var hintEl=document.getElementById('analytics-hint-text');
+  if(hintEl){
+    var n=trades.length;
+    if(n>=10){
+      hintEl.innerHTML='✓ Достаточно данных для полного анализа · <strong>'+n+' сделок</strong> в базе';
+      document.getElementById('analytics-hint').style.borderColor='rgba(52,208,88,0.15)';
+      document.getElementById('analytics-hint').style.background='rgba(52,208,88,0.025)';
+      document.querySelector('.agh-dot').style.background='#34d058';
+    } else {
+      hintEl.innerHTML='Введи минимум <strong>10 сделок</strong> чтобы начать отслеживать своё психологическое состояние · <strong>5</strong> для эмоционального профиля · <strong>3 на сетап</strong> для статистики входов — сейчас <strong>'+n+'</strong>';
+    }
+  }
 
   // ── PATTERNS ──────────────────────────────────
-  var patterns=[];
-  var fomo=trades.filter(function(t){var h=new Date(t.created_at).getHours();return h>=17&&h<19&&t.result==='loss';});
-  if(fomo.length>=2) patterns.push({icon:'🔥',title:'FOMO в вечерние часы',desc:fomo.length+' убытков 17-19ч',badge:'badge-bad'});
-  var greedyLoss=trades.filter(function(t){return (t.emotion_greed||0)>=7&&t.result==='loss';});
-  if(greedyLoss.length>=2) patterns.push({icon:'💀',title:'Жадность → убыток',desc:greedyLoss.length+' потерь при жадности ≥7',badge:'badge-bad'});
-  var highConf=trades.filter(function(t){return (t.emotion_conf||0)>=7&&t.result==='win';});
-  if(highConf.length>=2) patterns.push({icon:'🎯',title:'Уверенность → победа',desc:highConf.length+' побед при уверенности ≥7',badge:'badge-good'});
-  var fearLoss=trades.filter(function(t){return (t.emotion_fear||0)>=7&&t.result==='loss';});
-  if(fearLoss.length>=2) patterns.push({icon:'😰',title:'Страх → убыток',desc:fearLoss.length+' потерь при страхе ≥7',badge:'badge-bad'});
-  // consecutive losses
-  var streak=0, maxStreak=0;
-  trades.slice().reverse().forEach(function(t){
-    if(t.result==='loss'){streak++;maxStreak=Math.max(maxStreak,streak);}else streak=0;
-  });
-  if(maxStreak>=3) patterns.push({icon:'📉',title:'Серия убытков',desc:'Макс. серия: '+maxStreak+' подряд',badge:'badge-bad'});
   var plEl=document.getElementById('patterns-list');
-  if(plEl) plEl.innerHTML=patterns.length
-    ? patterns.map(function(p){return '<div class="pattern-item"><span class="patt-icon">'+p.icon+'</span><div class="patt-body"><div class="patt-title">'+p.title+'</div><div class="patt-sub">'+p.desc+'</div></div></div>';}).join('')
-    : '<div class="empty" style="padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Паттернов не обнаружено — хорошая работа 🎯</div>';
+  if(plEl){
+    if(trades.length<MIN_PATTERNS){
+      plEl.innerHTML=needMore(trades.length,MIN_PATTERNS,'поведенческие паттерны');
+    } else {
+      var patterns=[];
+      var fomo=trades.filter(function(t){var h=new Date(t.created_at).getHours();return h>=17&&h<19&&t.result==='loss';});
+      if(fomo.length>=2) patterns.push({icon:'🔥',title:'FOMO в вечерние часы',desc:fomo.length+' убытков 17-19ч'});
+      var greedyLoss=trades.filter(function(t){return (t.emotion_greed||0)>=7&&t.result==='loss';});
+      if(greedyLoss.length>=2) patterns.push({icon:'💀',title:'Жадность → убыток',desc:greedyLoss.length+' потерь при жадности ≥7'});
+      var highConf=trades.filter(function(t){return (t.emotion_conf||0)>=7&&t.result==='win';});
+      if(highConf.length>=2) patterns.push({icon:'🎯',title:'Уверенность → победа',desc:highConf.length+' побед при уверенности ≥7'});
+      var fearLoss=trades.filter(function(t){return (t.emotion_fear||0)>=7&&t.result==='loss';});
+      if(fearLoss.length>=2) patterns.push({icon:'😰',title:'Страх → убыток',desc:fearLoss.length+' потерь при страхе ≥7'});
+      var stk=0,maxStk=0;
+      trades.slice().reverse().forEach(function(t){if(t.result==='loss'){stk++;maxStk=Math.max(maxStk,stk);}else stk=0;});
+      if(maxStk>=3) patterns.push({icon:'📉',title:'Серия убытков',desc:'Макс. серия: '+maxStk+' подряд'});
+      plEl.innerHTML=patterns.length
+        ?patterns.map(function(p){return '<div class="pattern-item"><span class="patt-icon">'+p.icon+'</span><div class="patt-body"><div class="patt-title">'+p.title+'</div><div class="patt-sub">'+p.desc+'</div></div></div>';}).join('')
+        :'<div class="empty" style="padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Паттернов не обнаружено — хорошая работа 🎯</div>';
+    }
+  }
 }
 
 function renderDisciplineScore(trades, wins, losses, conf, fear, greed, calm){
