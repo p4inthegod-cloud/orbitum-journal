@@ -442,6 +442,54 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 .follow-btn:hover{background:rgba(232,114,42,0.2);box-shadow:0 0 16px rgba(232,114,42,0.15);}
 .follow-btn.following{background:var(--gd);border-color:rgba(52,208,88,0.3);color:var(--g);}
 
+
+/* ── NOTIF BELL ── */
+.tb-bell{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:8px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);
+  transition:all 0.15s;font-size:15px;flex-shrink:0;
+}
+.tb-bell:hover{border-color:var(--a3);background:var(--a2);}
+.tb-bell-count{
+  position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;
+  border-radius:8px;background:var(--r);color:#fff;
+  font-family:var(--font-mono);font-size:7px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 3px;border:1px solid var(--bg);
+}
+.notif-dropdown{
+  position:absolute;top:calc(100% + 8px);right:0;width:320px;
+  background:rgba(10,12,18,0.98);border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.7);
+  z-index:200;overflow:hidden;
+  animation:fadeInDown 0.15s ease;
+}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.notif-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--a);
+}
+.notif-mark-btn{
+  font-family:var(--font-mono);font-size:8px;color:var(--m);
+  background:none;border:none;cursor:pointer;letter-spacing:0.5px;
+}
+.notif-mark-btn:hover{color:var(--t);}
+.notif-list{max-height:320px;overflow-y:auto;}
+.notif-item{
+  display:flex;align-items:flex-start;gap:10px;padding:12px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.1s;
+  cursor:default;
+}
+.notif-item:hover{background:rgba(255,255,255,0.02);}
+.notif-item.unread{background:rgba(232,114,42,0.04);}
+.notif-dot{width:6px;height:6px;border-radius:50%;background:var(--a);flex-shrink:0;margin-top:4px;}
+.notif-dot.read{background:transparent;border:1px solid rgba(255,255,255,0.15);}
+.notif-text{font-family:var(--font-mono);font-size:9px;color:var(--m2);line-height:1.5;flex:1;}
+.notif-time{font-family:var(--font-mono);font-size:7px;color:var(--m);margin-top:3px;}
+.notif-empty{padding:28px;text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--m);}
+
 @media(max-width:700px){
   .hero-top{flex-direction:column;}
   .hero-right{align-items:flex-start;}
@@ -469,6 +517,19 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
   <div class="tb-dot"></div>
   <span class="tb-badge">ПРОФИЛЬ ТРЕЙДЕРА</span>
   <div class="tb-spacer"></div>
+  <div class="tb-bell" id="tb-bell" onclick="toggleNotifDropdown()" title="Уведомления">
+    🔔
+    <div class="tb-bell-count" id="tb-bell-count" style="display:none">0</div>
+    <div class="notif-dropdown" id="notif-dropdown" style="display:none" onclick="event.stopPropagation()">
+      <div class="notif-header">
+        🔔 УВЕДОМЛЕНИЯ
+        <button class="notif-mark-btn" onclick="markAllRead()">Все прочитаны ✓</button>
+      </div>
+      <div class="notif-list" id="notif-list">
+        <div class="notif-empty">Нет уведомлений</div>
+      </div>
+    </div>
+  </div>
   <a href="journal.html" class="tb-back" style="margin-left:4px">← Журнал</a>
 </div>
 
@@ -857,6 +918,18 @@ async function init(){
 
   render(profile, trades);
   window._profileTrades=trades;
+  // Проверяем реальный статус follow
+  if(currentUser && !isOwnProfile){
+    sb.from('follows')
+      .select('id').eq('follower_id',currentUser.id).eq('target_id',uid).single()
+      .then(({data})=>{
+        const btn=document.querySelector('.follow-btn');
+        if(btn&&data){
+          btn.classList.add('following');
+          btn.textContent='✓ FOLLOWING';
+        }
+      }).catch(()=>{});
+  }
   // Load ideas
   loadIdeas(uid);
 }
@@ -1157,17 +1230,19 @@ function render(p, trades){
     </div>
   </div>
 
-    <!-- DEEP ANALYTICS -->
-  <div class="section-card">
-    <div class="sc-title" style="margin-bottom:16px"><div class="sc-title-dot"></div>ГЛУБОКАЯ АНАЛИТИКА</div>
-    <div class="analytics-tabs" id="analytics-tabs">
-      <button class="atab active" onclick="switchAnalyticsTab('setups',this)">Сетапы</button>
-      <button class="atab" onclick="switchAnalyticsTab('time',this)">Время</button>
-      <button class="atab" onclick="switchAnalyticsTab('streaks',this)">Серии</button>
-      <button class="atab" onclick="switchAnalyticsTab('psych',this)">Психология</button>
-    </div>
-    <div id="analytics-content" style="margin-top:16px">
-      <div class="an-empty" style="padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Загрузка аналитики...</div>
+    <!-- DEEP ANALYTICS — только для своего профиля -->
+  <div class="section-card" id="deep-analytics-card">
+    <div class="sc-title" style="margin-bottom:16px"><div class="sc-title-dot"></div>ГЛУБОКАЯ АНАЛИТИКА <span id="analytics-lock" style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-left:8px"></span></div>
+    <div id="analytics-inner">
+      <div class="analytics-tabs" id="analytics-tabs">
+        <button class="atab active" onclick="switchAnalyticsTab('setups',this)">Сетапы</button>
+        <button class="atab" onclick="switchAnalyticsTab('time',this)">Время</button>
+        <button class="atab" onclick="switchAnalyticsTab('streaks',this)">Серии</button>
+        <button class="atab" onclick="switchAnalyticsTab('psych',this)">Психология</button>
+      </div>
+      <div id="analytics-content" style="margin-top:16px">
+        <div class="an-empty" style="padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Загрузка аналитики...</div>
+      </div>
     </div>
   </div>
 
@@ -1188,9 +1263,14 @@ function render(p, trades){
   setTimeout(()=>{
     renderEquity(trades);
     renderHeatmapPub(trades);
-    const ac = document.getElementById('analytics-content');
-    if(ac) ac.innerHTML = renderAnalyticsTab(trades,'setups');
+    applyAnalyticsPrivacy();
+    if(isOwnProfile){
+      const ac = document.getElementById('analytics-content');
+      if(ac) ac.innerHTML = renderAnalyticsTab(trades,'setups');
+    }
   },50);
+  // Загружаем уведомления
+  if(currentUser) loadNotifs();
 }
 
 function avg(arr,key){
@@ -1365,12 +1445,39 @@ function renderHeatmapPub(trades){
   wrap.innerHTML=html;
 }
 
-function toggleFollow(){
+async function toggleFollow(){
   const btn=document.querySelector('.follow-btn');
-  if(!btn)return;
+  if(!btn||!currentUser||!profileUser)return;
+  const targetId=profileUser.id;
   const isFollowing=btn.classList.contains('following');
-  btn.classList.toggle('following');
-  btn.textContent=isFollowing?'+ FOLLOW':'✓ FOLLOWING';
+  btn.disabled=true;
+  try{
+    if(isFollowing){
+      await sb.from('follows').delete()
+        .eq('follower_id',currentUser.id).eq('target_id',targetId);
+      btn.classList.remove('following');
+      btn.textContent='+ FOLLOW';
+    } else {
+      await sb.from('follows').insert({follower_id:currentUser.id,target_id:targetId});
+      btn.classList.add('following');
+      btn.textContent='✓ FOLLOWING';
+      // Уведомление трейдеру
+      const myName=(await sb.from('profiles').select('full_name,username').eq('id',currentUser.id).single()).data;
+      const fromName=myName?.full_name||myName?.username||'Трейдер';
+      await sb.from('notifications').insert({
+        user_id:targetId,type:'new_follower',
+        from_user_id:currentUser.id,
+        text:fromName+' начал следить за тобой!',
+        read:false,created_at:new Date().toISOString()
+      });
+    }
+  }catch(e){
+    // Таблица follows не создана — визуальный toggle
+    btn.classList.toggle('following');
+    btn.textContent=btn.classList.contains('following')?'✓ FOLLOWING':'+ FOLLOW';
+    console.warn('Follow error (нужна таблица follows):',e);
+  }
+  btn.disabled=false;
 }
 
 function copyLink(){
@@ -1391,6 +1498,99 @@ function showNotFound(msg){
     <div class="nf-sub">${msg}</div>
     <a href="journal.html" style="display:inline-block;margin-top:20px;padding:8px 20px;background:var(--a2);border:1px solid var(--a3);border-radius:8px;color:var(--a);font-family:var(--font-mono);font-size:10px;text-decoration:none;letter-spacing:1px">← В журнал</a>
   </div>`;
+}
+
+
+// ── NOTIF BELL ─────────────────────────────────────
+let _notifs = [];
+let _notifOpen = false;
+
+async function loadNotifs(){
+  if(!currentUser) return;
+  try{
+    const {data} = await sb.from('notifications')
+      .select('*').eq('user_id',currentUser.id)
+      .order('created_at',{ascending:false}).limit(30);
+    _notifs = data||[];
+    renderBell();
+  }catch(e){ _notifs=[]; }
+}
+
+function renderBell(){
+  const unread = _notifs.filter(n=>!n.read).length;
+  const countEl = document.getElementById('tb-bell-count');
+  if(countEl){
+    countEl.textContent = unread > 9 ? '9+' : unread;
+    countEl.style.display = unread > 0 ? 'flex' : 'none';
+  }
+  renderNotifList();
+}
+
+function renderNotifList(){
+  const el = document.getElementById('notif-list');
+  if(!el) return;
+  if(!_notifs.length){
+    el.innerHTML='<div class="notif-empty">Уведомлений нет 🎉</div>';
+    return;
+  }
+  const typeIcon={new_follower:'👤',new_idea:'💡'};
+  el.innerHTML = _notifs.map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}">
+      <div class="notif-dot ${n.read?'read':''}"></div>
+      <div>
+        <div class="notif-text">${typeIcon[n.type]||'🔔'} ${n.text||''}</div>
+        <div class="notif-time">${new Date(n.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleNotifDropdown(){
+  _notifOpen = !_notifOpen;
+  const dd = document.getElementById('notif-dropdown');
+  if(dd) dd.style.display = _notifOpen ? 'block' : 'none';
+  if(_notifOpen) markAllRead();
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#tb-bell')){
+    _notifOpen = false;
+    const dd=document.getElementById('notif-dropdown');
+    if(dd) dd.style.display='none';
+  }
+});
+
+async function markAllRead(){
+  const unread = _notifs.filter(n=>!n.read).map(n=>n.id);
+  if(!unread.length) return;
+  try{
+    await sb.from('notifications').update({read:true}).in('id',unread);
+    _notifs = _notifs.map(n=>({...n,read:true}));
+    renderBell();
+  }catch(e){}
+}
+
+// ── ПРИВАТНОСТЬ АНАЛИТИКИ ──────────────────────────
+function applyAnalyticsPrivacy(){
+  const card = document.getElementById('deep-analytics-card');
+  const lockLabel = document.getElementById('analytics-lock');
+  const inner = document.getElementById('analytics-inner');
+  if(!card) return;
+  if(isOwnProfile){
+    // Всё показываем
+    if(lockLabel) lockLabel.textContent='';
+  } else {
+    // Закрываем для чужих
+    if(inner) inner.innerHTML=`
+      <div style="display:flex;flex-direction:column;align-items:center;padding:32px 20px;text-align:center">
+        <div style="font-size:28px;margin-bottom:12px">🔒</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--a);letter-spacing:1.5px;margin-bottom:8px">ПРИВАТНЫЕ ДАННЫЕ</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.7;max-width:300px">
+          Глубокая аналитика доступна только владельцу профиля.<br>
+          Ты видишь публичную статистику и психологию.
+        </div>
+      </div>`;
+    if(lockLabel) lockLabel.innerHTML='<span style="color:rgba(255,77,77,0.6)">🔒 Приватно</span>';
+  }
 }
 
 init();
