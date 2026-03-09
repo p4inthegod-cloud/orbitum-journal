@@ -523,6 +523,48 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
   .wrap{padding:16px 14px 60px;}
   .topbar{padding:0 16px;}
 }
+
+/* ══ CHAT DRAWER (profile) ══ */
+.chat-icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;cursor:pointer;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.025);transition:all 0.15s;font-size:16px;flex-shrink:0;}
+.chat-icon-btn:hover{border-color:rgba(52,152,219,0.4);background:rgba(52,152,219,0.08);}
+.chat-drawer{position:fixed;top:0;right:-420px;width:420px;height:100vh;background:rgba(8,10,16,0.98);border-left:1px solid rgba(255,255,255,0.08);z-index:1000;display:flex;flex-direction:column;transition:right 0.25s cubic-bezier(0.4,0,0.2,1);box-shadow:-8px 0 40px rgba(0,0,0,0.6);}
+.chat-drawer.open{right:0;}
+.chat-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.chat-drawer-overlay.open{opacity:1;pointer-events:all;}
+.cd-topbar{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.cd-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#f0f0f0;flex:1;}
+.cd-close{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.07);background:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.cd-body{display:grid;grid-template-columns:140px 1fr;flex:1;min-height:0;overflow:hidden;}
+.cd-rooms{border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;overflow:hidden;}
+.cd-rooms-head{padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#e8722a;border-bottom:1px solid rgba(255,255,255,0.05);}
+.cd-room-list{flex:1;overflow-y:auto;}
+.cd-room{display:flex;align-items:center;gap:8px;padding:10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.03);transition:background 0.1s;}
+.cd-room:hover{background:rgba(255,255,255,0.03);}
+.cd-room.active{background:rgba(232,114,42,0.08);border-left:2px solid #e8722a;padding-left:8px;}
+.cd-room-av{width:26px;height:26px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;color:#e8722a;flex-shrink:0;}
+.cd-room-av.general{background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.25);color:#3498db;}
+.cd-room-name{font-family:'JetBrains Mono',monospace;font-size:8px;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cd-main{display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+.cd-chat-header{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
+.cd-chat-hname{font-family:'JetBrains Mono',monospace;font-size:9px;color:#f0f0f0;}
+.cd-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;}
+.cd-msg{display:flex;gap:6px;align-items:flex-start;}
+.cd-msg.mine{flex-direction:row-reverse;}
+.cd-msg-av{width:22px;height:22px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.2);display:flex;align-items:center;justify-content:center;font-size:9px;color:#e8722a;flex-shrink:0;margin-top:2px;}
+.cd-msg-body{display:flex;flex-direction:column;max-width:80%;}
+.cd-msg.mine .cd-msg-body{align-items:flex-end;}
+.cd-msg-name{font-family:'JetBrains Mono',monospace;font-size:7px;color:#e8722a;margin-bottom:2px;}
+.cd-bubble{padding:7px 10px;font-size:12px;line-height:1.5;color:#f0f0f0;word-break:break-word;}
+.cd-msg:not(.mine) .cd-bubble{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:3px 10px 10px 10px;}
+.cd-msg.mine .cd-bubble{background:rgba(232,114,42,0.13);border:1px solid rgba(232,114,42,0.22);border-radius:10px 3px 10px 10px;}
+.cd-msg-time{font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.2);margin-top:2px;}
+.cd-input-row{display:flex;gap:6px;padding:8px 10px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
+.cd-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:#f0f0f0;font-size:12px;outline:none;resize:none;line-height:1.4;max-height:80px;}
+.cd-input:focus{border-color:rgba(232,114,42,0.35);}
+.cd-send{padding:7px 12px;border-radius:7px;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);color:#e8722a;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;align-self:flex-end;}
+.cd-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);}
+.cd-date-sep{text-align:center;font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,0.18);padding:4px 0;}
+
 </style>
 </head>
 <body>
@@ -538,6 +580,7 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
   <div class="tb-dot"></div>
   <span class="tb-badge">ПРОФИЛЬ ТРЕЙДЕРА</span>
   <div class="tb-spacer"></div>
+  <div class="chat-icon-btn" onclick="openChat()" title="Сообщения" style="margin-right:4px">💬</div>
   <div class="tb-bell" id="tb-bell" onclick="toggleNotifDropdown()" title="Уведомления">
     🔔
     <div class="tb-bell-count" id="tb-bell-count" style="display:none">0</div>
@@ -1183,7 +1226,7 @@ function render(p, trades){
         ${isOwnProfile?'':
   `<div style="display:flex;gap:8px;align-items:center">
     <button class="follow-btn" onclick="toggleFollow()">+ FOLLOW</button>
-    <a href="journal.html?openChat=dm_${p.id}" class="follow-btn" style="text-decoration:none;background:rgba(52,152,219,0.08);border-color:rgba(52,152,219,0.25);color:#3498db" onclick="sessionStorage.setItem('openChatWith',JSON.stringify({id:'${p.id}',name:'${displayName}'}))">💬 Написать</a>
+    <button class="follow-btn" style="background:rgba(52,152,219,0.08);border-color:rgba(52,152,219,0.25);color:#3498db" onclick="openProfileDM()">💬 Написать</button>
   </div>`
 }
       </div>
@@ -1797,6 +1840,150 @@ init();
     <button class="idea-submit" onclick="submitIdea()">🚀 ОПУБЛИКОВАТЬ ИДЕЮ</button>
   </div>
 </div>
+
+
+<!-- ══ CHAT DRAWER ══ -->
+<div class="chat-drawer-overlay" id="cd-overlay" onclick="closeChat()"></div>
+<div class="chat-drawer" id="cd-drawer">
+  <div class="cd-topbar">
+    <span style="font-size:18px">💬</span>
+    <div class="cd-title">СООБЩЕНИЯ</div>
+    <button class="cd-close" onclick="closeChat()">✕</button>
+  </div>
+  <div class="cd-body">
+    <div class="cd-rooms">
+      <div class="cd-rooms-head">ЧАТЫ</div>
+      <div class="cd-room-list" id="cd-room-list">
+        <div style="padding:12px;font-family:monospace;font-size:8px;color:rgba(255,255,255,0.3)">Загрузка...</div>
+      </div>
+    </div>
+    <div class="cd-main">
+      <div class="cd-chat-header"><div class="cd-chat-hname" id="cd-chat-hname">Выбери чат</div></div>
+      <div class="cd-msgs" id="cd-msgs"><div class="cd-empty"><div style="font-size:24px">💬</div><div>Выбери чат</div></div></div>
+      <div class="cd-input-row">
+        <textarea class="cd-input" id="cd-input" placeholder="Написать..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();cdSend();}"
+          oninput="this.style.height='32px';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+        <button class="cd-send" onclick="cdSend()">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── CHAT DRAWER (profile) ── */
+const _cdSb=window.sb||null;
+let _cdP={open:false,rooms:[],active:null,msgs:[],profiles:{},sub:null};
+const CDP_GENERAL='general';
+
+function openChat(dmId,dmName){
+  if(!currentUser)return;
+  _cdP.open=true;
+  document.getElementById('cd-drawer').classList.add('open');
+  document.getElementById('cd-overlay').classList.add('open');
+  if(!_cdP.rooms.length) cdPLoadRooms().then(()=>{
+    if(dmId) cdPOpenDM(dmId,dmName);
+    else{const g=_cdP.rooms[0];if(g)cdPSelect(g);}
+  });
+  else if(dmId) cdPOpenDM(dmId,dmName);
+  else if(!_cdP.active){const g=_cdP.rooms[0];if(g)cdPSelect(g);}
+}
+function closeChat(){
+  _cdP.open=false;
+  document.getElementById('cd-drawer').classList.remove('open');
+  document.getElementById('cd-overlay').classList.remove('open');
+}
+async function cdPLoadRooms(){
+  const rooms=[{id:CDP_GENERAL,type:'general',name:'Общий чат'}];
+  try{
+    const {data:follows}=await sb.from('follows')
+      .select('target_id,profiles:target_id(id,full_name,username)')
+      .eq('follower_id',currentUser.id);
+    (follows||[]).forEach(f=>{
+      const p=f.profiles;if(!p)return;
+      _cdP.profiles[p.id]=p;
+      rooms.push({id:'dm_'+p.id,type:'dm',partnerId:p.id,
+        name:p.full_name||p.username||'Трейдер',
+        icon:(p.full_name||p.username||'?')[0].toUpperCase()});
+    });
+  }catch(e){}
+  _cdP.rooms=rooms; cdPRenderRooms();
+}
+function cdPRenderRooms(){
+  const el=document.getElementById('cd-room-list');if(!el)return;
+  el.innerHTML=_cdP.rooms.map(r=>`<div class="cd-room${_cdP.active&&_cdP.active.id===r.id?' active':''}" onclick="cdPSelect(${JSON.stringify(r).replace(/"/g,'&quot;')})"><div class="cd-room-av ${r.type==='general'?'general':''}">${r.type==='general'?'🌐':(r.icon||'?')}</div><div class="cd-room-name">${r.name}</div></div>`).join('');
+}
+async function cdPSelect(room){
+  _cdP.active=room;cdPRenderRooms();
+  const h=document.getElementById('cd-chat-hname');if(h)h.textContent=room.name;
+  const m=document.getElementById('cd-msgs');if(m)m.innerHTML='<div class="cd-empty">⏳</div>';
+  if(_cdP.sub){try{sb.removeChannel(_cdP.sub);}catch(e){}_cdP.sub=null;}
+  await cdPLoadMsgs(room); cdPSubscribe(room);
+}
+function cdPOpenDM(uid,name){
+  const room=_cdP.rooms.find(r=>r.id==='dm_'+uid)||{id:'dm_'+uid,type:'dm',partnerId:uid,name:name||'Трейдер',icon:(name||'?')[0].toUpperCase()};
+  if(!_cdP.rooms.find(r=>r.id===room.id)){_cdP.rooms.push(room);cdPRenderRooms();}
+  cdPSelect(room);
+}
+async function cdPLoadMsgs(room){
+  try{
+    let q=sb.from('chat_messages').select('*').order('created_at',{ascending:true}).limit(80);
+    if(room.type==='general')q=q.eq('room','general');
+    else q=q.eq('room','dm').or('and(sender_id.eq.'+currentUser.id+',receiver_id.eq.'+room.partnerId+'),and(sender_id.eq.'+room.partnerId+',receiver_id.eq.'+currentUser.id+')');
+    const {data}=await q;_cdP.msgs=data||[];
+    const ids=[...new Set(_cdP.msgs.map(m=>m.sender_id))].filter(id=>!_cdP.profiles[id]);
+    if(ids.length){const {data:pr}=await sb.from('profiles').select('id,full_name,username').in('id',ids);(pr||[]).forEach(p=>_cdP.profiles[p.id]=p);}
+  }catch(e){_cdP.msgs=[];}
+  cdPRenderMsgs();
+}
+function cdPRenderMsgs(){
+  const el=document.getElementById('cd-msgs');if(!el)return;
+  if(!_cdP.msgs.length){el.innerHTML='<div class="cd-empty"><div style="font-size:20px">👋</div><div>Начни первым!</div></div>';return;}
+  let html='',lastDate='';
+  _cdP.msgs.forEach(msg=>{
+    const isMe=msg.sender_id===currentUser.id;
+    const p=_cdP.profiles[msg.sender_id]||{};
+    const name=p.full_name||p.username||'?';
+    const ts=new Date(msg.created_at);
+    const d=ts.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
+    const t=ts.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+    if(d!==lastDate){html+=`<div class="cd-date-sep">${d}</div>`;lastDate=d;}
+    html+=`<div class="cd-msg${isMe?' mine':''}"><div class="cd-msg-av">${name[0].toUpperCase()}</div><div class="cd-msg-body">${!isMe?`<div class="cd-msg-name">${name}</div>`:''}<div class="cd-bubble">${(msg.text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div><div class="cd-msg-time">${t}</div></div></div>`;
+  });
+  el.innerHTML=html;el.scrollTop=el.scrollHeight;
+}
+function cdPSubscribe(room){
+  try{
+    _cdP.sub=sb.channel('cdp_'+room.id)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:room.type==='general'?'room=eq.general':'room=eq.dm'},
+        async payload=>{
+          const msg=payload.new;
+          if(room.type==='dm'){const ok=(msg.sender_id===currentUser.id&&msg.receiver_id===room.partnerId)||(msg.sender_id===room.partnerId&&msg.receiver_id===currentUser.id);if(!ok)return;}
+          if(!_cdP.profiles[msg.sender_id]){const {data:p}=await sb.from('profiles').select('id,full_name,username').eq('id',msg.sender_id).single();if(p)_cdP.profiles[p.id]=p;}
+          _cdP.msgs.push(msg);cdPRenderMsgs();
+        }).subscribe();
+  }catch(e){}
+}
+async function cdSend(){
+  if(!_cdP.active||!currentUser)return;
+  const inp=document.getElementById('cd-input');if(!inp)return;
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';inp.style.height='32px';
+  const msg={sender_id:currentUser.id,room:_cdP.active.type==='general'?'general':'dm',text,created_at:new Date().toISOString()};
+  if(_cdP.active.type==='dm')msg.receiver_id=_cdP.active.partnerId;
+  try{
+    await sb.from('chat_messages').insert(msg);
+    if(_cdP.active.type==='dm'){
+      await sb.from('notifications').insert({user_id:_cdP.active.partnerId,type:'new_message',from_user_id:currentUser.id,text:'написал тебе: "'+text.slice(0,50)+'"',read:false,created_at:new Date().toISOString()}).catch(()=>{});
+    }
+  }catch(e){_cdP.msgs.push({...msg,id:'local_'+Date.now()});cdPRenderMsgs();}
+}
+// Кнопка "Написать" открывает DM с трейдером профиля
+function openProfileDM(){
+  if(!profileUser)return;
+  openChat(profileUser.id, profileUser.full_name||profileUser.username||'Трейдер');
+}
+</script>
 
 </body>
 </html>
