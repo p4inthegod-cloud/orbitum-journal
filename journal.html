@@ -403,7 +403,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ── VERY SMALL SCREENS (iPhone SE, <380px) ── */
 
 /* ─── MAIN ────────────────────────────────── */
-.main{margin-left:0;padding:20px 16px 90px;min-height:100vh;position:relative;z-index:1;}
+.main{margin-left:0;padding:20px 16px 90px;min-height:100vh;position:relative;z-index:1;pointer-events:auto;}
 .bg-orb{
   position:fixed;width:600px;height:600px;border-radius:50%;
   background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 65%);
@@ -1391,49 +1391,67 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .sb-overlay{display:none!important;}
   .topnav{display:none;}
 
-  /* Sidebar always visible as icon rail */
+  /* Sidebar always visible as icon rail — 52px collapsed */
   .sidebar{
     display:flex!important;
     width:52px;
-    transition:width 0.22s cubic-bezier(0.16,1,0.3,1);
+    transition:width 0.3s cubic-bezier(0.4,0,0.2,1);
     overflow:hidden;
-    z-index:200;
+    z-index:150;
+    position:fixed;
+    /* When expanded, it overlays content — that's fine, content has margin */
   }
   .sidebar:hover{width:var(--sb);}
+  /* Prevent sidebar hover from blocking main content clicks */
+  .sidebar:not(:hover){pointer-events:none;}
+  .sidebar:not(:hover) .sb-item,
+  .sidebar:not(:hover) .sb-logo,
+  .sidebar:not(:hover) .sb-footer{pointer-events:auto;}
 
-  /* Logo: hide text when collapsed */
+  /* Logo text fades in smoothly */
   .sb-logo-text{
-    opacity:0;white-space:nowrap;
-    transition:opacity 0.15s;
-    overflow:hidden;max-width:0;
+    opacity:0;white-space:nowrap;overflow:hidden;
+    max-width:0;
+    transition:opacity 0.2s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
   }
-  .sidebar:hover .sb-logo-text{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s,max-width 0.22s;}
+  .sidebar:hover .sb-logo-text{
+    opacity:1;max-width:180px;
+    transition:opacity 0.25s 0.1s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
 
-  /* Nav item labels hidden when collapsed */
-  .sb-item{overflow:hidden;white-space:nowrap;}
+  /* Nav labels */
+  .sb-item{overflow:hidden;white-space:nowrap;position:relative;}
   .sb-item > *:not(.sb-item-icon){
-    opacity:0;max-width:0;overflow:hidden;
-    transition:opacity 0.12s;
+    opacity:0;max-width:0;overflow:hidden;display:inline-block;vertical-align:middle;
+    transition:opacity 0.15s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
   }
   .sidebar:hover .sb-item > *:not(.sb-item-icon){
-    opacity:1;max-width:200px;
-    transition:opacity 0.18s 0.08s;
+    opacity:1;max-width:180px;
+    transition:opacity 0.2s 0.08s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
   }
 
   /* Section labels */
-  .sb-section{opacity:0;height:0;padding:0 10px;overflow:hidden;transition:all 0.15s;}
-  .sidebar:hover .sb-section{opacity:1;height:auto;padding:12px 10px 4px;}
+  .sb-section{
+    opacity:0;max-height:0;padding:0 10px;overflow:hidden;
+    transition:opacity 0.15s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .sidebar:hover .sb-section{
+    opacity:1;max-height:30px;padding:12px 10px 4px;
+    transition:opacity 0.2s 0.05s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
 
   /* Footer */
-  .sb-user-info,.sb-logout{opacity:0;overflow:hidden;max-width:0;transition:opacity 0.12s;}
-  .sidebar:hover .sb-user-info,.sidebar:hover .sb-logout{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s;}
+  .sb-user-info{opacity:0;overflow:hidden;max-width:0;transition:opacity 0.15s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar:hover .sb-user-info{opacity:1;max-width:180px;transition:opacity 0.2s 0.08s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);}
+  .sb-logout{opacity:0;overflow:hidden;max-height:0;transition:opacity 0.15s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar:hover .sb-logout{opacity:1;max-height:40px;transition:opacity 0.2s 0.1s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);}
 
-  /* Topbar — hide nav, keep right widgets */
-  .jnl-topbar{display:flex;margin-left:52px;}
+  /* Topbar */
+  .jnl-topbar{display:flex;margin-left:52px;transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);}
   .jtb-navs{display:none!important;}
 
-  /* Main content offset */
-  .main{margin-left:52px;padding:0 32px 60px;}
+  /* Main content — smooth push */
+  .main{margin-left:52px;padding:0 32px 60px;transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);}
   body:has(.sidebar:hover) .main{margin-left:var(--sb);}
   body:has(.sidebar:hover) .jnl-topbar{margin-left:var(--sb);}
 
@@ -1708,9 +1726,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <button class="sb-item" onclick="showPage('simulator',this)" data-page="simulator">
       <span class="sb-item-icon">🎮</span>Симулятор
     </button>
-    <button class="sb-item" onclick="showPage('leaderboard',this)" data-page="leaderboard">
-      <span class="sb-item-icon">🏆</span>Рейтинг
-    </button>
+
     <div class="sb-divider"></div>
     <a href="profile.html" class="sb-item" target="_blank" rel="noopener">
       <span class="sb-item-icon">🧠</span>Мой профиль ↗
@@ -2600,9 +2616,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <button class="mob-nav-btn" id="mbn-simulator" onclick="showPage('simulator',this);updateMobNav('simulator')">
       <span class="mob-nav-icon">🎮</span><span class="mob-nav-label">Симулятор</span>
     </button>
-    <button class="mob-nav-btn" id="mbn-leaderboard" onclick="showPage('leaderboard',this);updateMobNav('leaderboard')">
-      <span class="mob-nav-icon">🏆</span><span class="mob-nav-label">Рейтинг</span>
-    </button>
+
   </div>
 </div>
 
