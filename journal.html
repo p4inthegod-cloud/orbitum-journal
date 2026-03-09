@@ -1384,78 +1384,108 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .ds-breakdown{grid-template-columns:1fr 1fr;}
 }
 
-/* ─── DESKTOP SIDEBAR ICON RAIL + HOVER EXPAND ──── */
+/* ─── DESKTOP SIDEBAR — TOGGLE EXPAND ──── */
 @media(min-width:861px){
   .mob-bar{display:none!important;}
   .mob-bottom-nav{display:none!important;}
   .sb-overlay{display:none!important;}
   .topnav{display:none;}
 
-  /* Sidebar always visible as icon rail — 52px collapsed */
+  /* Sidebar: icon rail 52px, expands on .expanded class */
   .sidebar{
     display:flex!important;
     width:52px;
-    transition:width 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition:width 0.32s cubic-bezier(0.4,0,0.2,1);
     overflow:hidden;
     z-index:150;
     position:fixed;
-    /* When expanded, it overlays content — that's fine, content has margin */
+    pointer-events:none;
+    /* clip pointer events to visible bounds */
+    clip-path:inset(0);
   }
-  .sidebar:hover{width:var(--sb);}
-  /* Prevent sidebar hover from blocking main content clicks */
-  .sidebar:not(:hover){pointer-events:none;}
-  .sidebar:not(:hover) .sb-item,
-  .sidebar:not(:hover) .sb-logo,
-  .sidebar:not(:hover) .sb-footer{pointer-events:auto;}
+  /* Only buttons within sidebar intercept clicks - 52px strip */
+  .sidebar .sb-item,
+  .sidebar .sb-logo,
+  .sidebar .sb-footer button,
+  .sidebar .sb-icon-toggle{
+    pointer-events:auto;
+    /* Limit clickable area to the collapsed width */
+    max-width:52px;
+    overflow:hidden;
+  }
+  .sidebar.expanded .sb-item,
+  .sidebar.expanded .sb-logo,
+  .sidebar.expanded .sb-footer button{
+    max-width:var(--sb);
+  }
+  .sidebar.expanded{width:var(--sb);}
+  .sidebar.expanded *{pointer-events:auto;}
 
-  /* Logo text fades in smoothly */
+  /* Logo text */
   .sb-logo-text{
-    opacity:0;white-space:nowrap;overflow:hidden;
-    max-width:0;
-    transition:opacity 0.2s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
+    opacity:0;white-space:nowrap;overflow:hidden;max-width:0;
+    transition:opacity 0.2s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
   }
-  .sidebar:hover .sb-logo-text{
+  .sidebar.expanded .sb-logo-text{
     opacity:1;max-width:180px;
-    transition:opacity 0.25s 0.1s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition:opacity 0.22s 0.1s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
   }
 
   /* Nav labels */
-  .sb-item{overflow:hidden;white-space:nowrap;position:relative;}
+  .sb-item{overflow:hidden;white-space:nowrap;}
   .sb-item > *:not(.sb-item-icon){
     opacity:0;max-width:0;overflow:hidden;display:inline-block;vertical-align:middle;
-    transition:opacity 0.15s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition:opacity 0.15s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
   }
-  .sidebar:hover .sb-item > *:not(.sb-item-icon){
+  .sidebar.expanded .sb-item > *:not(.sb-item-icon){
     opacity:1;max-width:180px;
-    transition:opacity 0.2s 0.08s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);
+    transition:opacity 0.2s 0.08s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
   }
 
   /* Section labels */
-  .sb-section{
-    opacity:0;max-height:0;padding:0 10px;overflow:hidden;
-    transition:opacity 0.15s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);
-  }
-  .sidebar:hover .sb-section{
+  .sb-section{opacity:0;max-height:0;padding:0 10px;overflow:hidden;
+    transition:opacity 0.15s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar.expanded .sb-section{
     opacity:1;max-height:30px;padding:12px 10px 4px;
-    transition:opacity 0.2s 0.05s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);
-  }
+    transition:opacity 0.2s 0.05s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
 
   /* Footer */
-  .sb-user-info{opacity:0;overflow:hidden;max-width:0;transition:opacity 0.15s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar:hover .sb-user-info{opacity:1;max-width:180px;transition:opacity 0.2s 0.08s, max-width 0.3s cubic-bezier(0.4,0,0.2,1);}
-  .sb-logout{opacity:0;overflow:hidden;max-height:0;transition:opacity 0.15s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar:hover .sb-logout{opacity:1;max-height:40px;transition:opacity 0.2s 0.1s, max-height 0.3s cubic-bezier(0.4,0,0.2,1);}
+  .sb-user-info{opacity:0;overflow:hidden;max-width:0;
+    transition:opacity 0.15s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar.expanded .sb-user-info{opacity:1;max-width:180px;
+    transition:opacity 0.2s 0.08s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sb-logout{opacity:0;overflow:hidden;max-height:0;
+    transition:opacity 0.15s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar.expanded .sb-logout{opacity:1;max-height:40px;
+    transition:opacity 0.2s 0.1s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
 
-  /* Topbar */
-  .jnl-topbar{display:flex;margin-left:52px;transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);}
+  /* Toggle button inside sidebar logo area */
+  .sb-toggle-btn{
+    display:none;background:none;border:none;color:var(--m);cursor:pointer;
+    font-size:14px;margin-left:auto;padding:2px 4px;transition:color 0.15s;flex-shrink:0;
+  }
+  .sidebar.expanded .sb-toggle-btn{display:flex;align-items:center;}
+  .sb-toggle-btn:hover{color:var(--t);}
+
+  /* Topbar & main shift with sidebar expansion — same timing */
+  .jnl-topbar{display:flex;margin-left:52px;transition:margin-left 0.32s cubic-bezier(0.4,0,0.2,1);}
   .jtb-navs{display:none!important;}
+  .main{margin-left:52px;padding:0 32px 60px;transition:margin-left 0.32s cubic-bezier(0.4,0,0.2,1);}
 
-  /* Main content — smooth push */
-  .main{margin-left:52px;padding:0 32px 60px;transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);}
-  body:has(.sidebar:hover) .main{margin-left:var(--sb);}
-  body:has(.sidebar:hover) .jnl-topbar{margin-left:var(--sb);}
+  /* When sidebar is expanded — push content */
+  body.sb-open .main{margin-left:var(--sb);}
+  body.sb-open .jnl-topbar{margin-left:var(--sb);}
 
   .stats-row{margin-top:24px;}
+
+  /* Collapse icon button — always visible on icon strip */
+  .sb-icon-toggle{
+    position:absolute;bottom:16px;left:0;width:52px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    background:none;border:none;cursor:pointer;color:var(--m);
+    font-size:16px;transition:color 0.15s;z-index:1;
+  }
+  .sb-icon-toggle:hover{color:var(--a);}
 }
 
 /* ─── SMART NOTIFICATIONS ─────────────────────── */
@@ -1697,10 +1727,11 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <a href="index.html" class="sb-logo" style="text-decoration:none;cursor:pointer;" title="На главную">
+  <a href="index.html" class="sb-logo" style="text-decoration:none;cursor:pointer;flex:1;" title="На главную">
     <div class="sb-logo-dot"></div>
     <span class="sb-logo-text">ORBITUM</span>
   </a>
+  <button class="sb-icon-toggle" onclick="toggleSidebar()" title="Развернуть">☰</button>
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
     <button class="sb-item active" onclick="showPage('journal',this)" data-page="journal">
@@ -2701,6 +2732,13 @@ let currentUser=null, allTrades=[], currentFilter='all', currentDir='long';
 // ─── SIDEBAR ─────────────────────────────────────
 function openSB(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
 function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const isExpanded=sb.classList.toggle('expanded');
+  document.body.classList.toggle('sb-open',isExpanded);
+  const btn=sb.querySelector('.sb-icon-toggle');
+  if(btn) btn.title=isExpanded?'Свернуть':'Развернуть';
+}
 
 // ─── PAGE NAV ─────────────────────────────────────
 function updateMobNav(p){
