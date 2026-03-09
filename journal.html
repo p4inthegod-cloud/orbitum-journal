@@ -3882,13 +3882,26 @@ async function initIdeasPage(){
 
 async function loadAllIdeas(){
   try{
-    // Загружаем все публичные идеи + профили авторов
+    // Загружаем идеи
     const {data,error}=await sb.from('ideas')
-      .select('*, profiles(full_name,username)')
+      .select('*')
       .order('created_at',{ascending:false})
       .limit(100);
-    if(!error&&data) _ijAllIdeas=data;
+    if(error||!data){console.warn('Ideas error',error);return;}
+    _ijAllIdeas=data;
     _ijMyIdeas=_ijAllIdeas.filter(i=>i.user_id===currentUser.id);
+
+    // Отдельно грузим профили авторов (нет FK join)
+    const authorIds=[...new Set(data.map(i=>i.user_id))];
+    if(authorIds.length){
+      const {data:profs}=await sb.from('profiles').select('id,full_name,username').in('id',authorIds);
+      if(profs){
+        const profMap={};
+        profs.forEach(p=>profMap[p.id]=p);
+        _ijAllIdeas=_ijAllIdeas.map(i=>({...i,_profile:profMap[i.user_id]||null}));
+        _ijMyIdeas=_ijAllIdeas.filter(i=>i.user_id===currentUser.id);
+      }
+    }
   }catch(e){console.warn('Ideas load error',e);}
 }
 
@@ -3984,6 +3997,7 @@ async function renderFollowingList(el){
 }
 
 function getAuthorName(idea){
+  if(idea._profile) return idea._profile.full_name||idea._profile.username||'Трейдер';
   if(idea.profiles) return idea.profiles.full_name||idea.profiles.username||'Трейдер';
   return 'Трейдер';
 }
