@@ -412,7 +412,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 
 /* ─── PAGE SYSTEM ─────────────────────────── */
-.page{display:none;}.page.active{display:block;animation:pgIn 0.2s ease both;}
+.page{display:none;}.page.active{display:block;animation:pgIn 0.2s ease both;}#page-chat.active{display:flex;flex-direction:column;padding:0!important;}
 @keyframes pgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 
 /* ─── TOP NAV ─────────────────────────────── */
@@ -962,7 +962,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .jnd-time{font-family:var(--font-mono);font-size:7px;color:var(--m);margin-top:3px;}
 .jnd-empty{padding:24px;text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--m);}
 /* ── CHAT PAGE ── */
-.chat-wrap{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 80px);gap:0;background:var(--bg2);border:var(--line);border-radius:var(--radius);overflow:hidden;}
+.chat-wrap{display:grid;grid-template-columns:220px 1fr;flex:1;min-height:0;gap:0;background:var(--bg2);border:var(--line);border-radius:var(--radius);overflow:hidden;}
 .chat-rooms{border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;background:rgba(255,255,255,0.01);}
 .chat-rooms-head{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--font-mono);font-size:8px;letter-spacing:2px;color:var(--a);}
 .chat-room-list{flex:1;overflow-y:auto;}
@@ -3037,6 +3037,9 @@ function showPage(p,btn){
   var pg=document.getElementById('page-'+p);
   if(!pg)return;
   pg.classList.add('active');
+  // Чат — убираем padding у main чтобы grid растянулся
+  var mainEl=document.querySelector('.main');
+  if(mainEl)mainEl.style.padding=p==='chat'?'0':'';
   document.querySelectorAll('.sb-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.tnav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.jtb-nav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
@@ -3171,16 +3174,51 @@ async function loadTrades(){
   try{
     sb.channel('notifs_realtime_'+currentUser.id)
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},
-        (payload)=>{
-          _jNotifs.unshift(payload.new);
-          renderJournalBell();
-          // Показываем тост
+        async (payload)=>{
           const n=payload.new;
-          const icons={new_follower:'👤',new_idea:'💡',new_message:'💬',unfollow:'👋'};
-          showNotif('info', (icons[n.type]||'🔔')+' Уведомление', n.text||'', 4000);
+          // Dogружаем профиль отправителя (realtime не содержит join)
+          if(n.from_user_id){
+            try{
+              const {data:p}=await sb.from('profiles').select('full_name,username').eq('id',n.from_user_id).single();
+              if(p) n.profiles=p;
+            }catch(e){}
+          }
+          _jNotifs.unshift(n);
+          renderJournalBell();
+          // Тост с именем
+          const icons={new_follower:'👤',unfollow:'👋',new_idea:'💡',new_message:'💬'};
+          const fromName=n.profiles?.full_name||n.profiles?.username||null;
+          const toastText=fromName?`@${fromName} ${n.text||''}`:n.text||'';
+          showNotif('info', (icons[n.type]||'🔔')+' '+toastText, '', 4500);
         })
       .subscribe();
-  }catch(e){}
+  }catch(e){console.warn('Realtime not available, using polling');}
+
+  // Fallback polling каждые 20 сек (на случай если Realtime не включён)
+  setInterval(async ()=>{
+    if(!currentUser)return;
+    try{
+      const {data}=await sb.from('notifications')
+        .select('*,profiles:from_user_id(full_name,username)')
+        .eq('user_id',currentUser.id)
+        .order('created_at',{ascending:false}).limit(30);
+      if(!data)return;
+      const oldUnread=_jNotifs.filter(n=>!n.read).length;
+      _jNotifs=data;
+      const newUnread=_jNotifs.filter(n=>!n.read).length;
+      renderJournalBell();
+      // Тост если появились новые
+      if(newUnread>oldUnread){
+        const newest=_jNotifs.find(n=>!n.read);
+        if(newest){
+          const icons={new_follower:'👤',unfollow:'👋',new_idea:'💡',new_message:'💬'};
+          const fromName=newest.profiles?.full_name||newest.profiles?.username||null;
+          const txt=fromName?`@${fromName} ${newest.text||''}`:newest.text||'';
+          showNotif('info',(icons[newest.type]||'🔔')+' '+txt,'',4000);
+        }
+      }
+    }catch(e){}
+  },20000);
 }
 
 function setDir(d){
