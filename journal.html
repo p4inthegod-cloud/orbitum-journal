@@ -1197,6 +1197,20 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .hm-month-label{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.2);white-space:nowrap;}
 .hm-legend{display:flex;align-items:center;gap:5px;margin-top:10px;font-family:var(--font-mono);font-size:8px;color:var(--m);}
 .hm-legend-item{width:12px;height:12px;border-radius:2px;}
+/* ─── HOURLY HEATMAP ─── */
+.hh-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:18px;cursor:pointer;}
+.hh-bar-wrap{width:100%;display:flex;align-items:flex-end;height:80px;position:relative;}
+.hh-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);position:relative;}
+.hh-bar:hover{filter:brightness(1.3);}
+.hh-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(5,7,10,0.98);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;font-family:var(--font-mono);font-size:9px;white-space:nowrap;z-index:50;color:var(--t);pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.7);line-height:1.6;}
+.hh-bar:hover .hh-tip{display:block;}
+.hh-col-label{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.2);letter-spacing:0.5px;white-space:nowrap;}
+.hh-col.best-hour .hh-bar{box-shadow:0 0 10px rgba(52,208,88,0.5);}
+.hh-col.worst-hour .hh-bar{box-shadow:0 0 10px rgba(255,77,77,0.4);}
+.hh-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-family:var(--font-mono);font-size:8px;letter-spacing:0.5px;}
+.hh-pill.good{background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
+.hh-pill.bad{background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:var(--r);}
+.hh-pill.warn{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(--y);}
 .imp-btn{background:rgba(255,255,255,0.04);border:var(--line);border-radius:7px;padding:8px 14px;color:var(--m);font-family:var(--font-mono);font-size:9px;cursor:pointer;letter-spacing:1px;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
 .imp-btn:hover{border-color:rgba(232,114,42,0.4);color:var(--a);}
 .share-btn{background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.25);border-radius:7px;padding:8px 14px;color:var(--a);font-family:var(--font-mono);font-size:9px;cursor:pointer;letter-spacing:1px;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
@@ -2193,6 +2207,29 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       </div>
     </div>
     <div id="import-log" style="display:none;background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.15);border-radius:8px;padding:12px;font-family:var(--font-mono);font-size:10px;color:var(--m);line-height:1.6;margin-top:4px;"></div>
+
+    <!-- ── HOURLY HEATMAP ── -->
+    <div class="hm-card" id="hourly-heatmap-card">
+      <div class="hm-header">
+        <div class="hm-title">По часам дня</div>
+        <div class="hm-stats">
+          <div class="hm-stat">Лучший час: <strong id="hh-best">—</strong></div>
+          <div class="hm-stat">Худший: <strong id="hh-worst">—</strong></div>
+        </div>
+      </div>
+      <div id="hh-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+      <div style="overflow-x:auto;">
+        <div id="hh-grid" style="display:flex;gap:4px;min-width:600px;align-items:flex-end;"></div>
+      </div>
+      <div id="hh-labels" style="display:flex;gap:4px;min-width:600px;margin-top:4px;"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;font-family:var(--font-mono);font-size:8px;color:var(--m);">
+        <div style="width:10px;height:10px;border-radius:2px;background:rgba(52,208,88,0.9)"></div> Прибыль
+        <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,77,77,0.7);margin-left:8px"></div> Убыток
+        <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,0.07);margin-left:8px"></div> Нет сделок
+        <span style="margin-left:auto;color:rgba(255,255,255,0.2)">Высота = |P&L| · Цвет = результат</span>
+      </div>
+      <div id="hh-insight" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(232,114,42,0.05);border:1px solid rgba(232,114,42,0.15);font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.7;"></div>
+    </div>
   </div>
 
 <!-- ──────────── DIGEST ────────────────────── -->
@@ -3568,6 +3605,7 @@ function renderProgress(){
     if(empty)empty.style.display='block';
     ['pk-best','pk-worst','pk-rr','pk-dd'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='—';});
     renderHeatmap([]);
+    renderHourlyHeatmap([]);
     document.getElementById('pairs-grid').innerHTML='';
     return;
   }
@@ -3668,6 +3706,89 @@ function renderProgress(){
   }
 
   renderHeatmap(trades);
+  renderHourlyHeatmap(trades);
+}
+
+function renderHourlyHeatmap(trades){
+  var grid=document.getElementById('hh-grid');
+  var labels=document.getElementById('hh-labels');
+  var pillsEl=document.getElementById('hh-pills');
+  var insightEl=document.getElementById('hh-insight');
+  var bestEl=document.getElementById('hh-best');
+  var worstEl=document.getElementById('hh-worst');
+  if(!grid)return;
+
+  var byHour={};
+  for(var h=0;h<24;h++) byHour[h]={n:0,w:0,pnl:0};
+
+  trades.forEach(function(t){
+    var h=new Date(t.created_at).getHours();
+    byHour[h].n++;
+    byHour[h].pnl+=(parseFloat(t.pnl_pct)||0);
+    if(t.result==='win') byHour[h].w++;
+  });
+
+  var maxAbs=1;
+  for(var h2=0;h2<24;h2++) if(Math.abs(byHour[h2].pnl)>maxAbs) maxAbs=Math.abs(byHour[h2].pnl);
+
+  var active=[];
+  for(var h3=0;h3<24;h3++) if(byHour[h3].n>=2) active.push(h3);
+  var bestH=null,worstH=null;
+  if(active.length){
+    bestH=active.reduce(function(b,h){return byHour[h].pnl>byHour[b].pnl?h:b;});
+    worstH=active.reduce(function(b,h){return byHour[h].pnl<byHour[b].pnl?h:b;});
+  }
+
+  if(bestEl) bestEl.textContent=bestH!==null?bestH+':00 ('+(byHour[bestH].pnl>=0?'+':'')+byHour[bestH].pnl.toFixed(1)+'%)':'—';
+  if(worstEl) worstEl.textContent=worstH!==null?worstH+':00 ('+byHour[worstH].pnl.toFixed(1)+'%)':'—';
+
+  var barsHtml='';
+  for(var h4=0;h4<24;h4++){
+    var d=byHour[h4];
+    var isBest=bestH!==null&&h4===bestH;
+    var isWorst=worstH!==null&&h4===worstH;
+    var cls='hh-col'+(isBest?' best-hour':isWorst?' worst-hour':'');
+    if(d.n===0){
+      barsHtml+='<div class="'+cls+'"><div class="hh-bar-wrap"><div class="hh-bar" style="height:3px;background:rgba(255,255,255,0.06);"><div class="hh-tip">'+h4+':00 · нет сделок</div></div></div></div>';
+    } else {
+      var wr=Math.round(d.w/d.n*100);
+      var ph=Math.max(5,Math.abs(d.pnl)/maxAbs*100);
+      var bc=d.pnl>0?'rgba(52,208,88,'+(0.35+wr/100*0.55)+')':d.pnl<0?'rgba(255,77,77,0.7)':'rgba(232,114,42,0.5)';
+      var tip=h4+':00 – '+(h4+1)+':00<br>Сделок: '+d.n+'<br>WR: '+wr+'%<br>P&L: '+(d.pnl>=0?'+':'')+d.pnl.toFixed(1)+'%'+(isBest?'<br>⭐ Лучший час':'')+(isWorst?'<br>💀 Худший час':'');
+      barsHtml+='<div class="'+cls+'"><div class="hh-bar-wrap"><div class="hh-bar" style="height:'+ph+'%;background:'+bc+';"><div class="hh-tip">'+tip+'</div></div></div></div>';
+    }
+  }
+  grid.innerHTML=barsHtml;
+
+  var labHtml='';
+  for(var h5=0;h5<24;h5++) labHtml+='<div class="hh-col-label" style="flex:1;text-align:center;">'+(h5%3===0?h5+':00':'')+'</div>';
+  if(labels) labels.innerHTML=labHtml;
+
+  if(pillsEl){
+    var pills=[];
+    if(bestH!==null) pills.push('<span class="hh-pill good">⭐ Лучшее: '+bestH+':00 (+'+byHour[bestH].pnl.toFixed(1)+'%)</span>');
+    if(worstH!==null&&worstH!==bestH) pills.push('<span class="hh-pill bad">💀 Избегай: '+worstH+':00 ('+byHour[worstH].pnl.toFixed(1)+'%)</span>');
+    var sessions=[{n:'🌏 Азия',h:[1,2,3,4,5,6,7,8]},{n:'🇬🇧 Лондон',h:[9,10,11,12,13]},{n:'🇺🇸 Нью-Йорк',h:[14,15,16,17,18,19]}];
+    var bsName='',bsPnl=-9999;
+    sessions.forEach(function(s){
+      var p=s.h.reduce(function(a,h){return a+byHour[h].pnl;},0);
+      var n2=s.h.reduce(function(a,h){return a+byHour[h].n;},0);
+      if(n2>=2&&p>bsPnl){bsPnl=p;bsName=s.n+' ('+(p>=0?'+':'')+p.toFixed(1)+'%)';}
+    });
+    if(bsName) pills.push('<span class="hh-pill warn">🏆 Сессия: '+bsName+'</span>');
+    pillsEl.innerHTML=pills.join('');
+  }
+
+  if(insightEl&&trades.length>=5){
+    var lines=[];
+    if(bestH!==null&&byHour[bestH].n>=2) lines.push('⭐ Лучший час <strong style="color:var(--g)">'+bestH+':00</strong> — '+byHour[bestH].n+' сд., WR '+Math.round(byHour[bestH].w/byHour[bestH].n*100)+'%, P&L +'+ byHour[bestH].pnl.toFixed(1)+'%');
+    if(worstH!==null&&worstH!==bestH&&byHour[worstH].n>=2) lines.push('⚠️ Худший час <strong style="color:var(--r)">'+worstH+':00</strong> — '+byHour[worstH].n+' сд., P&L '+byHour[worstH].pnl.toFixed(1)+'% · Рассмотри пропуск');
+    var lateN=[22,23,0,1,2,3].reduce(function(s,h){return s+byHour[h].n;},0);
+    var latePnl=[22,23,0,1,2,3].reduce(function(s,h){return s+byHour[h].pnl;},0);
+    if(lateN>=3&&latePnl<0) lines.push('🌙 Ночная торговля (22–03): '+lateN+' сд., '+latePnl.toFixed(1)+'% · Усталость снижает качество');
+    insightEl.style.display=lines.length?'block':'none';
+    insightEl.innerHTML=lines.join('<br>');
+  }
 }
 
 function renderHeatmap(trades){
