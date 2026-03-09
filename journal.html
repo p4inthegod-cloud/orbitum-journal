@@ -4457,8 +4457,8 @@ function toggleToolsDD(e){
   if(e && e.stopPropagation) e.stopPropagation();
   const dd=document.getElementById('jtb-tools-dd');
   if(!dd) return;
-  const isOpen=dd.classList.contains('open');
   dd.classList.toggle('open');
+  _ddJustOpened=dd.classList.contains('open');
 }
 function closeToolsDD(){
   const dd=document.getElementById('jtb-tools-dd');
@@ -4466,9 +4466,9 @@ function closeToolsDD(){
 }
 // Single click handler: close dropdown on outside click
 document.addEventListener('click',function(e){
+  if(_ddJustOpened){_ddJustOpened=false;return;}
   const dd=document.getElementById('jtb-tools-dd');
-  const trig=document.getElementById('jtb-dd-trigger-btn');
-  if(dd && dd.classList.contains('open') && trig && !dd.contains(e.target) && !trig.contains(e.target)){
+  if(dd && dd.classList.contains('open') && !dd.contains(e.target)){
     dd.classList.remove('open');
   }
 });
@@ -4490,7 +4490,7 @@ async function clearAllTrades(){
 
 // ─── EDIT TRADE MODAL ─────────────────────────────
 function openEditModal(id){
-  const t=allTrades.find(x=>x.id===id);
+  const t=allTrades.find(x=>String(x.id)===String(id));
   if(!t) return;
   document.getElementById('edit-trade-id').value=id;
   document.getElementById('edit-pair').value=t.pair||'';
