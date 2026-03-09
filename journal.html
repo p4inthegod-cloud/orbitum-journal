@@ -547,17 +547,17 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* Emotion section */
 .em-section{
   background:rgba(255,255,255,0.015);border:var(--line);
-  border-radius:8px;padding:10px 12px;margin-bottom:8px;
+  border-radius:10px;padding:14px 16px;margin-bottom:10px;
 }
 .em-title{font-family:var(--font-mono);font-size:7.5px;color:rgba(232,114,42,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
 .em-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .em-row{display:flex;flex-direction:column;gap:4px;}
-.em-label{font-family:var(--font-mono);font-size:7.5px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
+.em-label{font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
 .em-opts{display:flex;gap:3px;}
 .em-opt{
-  flex:1;padding:5px 3px;border-radius:5px;border:var(--line);
-  background:var(--bg3);color:var(--m);font-family:var(--font-mono);
-  font-size:7.5px;cursor:pointer;transition:all 0.15s;text-align:center;letter-spacing:0.3px;
+  flex:1;padding:9px 5px;border-radius:7px;border:var(--line);
+  background:var(--bg3);color:var(--m);font-family:var(--font-body);
+  font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:center;letter-spacing:0.2px;
 }
 .em-opt.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.35);color:var(--a);}
 /* Buttons */
@@ -1729,8 +1729,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <a href="index.html" class="jtb-logo" style="text-decoration:none;cursor:pointer;" title="На главную">ORBITUM</a>
   <div class="jtb-dot"></div>
   <span class="jtb-badge" id="jtb-page-badge">ЖУРНАЛ СДЕЛОК</span>
-  <div class="jtb-sep"></div>
-  <!-- nav moved to sidebar -->
+  <div style="flex:1;"></div>
   <div class="jtb-right">
     <!-- BALANCE WIDGET -->
     <div class="jtb-balance" id="jtb-balance-widget" onclick="toggleBalancePopup()" title="Общий баланс">
@@ -1805,9 +1804,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       ✏️ Заметка
     </button>
     <div class="jtb-sep-v"></div>
-    <div class="jtb-user">
+    <div class="jtb-user" style="padding:3px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:7px;">
       <div class="jtb-avatar" id="jtb-avatar">?</div>
-      <span id="jtb-name">...</span>
     </div>
   </div>
 </div>
@@ -1983,7 +1981,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
             <div class="em-label">Страх / Жадность</div>
             <div class="em-opts">
               <button class="em-opt" onclick="setEm('fear',8,this)">😨 Страх</button>
-              <button class="em-opt active" onclick="setEm('fear',3,this)">😌 Спокой</button>
+              <button class="em-opt active" onclick="setEm('fear',3,this)">😌 Спокоен</button>
               <button class="em-opt" onclick="setEm('greed',8,this)">🤑 Жадность</button>
             </div>
           </div>
@@ -1991,7 +1989,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
             <div class="em-label">Фокус</div>
             <div class="em-opts">
               <button class="em-opt" onclick="setEm('calm',3,this)">😵 Рассеян</button>
-              <button class="em-opt active" onclick="setEm('calm',7,this)">🎯 Сфокус</button>
+              <button class="em-opt active" onclick="setEm('calm',7,this)">🎯 Сфокусирован</button>
               <button class="em-opt" onclick="setEm('calm',10,this)">⚡ В потоке</button>
             </div>
           </div>
@@ -2694,6 +2692,73 @@ function updateMobNav(p){
       nav.scrollTo({left:btnLeft-navWidth/2+btnWidth/2,behavior:'smooth'});
     }
   }
+}
+
+
+// ─── AI CHECKLIST STATE ────────────────────────────
+var ckState={};
+function setCK(n,val){
+  ckState[n]=val;
+  ['yes','no'].forEach(function(v){
+    var btn=document.getElementById('ck'+n+'-'+v);
+    if(btn){
+      btn.classList.remove('yes','no');
+      if(v===val) btn.classList.add(val==='yes'?'yes':'no');
+    }
+  });
+}
+async function checkSetup(){
+  var answers=[];
+  var questions=['Есть подтверждённый BOS или CHoCH?','Есть OB/FVG/BPR в зоне входа?','Есть подтверждение на младшем ТФ?','SL за структуру, RR≥1:2, позиция рассчитана?','Ты спокоен, нет FOMO и мести рынку?'];
+  for(var i=1;i<=5;i++){
+    answers.push({q:questions[i-1],a:ckState[i]||'не ответил'});
+  }
+  var reason=document.getElementById('ai-reason')?document.getElementById('ai-reason').value:'';
+  var yesCount=Object.values(ckState).filter(function(v){return v==='yes';}).length;
+  var noCount=Object.values(ckState).filter(function(v){return v==='no';}).length;
+
+  var btn=document.getElementById('ai-check-btn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Анализирую...';}
+
+  var prompt='Ты строгий трейдинг-ментор. Трейдер отвечает на 5 вопросов чеклиста перед сделкой:\n\n';
+  answers.forEach(function(a,i){prompt+=(i+1)+'. '+a.q+' → '+a.a+'\n';});
+  if(reason) prompt+='\nДоп. контекст: '+reason;
+  prompt+='\n\nДай чёткий вердикт: ВХОДИТЬ, ЖДАТЬ или НЕ ВХОДИТЬ. Затем 2-3 предложения объяснения. Будь конкретным и строгим.';
+
+  try{
+    var groqKey=typeof GROQ_KEY!=='undefined'?GROQ_KEY:(window.GROQ_API_KEY||'');
+    var response,data,text;
+    if(groqKey){
+      response=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
+        body:JSON.stringify({model:'llama3-8b-8192',max_tokens:300,messages:[{role:'user',content:prompt}]})
+      });
+      data=await response.json();
+      text=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'Ошибка ответа';
+    } else {
+      // Fallback: local verdict without API
+      if(yesCount>=4) text='✅ ВХОДИТЬ — '+yesCount+'/5 условий выполнено. Сетап сильный, риски под контролем.';
+      else if(yesCount>=3) text='⏳ ЖДАТЬ — '+yesCount+'/5 условий. Есть сомнения, лучше дождаться подтверждения.';
+      else text='🚫 НЕ ВХОДИТЬ — только '+yesCount+'/5 условий. Слишком много рисков, пропусти эту сделку.';
+    }
+    var verdict='wait',verdictText='ЖДАТЬ';
+    var tl=text.toLowerCase();
+    if(tl.includes('не входить')||tl.includes('не вход')||tl.includes('stop')||tl.includes('нет')){verdict='stop';verdictText='НЕ ВХОДИТЬ';}
+    else if(tl.includes('входить')||tl.includes('вход')||tl.includes('go')||tl.includes('входи')){verdict='go';verdictText='ВХОДИТЬ';}
+    var res=document.getElementById('ai-result');
+    var vd=document.getElementById('ai-verdict');
+    var vt=document.getElementById('ai-verdict-text');
+    if(res) res.style.display='block';
+    if(vd){vd.className='ai-verdict '+verdict;vd.textContent=verdictText;}
+    if(vt) vt.innerHTML=formatAIText(text);
+  } catch(e){
+    var vt=document.getElementById('ai-verdict-text');
+    if(vt) vt.textContent='Ошибка подключения. Проверь API ключ.';
+    var res=document.getElementById('ai-result');
+    if(res) res.style.display='block';
+  }
+  if(btn){btn.disabled=false;btn.textContent='ПОЛУЧИТЬ ВЕРДИКТ';}
 }
 
 var _aiInited=false;
