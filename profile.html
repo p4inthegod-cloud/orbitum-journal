@@ -368,17 +368,20 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
   position:absolute;width:800px;height:800px;border-radius:50%;
   background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 60%);
   filter:blur(120px);top:-300px;left:50%;transform:translateX(-50%);
+  pointer-events:none;
 }
 .bg-orb2{
   position:absolute;width:500px;height:500px;border-radius:50%;
   background:radial-gradient(circle,rgba(52,208,88,0.025),transparent 65%);
   filter:blur(100px);bottom:-200px;right:-100px;
+  pointer-events:none;
 }
 .bg-grid{
   position:absolute;inset:0;
   background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
   background-size:40px 40px;
+  pointer-events:none;
 }
 
 /* ── TOP NAV ── */
@@ -821,7 +824,9 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+  auth:{persistSession:true,autoRefreshToken:true}
+});
 
 let profileUser=null, trades=[], currentUser=null, isOwnProfile=false;
 
@@ -829,11 +834,16 @@ async function init(){
   const params=new URLSearchParams(location.search);
   let uid=params.get('uid');
 
-  const {data:{user}}=await sb.auth.getUser();
-  currentUser=user;
+  const {data:{session}}=await sb.auth.getSession();
+  currentUser=session?.user||null;
 
-  if(!uid && user) uid=user.id;
-  if(!uid){showNotFound('Укажи uid в URL или войди в аккаунт');return;}
+  if(!uid && currentUser) uid=currentUser.id;
+  if(!uid){
+    // No uid and not logged in — redirect to login
+    if(!currentUser) window.location.href='login.html';
+    else showNotFound('Профиль не найден');
+    return;
+  }
   isOwnProfile=user&&user.id===uid;
 
   const {data:profile,error}=await sb.from('profiles').select('*').eq('id',uid).single();

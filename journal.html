@@ -86,7 +86,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ─── TOPBAR (desktop) ──────────────────────── */
 .jnl-topbar{
   display:none; /* shown on desktop via media query */
-  position:sticky;top:0;z-index:150;
+  position:sticky;top:0;z-index:160;
   background:rgba(5,7,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid rgba(255,255,255,0.05);
   height:48px;align-items:center;padding:0 22px;gap:10px;
@@ -1399,27 +1399,14 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     overflow:hidden;
     z-index:150;
     position:fixed;
-    pointer-events:none;
-    /* clip pointer events to visible bounds */
-    clip-path:inset(0);
-  }
-  /* Only buttons within sidebar intercept clicks - 52px strip */
-  .sidebar .sb-item,
-  .sidebar .sb-logo,
-  .sidebar .sb-footer button,
-  .sidebar .sb-icon-toggle{
+    /* CRITICAL: clip-path actually clips pointer-events unlike overflow:hidden */
+    clip-path:inset(0 0 0 0);
     pointer-events:auto;
-    /* Limit clickable area to the collapsed width */
-    max-width:52px;
-    overflow:hidden;
   }
-  .sidebar.expanded .sb-item,
-  .sidebar.expanded .sb-logo,
-  .sidebar.expanded .sb-footer button{
-    max-width:var(--sb);
+  .sidebar.expanded{
+    width:var(--sb);
+    clip-path:none;
   }
-  .sidebar.expanded{width:var(--sb);}
-  .sidebar.expanded *{pointer-events:auto;}
 
   /* Logo text */
   .sb-logo-text{
@@ -1432,14 +1419,16 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   }
 
   /* Nav labels */
-  .sb-item{overflow:hidden;white-space:nowrap;}
+  .sb-item{overflow:hidden;white-space:nowrap;width:100%;}
   .sb-item > *:not(.sb-item-icon){
     opacity:0;max-width:0;overflow:hidden;display:inline-block;vertical-align:middle;
-    transition:opacity 0.15s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+    transition:opacity 0.15s 0s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+    pointer-events:none;
   }
   .sidebar.expanded .sb-item > *:not(.sb-item-icon){
-    opacity:1;max-width:180px;
-    transition:opacity 0.2s 0.08s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+    opacity:1;max-width:160px;
+    transition:opacity 0.22s 0.1s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+    pointer-events:auto;
   }
 
   /* Section labels */
@@ -2726,7 +2715,9 @@ console.log('%c[ORBITUM v3.1] JS loaded OK','color:#e86c2a;font-weight:bold');
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+});
 let currentUser=null, allTrades=[], currentFilter='all', currentDir='long';
 
 // ─── SIDEBAR ─────────────────────────────────────
@@ -2954,8 +2945,12 @@ function formatAIText(text){
 }
 
 async function init(){
-  const{data:{user}}=await sb.auth.getUser();
-  if(!user){window.location.href='login.html';return;}
+  // getSession is fast (cached) — getUser validates with server (slower)
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+  const user=session.user;
+  // Also validate token in background
+  sb.auth.getUser().catch(()=>{});
   currentUser=user;
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!p){window.location.href='login.html';return;}
