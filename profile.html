@@ -840,17 +840,6 @@ async function init(){
   if(error||!profile){showNotFound('Профиль не найден');return;}
   profileUser=profile;
 
-  // Check if viewed profile has active access
-  const profileHasAccess=
-    profile.role==='admin'||
-    profile.plan==='lifetime'||
-    (profile.plan==='monthly'&&profile.plan_expires_at&&new Date(profile.plan_expires_at)>new Date());
-
-  if(!profileHasAccess){
-    showLockedProfile(profile);
-    return;
-  }
-
   const {data:tradeData}=await sb.from('trades').select('*').eq('user_id',uid).order('created_at',{ascending:false});
   trades=tradeData||[];
 
