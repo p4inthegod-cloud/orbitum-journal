@@ -962,7 +962,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .jnd-time{font-family:var(--font-mono);font-size:7px;color:var(--m);margin-top:3px;}
 .jnd-empty{padding:24px;text-align:center;font-family:var(--font-mono);font-size:9px;color:var(--m);}
 /* ── CHAT PAGE ── */
-.chat-wrap{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 120px);gap:0;background:var(--bg2);border:var(--line);border-radius:var(--radius);overflow:hidden;}
+.chat-wrap{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 80px);gap:0;background:var(--bg2);border:var(--line);border-radius:var(--radius);overflow:hidden;}
 .chat-rooms{border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;background:rgba(255,255,255,0.01);}
 .chat-rooms-head{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--font-mono);font-size:8px;letter-spacing:2px;color:var(--a);}
 .chat-room-list{flex:1;overflow-y:auto;}
@@ -974,12 +974,12 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .chat-room-name{font-family:var(--font-mono);font-size:9px;color:var(--t);letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .chat-room-sub{font-family:var(--font-mono);font-size:7px;color:var(--m);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .chat-room-unread{background:var(--r);color:#fff;font-family:var(--font-mono);font-size:7px;border-radius:8px;padding:1px 5px;margin-left:auto;flex-shrink:0;}
-.chat-main{display:flex;flex-direction:column;min-width:0;}
+.chat-main{display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 .chat-header{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.01);}
 .chat-header-av{width:28px;height:28px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.25);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;color:var(--a);flex-shrink:0;}
 .chat-header-name{font-family:var(--font-mono);font-size:10px;color:var(--t);letter-spacing:0.5px;}
 .chat-header-sub{font-family:var(--font-mono);font-size:7px;color:var(--m);}
-.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;min-height:0;}
 .chat-msg{display:flex;gap:8px;align-items:flex-start;max-width:100%;}
 .chat-msg.mine{flex-direction:row-reverse;}
 .chat-msg-av{width:26px;height:26px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:11px;color:var(--a);flex-shrink:0;margin-top:2px;}
@@ -2782,14 +2782,27 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div class="chat-rooms">
         <div class="chat-rooms-head">💬 ЧАТЫ</div>
         <div class="chat-room-list" id="chat-room-list">
-          <!-- Заполняется JS -->
+          <div style="padding:16px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Загрузка...</div>
         </div>
       </div>
-      <!-- Правая: сообщения -->
-      <div class="chat-main" id="chat-main">
-        <div class="chat-empty-state" id="chat-empty">
-          <div style="font-size:28px">💬</div>
-          <div>Выбери чат слева</div>
+      <!-- Правая: фиксированная структура -->
+      <div class="chat-main">
+        <div class="chat-header" id="chat-header">
+          <div class="chat-header-av" id="chat-header-av">🌐</div>
+          <div>
+            <div class="chat-header-name" id="chat-header-name">Выбери чат</div>
+            <div class="chat-header-sub" id="chat-header-sub">←</div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chat-msg-area">
+          <div class="chat-empty-state">
+            <div style="font-size:28px;margin-bottom:8px">💬</div>
+            <div>Выбери чат слева</div>
+          </div>
+        </div>
+        <div class="chat-input-row" id="chat-input-row">
+          <textarea class="chat-input" id="chat-input" placeholder="Написать сообщение..." rows="1" onkeydown="chatInputKey(event)" oninput="autoResizeChatInput(this)"></textarea>
+          <button class="chat-send-btn" onclick="sendChatMessage()">↑</button>
         </div>
       </div>
     </div>
@@ -5284,37 +5297,15 @@ let _chatProfiles={};    // кэш профилей
 const GENERAL_ROOM='general';
 
 async function initChatPage(){
-  if(!currentUser){
-    const main=document.getElementById('chat-main');
-    if(main)main.innerHTML=`<div class="chat-empty-state"><div style="font-size:28px;margin-bottom:8px">🔒</div><div>Войди в аккаунт чтобы использовать чат</div></div>`;
-    return;
-  }
-  // Показываем loading
-  const main=document.getElementById('chat-main');
-  if(main)main.innerHTML=`<div class="chat-empty-state"><div style="font-size:18px;margin-bottom:8px">⏳</div><div>Загружаем чат...</div></div>`;
+  if(!currentUser) return;
+  // Показываем loading в правой части
+  const msgArea=document.getElementById('chat-msg-area');
+  if(msgArea)msgArea.innerHTML=`<div class="chat-empty-state"><div style="font-size:18px;margin-bottom:8px">⏳</div><div>Загружаем...</div></div>`;
   
   await loadChatRooms();
   // Открываем общий чат сразу
   const general=_chatRooms.find(r=>r.id===GENERAL_ROOM);
   if(general) openChatRoom(general);
-  else if(main)main.innerHTML=`<div class="chat-empty-state" style="flex-direction:column;padding:32px;text-align:center">
-    <div style="font-size:28px;margin-bottom:12px">💬</div>
-    <div style="font-family:var(--font-mono);font-size:10px;color:var(--a);margin-bottom:8px">ЧАТ СООБЩЕСТВА</div>
-    <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.8;max-width:320px">
-      Чтобы чат заработал, создай таблицу в Supabase.<br>
-      <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--a)">→ Открыть Supabase Dashboard</a>
-    </div>
-    <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;font-family:var(--font-mono);font-size:8px;color:var(--m);text-align:left;line-height:1.8;max-width:400px">
-      create table public.chat_messages (<br>
-      &nbsp;id uuid default gen_random_uuid() primary key,<br>
-      &nbsp;sender_id uuid references auth.users(id),<br>
-      &nbsp;receiver_id uuid references auth.users(id),<br>
-      &nbsp;room text not null,<br>
-      &nbsp;text text not null,<br>
-      &nbsp;created_at timestamptz default now()<br>
-      );
-    </div>
-  </div>`;
 }
 
 async function loadChatRooms(){
@@ -5393,22 +5384,20 @@ async function openChatRoom(room){
   _chatActive=room;
   renderChatRoomList();
 
-  // Рендерим заголовок и пустой список
-  const main=document.getElementById('chat-main');
-  if(!main)return;
-  main.innerHTML=`
-    <div class="chat-header">
-      <div class="chat-header-av" style="${room.type==='general'?'background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.25);color:#3498db':''}">${room.type==='general'?'🌐':room.icon}</div>
-      <div>
-        <div class="chat-header-name">${room.name}</div>
-        <div class="chat-header-sub">${room.sub||''}</div>
-      </div>
-    </div>
-    <div class="chat-messages" id="chat-messages-list"><div class="chat-empty-state"><div style="font-size:18px;margin-bottom:6px">⏳</div><div>Загружаем сообщения...</div></div></div>
-    <div class="chat-input-row">
-      <textarea class="chat-input" id="chat-input" placeholder="Написать сообщение..." rows="1" onkeydown="chatInputKey(event)" oninput="autoResizeChatInput(this)"></textarea>
-      <button class="chat-send-btn" onclick="sendChatMessage()">↑ Отправить</button>
-    </div>`;
+  // Обновляем заголовок
+  const hAv=document.getElementById('chat-header-av');
+  const hName=document.getElementById('chat-header-name');
+  const hSub=document.getElementById('chat-header-sub');
+  if(hAv){
+    hAv.textContent=room.type==='general'?'🌐':room.icon;
+    hAv.style.cssText=room.type==='general'?'background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.25);color:#3498db':'';
+  }
+  if(hName)hName.textContent=room.name;
+  if(hSub)hSub.textContent=room.sub||'';
+
+  // Loading в области сообщений
+  const msgArea=document.getElementById('chat-msg-area');
+  if(msgArea)msgArea.innerHTML=`<div class="chat-empty-state"><div style="font-size:18px;margin-bottom:6px">⏳</div><div>Загружаем сообщения...</div></div>`;
 
   // Отписываемся от предыдущего realtime
   if(_chatSub){try{sb.removeChannel(_chatSub);}catch(e){}_chatSub=null;}
@@ -5440,7 +5429,7 @@ async function loadChatMessages(room){
 }
 
 function renderChatMessages(){
-  const el=document.getElementById('chat-messages-list');
+  const el=document.getElementById('chat-msg-area');
   if(!el)return;
   if(!_chatMessages.length){
     el.innerHTML=`<div class="chat-empty-state"><div style="font-size:28px;margin-bottom:8px">👋</div><div>Начни беседу первым!</div></div>`;
