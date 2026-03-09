@@ -3722,7 +3722,8 @@ function renderHourlyHeatmap(trades){
   for(var h=0;h<24;h++) byHour[h]={n:0,w:0,pnl:0};
 
   trades.forEach(function(t){
-    var h=new Date(t.created_at).getHours();
+    var d=new Date(t.created_at);
+    var h=d.getHours(); // локальное время браузера
     byHour[h].n++;
     byHour[h].pnl+=(parseFloat(t.pnl_pct)||0);
     if(t.result==='win') byHour[h].w++;
@@ -3798,7 +3799,12 @@ function renderHeatmap(trades){
   var byDay={};
   trades.forEach(function(t){
     if(!t.created_at)return;
-    var d=new Date(t.created_at).toISOString().split('T')[0];
+    var dt=new Date(t.created_at);
+    // Используем локальную дату браузера, а не UTC
+    var y=dt.getFullYear();
+    var m=String(dt.getMonth()+1).padStart(2,'0');
+    var day=String(dt.getDate()).padStart(2,'0');
+    var d=y+'-'+m+'-'+day;
     if(!byDay[d])byDay[d]={n:0,pnl:0,wins:0};
     byDay[d].n++;
     byDay[d].pnl+=(t.pnl_pct||0);
@@ -3847,7 +3853,7 @@ function renderHeatmap(trades){
     for(var d=0;d<7;d++){
       var dt=new Date(startDate);
       dt.setDate(startDate.getDate()+w*7+d);
-      var key=dt.toISOString().split('T')[0];
+      var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
       var isFuture=dt>today;
       var dayData=byDay[key];
       var bg,tip,glow='';
