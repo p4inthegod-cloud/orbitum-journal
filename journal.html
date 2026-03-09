@@ -2695,10 +2695,12 @@ function showPage(p,btn){
   document.querySelectorAll('.sb-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.tnav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.jtb-nav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
+  document.querySelectorAll('.jtb-dd-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   // Update topbar badge
   const pageNames={journal:'ЖУРНАЛ СДЕЛОК',dashboard:'АНАЛИТИКА',progress:'ПРОГРЕСС',digest:'ДАЙДЖЕСТ',premarket:'ПОДГОТОВКА',aichat:'AI ЧАТ',coach:'AI КОУЧ',simulator:'СИМУЛЯТОР',leaderboard:'РЕЙТИНГ'};
   const badge=document.getElementById('jtb-page-badge');
   if(badge)badge.textContent=pageNames[p]||p.toUpperCase();
+  closeToolsDD();
   updateMobNav(p);
   if(p==='dashboard')renderDashboard();
   if(p==='progress')renderProgress();
@@ -3027,7 +3029,7 @@ function render(){
         <div class="tr">
           <div class="tpnl ${pnlCls}">${pnl}${usd?` <span style="font-size:9px;opacity:0.55">${usd}</span>`:''}</div>
           <div class="tdate">${date}</div>
-          <button class="editbtn" data-edit-id="${t.id}" title="Редактировать">✏️</button>
+          <button class="editbtn" onclick="openEditModal(this.getAttribute('data-id'))" data-id="${t.id}" title="Редактировать">✏️</button>
           <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
         </div>
       </div>
@@ -4449,43 +4451,28 @@ function initLeaderboard(){
 }
 
 // ─── DROPDOWN TOOLS MENU ──────────────────────────
+var _ddJustOpened=false;
 function toggleToolsDD(e){
   if(e && e.stopPropagation) e.stopPropagation();
-  else if(window.event) window.event.stopPropagation();
   const dd=document.getElementById('jtb-tools-dd');
-  if(dd) dd.classList.toggle('open');
+  if(!dd) return;
+  const isOpen=dd.classList.contains('open');
+  dd.classList.toggle('open');
 }
 function closeToolsDD(){
   const dd=document.getElementById('jtb-tools-dd');
   if(dd) dd.classList.remove('open');
 }
-// Close dropdown on outside click
+// Single click handler: close dropdown on outside click
 document.addEventListener('click',function(e){
   const dd=document.getElementById('jtb-tools-dd');
-  if(dd && !dd.contains(e.target)) dd.classList.remove('open');
-});
-// Delegated handler for ✏️ edit buttons — works on dynamically rendered list
-document.addEventListener('click',function(e){
-  const btn=e.target.closest('.editbtn');
-  if(btn){
-    const id=btn.getAttribute('data-edit-id');
-    if(id) openEditModal(id);
+  const trig=document.getElementById('jtb-dd-trigger-btn');
+  if(dd && dd.classList.contains('open') && trig && !dd.contains(e.target) && !trig.contains(e.target)){
+    dd.classList.remove('open');
   }
 });
-// Update active state in dropdown when page changes
-const _origShowPage=showPage;
-function showPageWithDD(p,btn){
-  _origShowPage(p,btn);
-  document.querySelectorAll('.jtb-dd-item').forEach(function(b){
-    b.classList.toggle('active', b.dataset.page===p);
-  });
-  // if page is not journal, mark Инструменты trigger as active-ish
-  const trigger=document.querySelector('.jtb-dd-trigger');
-  const toolPages=['dashboard','progress','digest','premarket','aichat','coach','simulator','leaderboard'];
-  if(trigger) trigger.classList.toggle('active', toolPages.includes(p));
-}
-// Override showPage globally
-window.showPage=showPageWithDD;
+// Update dropdown item active state when page changes
+// (called from inside showPage)
 
 // ─── CLEAR ALL TRADES ─────────────────────────────
 async function clearAllTrades(){
