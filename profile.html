@@ -1641,15 +1641,32 @@ async function loadNotifs(){
       .order('created_at',{ascending:false}).limit(30);
     _notifs = data||[];
     renderBell();
-    // Подписываемся на новые уведомления realtime
+    // Realtime + polling fallback
     if(!window._notifSubActive){
       window._notifSubActive=true;
       try{
         sb.channel('profile_notifs_'+currentUser.id)
           .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},
-            (payload)=>{ _notifs.unshift(payload.new); renderBell(); })
+            async (payload)=>{
+              const n=payload.new;
+              if(n.from_user_id){
+                try{const {data:p}=await sb.from('profiles').select('full_name,username').eq('id',n.from_user_id).single();if(p)n.profiles=p;}catch(e){}
+              }
+              _notifs.unshift(n); renderBell();
+            })
           .subscribe();
       }catch(e){}
+      // Polling каждые 20 сек
+      setInterval(async ()=>{
+        if(!currentUser)return;
+        try{
+          const {data}=await sb.from('notifications')
+            .select('*,profiles:from_user_id(full_name,username)')
+            .eq('user_id',currentUser.id)
+            .order('created_at',{ascending:false}).limit(30);
+          if(data){_notifs=data;renderBell();}
+        }catch(e){}
+      },20000);
     }
   }catch(e){ _notifs=[]; }
 }
