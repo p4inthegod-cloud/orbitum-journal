@@ -3830,16 +3830,15 @@ function renderHeatmap(trades){
   }
 
   // Build 10 weeks × 7 days grid (GitHub-style)
-  var WEEKS=16;
+  var WEEKS=17;
   var today=new Date();
   today.setHours(0,0,0,0);
-  // Start from Monday of first week
-  var startDate=new Date(today);
-  startDate.setDate(today.getDate()-(WEEKS*7)+1);
-  // Adjust to nearest Monday
-  var dow=startDate.getDay();
-  var adjust=dow===0?-6:1-dow;
-  startDate.setDate(startDate.getDate()+adjust);
+  // Начинаем от понедельника текущей недели и идём назад на WEEKS недель
+  var todayDow=today.getDay();
+  var currentMonday=new Date(today);
+  currentMonday.setDate(today.getDate()-(todayDow===0?6:todayDow-1));
+  var startDate=new Date(currentMonday);
+  startDate.setDate(currentMonday.getDate()-(WEEKS-1)*7);
 
   // Month labels
   var monthLabels=document.getElementById('hm-month-labels');
