@@ -5,7 +5,347 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Профиль трейдера</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ═══════════════════════════════════════════════
+// DEEP ANALYTICS
+// ═══════════════════════════════════════════════
+function renderAnalyticsTab(trades, tab){
+  if(!trades.length) return '<div class="an-empty">Недостаточно данных — нужны сделки</div>';
+
+  if(tab==='setups'){
+    // Breakdown by setup type
+    const pm={};
+    trades.forEach(t=>{
+      const k=t.setup_type||'Без сетапа';
+      if(!pm[k])pm[k]={n:0,w:0,pnl:0};
+      pm[k].n++;
+      if(t.result==='win')pm[k].w++;
+      pm[k].pnl+=(t.pnl_pct||0);
+    });
+    const setups=Object.keys(pm).map(name=>({
+      name,n:pm[name].n,
+      wr:Math.round(pm[name].w/pm[name].n*100),
+      pnl:pm[name].pnl,
+      avg:pm[name].pnl/pm[name].n
+    })).sort((a,b)=>b.n-a.n);
+    const maxN=Math.max(...setups.map(s=>s.n));
+    
+    // Avg win vs loss
+    const wins=trades.filter(t=>t.result==='win');
+    const losses=trades.filter(t=>t.result==='loss');
+    const avgW=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
+    const avgL=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
+    const rr=avgL>0?(avgW/avgL).toFixed(2):'∞';
+    const expectancy=avgW*(wins.length/trades.length)-avgL*(losses.length/trades.length);
+    const profitFactor=avgL>0?((wins.length*avgW)/(losses.length*avgL)).toFixed(2):'∞';
+
+    return `
+    <div class="an-grid">
+      <div class="an-card">
+        <div class="an-card-title">Ключевые метрики</div>
+        ${[
+          {l:'Средний выигрыш',v:'+'+(avgW.toFixed(2))+'%',c:'var(--g)'},
+          {l:'Средний убыток',v:'-'+(avgL.toFixed(2))+'%',c:'var(--r)'},
+          {l:'Risk:Reward',v:rr,c:'var(--a)'},
+          {l:'Profit Factor',v:profitFactor,c:parseFloat(profitFactor)>=1?'var(--g)':'var(--r)'},
+          {l:'Матожидание',v:(expectancy>=0?'+':'')+expectancy.toFixed(2)+'%',c:expectancy>=0?'var(--g)':'var(--r)'},
+        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
+      </div>
+      <div class="an-card" style="grid-column:span 2">
+        <div class="an-card-title">Результативность по сетапам</div>
+        ${setups.map(s=>{
+          const barColor=s.wr>=60?'var(--g)':s.wr>=45?'var(--a)':'var(--r)';
+          return `<div class="an-bar-row">
+            <div class="an-bar-head">
+              <span class="an-bar-label">${s.name} <span style="color:var(--m);font-size:8px">(${s.n} сд.)</span></span>
+              <span class="an-bar-meta">WR: <span style="color:${barColor}">${s.wr}%</span> · avg: <span style="color:${s.avg>=0?'var(--g)':'var(--r)'}">${s.avg>=0?'+':''}${s.avg.toFixed(1)}%</span></span>
+            </div>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width:${s.wr}%;background:${barColor}"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  if(tab==='time'){
+    // Day of week analysis
+    const days=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const byDow={};
+    trades.forEach(t=>{
+      const d=new Date(t.created_at).getDay();
+      if(!byDow[d])byDow[d]={n:0,w:0,pnl:0};
+      byDow[d].n++;
+      if(t.result==='win')byDow[d].w++;
+      byDow[d].pnl+=(t.pnl_pct||0);
+    });
+    const activeDays=Object.keys(byDow).map(d=>({
+      day:days[d],n:byDow[d].n,
+      wr:Math.round(byDow[d].w/byDow[d].n*100),
+      pnl:byDow[d].pnl
+    })).sort((a,b)=>[1,2,3,4,5,6,0].indexOf(parseInt(Object.keys(byDow).find(k=>days[k]===a.day)))-[1,2,3,4,5,6,0].indexOf(parseInt(Object.keys(byDow).find(k=>days[k]===b.day))));
+    
+    // Monthly P&L
+    const byMonth={};
+    trades.forEach(t=>{
+      const k=new Date(t.created_at).toLocaleDateString('ru-RU',{month:'short',year:'2-digit'});
+      if(!byMonth[k])byMonth[k]=0;
+      byMonth[k]+=(t.pnl_pct||0);
+    });
+    const months=Object.keys(byMonth).slice(-6);
+    const maxAbs=Math.max(...months.map(m=>Math.abs(byMonth[m]))||[1]);
+
+    return `
+    <div class="an-grid">
+      <div class="an-card">
+        <div class="an-card-title">По дням недели</div>
+        ${activeDays.length?activeDays.map(d=>{
+          const c=d.wr>=55?'var(--g)':d.wr>=45?'var(--a)':'var(--r)';
+          return `<div class="an-stat-row">
+            <span class="an-stat-label">${d.day} <span style="color:var(--m);font-size:8px">(${d.n})</span></span>
+            <span class="an-stat-val" style="color:${c}">${d.wr}% WR</span>
+          </div>`;
+        }).join(''):'<div class="an-empty">Нет данных</div>'}
+      </div>
+      <div class="an-card" style="grid-column:span 2">
+        <div class="an-card-title">P&L по месяцам (последние 6)</div>
+        ${months.length?months.map(m=>{
+          const v=byMonth[m];
+          const pct=Math.abs(v)/maxAbs*100;
+          const c=v>=0?'var(--g)':'var(--r)';
+          return `<div class="an-bar-row">
+            <div class="an-bar-head">
+              <span class="an-bar-label">${m}</span>
+              <span class="an-bar-meta" style="color:${c}">${v>=0?'+':''}${v.toFixed(1)}%</span>
+            </div>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width:${pct}%;background:${c}"></div></div>
+          </div>`;
+        }).join(''):'<div class="an-empty">Нет данных</div>'}
+      </div>
+    </div>`;
+  }
+
+  if(tab==='streaks'){
+    // Win/loss streaks analysis
+    const sorted=[...trades].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    let maxWin=0,maxLoss=0,curWin=0,curLoss=0;
+    let currentStreak=0,currentType='';
+    sorted.forEach(t=>{
+      if(t.result==='win'){curWin++;curLoss=0;if(curWin>maxWin)maxWin=curWin;}
+      else if(t.result==='loss'){curLoss++;curWin=0;if(curLoss>maxLoss)maxLoss=curLoss;}
+    });
+    // After last trade
+    if(sorted.length){
+      const last=sorted[sorted.length-1];
+      if(last.result==='win'){currentStreak=curWin;currentType='win';}
+      else if(last.result==='loss'){currentStreak=curLoss;currentType='loss';}
+    }
+    
+    // Recovery after loss streak
+    const afterLoss=[];
+    for(let i=1;i<sorted.length;i++){
+      if(sorted[i-1].result==='loss'&&sorted[i].result==='win') afterLoss.push(sorted[i]);
+    }
+    const recoveryWR=afterLoss.length?Math.round(afterLoss.filter(t=>t.result==='win').length/afterLoss.length*100):null;
+
+    // Consecutive results distribution
+    let streaks={win:[],loss:[]};let cw=0,cl=0;
+    sorted.forEach((t,i)=>{
+      if(t.result==='win'){cw++;if(cl>0){streaks.loss.push(cl);cl=0;}}
+      else{cl++;if(cw>0){streaks.win.push(cw);cw=0;}}
+    });
+    if(cw>0)streaks.win.push(cw);if(cl>0)streaks.loss.push(cl);
+    const avgWinStreak=streaks.win.length?(streaks.win.reduce((s,v)=>s+v,0)/streaks.win.length).toFixed(1):0;
+    const avgLossStreak=streaks.loss.length?(streaks.loss.reduce((s,v)=>s+v,0)/streaks.loss.length).toFixed(1):0;
+
+    return `
+    <div class="an-grid">
+      <div class="an-card">
+        <div class="an-card-title">Серии</div>
+        ${[
+          {l:'Макс. серия побед',v:maxWin+' подряд',c:'var(--g)'},
+          {l:'Макс. серия убытков',v:maxLoss+' подряд',c:'var(--r)'},
+          {l:'Текущая серия',v:currentStreak+(currentType==='win'?' 🔥':currentType==='loss'?' 💀':''),c:currentType==='win'?'var(--g)':currentType==='loss'?'var(--r)':'var(--m)'},
+          {l:'Ср. серия побед',v:avgWinStreak,c:'var(--g)'},
+          {l:'Ср. серия убытков',v:avgLossStreak,c:'var(--r)'},
+        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
+      </div>
+      <div class="an-card">
+        <div class="an-card-title">Психология серий</div>
+        ${[
+          {l:'Сделок после убытка',v:afterLoss.length,c:'var(--m)'},
+          {l:'WR после убытка',v:recoveryWR!==null?recoveryWR+'%':'—',c:recoveryWR>=50?'var(--g)':'var(--r)'},
+          {l:'Риск реванша',v:recoveryWR!==null&&recoveryWR<45?'⚠️ Высокий':'✅ Норма',c:recoveryWR!==null&&recoveryWR<45?'var(--r)':'var(--g)'},
+        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
+        <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">
+          ${recoveryWR!==null&&recoveryWR<45?'⚠️ После убытка WR падает — возможна торговля из мести. Сделай паузу перед следующей сделкой.':recoveryWR!==null&&recoveryWR>=55?'✅ После убытка ты торгуешь стабильно — хороший психологический контроль.':'Недостаточно данных для анализа паттернов мести.'}
+        </div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-title">Консистентность</div>
+        ${(()=>{
+          const totalDays=Object.keys(trades.reduce((acc,t)=>{acc[new Date(t.created_at).toDateString()]=1;return acc;},{})).length;
+          const firstDate=sorted.length?new Date(sorted[0].created_at):new Date();
+          const calendarDays=Math.max(1,Math.round((new Date()-firstDate)/(1000*60*60*24)));
+          const activity=Math.round(totalDays/Math.min(calendarDays,90)*100);
+          const avgPerDay=sorted.length?(sorted.length/totalDays).toFixed(1):0;
+          return [
+            {l:'Активных дней',v:totalDays,c:'var(--a)'},
+            {l:'Сделок в день',v:avgPerDay,c:avgPerDay>5?'var(--r)':avgPerDay>=1?'var(--g)':'var(--m)'},
+            {l:'Активность (90д)',v:activity+'%',c:activity>=60?'var(--g)':activity>=30?'var(--a)':'var(--r)'},
+          ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('');
+        })()}
+      </div>
+    </div>`;
+  }
+
+  if(tab==='psych'){
+    const avg=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:5;};
+    const wins=trades.filter(t=>t.result==='win');
+    const losses=trades.filter(t=>t.result==='loss');
+    const emotions=['emotion_conf','emotion_fear','emotion_greed','emotion_calm'];
+    const labels={emotion_conf:'Уверенность',emotion_fear:'Страх',emotion_greed:'Жадность',emotion_calm:'Фокус'};
+    const icons={emotion_conf:'💪',emotion_fear:'😰',emotion_greed:'🤑',emotion_calm:'🎯'};
+
+    const rows=emotions.map(key=>{
+      const all=avg(trades,key),w=avg(wins,key),l=avg(losses,key);
+      const diff=w-l;
+      return {key,label:labels[key],icon:icons[key],all,win:w,loss:l,diff};
+    });
+
+    // Best emotion state for trading
+    const bestState=rows.filter(r=>Math.abs(r.diff)>0.5).sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff));
+
+    return `
+    <div class="an-grid">
+      <div class="an-card" style="grid-column:span 2">
+        <div class="an-card-title">Эмоции при победах vs убытках</div>
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px">
+          <div></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);text-align:center">СРЕДНЕЕ</div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--g);text-align:center">ПОБЕДЫ</div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--r);text-align:center">УБЫТКИ</div>
+        </div>
+        ${rows.map(r=>`
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+            <div style="font-family:var(--font-body);font-size:12px">${r.icon} ${r.label}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--m2)">${r.all.toFixed(1)}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--g)">${r.win.toFixed(1)}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--r)">${r.loss.toFixed(1)}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="an-card">
+        <div class="an-card-title">Ключевые инсайты</div>
+        ${bestState.length?bestState.map(r=>{
+          const isPositive=r.diff>0;
+          return `<div style="padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:6px;font-family:var(--font-mono);font-size:9px;line-height:1.6;color:var(--m2)">
+            ${r.icon} <strong style="color:var(--t)">${r.label}</strong> ${isPositive?'выше при победах':'выше при убытках'} на <span style="color:${isPositive?'var(--g)':'var(--r)'}">${Math.abs(r.diff).toFixed(1)}</span> пункта
+          </div>`;
+        }).join(''):`<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">Нужно больше сделок с заполненными эмоциями</div>`}
+      </div>
+    </div>`;
+  }
+  return '<div class="an-empty">Вкладка в разработке</div>';
+}
+
+function switchAnalyticsTab(tab, btn){
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const el=document.getElementById('analytics-content');
+  if(el) el.innerHTML=renderAnalyticsTab(window._profileTrades||[],tab);
+}
+
+// ═══════════════════════════════════════════════
+// IDEAS SYSTEM
+// ═══════════════════════════════════════════════
+let ideaType='bullish';
+async function loadIdeas(userId){
+  const el=document.getElementById('ideas-feed');
+  if(!el)return;
+  try{
+    const {data,error}=await sb.from('ideas').select('*').eq('user_id',userId).order('created_at',{ascending:false});
+    if(error||!data||!data.length){el.innerHTML='<div class="feed-empty">Идей пока нет. '+(isOwnProfile?'Опубликуй первый разбор!':'')+'</div>';return;}
+    el.innerHTML=data.map(idea=>renderIdeaCard(idea)).join('');
+  } catch(e){
+    el.innerHTML='<div class="feed-empty">Нет таблицы ideas — создай её в Supabase</div>';
+  }
+}
+
+function renderIdeaCard(idea){
+  const typeLabel={bullish:'📈 ЛОНГ',bearish:'📉 ШОРТ',neutral:'➡️ НЕЙТРАЛЬНО'};
+  const typeClass={bullish:'bullish',bearish:'bearish',neutral:'neutral'};
+  const statusLabel={active:'🟢 Активна',closed:'⚪ Закрыта',pending:'🟡 Ожидание'};
+  const d=new Date(idea.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+  const shareUrl=window.location.origin+window.location.pathname+'?id='+(idea.user_id||'')+'#idea-'+(idea.id||'');
+  return `<div class="idea-card" id="idea-${idea.id||''}">
+    <div class="idea-top">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span class="idea-pair">${idea.pair||'?'}</span>
+          <span class="idea-type ${typeClass[idea.direction]||'neutral'}">${typeLabel[idea.direction]||'РАЗБОР'}</span>
+          <span class="idea-status ${idea.status||'active'}">${statusLabel[idea.status||'active']}</span>
+        </div>
+        <div class="idea-title">${idea.title||''}</div>
+      </div>
+    </div>
+    <div class="idea-body">${(idea.body||'').replace(/
+/g,'<br>')}</div>
+    ${(idea.entry||idea.tp||idea.sl)?`<div class="idea-targets">
+      ${idea.entry?`<span class="idea-target entry">🎯 Вход: ${idea.entry}</span>`:''}
+      ${idea.tp?`<span class="idea-target tp">✅ TP: ${idea.tp}</span>`:''}
+      ${idea.sl?`<span class="idea-target sl">❌ SL: ${idea.sl}</span>`:''}
+    </div>`:''}
+    <div class="idea-footer">
+      <span class="idea-date">${d}</span>
+      <button class="idea-share-btn" onclick="copyIdeaLink('${shareUrl}')">🔗 Поделиться</button>
+      ${isOwnProfile?`<button class="idea-share-btn" style="color:var(--r)" onclick="deleteIdea('${idea.id}')">✕ Удалить</button>`:''}
+    </div>
+  </div>`;
+}
+
+function copyIdeaLink(url){
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=event.target;const orig=btn.textContent;
+    btn.textContent='✅ Скопировано!';setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+
+async function deleteIdea(id){
+  if(!confirm('Удалить идею?'))return;
+  await sb.from('ideas').delete().eq('id',id);
+  loadIdeas(profileUser?.id||currentUser?.id);
+}
+
+let _ideaTypeSelected='bullish';
+function openIdeaModal(){
+  _ideaTypeSelected='bullish';
+  document.querySelectorAll('.idea-type-btn').forEach(b=>b.classList.remove('sel-bull','sel-bear','sel-neut'));
+  const b=document.getElementById('ib-bull');if(b)b.classList.add('sel-bull');
+  const m=document.getElementById('idea-modal');if(m)m.classList.add('open');
+}
+function closeIdeaModal(){const m=document.getElementById('idea-modal');if(m)m.classList.remove('open');}
+function setIdeaType(t,btn){
+  _ideaTypeSelected=t;
+  document.querySelectorAll('.idea-type-btn').forEach(b=>b.classList.remove('sel-bull','sel-bear','sel-neut'));
+  const cls=t==='bullish'?'sel-bull':t==='bearish'?'sel-bear':'sel-neut';
+  if(btn)btn.classList.add(cls);
+}
+async function submitIdea(){
+  const pair=(document.getElementById('idea-pair-input')||{}).value||'';
+  const title=(document.getElementById('idea-title-input')||{}).value||'';
+  const body=(document.getElementById('idea-body-input')||{}).value||'';
+  const entry=(document.getElementById('idea-entry-input')||{}).value||null;
+  const tp=(document.getElementById('idea-tp-input')||{}).value||null;
+  const sl=(document.getElementById('idea-sl-input')||{}).value||null;
+  if(!pair||!title||!body){alert('Заполни пару, заголовок и описание');return;}
+  const uid=currentUser?.id;if(!uid){alert('Нужно войти');return;}
+  const {error}=await sb.from('ideas').insert({user_id:uid,pair:pair.toUpperCase(),title,body,direction:_ideaTypeSelected,entry,tp,sl,status:'active'});
+  if(error){alert('Ошибка: '+error.message);return;}
+  closeIdeaModal();
+  loadIdeas(uid);
+}
+
+</script>
 <style>
 :root{
   --a:#e8722a;--a2:rgba(232,114,42,0.12);--a3:rgba(232,114,42,0.35);
@@ -140,7 +480,79 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 .hm-val.a{color:var(--a);text-shadow:0 0 12px rgba(232,114,42,0.35);}
 .hm-val.y{color:var(--y);text-shadow:0 0 12px rgba(245,166,35,0.3);}
 
+/* ── ANALYTICS TABS ── */
+.analytics-tabs{display:flex;gap:4px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:3px;width:fit-content;}
+.atab{padding:5px 14px;border-radius:5px;border:none;background:transparent;color:var(--m);font-family:var(--font-mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+.atab.active{background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.25);color:var(--a);}
+.atab:hover:not(.active){color:var(--m2);}
+
+/* Analytics content */
+.an-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.an-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;}
+.an-card-title{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.an-stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.an-stat-row:last-child{border-bottom:none;}
+.an-stat-label{font-family:var(--font-mono);font-size:10px;color:var(--m2);}
+.an-stat-val{font-family:var(--font-mono);font-size:11px;font-weight:500;}
+.an-bar-row{margin-bottom:8px;}
+.an-bar-head{display:flex;justify-content:space-between;margin-bottom:3px;}
+.an-bar-label{font-family:var(--font-mono);font-size:9px;color:var(--m2);}
+.an-bar-meta{font-family:var(--font-mono);font-size:9px;color:var(--m);}
+.an-bar-track{height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;}
+.an-bar-fill{height:100%;border-radius:3px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
+.an-empty{text-align:center;padding:30px;font-family:var(--font-mono);font-size:9px;color:var(--m);}
+
+/* ── IDEAS / РАЗБОРЫ ── */
+.ideas-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.idea-new-btn{padding:6px 14px;border-radius:7px;border:1px solid rgba(232,114,42,0.3);background:rgba(232,114,42,0.08);color:var(--a);font-family:var(--font-mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;}
+.idea-new-btn:hover{background:rgba(232,114,42,0.15);border-color:var(--a3);}
+.idea-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px;margin-bottom:10px;transition:border-color 0.2s;}
+.idea-card:hover{border-color:rgba(255,255,255,0.1);}
+.idea-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.idea-type{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-family:var(--font-mono);font-size:8px;letter-spacing:1px;flex-shrink:0;}
+.idea-type.bullish{background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
+.idea-type.bearish{background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:var(--r);}
+.idea-type.neutral{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--m2);}
+.idea-pair{font-family:var(--font-display);font-size:18px;letter-spacing:2px;color:var(--t);}
+.idea-title{font-family:var(--font-body);font-size:15px;font-weight:600;color:var(--t);margin-bottom:6px;flex:1;}
+.idea-body{font-family:var(--font-body);font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:12px;}
+.idea-targets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.idea-target{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-family:var(--font-mono);font-size:9px;}
+.idea-target.tp{background:rgba(52,208,88,0.08);border:1px solid rgba(52,208,88,0.2);color:var(--g);}
+.idea-target.sl{background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:var(--r);}
+.idea-target.entry{background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.2);color:var(--a);}
+.idea-footer{display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;}
+.idea-date{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;}
+.idea-share-btn{margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--m);font-family:var(--font-mono);font-size:8px;cursor:pointer;transition:all 0.15s;}
+.idea-share-btn:hover{border-color:var(--a3);color:var(--a);}
+.idea-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-family:var(--font-mono);font-size:8px;}
+.idea-status.active{background:rgba(52,208,88,0.08);color:var(--g);}
+.idea-status.closed{background:rgba(255,255,255,0.04);color:var(--m);}
+.idea-status.pending{background:rgba(245,166,35,0.08);color:var(--y);}
+
+/* Idea modal */
+.idea-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:600;align-items:center;justify-content:center;padding:16px;}
+.idea-modal.open{display:flex;}
+.idea-box{background:#0d0f14;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;}
+.idea-box-title{font-family:var(--font-display);font-size:18px;letter-spacing:3px;color:var(--a);margin-bottom:20px;}
+.idea-box-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--m);font-size:22px;cursor:pointer;line-height:1;}
+.idea-box-close:hover{color:var(--r);}
+.idea-field{margin-bottom:12px;}
+.idea-field label{display:block;font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.idea-field input,.idea-field select,.idea-field textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:9px 12px;color:var(--t);font-family:var(--font-mono);font-size:11px;outline:none;transition:border-color 0.15s;}
+.idea-field input:focus,.idea-field select:focus,.idea-field textarea:focus{border-color:rgba(232,114,42,0.4);}
+.idea-field textarea{resize:vertical;min-height:90px;}
+.idea-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.idea-type-btns{display:flex;gap:6px;}
+.idea-type-btn{flex:1;padding:8px;border-radius:7px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--m);font-family:var(--font-mono);font-size:9px;cursor:pointer;transition:all 0.15s;text-align:center;}
+.idea-type-btn.sel-bull{background:rgba(52,208,88,0.1);border-color:rgba(52,208,88,0.3);color:var(--g);}
+.idea-type-btn.sel-bear{background:rgba(255,77,77,0.08);border-color:rgba(255,77,77,0.25);color:var(--r);}
+.idea-type-btn.sel-neut{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);color:var(--m2);}
+.idea-submit{width:100%;padding:12px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:9px;color:#fff;font-family:var(--font-display);font-size:14px;letter-spacing:3px;cursor:pointer;margin-top:8px;transition:all 0.2s;box-shadow:0 4px 18px rgba(232,114,42,0.3);}
+.idea-submit:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(232,114,42,0.42);}
+
 /* ── VISIBILITY TOGGLE ── */
+
 .vis-toggle{
   display:inline-flex;align-items:center;gap:6px;
   padding:5px 12px;border-radius:20px;
@@ -443,6 +855,9 @@ async function init(){
   trades=tradeData||[];
 
   render(profile, trades);
+  window._profileTrades=trades;
+  // Load ideas
+  loadIdeas(uid);
 }
 
 function showLockedProfile(p){
@@ -717,15 +1132,30 @@ function render(p, trades){
     </div>
   </div>
 
-  <!-- PUBLIC TRADES FEED -->
+    <!-- DEEP ANALYTICS -->
   <div class="section-card">
-    <div class="sc-title" style="margin-bottom:4px"><div class="sc-title-dot"></div>ПУБЛИЧНЫЕ СДЕЛКИ</div>
+    <div class="sc-title" style="margin-bottom:16px"><div class="sc-title-dot"></div>ГЛУБОКАЯ АНАЛИТИКА</div>
+    <div class="analytics-tabs" id="analytics-tabs">
+      <button class="atab active" onclick="switchAnalyticsTab('setups',this)">Сетапы</button>
+      <button class="atab" onclick="switchAnalyticsTab('time',this)">Время</button>
+      <button class="atab" onclick="switchAnalyticsTab('streaks',this)">Серии</button>
+      <button class="atab" onclick="switchAnalyticsTab('psych',this)">Психология</button>
+    </div>
+    <div id="analytics-content" style="margin-top:16px">
+      ${renderAnalyticsTab(trades,'setups')}
+    </div>
+  </div>
+
+  <!-- IDEAS / MARKET ANALYSIS -->
+  <div class="section-card" id="ideas-section">
+    <div class="ideas-header">
+      <div class="sc-title"><div class="sc-title-dot"></div>ИДЕИ И РАЗБОРЫ</div>
+      ${isOwnProfile?'<button class="idea-new-btn" onclick="openIdeaModal()">+ НОВАЯ ИДЕЯ</button>':''}
+    </div>
     <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:14px;">
-      ${isOwnProfile?'Нажми «Опубликовать» на любой сделке в журнале чтобы показать её здесь':'Сделки которые трейдер решил сделать публичными'}
+      ${isOwnProfile?'Публикуй разборы рынка, прогнозы по монетам — другие трейдеры смогут подписаться':'Публичные разборы и прогнозы трейдера'}
     </div>
-    <div id="public-feed">
-      ${renderPublicFeed(trades)}
-    </div>
+    <div id="ideas-feed"><div class="feed-empty">Загрузка идей...</div></div>
   </div>
   `;
 
@@ -956,5 +1386,49 @@ function showNotFound(msg){
 
 init();
 </script>
+
+<!-- IDEA MODAL -->
+<div class="idea-modal" id="idea-modal">
+  <div class="idea-box">
+    <button class="idea-box-close" onclick="closeIdeaModal()">×</button>
+    <div class="idea-box-title">📝 НОВАЯ ИДЕЯ</div>
+    <div class="idea-field">
+      <label>Пара</label>
+      <input id="idea-pair-input" placeholder="BTC/USDT, ETH/USDT...">
+    </div>
+    <div class="idea-field">
+      <label>Направление</label>
+      <div class="idea-type-btns">
+        <button class="idea-type-btn sel-bull" id="ib-bull" onclick="setIdeaType('bullish',this)">📈 Лонг / Бычий</button>
+        <button class="idea-type-btn" id="ib-bear" onclick="setIdeaType('bearish',this)">📉 Шорт / Медвежий</button>
+        <button class="idea-type-btn" id="ib-neut" onclick="setIdeaType('neutral',this)">➡️ Нейтральный</button>
+      </div>
+    </div>
+    <div class="idea-field">
+      <label>Заголовок разбора</label>
+      <input id="idea-title-input" placeholder="BTC — тест структуры перед разворотом...">
+    </div>
+    <div class="idea-field">
+      <label>Разбор / Описание</label>
+      <textarea id="idea-body-input" placeholder="Опиши своё видение рынка, что видишь на графике, почему именно это направление..."></textarea>
+    </div>
+    <div class="idea-row2">
+      <div class="idea-field">
+        <label>Точка входа $</label>
+        <input id="idea-entry-input" placeholder="42000">
+      </div>
+      <div class="idea-field">
+        <label>Take Profit $</label>
+        <input id="idea-tp-input" placeholder="45000">
+      </div>
+    </div>
+    <div class="idea-field">
+      <label>Stop Loss $</label>
+      <input id="idea-sl-input" placeholder="40500">
+    </div>
+    <button class="idea-submit" onclick="submitIdea()">🚀 ОПУБЛИКОВАТЬ ИДЕЮ</button>
+  </div>
+</div>
+
 </body>
 </html>
