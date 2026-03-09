@@ -3600,17 +3600,23 @@ function renderProgress(){
   var canvas=document.getElementById('equity-canvas');
   var empty=document.getElementById('eq-empty');
   if(!canvas)return;
-  if(trades.length<2){
+  if(trades.length===0){
     canvas.style.display='none';
     if(empty)empty.style.display='block';
     ['pk-best','pk-worst','pk-rr','pk-dd'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='—';});
     renderHeatmap([]);
     renderHourlyHeatmap([]);
-    document.getElementById('pairs-grid').innerHTML='';
+    var pg=document.getElementById('pairs-grid');if(pg)pg.innerHTML='';
     return;
   }
-  canvas.style.display='block';
-  if(empty)empty.style.display='none';
+  // Equity curve только при 2+ сделках
+  if(trades.length<2){
+    canvas.style.display='none';
+    if(empty)empty.style.display='none';
+  } else {
+    canvas.style.display='block';
+    if(empty)empty.style.display='none';
+  }
 
   // KPIs
   var wins=trades.filter(function(t){return t.result==='win';});
@@ -3630,7 +3636,8 @@ function renderProgress(){
   el=document.getElementById('pk-rr');if(el)el.textContent=rr;
   el=document.getElementById('pk-dd');if(el)el.textContent=maxDD?'-'+maxDD.toFixed(1)+'%':'0%';
 
-  // Equity curve on canvas
+  // Equity curve — только при 2+ сделках
+  if(trades.length>=2){
   var W=canvas.parentElement.offsetWidth||600,H=180;
   var dpr=window.devicePixelRatio||1;
   canvas.width=W*dpr;canvas.height=H*dpr;
@@ -3683,6 +3690,7 @@ function renderProgress(){
 
   var dEl=document.getElementById('eq-delta');
   if(dEl){dEl.textContent=(cum>=0?'+':'')+cum.toFixed(1)+'%';dEl.style.color=cum>=0?'var(--g)':'var(--r)';}
+  } // end equity curve if(trades.length>=2)
 
   // Pairs breakdown
   var pm={};
