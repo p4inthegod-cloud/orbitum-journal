@@ -6,347 +6,6 @@
 <title>ORBITUM — Профиль трейдера</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// ═══════════════════════════════════════════════
-// DEEP ANALYTICS
-// ═══════════════════════════════════════════════
-function renderAnalyticsTab(trades, tab){
-  if(!trades.length) return '<div class="an-empty">Недостаточно данных — нужны сделки</div>';
-
-  if(tab==='setups'){
-    // Breakdown by setup type
-    const pm={};
-    trades.forEach(t=>{
-      const k=t.setup_type||'Без сетапа';
-      if(!pm[k])pm[k]={n:0,w:0,pnl:0};
-      pm[k].n++;
-      if(t.result==='win')pm[k].w++;
-      pm[k].pnl+=(t.pnl_pct||0);
-    });
-    const setups=Object.keys(pm).map(name=>({
-      name,n:pm[name].n,
-      wr:Math.round(pm[name].w/pm[name].n*100),
-      pnl:pm[name].pnl,
-      avg:pm[name].pnl/pm[name].n
-    })).sort((a,b)=>b.n-a.n);
-    const maxN=Math.max(...setups.map(s=>s.n));
-    
-    // Avg win vs loss
-    const wins=trades.filter(t=>t.result==='win');
-    const losses=trades.filter(t=>t.result==='loss');
-    const avgW=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
-    const avgL=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
-    const rr=avgL>0?(avgW/avgL).toFixed(2):'∞';
-    const expectancy=avgW*(wins.length/trades.length)-avgL*(losses.length/trades.length);
-    const profitFactor=avgL>0?((wins.length*avgW)/(losses.length*avgL)).toFixed(2):'∞';
-
-    return `
-    <div class="an-grid">
-      <div class="an-card">
-        <div class="an-card-title">Ключевые метрики</div>
-        ${[
-          {l:'Средний выигрыш',v:'+'+(avgW.toFixed(2))+'%',c:'var(--g)'},
-          {l:'Средний убыток',v:'-'+(avgL.toFixed(2))+'%',c:'var(--r)'},
-          {l:'Risk:Reward',v:rr,c:'var(--a)'},
-          {l:'Profit Factor',v:profitFactor,c:parseFloat(profitFactor)>=1?'var(--g)':'var(--r)'},
-          {l:'Матожидание',v:(expectancy>=0?'+':'')+expectancy.toFixed(2)+'%',c:expectancy>=0?'var(--g)':'var(--r)'},
-        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
-      </div>
-      <div class="an-card" style="grid-column:span 2">
-        <div class="an-card-title">Результативность по сетапам</div>
-        ${setups.map(s=>{
-          const barColor=s.wr>=60?'var(--g)':s.wr>=45?'var(--a)':'var(--r)';
-          return `<div class="an-bar-row">
-            <div class="an-bar-head">
-              <span class="an-bar-label">${s.name} <span style="color:var(--m);font-size:8px">(${s.n} сд.)</span></span>
-              <span class="an-bar-meta">WR: <span style="color:${barColor}">${s.wr}%</span> · avg: <span style="color:${s.avg>=0?'var(--g)':'var(--r)'}">${s.avg>=0?'+':''}${s.avg.toFixed(1)}%</span></span>
-            </div>
-            <div class="an-bar-track"><div class="an-bar-fill" style="width:${s.wr}%;background:${barColor}"></div></div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
-
-  if(tab==='time'){
-    // Day of week analysis
-    const days=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-    const byDow={};
-    trades.forEach(t=>{
-      const d=new Date(t.created_at).getDay();
-      if(!byDow[d])byDow[d]={n:0,w:0,pnl:0};
-      byDow[d].n++;
-      if(t.result==='win')byDow[d].w++;
-      byDow[d].pnl+=(t.pnl_pct||0);
-    });
-    const activeDays=Object.keys(byDow).map(d=>({
-      day:days[d],n:byDow[d].n,
-      wr:Math.round(byDow[d].w/byDow[d].n*100),
-      pnl:byDow[d].pnl
-    })).sort((a,b)=>[1,2,3,4,5,6,0].indexOf(parseInt(Object.keys(byDow).find(k=>days[k]===a.day)))-[1,2,3,4,5,6,0].indexOf(parseInt(Object.keys(byDow).find(k=>days[k]===b.day))));
-    
-    // Monthly P&L
-    const byMonth={};
-    trades.forEach(t=>{
-      const k=new Date(t.created_at).toLocaleDateString('ru-RU',{month:'short',year:'2-digit'});
-      if(!byMonth[k])byMonth[k]=0;
-      byMonth[k]+=(t.pnl_pct||0);
-    });
-    const months=Object.keys(byMonth).slice(-6);
-    const maxAbs=Math.max(...months.map(m=>Math.abs(byMonth[m]))||[1]);
-
-    return `
-    <div class="an-grid">
-      <div class="an-card">
-        <div class="an-card-title">По дням недели</div>
-        ${activeDays.length?activeDays.map(d=>{
-          const c=d.wr>=55?'var(--g)':d.wr>=45?'var(--a)':'var(--r)';
-          return `<div class="an-stat-row">
-            <span class="an-stat-label">${d.day} <span style="color:var(--m);font-size:8px">(${d.n})</span></span>
-            <span class="an-stat-val" style="color:${c}">${d.wr}% WR</span>
-          </div>`;
-        }).join(''):'<div class="an-empty">Нет данных</div>'}
-      </div>
-      <div class="an-card" style="grid-column:span 2">
-        <div class="an-card-title">P&L по месяцам (последние 6)</div>
-        ${months.length?months.map(m=>{
-          const v=byMonth[m];
-          const pct=Math.abs(v)/maxAbs*100;
-          const c=v>=0?'var(--g)':'var(--r)';
-          return `<div class="an-bar-row">
-            <div class="an-bar-head">
-              <span class="an-bar-label">${m}</span>
-              <span class="an-bar-meta" style="color:${c}">${v>=0?'+':''}${v.toFixed(1)}%</span>
-            </div>
-            <div class="an-bar-track"><div class="an-bar-fill" style="width:${pct}%;background:${c}"></div></div>
-          </div>`;
-        }).join(''):'<div class="an-empty">Нет данных</div>'}
-      </div>
-    </div>`;
-  }
-
-  if(tab==='streaks'){
-    // Win/loss streaks analysis
-    const sorted=[...trades].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-    let maxWin=0,maxLoss=0,curWin=0,curLoss=0;
-    let currentStreak=0,currentType='';
-    sorted.forEach(t=>{
-      if(t.result==='win'){curWin++;curLoss=0;if(curWin>maxWin)maxWin=curWin;}
-      else if(t.result==='loss'){curLoss++;curWin=0;if(curLoss>maxLoss)maxLoss=curLoss;}
-    });
-    // After last trade
-    if(sorted.length){
-      const last=sorted[sorted.length-1];
-      if(last.result==='win'){currentStreak=curWin;currentType='win';}
-      else if(last.result==='loss'){currentStreak=curLoss;currentType='loss';}
-    }
-    
-    // Recovery after loss streak
-    const afterLoss=[];
-    for(let i=1;i<sorted.length;i++){
-      if(sorted[i-1].result==='loss'&&sorted[i].result==='win') afterLoss.push(sorted[i]);
-    }
-    const recoveryWR=afterLoss.length?Math.round(afterLoss.filter(t=>t.result==='win').length/afterLoss.length*100):null;
-
-    // Consecutive results distribution
-    let streaks={win:[],loss:[]};let cw=0,cl=0;
-    sorted.forEach((t,i)=>{
-      if(t.result==='win'){cw++;if(cl>0){streaks.loss.push(cl);cl=0;}}
-      else{cl++;if(cw>0){streaks.win.push(cw);cw=0;}}
-    });
-    if(cw>0)streaks.win.push(cw);if(cl>0)streaks.loss.push(cl);
-    const avgWinStreak=streaks.win.length?(streaks.win.reduce((s,v)=>s+v,0)/streaks.win.length).toFixed(1):0;
-    const avgLossStreak=streaks.loss.length?(streaks.loss.reduce((s,v)=>s+v,0)/streaks.loss.length).toFixed(1):0;
-
-    return `
-    <div class="an-grid">
-      <div class="an-card">
-        <div class="an-card-title">Серии</div>
-        ${[
-          {l:'Макс. серия побед',v:maxWin+' подряд',c:'var(--g)'},
-          {l:'Макс. серия убытков',v:maxLoss+' подряд',c:'var(--r)'},
-          {l:'Текущая серия',v:currentStreak+(currentType==='win'?' 🔥':currentType==='loss'?' 💀':''),c:currentType==='win'?'var(--g)':currentType==='loss'?'var(--r)':'var(--m)'},
-          {l:'Ср. серия побед',v:avgWinStreak,c:'var(--g)'},
-          {l:'Ср. серия убытков',v:avgLossStreak,c:'var(--r)'},
-        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
-      </div>
-      <div class="an-card">
-        <div class="an-card-title">Психология серий</div>
-        ${[
-          {l:'Сделок после убытка',v:afterLoss.length,c:'var(--m)'},
-          {l:'WR после убытка',v:recoveryWR!==null?recoveryWR+'%':'—',c:recoveryWR>=50?'var(--g)':'var(--r)'},
-          {l:'Риск реванша',v:recoveryWR!==null&&recoveryWR<45?'⚠️ Высокий':'✅ Норма',c:recoveryWR!==null&&recoveryWR<45?'var(--r)':'var(--g)'},
-        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
-        <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">
-          ${recoveryWR!==null&&recoveryWR<45?'⚠️ После убытка WR падает — возможна торговля из мести. Сделай паузу перед следующей сделкой.':recoveryWR!==null&&recoveryWR>=55?'✅ После убытка ты торгуешь стабильно — хороший психологический контроль.':'Недостаточно данных для анализа паттернов мести.'}
-        </div>
-      </div>
-      <div class="an-card">
-        <div class="an-card-title">Консистентность</div>
-        ${(()=>{
-          const totalDays=Object.keys(trades.reduce((acc,t)=>{acc[new Date(t.created_at).toDateString()]=1;return acc;},{})).length;
-          const firstDate=sorted.length?new Date(sorted[0].created_at):new Date();
-          const calendarDays=Math.max(1,Math.round((new Date()-firstDate)/(1000*60*60*24)));
-          const activity=Math.round(totalDays/Math.min(calendarDays,90)*100);
-          const avgPerDay=sorted.length?(sorted.length/totalDays).toFixed(1):0;
-          return [
-            {l:'Активных дней',v:totalDays,c:'var(--a)'},
-            {l:'Сделок в день',v:avgPerDay,c:avgPerDay>5?'var(--r)':avgPerDay>=1?'var(--g)':'var(--m)'},
-            {l:'Активность (90д)',v:activity+'%',c:activity>=60?'var(--g)':activity>=30?'var(--a)':'var(--r)'},
-          ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('');
-        })()}
-      </div>
-    </div>`;
-  }
-
-  if(tab==='psych'){
-    const avg=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null&&x!==0&&x!==undefined);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
-    const wins=trades.filter(t=>t.result==='win');
-    const losses=trades.filter(t=>t.result==='loss');
-    const emotions=['emotion_conf','emotion_fear','emotion_greed','emotion_calm'];
-    const labels={emotion_conf:'Уверенность',emotion_fear:'Страх',emotion_greed:'Жадность',emotion_calm:'Фокус'};
-    const icons={emotion_conf:'💪',emotion_fear:'😰',emotion_greed:'🤑',emotion_calm:'🎯'};
-
-    const rows=emotions.map(key=>{
-      const all=avg(trades,key),w=avg(wins,key),l=avg(losses,key);
-      const diff=w-l;
-      return {key,label:labels[key],icon:icons[key],all,win:w,loss:l,diff};
-    });
-
-    // Best emotion state for trading
-    const bestState=rows.filter(r=>Math.abs(r.diff)>0.5).sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff));
-
-    return `
-    <div class="an-grid">
-      <div class="an-card" style="grid-column:span 2">
-        <div class="an-card-title">Эмоции при победах vs убытках</div>
-        <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px">
-          <div></div>
-          <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);text-align:center">СРЕДНЕЕ</div>
-          <div style="font-family:var(--font-mono);font-size:8px;color:var(--g);text-align:center">ПОБЕДЫ</div>
-          <div style="font-family:var(--font-mono);font-size:8px;color:var(--r);text-align:center">УБЫТКИ</div>
-        </div>
-        ${rows.map(r=>`
-          <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
-            <div style="font-family:var(--font-body);font-size:12px">${r.icon} ${r.label}</div>
-            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--m2)">${r.all.toFixed(1)}</div>
-            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--g)">${r.win.toFixed(1)}</div>
-            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--r)">${r.loss.toFixed(1)}</div>
-          </div>
-        `).join('')}
-      </div>
-      <div class="an-card">
-        <div class="an-card-title">Ключевые инсайты</div>
-        ${bestState.length?bestState.map(r=>{
-          const isPositive=r.diff>0;
-          return `<div style="padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:6px;font-family:var(--font-mono);font-size:9px;line-height:1.6;color:var(--m2)">
-            ${r.icon} <strong style="color:var(--t)">${r.label}</strong> ${isPositive?'выше при победах':'выше при убытках'} на <span style="color:${isPositive?'var(--g)':'var(--r)'}">${Math.abs(r.diff).toFixed(1)}</span> пункта
-          </div>`;
-        }).join(''):`<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">Нужно больше сделок с заполненными эмоциями</div>`}
-      </div>
-    </div>`;
-  }
-  return '<div class="an-empty">Вкладка в разработке</div>';
-}
-
-function switchAnalyticsTab(tab, btn){
-  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  const el=document.getElementById('analytics-content');
-  if(el) el.innerHTML=renderAnalyticsTab(window._profileTrades||[],tab);
-}
-
-// ═══════════════════════════════════════════════
-// IDEAS SYSTEM
-// ═══════════════════════════════════════════════
-let ideaType='bullish';
-async function loadIdeas(userId){
-  const el=document.getElementById('ideas-feed');
-  if(!el)return;
-  try{
-    const {data,error}=await sb.from('ideas').select('*').eq('user_id',userId).order('created_at',{ascending:false});
-    if(error||!data||!data.length){el.innerHTML='<div class="feed-empty">Идей пока нет. '+(isOwnProfile?'Опубликуй первый разбор!':'')+'</div>';return;}
-    el.innerHTML=data.map(idea=>renderIdeaCard(idea)).join('');
-  } catch(e){
-    el.innerHTML='<div class="feed-empty">Нет таблицы ideas — создай её в Supabase</div>';
-  }
-}
-
-function renderIdeaCard(idea){
-  const typeLabel={bullish:'📈 ЛОНГ',bearish:'📉 ШОРТ',neutral:'➡️ НЕЙТРАЛЬНО'};
-  const typeClass={bullish:'bullish',bearish:'bearish',neutral:'neutral'};
-  const statusLabel={active:'🟢 Активна',closed:'⚪ Закрыта',pending:'🟡 Ожидание'};
-  const d=new Date(idea.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
-  const shareUrl=window.location.origin+window.location.pathname+'?id='+(idea.user_id||'')+'#idea-'+(idea.id||'');
-  return `<div class="idea-card" id="idea-${idea.id||''}">
-    <div class="idea-top">
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span class="idea-pair">${idea.pair||'?'}</span>
-          <span class="idea-type ${typeClass[idea.direction]||'neutral'}">${typeLabel[idea.direction]||'РАЗБОР'}</span>
-          <span class="idea-status ${idea.status||'active'}">${statusLabel[idea.status||'active']}</span>
-        </div>
-        <div class="idea-title">${idea.title||''}</div>
-      </div>
-    </div>
-    <div class="idea-body">${(idea.body||'').replace(/
-/g,'<br>')}</div>
-    ${(idea.entry||idea.tp||idea.sl)?`<div class="idea-targets">
-      ${idea.entry?`<span class="idea-target entry">🎯 Вход: ${idea.entry}</span>`:''}
-      ${idea.tp?`<span class="idea-target tp">✅ TP: ${idea.tp}</span>`:''}
-      ${idea.sl?`<span class="idea-target sl">❌ SL: ${idea.sl}</span>`:''}
-    </div>`:''}
-    <div class="idea-footer">
-      <span class="idea-date">${d}</span>
-      <button class="idea-share-btn" onclick="copyIdeaLink('${shareUrl}')">🔗 Поделиться</button>
-      ${isOwnProfile?`<button class="idea-share-btn" style="color:var(--r)" onclick="deleteIdea('${idea.id}')">✕ Удалить</button>`:''}
-    </div>
-  </div>`;
-}
-
-function copyIdeaLink(url){
-  navigator.clipboard.writeText(url).then(()=>{
-    const btn=event.target;const orig=btn.textContent;
-    btn.textContent='✅ Скопировано!';setTimeout(()=>btn.textContent=orig,2000);
-  });
-}
-
-async function deleteIdea(id){
-  if(!confirm('Удалить идею?'))return;
-  await sb.from('ideas').delete().eq('id',id);
-  loadIdeas(profileUser?.id||currentUser?.id);
-}
-
-let _ideaTypeSelected='bullish';
-function openIdeaModal(){
-  _ideaTypeSelected='bullish';
-  document.querySelectorAll('.idea-type-btn').forEach(b=>b.classList.remove('sel-bull','sel-bear','sel-neut'));
-  const b=document.getElementById('ib-bull');if(b)b.classList.add('sel-bull');
-  const m=document.getElementById('idea-modal');if(m)m.classList.add('open');
-}
-function closeIdeaModal(){const m=document.getElementById('idea-modal');if(m)m.classList.remove('open');}
-function setIdeaType(t,btn){
-  _ideaTypeSelected=t;
-  document.querySelectorAll('.idea-type-btn').forEach(b=>b.classList.remove('sel-bull','sel-bear','sel-neut'));
-  const cls=t==='bullish'?'sel-bull':t==='bearish'?'sel-bear':'sel-neut';
-  if(btn)btn.classList.add(cls);
-}
-async function submitIdea(){
-  const pair=(document.getElementById('idea-pair-input')||{}).value||'';
-  const title=(document.getElementById('idea-title-input')||{}).value||'';
-  const body=(document.getElementById('idea-body-input')||{}).value||'';
-  const entry=(document.getElementById('idea-entry-input')||{}).value||null;
-  const tp=(document.getElementById('idea-tp-input')||{}).value||null;
-  const sl=(document.getElementById('idea-sl-input')||{}).value||null;
-  if(!pair||!title||!body){alert('Заполни пару, заголовок и описание');return;}
-  const uid=currentUser?.id;if(!uid){alert('Нужно войти');return;}
-  const {error}=await sb.from('ideas').insert({user_id:uid,pair:pair.toUpperCase(),title,body,direction:_ideaTypeSelected,entry,tp,sl,status:'active'});
-  if(error){alert('Ошибка: '+error.message);return;}
-  closeIdeaModal();
-  loadIdeas(uid);
-}
-
-</script>
 <style>
 :root{
   --a:#e8722a;--a2:rgba(232,114,42,0.12);--a3:rgba(232,114,42,0.35);
@@ -819,6 +478,344 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 </div>
 
 <script>
+// ═══════════════════════════════════════════════
+// DEEP ANALYTICS
+// ═══════════════════════════════════════════════
+function renderAnalyticsTab(trades, tab){
+  if(!trades.length) return '<div class="an-empty">Недостаточно данных — нужны сделки</div>';
+
+  if(tab==='setups'){
+    // Breakdown by setup type
+    const pm={};
+    trades.forEach(t=>{
+      const k=t.setup_type||'Без сетапа';
+      if(!pm[k])pm[k]={n:0,w:0,pnl:0};
+      pm[k].n++;
+      if(t.result==='win')pm[k].w++;
+      pm[k].pnl+=(t.pnl_pct||0);
+    });
+    const setups=Object.keys(pm).map(name=>({
+      name,n:pm[name].n,
+      wr:Math.round(pm[name].w/pm[name].n*100),
+      pnl:pm[name].pnl,
+      avg:pm[name].pnl/pm[name].n
+    })).sort((a,b)=>b.n-a.n);
+    const maxN=Math.max(...setups.map(s=>s.n));
+    
+    // Avg win vs loss
+    const wins=trades.filter(t=>t.result==='win');
+    const losses=trades.filter(t=>t.result==='loss');
+    const avgW=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
+    const avgL=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
+    const rr=avgL>0?(avgW/avgL).toFixed(2):'∞';
+    const expectancy=avgW*(wins.length/trades.length)-avgL*(losses.length/trades.length);
+    const profitFactor=avgL>0?((wins.length*avgW)/(losses.length*avgL)).toFixed(2):'∞';
+
+    return `
+    <div class="an-grid">
+      <div class="an-card">
+        <div class="an-card-title">Ключевые метрики</div>
+        ${[
+          {l:'Средний выигрыш',v:'+'+(avgW.toFixed(2))+'%',c:'var(--g)'},
+          {l:'Средний убыток',v:'-'+(avgL.toFixed(2))+'%',c:'var(--r)'},
+          {l:'Risk:Reward',v:rr,c:'var(--a)'},
+          {l:'Profit Factor',v:profitFactor,c:parseFloat(profitFactor)>=1?'var(--g)':'var(--r)'},
+          {l:'Матожидание',v:(expectancy>=0?'+':'')+expectancy.toFixed(2)+'%',c:expectancy>=0?'var(--g)':'var(--r)'},
+        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
+      </div>
+      <div class="an-card" style="grid-column:span 2">
+        <div class="an-card-title">Результативность по сетапам</div>
+        ${setups.map(s=>{
+          const barColor=s.wr>=60?'var(--g)':s.wr>=45?'var(--a)':'var(--r)';
+          return `<div class="an-bar-row">
+            <div class="an-bar-head">
+              <span class="an-bar-label">${s.name} <span style="color:var(--m);font-size:8px">(${s.n} сд.)</span></span>
+              <span class="an-bar-meta">WR: <span style="color:${barColor}">${s.wr}%</span> · avg: <span style="color:${s.avg>=0?'var(--g)':'var(--r)'}">${s.avg>=0?'+':''}${s.avg.toFixed(1)}%</span></span>
+            </div>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width:${s.wr}%;background:${barColor}"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  if(tab==='time'){
+    // Day of week analysis
+    const days=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const byDow={};
+    trades.forEach(t=>{
+      const d=new Date(t.created_at).getDay();
+      if(!byDow[d])byDow[d]={n:0,w:0,pnl:0};
+      byDow[d].n++;
+      if(t.result==='win')byDow[d].w++;
+      byDow[d].pnl+=(t.pnl_pct||0);
+    });
+    const activeDays=Object.keys(byDow).map(d=>({
+      day:days[d],n:byDow[d].n,
+      wr:Math.round(byDow[d].w/byDow[d].n*100),
+      pnl:byDow[d].pnl
+    })).sort((a,b)=>[1,2,3,4,5,6,0].indexOf(parseInt(Object.keys(byDow).find(k=>days[k]===a.day)))-[1,2,3,4,5,6,0].indexOf(parseInt(Object.keys(byDow).find(k=>days[k]===b.day))));
+    
+    // Monthly P&L
+    const byMonth={};
+    trades.forEach(t=>{
+      const k=new Date(t.created_at).toLocaleDateString('ru-RU',{month:'short',year:'2-digit'});
+      if(!byMonth[k])byMonth[k]=0;
+      byMonth[k]+=(t.pnl_pct||0);
+    });
+    const months=Object.keys(byMonth).slice(-6);
+    const maxAbs=Math.max(...months.map(m=>Math.abs(byMonth[m]))||[1]);
+
+    return `
+    <div class="an-grid">
+      <div class="an-card">
+        <div class="an-card-title">По дням недели</div>
+        ${activeDays.length?activeDays.map(d=>{
+          const c=d.wr>=55?'var(--g)':d.wr>=45?'var(--a)':'var(--r)';
+          return `<div class="an-stat-row">
+            <span class="an-stat-label">${d.day} <span style="color:var(--m);font-size:8px">(${d.n})</span></span>
+            <span class="an-stat-val" style="color:${c}">${d.wr}% WR</span>
+          </div>`;
+        }).join(''):'<div class="an-empty">Нет данных</div>'}
+      </div>
+      <div class="an-card" style="grid-column:span 2">
+        <div class="an-card-title">P&L по месяцам (последние 6)</div>
+        ${months.length?months.map(m=>{
+          const v=byMonth[m];
+          const pct=Math.abs(v)/maxAbs*100;
+          const c=v>=0?'var(--g)':'var(--r)';
+          return `<div class="an-bar-row">
+            <div class="an-bar-head">
+              <span class="an-bar-label">${m}</span>
+              <span class="an-bar-meta" style="color:${c}">${v>=0?'+':''}${v.toFixed(1)}%</span>
+            </div>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width:${pct}%;background:${c}"></div></div>
+          </div>`;
+        }).join(''):'<div class="an-empty">Нет данных</div>'}
+      </div>
+    </div>`;
+  }
+
+  if(tab==='streaks'){
+    // Win/loss streaks analysis
+    const sorted=[...trades].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    let maxWin=0,maxLoss=0,curWin=0,curLoss=0;
+    let currentStreak=0,currentType='';
+    sorted.forEach(t=>{
+      if(t.result==='win'){curWin++;curLoss=0;if(curWin>maxWin)maxWin=curWin;}
+      else if(t.result==='loss'){curLoss++;curWin=0;if(curLoss>maxLoss)maxLoss=curLoss;}
+    });
+    // After last trade
+    if(sorted.length){
+      const last=sorted[sorted.length-1];
+      if(last.result==='win'){currentStreak=curWin;currentType='win';}
+      else if(last.result==='loss'){currentStreak=curLoss;currentType='loss';}
+    }
+    
+    // Recovery after loss streak
+    const afterLoss=[];
+    for(let i=1;i<sorted.length;i++){
+      if(sorted[i-1].result==='loss'&&sorted[i].result==='win') afterLoss.push(sorted[i]);
+    }
+    const recoveryWR=afterLoss.length?Math.round(afterLoss.filter(t=>t.result==='win').length/afterLoss.length*100):null;
+
+    // Consecutive results distribution
+    let streaks={win:[],loss:[]};let cw=0,cl=0;
+    sorted.forEach((t,i)=>{
+      if(t.result==='win'){cw++;if(cl>0){streaks.loss.push(cl);cl=0;}}
+      else{cl++;if(cw>0){streaks.win.push(cw);cw=0;}}
+    });
+    if(cw>0)streaks.win.push(cw);if(cl>0)streaks.loss.push(cl);
+    const avgWinStreak=streaks.win.length?(streaks.win.reduce((s,v)=>s+v,0)/streaks.win.length).toFixed(1):0;
+    const avgLossStreak=streaks.loss.length?(streaks.loss.reduce((s,v)=>s+v,0)/streaks.loss.length).toFixed(1):0;
+
+    return `
+    <div class="an-grid">
+      <div class="an-card">
+        <div class="an-card-title">Серии</div>
+        ${[
+          {l:'Макс. серия побед',v:maxWin+' подряд',c:'var(--g)'},
+          {l:'Макс. серия убытков',v:maxLoss+' подряд',c:'var(--r)'},
+          {l:'Текущая серия',v:currentStreak+(currentType==='win'?' 🔥':currentType==='loss'?' 💀':''),c:currentType==='win'?'var(--g)':currentType==='loss'?'var(--r)':'var(--m)'},
+          {l:'Ср. серия побед',v:avgWinStreak,c:'var(--g)'},
+          {l:'Ср. серия убытков',v:avgLossStreak,c:'var(--r)'},
+        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
+      </div>
+      <div class="an-card">
+        <div class="an-card-title">Психология серий</div>
+        ${[
+          {l:'Сделок после убытка',v:afterLoss.length,c:'var(--m)'},
+          {l:'WR после убытка',v:recoveryWR!==null?recoveryWR+'%':'—',c:recoveryWR>=50?'var(--g)':'var(--r)'},
+          {l:'Риск реванша',v:recoveryWR!==null&&recoveryWR<45?'⚠️ Высокий':'✅ Норма',c:recoveryWR!==null&&recoveryWR<45?'var(--r)':'var(--g)'},
+        ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
+        <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">
+          ${recoveryWR!==null&&recoveryWR<45?'⚠️ После убытка WR падает — возможна торговля из мести. Сделай паузу перед следующей сделкой.':recoveryWR!==null&&recoveryWR>=55?'✅ После убытка ты торгуешь стабильно — хороший психологический контроль.':'Недостаточно данных для анализа паттернов мести.'}
+        </div>
+      </div>
+      <div class="an-card">
+        <div class="an-card-title">Консистентность</div>
+        ${(()=>{
+          const totalDays=Object.keys(trades.reduce((acc,t)=>{acc[new Date(t.created_at).toDateString()]=1;return acc;},{})).length;
+          const firstDate=sorted.length?new Date(sorted[0].created_at):new Date();
+          const calendarDays=Math.max(1,Math.round((new Date()-firstDate)/(1000*60*60*24)));
+          const activity=Math.round(totalDays/Math.min(calendarDays,90)*100);
+          const avgPerDay=sorted.length?(sorted.length/totalDays).toFixed(1):0;
+          return [
+            {l:'Активных дней',v:totalDays,c:'var(--a)'},
+            {l:'Сделок в день',v:avgPerDay,c:avgPerDay>5?'var(--r)':avgPerDay>=1?'var(--g)':'var(--m)'},
+            {l:'Активность (90д)',v:activity+'%',c:activity>=60?'var(--g)':activity>=30?'var(--a)':'var(--r)'},
+          ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('');
+        })()}
+      </div>
+    </div>`;
+  }
+
+  if(tab==='psych'){
+    const avg=(arr,key)=>{const v=arr.map(t=>t[key]).filter(x=>x!=null&&x!==0&&x!==undefined);return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;};
+    const wins=trades.filter(t=>t.result==='win');
+    const losses=trades.filter(t=>t.result==='loss');
+    const emotions=['emotion_conf','emotion_fear','emotion_greed','emotion_calm'];
+    const labels={emotion_conf:'Уверенность',emotion_fear:'Страх',emotion_greed:'Жадность',emotion_calm:'Фокус'};
+    const icons={emotion_conf:'💪',emotion_fear:'😰',emotion_greed:'🤑',emotion_calm:'🎯'};
+
+    const rows=emotions.map(key=>{
+      const all=avg(trades,key),w=avg(wins,key),l=avg(losses,key);
+      const diff=w-l;
+      return {key,label:labels[key],icon:icons[key],all,win:w,loss:l,diff};
+    });
+
+    // Best emotion state for trading
+    const bestState=rows.filter(r=>Math.abs(r.diff)>0.5).sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff));
+
+    return `
+    <div class="an-grid">
+      <div class="an-card" style="grid-column:span 2">
+        <div class="an-card-title">Эмоции при победах vs убытках</div>
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px">
+          <div></div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);text-align:center">СРЕДНЕЕ</div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--g);text-align:center">ПОБЕДЫ</div>
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--r);text-align:center">УБЫТКИ</div>
+        </div>
+        ${rows.map(r=>`
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+            <div style="font-family:var(--font-body);font-size:12px">${r.icon} ${r.label}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--m2)">${r.all.toFixed(1)}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--g)">${r.win.toFixed(1)}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;text-align:center;color:var(--r)">${r.loss.toFixed(1)}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="an-card">
+        <div class="an-card-title">Ключевые инсайты</div>
+        ${bestState.length?bestState.map(r=>{
+          const isPositive=r.diff>0;
+          return `<div style="padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:6px;font-family:var(--font-mono);font-size:9px;line-height:1.6;color:var(--m2)">
+            ${r.icon} <strong style="color:var(--t)">${r.label}</strong> ${isPositive?'выше при победах':'выше при убытках'} на <span style="color:${isPositive?'var(--g)':'var(--r)'}">${Math.abs(r.diff).toFixed(1)}</span> пункта
+          </div>`;
+        }).join(''):`<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">Нужно больше сделок с заполненными эмоциями</div>`}
+      </div>
+    </div>`;
+  }
+  return '<div class="an-empty">Вкладка в разработке</div>';
+}
+
+function switchAnalyticsTab(tab, btn){
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const el=document.getElementById('analytics-content');
+  if(el) el.innerHTML=renderAnalyticsTab(window._profileTrades||[],tab);
+}
+
+// ═══════════════════════════════════════════════
+// IDEAS SYSTEM
+// ═══════════════════════════════════════════════
+let ideaType='bullish';
+async function loadIdeas(userId){
+  const el=document.getElementById('ideas-feed');
+  if(!el)return;
+  try{
+    const {data,error}=await sb.from('ideas').select('*').eq('user_id',userId).order('created_at',{ascending:false});
+    if(error||!data||!data.length){el.innerHTML='<div class="feed-empty">Идей пока нет. '+(isOwnProfile?'Опубликуй первый разбор!':'')+'</div>';return;}
+    el.innerHTML=data.map(idea=>renderIdeaCard(idea)).join('');
+  } catch(e){
+    el.innerHTML='<div class="feed-empty">Нет таблицы ideas — создай её в Supabase</div>';
+  }
+}
+
+function renderIdeaCard(idea){
+  const typeLabel={bullish:'📈 ЛОНГ',bearish:'📉 ШОРТ',neutral:'➡️ НЕЙТРАЛЬНО'};
+  const typeClass={bullish:'bullish',bearish:'bearish',neutral:'neutral'};
+  const statusLabel={active:'🟢 Активна',closed:'⚪ Закрыта',pending:'🟡 Ожидание'};
+  const d=new Date(idea.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+  const shareUrl=window.location.origin+window.location.pathname+'?id='+(idea.user_id||'')+'#idea-'+(idea.id||'');
+  return `<div class="idea-card" id="idea-${idea.id||''}">
+    <div class="idea-top">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span class="idea-pair">${idea.pair||'?'}</span>
+          <span class="idea-type ${typeClass[idea.direction]||'neutral'}">${typeLabel[idea.direction]||'РАЗБОР'}</span>
+          <span class="idea-status ${idea.status||'active'}">${statusLabel[idea.status||'active']}</span>
+        </div>
+        <div class="idea-title">${idea.title||''}</div>
+      </div>
+    </div>
+    <div class="idea-body">${(idea.body||'').split('\n').join('<br>')}</div>
+    ${(idea.entry||idea.tp||idea.sl)?`<div class="idea-targets">
+      ${idea.entry?`<span class="idea-target entry">🎯 Вход: ${idea.entry}</span>`:''}
+      ${idea.tp?`<span class="idea-target tp">✅ TP: ${idea.tp}</span>`:''}
+      ${idea.sl?`<span class="idea-target sl">❌ SL: ${idea.sl}</span>`:''}
+    </div>`:''}
+    <div class="idea-footer">
+      <span class="idea-date">${d}</span>
+      <button class="idea-share-btn" onclick="copyIdeaLink('${shareUrl}')">🔗 Поделиться</button>
+      ${isOwnProfile?`<button class="idea-share-btn" style="color:var(--r)" onclick="deleteIdea('${idea.id}')">✕ Удалить</button>`:''}
+    </div>
+  </div>`;
+}
+
+function copyIdeaLink(url){
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=event.target;const orig=btn.textContent;
+    btn.textContent='✅ Скопировано!';setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+
+async function deleteIdea(id){
+  if(!confirm('Удалить идею?'))return;
+  await sb.from('ideas').delete().eq('id',id);
+  loadIdeas(profileUser?.id||currentUser?.id);
+}
+
+let _ideaTypeSelected='bullish';
+function openIdeaModal(){
+  _ideaTypeSelected='bullish';
+  document.querySelectorAll('.idea-type-btn').forEach(b=>b.classList.remove('sel-bull','sel-bear','sel-neut'));
+  const b=document.getElementById('ib-bull');if(b)b.classList.add('sel-bull');
+  const m=document.getElementById('idea-modal');if(m)m.classList.add('open');
+}
+function closeIdeaModal(){const m=document.getElementById('idea-modal');if(m)m.classList.remove('open');}
+function setIdeaType(t,btn){
+  _ideaTypeSelected=t;
+  document.querySelectorAll('.idea-type-btn').forEach(b=>b.classList.remove('sel-bull','sel-bear','sel-neut'));
+  const cls=t==='bullish'?'sel-bull':t==='bearish'?'sel-bear':'sel-neut';
+  if(btn)btn.classList.add(cls);
+}
+async function submitIdea(){
+  const pair=(document.getElementById('idea-pair-input')||{}).value||'';
+  const title=(document.getElementById('idea-title-input')||{}).value||'';
+  const body=(document.getElementById('idea-body-input')||{}).value||'';
+  const entry=(document.getElementById('idea-entry-input')||{}).value||null;
+  const tp=(document.getElementById('idea-tp-input')||{}).value||null;
+  const sl=(document.getElementById('idea-sl-input')||{}).value||null;
+  if(!pair||!title||!body){alert('Заполни пару, заголовок и описание');return;}
+  const uid=currentUser?.id;if(!uid){alert('Нужно войти');return;}
+  const {error}=await sb.from('ideas').insert({user_id:uid,pair:pair.toUpperCase(),title,body,direction:_ideaTypeSelected,entry,tp,sl,status:'active'});
+  if(error){alert('Ошибка: '+error.message);return;}
+  closeIdeaModal();
+  loadIdeas(uid);
+}
+
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 const {createClient}=supabase;
@@ -1305,17 +1302,20 @@ function renderHeatmapPub(trades){
   const byDay={};
   trades.forEach(t=>{
     if(!t.created_at)return;
-    const d=new Date(t.created_at).toISOString().split('T')[0];
+    const dt2=new Date(t.created_at);
+    const d=dt2.getFullYear()+'-'+String(dt2.getMonth()+1).padStart(2,'0')+'-'+String(dt2.getDate()).padStart(2,'0');
     if(!byDay[d])byDay[d]={n:0,pnl:0,wins:0};
     byDay[d].n++;byDay[d].pnl+=(t.pnl_pct||0);
     if(t.result==='win')byDay[d].wins++;
   });
 
-  const WEEKS=20;
+  const WEEKS=21;
   const today=new Date();today.setHours(0,0,0,0);
-  const startDate=new Date(today);startDate.setDate(today.getDate()-(WEEKS*7)+1);
-  const dow=startDate.getDay();
-  const adj=dow===0?-6:1-dow;startDate.setDate(startDate.getDate()+adj);
+  const todayDow=today.getDay();
+  const currentMonday=new Date(today);
+  currentMonday.setDate(today.getDate()-(todayDow===0?6:todayDow-1));
+  const startDate=new Date(currentMonday);
+  startDate.setDate(currentMonday.getDate()-(WEEKS-1)*7);
 
   const months=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
   let lastMo=-1,html='<div class="hm-weeks-pub">';
@@ -1327,7 +1327,7 @@ function renderHeatmapPub(trades){
     html+=`<div class="hm-month-pub">${mo!==lastMo?(lastMo=mo,months[mo]):''}</div>`;
     for(let d=0;d<7;d++){
       const dt=new Date(startDate);dt.setDate(startDate.getDate()+w*7+d);
-      const key=dt.toISOString().split('T')[0];
+      const key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
       const isFuture=dt>today;
       const dd=byDay[key];
       let bg='rgba(255,255,255,0.04)',glow='',tip=key;
