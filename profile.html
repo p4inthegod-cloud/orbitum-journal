@@ -1509,7 +1509,8 @@ async function loadNotifs(){
   if(!currentUser) return;
   try{
     const {data} = await sb.from('notifications')
-      .select('*').eq('user_id',currentUser.id)
+      .select('*,profiles:from_user_id(full_name,username)')
+      .eq('user_id',currentUser.id)
       .order('created_at',{ascending:false}).limit(30);
     _notifs = data||[];
     renderBell();
@@ -1533,15 +1534,23 @@ function renderNotifList(){
     el.innerHTML='<div class="notif-empty">Уведомлений нет 🎉</div>';
     return;
   }
-  const typeIcon={new_follower:'👤',new_idea:'💡'};
-  el.innerHTML = _notifs.map(n=>`
-    <div class="notif-item ${n.read?'':'unread'}">
+  const typeIcon={new_follower:'👤',new_idea:'💡',new_message:'💬'};
+  el.innerHTML = _notifs.map(n=>{
+    const prof=n.profiles;
+    const fromName=prof?.full_name||prof?.username||null;
+    const displayText=fromName
+      ? `<span style="color:var(--a)">@${fromName}</span> ${n.text||''}`
+      : (n.text||'');
+    const ts=new Date(n.created_at);
+    const timeStr=ts.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' '+ts.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="notif-item ${n.read?'':'unread'}">
       <div class="notif-dot ${n.read?'read':''}"></div>
       <div>
-        <div class="notif-text">${typeIcon[n.type]||'🔔'} ${n.text||''}</div>
-        <div class="notif-time">${new Date(n.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="notif-text">${typeIcon[n.type]||'🔔'} ${displayText}</div>
+        <div class="notif-time">${timeStr}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function toggleNotifDropdown(){
