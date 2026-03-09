@@ -1688,7 +1688,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <button class="jtb-nav active" onclick="showPage('journal',this)" data-page="journal">📋 Журнал</button>
     <!-- Инструменты dropdown -->
     <div class="jtb-dropdown" id="jtb-tools-dd">
-      <button class="jtb-nav jtb-dd-trigger" id="jtb-dd-trigger-btn">
+      <button class="jtb-nav jtb-dd-trigger" id="jtb-dd-trigger-btn" onclick="toggleToolsDD(event)">
         🛠 Инструменты <span class="dd-arrow" id="dd-arrow-icon">▾</span>
       </button>
       <div class="jtb-dd-menu" id="jtb-dd-menu">
@@ -4450,34 +4450,27 @@ function initLeaderboard(){
 
 // ─── DROPDOWN TOOLS MENU ──────────────────────────
 function toggleToolsDD(e){
-  if(e) e.stopPropagation();
+  if(e && e.stopPropagation) e.stopPropagation();
+  else if(window.event) window.event.stopPropagation();
   const dd=document.getElementById('jtb-tools-dd');
-  dd.classList.toggle('open');
+  if(dd) dd.classList.toggle('open');
 }
 function closeToolsDD(){
   const dd=document.getElementById('jtb-tools-dd');
   if(dd) dd.classList.remove('open');
 }
-// Attach listener after DOM ready
-document.addEventListener('DOMContentLoaded',function(){
-  const trigBtn=document.getElementById('jtb-dd-trigger-btn');
-  if(trigBtn) trigBtn.addEventListener('click',function(e){toggleToolsDD(e);});
-
-  // Delegated handler for edit buttons in trades list
-  const tradesList=document.getElementById('trades-list');
-  if(tradesList){
-    tradesList.addEventListener('click',function(e){
-      const btn=e.target.closest('.editbtn');
-      if(btn){
-        const id=btn.getAttribute('data-edit-id');
-        if(id) openEditModal(id);
-      }
-    });
-  }
-});
+// Close dropdown on outside click
 document.addEventListener('click',function(e){
   const dd=document.getElementById('jtb-tools-dd');
   if(dd && !dd.contains(e.target)) dd.classList.remove('open');
+});
+// Delegated handler for ✏️ edit buttons — works on dynamically rendered list
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('.editbtn');
+  if(btn){
+    const id=btn.getAttribute('data-edit-id');
+    if(id) openEditModal(id);
+  }
 });
 // Update active state in dropdown when page changes
 const _origShowPage=showPage;
