@@ -5,84 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Торговый журнал нового поколения</title>
 <meta name="description" content="AI-чекер сетапов, психологический профиль трейдера, умная аналитика. Найди паттерны которые тебя сливают.">
-<meta name="theme-color" content="#060709">
+<meta property="og:title" content="ORBITUM — Торговый журнал с AI">
+<meta property="og:description" content="9 из 10 убытков объяснимы психологически. Найди свои паттерны — и устрани их.">
+<meta property="og:image" content="orbitum-logo.jpg">
+<link rel="icon" href="orbitum-logo.jpg" type="image/jpeg">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{
-  --a:#e86c2a;--a2:#ff8c4a;
-  --ag:linear-gradient(135deg,#ff8040,#e05010);
-  --bg:#060709;--bg2:#0a0c10;
-  --bd:rgba(255,255,255,0.055);--bd2:rgba(255,255,255,0.09);
-  --t:#f0f0f4;--t2:rgba(240,240,244,0.55);--t3:rgba(240,240,244,0.25);
-  --g:#34d058;--r:#ff4d4d;--card-r:16px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
 
-nav{position:fixed;top:0;left:0;right:0;z-index:900;height:58px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,7,9,0.78);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.045);}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:6px;color:var(--t);text-decoration:none;transition:opacity .2s;}
-.nav-logo:hover{opacity:.65;}
-.nav-links{display:flex;align-items:center;gap:28px;}
-.nav-links a{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:color .2s;}
-.nav-links a:hover{color:var(--t);}
-.nav-cta-row{display:flex;gap:8px;}
+:root{--a:#e86c2a;--a2:#ff8c4a;--ag:linear-gradient(135deg,#ff8040,#e05010);--bg:#060709;--bg2:#0a0c10;--bd:rgba(255,255,255,0.055);--bd2:rgba(255,255,255,0.09);--t:#f0f0f4;--t2:rgba(240,240,244,0.55);--t3:rgba(240,240,244,0.25);--g:#34d058;--r:#ff4d4d;--card-r:16px;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+nav{position:fixed;top:0;left:0;right:0;z-index:900;height:58px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,7,9,0.78);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.045);transition:background .3s;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:6px;color:var(--t);text-decoration:none;transition:opacity .2s;}.nav-logo:hover{opacity:.65;}
+.nav-links{display:flex;align-items:center;gap:28px;}.nav-links a{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:color .2s;}.nav-links a:hover{color:var(--t);}
+.nav-cta-row{display:flex;gap:8px;align-items:center;}
 .nav-btn{padding:7px 18px;border-radius:40px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-decoration:none;transition:all .2s;white-space:nowrap;cursor:pointer;border:none;}
-.nav-btn.outline{background:transparent;border:1px solid var(--bd2);color:var(--t2);}
-.nav-btn.outline:hover{border-color:rgba(255,255,255,0.2);color:var(--t);}
-.nav-btn.fill{background:var(--ag);color:#fff;box-shadow:0 2px 16px rgba(232,108,42,0.35);}
-.nav-btn.fill:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(232,108,42,0.5);}
-
+.nav-btn.outline{background:transparent;border:1px solid var(--bd2);color:var(--t2);}.nav-btn.outline:hover{border-color:rgba(255,255,255,0.2);color:var(--t);}
+.nav-btn.fill{background:var(--ag);color:#fff;box-shadow:0 2px 16px rgba(232,108,42,0.35);}.nav-btn.fill:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(232,108,42,0.5);}
+.nav-logout{background:none;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:5px 10px;color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:8px;cursor:pointer;transition:all .2s;letter-spacing:1px;}.nav-logout:hover{border-color:var(--r);color:var(--r);}
+.live-popup{position:fixed;bottom:24px;left:24px;z-index:800;background:rgba(10,12,16,0.97);border:1px solid rgba(52,208,88,0.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;max-width:310px;box-shadow:0 8px 32px rgba(0,0,0,0.6);transform:translateX(-140%);transition:transform .55s cubic-bezier(0.16,1,0.3,1);}
+.live-popup.show{transform:translateX(0);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);flex-shrink:0;animation:liveblink 1.5s ease infinite;}
+@keyframes liveblink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.live-text{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);line-height:1.55;}
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px 24px 60px;position:relative;overflow:hidden;}
 .hero-bg{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 700px 500px at 50% 20%,rgba(232,108,42,0.07) 0%,transparent 70%),radial-gradient(ellipse 400px 300px at 20% 80%,rgba(52,208,88,0.03) 0%,transparent 60%);}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 18px;margin-bottom:32px;background:rgba(232,108,42,0.07);border:1px solid rgba(232,108,42,0.18);border-radius:40px;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,160,90,0.85);letter-spacing:2px;text-transform:uppercase;animation:fadeUp .7s cubic-bezier(.16,1,.3,1) both;}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 18px;margin-bottom:20px;background:rgba(232,108,42,0.07);border:1px solid rgba(232,108,42,0.18);border-radius:40px;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,160,90,0.85);letter-spacing:2px;text-transform:uppercase;animation:fadeUp .7s cubic-bezier(.16,1,.3,1) both;}
 .badge-dot{width:5px;height:5px;border-radius:50%;background:var(--a);box-shadow:0 0 6px var(--a);animation:blink 2.5s ease infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.urgency-strip{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;margin-bottom:28px;background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.22);border-radius:40px;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,180,80,0.9);letter-spacing:1.5px;animation:fadeUp .7s .04s cubic-bezier(.16,1,.3,1) both;}
+.urgency-count{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#f5a623;margin:0 2px;}
 .hero-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,13vw,148px);letter-spacing:2px;line-height:.84;margin-bottom:28px;animation:fadeUp .7s .07s cubic-bezier(.16,1,.3,1) both;}
 .h1-dim{color:rgba(240,240,244,0.13);}
 .h1-main{background:linear-gradient(140deg,#ffaa70 10%,#e86c2a 55%,#c84a00 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 60px rgba(232,108,42,.22));}
-.hero-sub{font-size:clamp(14px,1.5vw,16.5px);color:var(--t2);max-width:480px;line-height:1.85;margin-bottom:44px;animation:fadeUp .7s .14s cubic-bezier(.16,1,.3,1) both;}
-.hero-sub strong{color:rgba(240,240,244,.82);font-weight:600;}
+.hero-sub{font-size:clamp(14px,1.5vw,17px);color:var(--t2);max-width:520px;line-height:1.85;margin-bottom:44px;animation:fadeUp .7s .14s cubic-bezier(.16,1,.3,1) both;}
+.hero-sub strong{color:rgba(240,240,244,.88);font-weight:600;}
 .hero-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;animation:fadeUp .7s .21s cubic-bezier(.16,1,.3,1) both;}
 .btn-primary{padding:15px 42px;background:var(--ag);border:none;border-radius:50px;color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 6px 36px rgba(232,108,42,.42),inset 0 1px 0 rgba(255,255,255,.1);transition:all .3s cubic-bezier(.16,1,.3,1);}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 50px rgba(232,108,42,.58);}
 .btn-secondary{padding:15px 42px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:50px;color:var(--t2);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;backdrop-filter:blur(8px);transition:all .3s;}
 .btn-secondary:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.17);color:var(--t);}
-
 .stats-strip{display:flex;align-items:center;justify-content:center;margin-top:72px;animation:fadeUp .7s .32s cubic-bezier(.16,1,.3,1) both;}
-.stat-item{text-align:center;padding:0 40px;}
-.stat-item+.stat-item{border-left:1px solid var(--bd);}
+.stat-item{text-align:center;padding:0 36px;}.stat-item+.stat-item{border-left:1px solid var(--bd);}
 .stat-num{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:1px;line-height:1;background:linear-gradient(135deg,var(--a2),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .stat-label{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-top:5px;}
-.scroll-hint{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:60px;animation:fadeUp .7s .42s cubic-bezier(.16,1,.3,1) both;}
+.scroll-hint{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:60px;animation:fadeUp .7s .42s cubic-bezier(.16,1,.3,1) both;cursor:pointer;}
 .scroll-hint span{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:2px;}
 .scroll-line{width:1px;height:36px;background:linear-gradient(180deg,var(--t3),transparent);animation:grow 2s ease-in-out infinite;}
 @keyframes grow{0%,100%{transform:scaleY(.5);opacity:.3;}50%{transform:scaleY(1);opacity:1;}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
-
 section{position:relative;z-index:1;}
 .section-inner{max-width:1200px;margin:0 auto;padding:0 24px;}
 .sec-tag{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--a);letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:14px;}
 .sec-tag::before{content:'';width:20px;height:1px;background:var(--a);}
 .sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,6vw,68px);letter-spacing:1px;line-height:.9;margin-bottom:16px;}
 .sec-sub{font-size:15px;color:var(--t2);line-height:1.75;max-width:520px;}
-
-.features-section{padding:130px 0 100px;}
-.features-intro{margin-bottom:70px;}
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:auto auto;gap:12px;}
+.quiz-wrap{padding:70px 24px 0;position:relative;z-index:1;}
+.quiz-card{max-width:700px;margin:0 auto;background:rgba(232,108,42,0.04);border:1px solid rgba(232,108,42,0.15);border-radius:20px;padding:40px;position:relative;overflow:hidden;}
+.quiz-card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,108,42,.5),transparent);}
+.quiz-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
+.quiz-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,40px);letter-spacing:1px;margin-bottom:8px;line-height:.95;}
+.quiz-sub{font-size:13px;color:var(--t2);margin-bottom:26px;line-height:1.6;}
+.quiz-prog{display:flex;gap:5px;margin-bottom:22px;}
+.quiz-prog-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.1);transition:background .3s;}
+.quiz-prog-dot.done{background:var(--a);}
+.quiz-q{display:none;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both;}.quiz-q.active{display:block;}
+.quiz-q-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{padding:12px 18px;border-radius:10px;border:1px solid var(--bd);background:rgba(255,255,255,.03);color:var(--t2);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;text-align:left;letter-spacing:.5px;}
+.quiz-opt:hover{border-color:rgba(232,108,42,.4);color:var(--t);background:rgba(232,108,42,.05);}
+.quiz-result{display:none;animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both;}.quiz-result.show{display:block;}
+.quiz-arch{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;color:var(--a);margin-bottom:10px;}
+.quiz-arch-desc{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:24px;}
+.calc-wrap{padding:40px 24px 0;position:relative;z-index:1;}
+.calc-card{max-width:700px;margin:0 auto;background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:36px;position:relative;overflow:hidden;}
+.calc-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,77,77,.4),transparent);}
+.calc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--r);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.calc-eyebrow::before{content:'';width:18px;height:1px;background:var(--r);}
+.calc-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,3.5vw,36px);letter-spacing:1px;margin-bottom:6px;}
+.calc-sub{font-size:13px;color:var(--t2);margin-bottom:24px;}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.calc-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+.calc-field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;transition:all .2s;}
+.calc-field input:focus{border-color:var(--a);background:rgba(232,108,42,.04);}
+.calc-result{background:rgba(255,77,77,.05);border:1px solid rgba(255,77,77,.15);border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.calc-loss{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--r);letter-spacing:1px;line-height:1;}
+.calc-loss-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,77,77,.6);letter-spacing:1.5px;margin-top:3px;}
+.calc-note{font-size:13px;color:var(--t2);line-height:1.7;max-width:280px;}
+.features-section{padding:100px 0;}
+.features-intro{margin-bottom:60px;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
 .feat-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--card-r);padding:28px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.16,1,.3,1),border-color .3s;}
 .feat-card:hover{transform:translateY(-3px);border-color:rgba(232,108,42,.2);}
 .feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,108,42,.22),transparent);}
-.feat-card.wide{grid-column:span 2;}
-.feat-card.tall{grid-row:span 2;}
+.feat-card.wide{grid-column:span 2;}.feat-card.tall{grid-row:span 2;}
 .feat-icon{width:38px;height:38px;border-radius:10px;background:rgba(232,108,42,.1);border:1px solid rgba(232,108,42,.18);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:18px;}
-.feat-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:9px;letter-spacing:.2px;}
+.feat-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:9px;}
 .feat-desc{font-size:13.5px;color:var(--t2);line-height:1.7;}
-.feat-tag{display:inline-flex;align-items:center;gap:5px;margin-top:14px;padding:4px 10px;border-radius:20px;background:rgba(232,108,42,.07);border:1px solid rgba(232,108,42,.15);font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,160,90,.8);letter-spacing:1px;text-transform:uppercase;}
+.feat-result{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:5px 12px;border-radius:20px;background:rgba(52,208,88,.06);border:1px solid rgba(52,208,88,.15);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(90,220,110,.85);letter-spacing:1px;}
 .feat-mock{margin-top:20px;border-radius:10px;overflow:hidden;background:#070a0f;border:1px solid rgba(255,255,255,.07);}
 .mock-topbar{height:32px;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;padding:0 10px;gap:5px;}
-.mock-dot{width:7px;height:7px;border-radius:50%;}
-.mock-content{padding:14px;}
+.mock-dot{width:7px;height:7px;border-radius:50%;}.mock-content{padding:14px;}
 .mock-form-row{display:flex;gap:6px;margin-bottom:6px;}
 .mock-inp{flex:1;height:22px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;padding:0 8px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);}
 .mock-inp.active{border-color:rgba(232,108,42,.4);color:rgba(255,160,90,.9);}
@@ -95,56 +118,49 @@ section{position:relative;z-index:1;}
 .mock-em-btn.sel{background:rgba(232,108,42,.1);border-color:rgba(232,108,42,.3);color:var(--a);}
 .mock-coach-card{border-radius:8px;padding:10px 12px;margin-bottom:6px;position:relative;overflow:hidden;}
 .mock-coach-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
-.mock-coach-card.warn{background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.18);}
-.mock-coach-card.warn::before{background:linear-gradient(90deg,transparent,rgba(245,166,35,.4),transparent);}
-.mock-coach-card.crit{background:rgba(255,69,58,.04);border:1px solid rgba(255,69,58,.22);}
-.mock-coach-card.crit::before{background:linear-gradient(90deg,transparent,rgba(255,69,58,.4),transparent);}
-.mock-coach-card.good{background:rgba(52,208,88,.03);border:1px solid rgba(52,208,88,.18);}
-.mock-coach-card.good::before{background:linear-gradient(90deg,transparent,rgba(52,208,88,.4),transparent);}
+.mock-coach-card.warn{background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.18);}.mock-coach-card.warn::before{background:linear-gradient(90deg,transparent,rgba(245,166,35,.4),transparent);}
+.mock-coach-card.crit{background:rgba(255,69,58,.04);border:1px solid rgba(255,69,58,.22);}.mock-coach-card.crit::before{background:linear-gradient(90deg,transparent,rgba(255,69,58,.4),transparent);}
+.mock-coach-card.good{background:rgba(52,208,88,.03);border:1px solid rgba(52,208,88,.18);}.mock-coach-card.good::before{background:linear-gradient(90deg,transparent,rgba(52,208,88,.4),transparent);}
 .mock-coach-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
 .mock-coach-title{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:500;}
 .mock-coach-badge{margin-left:auto;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.5px;}
-.warn .mock-coach-badge{background:rgba(245,166,35,.12);color:#f5a623;}
-.crit .mock-coach-badge{background:rgba(255,69,58,.12);color:#ff453a;}
-.good .mock-coach-badge{background:rgba(52,208,88,.12);color:var(--g);}
+.warn .mock-coach-badge{background:rgba(245,166,35,.12);color:#f5a623;}.crit .mock-coach-badge{background:rgba(255,69,58,.12);color:#ff453a;}.good .mock-coach-badge{background:rgba(52,208,88,.12);color:var(--g);}
 .mock-coach-text{font-size:9px;color:var(--t3);line-height:1.5;}
-.mock-hm{display:flex;gap:3px;margin-top:8px;}
-.mock-hm-col{display:flex;flex-direction:column;gap:3px;}
-.mock-hm-cell{width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,.04);}
-.mock-hm-cell.g1{background:rgba(52,208,88,.2);}
-.mock-hm-cell.g2{background:rgba(52,208,88,.45);}
-.mock-hm-cell.g3{background:rgba(52,208,88,.8);}
-.mock-hm-cell.r1{background:rgba(255,77,77,.3);}
-.mock-msg{border-radius:8px;padding:7px 10px;margin-bottom:6px;font-size:9px;line-height:1.5;}
-.mock-msg.ai{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:var(--t2);max-width:90%;}
-.mock-msg.user{background:rgba(232,108,42,.1);border:1px solid rgba(232,108,42,.2);color:rgba(255,160,90,.9);max-width:80%;margin-left:auto;}
-.mock-chat-input{margin-top:8px;height:28px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;padding:0 10px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);}
 .mock-verdict{border-radius:8px;padding:12px;background:rgba(52,208,88,.05);border:1px solid rgba(52,208,88,.2);display:flex;align-items:center;gap:8px;margin-top:8px;}
-.mock-verdict-icon{font-size:20px;}
 .mock-verdict-text{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);}
-
 .showcase-section{padding:80px 0 130px;}
 .showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:60px;}
 .show-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--card-r);overflow:hidden;transition:transform .3s cubic-bezier(.16,1,.3,1),border-color .3s;}
-.show-card:hover{transform:translateY(-3px);border-color:rgba(232,108,42,.18);}
-.show-card.wide{grid-column:span 2;}
+.show-card:hover{transform:translateY(-3px);border-color:rgba(232,108,42,.18);}.show-card.wide{grid-column:span 2;}
 .show-card-header{padding:18px 22px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
-.show-card-icon{font-size:16px;}
-.show-card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.2px;}
-.show-card-desc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:.5px;margin-left:auto;}
+.show-card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.show-card-desc{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-left:auto;}
 .show-card-body{padding:18px 22px;}
-
+.mock-hm{display:flex;gap:3px;margin-top:8px;}.mock-hm-col{display:flex;flex-direction:column;gap:3px;}
+.mock-hm-cell{width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,.04);}
+.mock-hm-cell.g1{background:rgba(52,208,88,.2);}.mock-hm-cell.g2{background:rgba(52,208,88,.45);}.mock-hm-cell.g3{background:rgba(52,208,88,.8);}.mock-hm-cell.r1{background:rgba(255,77,77,.3);}
+.mock-msg{border-radius:8px;padding:7px 10px;margin-bottom:6px;font-size:9px;line-height:1.5;}
+.mock-msg.ai{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:var(--t2);}
+.mock-msg.user{background:rgba(232,108,42,.1);border:1px solid rgba(232,108,42,.2);color:rgba(255,160,90,.9);margin-left:auto;max-width:80%;}
+.mock-chat-input{margin-top:8px;height:28px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;padding:0 10px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);}
 .levels-section{padding:80px 0 120px;border-top:1px solid var(--bd);}
 .levels-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:60px;align-items:center;margin-top:60px;}
 .levels-list{display:flex;flex-direction:column;gap:10px;}
 .level-item{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--bd);transition:all .25s;}
 .level-item:hover{border-color:rgba(232,108,42,.2);background:rgba(232,108,42,.03);}
 .level-badge{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.level-info{flex:1;}
-.level-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px;}
-.level-req{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:.5px;}
-.level-pct{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.5px;}
-
+.level-info{flex:1;}.level-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px;}.level-req{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);}
+.level-pct{font-family:'Bebas Neue',sans-serif;font-size:22px;}
+.reviews-section{padding:80px 0 100px;border-top:1px solid var(--bd);}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:50px;}
+.review-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--card-r);padding:24px;transition:all .3s;}
+.review-card:hover{border-color:rgba(232,108,42,.2);transform:translateY(-2px);}
+.review-stars{display:flex;gap:2px;margin-bottom:14px;}.review-stars span{color:var(--a);font-size:13px;}
+.review-text{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:18px;font-style:italic;}
+.review-author{display:flex;align-items:center;gap:10px;}
+.review-ava{width:30px;height:30px;border-radius:50%;background:rgba(232,108,42,.12);border:1px solid rgba(232,108,42,.25);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a);flex-shrink:0;}
+.review-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;}.review-role{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-top:2px;}
+.review-stat{margin-top:12px;padding:8px 12px;border-radius:8px;background:rgba(52,208,88,.05);border:1px solid rgba(52,208,88,.15);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);}
 .pricing-section{padding:80px 0 120px;border-top:1px solid var(--bd);}
 .pricing-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:700px;margin:60px auto 0;}
 .price-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--card-r);padding:32px 28px;position:relative;overflow:hidden;transition:transform .3s;}
@@ -158,44 +174,60 @@ section{position:relative;z-index:1;}
 .price-features li{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;color:var(--t2);}
 .price-features li::before{content:'✓';color:var(--g);font-size:11px;flex-shrink:0;}
 .price-btn{width:100%;padding:13px;border-radius:50px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:block;text-align:center;transition:all .25s;}
-.price-btn.primary{background:var(--ag);color:#fff;border:none;box-shadow:0 4px 28px rgba(232,108,42,.4);}
-.price-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 36px rgba(232,108,42,.55);}
-.price-btn.outline-btn{background:transparent;color:var(--t2);border:1px solid var(--bd2);}
-.price-btn.outline-btn:hover{border-color:rgba(255,255,255,.2);color:var(--t);}
-.price-usdt{text-align:center;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1px;}
-
+.price-btn.primary{background:var(--ag);color:#fff;border:none;box-shadow:0 4px 28px rgba(232,108,42,.4);}.price-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 36px rgba(232,108,42,.55);}
+.price-btn.outline-btn{background:transparent;color:var(--t2);border:1px solid var(--bd2);}.price-btn.outline-btn:hover{border-color:rgba(255,255,255,.2);color:var(--t);}
+.spots-row{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,166,35,.8);}
+.spots-dot{width:5px;height:5px;border-radius:50%;background:#f5a623;animation:blink 2s ease infinite;flex-shrink:0;}
+.changelog-wrap{padding:0 24px 80px;position:relative;z-index:1;}
+.changelog-inner{max-width:700px;margin:0 auto;}
+.cl-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.cl-tag::before{content:'';width:18px;height:1px;background:var(--g);}
+.cl-list{display:flex;flex-direction:column;gap:8px;}
+.cl-item{display:flex;align-items:center;gap:14px;padding:10px 16px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--bd);}
+.cl-date{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);min-width:72px;}
+.cl-dot{width:5px;height:5px;border-radius:50%;background:var(--g);flex-shrink:0;}
+.cl-text{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);}
+.cta-section{padding:0 24px 120px;text-align:center;}
+.cta-card{max-width:680px;margin:0 auto;background:rgba(232,108,42,.04);border:1px solid rgba(232,108,42,.17);border-radius:28px;padding:64px 48px;position:relative;overflow:hidden;}
+.cta-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,108,42,.09),transparent 55%);pointer-events:none;}
+.cta-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,68px);letter-spacing:2px;line-height:.9;margin-bottom:18px;}
+.cta-title span{color:var(--a);}
+.cta-desc{font-size:15px;color:var(--t2);line-height:1.75;margin-bottom:36px;max-width:400px;margin-left:auto;margin-right:auto;}
 footer{border-top:1px solid var(--bd);padding:36px 24px;}
 .footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
 .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:5px;color:rgba(240,240,244,.3);text-decoration:none;}
 .footer-copy{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(240,240,244,.2);letter-spacing:1px;}
-.footer-links{display:flex;gap:20px;}
-.footer-links a{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(240,240,244,.25);letter-spacing:1px;text-decoration:none;transition:color .2s;}
-.footer-links a:hover{color:rgba(240,240,244,.6);}
-
+.footer-links{display:flex;gap:20px;}.footer-links a{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(240,240,244,.25);letter-spacing:1px;text-decoration:none;transition:color .2s;}.footer-links a:hover{color:rgba(240,240,244,.6);}
 @media(max-width:768px){
-  nav{padding:0 16px;}
-  .nav-links{display:none;}
-  .features-grid{grid-template-columns:1fr;}
-  .feat-card.wide,.feat-card.tall{grid-column:span 1;grid-row:span 1;}
-  .showcase-grid,.show-card.wide{grid-template-columns:1fr;grid-column:span 1;}
+  nav{padding:0 16px;}.nav-links{display:none;}
+  .features-grid{grid-template-columns:1fr;}.feat-card.wide,.feat-card.tall{grid-column:span 1;grid-row:span 1;}
+  .showcase-grid{grid-template-columns:1fr;}.show-card.wide{grid-column:span 1;}
   .levels-layout,.pricing-cards{grid-template-columns:1fr;max-width:100%;}
-  .stats-strip{flex-wrap:wrap;}
-  .stat-item{padding:16px 24px;}
-  .footer-inner{flex-direction:column;text-align:center;}
-  .footer-links{justify-content:center;}
+  .stats-strip{flex-wrap:wrap;}.stat-item{padding:16px 24px;}
+  .footer-inner{flex-direction:column;text-align:center;}.footer-links{justify-content:center;}
+  .reviews-grid{grid-template-columns:1fr;}
+  .calc-grid{grid-template-columns:1fr;}
+  .cta-card{padding:44px 24px;}
+  .quiz-card{padding:28px 20px;}
 }
+
 </style>
 </head>
 <body>
 
-<nav>
+<div class="live-popup" id="live-popup">
+  <div class="live-dot"></div>
+  <div class="live-text" id="live-text">Алексей только что обнаружил: теряет $340 каждую пятницу после 17:00</div>
+</div>
+
+<nav id="main-nav">
   <a href="index.html" class="nav-logo">ORBITUM</a>
   <div class="nav-links">
     <a href="#features">Возможности</a>
     <a href="#showcase">Аналитика</a>
     <a href="#pricing">Цены</a>
   </div>
-  <div class="nav-cta-row">
+  <div class="nav-cta-row" id="nav-auth">
     <a href="login.html" class="nav-btn outline">Войти</a>
     <a href="pay.html" class="nav-btn fill">Начать →</a>
   </div>
@@ -203,170 +235,161 @@ footer{border-top:1px solid var(--bd);padding:36px 24px;}
 
 <section class="hero">
   <div class="hero-bg"></div>
-
-  <div class="hero-badge">
-    <div class="badge-dot"></div>
-    Торговый журнал нового поколения
-  </div>
-
+  <div class="hero-badge"><div class="badge-dot"></div>Торговый журнал · AI-аналитика</div>
+  <div class="urgency-strip">⚡ LIFETIME ДОСТУП — ОСТАЛОСЬ МЕСТ: <span class="urgency-count" id="spots-hero">23</span></div>
   <h1 class="hero-h1">
-    <span class="h1-dim">ТОТ КТО</span><br>
-    <span class="h1-main">СЧИТАЕТ</span><br>
-    <span class="h1-dim">РАСТЁТ</span>
+    <span class="h1-dim">ТЫ ЗНАЕШЬ</span><br>
+    <span class="h1-main">ЧТО СЛИВ</span><br>
+    <span class="h1-dim">НЕ СЛУЧАЕН</span>
   </h1>
-
   <p class="hero-sub">
-    AI-анализ каждой сделки. Психологический профиль трейдера.
-    Умная аналитика паттернов. <strong>Найди что тебя сливает — и устрани это.</strong>
+    <strong>9 из 10 убытков объяснимы психологически.</strong> ORBITUM находит твои паттерны — в какое время теряешь, в каком состоянии входишь в убыточные сделки. Найди их — и устрани навсегда.
   </p>
-
   <div class="hero-btns">
-    <a href="pay.html" class="btn-primary">Начать бесплатно</a>
-    <a href="#features" class="btn-secondary">Смотреть возможности</a>
+    <a href="login.html" class="btn-primary" id="hero-cta">Начать прямо сейчас</a>
+    <a href="#features" class="btn-secondary">Как это работает</a>
   </div>
-
   <div class="stats-strip">
-    <div class="stat-item"><div class="stat-num">8+</div><div class="stat-label">Модулей анализа</div></div>
+    <div class="stat-item"><div class="stat-num">847</div><div class="stat-label">Трейдеров сегодня</div></div>
+    <div class="stat-item"><div class="stat-num">+31%</div><div class="stat-label">Рост WR за 60 дней</div></div>
+    <div class="stat-item"><div class="stat-num">–67%</div><div class="stat-label">Импульсных входов</div></div>
     <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Coach & Checker</div></div>
-    <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">Уровней роста</div></div>
-    <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">Сделок навсегда</div></div>
   </div>
-
-  <div class="scroll-hint">
-    <span>ЛИСТАЙ ВНИЗ</span>
+  <div class="scroll-hint" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">
+    <span>СМОТРЕТЬ ВОЗМОЖНОСТИ</span>
     <div class="scroll-line"></div>
   </div>
 </section>
+
+<div class="quiz-wrap">
+  <div class="section-inner">
+    <div class="quiz-card">
+      <div class="quiz-eyebrow">🧠 Узнай себя за 1 минуту</div>
+      <div class="quiz-h">КАКОЙ ТЫ ТРЕЙДЕР?</div>
+      <p class="quiz-sub">3 вопроса — узнаешь свой архетип и главную причину убытков</p>
+      <div class="quiz-prog" id="quiz-prog">
+        <div class="quiz-prog-dot" id="qd0"></div>
+        <div class="quiz-prog-dot" id="qd1"></div>
+        <div class="quiz-prog-dot" id="qd2"></div>
+      </div>
+      <div class="quiz-q active" id="qq0">
+        <div class="quiz-q-text">Ты входишь в сделку когда рынок уже пошёл без тебя?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="quizAns(0,'fomo')">Да, не хочу пропускать движение</button>
+          <button class="quiz-opt" onclick="quizAns(0,'sniper')">Нет, жду только свои точки</button>
+        </div>
+      </div>
+      <div class="quiz-q" id="qq1">
+        <div class="quiz-q-text">Нарушаешь торговый план прямо в сделке?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="quizAns(1,'impulsive')">Да — двигаю стоп или закрываю не по плану</button>
+          <button class="quiz-opt" onclick="quizAns(1,'disciplined')">Нет, план есть план</button>
+        </div>
+      </div>
+      <div class="quiz-q" id="qq2">
+        <div class="quiz-q-text">После серии убытков торгуешь агрессивнее чтобы отыграться?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="quizAns(2,'revenge')">Да, увеличиваю объёмы</button>
+          <button class="quiz-opt" onclick="quizAns(2,'calm')">Нет, делаю паузу</button>
+        </div>
+      </div>
+      <div class="quiz-result" id="quiz-result">
+        <div class="quiz-arch" id="quiz-arch-name">FOMO-ОХОТНИК</div>
+        <p class="quiz-arch-desc" id="quiz-arch-desc">Входишь на эмоциях, догоняешь рынок.</p>
+        <a href="login.html" class="btn-primary">Создать журнал и исправить это →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="calc-wrap">
+  <div class="section-inner">
+    <div class="calc-card">
+      <div class="calc-eyebrow">Калькулятор потерь</div>
+      <div class="calc-h">СКОЛЬКО ТЕРЯЕШЬ БЕЗ ЖУРНАЛА?</div>
+      <p class="calc-sub">Повторяющиеся ошибки незаметны пока их не видишь. Введи свои данные:</p>
+      <div class="calc-grid">
+        <div class="calc-field"><label>Сделок в месяц</label><input type="number" id="c-trades" value="40" oninput="calcLoss()"></div>
+        <div class="calc-field"><label>% убыточных</label><input type="number" id="c-wr" value="45" min="1" max="99" oninput="calcLoss()"></div>
+        <div class="calc-field"><label>Средний убыток $</label><input type="number" id="c-avg" value="50" oninput="calcLoss()"></div>
+        <div class="calc-field"><label>% эмоциональных</label><input type="number" id="c-emo" value="30" min="0" max="100" oninput="calcLoss()"></div>
+      </div>
+      <div class="calc-result">
+        <div>
+          <div class="calc-loss" id="c-loss">$270</div>
+          <div class="calc-loss-lbl">ТЕРЯЕШЬ НА ЭМОЦИЯХ / МЕС</div>
+        </div>
+        <div class="calc-note">Журнал + AI-чекер сокращают импульсные входы на <strong style="color:var(--g)">67%</strong>. Это <span id="c-saved" style="color:var(--g);font-weight:700">$181</span>/мес экономии. Стоимость ORBITUM — <strong style="color:var(--a)">$29/мес</strong>.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <section class="features-section" id="features">
   <div class="section-inner">
     <div class="features-intro">
       <div class="sec-tag">Возможности</div>
-      <h2 class="sec-title">ВСЁ ЧТО<br>НУЖНО</h2>
-      <p class="sec-sub">Каждый инструмент создан чтобы сделать тебя лучшим трейдером — не просто записывать сделки, а реально расти.</p>
+      <h2 class="sec-title">ИНСТРУМЕНТЫ<br><span style="color:var(--a)">КОТОРЫЕ РАСТЯТ</span></h2>
+      <p class="sec-sub">Каждая функция создана под одну задачу — находить и устранять то, что мешает зарабатывать.</p>
     </div>
-
     <div class="features-grid">
-
       <div class="feat-card wide">
         <div class="feat-icon">📋</div>
-        <div class="feat-title">Журнал фьючерсных сделок</div>
-        <div class="feat-desc">Полный ввод под фьючерсную торговлю — депозит, плечо, % риска, вход/стоп/выход. R:R, риск $, цель $ и размер позиции считаются автоматически.</div>
-        <div class="feat-tag">AUTO R:R · РИСК % · РАЗМЕР ПОЗИЦИИ</div>
+        <div class="feat-title">Журнал фьючерсных сделок — 30 секунд на запись</div>
+        <div class="feat-desc">Депозит, плечо, % риска, вход/стоп/выход. R:R, риск $, цель $ и размер позиции считаются автоматически. Импорт из Bybit одним кликом.</div>
+        <div class="feat-result">↑ Больше времени на торговлю, меньше на учёт</div>
         <div class="feat-mock">
-          <div class="mock-topbar">
-            <div class="mock-dot" style="background:#ff5f57"></div>
-            <div class="mock-dot" style="background:#febc2e"></div>
-            <div class="mock-dot" style="background:#28c840"></div>
-          </div>
+          <div class="mock-topbar"><div class="mock-dot" style="background:#ff5f57"></div><div class="mock-dot" style="background:#febc2e"></div><div class="mock-dot" style="background:#28c840"></div></div>
           <div class="mock-content">
-            <div class="mock-form-row">
-              <div class="mock-inp active">BTC/USDT</div>
-              <div class="mock-long-btn">LONG</div>
-              <div class="mock-short-btn">SHORT</div>
-              <div class="mock-inp" style="border-color:rgba(52,208,88,.3);color:var(--g);">✓ Прибыль</div>
-            </div>
-            <div class="mock-form-row">
-              <div class="mock-inp">Депозит: 1000</div>
-              <div class="mock-inp active">Плечо: 10×</div>
-              <div class="mock-inp" style="border-color:rgba(232,108,42,.3);color:var(--a);">Риск: 1%</div>
-              <div class="mock-inp">P&L%: авто</div>
-            </div>
-            <div class="mock-form-row">
-              <div class="mock-inp">Вход: 42000</div>
-              <div class="mock-inp">Стоп: 41500</div>
-              <div class="mock-inp">Выход: 43000</div>
-              <div class="mock-inp">P&L $: авто</div>
-            </div>
-            <div class="mock-rr-bar">
-              <div class="mock-rr-pill">R:R</div>
-              <div class="mock-rr-pill" style="border-color:rgba(52,208,88,.3);color:var(--g);">1 : 2.00</div>
-              <div class="mock-rr-pill" style="border-color:rgba(255,77,77,.3);color:var(--r);">РИСК $10</div>
-              <div class="mock-rr-pill" style="border-color:rgba(232,108,42,.3);color:var(--a);">ЦЕЛЬ $20</div>
-              <div class="mock-rr-pill" style="border-color:rgba(100,140,255,.3);color:#7090ff;">ПОЗ $10K</div>
-            </div>
+            <div class="mock-form-row"><div class="mock-inp active">BTC/USDT</div><div class="mock-long-btn">LONG</div><div class="mock-short-btn">SHORT</div><div class="mock-inp" style="border-color:rgba(52,208,88,.3);color:var(--g);">✓ Прибыль</div></div>
+            <div class="mock-form-row"><div class="mock-inp">Депозит: 1000</div><div class="mock-inp active">Плечо: 10×</div><div class="mock-inp" style="border-color:rgba(232,108,42,.3);color:var(--a);">Риск: 1%</div><div class="mock-inp">P&L%: авто</div></div>
+            <div class="mock-form-row"><div class="mock-inp">Вход: 42000</div><div class="mock-inp">Стоп: 41500</div><div class="mock-inp">Выход: 43000</div><div class="mock-inp">P&L $: авто</div></div>
+            <div class="mock-rr-bar"><div class="mock-rr-pill">R:R</div><div class="mock-rr-pill" style="border-color:rgba(52,208,88,.3);color:var(--g);">1:2.00</div><div class="mock-rr-pill" style="border-color:rgba(255,77,77,.3);color:var(--r);">РИСК $10</div><div class="mock-rr-pill" style="border-color:rgba(232,108,42,.3);color:var(--a);">ЦЕЛЬ $20</div><div class="mock-rr-pill" style="border-color:rgba(100,140,255,.3);color:#7090ff;">ПОЗ $10K</div></div>
           </div>
         </div>
       </div>
-
       <div class="feat-card tall">
         <div class="feat-icon">🧠</div>
-        <div class="feat-title">AI Coach</div>
-        <div class="feat-desc">Персональный разбор последних сделок. Три уровня критичности. Конкретные действия, а не общие советы.</div>
-        <div class="feat-tag">🔒 ОСОБЫЙ ДОСТУП</div>
+        <div class="feat-title">AI Coach — персональный разбор</div>
+        <div class="feat-desc">Анализирует последние 20 сделок. 3 уровня приоритетов: критично / важно / хорошо. Конкретные действия, а не "торгуй лучше".</div>
+        <div class="feat-result">↑ WR растёт на 23% в первый месяц</div>
         <div class="feat-mock" style="margin-top:18px;">
-          <div class="mock-topbar">
-            <div class="mock-dot" style="background:#ff5f57"></div>
-            <div class="mock-dot" style="background:#febc2e"></div>
-            <div class="mock-dot" style="background:#28c840"></div>
-          </div>
+          <div class="mock-topbar"><div class="mock-dot" style="background:#ff5f57"></div><div class="mock-dot" style="background:#febc2e"></div><div class="mock-dot" style="background:#28c840"></div></div>
           <div class="mock-content">
-            <div class="mock-coach-card crit">
-              <div class="mock-coach-head">
-                <span>🚨</span>
-                <span class="mock-coach-title" style="color:#ff6b60;">Сделки без стопа</span>
-                <div class="mock-coach-badge">КРИТИЧНО</div>
-              </div>
-              <div class="mock-coach-text">Немедленно устрани — критически повышает риск потерь</div>
-            </div>
-            <div class="mock-coach-card warn">
-              <div class="mock-coach-head">
-                <span>⚠️</span>
-                <span class="mock-coach-title" style="color:#ffc947;">Низкий WR</span>
-                <div class="mock-coach-badge">ВАЖНО</div>
-              </div>
-              <div class="mock-coach-text">Улучши анализ входов — увеличь WR выше 50%</div>
-            </div>
-            <div class="mock-coach-card good">
-              <div class="mock-coach-head">
-                <span>👍</span>
-                <span class="mock-coach-title" style="color:#5dda7e;">Высокий P&L</span>
-                <div class="mock-coach-badge">ПОЗИТИВ</div>
-              </div>
-              <div class="mock-coach-text">Продолжай поддерживать высокий уровень прибыли</div>
-            </div>
+            <div class="mock-coach-card crit"><div class="mock-coach-head"><span>🚨</span><span class="mock-coach-title" style="color:#ff6b60;">Сделки без стопа</span><div class="mock-coach-badge">КРИТИЧНО</div></div><div class="mock-coach-text">3 сделки без стопа — немедленно устрани</div></div>
+            <div class="mock-coach-card warn"><div class="mock-coach-head"><span>⚠️</span><span class="mock-coach-title" style="color:#ffc947;">FOMO по пятницам</span><div class="mock-coach-badge">ВАЖНО</div></div><div class="mock-coach-text">17-19ч пятница: 4 убытка из 4</div></div>
+            <div class="mock-coach-card good"><div class="mock-coach-head"><span>👍</span><span class="mock-coach-title" style="color:#5dda7e;">FVG сетапы</span><div class="mock-coach-badge">СИЛА</div></div><div class="mock-coach-text">5/5 прибыльных — твоя суперсила</div></div>
           </div>
         </div>
       </div>
-
       <div class="feat-card">
         <div class="feat-icon">💡</div>
-        <div class="feat-title">Психология сделки</div>
-        <div class="feat-desc">Фиксируй уверенность, страх/жадность и фокус для каждой сделки. Видь паттерн — когда ты сливаешь из-за эмоций.</div>
-        <div class="feat-mock" style="margin-top:16px;">
-          <div class="mock-content" style="padding:10px;">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1.5px;margin-bottom:6px;">УВЕРЕННОСТЬ</div>
-            <div class="mock-em-row"><div class="mock-em-btn">Низкая</div><div class="mock-em-btn sel">Норм</div><div class="mock-em-btn">Высокая</div></div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1.5px;margin:8px 0 6px;">СТРАХ / ЖАДНОСТЬ</div>
-            <div class="mock-em-row"><div class="mock-em-btn">Страх</div><div class="mock-em-btn sel">Спокой</div><div class="mock-em-btn">Жадность</div></div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1.5px;margin:8px 0 6px;">ФОКУС</div>
-            <div class="mock-em-row"><div class="mock-em-btn">Рассеян</div><div class="mock-em-btn">Сфокус</div><div class="mock-em-btn sel" style="background:rgba(52,208,88,.1);border-color:rgba(52,208,88,.3);color:var(--g);">В потоке</div></div>
-          </div>
-        </div>
+        <div class="feat-title">Психологический журнал</div>
+        <div class="feat-desc">Фиксируй уверенность, страх/жадность и фокус за секунды. Система сама находит — в каком состоянии ты обычно сливаешь.</div>
+        <div class="feat-result">↑ Видишь связь эмоций и убытков</div>
+        <div class="feat-mock" style="margin-top:16px;"><div class="mock-content" style="padding:10px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1.5px;margin-bottom:6px;">УВЕРЕННОСТЬ</div>
+          <div class="mock-em-row"><div class="mock-em-btn">Низкая</div><div class="mock-em-btn sel">Норм</div><div class="mock-em-btn">Высокая</div></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1.5px;margin:8px 0 6px;">СТРАХ / ЖАДНОСТЬ</div>
+          <div class="mock-em-row"><div class="mock-em-btn">Страх</div><div class="mock-em-btn sel">Спокой</div><div class="mock-em-btn">Жадность</div></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1.5px;margin:8px 0 6px;">ФОКУС</div>
+          <div class="mock-em-row"><div class="mock-em-btn">Рассеян</div><div class="mock-em-btn">Сфокус</div><div class="mock-em-btn sel" style="background:rgba(52,208,88,.1);border-color:rgba(52,208,88,.3);color:var(--g);">В потоке</div></div>
+        </div></div>
       </div>
-
       <div class="feat-card">
         <div class="feat-icon">🛡️</div>
         <div class="feat-title">AI Чекер сетапа</div>
-        <div class="feat-desc">Перед входом — проверь сетап через AI. 5 вопросов по SMC/ICT методологии. Вердикт: GO / WAIT / STOP.</div>
-        <div class="feat-mock" style="margin-top:16px;">
-          <div class="mock-content" style="padding:10px;">
-            <div style="display:flex;flex-direction:column;gap:4px;">
-              <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;background:rgba(52,208,88,.06);border:1px solid rgba(52,208,88,.15);"><span style="color:var(--g);font-size:9px;">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);">Структура рынка подтверждена</span></div>
-              <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;background:rgba(52,208,88,.06);border:1px solid rgba(52,208,88,.15);"><span style="color:var(--g);font-size:9px;">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);">Ликвидность собрана</span></div>
-              <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);"><span style="color:#ffa520;font-size:9px;">?</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);">Confluences на HTF?</span></div>
-            </div>
-            <div class="mock-verdict">
-              <div class="mock-verdict-icon">✅</div>
-              <div>
-                <div class="mock-verdict-text" style="font-size:10px;font-weight:600;">GO — ВХОДИ</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);margin-top:2px;">Сетап подтверждён по 4/5 критериям</div>
-              </div>
-            </div>
+        <div class="feat-desc">5 вопросов по SMC/ICT перед входом. Вердикт GO / WAIT / STOP. Останавливает импульсные входы до того, как ты нажал кнопку.</div>
+        <div class="feat-result">↑ Сокращает FOMO-входы на 60%</div>
+        <div class="feat-mock" style="margin-top:16px;"><div class="mock-content" style="padding:10px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;background:rgba(52,208,88,.06);border:1px solid rgba(52,208,88,.15);"><span style="color:var(--g);font-size:9px;">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);">Структура рынка подтверждена</span></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;background:rgba(52,208,88,.06);border:1px solid rgba(52,208,88,.15);"><span style="color:var(--g);font-size:9px;">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);">FVG на LTF совпадает</span></div>
+            <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);"><span style="color:#ffa520;font-size:9px;">?</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);">HTF confluences?</span></div>
           </div>
-        </div>
+          <div class="mock-verdict"><span style="font-size:18px;">✅</span><div><div class="mock-verdict-text" style="font-size:10px;font-weight:600;">GO — ВХОДИ</div><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);margin-top:2px;">4/5 критериев подтверждены</div></div></div>
+        </div></div>
       </div>
-
     </div>
   </div>
 </section>
@@ -374,99 +397,63 @@ footer{border-top:1px solid var(--bd);padding:36px 24px;}
 <section class="showcase-section" id="showcase">
   <div class="section-inner">
     <div class="sec-tag">Аналитика</div>
-    <h2 class="sec-title">ВИДИШЬ<br>БОЛЬШЕ</h2>
-    <p class="sec-sub">Кривая капитала, тепловая карта активности, статистика по парам, еженедельный дайджест и пре-маркет чеклист.</p>
-
+    <h2 class="sec-title">ВИДИШЬ<br><span style="color:var(--a)">БОЛЬШЕ</span></h2>
+    <p class="sec-sub">Кривая капитала, тепловая карта убытков, AI-советник и пре-маркет чеклист.</p>
     <div class="showcase-grid">
-
       <div class="show-card wide">
-        <div class="show-card-header">
-          <span class="show-card-icon">📈</span>
-          <span class="show-card-title">Кривая капитала</span>
-          <span class="show-card-desc">ПРОГРЕСС</span>
-        </div>
+        <div class="show-card-header"><span style="font-size:16px;">📈</span><span class="show-card-title">Кривая капитала</span><span class="show-card-desc">ПРОГРЕСС</span></div>
         <div class="show-card-body">
           <div style="height:100px;position:relative;border-radius:8px;overflow:hidden;background:#070a0f;border:1px solid rgba(255,255,255,.06);">
             <svg viewBox="0 0 800 100" preserveAspectRatio="none" style="width:100%;height:100%;position:absolute;">
               <defs><linearGradient id="grd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d058" stop-opacity=".25"/><stop offset="100%" stop-color="#34d058" stop-opacity="0"/></linearGradient></defs>
               <path d="M0,85 C100,78 150,62 220,50 C290,38 350,28 420,22 C490,16 560,18 630,15 C700,12 750,14 800,12" stroke="#34d058" stroke-width="2" fill="none"/>
               <path d="M0,85 C100,78 150,62 220,50 C290,38 350,28 420,22 C490,16 560,18 630,15 C700,12 750,14 800,12 L800,100 L0,100Z" fill="url(#grd)"/>
-              <circle cx="420" cy="22" r="4" fill="#ff8040"/><circle cx="630" cy="15" r="4" fill="#ff8040"/><circle cx="800" cy="12" r="5" fill="#34d058"/>
+              <circle cx="630" cy="15" r="4" fill="#ff8040"/><circle cx="800" cy="12" r="5" fill="#34d058"/>
             </svg>
             <div style="position:absolute;top:8px;right:12px;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--g);">+256.2%</div>
           </div>
           <div style="display:flex;gap:10px;margin-top:10px;">
-            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);letter-spacing:1px;margin-bottom:4px;">МАКС. ПРИБЫЛЬ</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--g);">+122.2%</div></div>
-            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);letter-spacing:1px;margin-bottom:4px;">RISK / REWARD</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a);">4.24</div></div>
-            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);letter-spacing:1px;margin-bottom:4px;">МАКС. ПРОСАДКА</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--r);">0%</div></div>
-            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);letter-spacing:1px;margin-bottom:4px;">ВСЕГО СДЕЛОК</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--t);">6</div></div>
+            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);margin-bottom:4px;">МАКС. ПРИБЫЛЬ</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--g);">+122.2%</div></div>
+            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);margin-bottom:4px;">RISK/REWARD</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a);">4.24</div></div>
+            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);margin-bottom:4px;">СЕРИЯ ПОБЕД</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a);">7🔥</div></div>
+            <div style="flex:1;padding:10px;border-radius:8px;background:#070a0f;border:1px solid rgba(255,255,255,.05);"><div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);margin-bottom:4px;">WINRATE</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--t);">63%</div></div>
           </div>
         </div>
       </div>
-
       <div class="show-card">
-        <div class="show-card-header">
-          <span class="show-card-icon">🤖</span>
-          <span class="show-card-title">AI Советник</span>
-          <span class="show-card-desc" style="display:flex;align-items:center;gap:5px;"><span style="font-size:10px;">🔒</span><span style="color:var(--a);">Особый доступ</span></span>
-        </div>
+        <div class="show-card-header"><span style="font-size:16px;">🤖</span><span class="show-card-title">AI Советник</span><span class="show-card-desc" style="color:var(--a);">🔒 Особый доступ</span></div>
         <div class="show-card-body">
-          <div class="mock-msg ai">Анализирую твои последние 10 сделок... WR 58%, avg R:R 2.1. Главная проблема — торговля в пятницу вечером.</div>
-          <div class="mock-msg user">Что делать с FOMO сделками?</div>
-          <div class="mock-msg ai">Введи правило: вход только при 3 confluences. FVG + структура + сессия. Это отфильтрует 80% FOMO входов.</div>
+          <div class="mock-msg ai">WR 63%, avg R:R 2.1. Главная проблема — торговля в пятницу после 17:00.</div>
+          <div class="mock-msg user">Что делать с FOMO?</div>
+          <div class="mock-msg ai">Вход только при 3 confluences: FVG + структура + сессия. Отфильтрует 80% FOMO.</div>
           <div class="mock-chat-input">Спроси что-нибудь... ›</div>
         </div>
       </div>
-
       <div class="show-card">
-        <div class="show-card-header">
-          <span class="show-card-icon">🔥</span>
-          <span class="show-card-title">Карта активности</span>
-          <span class="show-card-desc">АКТИВНОСТЬ</span>
-        </div>
+        <div class="show-card-header"><span style="font-size:16px;">🔥</span><span class="show-card-title">Тепловая карта убытков</span><span class="show-card-desc">ПО ВРЕМЕНИ</span></div>
         <div class="show-card-body">
           <div class="mock-hm">
-            <div class="mock-hm-col"><div class="mock-hm-cell"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell"></div></div>
             <div class="mock-hm-col"><div class="mock-hm-cell"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell r1"></div><div class="mock-hm-cell"></div></div>
             <div class="mock-hm-col"><div class="mock-hm-cell g1"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell r1"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell g3"></div><div class="mock-hm-cell g1"></div></div>
             <div class="mock-hm-col"><div class="mock-hm-cell g2"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell g3"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell r1"></div><div class="mock-hm-cell g1"></div></div>
             <div class="mock-hm-col"><div class="mock-hm-cell g3"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell g3"></div></div>
             <div class="mock-hm-col"><div class="mock-hm-cell"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell g3"></div><div class="mock-hm-cell r1"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell"></div></div>
-            <div class="mock-hm-col"><div class="mock-hm-cell g1"></div><div class="mock-hm-cell g3"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell r1"></div><div class="mock-hm-cell g3"></div></div>
-            <div class="mock-hm-col"><div class="mock-hm-cell"></div><div class="mock-hm-cell r1"></div><div class="mock-hm-cell g1"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell g3"></div><div class="mock-hm-cell g2"></div><div class="mock-hm-cell g1"></div></div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);">Меньше</span>
-            <div style="width:8px;height:8px;border-radius:2px;background:rgba(52,208,88,.2);"></div>
-            <div style="width:8px;height:8px;border-radius:2px;background:rgba(52,208,88,.5);"></div>
-            <div style="width:8px;height:8px;border-radius:2px;background:rgba(52,208,88,.85);"></div>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);">Больше</span>
-            <div style="width:8px;height:8px;border-radius:2px;background:rgba(255,77,77,.5);margin-left:8px;"></div>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--r);">Убыток</span>
-          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);">Меньше</span><div style="width:8px;height:8px;border-radius:2px;background:rgba(52,208,88,.2);"></div><div style="width:8px;height:8px;border-radius:2px;background:rgba(52,208,88,.5);"></div><div style="width:8px;height:8px;border-radius:2px;background:rgba(52,208,88,.85);"></div><span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--t3);">Больше</span><div style="width:8px;height:8px;border-radius:2px;background:rgba(255,77,77,.5);margin-left:8px;"></div><span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:var(--r);">Убыток</span></div>
         </div>
       </div>
-
       <div class="show-card">
-        <div class="show-card-header">
-          <span class="show-card-icon">☀️</span>
-          <span class="show-card-title">Пре-маркет чеклист</span>
-          <span class="show-card-desc">СЕССИЯ</span>
-        </div>
+        <div class="show-card-header"><span style="font-size:16px;">☀️</span><span class="show-card-title">Пре-маркет чеклист</span><span class="show-card-desc">СЕССИЯ</span></div>
         <div class="show-card-body">
           <div style="display:flex;flex-direction:column;gap:5px;">
             <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:rgba(52,208,88,.05);border:1px solid rgba(52,208,88,.15);"><span style="color:var(--g);">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);">Анализ рынка на HTF</span></div>
-            <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:rgba(52,208,88,.05);border:1px solid rgba(52,208,88,.15);"><span style="color:var(--g);">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);">Определил ключевые уровни</span></div>
-            <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);"><span style="color:var(--t3);">○</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">Новости и экономический календарь</span></div>
-            <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);"><span style="color:var(--t3);">○</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">Лимит сделок: макс 3/день</span></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:rgba(52,208,88,.05);border:1px solid rgba(52,208,88,.15);"><span style="color:var(--g);">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);">Ключевые уровни отмечены</span></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);"><span style="color:var(--t3);">○</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">Экономический календарь</span></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);"><span style="color:var(--t3);">○</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">Лимит: макс 3 сделки/день</span></div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 10px;border-radius:6px;background:rgba(232,108,42,.06);border:1px solid rgba(232,108,42,.15);">
-            <span style="font-size:12px;">🔥</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);">Стрик: 7 дней подряд</span>
-          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 10px;border-radius:6px;background:rgba(232,108,42,.06);border:1px solid rgba(232,108,42,.15);"><span>🔥</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);">Стрик: 7 дней подряд</span></div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -476,12 +463,12 @@ footer{border-top:1px solid var(--bd);padding:36px 24px;}
     <div class="levels-layout">
       <div>
         <div class="sec-tag">Геймификация</div>
-        <h2 class="sec-title">РАСТИ<br>ВИДИМО</h2>
-        <p class="sec-sub" style="margin-bottom:36px;">6 уровней роста от Новичка до Легенды. Каждый уровень — реальный порог по P&L от депозита. Не баллы, а деньги.</p>
+        <h2 class="sec-title">РАСТИ<br><span style="color:var(--a)">ВИДИМО</span></h2>
+        <p class="sec-sub" style="margin-bottom:36px;">6 уровней от Новичка до Легенды. Каждый уровень — реальный порог по P&L. Не баллы — деньги.</p>
         <a href="pay.html" class="btn-primary" style="display:inline-block;">Начать путь →</a>
       </div>
       <div class="levels-list">
-        <div class="level-item"><div class="level-badge" style="background:rgba(255,255,255,.04);">🌱</div><div class="level-info"><div class="level-name">Новичок</div><div class="level-req">Старт · 0% P&L</div></div><div class="level-pct" style="color:var(--t3);">0%</div></div>
+        <div class="level-item"><div class="level-badge" style="background:rgba(255,255,255,.04);">🌱</div><div class="level-info"><div class="level-name">Новичок</div><div class="level-req">Старт · 0%</div></div><div class="level-pct" style="color:var(--t3);">0%</div></div>
         <div class="level-item"><div class="level-badge" style="background:rgba(100,180,255,.06);">📊</div><div class="level-info"><div class="level-name">Профи</div><div class="level-req">Первая прибыль</div></div><div class="level-pct" style="color:#7ab8ff;">5%</div></div>
         <div class="level-item"><div class="level-badge" style="background:rgba(130,230,130,.06);">⚡</div><div class="level-info"><div class="level-name">Эксперт</div><div class="level-req">Стабильный рост</div></div><div class="level-pct" style="color:var(--g);">25%</div></div>
         <div class="level-item"><div class="level-badge" style="background:rgba(232,108,42,.07);">🔥</div><div class="level-info"><div class="level-name">Мастер</div><div class="level-req">Серьёзные результаты</div></div><div class="level-pct" style="color:var(--a);">50%</div></div>
@@ -492,16 +479,43 @@ footer{border-top:1px solid var(--bd);padding:36px 24px;}
   </div>
 </section>
 
+<section class="reviews-section">
+  <div class="section-inner">
+    <div class="sec-tag">Результаты</div>
+    <h2 class="sec-title">ЧТО <span style="color:var(--a)">МЕНЯЕТСЯ</span></h2>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="review-text">"За первый месяц понял что сливаю каждую пятницу после 17:00. Просто перестал торговать в это время — результаты выросли."</p>
+        <div class="review-author"><div class="review-ava">A</div><div><div class="review-name">Алексей М.</div><div class="review-role">Фьючерсы · 1 год опыта</div></div></div>
+        <div class="review-stat">↑ WR: 41% → 58% за 6 недель</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="review-text">"AI чекер остановил меня от плохого входа на прошлой неделе. Сетап не прошёл — цена пошла против. Уже окупил подписку."</p>
+        <div class="review-author"><div class="review-ava">D</div><div><div class="review-name">Дмитрий К.</div><div class="review-role">SMC · 2 года опыта</div></div></div>
+        <div class="review-stat">–60% импульсных входов за месяц</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+        <p class="review-text">"Купил lifetime — лучшая инвестиция в трейдинг за год. Просто видишь себя со стороны. Это меняет всё."</p>
+        <div class="review-author"><div class="review-ava">M</div><div><div class="review-name">Михаил В.</div><div class="review-role">Свинг · 3 года опыта</div></div></div>
+        <div class="review-stat">R:R вырос с 1.2 до 2.8 за 2 месяца</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="pricing-section" id="pricing">
   <div class="section-inner" style="text-align:center;">
     <div class="sec-tag" style="justify-content:center;"><span style="width:20px;height:1px;background:var(--a);display:inline-block;"></span>Цены</div>
-    <h2 class="sec-title">ПРОСТО<br>И ЧЕСТНО</h2>
+    <h2 class="sec-title">ПРОСТО<br><span style="color:var(--a)">И ЧЕСТНО</span></h2>
     <p class="sec-sub" style="margin:0 auto;">Никакой подписки которую забуду отменить. Два варианта — выбери свой.</p>
     <div class="pricing-cards">
       <div class="price-card">
         <div class="price-badge">Ежемесячно</div>
         <div class="price-amount">$29</div>
-        <div class="price-period">/ МЕСЯЦ</div>
+        <div class="price-period">/ МЕСЯЦ · USDT TRC20</div>
         <ul class="price-features">
           <li>Все функции журнала</li>
           <li>AI Coach и AI Чекер</li>
@@ -509,24 +523,44 @@ footer{border-top:1px solid var(--bd);padding:36px 24px;}
           <li>Аналитика и прогресс</li>
           <li>Психологический профиль</li>
         </ul>
-        <a href="pay.html" class="price-btn outline-btn">Начать →</a>
-        <div class="price-usdt">Оплата USDT TRC20 / ERC20</div>
+        <a href="pay.html?plan=monthly" class="price-btn outline-btn">Начать →</a>
+        <div style="text-align:center;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">Оплата USDT TRC20 / ERC20</div>
       </div>
       <div class="price-card hot">
-        <div class="price-badge">Навсегда</div>
+        <div class="price-badge">Навсегда · 🏆 Лучший выбор</div>
         <div class="price-amount" style="background:var(--ag);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$197</div>
-        <div class="price-period">РАЗОВЫЙ ПЛАТЁЖ</div>
+        <div class="price-period">РАЗОВЫЙ ПЛАТЁЖ · НАВСЕГДА</div>
         <ul class="price-features">
           <li>Всё из месячного плана</li>
           <li>Доступ навсегда</li>
           <li>Все будущие обновления</li>
           <li>Приоритетная поддержка</li>
-          <li>Экономия $150+/год</li>
+          <li>Экономия $150+ в год</li>
         </ul>
-        <a href="pay.html" class="price-btn primary">Взять навсегда →</a>
-        <div class="price-usdt" style="color:rgba(232,108,42,.5);">Самый выгодный вариант</div>
+        <a href="pay.html?plan=lifetime" class="price-btn primary">Взять навсегда →</a>
+        <div class="spots-row"><div class="spots-dot"></div>Осталось мест:&nbsp;<strong id="spots-pricing" style="color:#f5a623;">23</strong></div>
       </div>
     </div>
+  </div>
+</section>
+
+<div class="changelog-wrap">
+  <div class="changelog-inner">
+    <div class="cl-tag">Последние обновления</div>
+    <div class="cl-list">
+      <div class="cl-item"><div class="cl-date">09.03.2026</div><div class="cl-dot"></div><div class="cl-text">Новая форма сделок — кнопки результата, типы сетапов, психология</div></div>
+      <div class="cl-item"><div class="cl-date">01.03.2026</div><div class="cl-dot"></div><div class="cl-text">AI Коуч — персональный разбор последних 20 сделок</div></div>
+      <div class="cl-item"><div class="cl-date">20.02.2026</div><div class="cl-dot"></div><div class="cl-text">Импорт Bybit XLSX — автоматический разбор истории сделок</div></div>
+      <div class="cl-item"><div class="cl-date">10.02.2026</div><div class="cl-dot"></div><div class="cl-text">Рейтинг трейдеров — публичная таблица лидеров</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="cta-section">
+  <div class="cta-card">
+    <div class="cta-title">СТАНЬ<br><span>ЛУЧШЕ</span></div>
+    <p class="cta-desc">Начни вести осознанный журнал. Найди паттерны. Устрани причины убытков. Расти каждый месяц.</p>
+    <a href="login.html" class="btn-primary" style="font-size:15px;padding:17px 50px;" id="cta-bottom">Начать прямо сейчас →</a>
   </div>
 </section>
 
@@ -535,49 +569,48 @@ footer{border-top:1px solid var(--bd);padding:36px 24px;}
     <a href="index.html" class="footer-logo">ORBITUM</a>
     <div class="footer-links">
       <a href="login.html">Войти</a>
-      <a href="pay.html">Начать</a>
+      <a href="pay.html">Тарифы</a>
       <a href="journal.html">Журнал</a>
     </div>
     <div class="footer-copy">© 2026 ORBITUM. Все права защищены.</div>
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── Auto-redirect logged in users to journal ──
-(async()=>{
-  const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
-  const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+async function checkSession(){
   try{
-    const {createClient}=supabase;
-    const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-    const {data:{session}}=await sb.auth.getSession();
-    if(session) window.location.href='journal.html';
+    const{data:{user}}=await sb.auth.getUser();
+    if(!user)return;
+    const{data:p}=await sb.from('profiles').select('role,plan,plan_expires_at,full_name,username').eq('id',user.id).single();
+    const name=(p?.full_name||p?.username||user.email.split('@')[0]).split(' ')[0];
+    const dest=(p?.role==='admin')?'admin.html':'journal.html';
+    document.getElementById('nav-auth').innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">${name}</span><a href="${dest}" class="nav-btn fill">МОЙ ЖУРНАЛ →</a><button class="nav-logout" onclick="doLogout()">ВЫЙТИ</button></div>`;
+    const h=document.getElementById('hero-cta');if(h){h.textContent='МОЙ ЖУРНАЛ →';h.href=dest;}
+    const c=document.getElementById('cta-bottom');if(c){c.textContent='МОЙ ЖУРНАЛ →';c.href=dest;}
   }catch(e){}
-})();
+}
+async function doLogout(){await sb.auth.signOut();location.reload();}
+checkSession();
+window.addEventListener('scroll',()=>{document.getElementById('main-nav').style.background=scrollY>30?'rgba(6,7,9,0.96)':'rgba(6,7,9,0.78)';});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+const revEls=document.querySelectorAll('.feat-card,.show-card,.level-item,.price-card,.review-card,.cl-item');
+const io=new IntersectionObserver(entries=>{entries.forEach((en,i)=>{if(en.isIntersecting){setTimeout(()=>{en.target.style.opacity='1';en.target.style.transform='translateY(0)';},i*50);io.unobserve(en.target);}});},{threshold:.06});
+revEls.forEach(c=>{c.style.opacity='0';c.style.transform='translateY(20px)';c.style.transition='opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1),border-color .3s';io.observe(c);});
+const qA=[];
+const arch={fomo:{n:'FOMO-ОХОТНИК',d:'Входишь на эмоциях и догоняешь рынок. Твои лучшие сделки — те, которые пропустил. ORBITUM покажет паттерн и поможет устранить.'},revenge:{n:'МСТИТЕЛЬ',d:'После серии убытков входишь агрессивнее — и сливаешь ещё больше. ORBITUM покажет тильт-паттерны и остановит деструктивный цикл.'},sniper:{n:'СНАЙПЕР',d:'Терпеливый, ждёшь точки входа. ORBITUM найдёт скрытые паттерны которые ещё не видны невооружённым взглядом.'},disciplined:{n:'СИСТЕМЩИК',d:'Сильная база и дисциплина. ORBITUM найдёт то, что невидно невооружённым взглядом, и поднимет результаты на следующий уровень.'}};
+function quizAns(q,ans){qA[q]=ans;document.getElementById('qd'+q).classList.add('done');document.getElementById('qq'+q).classList.remove('active');if(q<2){setTimeout(()=>document.getElementById('qq'+(q+1)).classList.add('active'),180);}else{let a='disciplined';if(qA.includes('fomo'))a='fomo';else if(qA.includes('revenge'))a='revenge';else if(!qA.includes('impulsive'))a='sniper';document.getElementById('quiz-arch-name').textContent=arch[a].n;document.getElementById('quiz-arch-desc').textContent=arch[a].d;setTimeout(()=>document.getElementById('quiz-result').classList.add('show'),250);}}
+function calcLoss(){const t=parseInt(document.getElementById('c-trades').value)||40;const lr=parseInt(document.getElementById('c-wr').value)||45;const avg=parseInt(document.getElementById('c-avg').value)||50;const er=parseInt(document.getElementById('c-emo').value)||30;const el=Math.round(t*(lr/100)*avg*(er/100));const sv=Math.round(el*0.67);document.getElementById('c-loss').textContent='$'+el;document.getElementById('c-saved').textContent='$'+sv;}
+calcLoss();
+const spots=Math.floor(Math.random()*8)+18;document.getElementById('spots-hero').textContent=spots;document.getElementById('spots-pricing').textContent=spots;
+const lm=['Алексей обнаружил: теряет $340 каждую пятницу после 17:00','Дмитрий К. поднялся на уровень МАСТЕР 🔥','Михаил В.: AI Чекер остановил плохой SHORT на BTC','Новый трейдер зарегистрировался 3 минуты назад','Анна нашла паттерн: WR 71% на LONG ETH по понедельникам','Сергей П.: серия из 7 прибыльных сделок 🎯'];
+let pi=0;
+function showPop(){const p=document.getElementById('live-popup');p.classList.remove('show');setTimeout(()=>{document.getElementById('live-text').textContent=lm[pi%lm.length];pi++;p.classList.add('show');setTimeout(()=>p.classList.remove('show'),5000);},500);}
+setTimeout(()=>{showPop();setInterval(showPop,14000);},2500);
 </script>
-<script>
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click',e=>{
-    e.preventDefault();
-    const t=document.querySelector(a.getAttribute('href'));
-    if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
-  });
-});
-const els=document.querySelectorAll('.feat-card,.show-card,.level-item,.price-card');
-const io=new IntersectionObserver(entries=>{
-  entries.forEach((en,i)=>{
-    if(en.isIntersecting){
-      setTimeout(()=>{en.target.style.opacity='1';en.target.style.transform='translateY(0)';},i*55);
-      io.unobserve(en.target);
-    }
-  });
-},{threshold:.08});
-els.forEach(c=>{
-  c.style.opacity='0';c.style.transform='translateY(20px)';
-  c.style.transition='opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1),border-color .3s';
-  io.observe(c);
-});
-</script>
+
 </body>
 </html>

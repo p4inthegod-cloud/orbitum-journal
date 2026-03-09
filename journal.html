@@ -86,7 +86,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ─── TOPBAR (desktop) ──────────────────────── */
 .jnl-topbar{
   display:none; /* shown on desktop via media query */
-  position:sticky;top:0;z-index:160;
+  position:sticky;top:0;z-index:150;
   background:rgba(5,7,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid rgba(255,255,255,0.05);
   height:48px;align-items:center;padding:0 22px;gap:10px;
@@ -955,18 +955,20 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 /* ─── PREVIEW LOCK OVERLAY ──────────────────── */
 .preview-lock-overlay{
-  position:absolute;inset:0;z-index:20;
+  position:absolute;inset:0;z-index:10;
   background:rgba(5,7,10,0.72);
   backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
   border-radius:inherit;
   display:flex;align-items:center;justify-content:center;
   border:1px solid rgba(232,114,42,0.12);
+  pointer-events:all;
 }
 .plo-inner{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px;text-align:center;}
 .plo-lock{font-size:32px;animation:plo-pulse 2.5s ease-in-out infinite;}
 @keyframes plo-pulse{
   0%,100%{filter:drop-shadow(0 0 8px rgba(232,114,42,0.3));}
   50%{filter:drop-shadow(0 0 20px rgba(232,114,42,0.65));}
+@keyframes dotPulse{0%,80%,100%{opacity:0.2;transform:scale(0.8);}40%{opacity:1;transform:scale(1);}}
 }
 .plo-label{font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;}
 .plo-btn{
@@ -1390,47 +1392,102 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .mob-bottom-nav{display:none!important;}
   .sb-overlay{display:none!important;}
   .topnav{display:none;}
+
+  /* Sidebar: icon rail 52px, expands on .expanded class */
   .sidebar{
     display:flex!important;
-    width:52px!important;
-    overflow:hidden!important;
+    width:52px;
+    transition:width 0.32s cubic-bezier(0.4,0,0.2,1);
+    overflow:hidden;
     z-index:150;
+    position:fixed;
+    pointer-events:none;
+    /* clip pointer events to visible bounds */
+    clip-path:inset(0);
   }
-  /* Все кнопки строго 52px - текст скрыт через CSS класс */
-  .sb-item{
-    width:52px!important;
-    padding:10px 0!important;
-    justify-content:center!important;
-    gap:0!important;
+  /* Only buttons within sidebar intercept clicks - 52px strip */
+  .sidebar .sb-item,
+  .sidebar .sb-logo,
+  .sidebar .sb-footer button,
+  .sidebar .sb-icon-toggle{
+    pointer-events:auto;
+    /* Limit clickable area to the collapsed width */
+    max-width:52px;
+    overflow:hidden;
   }
-  .sb-item .sb-item-label,
-  .sb-section,
-  .sb-divider,
-  .sb-logo-text,
-  .sb-user-info,
-  .sb-logout{
-    display:none!important;
+  .sidebar.expanded .sb-item,
+  .sidebar.expanded .sb-logo,
+  .sidebar.expanded .sb-footer button{
+    max-width:var(--sb);
   }
-  .sb-logo{
-    width:52px!important;
-    padding:0!important;
-    justify-content:center!important;
+  .sidebar.expanded{width:var(--sb);}
+  .sidebar.expanded *{pointer-events:auto;}
+
+  /* Logo text */
+  .sb-logo-text{
+    opacity:0;white-space:nowrap;overflow:hidden;max-width:0;
+    transition:opacity 0.2s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
   }
-  .sb-footer{ padding:8px 0; align-items:center; }
-  .sb-user{ padding:6px 0!important; justify-content:center!important; }
+  .sidebar.expanded .sb-logo-text{
+    opacity:1;max-width:180px;
+    transition:opacity 0.22s 0.1s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Nav labels */
+  .sb-item{overflow:hidden;white-space:nowrap;}
+  .sb-item > *:not(.sb-item-icon){
+    opacity:0;max-width:0;overflow:hidden;display:inline-block;vertical-align:middle;
+    transition:opacity 0.15s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+  }
+  .sidebar.expanded .sb-item > *:not(.sb-item-icon){
+    opacity:1;max-width:180px;
+    transition:opacity 0.2s 0.08s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Section labels */
+  .sb-section{opacity:0;max-height:0;padding:0 10px;overflow:hidden;
+    transition:opacity 0.15s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar.expanded .sb-section{
+    opacity:1;max-height:30px;padding:12px 10px 4px;
+    transition:opacity 0.2s 0.05s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+
+  /* Footer */
+  .sb-user-info{opacity:0;overflow:hidden;max-width:0;
+    transition:opacity 0.15s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar.expanded .sb-user-info{opacity:1;max-width:180px;
+    transition:opacity 0.2s 0.08s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sb-logout{opacity:0;overflow:hidden;max-height:0;
+    transition:opacity 0.15s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .sidebar.expanded .sb-logout{opacity:1;max-height:40px;
+    transition:opacity 0.2s 0.1s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+
+  /* Toggle button inside sidebar logo area */
+  .sb-toggle-btn{
+    display:none;background:none;border:none;color:var(--m);cursor:pointer;
+    font-size:14px;margin-left:auto;padding:2px 4px;transition:color 0.15s;flex-shrink:0;
+  }
+  .sidebar.expanded .sb-toggle-btn{display:flex;align-items:center;}
+  .sb-toggle-btn:hover{color:var(--t);}
+
+  /* Topbar & main shift with sidebar expansion — same timing */
+  .jnl-topbar{display:flex;margin-left:52px;transition:margin-left 0.32s cubic-bezier(0.4,0,0.2,1);}
+  .jtb-navs{display:none!important;}
+  .main{margin-left:52px;padding:0 32px 60px;transition:margin-left 0.32s cubic-bezier(0.4,0,0.2,1);}
+
+  /* When sidebar is expanded — push content */
+  body.sb-open .main{margin-left:var(--sb);}
+  body.sb-open .jnl-topbar{margin-left:var(--sb);}
+
+  .stats-row{margin-top:24px;}
+
+  /* Collapse icon button — always visible on icon strip */
   .sb-icon-toggle{
-    position:static!important;
-    width:52px;height:36px;
+    position:absolute;bottom:16px;left:0;width:52px;height:32px;
     display:flex;align-items:center;justify-content:center;
-    background:none;border:none;cursor:pointer;
-    color:rgba(255,255,255,0.35);font-size:18px;
-    transition:color 0.15s;
+    background:none;border:none;cursor:pointer;color:var(--m);
+    font-size:16px;transition:color 0.15s;z-index:1;
   }
   .sb-icon-toggle:hover{color:var(--a);}
-  .jnl-topbar{display:flex;margin-left:52px;}
-  .jtb-navs{display:none!important;}
-  .main{margin-left:52px;padding:0 32px 60px;}
-  .stats-row{margin-top:24px;}
 }
 
 /* ─── SMART NOTIFICATIONS ─────────────────────── */
@@ -2899,13 +2956,12 @@ function formatAIText(text){
 }
 
 async function init(){
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='login.html';return;}
-  const user=session.user;
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){window.location.href='login.html';return;}
   currentUser=user;
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!p){window.location.href='login.html';return;}
-  const hasAccess=true; // все авторизованные пользователи
+  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date())||p.role==='admin';
   
   // fill sidebar + topbar
   const initLetter=(p.full_name||p.username||'U')[0].toUpperCase();
@@ -2952,7 +3008,43 @@ function enablePreviewMode(name){
     if(main)main.insertBefore(banner,main.firstChild);
   }
   
-  // Preview: только баннер, форма доступна
+  // Lock interactive elements with overlay
+  const lockTargets=[
+    {sel:'.stats-row',label:'Статистика появится после первой сделки'},
+    {sel:'#page-journal .fcard',label:'Добавь первую сделку'},
+    {sel:'#page-dashboard',label:'Дашборд'},
+    {sel:'#page-progress',label:'Прогресс и аналитика'},
+    {sel:'#page-premarket',label:'Подготовка к сессии'},
+    {sel:'#page-aichat',label:'AI-коуч'},
+    {sel:'#page-coach',label:'Разбор ошибок'},
+    {sel:'#page-simulator',label:'Симулятор'},
+    {sel:'#page-leaderboard',label:'Рейтинг'},
+  ];
+  
+  // Defer until DOM is populated
+  setTimeout(()=>{
+    lockTargets.forEach(({sel,label})=>{
+      const el=document.querySelector(sel);
+      if(!el)return;
+      if(getComputedStyle(el).position==='static')el.style.position='relative';
+      const ov=document.createElement('div');
+      ov.className='preview-lock-overlay';
+      ov.innerHTML=`<div class="plo-inner"><div class="plo-lock">🔒</div><div class="plo-label">${label}</div><a href="pay.html" class="plo-btn">Разблокировать</a></div>`;
+      el.appendChild(ov);
+    });
+    
+    // Disable add trade button
+    const addBtn=document.getElementById('btn-add');
+    if(addBtn){addBtn.disabled=true;addBtn.style.opacity='0.35';addBtn.title='Нужен доступ';}
+    
+    // Blur add trade form inputs
+    const form=document.getElementById('add-trade-form');
+    if(form){
+      form.style.filter='blur(3px)';
+      form.style.pointerEvents='none';
+      form.style.userSelect='none';
+    }
+  },200);
 }
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
@@ -4415,6 +4507,86 @@ async function runAICoach(){
   if(coachGrid&&trades.length>=3){
     renderPsychInsightsTo(coachGrid, trades, wins, losses);
   }
+}
+
+// ─── AI CHAT FUNCTIONS ─────────────────────────────────────────────────
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,120)+'px';
+}
+function chatKeyDown(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}
+}
+async function sendShortcut(text){
+  var inp=document.getElementById('chat-input');
+  if(inp){inp.value=text;autoResize(inp);}
+  await sendChatMessage();
+}
+function appendChatMsg(role,text){
+  var msgs=document.getElementById('chat-messages');
+  if(!msgs)return;
+  var wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;gap:8px;align-items:flex-start;'+(role==='user'?'flex-direction:row-reverse;':'');
+  var avatar=document.createElement('div');
+  avatar.style.cssText='width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px;'+(role==='user'?'background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.3);':'background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.2);');
+  avatar.textContent=role==='user'?'👤':'🤖';
+  var bubble=document.createElement('div');
+  bubble.style.cssText='max-width:80%;padding:10px 13px;border-radius:12px;font-family:var(--font-body);font-size:12px;line-height:1.6;white-space:pre-wrap;'+(role==='user'?'background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.2);color:var(--t);margin-left:auto;':'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);color:var(--t);');
+  bubble.textContent=text;
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function appendTypingIndicator(){
+  var msgs=document.getElementById('chat-messages');
+  if(!msgs)return;
+  var wrap=document.createElement('div');
+  wrap.id='chat-typing';
+  wrap.style.cssText='display:flex;gap:8px;align-items:center;';
+  wrap.innerHTML='<div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.2);">🤖</div><div style="padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;display:flex;gap:4px;align-items:center;"><span style="width:5px;height:5px;border-radius:50%;background:var(--m);animation:dotPulse 1.2s ease infinite 0s;display:inline-block"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--m);animation:dotPulse 1.2s ease infinite 0.4s;display:inline-block"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--m);animation:dotPulse 1.2s ease infinite 0.8s;display:inline-block"></span></div>';
+  msgs.appendChild(wrap);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+async function sendChatMessage(){
+  var inp=document.getElementById('chat-input');
+  var sendBtn=document.getElementById('chat-send-btn');
+  if(!inp)return;
+  var msg=inp.value.trim();
+  if(!msg)return;
+  inp.value='';autoResize(inp);
+  if(sendBtn)sendBtn.disabled=true;
+  appendChatMsg('user',msg);
+  appendTypingIndicator();
+  // Build context from recent trades
+  var context='';
+  if(allTrades&&allTrades.length){
+    var recent=allTrades.slice(0,10);
+    context='\n\nДанные трейдера (последние '+recent.length+' сделок):\n';
+    context+=recent.map(function(t){return t.pair+' '+t.direction+' '+t.result+(t.pnl_pct?' '+t.pnl_pct+'%':'');}).join(', ');
+  }
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        system:'Ты — персональный AI-ассистент трейдера в приложении ORBITUM. Отвечай по-русски. Давай конкретные, практичные советы по трейдингу, психологии и анализу. Используй данные трейдера если они предоставлены. Будь лаконичен — максимум 3-4 абзаца.',
+        messages:[{role:'user',content:msg+context}]
+      })
+    });
+    var data=await resp.json();
+    var typing=document.getElementById('chat-typing');
+    if(typing)typing.remove();
+    var answer=data.content&&data.content[0]?data.content[0].text:'Не удалось получить ответ. Попробуй снова.';
+    appendChatMsg('ai',answer);
+  }catch(e){
+    var typing=document.getElementById('chat-typing');
+    if(typing)typing.remove();
+    appendChatMsg('ai','Ошибка соединения. Проверь подключение и попробуй снова.');
+  }
+  if(sendBtn)sendBtn.disabled=false;
 }
 
 function renderPsychInsightsTo(grid, trades, wins, losses){
