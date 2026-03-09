@@ -3075,28 +3075,6 @@ function openAI(){
 function closeAI(){
   document.getElementById('ai-modal').classList.remove('open');
 }
-function renderDigest(){
-  // TODO: implement weekly digest
-  const el=document.getElementById('digest-title');
-  const sub=document.getElementById('digest-sub');
-  const week=document.getElementById('digest-week-label');
-  if(!allTrades||!allTrades.length)return;
-  const now=new Date();
-  const weekStart=new Date(now);weekStart.setDate(now.getDate()-now.getDay()+1);weekStart.setHours(0,0,0,0);
-  const weekTrades=allTrades.filter(t=>{try{return new Date(t.created_at)>=weekStart;}catch(e){return false;}});
-  const wins=weekTrades.filter(t=>t.result==='win').length;
-  const losses=weekTrades.filter(t=>t.result==='loss').length;
-  const total=weekTrades.length;
-  const wr=total?Math.round(wins/total*100):0;
-  const pnl=weekTrades.reduce((s,t)=>s+(parseFloat(t.pnl_usd)||0),0);
-  if(el)el.textContent=total ? 'НЕДЕЛЯ: '+wins+'W / '+losses+'L' : 'НЕТ СДЕЛОК ЗА НЕДЕЛЮ';
-  if(sub)sub.textContent=total ? 'WinRate '+wr+'% · P&L: '+(pnl>=0?'+':'')+pnl.toFixed(1)+' USDT' : 'Добавь сделки чтобы увидеть дайджест';
-  const dg=document.getElementById('digest-grid');if(!dg)return;
-  const cards=dg.querySelectorAll('.dg-val');
-  const vals=[total,wr+'%',(pnl>=0?'+':'')+pnl.toFixed(1),weekTrades.length?(Math.max(...weekTrades.map(t=>parseFloat(t.rr)||0))||'—'):'—'];
-  cards.forEach((c,i)=>{if(vals[i]!==undefined)c.textContent=vals[i];});
-}
-
 function showPage(p,btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   var pg=document.getElementById('page-'+p);
@@ -3132,38 +3110,20 @@ function formatAIText(text){
     .split('\n').join('<br>')+'</p>';
 }
 
-window.addEventListener('unhandledrejection',function(e){
-  console.warn('Unhandled promise rejection:',e.reason);
-});
-window.addEventListener('error',function(e){
-  console.warn('JS Error:',e.message,'at',e.filename+':'+e.lineno);
-});
-
 async function init(){
   const{data:{user}}=await sb.auth.getUser();
   if(!user){window.location.href='login.html';return;}
   currentUser=user;
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!p){window.location.href='login.html';return;}
-  // ── TIER SYSTEM ──────────────────────────────────────────────
-  // plan_tier: 'journal' | 'analytics' | 'full' | null/none
-  // Legacy: plan='lifetime'|'monthly' → treat as 'full' for backwards compat
-  const tier=p.role==='admin'?'full':(p.plan_tier||( 
-    (p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date()))
-    ?'full':'none'
-  ));
-  const canJournal=['journal','analytics','full'].includes(tier);
-  const canAnalytics=['analytics','full'].includes(tier);
-  const canFull=tier==='full';
-  const hasAccess=canJournal; // backward compat
+  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date())||p.role==='admin';
   
   // fill sidebar + topbar
   const initLetter=(p.full_name||p.username||'U')[0].toUpperCase();
   const displayName=p.full_name||p.username||user.email;
   document.getElementById('sf-avatar').textContent=initLetter;
   document.getElementById('sf-name').textContent=displayName;
-  const tierLabel={journal:'📋 ЖУРНАЛ',analytics:'📊 АНАЛИТИКА',full:'⚡ ЭКОСИСТЕМА'};
-  document.getElementById('sf-plan').textContent=tierLabel[tier]||'PREVIEW';
+  document.getElementById('sf-plan').textContent=hasAccess?(p.plan==='lifetime'?'∞ НАВСЕГДА':'МЕСЯЧНЫЙ'):'PREVIEW';
   // topbar
   const jtbAv=document.getElementById('jtb-avatar');
   const jtbNm=document.getElementById('jtb-name');
@@ -3171,14 +3131,8 @@ async function init(){
   if(jtbNm)jtbNm.textContent=displayName.split(' ')[0].toUpperCase();
   if(p.role==='admin'){const a=document.getElementById('snav-admin');if(a)a.style.display='flex';}
   
-  if(!canJournal){
+  if(!hasAccess){
     enablePreviewMode(p.full_name||p.username||user.email);
-  } else if(!canAnalytics){
-    // Journal only — lock analytics/ai pages
-    enableJournalOnlyMode();
-  } else if(!canFull){
-    // Analytics tier — lock full/ecosystem pages
-    enableAnalyticsModeOnly();
   }
   
   await loadTrades();
@@ -3247,73 +3201,6 @@ function enablePreviewMode(name){
     }
   },200);
 }
-
-// ── JOURNAL ONLY MODE: lock analytics, ai, leaderboard, ideas pages ──────────
-function enableJournalOnlyMode(){
-  // Show upsell banner
-  const banner=document.createElement('div');
-  banner.id='tier-banner';
-  banner.innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <span style="font-size:16px">📊</span>
-      <div style="flex:1;min-width:200px">
-        <div style="font-family:var(--font-mono);font-size:10px;color:#f0f0f0;letter-spacing:1px;margin-bottom:2px">ПЛАН: ЖУРНАЛ — аналитика закрыта</div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.45);">Апгрейд до «Аналитика» чтобы открыть дашборд, AI Coach и прогресс</div>
-      </div>
-      <a href="pay.html?plan=analytics" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:8px;color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-decoration:none;white-space:nowrap;">📈 АПГРЕЙД</a>
-    </div>`;
-  banner.style.cssText='position:sticky;top:48px;z-index:80;background:rgba(10,8,5,0.96);border-bottom:1px solid rgba(232,114,42,0.2);backdrop-filter:blur(16px);padding:12px 24px;';
-  const statsRow=document.querySelector('.stats-row');
-  if(statsRow&&statsRow.parentNode) statsRow.parentNode.insertBefore(banner,statsRow);
-  
-  // Lock analytics/AI pages with upsell overlay
-  const lockPages=[
-    {sel:'#page-dashboard',label:'Дашборд аналитики',plan:'analytics'},
-    {sel:'#page-progress',label:'Прогресс и инсайты',plan:'analytics'},
-    {sel:'#page-premarket',label:'Пре-маркет план',plan:'analytics'},
-    {sel:'#page-aichat',label:'AI Chat советник',plan:'full'},
-    {sel:'#page-coach',label:'AI Coach — разбор ошибок',plan:'analytics'},
-    {sel:'#page-simulator',label:'Симулятор стратегий',plan:'full'},
-    {sel:'#page-leaderboard',label:'Рейтинг трейдеров',plan:'full'},
-    {sel:'#page-ideas',label:'Идеи и сообщество',plan:'full'},
-    {sel:'#page-digest',label:'Дайджест недели',plan:'analytics'},
-  ];
-  setTimeout(()=>{
-    lockPages.forEach(({sel,label,plan})=>{
-      const el=document.querySelector(sel);
-      if(!el)return;
-      if(getComputedStyle(el).position==='static')el.style.position='relative';
-      const ov=document.createElement('div');
-      ov.className='preview-lock-overlay';
-      const planName=plan==='analytics'?'Аналитика':'Экосистема';
-      ov.innerHTML=`<div class="plo-inner"><div class="plo-lock">🔒</div><div class="plo-label">${label}</div><div style="font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.35);margin:4px 0 10px;letter-spacing:1px;">Нужен план: ${planName}</div><a href="pay.html?plan=${plan}" class="plo-btn">Разблокировать</a></div>`;
-      el.appendChild(ov);
-    });
-  },200);
-}
-
-// ── ANALYTICS MODE: lock only full-ecosystem pages ─────────────────────────
-function enableAnalyticsModeOnly(){
-  const lockPages=[
-    {sel:'#page-aichat',label:'AI Chat советник'},
-    {sel:'#page-simulator',label:'Симулятор стратегий'},
-    {sel:'#page-leaderboard',label:'Рейтинг трейдеров'},
-    {sel:'#page-ideas',label:'Идеи и сообщество'},
-  ];
-  setTimeout(()=>{
-    lockPages.forEach(({sel,label})=>{
-      const el=document.querySelector(sel);
-      if(!el)return;
-      if(getComputedStyle(el).position==='static')el.style.position='relative';
-      const ov=document.createElement('div');
-      ov.className='preview-lock-overlay';
-      ov.innerHTML=`<div class="plo-inner"><div class="plo-lock">⚡</div><div class="plo-label">${label}</div><div style="font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.35);margin:4px 0 10px;letter-spacing:1px;">Нужен план: Экосистема</div><a href="pay.html?plan=full" class="plo-btn">Разблокировать</a></div>`;
-      el.appendChild(ov);
-    });
-  },200);
-}
-
-
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
 // ─── TRADES ───────────────────────────────────────
@@ -4479,7 +4366,7 @@ async function markNotifsRead(){
 }
 
 // ─── IMPORT (CSV / XLSX) ───────────────────────────
-async async function importCSV(input){
+async function importCSV(input){
   var file=input.files[0];
   if(!file)return;
   var log=document.getElementById('import-log');
@@ -5535,7 +5422,7 @@ function closeChat(){
 }
 
 // Загружаем комнаты
-async async function cdLoadRooms(){
+async function cdLoadRooms(){
   const rooms=[{id:CD_GENERAL,type:'general',name:'Общий чат',sub:'Все трейдеры'}];
   try{
     // DM из истории
