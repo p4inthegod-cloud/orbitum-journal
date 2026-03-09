@@ -86,7 +86,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ─── TOPBAR (desktop) ──────────────────────── */
 .jnl-topbar{
   display:none; /* shown on desktop via media query */
-  position:sticky;top:0;z-index:160;
+  position:sticky;top:0;z-index:150;
   background:rgba(5,7,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid rgba(255,255,255,0.05);
   height:48px;align-items:center;padding:0 22px;gap:10px;
@@ -403,7 +403,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ── VERY SMALL SCREENS (iPhone SE, <380px) ── */
 
 /* ─── MAIN ────────────────────────────────── */
-.main{margin-left:0;padding:20px 16px 90px;min-height:100vh;position:relative;z-index:1;pointer-events:auto;}
+.main{margin-left:0;padding:20px 16px 90px;min-height:100vh;position:relative;z-index:1;}
 .bg-orb{
   position:fixed;width:600px;height:600px;border-radius:50%;
   background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 65%);
@@ -1112,18 +1112,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .ai-check-btn:hover{background:rgba(52,208,88,0.14);}
 .ai-check-btn:disabled{opacity:0.4;cursor:not-allowed;}
-.ai-result{margin-top:14px;border-radius:10px;padding:16px;display:none;animation:pgIn 0.25s ease;}
-.ai-result.go{background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.25);}
-.ai-result.stop{background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.25);}
-.ai-result.wait{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);}
-.ai-verdict-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.ai-score{font-family:var(--font-mono);font-size:11px;color:var(--m);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:4px 10px;}
-.ai-text{font-family:var(--font-body);font-size:12px;color:rgba(255,255,255,0.75);line-height:1.7;}
-.ai-text .ai-block{margin-bottom:10px;}
-.ai-text .ai-block:last-child{margin-bottom:0;}
-.ai-text .ai-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;opacity:0.55;}
-.ai-text .ai-block-body{font-size:12px;line-height:1.65;}
-.ai-text strong{color:var(--t);}
+.ai-result{margin-top:14px;border-radius:9px;padding:14px;display:none;}
+.ai-result.go{background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.2);}
+.ai-result.stop{background:rgba(255,77,77,0.05);border:1px solid rgba(255,77,77,0.2);}
+.ai-result.wait{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.2);}
 .ai-verdict{font-family:var(--font-display);font-size:22px;letter-spacing:3px;margin-bottom:7px;}
 .ai-verdict.go{color:#34d058;}.ai-verdict.stop{color:#ff4d4d;}.ai-verdict.wait{color:#f5a623;}
 .ai-text{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.6;}
@@ -1384,52 +1376,59 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .ds-breakdown{grid-template-columns:1fr 1fr;}
 }
 
-/* ─── DESKTOP SIDEBAR — TOGGLE EXPAND ──── */
+/* ─── DESKTOP SIDEBAR ICON RAIL + HOVER EXPAND ──── */
 @media(min-width:861px){
   .mob-bar{display:none!important;}
   .mob-bottom-nav{display:none!important;}
   .sb-overlay{display:none!important;}
   .topnav{display:none;}
+
+  /* Sidebar always visible as icon rail */
   .sidebar{
     display:flex!important;
-    width:52px!important;
-    overflow:hidden!important;
-    z-index:150;
+    width:52px;
+    transition:width 0.22s cubic-bezier(0.16,1,0.3,1);
+    overflow:hidden;
+    z-index:200;
   }
-  /* Все кнопки строго 52px - текст скрыт через CSS класс */
-  .sb-item{
-    width:52px!important;
-    padding:10px 0!important;
-    justify-content:center!important;
-    gap:0!important;
+  .sidebar:hover{width:var(--sb);}
+
+  /* Logo: hide text when collapsed */
+  .sb-logo-text{
+    opacity:0;white-space:nowrap;
+    transition:opacity 0.15s;
+    overflow:hidden;max-width:0;
   }
-  .sb-item .sb-item-label,
-  .sb-section,
-  .sb-divider,
-  .sb-logo-text,
-  .sb-user-info,
-  .sb-logout{
-    display:none!important;
+  .sidebar:hover .sb-logo-text{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s,max-width 0.22s;}
+
+  /* Nav item labels hidden when collapsed */
+  .sb-item{overflow:hidden;white-space:nowrap;}
+  .sb-item > *:not(.sb-item-icon){
+    opacity:0;max-width:0;overflow:hidden;
+    transition:opacity 0.12s;
   }
-  .sb-logo{
-    width:52px!important;
-    padding:0!important;
-    justify-content:center!important;
+  .sidebar:hover .sb-item > *:not(.sb-item-icon){
+    opacity:1;max-width:200px;
+    transition:opacity 0.18s 0.08s;
   }
-  .sb-footer{ padding:8px 0; align-items:center; }
-  .sb-user{ padding:6px 0!important; justify-content:center!important; }
-  .sb-icon-toggle{
-    position:static!important;
-    width:52px;height:36px;
-    display:flex;align-items:center;justify-content:center;
-    background:none;border:none;cursor:pointer;
-    color:rgba(255,255,255,0.35);font-size:18px;
-    transition:color 0.15s;
-  }
-  .sb-icon-toggle:hover{color:var(--a);}
+
+  /* Section labels */
+  .sb-section{opacity:0;height:0;padding:0 10px;overflow:hidden;transition:all 0.15s;}
+  .sidebar:hover .sb-section{opacity:1;height:auto;padding:12px 10px 4px;}
+
+  /* Footer */
+  .sb-user-info,.sb-logout{opacity:0;overflow:hidden;max-width:0;transition:opacity 0.12s;}
+  .sidebar:hover .sb-user-info,.sidebar:hover .sb-logout{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s;}
+
+  /* Topbar — hide nav, keep right widgets */
   .jnl-topbar{display:flex;margin-left:52px;}
   .jtb-navs{display:none!important;}
+
+  /* Main content offset */
   .main{margin-left:52px;padding:0 32px 60px;}
+  body:has(.sidebar:hover) .main{margin-left:var(--sb);}
+  body:has(.sidebar:hover) .jnl-topbar{margin-left:var(--sb);}
+
   .stats-row{margin-top:24px;}
 }
 
@@ -1672,11 +1671,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <a href="index.html" class="sb-logo" style="text-decoration:none;cursor:pointer;flex:1;" title="На главную">
+  <a href="index.html" class="sb-logo" style="text-decoration:none;cursor:pointer;" title="На главную">
     <div class="sb-logo-dot"></div>
     <span class="sb-logo-text">ORBITUM</span>
   </a>
-  <button class="sb-icon-toggle" onclick="toggleSidebar()" title="Развернуть">☰</button>
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
     <button class="sb-item active" onclick="showPage('journal',this)" data-page="journal">
@@ -1702,7 +1700,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <button class="sb-item" onclick="showPage('simulator',this)" data-page="simulator">
       <span class="sb-item-icon">🎮</span>Симулятор
     </button>
-
+    <button class="sb-item" onclick="showPage('leaderboard',this)" data-page="leaderboard">
+      <span class="sb-item-icon">🏆</span>Рейтинг
+    </button>
     <div class="sb-divider"></div>
     <a href="profile.html" class="sb-item" target="_blank" rel="noopener">
       <span class="sb-item-icon">🧠</span>Мой профиль ↗
@@ -2592,7 +2592,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <button class="mob-nav-btn" id="mbn-simulator" onclick="showPage('simulator',this);updateMobNav('simulator')">
       <span class="mob-nav-icon">🎮</span><span class="mob-nav-label">Симулятор</span>
     </button>
-
+    <button class="mob-nav-btn" id="mbn-leaderboard" onclick="showPage('leaderboard',this);updateMobNav('leaderboard')">
+      <span class="mob-nav-icon">🏆</span><span class="mob-nav-label">Рейтинг</span>
+    </button>
   </div>
 </div>
 
@@ -2655,12 +2657,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <label>Дополнительно (необязательно)</label>
       <textarea id="ai-reason" placeholder="Опиши сетап подробнее..."></textarea>
     </div>
-    <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">🔍 ПОЛУЧИТЬ ВЕРДИКТ</button>
+    <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
     <div class="ai-result" id="ai-result">
-      <div class="ai-verdict-row">
-        <div class="ai-verdict" id="ai-verdict"></div>
-        <div class="ai-score" id="ai-score"></div>
-      </div>
+      <div class="ai-verdict" id="ai-verdict"></div>
       <div class="ai-text" id="ai-text"></div>
     </div>
   </div>
@@ -2677,13 +2676,6 @@ let currentUser=null, allTrades=[], currentFilter='all', currentDir='long';
 // ─── SIDEBAR ─────────────────────────────────────
 function openSB(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
 function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
-function toggleSidebar(){
-  const sb=document.getElementById('sidebar');
-  const isExpanded=sb.classList.toggle('expanded');
-  document.body.classList.toggle('sb-open',isExpanded);
-  const btn=sb.querySelector('.sb-icon-toggle');
-  if(btn) btn.title=isExpanded?'Свернуть':'Развернуть';
-}
 
 // ─── PAGE NAV ─────────────────────────────────────
 function updateMobNav(p){
@@ -2716,136 +2708,57 @@ function setCK(n,val){
   });
 }
 async function checkSetup(){
-  var labels=['Структура (BOS/CHoCH)','Точка входа (OB/FVG/BPR)','Подтверждение на младшем ТФ','Риск-менеджмент (SL/RR/размер)','Психология (нет FOMO/мести)'];
   var answers=[];
-  var yesCount=0, noCount=0, skipped=0;
+  var questions=['Есть подтверждённый BOS или CHoCH?','Есть OB/FVG/BPR в зоне входа?','Есть подтверждение на младшем ТФ?','SL за структуру, RR≥1:2, позиция рассчитана?','Ты спокоен, нет FOMO и мести рынку?'];
   for(var i=1;i<=5;i++){
-    var a=ckState[i]||null;
-    if(a==='yes') yesCount++;
-    else if(a==='no') noCount++;
-    else skipped++;
-    answers.push(labels[i-1]+': '+(a==='yes'?'✅ ДА':a==='no'?'❌ НЕТ':'⬜ не ответил'));
+    answers.push({q:questions[i-1],a:ckState[i]||'не ответил'});
   }
-  var reason=(document.getElementById('ai-reason')||{}).value||'';
+  var reason=document.getElementById('ai-reason')?document.getElementById('ai-reason').value:'';
+  var yesCount=Object.values(ckState).filter(function(v){return v==='yes';}).length;
+  var noCount=Object.values(ckState).filter(function(v){return v==='no';}).length;
+
   var btn=document.getElementById('ai-check-btn');
   if(btn){btn.disabled=true;btn.textContent='⏳ Анализирую...';}
 
-  // Determine local fallback verdict
-  var fbVerdict,fbEmoji;
-  if(yesCount===5){fbVerdict='go';fbEmoji='✅ ВХОДИТЬ';}
-  else if(yesCount>=4&&noCount===0){fbVerdict='go';fbEmoji='✅ ВХОДИТЬ';}
-  else if(noCount>=2||ckState[4]==='no'||ckState[5]==='no'){fbVerdict='stop';fbEmoji='🚫 НЕ ВХОДИТЬ';}
-  else{fbVerdict='wait';fbEmoji='⏳ ЖДАТЬ';}
-
-  var prompt = `Ты опытный трейдинг-ментор ICT/SMC стиля. Трейдер проходит чеклист перед входом в сделку.
-
-ОТВЕТЫ ТРЕЙДЕРА:
-${answers.join('
-')}
-${reason?'
-КОНТЕКСТ ОТ ТРЕЙДЕРА: '+reason:''}
-
-Дай развёрнутый разбор в следующем формате (строго по блокам, на русском):
-
-ВЕРДИКТ: [одно из трёх: ВХОДИТЬ / ЖДАТЬ / НЕ ВХОДИТЬ]
-
-ОЦЕНКА СЕТАПА:
-[2-3 предложения — что сильно в этом сетапе, что вызывает сомнения. Конкретно по ответам.]
-
-ГЛАВНЫЙ РИСК:
-[1-2 предложения — самый критичный момент который трейдер должен учесть]
-
-СОВЕТ МЕНТОРА:
-[1-2 предложения — конкретное действие: что сделать перед входом, на что обратить внимание, как улучшить]
-
-Будь строгим но конструктивным. Отвечай только по блокам выше, без лишних слов.`;
-
-  var groqKey=typeof GROQ_KEY!=='undefined'?GROQ_KEY:(window.GROQ_API_KEY||'');
-  var rawText='';
+  var prompt='Ты строгий трейдинг-ментор. Трейдер отвечает на 5 вопросов чеклиста перед сделкой:\n\n';
+  answers.forEach(function(a,i){prompt+=(i+1)+'. '+a.q+' → '+a.a+'\n';});
+  if(reason) prompt+='\nДоп. контекст: '+reason;
+  prompt+='\n\nДай чёткий вердикт: ВХОДИТЬ, ЖДАТЬ или НЕ ВХОДИТЬ. Затем 2-3 предложения объяснения. Будь конкретным и строгим.';
 
   try{
+    var groqKey=typeof GROQ_KEY!=='undefined'?GROQ_KEY:(window.GROQ_API_KEY||'');
+    var response,data,text;
     if(groqKey){
-      var resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      response=await fetch('https://api.groq.com/openai/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
-        body:JSON.stringify({
-          model:'llama3-70b-8192',
-          max_tokens:500,
-          temperature:0.6,
-          messages:[
-            {role:'system',content:'Ты строгий трейдинг-ментор. Отвечаешь чётко по структуре, на русском языке. Не используй markdown кроме текста внутри блоков.'},
-            {role:'user',content:prompt}
-          ]
-        })
+        body:JSON.stringify({model:'llama3-8b-8192',max_tokens:300,messages:[{role:'user',content:prompt}]})
       });
-      var d=await resp.json();
-      rawText=d.choices&&d.choices[0]?d.choices[0].message.content:'';
+      data=await response.json();
+      text=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'Ошибка ответа';
+    } else {
+      // Fallback: local verdict without API
+      if(yesCount>=4) text='✅ ВХОДИТЬ — '+yesCount+'/5 условий выполнено. Сетап сильный, риски под контролем.';
+      else if(yesCount>=3) text='⏳ ЖДАТЬ — '+yesCount+'/5 условий. Есть сомнения, лучше дождаться подтверждения.';
+      else text='🚫 НЕ ВХОДИТЬ — только '+yesCount+'/5 условий. Слишком много рисков, пропусти эту сделку.';
     }
-  } catch(e){ rawText=''; }
-
-  // Parse verdict from response or use fallback
-  var verdict=fbVerdict, verdictLabel=fbEmoji;
-  if(rawText){
-    var tl=rawText.toLowerCase();
-    if(/вердикт\s*:\s*(не входить|не вход)/.test(tl)||tl.includes('не входить')){verdict='stop';verdictLabel='🚫 НЕ ВХОДИТЬ';}
-    else if(/вердикт\s*:\s*входить/.test(tl)||tl.includes('✅ входить')){verdict='go';verdictLabel='✅ ВХОДИТЬ';}
-    else if(/вердикт\s*:\s*ждать/.test(tl)||tl.includes('ждать')){verdict='wait';verdictLabel='⏳ ЖДАТЬ';}
+    var verdict='wait',verdictText='ЖДАТЬ';
+    var tl=text.toLowerCase();
+    if(tl.includes('не входить')||tl.includes('не вход')||tl.includes('stop')||tl.includes('нет')){verdict='stop';verdictText='НЕ ВХОДИТЬ';}
+    else if(tl.includes('входить')||tl.includes('вход')||tl.includes('go')||tl.includes('входи')){verdict='go';verdictText='ВХОДИТЬ';}
+    var res=document.getElementById('ai-result');
+    var vd=document.getElementById('ai-verdict');
+    var vt=document.getElementById('ai-verdict-text');
+    if(res) res.style.display='block';
+    if(vd){vd.className='ai-verdict '+verdict;vd.textContent=verdictText;}
+    if(vt) vt.innerHTML=formatAIText(text);
+  } catch(e){
+    var vt=document.getElementById('ai-verdict-text');
+    if(vt) vt.textContent='Ошибка подключения. Проверь API ключ.';
+    var res=document.getElementById('ai-result');
+    if(res) res.style.display='block';
   }
-
-  // Build rich HTML output
-  var scoreColor=yesCount>=4?'var(--g)':yesCount>=3?'var(--y)':'var(--r)';
-  var html='';
-
-  if(rawText){
-    // Parse blocks from AI response
-    var blocks=[
-      {key:'ОЦЕНКА СЕТАПА',icon:'📊',label:'Оценка сетапа'},
-      {key:'ГЛАВНЫЙ РИСК',icon:'⚠️',label:'Главный риск'},
-      {key:'СОВЕТ МЕНТОРА',icon:'💡',label:'Совет ментора'}
-    ];
-    var remaining=rawText.replace(/ВЕРДИКТ\s*:.+(
-|$)/i,'').trim();
-    blocks.forEach(function(b){
-      var re=new RegExp(b.key+'\s*:\s*([\s\S]*?)(?=(?:ОЦЕНКА СЕТАПА|ГЛАВНЫЙ РИСК|СОВЕТ МЕНТОРА|$))','i');
-      var m=remaining.match(re);
-      var bodyText=m?m[1].trim():'';
-      // cut off at next block header
-      bodyText=bodyText.replace(/
-?(ОЦЕНКА СЕТАПА|ГЛАВНЫЙ РИСК|СОВЕТ МЕНТОРА)[\s\S]*/i,'').trim();
-      if(bodyText){
-        html+='<div class="ai-block"><div class="ai-block-title">'+b.icon+' '+b.label+'</div><div class="ai-block-body">'+bodyText.replace(/
-/g,'<br>')+'</div></div>';
-      }
-    });
-    if(!html) html='<div class="ai-block-body">'+rawText.replace(/ВЕРДИКТ\s*:.+(
-|$)/i,'').trim().replace(/
-/g,'<br>')+'</div>';
-  } else {
-    // Fallback without API
-    var fallbacks={
-      go:'Все ключевые условия сетапа выполнены. Структура подтверждена, точка входа определена, риск под контролем и психологическое состояние стабильно.',
-      wait:'Часть условий не выполнена или трейдер не ответил на все вопросы. Лучше дождаться более чёткого подтверждения прежде чем входить.',
-      stop:'Критически важные условия не соблюдены — особенно риск-менеджмент или психологическое состояние. Эту сделку нужно пропустить.'
-    };
-    html='<div class="ai-block"><div class="ai-block-title">📊 Оценка</div><div class="ai-block-body">'+fallbacks[verdict]+'</div></div>';
-    if(noCount>0){
-      html+='<div class="ai-block"><div class="ai-block-title">⚠️ Проблемные пункты</div><div class="ai-block-body">Отмечено «НЕТ» по '+noCount+' пункт(ам). Это снижает качество сетапа.</div></div>';
-    }
-    if(skipped>0){
-      html+='<div class="ai-block"><div class="ai-block-title">💡 Совет</div><div class="ai-block-body">Не пропускай вопросы — каждый пункт чеклиста важен для защиты депозита.</div></div>';
-    }
-  }
-
-  // Render
-  var res=document.getElementById('ai-result');
-  var vd=document.getElementById('ai-verdict');
-  var sc=document.getElementById('ai-score');
-  var tx=document.getElementById('ai-text');
-  if(res){res.style.display='block';res.className='ai-result '+verdict;}
-  if(vd){vd.className='ai-verdict '+verdict;vd.textContent=verdictLabel;}
-  if(sc){sc.textContent=yesCount+'/5 условий';sc.style.color=scoreColor;}
-  if(tx){tx.innerHTML=html;}
-  if(btn){btn.disabled=false;btn.textContent='🔄 ПЕРЕСМОТРЕТЬ';}
+  if(btn){btn.disabled=false;btn.textContent='ПОЛУЧИТЬ ВЕРДИКТ';}
 }
 
 var _aiInited=false;
@@ -2899,13 +2812,12 @@ function formatAIText(text){
 }
 
 async function init(){
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='login.html';return;}
-  const user=session.user;
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){window.location.href='login.html';return;}
   currentUser=user;
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!p){window.location.href='login.html';return;}
-  const hasAccess=true; // все авторизованные пользователи
+  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date())||p.role==='admin';
   
   // fill sidebar + topbar
   const initLetter=(p.full_name||p.username||'U')[0].toUpperCase();
@@ -2952,7 +2864,43 @@ function enablePreviewMode(name){
     if(main)main.insertBefore(banner,main.firstChild);
   }
   
-  // Preview: только баннер, форма доступна
+  // Lock interactive elements with overlay
+  const lockTargets=[
+    {sel:'.stats-row',label:'Статистика появится после первой сделки'},
+    {sel:'#page-journal .fcard',label:'Добавь первую сделку'},
+    {sel:'#page-dashboard',label:'Дашборд'},
+    {sel:'#page-progress',label:'Прогресс и аналитика'},
+    {sel:'#page-premarket',label:'Подготовка к сессии'},
+    {sel:'#page-aichat',label:'AI-коуч'},
+    {sel:'#page-coach',label:'Разбор ошибок'},
+    {sel:'#page-simulator',label:'Симулятор'},
+    {sel:'#page-leaderboard',label:'Рейтинг'},
+  ];
+  
+  // Defer until DOM is populated
+  setTimeout(()=>{
+    lockTargets.forEach(({sel,label})=>{
+      const el=document.querySelector(sel);
+      if(!el)return;
+      if(getComputedStyle(el).position==='static')el.style.position='relative';
+      const ov=document.createElement('div');
+      ov.className='preview-lock-overlay';
+      ov.innerHTML=`<div class="plo-inner"><div class="plo-lock">🔒</div><div class="plo-label">${label}</div><a href="pay.html" class="plo-btn">Разблокировать</a></div>`;
+      el.appendChild(ov);
+    });
+    
+    // Disable add trade button
+    const addBtn=document.getElementById('btn-add');
+    if(addBtn){addBtn.disabled=true;addBtn.style.opacity='0.35';addBtn.title='Нужен доступ';}
+    
+    // Blur add trade form inputs
+    const form=document.getElementById('add-trade-form');
+    if(form){
+      form.style.filter='blur(3px)';
+      form.style.pointerEvents='none';
+      form.style.userSelect='none';
+    }
+  },200);
 }
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
