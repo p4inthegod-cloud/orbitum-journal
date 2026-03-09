@@ -86,7 +86,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ─── TOPBAR (desktop) ──────────────────────── */
 .jnl-topbar{
   display:none; /* shown on desktop via media query */
-  position:sticky;top:0;z-index:150;
+  position:sticky;top:0;z-index:160;
   background:rgba(5,7,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid rgba(255,255,255,0.05);
   height:48px;align-items:center;padding:0 22px;gap:10px;
@@ -1390,108 +1390,46 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .mob-bottom-nav{display:none!important;}
   .sb-overlay{display:none!important;}
   .topnav{display:none;}
-
-  /* ── SIDEBAR: always 52px icon strip, toggle to full width ── */
   .sidebar{
     display:flex!important;
-    position:fixed;top:0;left:0;bottom:0;
-    width:52px;          /* FIXED at 52px — never changes */
+    width:52px!important;
+    overflow:hidden!important;
     z-index:150;
-    overflow:visible;    /* no overflow clip — buttons must fit in 52px */
-    transition:none;
   }
-  /* When expanded, grow to full */
-  .sidebar.expanded{width:var(--sb);}
-
-  /* ── BUTTONS: locked to sidebar width ── */
-  /* Collapsed: icon only, button is exactly 52px */
-  .sb-logo{
-    padding:0 0 0 0;
-    width:52px;
-    justify-content:center;
-    overflow:hidden;
-    transition:width 0.28s cubic-bezier(0.4,0,0.2,1),padding 0.28s;
-  }
-  .sidebar.expanded .sb-logo{
-    width:var(--sb);
-    padding:0 16px;
-    justify-content:flex-start;
-  }
-
+  /* Все кнопки строго 52px - текст скрыт через CSS класс */
   .sb-item{
-    width:52px;           /* CRITICAL: button is exactly 52px wide */
-    justify-content:center;
-    padding:7px 0;
-    gap:0;
-    overflow:hidden;
-    transition:width 0.28s cubic-bezier(0.4,0,0.2,1),
-               padding 0.28s cubic-bezier(0.4,0,0.2,1),
-               gap 0.28s,background 0.15s,color 0.15s;
+    width:52px!important;
+    padding:10px 0!important;
+    justify-content:center!important;
+    gap:0!important;
   }
-  .sidebar.expanded .sb-item{
-    width:calc(var(--sb) - 16px); /* full width with padding */
-    justify-content:flex-start;
-    padding:7px 10px;
-    gap:8px;
-  }
-
-  /* Text labels: hidden (display:none) when collapsed → no click area leak */
-  .sb-item-label,
-  .sb-logo-text,
+  .sb-item .sb-item-label,
   .sb-section,
+  .sb-divider,
+  .sb-logo-text,
   .sb-user-info,
   .sb-logout{
-    display:none;
+    display:none!important;
   }
-  .sidebar.expanded .sb-item-label,
-  .sidebar.expanded .sb-logo-text,
-  .sidebar.expanded .sb-section,
-  .sidebar.expanded .sb-user-info,
-  .sidebar.expanded .sb-logout{
-    display:block;
-    animation:sbLabelIn 0.18s 0.1s cubic-bezier(0.4,0,0.2,1) both;
+  .sb-logo{
+    width:52px!important;
+    padding:0!important;
+    justify-content:center!important;
   }
-  @keyframes sbLabelIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:none;}}
-
-  /* sb-section when expanded */
-  .sidebar.expanded .sb-section{
-    opacity:1;padding:12px 10px 4px;
-  }
-
-  /* Footer */
-  .sb-footer{padding:8px;}
-  .sb-user{
-    padding:8px 0;
-    justify-content:center;
-    transition:padding 0.28s,justify-content 0.28s;
-  }
-  .sidebar.expanded .sb-user{
-    padding:8px 10px;
-    justify-content:flex-start;
-  }
-  .sidebar.expanded .sb-logout{
-    display:block;
-    width:100%;
-    margin-top:5px;
-    animation:sbLabelIn 0.18s 0.12s cubic-bezier(0.4,0,0.2,1) both;
-  }
-
-  /* Toggle button */
+  .sb-footer{ padding:8px 0; align-items:center; }
+  .sb-user{ padding:6px 0!important; justify-content:center!important; }
   .sb-icon-toggle{
-    position:absolute;bottom:16px;left:0;width:52px;height:32px;
+    position:static!important;
+    width:52px;height:36px;
     display:flex;align-items:center;justify-content:center;
-    background:none;border:none;cursor:pointer;color:var(--m);
-    font-size:16px;transition:color 0.15s;z-index:1;
+    background:none;border:none;cursor:pointer;
+    color:rgba(255,255,255,0.35);font-size:18px;
+    transition:color 0.15s;
   }
   .sb-icon-toggle:hover{color:var(--a);}
-  .sb-toggle-btn{display:none;}
-
-  /* Topbar & main */
-  .jnl-topbar{display:flex;margin-left:52px;transition:margin-left 0.28s cubic-bezier(0.4,0,0.2,1);}
+  .jnl-topbar{display:flex;margin-left:52px;}
   .jtb-navs{display:none!important;}
-  .main{margin-left:52px;padding:0 32px 60px;transition:margin-left 0.28s cubic-bezier(0.4,0,0.2,1);}
-  body.sb-open .main{margin-left:var(--sb);}
-  body.sb-open .jnl-topbar{margin-left:var(--sb);}
+  .main{margin-left:52px;padding:0 32px 60px;}
   .stats-row{margin-top:24px;}
 }
 
@@ -1742,35 +1680,35 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
     <button class="sb-item active" onclick="showPage('journal',this)" data-page="journal">
-      <span class="sb-item-icon">📋</span><span class="sb-item-label">Журнал сделок</span>
+      <span class="sb-item-icon">📋</span>Журнал сделок
     </button>
     <button class="sb-item" onclick="showPage('dashboard',this)" data-page="dashboard">
-      <span class="sb-item-icon">📊</span><span class="sb-item-label">Аналитика</span>
+      <span class="sb-item-icon">📊</span>Аналитика
     </button>
     <button class="sb-item" onclick="showPage('progress',this)" data-page="progress">
-      <span class="sb-item-icon">📈</span><span class="sb-item-label">Прогресс</span>
+      <span class="sb-item-icon">📈</span>Прогресс
     </button>
     <button class="sb-item" onclick="showPage('digest',this)" data-page="digest">
-      <span class="sb-item-icon">📅</span><span class="sb-item-label">Дайджест</span>
+      <span class="sb-item-icon">📅</span>Дайджест
     </button>
     <button class="sb-item" onclick="showPage('premarket',this)" data-page="premarket">
-      <span class="sb-item-icon">☀️</span><span class="sb-item-label">Пре-маркет</span>
+      <span class="sb-item-icon">☀️</span>Пре-маркет
     </button>
     <div class="sb-divider"></div>
     <div class="sb-section">AI & Аналитика</div>
     <button class="sb-item" onclick="showPage('coach',this)" data-page="coach">
-      <span class="sb-item-icon">🤖</span><span class="sb-item-label">AI Coach</span>
+      <span class="sb-item-icon">🤖</span>AI Coach
     </button>
     <button class="sb-item" onclick="showPage('simulator',this)" data-page="simulator">
-      <span class="sb-item-icon">🎮</span><span class="sb-item-label">Симулятор</span>
+      <span class="sb-item-icon">🎮</span>Симулятор
     </button>
 
     <div class="sb-divider"></div>
     <a href="profile.html" class="sb-item" target="_blank" rel="noopener">
-      <span class="sb-item-icon">🧠</span><span class="sb-item-label">Мой профиль ↗</span>
+      <span class="sb-item-icon">🧠</span>Мой профиль ↗
     </a>
     <a href="admin.html" class="sb-item" id="snav-admin" style="display:none" onclick="window.location.href='admin.html';return false;">
-      <span class="sb-item-icon">⚙️</span><span class="sb-item-label">Админ</span>
+      <span class="sb-item-icon">⚙️</span>Админ
     </a>
   </nav>
   <div class="sb-footer">
@@ -2963,13 +2901,11 @@ function formatAIText(text){
 async function init(){
   const{data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='login.html';return;}
-  // Refresh token in background
-  sb.auth.getUser().catch(()=>{});
   const user=session.user;
   currentUser=user;
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!p){window.location.href='login.html';return;}
-  const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date())||p.role==='admin';
+  const hasAccess=true; // все авторизованные пользователи
   
   // fill sidebar + topbar
   const initLetter=(p.full_name||p.username||'U')[0].toUpperCase();
@@ -3016,43 +2952,7 @@ function enablePreviewMode(name){
     if(main)main.insertBefore(banner,main.firstChild);
   }
   
-  // Lock interactive elements with overlay
-  const lockTargets=[
-    {sel:'.stats-row',label:'Статистика появится после первой сделки'},
-    {sel:'#page-journal .fcard',label:'Добавь первую сделку'},
-    {sel:'#page-dashboard',label:'Дашборд'},
-    {sel:'#page-progress',label:'Прогресс и аналитика'},
-    {sel:'#page-premarket',label:'Подготовка к сессии'},
-    {sel:'#page-aichat',label:'AI-коуч'},
-    {sel:'#page-coach',label:'Разбор ошибок'},
-    {sel:'#page-simulator',label:'Симулятор'},
-    {sel:'#page-leaderboard',label:'Рейтинг'},
-  ];
-  
-  // Defer until DOM is populated
-  setTimeout(()=>{
-    lockTargets.forEach(({sel,label})=>{
-      const el=document.querySelector(sel);
-      if(!el)return;
-      if(getComputedStyle(el).position==='static')el.style.position='relative';
-      const ov=document.createElement('div');
-      ov.className='preview-lock-overlay';
-      ov.innerHTML=`<div class="plo-inner"><div class="plo-lock">🔒</div><div class="plo-label">${label}</div><a href="pay.html" class="plo-btn">Разблокировать</a></div>`;
-      el.appendChild(ov);
-    });
-    
-    // Disable add trade button
-    const addBtn=document.getElementById('btn-add');
-    if(addBtn){addBtn.disabled=true;addBtn.style.opacity='0.35';addBtn.title='Нужен доступ';}
-    
-    // Blur add trade form inputs
-    const form=document.getElementById('add-trade-form');
-    if(form){
-      form.style.filter='blur(3px)';
-      form.style.pointerEvents='none';
-      form.style.userSelect='none';
-    }
-  },200);
+  // Preview: только баннер, форма доступна
 }
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
@@ -4783,10 +4683,7 @@ document.addEventListener('click',function(e){
   if(m && e.target===m) closeEditModal();
 });
 
-init().catch(err=>{
-  console.error('[ORBITUM] Init error:',err);
-  window.location.href='login.html';
-});
+init();
 </script>
 <!-- QUICK NOTE POPUP -->
 <div class="qnote-overlay" id="qnote-overlay" onclick="closeQNote(event)">
