@@ -1142,7 +1142,7 @@ function render(p, trades){
       <button class="atab" onclick="switchAnalyticsTab('psych',this)">Психология</button>
     </div>
     <div id="analytics-content" style="margin-top:16px">
-      ${renderAnalyticsTab(trades,'setups')}
+      <div class="an-empty" style="padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Загрузка аналитики...</div>
     </div>
   </div>
 
@@ -1159,10 +1159,12 @@ function render(p, trades){
   </div>
   `;
 
-  // Render equity canvas
+  // Render equity canvas + analytics
   setTimeout(()=>{
     renderEquity(trades);
     renderHeatmapPub(trades);
+    const ac = document.getElementById('analytics-content');
+    if(ac) ac.innerHTML = renderAnalyticsTab(trades,'setups');
   },50);
 }
 
