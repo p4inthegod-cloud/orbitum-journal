@@ -96,8 +96,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   font-family:var(--font-display);font-size:18px;letter-spacing:5px;
   color:var(--t);text-decoration:none;
   text-shadow:0 0 16px rgba(255,255,255,0.08);
-  flex-shrink:0;
+  flex-shrink:0;cursor:pointer;transition:opacity 0.2s;
 }
+.jtb-logo:hover{opacity:0.65;}
 .jtb-dot{
   width:5px;height:5px;border-radius:50%;flex-shrink:0;
   background:var(--a);
@@ -1657,7 +1658,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 <!-- TOPBAR (desktop) -->
 <div class="jnl-topbar" id="jnl-topbar">
-  <span class="jtb-logo">ORBITUM</span>
+  <a href="index.html" class="jtb-logo" style="text-decoration:none;cursor:pointer;" title="На главную">ORBITUM</a>
   <div class="jtb-dot"></div>
   <span class="jtb-badge" id="jtb-page-badge">ЖУРНАЛ СДЕЛОК</span>
   <div class="jtb-sep"></div>
@@ -1665,8 +1666,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <button class="jtb-nav active" onclick="showPage('journal',this)" data-page="journal">📋 Журнал</button>
     <!-- Инструменты dropdown -->
     <div class="jtb-dropdown" id="jtb-tools-dd">
-      <button class="jtb-nav jtb-dd-trigger" onclick="toggleToolsDD(event)">
-        🛠 Инструменты <span class="dd-arrow">▾</span>
+      <button class="jtb-nav jtb-dd-trigger" id="jtb-dd-trigger-btn">
+        🛠 Инструменты <span class="dd-arrow" id="dd-arrow-icon">▾</span>
       </button>
       <div class="jtb-dd-menu" id="jtb-dd-menu">
         <button class="jtb-dd-item" onclick="showPage('dashboard',this);closeToolsDD()" data-page="dashboard">📊 Аналитика</button>
@@ -2996,7 +2997,7 @@ function render(){
         <div class="tr">
           <div class="tpnl ${pnlCls}">${pnl}${usd?` <span style="font-size:9px;opacity:0.55">${usd}</span>`:''}</div>
           <div class="tdate">${date}</div>
-          <button class="editbtn" onclick="openEditModal('${t.id}')" title="Редактировать">✏️</button>
+          <button class="editbtn" data-edit-id="${t.id}" title="Редактировать">✏️</button>
           <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
         </div>
       </div>
@@ -4383,7 +4384,7 @@ function initLeaderboard(){
 
 // ─── DROPDOWN TOOLS MENU ──────────────────────────
 function toggleToolsDD(e){
-  e.stopPropagation();
+  if(e) e.stopPropagation();
   const dd=document.getElementById('jtb-tools-dd');
   dd.classList.toggle('open');
 }
@@ -4391,6 +4392,23 @@ function closeToolsDD(){
   const dd=document.getElementById('jtb-tools-dd');
   if(dd) dd.classList.remove('open');
 }
+// Attach listener after DOM ready
+document.addEventListener('DOMContentLoaded',function(){
+  const trigBtn=document.getElementById('jtb-dd-trigger-btn');
+  if(trigBtn) trigBtn.addEventListener('click',function(e){toggleToolsDD(e);});
+
+  // Delegated handler for edit buttons in trades list
+  const tradesList=document.getElementById('trades-list');
+  if(tradesList){
+    tradesList.addEventListener('click',function(e){
+      const btn=e.target.closest('.editbtn');
+      if(btn){
+        const id=btn.getAttribute('data-edit-id');
+        if(id) openEditModal(id);
+      }
+    });
+  }
+});
 document.addEventListener('click',function(e){
   const dd=document.getElementById('jtb-tools-dd');
   if(dd && !dd.contains(e.target)) dd.classList.remove('open');
