@@ -138,6 +138,48 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 
 /* ── TOPBAR ACTION BUTTONS ── */
+/* ─── DROPDOWN MENU ───────────────────────────── */
+.jtb-dropdown{position:relative;display:inline-flex;}
+.jtb-dd-trigger{display:flex;align-items:center;gap:4px;}
+.dd-arrow{font-size:8px;transition:transform 0.18s;display:inline-block;}
+.jtb-dropdown.open .dd-arrow{transform:rotate(180deg);}
+.jtb-dd-menu{
+  display:none;position:absolute;top:calc(100% + 6px);left:0;
+  background:#0e1014;border:1px solid rgba(255,255,255,0.09);
+  border-radius:9px;padding:5px;min-width:170px;z-index:900;
+  box-shadow:0 16px 40px rgba(0,0,0,0.7);
+  animation:ddIn 0.15s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes ddIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+.jtb-dropdown.open .jtb-dd-menu{display:block;}
+.jtb-dd-item{
+  display:block;width:100%;padding:7px 12px;border-radius:6px;border:none;
+  background:transparent;color:var(--m);font-family:var(--font-mono);
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.12s;text-align:left;white-space:nowrap;
+}
+.jtb-dd-item:hover{color:var(--t);background:rgba(255,255,255,0.05);}
+.jtb-dd-item.active{color:var(--a);background:rgba(232,114,42,0.1);}
+.jtb-dd-sep{height:1px;background:rgba(255,255,255,0.06);margin:4px 0;}
+/* ─── EDIT MODAL ─────────────────────────────── */
+.edit-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center;padding:16px;}
+.edit-modal.open{display:flex;}
+.edit-box{background:#0d0f14;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px;width:100%;max-width:520px;position:relative;max-height:90vh;overflow-y:auto;}
+.edit-box::-webkit-scrollbar{width:4px;}
+.edit-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+.edit-title{font-family:var(--font-display);font-size:16px;letter-spacing:3px;color:var(--a);margin-bottom:20px;}
+.edit-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--m);font-size:20px;cursor:pointer;transition:color 0.15s;line-height:1;}
+.edit-close:hover{color:var(--r);}
+.edit-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.edit-field{display:flex;flex-direction:column;gap:4px;}
+.edit-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
+.edit-input{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:7px;padding:8px 10px;color:var(--t);font-family:var(--font-mono);font-size:11px;outline:none;transition:all 0.15s;width:100%;}
+.edit-input:focus{border-color:var(--a);background:rgba(232,114,42,0.04);box-shadow:0 0 0 2px rgba(232,114,42,0.08);}
+.edit-save{width:100%;padding:11px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:8px;color:#fff;font-family:var(--font-display);font-size:13px;letter-spacing:3px;cursor:pointer;margin-top:8px;transition:all 0.2s;box-shadow:0 4px 18px rgba(232,114,42,0.28);}
+.edit-save:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(232,114,42,0.4);}
+.editbtn{background:none;border:none;color:var(--m);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:3px;transition:all 0.15s;}
+.editbtn:hover{color:var(--a);background:rgba(232,114,42,0.1);}
+
 .jtb-action-btn{
   display:flex;align-items:center;gap:4px;
   padding:4px 9px;border-radius:7px;border:none;cursor:pointer;
@@ -434,29 +476,29 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ─── FORM ────────────────────────────────── */
 .fcard{
   background:var(--bg2);border:var(--line);border-radius:var(--radius);
-  padding:20px;margin-bottom:16px;position:relative;overflow:hidden;
+  padding:14px 16px;margin-bottom:12px;position:relative;overflow:hidden;
 }
 .fcard::before{
   content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
   background:linear-gradient(90deg,transparent,var(--a3),transparent);
 }
-.fcard-title{font-family:var(--font-display);font-size:13px;letter-spacing:3px;color:var(--a);margin-bottom:16px;text-shadow:0 0 18px rgba(232,114,42,0.45);}
-.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
-.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
-.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
+.fcard-title{font-family:var(--font-display);font-size:12px;letter-spacing:3px;color:var(--a);margin-bottom:12px;text-shadow:0 0 18px rgba(232,114,42,0.45);}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-family:var(--font-mono);font-size:7.5px;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
 .field input,.field select,.field textarea{
-  background:var(--bg3);border:var(--line);border-radius:7px;
-  padding:9px 11px;color:var(--t);font-family:var(--font-mono);
-  font-size:12px;outline:none;transition:all 0.15s;width:100%;
+  background:var(--bg3);border:var(--line);border-radius:6px;
+  padding:7px 10px;color:var(--t);font-family:var(--font-mono);
+  font-size:11px;outline:none;transition:all 0.15s;width:100%;
 }
 .field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,0.15);}
 .field input:focus,.field select:focus,.field textarea:focus{
   border-color:var(--a);background:rgba(232,114,42,0.03);
   box-shadow:0 0 0 2px rgba(232,114,42,0.08);
 }
-.field textarea{resize:vertical;min-height:64px;font-family:var(--font-body);font-size:12px;line-height:1.55;}
+.field textarea{resize:vertical;min-height:54px;font-family:var(--font-body);font-size:11px;line-height:1.5;}
 /* Key value inputs — bigger orange glow */
 .field-key input{
   font-family:var(--font-display);font-size:18px;letter-spacing:1px;
@@ -500,17 +542,17 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* Emotion section */
 .em-section{
   background:rgba(255,255,255,0.015);border:var(--line);
-  border-radius:8px;padding:14px;margin-bottom:10px;
+  border-radius:8px;padding:10px 12px;margin-bottom:8px;
 }
-.em-title{font-family:var(--font-mono);font-size:8px;color:rgba(232,114,42,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
-.em-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.em-row{display:flex;flex-direction:column;gap:5px;}
-.em-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
-.em-opts{display:flex;gap:4px;}
+.em-title{font-family:var(--font-mono);font-size:7.5px;color:rgba(232,114,42,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.em-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.em-row{display:flex;flex-direction:column;gap:4px;}
+.em-label{font-family:var(--font-mono);font-size:7.5px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;}
+.em-opts{display:flex;gap:3px;}
 .em-opt{
-  flex:1;padding:6px 3px;border-radius:6px;border:var(--line);
+  flex:1;padding:5px 3px;border-radius:5px;border:var(--line);
   background:var(--bg3);color:var(--m);font-family:var(--font-mono);
-  font-size:8px;cursor:pointer;transition:all 0.15s;text-align:center;letter-spacing:0.3px;
+  font-size:7.5px;cursor:pointer;transition:all 0.15s;text-align:center;letter-spacing:0.3px;
 }
 .em-opt.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.35);color:var(--a);}
 /* Buttons */
@@ -1224,6 +1266,20 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .tnav{padding:6px 9px;font-size:8px;}
   .em-chip{width:24px;height:24px;font-size:11px;}
   .fcard{padding:10px;}
+  .edit-row{grid-template-columns:1fr;}
+  .list-head{flex-direction:column;align-items:flex-start;gap:8px;}
+}
+
+/* ─── WIDE SCREEN ─────────────────────────────── */
+@media(min-width:1400px){
+  .main{padding:18px 32px 24px;}
+  .fg4{gap:12px;}
+  .fg3{gap:12px;}
+  .stats-row{gap:12px;}
+}
+@media(min-width:1600px){
+  .main{padding:20px 48px 28px;}
+  .fcard{padding:18px 20px;}
 }
 
 @media(max-width:860px){.mob-bottom-nav{display:flex;}}
@@ -1607,14 +1663,24 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <div class="jtb-sep"></div>
   <div class="jtb-navs">
     <button class="jtb-nav active" onclick="showPage('journal',this)" data-page="journal">📋 Журнал</button>
-    <button class="jtb-nav" onclick="showPage('dashboard',this)" data-page="dashboard">📊 Аналитика</button>
-    <button class="jtb-nav" onclick="showPage('progress',this)" data-page="progress">📈 Прогресс</button>
-    <button class="jtb-nav" onclick="showPage('digest',this)" data-page="digest">📅 Дайджест</button>
-    <button class="jtb-nav" onclick="showPage('premarket',this)" data-page="premarket">☀️ Сессия</button>
-    <button class="jtb-nav" onclick="showPage('aichat',this)" data-page="aichat">🤖 AI Чат</button>
-    <button class="jtb-nav" onclick="showPage('coach',this)" data-page="coach">🧠 AI Коуч</button>
-    <button class="jtb-nav" onclick="showPage('simulator',this)" data-page="simulator">🎮 Симулятор</button>
-    <button class="jtb-nav" onclick="showPage('leaderboard',this)" data-page="leaderboard">🏆 Рейтинг</button>
+    <!-- Инструменты dropdown -->
+    <div class="jtb-dropdown" id="jtb-tools-dd">
+      <button class="jtb-nav jtb-dd-trigger" onclick="toggleToolsDD(event)">
+        🛠 Инструменты <span class="dd-arrow">▾</span>
+      </button>
+      <div class="jtb-dd-menu" id="jtb-dd-menu">
+        <button class="jtb-dd-item" onclick="showPage('dashboard',this);closeToolsDD()" data-page="dashboard">📊 Аналитика</button>
+        <button class="jtb-dd-item" onclick="showPage('progress',this);closeToolsDD()" data-page="progress">📈 Прогресс</button>
+        <button class="jtb-dd-item" onclick="showPage('digest',this);closeToolsDD()" data-page="digest">📅 Дайджест</button>
+        <button class="jtb-dd-item" onclick="showPage('premarket',this);closeToolsDD()" data-page="premarket">☀️ Сессия</button>
+        <div class="jtb-dd-sep"></div>
+        <button class="jtb-dd-item" onclick="showPage('aichat',this);closeToolsDD()" data-page="aichat">🤖 AI Чат</button>
+        <button class="jtb-dd-item" onclick="showPage('coach',this);closeToolsDD()" data-page="coach">🧠 AI Коуч</button>
+        <div class="jtb-dd-sep"></div>
+        <button class="jtb-dd-item" onclick="showPage('simulator',this);closeToolsDD()" data-page="simulator">🎮 Симулятор</button>
+        <button class="jtb-dd-item" onclick="showPage('leaderboard',this);closeToolsDD()" data-page="leaderboard">🏆 Рейтинг</button>
+      </div>
+    </div>
   </div>
   <div class="jtb-right">
     <!-- BALANCE WIDGET -->
@@ -1895,12 +1961,15 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     </div>
     <div class="list-head">
       <div class="list-title">История</div>
-      <div class="filters">
-        <button class="fbtn active" onclick="setF('all',this)">Все</button>
-        <button class="fbtn" onclick="setF('win',this)">Прибыль</button>
-        <button class="fbtn" onclick="setF('loss',this)">Убыток</button>
-        <button class="fbtn" onclick="setF('long',this)">Long</button>
-        <button class="fbtn" onclick="setF('short',this)">Short</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="filters">
+          <button class="fbtn active" onclick="setF('all',this)">Все</button>
+          <button class="fbtn" onclick="setF('win',this)">Прибыль</button>
+          <button class="fbtn" onclick="setF('loss',this)">Убыток</button>
+          <button class="fbtn" onclick="setF('long',this)">Long</button>
+          <button class="fbtn" onclick="setF('short',this)">Short</button>
+        </div>
+        <button onclick="clearAllTrades()" style="padding:4px 10px;border-radius:14px;border:1px solid rgba(255,77,77,0.25);background:transparent;color:rgba(255,77,77,0.55);font-family:var(--font-mono);font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.borderColor='rgba(255,77,77,0.5)';this.style.color='var(--r)'" onmouseout="this.style.borderColor='rgba(255,77,77,0.25)';this.style.color='rgba(255,77,77,0.55)'">🗑 ОЧИСТИТЬ ВСЁ</button>
       </div>
     </div>
     <div id="trades-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
@@ -2475,6 +2544,48 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 </div>
 
 <!-- AI SETUP MODAL -->
+<!-- EDIT TRADE MODAL -->
+<div class="edit-modal" id="edit-modal">
+  <div class="edit-box">
+    <button class="edit-close" onclick="closeEditModal()">×</button>
+    <div class="edit-title">✏️ РЕДАКТИРОВАТЬ СДЕЛКУ</div>
+    <input type="hidden" id="edit-trade-id">
+    <div class="edit-row">
+      <div class="edit-field"><div class="edit-label">Пара</div><input class="edit-input" id="edit-pair" placeholder="BTC/USDT"></div>
+      <div class="edit-field"><div class="edit-label">Направление</div>
+        <select class="edit-input" id="edit-direction">
+          <option value="long">LONG</option><option value="short">SHORT</option>
+        </select>
+      </div>
+    </div>
+    <div class="edit-row">
+      <div class="edit-field"><div class="edit-label">Результат</div>
+        <select class="edit-input" id="edit-result">
+          <option value="win">Прибыль</option><option value="loss">Убыток</option><option value="be">Безубыток</option>
+        </select>
+      </div>
+      <div class="edit-field"><div class="edit-label">P&L %</div><input class="edit-input" id="edit-pnl-pct" type="number" step="0.01" placeholder="1.5"></div>
+    </div>
+    <div class="edit-row">
+      <div class="edit-field"><div class="edit-label">P&L $</div><input class="edit-input" id="edit-pnl-usd" type="number" step="0.01" placeholder="150"></div>
+      <div class="edit-field"><div class="edit-label">Тип сетапа</div><input class="edit-input" id="edit-setup" placeholder="FVG, OB..."></div>
+    </div>
+    <div class="edit-field" style="margin-bottom:10px;">
+      <div class="edit-label">Сетап / Почему вошёл</div>
+      <textarea class="edit-input" id="edit-note-why" rows="2" placeholder="Что видел на графике..."></textarea>
+    </div>
+    <div class="edit-field" style="margin-bottom:10px;">
+      <div class="edit-label">Эмоции / Ошибки</div>
+      <textarea class="edit-input" id="edit-note-feel" rows="2" placeholder="Нарушил план?..."></textarea>
+    </div>
+    <div class="edit-field" style="margin-bottom:10px;">
+      <div class="edit-label">Урок из сделки</div>
+      <textarea class="edit-input" id="edit-note-lesson" rows="2" placeholder="Что вынес..."></textarea>
+    </div>
+    <button class="edit-save" onclick="saveEditTrade()">СОХРАНИТЬ</button>
+  </div>
+</div>
+
 <div class="ai-modal" id="ai-modal">
   <div class="ai-box">
     <button class="ai-close" onclick="closeAI()">×</button>
@@ -2528,6 +2639,23 @@ function updateMobNav(p){
 }
 
 var _aiInited=false;
+function openAI(){
+  document.getElementById('ai-modal').classList.add('open');
+  // reset state
+  [1,2,3,4,5].forEach(i=>{
+    const y=document.getElementById('ck'+i+'-yes');
+    const n=document.getElementById('ck'+i+'-no');
+    if(y){y.classList.remove('sel-y','sel-n');}
+    if(n){n.classList.remove('sel-y','sel-n');}
+  });
+  const res=document.getElementById('ai-result');
+  if(res) res.style.display='none';
+  const ta=document.getElementById('ai-reason');
+  if(ta) ta.value='';
+}
+function closeAI(){
+  document.getElementById('ai-modal').classList.remove('open');
+}
 function showPage(p,btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   var pg=document.getElementById('page-'+p);
@@ -2868,6 +2996,7 @@ function render(){
         <div class="tr">
           <div class="tpnl ${pnlCls}">${pnl}${usd?` <span style="font-size:9px;opacity:0.55">${usd}</span>`:''}</div>
           <div class="tdate">${date}</div>
+          <button class="editbtn" onclick="openEditModal('${t.id}')" title="Редактировать">✏️</button>
           <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
         </div>
       </div>
@@ -4251,6 +4380,100 @@ function updateStatsEnhanced(){
 function initLeaderboard(){
   renderLeaderboard();
 }
+
+// ─── DROPDOWN TOOLS MENU ──────────────────────────
+function toggleToolsDD(e){
+  e.stopPropagation();
+  const dd=document.getElementById('jtb-tools-dd');
+  dd.classList.toggle('open');
+}
+function closeToolsDD(){
+  const dd=document.getElementById('jtb-tools-dd');
+  if(dd) dd.classList.remove('open');
+}
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('jtb-tools-dd');
+  if(dd && !dd.contains(e.target)) dd.classList.remove('open');
+});
+// Update active state in dropdown when page changes
+const _origShowPage=showPage;
+function showPageWithDD(p,btn){
+  _origShowPage(p,btn);
+  document.querySelectorAll('.jtb-dd-item').forEach(function(b){
+    b.classList.toggle('active', b.dataset.page===p);
+  });
+  // if page is not journal, mark Инструменты trigger as active-ish
+  const trigger=document.querySelector('.jtb-dd-trigger');
+  const toolPages=['dashboard','progress','digest','premarket','aichat','coach','simulator','leaderboard'];
+  if(trigger) trigger.classList.toggle('active', toolPages.includes(p));
+}
+// Override showPage globally
+window.showPage=showPageWithDD;
+
+// ─── CLEAR ALL TRADES ─────────────────────────────
+async function clearAllTrades(){
+  if(!currentUser) return;
+  if(!confirm('Удалить ВСЕ сделки? Это действие нельзя отменить.')) return;
+  const second=confirm('Вы уверены? Все ' + allTrades.length + ' сделок будут удалены навсегда.');
+  if(!second) return;
+  const {error}=await sb.from('trades').delete().eq('user_id',currentUser.id);
+  if(error){alert('Ошибка удаления: '+error.message);return;}
+  allTrades=[];
+  render();
+  updateStats();
+}
+
+// ─── EDIT TRADE MODAL ─────────────────────────────
+function openEditModal(id){
+  const t=allTrades.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('edit-trade-id').value=id;
+  document.getElementById('edit-pair').value=t.pair||'';
+  document.getElementById('edit-direction').value=t.direction||'long';
+  document.getElementById('edit-result').value=t.result||'win';
+  document.getElementById('edit-pnl-pct').value=t.pnl_pct!=null?t.pnl_pct:'';
+  document.getElementById('edit-pnl-usd').value=t.pnl_usd!=null?t.pnl_usd:'';
+  document.getElementById('edit-setup').value=t.setup_type||'';
+  document.getElementById('edit-note-why').value=t.note_why||'';
+  document.getElementById('edit-note-feel').value=t.note_feel||'';
+  document.getElementById('edit-note-lesson').value=t.note_lesson||'';
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeEditModal(){
+  document.getElementById('edit-modal').classList.remove('open');
+}
+async function saveEditTrade(){
+  const id=document.getElementById('edit-trade-id').value;
+  if(!id) return;
+  const pnlPct=document.getElementById('edit-pnl-pct').value;
+  const pnlUsd=document.getElementById('edit-pnl-usd').value;
+  const updates={
+    pair:document.getElementById('edit-pair').value.trim().toUpperCase()||'BTC/USDT',
+    direction:document.getElementById('edit-direction').value,
+    result:document.getElementById('edit-result').value,
+    pnl_pct:pnlPct!==''?parseFloat(pnlPct):null,
+    pnl_usd:pnlUsd!==''?parseFloat(pnlUsd):null,
+    setup_type:document.getElementById('edit-setup').value.trim()||null,
+    note_why:document.getElementById('edit-note-why').value.trim()||null,
+    note_feel:document.getElementById('edit-note-feel').value.trim()||null,
+    note_lesson:document.getElementById('edit-note-lesson').value.trim()||null,
+  };
+  const btn=document.querySelector('.edit-save');
+  if(btn){btn.textContent='СОХРАНЯЕМ...';btn.disabled=true;}
+  const {error}=await sb.from('trades').update(updates).eq('id',id).eq('user_id',currentUser.id);
+  if(btn){btn.textContent='СОХРАНИТЬ';btn.disabled=false;}
+  if(error){alert('Ошибка: '+error.message);return;}
+  const idx=allTrades.findIndex(x=>x.id===id);
+  if(idx>=0) allTrades[idx]={...allTrades[idx],...updates};
+  closeEditModal();
+  render();
+  updateStats();
+}
+// Close edit modal on backdrop click
+document.addEventListener('click',function(e){
+  const m=document.getElementById('edit-modal');
+  if(m && e.target===m) closeEditModal();
+});
 
 init();
 </script>
