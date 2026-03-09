@@ -767,7 +767,6 @@ function renderIdeaCard(idea){
     </div>`:''}
     <div class="idea-footer">
       <span class="idea-date">${d}</span>
-      <button class="idea-share-btn" onclick="copyIdeaLink('${shareUrl}')">🔗 Поделиться</button>
       ${isOwnProfile?`<button class="idea-share-btn" style="color:var(--r)" onclick="deleteIdea('${idea.id}')">✕ Удалить</button>`:''}
     </div>
   </div>`;
@@ -1064,17 +1063,22 @@ function render(p, trades){
           {icon:'💰',label:'Жадность',key:'emotion_greed',col:'#f5a623'},
           {icon:'🎯',label:'Фокус',key:'emotion_calm',col:'#34d058'},
         ].map(e=>{
-          const v=avg(trades,e.key);
-          const pct=v/10*100;
+          const filled=trades.filter(t=>t[e.key]!=null&&t[e.key]!==0);
+          const hasData=filled.length>=3;
+          const v=hasData?filled.reduce((s,t)=>s+(t[e.key]||0),0)/filled.length:null;
+          const pct=v!=null?v/10*100:0;
+          const displayVal=v!=null?v.toFixed(1):'—';
+          const displayCol=v!=null?e.col:'rgba(255,255,255,0.2)';
           return `<div class="er-item">
             <div class="er-icon">${e.icon}</div>
             <div class="er-body">
               <div class="er-label">${e.label}</div>
-              <div class="er-bar-track"><div class="er-bar-fill" style="width:${pct}%;background:${e.col}"></div></div>
+              <div class="er-bar-track"><div class="er-bar-fill" style="width:${pct}%;background:${displayCol};transition:width 0.8s ease"></div></div>
               <div style="display:flex;justify-content:space-between;margin-top:2px">
-                <span class="er-val" style="color:${e.col};font-size:13px">${v.toFixed(1)}</span>
-                <span style="font-family:var(--font-mono);font-size:8px;color:var(--m)">/10</span>
+                <span class="er-val" style="color:${displayCol};font-size:13px">${displayVal}</span>
+                <span style="font-family:var(--font-mono);font-size:8px;color:var(--m)">${v!=null?'/10':'нет данных'}</span>
               </div>
+              ${!hasData?`<div style="font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.2);margin-top:2px">нужно ${3-filled.length} сд. ещё</div>`:''}
             </div>
           </div>`;
         }).join('')}
