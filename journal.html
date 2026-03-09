@@ -1112,10 +1112,18 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .ai-check-btn:hover{background:rgba(52,208,88,0.14);}
 .ai-check-btn:disabled{opacity:0.4;cursor:not-allowed;}
-.ai-result{margin-top:14px;border-radius:9px;padding:14px;display:none;}
-.ai-result.go{background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.2);}
-.ai-result.stop{background:rgba(255,77,77,0.05);border:1px solid rgba(255,77,77,0.2);}
-.ai-result.wait{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.2);}
+.ai-result{margin-top:14px;border-radius:10px;padding:16px;display:none;animation:pgIn 0.25s ease;}
+.ai-result.go{background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.25);}
+.ai-result.stop{background:rgba(255,77,77,0.06);border:1px solid rgba(255,77,77,0.25);}
+.ai-result.wait{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);}
+.ai-verdict-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ai-score{font-family:var(--font-mono);font-size:11px;color:var(--m);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:4px 10px;}
+.ai-text{font-family:var(--font-body);font-size:12px;color:rgba(255,255,255,0.75);line-height:1.7;}
+.ai-text .ai-block{margin-bottom:10px;}
+.ai-text .ai-block:last-child{margin-bottom:0;}
+.ai-text .ai-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;opacity:0.55;}
+.ai-text .ai-block-body{font-size:12px;line-height:1.65;}
+.ai-text strong{color:var(--t);}
 .ai-verdict{font-family:var(--font-display);font-size:22px;letter-spacing:3px;margin-bottom:7px;}
 .ai-verdict.go{color:#34d058;}.ai-verdict.stop{color:#ff4d4d;}.ai-verdict.wait{color:#f5a623;}
 .ai-text{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.6;}
@@ -2657,9 +2665,12 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <label>Дополнительно (необязательно)</label>
       <textarea id="ai-reason" placeholder="Опиши сетап подробнее..."></textarea>
     </div>
-    <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
+    <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">🔍 ПОЛУЧИТЬ ВЕРДИКТ</button>
     <div class="ai-result" id="ai-result">
-      <div class="ai-verdict" id="ai-verdict"></div>
+      <div class="ai-verdict-row">
+        <div class="ai-verdict" id="ai-verdict"></div>
+        <div class="ai-score" id="ai-score"></div>
+      </div>
       <div class="ai-text" id="ai-text"></div>
     </div>
   </div>
@@ -2708,57 +2719,136 @@ function setCK(n,val){
   });
 }
 async function checkSetup(){
+  var labels=['Структура (BOS/CHoCH)','Точка входа (OB/FVG/BPR)','Подтверждение на младшем ТФ','Риск-менеджмент (SL/RR/размер)','Психология (нет FOMO/мести)'];
   var answers=[];
-  var questions=['Есть подтверждённый BOS или CHoCH?','Есть OB/FVG/BPR в зоне входа?','Есть подтверждение на младшем ТФ?','SL за структуру, RR≥1:2, позиция рассчитана?','Ты спокоен, нет FOMO и мести рынку?'];
+  var yesCount=0, noCount=0, skipped=0;
   for(var i=1;i<=5;i++){
-    answers.push({q:questions[i-1],a:ckState[i]||'не ответил'});
+    var a=ckState[i]||null;
+    if(a==='yes') yesCount++;
+    else if(a==='no') noCount++;
+    else skipped++;
+    answers.push(labels[i-1]+': '+(a==='yes'?'✅ ДА':a==='no'?'❌ НЕТ':'⬜ не ответил'));
   }
-  var reason=document.getElementById('ai-reason')?document.getElementById('ai-reason').value:'';
-  var yesCount=Object.values(ckState).filter(function(v){return v==='yes';}).length;
-  var noCount=Object.values(ckState).filter(function(v){return v==='no';}).length;
-
+  var reason=(document.getElementById('ai-reason')||{}).value||'';
   var btn=document.getElementById('ai-check-btn');
   if(btn){btn.disabled=true;btn.textContent='⏳ Анализирую...';}
 
-  var prompt='Ты строгий трейдинг-ментор. Трейдер отвечает на 5 вопросов чеклиста перед сделкой:\n\n';
-  answers.forEach(function(a,i){prompt+=(i+1)+'. '+a.q+' → '+a.a+'\n';});
-  if(reason) prompt+='\nДоп. контекст: '+reason;
-  prompt+='\n\nДай чёткий вердикт: ВХОДИТЬ, ЖДАТЬ или НЕ ВХОДИТЬ. Затем 2-3 предложения объяснения. Будь конкретным и строгим.';
+  // Determine local fallback verdict
+  var fbVerdict,fbEmoji;
+  if(yesCount===5){fbVerdict='go';fbEmoji='✅ ВХОДИТЬ';}
+  else if(yesCount>=4&&noCount===0){fbVerdict='go';fbEmoji='✅ ВХОДИТЬ';}
+  else if(noCount>=2||ckState[4]==='no'||ckState[5]==='no'){fbVerdict='stop';fbEmoji='🚫 НЕ ВХОДИТЬ';}
+  else{fbVerdict='wait';fbEmoji='⏳ ЖДАТЬ';}
+
+  var prompt = `Ты опытный трейдинг-ментор ICT/SMC стиля. Трейдер проходит чеклист перед входом в сделку.
+
+ОТВЕТЫ ТРЕЙДЕРА:
+${answers.join('
+')}
+${reason?'
+КОНТЕКСТ ОТ ТРЕЙДЕРА: '+reason:''}
+
+Дай развёрнутый разбор в следующем формате (строго по блокам, на русском):
+
+ВЕРДИКТ: [одно из трёх: ВХОДИТЬ / ЖДАТЬ / НЕ ВХОДИТЬ]
+
+ОЦЕНКА СЕТАПА:
+[2-3 предложения — что сильно в этом сетапе, что вызывает сомнения. Конкретно по ответам.]
+
+ГЛАВНЫЙ РИСК:
+[1-2 предложения — самый критичный момент который трейдер должен учесть]
+
+СОВЕТ МЕНТОРА:
+[1-2 предложения — конкретное действие: что сделать перед входом, на что обратить внимание, как улучшить]
+
+Будь строгим но конструктивным. Отвечай только по блокам выше, без лишних слов.`;
+
+  var groqKey=typeof GROQ_KEY!=='undefined'?GROQ_KEY:(window.GROQ_API_KEY||'');
+  var rawText='';
 
   try{
-    var groqKey=typeof GROQ_KEY!=='undefined'?GROQ_KEY:(window.GROQ_API_KEY||'');
-    var response,data,text;
     if(groqKey){
-      response=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      var resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
-        body:JSON.stringify({model:'llama3-8b-8192',max_tokens:300,messages:[{role:'user',content:prompt}]})
+        body:JSON.stringify({
+          model:'llama3-70b-8192',
+          max_tokens:500,
+          temperature:0.6,
+          messages:[
+            {role:'system',content:'Ты строгий трейдинг-ментор. Отвечаешь чётко по структуре, на русском языке. Не используй markdown кроме текста внутри блоков.'},
+            {role:'user',content:prompt}
+          ]
+        })
       });
-      data=await response.json();
-      text=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'Ошибка ответа';
-    } else {
-      // Fallback: local verdict without API
-      if(yesCount>=4) text='✅ ВХОДИТЬ — '+yesCount+'/5 условий выполнено. Сетап сильный, риски под контролем.';
-      else if(yesCount>=3) text='⏳ ЖДАТЬ — '+yesCount+'/5 условий. Есть сомнения, лучше дождаться подтверждения.';
-      else text='🚫 НЕ ВХОДИТЬ — только '+yesCount+'/5 условий. Слишком много рисков, пропусти эту сделку.';
+      var d=await resp.json();
+      rawText=d.choices&&d.choices[0]?d.choices[0].message.content:'';
     }
-    var verdict='wait',verdictText='ЖДАТЬ';
-    var tl=text.toLowerCase();
-    if(tl.includes('не входить')||tl.includes('не вход')||tl.includes('stop')||tl.includes('нет')){verdict='stop';verdictText='НЕ ВХОДИТЬ';}
-    else if(tl.includes('входить')||tl.includes('вход')||tl.includes('go')||tl.includes('входи')){verdict='go';verdictText='ВХОДИТЬ';}
-    var res=document.getElementById('ai-result');
-    var vd=document.getElementById('ai-verdict');
-    var vt=document.getElementById('ai-verdict-text');
-    if(res) res.style.display='block';
-    if(vd){vd.className='ai-verdict '+verdict;vd.textContent=verdictText;}
-    if(vt) vt.innerHTML=formatAIText(text);
-  } catch(e){
-    var vt=document.getElementById('ai-verdict-text');
-    if(vt) vt.textContent='Ошибка подключения. Проверь API ключ.';
-    var res=document.getElementById('ai-result');
-    if(res) res.style.display='block';
+  } catch(e){ rawText=''; }
+
+  // Parse verdict from response or use fallback
+  var verdict=fbVerdict, verdictLabel=fbEmoji;
+  if(rawText){
+    var tl=rawText.toLowerCase();
+    if(/вердикт\s*:\s*(не входить|не вход)/.test(tl)||tl.includes('не входить')){verdict='stop';verdictLabel='🚫 НЕ ВХОДИТЬ';}
+    else if(/вердикт\s*:\s*входить/.test(tl)||tl.includes('✅ входить')){verdict='go';verdictLabel='✅ ВХОДИТЬ';}
+    else if(/вердикт\s*:\s*ждать/.test(tl)||tl.includes('ждать')){verdict='wait';verdictLabel='⏳ ЖДАТЬ';}
   }
-  if(btn){btn.disabled=false;btn.textContent='ПОЛУЧИТЬ ВЕРДИКТ';}
+
+  // Build rich HTML output
+  var scoreColor=yesCount>=4?'var(--g)':yesCount>=3?'var(--y)':'var(--r)';
+  var html='';
+
+  if(rawText){
+    // Parse blocks from AI response
+    var blocks=[
+      {key:'ОЦЕНКА СЕТАПА',icon:'📊',label:'Оценка сетапа'},
+      {key:'ГЛАВНЫЙ РИСК',icon:'⚠️',label:'Главный риск'},
+      {key:'СОВЕТ МЕНТОРА',icon:'💡',label:'Совет ментора'}
+    ];
+    var remaining=rawText.replace(/ВЕРДИКТ\s*:.+(
+|$)/i,'').trim();
+    blocks.forEach(function(b){
+      var re=new RegExp(b.key+'\s*:\s*([\s\S]*?)(?=(?:ОЦЕНКА СЕТАПА|ГЛАВНЫЙ РИСК|СОВЕТ МЕНТОРА|$))','i');
+      var m=remaining.match(re);
+      var bodyText=m?m[1].trim():'';
+      // cut off at next block header
+      bodyText=bodyText.replace(/
+?(ОЦЕНКА СЕТАПА|ГЛАВНЫЙ РИСК|СОВЕТ МЕНТОРА)[\s\S]*/i,'').trim();
+      if(bodyText){
+        html+='<div class="ai-block"><div class="ai-block-title">'+b.icon+' '+b.label+'</div><div class="ai-block-body">'+bodyText.replace(/
+/g,'<br>')+'</div></div>';
+      }
+    });
+    if(!html) html='<div class="ai-block-body">'+rawText.replace(/ВЕРДИКТ\s*:.+(
+|$)/i,'').trim().replace(/
+/g,'<br>')+'</div>';
+  } else {
+    // Fallback without API
+    var fallbacks={
+      go:'Все ключевые условия сетапа выполнены. Структура подтверждена, точка входа определена, риск под контролем и психологическое состояние стабильно.',
+      wait:'Часть условий не выполнена или трейдер не ответил на все вопросы. Лучше дождаться более чёткого подтверждения прежде чем входить.',
+      stop:'Критически важные условия не соблюдены — особенно риск-менеджмент или психологическое состояние. Эту сделку нужно пропустить.'
+    };
+    html='<div class="ai-block"><div class="ai-block-title">📊 Оценка</div><div class="ai-block-body">'+fallbacks[verdict]+'</div></div>';
+    if(noCount>0){
+      html+='<div class="ai-block"><div class="ai-block-title">⚠️ Проблемные пункты</div><div class="ai-block-body">Отмечено «НЕТ» по '+noCount+' пункт(ам). Это снижает качество сетапа.</div></div>';
+    }
+    if(skipped>0){
+      html+='<div class="ai-block"><div class="ai-block-title">💡 Совет</div><div class="ai-block-body">Не пропускай вопросы — каждый пункт чеклиста важен для защиты депозита.</div></div>';
+    }
+  }
+
+  // Render
+  var res=document.getElementById('ai-result');
+  var vd=document.getElementById('ai-verdict');
+  var sc=document.getElementById('ai-score');
+  var tx=document.getElementById('ai-text');
+  if(res){res.style.display='block';res.className='ai-result '+verdict;}
+  if(vd){vd.className='ai-verdict '+verdict;vd.textContent=verdictLabel;}
+  if(sc){sc.textContent=yesCount+'/5 условий';sc.style.color=scoreColor;}
+  if(tx){tx.innerHTML=html;}
+  if(btn){btn.disabled=false;btn.textContent='🔄 ПЕРЕСМОТРЕТЬ';}
 }
 
 var _aiInited=false;
