@@ -433,6 +433,7 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 .hero::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),rgba(232,114,42,0.3),transparent);
+  pointer-events:none;
 }
 .hero::after{
   content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;
@@ -574,6 +575,7 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 .section-card::before{
   content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
   background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);
+  pointer-events:none;
 }
 .sc-title{
   font-family:var(--font-display);font-size:12px;letter-spacing:3px;
@@ -844,7 +846,7 @@ async function init(){
     else showNotFound('Профиль не найден');
     return;
   }
-  isOwnProfile=user&&user.id===uid;
+  isOwnProfile=currentUser&&currentUser.id===uid;
 
   const {data:profile,error}=await sb.from('profiles').select('*').eq('id',uid).single();
   if(error||!profile){showNotFound('Профиль не найден');return;}
@@ -1385,7 +1387,11 @@ function showNotFound(msg){
   </div>`;
 }
 
-init();
+init().catch(err=>{
+  console.error('[ORBITUM] Profile init error:',err);
+  const wrap=document.getElementById('main-wrap');
+  if(wrap) wrap.innerHTML='<div style="text-align:center;padding:80px 20px"><div style="font-family:var(--font-display);font-size:32px;color:var(--r);letter-spacing:3px;margin-bottom:12px">ОШИБКА</div><div style="font-family:var(--font-mono);font-size:10px;color:var(--m)">'+err.message+'</div><a href=\'journal.html\' style=\'display:inline-block;margin-top:20px;color:var(--a);font-family:var(--font-mono);font-size:10px\'>← Вернуться в журнал</a></div>';
+});
 </script>
 
 <!-- IDEA MODAL -->

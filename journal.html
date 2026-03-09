@@ -86,7 +86,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ─── TOPBAR (desktop) ──────────────────────── */
 .jnl-topbar{
   display:none; /* shown on desktop via media query */
-  position:sticky;top:0;z-index:160;
+  position:sticky;top:0;z-index:150;
   background:rgba(5,7,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid rgba(255,255,255,0.05);
   height:48px;align-items:center;padding:0 22px;gap:10px;
@@ -1391,83 +1391,92 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .sb-overlay{display:none!important;}
   .topnav{display:none;}
 
-  /* Sidebar: icon rail 52px, expands on .expanded class */
+  /* ── SIDEBAR: always 52px icon strip, toggle to full width ── */
   .sidebar{
     display:flex!important;
-    width:52px;
-    transition:width 0.32s cubic-bezier(0.4,0,0.2,1);
-    overflow:hidden;
+    position:fixed;top:0;left:0;bottom:0;
+    width:52px;          /* FIXED at 52px — never changes */
     z-index:150;
-    position:fixed;
-    /* CRITICAL: clip-path actually clips pointer-events unlike overflow:hidden */
-    clip-path:inset(0 0 0 0);
-    pointer-events:auto;
+    overflow:visible;    /* no overflow clip — buttons must fit in 52px */
+    transition:none;
   }
-  .sidebar.expanded{
+  /* When expanded, grow to full */
+  .sidebar.expanded{width:var(--sb);}
+
+  /* ── BUTTONS: locked to sidebar width ── */
+  /* Collapsed: icon only, button is exactly 52px */
+  .sb-logo{
+    padding:0 0 0 0;
+    width:52px;
+    justify-content:center;
+    overflow:hidden;
+    transition:width 0.28s cubic-bezier(0.4,0,0.2,1),padding 0.28s;
+  }
+  .sidebar.expanded .sb-logo{
     width:var(--sb);
-    clip-path:none;
+    padding:0 16px;
+    justify-content:flex-start;
   }
 
-  /* Logo text */
-  .sb-logo-text{
-    opacity:0;white-space:nowrap;overflow:hidden;max-width:0;
-    transition:opacity 0.2s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
+  .sb-item{
+    width:52px;           /* CRITICAL: button is exactly 52px wide */
+    justify-content:center;
+    padding:7px 0;
+    gap:0;
+    overflow:hidden;
+    transition:width 0.28s cubic-bezier(0.4,0,0.2,1),
+               padding 0.28s cubic-bezier(0.4,0,0.2,1),
+               gap 0.28s,background 0.15s,color 0.15s;
   }
-  .sidebar.expanded .sb-logo-text{
-    opacity:1;max-width:180px;
-    transition:opacity 0.22s 0.1s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
-  }
-
-  /* Nav labels */
-  .sb-item{overflow:hidden;white-space:nowrap;width:100%;}
-  .sb-item > *:not(.sb-item-icon){
-    opacity:0;max-width:0;overflow:hidden;display:inline-block;vertical-align:middle;
-    transition:opacity 0.15s 0s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
-    pointer-events:none;
-  }
-  .sidebar.expanded .sb-item > *:not(.sb-item-icon){
-    opacity:1;max-width:160px;
-    transition:opacity 0.22s 0.1s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);
-    pointer-events:auto;
+  .sidebar.expanded .sb-item{
+    width:calc(var(--sb) - 16px); /* full width with padding */
+    justify-content:flex-start;
+    padding:7px 10px;
+    gap:8px;
   }
 
-  /* Section labels */
-  .sb-section{opacity:0;max-height:0;padding:0 10px;overflow:hidden;
-    transition:opacity 0.15s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+  /* Text labels: hidden (display:none) when collapsed → no click area leak */
+  .sb-item-label,
+  .sb-logo-text,
+  .sb-section,
+  .sb-user-info,
+  .sb-logout{
+    display:none;
+  }
+  .sidebar.expanded .sb-item-label,
+  .sidebar.expanded .sb-logo-text,
+  .sidebar.expanded .sb-section,
+  .sidebar.expanded .sb-user-info,
+  .sidebar.expanded .sb-logout{
+    display:block;
+    animation:sbLabelIn 0.18s 0.1s cubic-bezier(0.4,0,0.2,1) both;
+  }
+  @keyframes sbLabelIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:none;}}
+
+  /* sb-section when expanded */
   .sidebar.expanded .sb-section{
-    opacity:1;max-height:30px;padding:12px 10px 4px;
-    transition:opacity 0.2s 0.05s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
+    opacity:1;padding:12px 10px 4px;
+  }
 
   /* Footer */
-  .sb-user-info{opacity:0;overflow:hidden;max-width:0;
-    transition:opacity 0.15s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar.expanded .sb-user-info{opacity:1;max-width:180px;
-    transition:opacity 0.2s 0.08s, max-width 0.32s cubic-bezier(0.4,0,0.2,1);}
-  .sb-logout{opacity:0;overflow:hidden;max-height:0;
-    transition:opacity 0.15s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar.expanded .sb-logout{opacity:1;max-height:40px;
-    transition:opacity 0.2s 0.1s, max-height 0.32s cubic-bezier(0.4,0,0.2,1);}
-
-  /* Toggle button inside sidebar logo area */
-  .sb-toggle-btn{
-    display:none;background:none;border:none;color:var(--m);cursor:pointer;
-    font-size:14px;margin-left:auto;padding:2px 4px;transition:color 0.15s;flex-shrink:0;
+  .sb-footer{padding:8px;}
+  .sb-user{
+    padding:8px 0;
+    justify-content:center;
+    transition:padding 0.28s,justify-content 0.28s;
   }
-  .sidebar.expanded .sb-toggle-btn{display:flex;align-items:center;}
-  .sb-toggle-btn:hover{color:var(--t);}
+  .sidebar.expanded .sb-user{
+    padding:8px 10px;
+    justify-content:flex-start;
+  }
+  .sidebar.expanded .sb-logout{
+    display:block;
+    width:100%;
+    margin-top:5px;
+    animation:sbLabelIn 0.18s 0.12s cubic-bezier(0.4,0,0.2,1) both;
+  }
 
-  /* Topbar & main shift with sidebar expansion — same timing */
-  .jnl-topbar{display:flex;margin-left:52px;transition:margin-left 0.32s cubic-bezier(0.4,0,0.2,1);}
-  .jtb-navs{display:none!important;}
-  .main{margin-left:52px;padding:0 32px 60px;transition:margin-left 0.32s cubic-bezier(0.4,0,0.2,1);}
-
-  /* When sidebar is expanded — push content */
-  body.sb-open .main{margin-left:var(--sb);}
-  body.sb-open .jnl-topbar{margin-left:var(--sb);}
-
-  .stats-row{margin-top:24px;}
-
-  /* Collapse icon button — always visible on icon strip */
+  /* Toggle button */
   .sb-icon-toggle{
     position:absolute;bottom:16px;left:0;width:52px;height:32px;
     display:flex;align-items:center;justify-content:center;
@@ -1475,6 +1484,15 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     font-size:16px;transition:color 0.15s;z-index:1;
   }
   .sb-icon-toggle:hover{color:var(--a);}
+  .sb-toggle-btn{display:none;}
+
+  /* Topbar & main */
+  .jnl-topbar{display:flex;margin-left:52px;transition:margin-left 0.28s cubic-bezier(0.4,0,0.2,1);}
+  .jtb-navs{display:none!important;}
+  .main{margin-left:52px;padding:0 32px 60px;transition:margin-left 0.28s cubic-bezier(0.4,0,0.2,1);}
+  body.sb-open .main{margin-left:var(--sb);}
+  body.sb-open .jnl-topbar{margin-left:var(--sb);}
+  .stats-row{margin-top:24px;}
 }
 
 /* ─── SMART NOTIFICATIONS ─────────────────────── */
@@ -1724,35 +1742,35 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
     <button class="sb-item active" onclick="showPage('journal',this)" data-page="journal">
-      <span class="sb-item-icon">📋</span>Журнал сделок
+      <span class="sb-item-icon">📋</span><span class="sb-item-label">Журнал сделок</span>
     </button>
     <button class="sb-item" onclick="showPage('dashboard',this)" data-page="dashboard">
-      <span class="sb-item-icon">📊</span>Аналитика
+      <span class="sb-item-icon">📊</span><span class="sb-item-label">Аналитика</span>
     </button>
     <button class="sb-item" onclick="showPage('progress',this)" data-page="progress">
-      <span class="sb-item-icon">📈</span>Прогресс
+      <span class="sb-item-icon">📈</span><span class="sb-item-label">Прогресс</span>
     </button>
     <button class="sb-item" onclick="showPage('digest',this)" data-page="digest">
-      <span class="sb-item-icon">📅</span>Дайджест
+      <span class="sb-item-icon">📅</span><span class="sb-item-label">Дайджест</span>
     </button>
     <button class="sb-item" onclick="showPage('premarket',this)" data-page="premarket">
-      <span class="sb-item-icon">☀️</span>Пре-маркет
+      <span class="sb-item-icon">☀️</span><span class="sb-item-label">Пре-маркет</span>
     </button>
     <div class="sb-divider"></div>
     <div class="sb-section">AI & Аналитика</div>
     <button class="sb-item" onclick="showPage('coach',this)" data-page="coach">
-      <span class="sb-item-icon">🤖</span>AI Coach
+      <span class="sb-item-icon">🤖</span><span class="sb-item-label">AI Coach</span>
     </button>
     <button class="sb-item" onclick="showPage('simulator',this)" data-page="simulator">
-      <span class="sb-item-icon">🎮</span>Симулятор
+      <span class="sb-item-icon">🎮</span><span class="sb-item-label">Симулятор</span>
     </button>
 
     <div class="sb-divider"></div>
     <a href="profile.html" class="sb-item" target="_blank" rel="noopener">
-      <span class="sb-item-icon">🧠</span>Мой профиль ↗
+      <span class="sb-item-icon">🧠</span><span class="sb-item-label">Мой профиль ↗</span>
     </a>
     <a href="admin.html" class="sb-item" id="snav-admin" style="display:none" onclick="window.location.href='admin.html';return false;">
-      <span class="sb-item-icon">⚙️</span>Админ
+      <span class="sb-item-icon">⚙️</span><span class="sb-item-label">Админ</span>
     </a>
   </nav>
   <div class="sb-footer">
@@ -2715,9 +2733,7 @@ console.log('%c[ORBITUM v3.1] JS loaded OK','color:#e86c2a;font-weight:bold');
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
-  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
-});
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let currentUser=null, allTrades=[], currentFilter='all', currentDir='long';
 
 // ─── SIDEBAR ─────────────────────────────────────
@@ -2945,12 +2961,11 @@ function formatAIText(text){
 }
 
 async function init(){
-  // getSession is fast (cached) — getUser validates with server (slower)
   const{data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='login.html';return;}
-  const user=session.user;
-  // Also validate token in background
+  // Refresh token in background
   sb.auth.getUser().catch(()=>{});
+  const user=session.user;
   currentUser=user;
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!p){window.location.href='login.html';return;}
@@ -4768,7 +4783,10 @@ document.addEventListener('click',function(e){
   if(m && e.target===m) closeEditModal();
 });
 
-init();
+init().catch(err=>{
+  console.error('[ORBITUM] Init error:',err);
+  window.location.href='login.html';
+});
 </script>
 <!-- QUICK NOTE POPUP -->
 <div class="qnote-overlay" id="qnote-overlay" onclick="closeQNote(event)">
