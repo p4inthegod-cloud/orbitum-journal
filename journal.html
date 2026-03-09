@@ -163,7 +163,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .jtb-dd-item.active{color:var(--a);background:rgba(232,114,42,0.1);}
 .jtb-dd-sep{height:1px;background:rgba(255,255,255,0.06);margin:4px 0;}
 /* ─── EDIT MODAL ─────────────────────────────── */
-.edit-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center;padding:16px;}
+.edit-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:16px;}
 .edit-modal.open{display:flex;}
 .edit-box{background:#0d0f14;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px;width:100%;max-width:520px;position:relative;max-height:90vh;overflow-y:auto;}
 .edit-box::-webkit-scrollbar{width:4px;}
@@ -390,16 +390,20 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .mob-stat-pill.goal-pill{background:rgba(232,114,42,0.07);border:1px solid rgba(232,114,42,0.18);}
 .mob-pill-label{font-family:var(--font-mono);font-size:6px;letter-spacing:1.5px;color:rgba(255,255,255,0.22);text-transform:uppercase;line-height:1;margin-bottom:2px;}
 .mob-pill-val{font-family:var(--font-mono);font-size:10px;font-weight:500;line-height:1;}
-.mob-burger{
-  background:none;border:var(--line);border-radius:5px;
-  padding:4px 8px;color:var(--m);font-size:14px;cursor:pointer;
-  display:none;flex-shrink:0;}
+.mob-burger{display:none!important;}
+.mob-profile-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:8px;text-decoration:none;
+  background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.2);
+  font-size:15px;flex-shrink:0;transition:all 0.15s;
+}
+.mob-profile-btn:hover{background:rgba(232,114,42,0.15);}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;}
 
 /* ── VERY SMALL SCREENS (iPhone SE, <380px) ── */
 
 /* ─── MAIN ────────────────────────────────── */
-.main{margin-left:0;padding:20px 24px 80px;min-height:100vh;position:relative;z-index:1;}
+.main{margin-left:0;padding:20px 16px 90px;min-height:100vh;position:relative;z-index:1;}
 .bg-orb{
   position:fixed;width:600px;height:600px;border-radius:50%;
   background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 65%);
@@ -582,7 +586,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .fbtn{
   padding:4px 10px;border-radius:14px;border:var(--line);
   background:transparent;color:var(--m);font-family:var(--font-mono);
-  font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+  font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;pointer-events:auto;
 }
 .fbtn.active,.fbtn:hover{border-color:var(--a3);color:var(--a);background:var(--a2);}
 .tcard{
@@ -1067,7 +1071,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .chat-send:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
 
 /* ─── AI SETUP MODAL ──────────────────────── */
-.ai-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.ai-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:16px;}
 .ai-modal.open{display:flex;}
 .ai-box{
   background:#0a0d12;border:1px solid rgba(52,208,88,0.18);border-radius:14px;
@@ -1118,7 +1122,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 /* ─── MOBILE BOTTOM NAV ───────────────────── */
 .mob-bottom-nav{
-  display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:400;
   background:rgba(5,7,10,0.97);border-top:1px solid rgba(255,255,255,0.06);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   padding:8px 12px 14px;
@@ -1362,7 +1366,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .psych-trades{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:2px;}
 
 @media(max-width:860px){
-  .mob-burger{display:flex!important;}
+  .mob-bottom-nav{display:flex!important;}
+  .sidebar{display:none!important;}
+  .sb-overlay{display:none!important;}
   .mob-logo{display:block!important;}
   .topnav{display:none!important;}
   .setup-grid{grid-template-columns:1fr 1fr;}
@@ -1370,19 +1376,59 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .ds-breakdown{grid-template-columns:1fr 1fr;}
 }
 
-/* ─── DESKTOP SIDEBAR ALWAYS VISIBLE ──────────── */
+/* ─── DESKTOP SIDEBAR ICON RAIL + HOVER EXPAND ──── */
 @media(min-width:861px){
-  /* ── SIDEBAR HIDDEN ON DESKTOP — topbar takes over ── */
-  .sidebar{display:none!important;}
-  .sb-overlay{display:none!important;}
   .mob-bar{display:none!important;}
   .mob-bottom-nav{display:none!important;}
-  /* ── TOPBAR FULL WIDTH ── */
-  .jnl-topbar{display:flex;margin-left:0;}
-  /* ── MAIN NO SIDEBAR OFFSET ── */
-  .main{margin-left:0;padding:0 32px 60px;}
-  /* ── HIDE OLD PILL NAV ── */
+  .sb-overlay{display:none!important;}
   .topnav{display:none;}
+
+  /* Sidebar always visible as icon rail */
+  .sidebar{
+    display:flex!important;
+    width:52px;
+    transition:width 0.22s cubic-bezier(0.16,1,0.3,1);
+    overflow:hidden;
+    z-index:200;
+  }
+  .sidebar:hover{width:var(--sb);}
+
+  /* Logo: hide text when collapsed */
+  .sb-logo-text{
+    opacity:0;white-space:nowrap;
+    transition:opacity 0.15s;
+    overflow:hidden;max-width:0;
+  }
+  .sidebar:hover .sb-logo-text{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s,max-width 0.22s;}
+
+  /* Nav item labels hidden when collapsed */
+  .sb-item{overflow:hidden;white-space:nowrap;}
+  .sb-item > *:not(.sb-item-icon){
+    opacity:0;max-width:0;overflow:hidden;
+    transition:opacity 0.12s;
+  }
+  .sidebar:hover .sb-item > *:not(.sb-item-icon){
+    opacity:1;max-width:200px;
+    transition:opacity 0.18s 0.08s;
+  }
+
+  /* Section labels */
+  .sb-section{opacity:0;height:0;padding:0 10px;overflow:hidden;transition:all 0.15s;}
+  .sidebar:hover .sb-section{opacity:1;height:auto;padding:12px 10px 4px;}
+
+  /* Footer */
+  .sb-user-info,.sb-logout{opacity:0;overflow:hidden;max-width:0;transition:opacity 0.12s;}
+  .sidebar:hover .sb-user-info,.sidebar:hover .sb-logout{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s;}
+
+  /* Topbar — hide nav, keep right widgets */
+  .jnl-topbar{display:flex;margin-left:52px;}
+  .jtb-navs{display:none!important;}
+
+  /* Main content offset */
+  .main{margin-left:52px;padding:0 32px 60px;}
+  body:has(.sidebar:hover) .main{margin-left:var(--sb);}
+  body:has(.sidebar:hover) .jnl-topbar{margin-left:var(--sb);}
+
   .stats-row{margin-top:24px;}
 }
 
@@ -1619,7 +1665,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div class="mob-pill-label">Цель</div>
       <div class="mob-pill-val" id="mob-goal-val" style="color:var(--a)">— R</div>
     </div>
-    <button class="mob-burger" id="mob-burger-btn" onclick="openSB()">☰</button>
+    <a href="profile.html" class="mob-profile-btn" title="Профиль">🧠</a>
   </div>
 </div>
 
@@ -1684,27 +1730,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <div class="jtb-dot"></div>
   <span class="jtb-badge" id="jtb-page-badge">ЖУРНАЛ СДЕЛОК</span>
   <div class="jtb-sep"></div>
-  <div class="jtb-navs">
-    <button class="jtb-nav active" onclick="showPage('journal',this)" data-page="journal">📋 Журнал</button>
-    <!-- Инструменты dropdown -->
-    <div class="jtb-dropdown" id="jtb-tools-dd">
-      <button class="jtb-nav jtb-dd-trigger" id="jtb-dd-trigger-btn" onclick="toggleToolsDD(event)">
-        🛠 Инструменты <span class="dd-arrow" id="dd-arrow-icon">▾</span>
-      </button>
-      <div class="jtb-dd-menu" id="jtb-dd-menu">
-        <button class="jtb-dd-item" onclick="showPage('dashboard',this);closeToolsDD()" data-page="dashboard">📊 Аналитика</button>
-        <button class="jtb-dd-item" onclick="showPage('progress',this);closeToolsDD()" data-page="progress">📈 Прогресс</button>
-        <button class="jtb-dd-item" onclick="showPage('digest',this);closeToolsDD()" data-page="digest">📅 Дайджест</button>
-        <button class="jtb-dd-item" onclick="showPage('premarket',this);closeToolsDD()" data-page="premarket">☀️ Сессия</button>
-        <div class="jtb-dd-sep"></div>
-        <button class="jtb-dd-item" onclick="showPage('aichat',this);closeToolsDD()" data-page="aichat">🤖 AI Чат</button>
-        <button class="jtb-dd-item" onclick="showPage('coach',this);closeToolsDD()" data-page="coach">🧠 AI Коуч</button>
-        <div class="jtb-dd-sep"></div>
-        <button class="jtb-dd-item" onclick="showPage('simulator',this);closeToolsDD()" data-page="simulator">🎮 Симулятор</button>
-        <button class="jtb-dd-item" onclick="showPage('leaderboard',this);closeToolsDD()" data-page="leaderboard">🏆 Рейтинг</button>
-      </div>
-    </div>
-  </div>
+  <!-- nav moved to sidebar -->
   <div class="jtb-right">
     <!-- BALANCE WIDGET -->
     <div class="jtb-balance" id="jtb-balance-widget" onclick="toggleBalancePopup()" title="Общий баланс">
