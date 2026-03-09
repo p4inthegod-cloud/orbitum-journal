@@ -1000,6 +1000,30 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .chat-date-sep::before,.chat-date-sep::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(255,255,255,0.06);}
 .chat-date-sep::before{left:0;}.chat-date-sep::after{right:0;}
 
+
+/* ── CHALLENGES ── */
+.ch-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:border-color 0.2s;}
+.ch-card.done{border-color:rgba(52,208,88,0.3);background:rgba(52,208,88,0.04);}
+.ch-card.active{border-color:rgba(232,114,42,0.25);}
+.ch-head{display:flex;align-items:center;gap:10px;}
+.ch-icon{font-size:22px;flex-shrink:0;}
+.ch-title{font-family:var(--font-mono);font-size:10px;color:var(--t);letter-spacing:0.5px;}
+.ch-desc{font-family:var(--font-mono);font-size:8px;color:var(--m);line-height:1.6;}
+.ch-progress-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.ch-progress-fill{height:100%;border-radius:2px;transition:width 0.6s ease;}
+.ch-footer{display:flex;align-items:center;justify-content:space-between;}
+.ch-pct{font-family:var(--font-mono);font-size:9px;color:var(--a);}
+.ch-badge{font-family:var(--font-mono);font-size:7px;padding:2px 7px;border-radius:4px;letter-spacing:1px;}
+.ch-badge.earned{background:rgba(52,208,88,0.15);color:var(--g);border:1px solid rgba(52,208,88,0.3);}
+.ch-badge.locked{background:rgba(255,255,255,0.04);color:var(--m);border:1px solid rgba(255,255,255,0.06);}
+/* HOURLY BARS */
+.hb-col{display:flex;flex-direction:column;align-items:center;flex:1;cursor:default;position:relative;}
+.hb-bar{width:100%;border-radius:3px 3px 0 0;min-height:2px;transition:opacity 0.15s;}
+.hb-col:hover .hb-bar{opacity:0.7;}
+.hb-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(8,10,16,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 9px;font-family:var(--font-mono);font-size:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:10;color:var(--t);line-height:1.6;}
+.hb-col:hover .hb-tip{opacity:1;}
+.hb-label{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.25);margin-top:3px;}
+
 @media(max-width:860px){
   .pm-body{grid-template-columns:1fr;}
   .pm-limits-grid{grid-template-columns:1fr 1fr;}
@@ -2322,6 +2346,26 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       </div>
     </div>
     <div id="import-log" style="display:none;background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.15);border-radius:8px;padding:12px;font-family:var(--font-mono);font-size:10px;color:var(--m);line-height:1.6;margin-top:4px;"></div>
+
+    <!-- ТЕПЛОВАЯ КАРТА ПО ЧАСАМ -->
+    <div class="hm-card" id="hourly-heatmap-card" style="margin-top:12px">
+      <div class="hm-header">
+        <div class="hm-title">⏱ Активность по часам дня</div>
+        <div id="hourly-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div id="hourly-bars" style="display:flex;align-items:flex-end;gap:3px;height:80px;padding:8px 0 4px"></div>
+      <div style="display:flex;gap:0;margin-top:2px" id="hourly-labels"></div>
+      <div id="hourly-insight" style="margin-top:10px;padding:10px 12px;background:rgba(232,114,42,0.05);border:1px solid rgba(232,114,42,0.12);border-radius:8px;font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.7;display:none"></div>
+    </div>
+
+    <!-- ЧЕЛЛЕНДЖИ -->
+    <div class="hm-card" id="challenges-card" style="margin-top:12px">
+      <div class="hm-header" style="margin-bottom:12px">
+        <div class="hm-title">🏅 ЧЕЛЛЕНДЖИ</div>
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--m)">Выполняй — получай бейджи</div>
+      </div>
+      <div id="challenges-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+    </div>
   </div>
 
 <!-- ──────────── DIGEST ────────────────────── -->
@@ -3866,6 +3910,8 @@ function renderProgress(){
   }
 
   renderHeatmap(trades);
+  renderHourlyHeatmap(trades);
+  renderChallenges(trades);
 }
 
 function renderHeatmap(trades){
@@ -3875,7 +3921,8 @@ function renderHeatmap(trades){
   var byDay={};
   trades.forEach(function(t){
     if(!t.created_at)return;
-    var d=new Date(t.created_at).toISOString().split('T')[0];
+    var _dt=new Date(t.created_at);
+    var d=_dt.getFullYear()+'-'+String(_dt.getMonth()+1).padStart(2,'0')+'-'+String(_dt.getDate()).padStart(2,'0');
     if(!byDay[d])byDay[d]={n:0,pnl:0,wins:0};
     byDay[d].n++;
     byDay[d].pnl+=(t.pnl_pct||0);
@@ -3892,17 +3939,15 @@ function renderHeatmap(trades){
     bestEl.textContent=bd.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' +'+bestDay[1].pnl.toFixed(1)+'%';
   }
 
-  // Build 10 weeks × 7 days grid (GitHub-style)
-  var WEEKS=16;
+  // Build grid — текущая неделя всегда правая
+  var WEEKS=17;
   var today=new Date();
   today.setHours(0,0,0,0);
-  // Start from Monday of first week
-  var startDate=new Date(today);
-  startDate.setDate(today.getDate()-(WEEKS*7)+1);
-  // Adjust to nearest Monday
-  var dow=startDate.getDay();
-  var adjust=dow===0?-6:1-dow;
-  startDate.setDate(startDate.getDate()+adjust);
+  var todayDow=today.getDay();
+  var currentMonday=new Date(today);
+  currentMonday.setDate(today.getDate()-(todayDow===0?6:todayDow-1));
+  var startDate=new Date(currentMonday);
+  startDate.setDate(currentMonday.getDate()-(WEEKS-1)*7);
 
   // Month labels
   var monthLabels=document.getElementById('hm-month-labels');
@@ -3924,7 +3969,7 @@ function renderHeatmap(trades){
     for(var d=0;d<7;d++){
       var dt=new Date(startDate);
       dt.setDate(startDate.getDate()+w*7+d);
-      var key=dt.toISOString().split('T')[0];
+      var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
       var isFuture=dt>today;
       var dayData=byDay[key];
       var bg,tip,glow='';
@@ -5239,11 +5284,37 @@ let _chatProfiles={};    // кэш профилей
 const GENERAL_ROOM='general';
 
 async function initChatPage(){
-  if(!currentUser)return;
+  if(!currentUser){
+    const main=document.getElementById('chat-main');
+    if(main)main.innerHTML=`<div class="chat-empty-state"><div style="font-size:28px;margin-bottom:8px">🔒</div><div>Войди в аккаунт чтобы использовать чат</div></div>`;
+    return;
+  }
+  // Показываем loading
+  const main=document.getElementById('chat-main');
+  if(main)main.innerHTML=`<div class="chat-empty-state"><div style="font-size:18px;margin-bottom:8px">⏳</div><div>Загружаем чат...</div></div>`;
+  
   await loadChatRooms();
   // Открываем общий чат сразу
   const general=_chatRooms.find(r=>r.id===GENERAL_ROOM);
   if(general) openChatRoom(general);
+  else if(main)main.innerHTML=`<div class="chat-empty-state" style="flex-direction:column;padding:32px;text-align:center">
+    <div style="font-size:28px;margin-bottom:12px">💬</div>
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--a);margin-bottom:8px">ЧАТ СООБЩЕСТВА</div>
+    <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.8;max-width:320px">
+      Чтобы чат заработал, создай таблицу в Supabase.<br>
+      <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--a)">→ Открыть Supabase Dashboard</a>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;font-family:var(--font-mono);font-size:8px;color:var(--m);text-align:left;line-height:1.8;max-width:400px">
+      create table public.chat_messages (<br>
+      &nbsp;id uuid default gen_random_uuid() primary key,<br>
+      &nbsp;sender_id uuid references auth.users(id),<br>
+      &nbsp;receiver_id uuid references auth.users(id),<br>
+      &nbsp;room text not null,<br>
+      &nbsp;text text not null,<br>
+      &nbsp;created_at timestamptz default now()<br>
+      );
+    </div>
+  </div>`;
 }
 
 async function loadChatRooms(){
@@ -5252,12 +5323,13 @@ async function loadChatRooms(){
 
   // Загружаем DM комнаты (уникальные собеседники)
   try{
-    const {data:msgs}=await sb.from('chat_messages')
+    const {data:msgs,error:msgsErr}=await sb.from('chat_messages')
       .select('sender_id,receiver_id')
       .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
       .eq('room','dm')
       .order('created_at',{ascending:false})
       .limit(200);
+    if(msgsErr){console.warn('chat_messages table not found:',msgsErr.message);_chatRooms=rooms;renderChatRoomList();return;}
 
     if(msgs){
       const partnerSet=new Set();
@@ -5494,6 +5566,175 @@ function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(
 
 // Загружаем уведомления после init
 setTimeout(()=>{if(currentUser)loadJournalNotifs();},2000);
+
+
+// ─── HOURLY HEATMAP ────────────────────────────────
+function renderHourlyHeatmap(trades){
+  var barsEl=document.getElementById('hourly-bars');
+  var labelsEl=document.getElementById('hourly-labels');
+  var pillsEl=document.getElementById('hourly-pills');
+  var insightEl=document.getElementById('hourly-insight');
+  if(!barsEl)return;
+
+  // Агрегируем по часам
+  var byHour=Array.from({length:24},function(){return{n:0,wins:0,pnl:0};});
+  trades.forEach(function(t){
+    var dt=new Date(t.created_at);
+    var h=dt.getHours(); // локальное время
+    byHour[h].n++;
+    byHour[h].pnl+=(t.pnl_pct||0);
+    if(t.result==='win')byHour[h].wins++;
+  });
+
+  var maxN=Math.max.apply(null,byHour.map(function(h){return h.n;}));
+  if(!maxN){barsEl.innerHTML='<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);padding:20px">Нет данных по часам</div>';return;}
+
+  // Рисуем столбики
+  var barsHtml='', labHtml='';
+  byHour.forEach(function(h,i){
+    var heightPct=maxN?Math.max(4,Math.round(h.n/maxN*100)):0;
+    var wr=h.n?Math.round(h.wins/h.n*100):0;
+    var col=h.n===0?'rgba(255,255,255,0.05)':h.pnl>=0?'rgba(52,208,88,'+(0.3+h.n/maxN*0.7)+')':'rgba(255,77,77,'+(0.3+h.n/maxN*0.7)+')';
+    var tip=i+':00 — '+(h.n?h.n+' сд. · WR '+wr+'% · '+(h.pnl>=0?'+':'')+h.pnl.toFixed(1)+'%':'нет сделок');
+    barsHtml+='<div class="hb-col"><div class="hb-tip">'+tip+'</div><div class="hb-bar" style="height:'+heightPct+'%;background:'+col+'"></div></div>';
+    labHtml+='<div class="hb-label" style="flex:1;text-align:center">'+(i%4===0?i:'')+'</div>';
+  });
+  barsEl.innerHTML=barsHtml;
+  if(labelsEl)labelsEl.innerHTML=labHtml;
+
+  // Сессии
+  var sessions={
+    'Азия':{start:0,end:8},
+    'Лондон':{start:8,end:16},
+    'Нью-Йорк':{start:13,end:22}
+  };
+  var bestHour=byHour.reduce(function(b,h,i){return h.n>b.n?{n:h.n,i:i,pnl:h.pnl}:b;},{n:0,i:0,pnl:0});
+  var worstHour=byHour.filter(function(h){return h.n>0;}).reduce(function(b,h,i){
+    var idx=byHour.indexOf(h);return h.pnl<b.pnl?{pnl:h.pnl,i:idx}:b;},{pnl:Infinity,i:0});
+
+  var bestSess='—';var bestSessVal=-Infinity;
+  Object.keys(sessions).forEach(function(name){
+    var s=sessions[name];
+    var sessData=byHour.slice(s.start,s.end);
+    var sessPnl=sessData.reduce(function(sum,h){return sum+h.pnl;},0);
+    if(sessPnl>bestSessVal){bestSessVal=sessPnl;bestSess=name;}
+  });
+
+  if(pillsEl){
+    var pills='';
+    if(bestHour.n>0)pills+='<span style="background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:var(--g);font-family:var(--font-mono);font-size:7px;padding:3px 8px;border-radius:20px">🕐 Лучший час: '+bestHour.i+':00</span>';
+    if(worstHour.pnl!==Infinity&&worstHour.pnl<0)pills+='<span style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:var(--r);font-family:var(--font-mono);font-size:7px;padding:3px 8px;border-radius:20px;margin-left:4px">⚠️ Убыток: '+worstHour.i+':00</span>';
+    if(bestSess!=='—')pills+='<span style="background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.2);color:var(--a);font-family:var(--font-mono);font-size:7px;padding:3px 8px;border-radius:20px;margin-left:4px">🌍 Лучшая сессия: '+bestSess+'</span>';
+    pillsEl.innerHTML=pills;
+  }
+
+  if(insightEl&&trades.length>=5){
+    var text='';
+    if(bestHour.n>=2)text+='Пик активности: <strong style="color:var(--g)">'+bestHour.i+':00</strong> ('+bestHour.n+' сд.). ';
+    if(worstHour.pnl<0)text+='Опасный час: <strong style="color:var(--r)">'+worstHour.i+':00</strong> ('+worstHour.pnl.toFixed(1)+'%). Избегай торговли в это время. ';
+    if(bestSess!=='—')text+='Твоя сессия: <strong style="color:var(--a)">'+bestSess+'</strong>.';
+    if(text){insightEl.innerHTML=text;insightEl.style.display='block';}
+  }
+}
+
+// ─── ЧЕЛЛЕНДЖИ ────────────────────────────────────
+var CHALLENGES=[
+  {id:'first_trade',icon:'🎯',title:'Первый шаг',desc:'Сделай первую сделку',goal:1,key:'total',reward:'Новичок'},
+  {id:'ten_trades',icon:'📋',title:'Десятка',desc:'10 сделок в журнале',goal:10,key:'total',reward:'Активный'},
+  {id:'fifty_trades',icon:'💼',title:'Профессионал',desc:'50 сделок',goal:50,key:'total',reward:'Ветеран'},
+  {id:'hundred_trades',icon:'💎',title:'Мастер сделок',desc:'100 сделок',goal:100,key:'total',reward:'Легенда'},
+  {id:'wr60',icon:'🎯',title:'Снайпер',desc:'WR ≥ 60% на 15+ сделках',goal:1,key:'wr60',reward:'Снайпер'},
+  {id:'wr70',icon:'🔥',title:'Высокая точность',desc:'WR ≥ 70% на 20+ сделках',goal:1,key:'wr70',reward:'Top Trader'},
+  {id:'streak5',icon:'⚡',title:'Серия побед',desc:'5 побед подряд',goal:5,key:'streak',reward:'На волне'},
+  {id:'streak10',icon:'🌊',title:'Невостановимый',desc:'10 побед подряд',goal:10,key:'streak',reward:'Непобедимый'},
+  {id:'rr2',icon:'⚖️',title:'Риск-менеджер',desc:'Risk/Reward > 2.0 на 20+ сделках',goal:1,key:'rr2',reward:'Умный риск'},
+  {id:'green_week',icon:'📅',title:'Зелёная неделя',desc:'Положительный результат 5 торговых дней подряд',goal:5,key:'greendays',reward:'Стабильный'},
+  {id:'no_loss_3',icon:'🛡️',title:'Железная защита',desc:'3 дня без убытков подряд',goal:3,key:'nolossdays',reward:'Защитник'},
+  {id:'emotions_ok',icon:'🧘',title:'Дзен трейдер',desc:'Страх < 4 и уверенность > 6 в 10+ сделках',goal:1,key:'emotions',reward:'Хладнокровный'},
+];
+
+function calcChallenges(trades){
+  var wins=trades.filter(function(t){return t.result==='win';});
+  var total=trades.length;
+  var wr=total?wins.length/total*100:0;
+
+  var streak=0,maxStreak=0,cur=0;
+  trades.slice().reverse().forEach(function(t){if(t.result==='win'){cur++;if(cur>maxStreak)maxStreak=cur;}else cur=0;});
+  // current streak from newest
+  for(var i=0;i<trades.length;i++){if(trades[i].result==='win')streak++;else break;}
+
+  var avgW=wins.length?wins.reduce(function(s,t){return s+(t.pnl_pct||0);},0)/wins.length:0;
+  var losses=trades.filter(function(t){return t.result==='loss';});
+  var avgL=losses.length?Math.abs(losses.reduce(function(s,t){return s+(t.pnl_pct||0);},0)/losses.length):0;
+  var rr=avgL?avgW/avgL:0;
+
+  // Зелёные дни подряд
+  var byDay={};
+  trades.forEach(function(t){
+    var dt=new Date(t.created_at);
+    var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    if(!byDay[k])byDay[k]={pnl:0};
+    byDay[k].pnl+=(t.pnl_pct||0);
+  });
+  var sortedDays=Object.keys(byDay).sort().reverse();
+  var greenStreak=0,noLossStreak=0;
+  for(var i2=0;i2<sortedDays.length;i2++){
+    if(byDay[sortedDays[i2]].pnl>0)greenStreak++;else break;
+  }
+  for(var i3=0;i3<sortedDays.length;i3++){
+    if(byDay[sortedDays[i3]].pnl>=0)noLossStreak++;else break;
+  }
+
+  // Эмоции
+  var emoTrades=trades.filter(function(t){return t.emotion_fear!=null&&t.emotion_conf!=null;});
+  var emotionsOk=emoTrades.length>=10&&
+    emoTrades.reduce(function(s,t){return s+(t.emotion_fear||0);},0)/emoTrades.length<4&&
+    emoTrades.reduce(function(s,t){return s+(t.emotion_conf||0);},0)/emoTrades.length>6;
+
+  return {
+    total:total,
+    wr60:(wr>=60&&total>=15)?1:0, wr60progress:total>=15?Math.min(1,wr/60):total/15,
+    wr70:(wr>=70&&total>=20)?1:0,
+    streak:maxStreak, curstreak:streak,
+    rr2:(rr>=2&&total>=20)?1:0,
+    greendays:greenStreak, nolossdays:noLossStreak,
+    emotions:emotionsOk?1:0
+  };
+}
+
+function renderChallenges(trades){
+  var el=document.getElementById('challenges-grid');
+  if(!el)return;
+  var stats=calcChallenges(trades);
+
+  el.innerHTML=CHALLENGES.map(function(ch){
+    var current, progress;
+    if(ch.key==='total'){current=Math.min(stats.total,ch.goal);progress=current/ch.goal;}
+    else if(ch.key==='streak'){current=Math.min(stats.maxStreak||stats.streak||0,ch.goal);
+      // Исправляем: используем maxStreak
+      current=Math.min(stats.streak||0,ch.goal);
+      progress=current/ch.goal;}
+    else if(ch.key==='wr60'){current=stats.wr60?1:0;progress=stats.wr60progress||0;}
+    else if(ch.key==='wr70'){current=stats.wr70?1:0;progress=stats.total>=20?Math.min(1,(stats.total>=20?0.5:0)):0;}
+    else if(ch.key==='rr2'){current=stats.rr2?1:0;progress=stats.rr2?1:0;}
+    else if(ch.key==='greendays'){current=Math.min(stats.greendays,ch.goal);progress=current/ch.goal;}
+    else if(ch.key==='nolossdays'){current=Math.min(stats.nolossdays,ch.goal);progress=current/ch.goal;}
+    else if(ch.key==='emotions'){current=stats.emotions?1:0;progress=stats.emotions?1:0;}
+    else{current=0;progress=0;}
+
+    var done=progress>=1;
+    var pct=Math.round(Math.min(1,progress)*100);
+    var fillColor=done?'var(--g)':'var(--a)';
+    return '<div class="ch-card '+(done?'done':'active')+'">'
+      +'<div class="ch-head"><div class="ch-icon">'+ch.icon+'</div><div><div class="ch-title">'+ch.title+'</div></div></div>'
+      +'<div class="ch-desc">'+ch.desc+'</div>'
+      +'<div class="ch-progress-track"><div class="ch-progress-fill" style="width:'+pct+'%;background:'+fillColor+'"></div></div>'
+      +'<div class="ch-footer">'
+      +'<div class="ch-pct">'+(done?'✓ Выполнено':pct+'%')+'</div>'
+      +'<div class="ch-badge '+(done?'earned':'locked')+'">'+(done?'🏅 '+ch.reward:'🔒 '+ch.reward)+'</div>'
+      +'</div></div>';
+  }).join('');
+}
 
 init();
 </script>
