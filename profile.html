@@ -448,9 +448,9 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 .rank-badge-pill.diamond{background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.35);color:#63b3ed;}
 .rank-badge-pill.master{background:rgba(217,70,239,0.1);border:1px solid rgba(217,70,239,0.35);color:#d946ef;}
 /* FOLLOWERS STAT */
-.hero-followers{display:flex;align-items:center;gap:16px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);}
-.hf-item{font-family:var(--font-mono);font-size:13px;color:var(--m);}
-.hf-item strong{color:var(--t);font-size:13px;margin-right:3px;}
+
+
+
 
 /* ── FOLLOW BUTTON ── */
 .follow-btn{
@@ -465,50 +465,22 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 
 
 /* ── NOTIF BELL ── */
-.tb-bell{
-  position:relative;display:flex;align-items:center;justify-content:center;
-  width:34px;height:34px;border-radius:8px;cursor:pointer;
-  border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);
-  transition:all 0.15s;font-size:15px;flex-shrink:0;
-}
-.tb-bell:hover{border-color:var(--a3);background:var(--a2);}
-.tb-bell-count{
-  position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;
-  border-radius:8px;background:var(--r);color:#fff;
-  font-family:var(--font-mono);font-size:13px;
-  display:flex;align-items:center;justify-content:center;
-  padding:0 3px;border:1px solid var(--bg);
-}
-.notif-dropdown{
-  position:absolute;top:calc(100% + 8px);right:0;width:320px;
-  background:rgba(10,12,18,0.98);border:1px solid rgba(255,255,255,0.1);
-  border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.7);
-  z-index:200;overflow:hidden;
-  animation:fadeInDown 0.15s ease;
-}
+
+
+
+
 @keyframes fadeInDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.notif-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);
-  font-family:var(--font-mono);font-size:13px;letter-spacing:1.5px;color:var(--a);
-}
-.notif-mark-btn{
-  font-family:var(--font-mono);font-size:12px;color:var(--m);
-  background:none;border:none;cursor:pointer;letter-spacing:0.5px;
-}
+
+
 .notif-mark-btn:hover{color:var(--t);}
 .notif-list{max-height:320px;overflow-y:auto;}
-.notif-item{
-  display:flex;align-items:flex-start;gap:10px;padding:12px 16px;
-  border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.1s;
-  cursor:default;
-}
+
 .notif-item:hover{background:rgba(255,255,255,0.02);}
 .notif-item.unread{background:rgba(232,114,42,0.04);}
-.notif-dot{width:6px;height:6px;border-radius:50%;background:var(--a);flex-shrink:0;margin-top:4px;}
+
 .notif-dot.read{background:transparent;border:1px solid rgba(255,255,255,0.15);}
-.notif-text{font-family:var(--font-mono);font-size:13px;color:var(--m2);line-height:1.5;flex:1;}
-.notif-time{font-family:var(--font-mono);font-size:13px;color:var(--m);margin-top:3px;}
+
+
 .notif-empty{padding:28px;text-align:center;font-family:var(--font-mono);font-size:13px;color:var(--m);}
 
 @media(max-width:700px){
@@ -536,8 +508,6 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 .hsb-label { font-size: 11px !important; }
 .tab-btn { font-size: 12px !important; padding: 9px 18px !important; }
 .hbadge { font-size: 11px !important; padding: 4px 12px !important; }
-.hf-item { font-size: 12px !important; }
-.hf-item strong { font-size: 15px !important; }
 .tb-badge { font-size: 12px !important; }
 .notif-header { font-size: 12px !important; }
 .notif-text { font-size: 12px !important; }
@@ -558,19 +528,7 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
   <div class="tb-dot"></div>
   <span class="tb-badge">ПРОФИЛЬ ТРЕЙДЕРА</span>
   <div class="tb-spacer"></div>
-  <div class="tb-bell" id="tb-bell" onclick="toggleNotifDropdown()" title="Уведомления">
-    🔔
-    <div class="tb-bell-count" id="tb-bell-count" style="display:none">0</div>
-    <div class="notif-dropdown" id="notif-dropdown" style="display:none" onclick="event.stopPropagation()">
-      <div class="notif-header">
-        🔔 УВЕДОМЛЕНИЯ
-        <button class="notif-mark-btn" onclick="markAllRead()">Все прочитаны ✓</button>
-      </div>
-      <div class="notif-list" id="notif-list">
-        <div class="notif-empty">Нет уведомлений</div>
-      </div>
-    </div>
-  </div>
+  
   <a href="journal.html" class="tb-back" style="margin-left:4px">← Журнал</a>
 </div>
 
@@ -1039,33 +997,6 @@ async function init(){
   }, 100);
 }
 
-async function loadFollowStats(uid){
-  try{
-    const [{data:followers},{data:following}] = await Promise.all([
-      sb.from('follows').select('id',{count:'exact',head:true}).eq('target_id',uid),
-      sb.from('follows').select('id',{count:'exact',head:true}).eq('follower_id',uid)
-    ]);
-    // Supabase возвращает count в заголовках — используем .count
-    const fCount = followers?.length ?? 0;
-    const fgCount = following?.length ?? 0;
-    const fcEl = document.getElementById('followers-count');
-    const fgEl = document.getElementById('following-count');
-    if(fcEl) fcEl.textContent = fCount;
-    if(fgEl) fgEl.textContent = fgCount;
-  } catch(e){
-    // fallback — считаем через select
-    try{
-      const [{data:foll},{data:folg}] = await Promise.all([
-        sb.from('follows').select('id').eq('target_id',uid),
-        sb.from('follows').select('id').eq('follower_id',uid)
-      ]);
-      const fcEl = document.getElementById('followers-count');
-      const fgEl = document.getElementById('following-count');
-      if(fcEl) fcEl.textContent = (foll||[]).length;
-      if(fgEl) fgEl.textContent = (folg||[]).length;
-    } catch(e2){}
-  }
-}
 
 function showLockedProfile(p){
   const displayName=p.full_name||p.username||'Трейдер';
@@ -1205,10 +1136,7 @@ function render(p, trades){
 }
       </div>
     </div>
-    <div class="hero-followers" id="hero-followers">
-      <div class="hf-item"><strong id="followers-count">—</strong>подписчиков</div>
-      <div class="hf-item"><strong id="following-count">—</strong>подписок</div>
-    </div>
+
     <div class="hero-meta">
       <div class="hm-cell"><div class="hm-label">Винрейт</div><div class="hm-val g">${trades.length?wr+'%':'—'}</div></div>
       <div class="hm-cell"><div class="hm-label">Risk / Reward</div><div class="hm-val a">${trades.length?rr:'—'}</div></div>
@@ -1409,7 +1337,6 @@ function render(p, trades){
     }
   },50);
   // Загружаем уведомления
-  if(currentUser) loadNotifs();
 }
 
 function avg(arr,key){
@@ -1620,7 +1547,6 @@ async function toggleFollow(){
       });
     }
     // Обновляем счётчик подписчиков
-    loadFollowStats(targetId);
   }catch(e){
     btn.classList.toggle('following');
     btn.textContent=btn.classList.contains('following')?'✓ FOLLOWING':'+ FOLLOW';
@@ -1654,96 +1580,9 @@ function showNotFound(msg){
 let _notifs = [];
 let _notifOpen = false;
 
-async function loadNotifs(){
-  if(!currentUser) return;
-  try{
-    const {data} = await sb.from('notifications')
-      .select('*,profiles:from_user_id(full_name,username)')
-      .eq('user_id',currentUser.id)
-      .order('created_at',{ascending:false}).limit(30);
-    _notifs = data||[];
-    renderBell();
-    // Realtime + polling fallback
-    if(!window._notifSubActive){
-      window._notifSubActive=true;
-      try{
-        sb.channel('profile_notifs_'+currentUser.id)
-          .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},
-            async (payload)=>{
-              const n=payload.new;
-              if(n.from_user_id){
-                try{const {data:p}=await sb.from('profiles').select('full_name,username').eq('id',n.from_user_id).single();if(p)n.profiles=p;}catch(e){}
-              }
-              _notifs.unshift(n); renderBell();
-            })
-          .subscribe();
-      }catch(e){}
-      // Polling каждые 15 сек
-      setInterval(()=>{ if(currentUser) loadNotifs(); }, 15000);
-    }
-  }catch(e){ _notifs=[]; }
-}
 
-function renderBell(){
-  const unread = _notifs.filter(n=>!n.read).length;
-  const countEl = document.getElementById('tb-bell-count');
-  if(countEl){
-    countEl.textContent = unread > 9 ? '9+' : unread;
-    countEl.style.display = unread > 0 ? 'flex' : 'none';
-  }
-  renderNotifList();
-}
 
-function renderNotifList(){
-  const el = document.getElementById('notif-list');
-  if(!el) return;
-  if(!_notifs.length){
-    el.innerHTML='<div class="notif-empty">Уведомлений нет 🎉</div>';
-    return;
-  }
-  const typeIcon={new_follower:'👤',unfollow:'👋',new_idea:'💡',new_message:'💬'};
-  el.innerHTML = _notifs.map(n=>{
-    const prof=n.profiles;
-    const fromName=prof?.full_name||prof?.username||null;
-    const displayText=fromName
-      ? `<span style="color:var(--a)">@${fromName}</span> ${n.text||''}`
-      : (n.text||'');
-    const ts=new Date(n.created_at);
-    const timeStr=ts.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' '+ts.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-    return `<div class="notif-item ${n.read?'':'unread'}">
-      <div class="notif-dot ${n.read?'read':''}"></div>
-      <div>
-        <div class="notif-text">${typeIcon[n.type]||'🔔'} ${displayText}</div>
-        <div class="notif-time">${timeStr}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
 
-function toggleNotifDropdown(){
-  _notifOpen = !_notifOpen;
-  const dd = document.getElementById('notif-dropdown');
-  if(dd) dd.style.display = _notifOpen ? 'block' : 'none';
-  if(_notifOpen) markAllRead();
-}
-
-document.addEventListener('click', e=>{
-  if(!e.target.closest('#tb-bell')){
-    _notifOpen = false;
-    const dd=document.getElementById('notif-dropdown');
-    if(dd) dd.style.display='none';
-  }
-});
-
-async function markAllRead(){
-  const unread = _notifs.filter(n=>!n.read).map(n=>n.id);
-  if(!unread.length) return;
-  try{
-    await sb.from('notifications').update({read:true}).in('id',unread);
-    _notifs = _notifs.map(n=>({...n,read:true}));
-    renderBell();
-  }catch(e){}
-}
 
 // ── ПРИВАТНОСТЬ АНАЛИТИКИ ──────────────────────────
 function applyAnalyticsPrivacy(){
