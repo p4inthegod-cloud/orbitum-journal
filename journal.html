@@ -7836,7 +7836,14 @@ async function fetchForex(){
   }
 }
 
-// Запуск после загрузки DOM
+// ── СТАРТ ────────────────────────────────────────────────
+function initTicker() {
+  renderTickerTrack();
+  fetchCrypto();
+  fetchForex();
+  setInterval(fetchCrypto, 15000);  // крипта каждые 15 сек
+  setInterval(fetchForex,  60000);  // форекс каждую минуту
+}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initTicker);
