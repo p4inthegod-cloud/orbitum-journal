@@ -184,7 +184,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .jtb-action-btn{
   display:flex;align-items:center;gap:4px;
   padding:4px 9px;border-radius:7px;border:none;cursor:pointer;
-  font-family:var(--font-mono);font-size:13px;letter-spacing:0.5px;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:0.5px;
   text-transform:uppercase;transition:all 0.15s;text-decoration:none;white-space:nowrap;
 }
 .jtb-action-btn.profile{
@@ -212,10 +212,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   animation:goalPulse 2s ease infinite;
 }
 @keyframes goalPulse{0%,100%{box-shadow:0 0 0 0 rgba(52,208,88,0.15);}50%{box-shadow:0 0 0 5px rgba(52,208,88,0);}}
-.jtb-goal-icon{font-size:13px;line-height:1;flex-shrink:0;}
+.jtb-goal-icon{font-size:12px;line-height:1;flex-shrink:0;}
 .jtb-goal-info{display:flex;flex-direction:column;gap:1px;flex:1;}
-.jtb-goal-label{font-family:var(--font-mono);font-size:13px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;line-height:1;}
-.jtb-goal-val{font-family:var(--font-mono);font-size:12px;color:var(--t);line-height:1.2;font-weight:500;}
+.jtb-goal-label{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;line-height:1;}
+.jtb-goal-val{font-family:var(--font-mono);font-size:10px;color:var(--t);line-height:1.2;font-weight:500;}
 .jtb-goal-progress{
   position:absolute;bottom:0;left:0;right:0;height:2px;
   background:rgba(255,255,255,0.05);border-radius:0 0 7px 7px;overflow:hidden;
@@ -269,8 +269,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .jtb-balance:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.12);}
 .jtb-balance-icon{font-size:13px;line-height:1;flex-shrink:0;}
 .jtb-balance-info{display:flex;flex-direction:column;gap:1px;flex:1;}
-.jtb-balance-label{font-family:var(--font-mono);font-size:13px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;line-height:1;}
-.jtb-balance-val{font-family:var(--font-mono);font-size:12px;line-height:1.2;font-weight:500;}
+.jtb-balance-label{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;line-height:1;}
+.jtb-balance-val{font-family:var(--font-mono);font-size:10px;line-height:1.2;font-weight:500;}
 .jtb-balance-delta{font-family:var(--font-mono);font-size:13px;line-height:1;}
 /* ── BALANCE POPUP ── */
 .balance-popup{
@@ -1817,27 +1817,16 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
   color:rgba(255,255,255,0.35);font-size:10px;font-family:var(--font-mono);
   cursor:pointer;flex-shrink:0;transition:all 0.15s;
-  position:static;  /* НЕ relative — tooltip через JS portal */
+
 }
 .field-hint:hover{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);color:var(--a);}
 /* Tooltip — фиксированный через JS, не ::after */
-#fh-tooltip{
-  position:fixed;
-  background:rgba(10,13,22,0.98);border:1px solid rgba(232,114,42,0.3);
-  color:rgba(255,255,255,0.88);font-family:'JetBrains Mono',monospace;font-size:11px;
-  line-height:1.65;padding:11px 15px;border-radius:9px;
-  white-space:pre-wrap;width:240px;max-width:90vw;text-align:left;
-  pointer-events:none;
-  z-index:99999;box-shadow:0 8px 40px rgba(0,0,0,0.7);
-  opacity:0;transition:opacity 0.15s;
-  letter-spacing:0;text-transform:none;
-}
-#fh-tooltip.show{opacity:1;}
+
+
 
 </style>
 </head>
 <body>
-<div id="fh-tooltip"></div>
 <div class="bg-orb"></div>
 <!-- SMART NOTIFICATION TRAY -->
 <div class="notif-tray" id="notif-tray"></div>
@@ -5212,6 +5201,82 @@ document.addEventListener('keydown', e => {
     document.getElementById('goal-popup').classList.remove('open');
   }
 });
+
+// ══ INIT CALL ══
+init();
+
+// ══ TOOLTIP (fixed position portal) ══
+(function(){
+  const tip = document.createElement('div');
+  tip.id = 'fh-tooltip';
+  tip.style.cssText = 'position:fixed;background:rgba(10,13,22,0.97);border:1px solid rgba(232,114,42,0.35);color:rgba(255,255,255,0.9);font-family:JetBrains Mono,monospace;font-size:11px;line-height:1.65;padding:11px 15px;border-radius:9px;white-space:pre-wrap;width:240px;max-width:90vw;pointer-events:none;z-index:99999;box-shadow:0 8px 40px rgba(0,0,0,0.7);display:none;letter-spacing:0;text-transform:none;';
+  document.body.appendChild(tip);
+  let hide;
+  document.addEventListener('mouseover', function(e){
+    const h = e.target.closest ? e.target.closest('.field-hint') : null;
+    if(!h) return;
+    clearTimeout(hide);
+    tip.textContent = h.getAttribute('data-tip') || '';
+    tip.style.display = 'block';
+    const r = h.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = r.left + r.width/2 - tw/2;
+    let top  = r.top - th - 10;
+    if(left < 8) left = 8;
+    if(left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+    if(top < 8) top = r.bottom + 10;
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  });
+  document.addEventListener('mouseout', function(e){
+    if(e.target.closest && e.target.closest('.field-hint'))
+      hide = setTimeout(()=>{ tip.style.display='none'; }, 80);
+  });
+  document.addEventListener('scroll', ()=>{ tip.style.display='none'; }, true);
+})();
+
+// ══ БЫСТРАЯ ЗАМЕТКА ══
+function openQNote(){
+  const o = document.getElementById('qnote-overlay');
+  if(!o) return;
+  o.classList.add('open');
+  setTimeout(()=>{ const t=document.getElementById('qnote-text'); if(t) t.focus(); },100);
+}
+function closeQNote(){
+  const o = document.getElementById('qnote-overlay');
+  if(o) o.classList.remove('open');
+}
+async function saveQNote(){
+  const ta = document.getElementById('qnote-text');
+  const typeBtn = document.querySelector('.qnote-type-btn.active');
+  const type = typeBtn ? typeBtn.dataset.type : 'note';
+  const text = ta ? ta.value.trim() : '';
+  if(!text){ closeQNote(); return; }
+  // Сохраняем локально (localStorage) — не требует авторизации
+  try{
+    const notes = JSON.parse(localStorage.getItem('orb_qnotes')||'[]');
+    notes.unshift({id:Date.now(), type, text, created_at:new Date().toISOString()});
+    localStorage.setItem('orb_qnotes', JSON.stringify(notes.slice(0,50)));
+    // Дополнительно в Supabase если авторизован
+    if(currentUser){
+      sb.from('quick_notes').insert({user_id:currentUser.id, type, text, created_at:new Date().toISOString()}).catch(()=>{});
+    }
+    showNotif('ok','Заметка сохранена','');
+    if(ta) ta.value = '';
+    closeQNote();
+    renderQNotesList(JSON.parse(localStorage.getItem('orb_qnotes')||'[]'));
+  }catch(e){ showNotif('warn','Ошибка',''); }
+}
+function loadQNotes(){
+  renderQNotesList(JSON.parse(localStorage.getItem('orb_qnotes')||'[]'));
+}
+function renderQNotesList(notes){
+  const el = document.getElementById('qnote-list');
+  if(!el) return;
+  if(!notes.length){ el.innerHTML='<div style="padding:10px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Заметок пока нет</div>'; return; }
+  const icons={note:'📝',idea:'💡',mistake:'⚠️',lesson:'🎯'};
+  el.innerHTML=notes.map(n=>`<div class="qnote-item"><div class="qnote-item-type">${icons[n.type]||'📝'}</div><div class="qnote-item-text">${(n.text||'').replace(/</g,'&lt;')}</div></div>`).join('');
+}
 </script>
 
 </body>
