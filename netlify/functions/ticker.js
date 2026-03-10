@@ -1,33 +1,40 @@
-// api/ticker.js — Vercel Serverless proxy
-// GET /api/ticker?type=forex  → Frankfurter
-// GET /api/ticker?type=crypto → Binance REST snapshot
+// netlify/functions/ticker.js
+// Netlify Functions — endpoint: /.netlify/functions/ticker?type=crypto|forex
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
+exports.handler = async (event) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Content-Type': 'application/json',
+    'Cache-Control': 'public, max-age=10',
+  };
 
-  const { type } = req.query;
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  const type = event.queryStringParameters?.type;
 
   try {
     if (type === 'forex') {
       const r = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD');
       const d = await r.json();
-      return res.status(200).json(d);
+      return { statusCode: 200, headers, body: JSON.stringify(d) };
     }
 
     if (type === 'crypto') {
-      // Binance REST — snapshot 24h ticker для всех нужных пар
       const symbols = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT',
                        'DOGEUSDT','ADAUSDT','AVAXUSDT','LINKUSDT','PEPEUSDT',
                        'TONUSDT','SUIUSDT'];
       const qs = encodeURIComponent(JSON.stringify(symbols));
       const r  = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${qs}`);
       const d  = await r.json();
-      return res.status(200).json(d);
+      return { statusCode: 200, headers, body: JSON.stringify(d) };
     }
 
-    res.status(400).json({ error: 'type required: forex|crypto' });
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'type required: forex|crypto' }) };
+
   } catch(e) {
-    res.status(500).json({ error: e.message });
+    return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
   }
-}
+};
