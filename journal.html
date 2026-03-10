@@ -1549,42 +1549,30 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   /* Sidebar always visible as icon rail */
   .sidebar{
     display:flex!important;
-    width:52px;
-    transition:width 0.22s cubic-bezier(0.16,1,0.3,1);
+    width:var(--sb);
     overflow:hidden;
     z-index:200;
   }
-  .sidebar:hover{width:var(--sb);}
 
-  /* Logo: hide text when collapsed */
+  /* Logo: всегда видно */
   .sb-logo-text{
-    opacity:0;white-space:nowrap;
-    transition:opacity 0.15s;
-    overflow:hidden;max-width:0;
+    opacity:1;white-space:nowrap;max-width:200px;
   }
-  .sidebar:hover .sb-logo-text{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s,max-width 0.22s;}
 
-  /* Nav item labels hidden when collapsed */
+  /* Nav item labels — всегда видно */
   .sb-item{overflow:hidden;white-space:nowrap;}
   .sb-item > *:not(.sb-item-icon){
-    opacity:0;max-width:0;overflow:hidden;
-    transition:opacity 0.12s;
-  }
-  .sidebar:hover .sb-item > *:not(.sb-item-icon){
     opacity:1;max-width:200px;
-    transition:opacity 0.18s 0.08s;
   }
 
-  /* Section labels */
-  .sb-section{opacity:0;height:0;padding:0 10px;overflow:hidden;transition:all 0.15s;}
-  .sidebar:hover .sb-section{opacity:1;height:auto;padding:12px 10px 4px;}
+  /* Section labels — всегда видно */
+  .sb-section{opacity:1;height:auto;padding:12px 10px 4px;}
 
   /* Footer */
-  .sb-user-info,.sb-logout{opacity:0;overflow:hidden;max-width:0;transition:opacity 0.12s;}
-  .sidebar:hover .sb-user-info,.sidebar:hover .sb-logout{opacity:1;max-width:200px;transition:opacity 0.18s 0.08s;}
+  .sb-user-info,.sb-logout{opacity:1;max-width:200px;}
 
   /* Topbar — hide nav, keep right widgets */
-  .jnl-topbar{display:flex;margin-left:52px;}
+  .jnl-topbar{display:flex;margin-left:var(--sb);}
   .jtb-navs{display:none!important;}
 
   /* Main content offset */
@@ -1867,6 +1855,50 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .sb-other{border-color:rgba(255,255,255,0.12)!important;color:rgba(255,255,255,0.4)!important;}
 .sb-other.active,.sb-other:hover{background:rgba(255,255,255,0.06)!important;color:var(--t)!important;}
 
+
+/* Sidebar item accent colors */
+.sb-item.sb-journal.active,
+.sb-item[data-page="journal"].active{
+  background:rgba(232,114,42,0.1)!important;
+  border-color:rgba(232,114,42,0.25)!important;
+  color:var(--a)!important;
+}
+.sb-item.sb-journal:hover,
+.sb-item[data-page="journal"]:hover{color:var(--a)!important;}
+.sb-item.sb-journal .sb-item-icon,
+.sb-item[data-page="journal"] .sb-item-icon{ filter:none; }
+
+.sb-item.sb-analytics.active,
+.sb-item[data-page="dashboard"].active{
+  background:rgba(52,208,88,0.08)!important;
+  border-color:rgba(52,208,88,0.22)!important;
+  color:#34d058!important;
+}
+.sb-item.sb-analytics:hover,
+.sb-item[data-page="dashboard"]:hover{color:#34d058!important;}
+
+
+/* ── PAIR AUTOCOMPLETE ── */
+.pair-autocomplete-wrap{position:relative;width:100%;}
+.pair-suggestions{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:rgba(10,13,22,0.98);border:1px solid rgba(232,114,42,0.2);
+  border-radius:8px;z-index:9999;overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,0.6);
+}
+.pair-sug-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;cursor:pointer;
+  font-family:var(--font-mono);font-size:11px;
+  color:var(--t);transition:background 0.1s;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.pair-sug-item:last-child{border-bottom:none;}
+.pair-sug-item:hover,.pair-sug-item.highlighted{background:rgba(232,114,42,0.12);color:var(--a);}
+.pair-sug-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.pair-sug-name{font-weight:600;letter-spacing:0.5px;}
+.pair-sug-full{color:var(--m);font-size:10px;}
+
 </style>
 </head>
 <body>
@@ -1898,10 +1930,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   </a>
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
-    <button class="sb-item active" onclick="showPage('journal',this)" data-page="journal">
+    <button class="sb-item sb-journal active" onclick="showPage('journal',this)" data-page="journal">
       <span class="sb-item-icon">📋</span>Журнал сделок
     </button>
-    <button class="sb-item" onclick="showPage('dashboard',this)" data-page="dashboard">
+    <button class="sb-item sb-analytics" onclick="showPage('dashboard',this)" data-page="dashboard">
       <span class="sb-item-icon">📊</span>Аналитика
     </button>
     <button class="sb-item" onclick="showPage('progress',this)" data-page="progress">
@@ -2092,7 +2124,22 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div class="fg3" style="margin-bottom:12px">
         <div class="field field-key">
           <label>Пара <span class="field-hint" data-tip="Торговая пара.&#10;Пример: BTC/USDT, ETH/BTC&#10;Пиши как привык на бирже">?</span></label>
-          <input id="f-pair" placeholder="BTC/USDT">
+          <div class="pair-autocomplete-wrap">
+            <input id="f-pair" placeholder="BTC/USDT" autocomplete="off"
+              oninput="this.value=this.value.toUpperCase();filterPairs(this.value)"
+              onkeydown="pairKeyNav(event)"
+              onfocus="filterPairs(this.value)"
+              onblur="setTimeout(hidePairList,150)">
+            <div class="pair-suggestions" id="pair-suggestions" style="display:none"></div>
+          </div>
+          <div class="pair-presets">
+            <button onclick="setPair('BTC/USDT')" style="color:#f7931a" data-sym="BTC">BTC</button>
+            <button onclick="setPair('ETH/USDT')" style="color:#627eea" data-sym="ETH">ETH</button>
+            <button onclick="setPair('SOL/USDT')" style="color:#9945ff" data-sym="SOL">SOL</button>
+            <button onclick="setPair('BNB/USDT')" style="color:#f3ba2f" data-sym="BNB">BNB</button>
+            <button onclick="setPair('XRP/USDT')" style="color:#00aae4" data-sym="XRP">XRP</button>
+            <button onclick="setPair('DOGE/USDT')" style="color:#c2a633" data-sym="DOGE">DOGE</button>
+          </div>
         </div>
         <div class="field">
           <label>Направление <span class="field-hint" data-tip="LONG — ставишь на рост цены&#10;SHORT — ставишь на падение цены">?</span></label>
@@ -5361,6 +5408,89 @@ function restoreFormDefaults(){
       b.classList.toggle('active', b.textContent===lev+'×');
     });
   }catch(_){}
+}
+
+// ── PAIR AUTOCOMPLETE ──
+const PAIRS_LIST = [
+  {sym:'BTC', full:'BTC/USDT', icon:'🟠', color:'#f7931a'},
+  {sym:'ETH', full:'ETH/USDT', icon:'🔵', color:'#627eea'},
+  {sym:'SOL', full:'SOL/USDT', icon:'🟣', color:'#9945ff'},
+  {sym:'BNB', full:'BNB/USDT', icon:'🟡', color:'#f3ba2f'},
+  {sym:'XRP', full:'XRP/USDT', icon:'🔷', color:'#00aae4'},
+  {sym:'DOGE',full:'DOGE/USDT',icon:'🐕', color:'#c2a633'},
+  {sym:'ADA', full:'ADA/USDT', icon:'🔵', color:'#0d3349'},
+  {sym:'AVAX',full:'AVAX/USDT',icon:'🔴', color:'#e84142'},
+  {sym:'DOT', full:'DOT/USDT', icon:'⚫', color:'#e6007a'},
+  {sym:'LINK',full:'LINK/USDT',icon:'🔵', color:'#2a5ada'},
+  {sym:'MATIC',full:'MATIC/USDT',icon:'🟣',color:'#8247e5'},
+  {sym:'OP',  full:'OP/USDT',  icon:'🔴', color:'#ff0420'},
+  {sym:'ARB', full:'ARB/USDT', icon:'🔵', color:'#28a0f0'},
+  {sym:'SUI', full:'SUI/USDT', icon:'🔵', color:'#4da2ff'},
+  {sym:'TON', full:'TON/USDT', icon:'💎', color:'#0098ea'},
+  {sym:'NEAR',full:'NEAR/USDT',icon:'⚫', color:'#00c08b'},
+  {sym:'APT', full:'APT/USDT', icon:'🔵', color:'#00b5f5'},
+  {sym:'INJ', full:'INJ/USDT', icon:'🔵', color:'#00b4d8'},
+  {sym:'WIF', full:'WIF/USDT', icon:'🐕', color:'#9945ff'},
+  {sym:'PEPE',full:'PEPE/USDT',icon:'🐸', color:'#4caf50'},
+];
+let pairHighlight = -1;
+
+function filterPairs(val){
+  const list = document.getElementById('pair-suggestions');
+  if(!list) return;
+  const q = val.replace('/USDT','').replace('/','').trim().toUpperCase();
+  if(!q){ hidePairList(); return; }
+  const matches = PAIRS_LIST.filter(p =>
+    p.sym.startsWith(q) || p.full.startsWith(q)
+  ).slice(0,6);
+  if(!matches.length){ hidePairList(); return; }
+  pairHighlight = -1;
+  list.innerHTML = matches.map((p,i)=>
+    `<div class="pair-sug-item" data-pair="${p.full}" style="--pc:${p.color}"
+      onmousedown="setPair('${p.full}')"
+      onmouseover="highlightPair(${i})">
+      <span class="pair-sug-icon">${p.icon}</span>
+      <span class="pair-sug-name" style="color:${p.color}">${p.sym}</span>
+      <span class="pair-sug-full">${p.full}</span>
+    </div>`
+  ).join('');
+  list.style.display = 'block';
+}
+
+function hidePairList(){
+  const list = document.getElementById('pair-suggestions');
+  if(list) list.style.display = 'none';
+  pairHighlight = -1;
+}
+
+function highlightPair(idx){
+  pairHighlight = idx;
+  document.querySelectorAll('#pair-suggestions .pair-sug-item').forEach((el,i)=>{
+    el.classList.toggle('highlighted', i===idx);
+  });
+}
+
+function pairKeyNav(e){
+  const list = document.getElementById('pair-suggestions');
+  const items = list ? list.querySelectorAll('.pair-sug-item') : [];
+  if(!items.length) return;
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    pairHighlight = Math.min(pairHighlight+1, items.length-1);
+    highlightPair(pairHighlight);
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    pairHighlight = Math.max(pairHighlight-1, 0);
+    highlightPair(pairHighlight);
+  } else if(e.key === 'Enter' || e.key === 'Tab'){
+    if(pairHighlight >= 0 && items[pairHighlight]){
+      e.preventDefault();
+      setPair(items[pairHighlight].dataset.pair);
+    }
+    hidePairList();
+  } else if(e.key === 'Escape'){
+    hidePairList();
+  }
 }
 
 init();
