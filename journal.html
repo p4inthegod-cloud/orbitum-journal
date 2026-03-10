@@ -3398,10 +3398,10 @@ body::after {
 .ticker-track{
   display:flex;align-items:center;gap:0;
   height:100%;
-  animation:tickerScroll 60s linear infinite;
+  animation:tickerScroll 35s linear infinite;
   width:max-content;
 }
-.ticker-track:hover{ animation-play-state:paused; }
+/* hover pause removed */
 @keyframes tickerScroll{
   0%  { transform:translateX(0); }
   100%{ transform:translateX(-50%); }
@@ -7799,15 +7799,22 @@ function tickerApiUrl(type){
 // ── CRYPTO POLLING ───────────────────────────────────────
 async function fetchCrypto(){
   try{
-    const r = await fetch(tickerApiUrl('crypto'));
-    const data = await r.json();
+    const cgUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,cardano,avalanche-2,chainlink,pepe,the-open-network,sui&price_change_percentage=24h&per_page=20&sparkline=false';
+    let data;
+    try{
+      const r = await fetch(tickerApiUrl('crypto'), {signal: AbortSignal.timeout(6000)});
+      data = await r.json();
+    }catch(_){
+      const r = await fetch(cgUrl, {signal: AbortSignal.timeout(6000)});
+      data = await r.json();
+    }
     const arr = Array.isArray(data) ? data : [];
-    // CoinGecko формат: {id, current_price, price_change_percentage_24h}
     arr.forEach(d=>{
       const sym = TICKER_SYMBOLS.find(s=>s.cgId === d.id);
       if(!sym) return;
       updateTickerItem(sym.sym, d.current_price, d.price_change_percentage_24h || 0);
     });
+    console.log('[Ticker] Crypto ✓', arr.length, 'coins');
 
     console.log('[Ticker] Crypto updated');
   }catch(e){
@@ -7817,20 +7824,29 @@ async function fetchCrypto(){
 
 // ── FOREX POLLING ────────────────────────────────────────
 async function fetchForex(){
+  async function tryFetch(url){
+    const r = await fetch(url, {signal: AbortSignal.timeout(5000)});
+    return r.json();
+  }
   try{
-    const r    = await fetch(tickerApiUrl('forex'));
-    const data = await r.json();
+    // Пробуем через прокси, потом напрямую
+    let data;
+    try{
+      data = await tryFetch(tickerApiUrl('forex'));
+    }catch(_){
+      data = await tryFetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD');
+    }
     const rates = data.rates;
-    if(!rates) return;
-    if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY, null);
-    if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF, null);
-    if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD, null);
-    if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR, null);
-    if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP, null);
-    if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD, null);
-    if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD, null);
+    if(!rates){ console.warn('[Ticker] No forex rates'); return; }
+    if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY,         null);
+    if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF,         null);
+    if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD,         null);
+    if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR,       null);
+    if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP,       null);
+    if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD,       null);
+    if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD,       null);
     if(rates.EUR && rates.GBP) updateTickerItem('EUR/GBP', rates.GBP/rates.EUR, null);
-    console.log('[Ticker] Forex updated');
+    console.log('[Ticker] Forex ✓', Object.keys(rates));
   }catch(e){
     console.warn('[Ticker] Forex error:', e.message);
   }
@@ -7841,7 +7857,7 @@ function initTicker() {
   renderTickerTrack();
   fetchCrypto();
   fetchForex();
-  setInterval(fetchCrypto, 15000);  // крипта каждые 15 сек
+  setInterval(fetchCrypto, 30000);  // крипта каждые 30 сек
   setInterval(fetchForex,  60000);  // форекс каждую минуту
 }
 
