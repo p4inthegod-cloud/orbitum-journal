@@ -271,7 +271,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .jtb-balance-info{display:flex;flex-direction:column;gap:1px;flex:1;}
 .jtb-balance-label{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.25);text-transform:uppercase;line-height:1;}
 .jtb-balance-val{font-family:var(--font-mono);font-size:10px;line-height:1.2;font-weight:500;}
-.jtb-balance-delta{font-family:var(--font-mono);font-size:13px;line-height:1;}
+.jtb-balance-delta{font-family:var(--font-mono);font-size:9px;line-height:1;}
 /* ── BALANCE POPUP ── */
 .balance-popup{
   position:absolute;top:calc(100% + 8px);right:0;z-index:200;width:270px;
@@ -1824,6 +1824,12 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 
 
+
+.qnote-textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;color:var(--t);font-family:var(--font-body);font-size:13px;outline:none;resize:vertical;line-height:1.5;transition:border-color 0.15s;box-sizing:border-box;}
+.qnote-textarea:focus{border-color:rgba(232,114,42,0.35);}
+.qnote-type-btn{padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--m);font-family:var(--font-mono);font-size:9px;cursor:pointer;transition:all 0.15s;}
+.qnote-type-btn.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.3);color:var(--a);}
+
 </style>
 </head>
 <body>
@@ -1909,10 +1915,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <!-- BALANCE WIDGET -->
     <div class="jtb-balance" id="jtb-balance-widget" onclick="toggleBalancePopup()" title="Общий баланс">
       <div class="jtb-balance-icon" id="balance-icon">💰</div>
-      <div class="jtb-balance-info">
-        <div class="jtb-balance-label">Баланс</div>
+      <div class="jtb-balance-info" style="flex-direction:row;align-items:center;gap:6px;">
         <div class="jtb-balance-val" id="balance-display">$—</div>
-        <div class="jtb-balance-delta" id="balance-delta"></div>
+        <div class="jtb-balance-delta" id="balance-delta" style="font-size:9px;"></div>
       </div>
       <div class="balance-popup" id="balance-popup" onclick="event.stopPropagation()">
         <div class="balance-popup-head">💰 ОБЩИЙ БАЛАНС</div>
@@ -2003,10 +2008,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <div class="level-bar">
     <div class="lb-row">
       <div class="lb-left">
-        <div class="lb-icon" id="level-icon">🌱</div>
+        <div class="lb-icon" id="level-icon">📊</div>
         <div>
-          <div class="lb-name" id="level-name">НОВИЧОК</div>
-          <div class="lb-sub" id="level-sub">Уровень 0 · Начни торговать</div>
+          <div class="lb-name" id="level-name">ДИСЦИПЛИНА: —</div>
+          <div class="lb-sub" id="level-sub">0 сделок · Score —/100</div>
         </div>
       </div>
       <div class="lb-right">
@@ -2019,18 +2024,18 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
         </div>
         <div>
           <div style="font-family:var(--font-display);font-size:16px;color:var(--a)" id="level-pnl">0%</div>
-          <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px">P&L ОТ ДЕПОЗИТА</div>
+          <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px">ROI</div>
         </div>
       </div>
     </div>
     <div class="lb-track"><div class="lb-fill" id="level-fill" style="width:0%;background:linear-gradient(90deg,var(--a),#ff9a5c)"></div></div>
     <div class="lb-labels">
-      <span class="lb-lbl" id="level-cur-label">0%</span>
-      <span class="lb-lbl" id="level-next-label">Следующий: 5%</span>
+      <span class="lb-lbl" id="level-cur-label">Score: 0/100</span>
+      <span class="lb-lbl" id="level-next-label">Цель: 40 pts</span>
     </div>
-    <div class="lb-reward">
-      <span style="font-size:13px">🎁</span>
-      <span class="lb-reward-text" id="reward-text">Достигни 5% прибыли → получи чек-лист входа</span>
+    <div class="lb-reward" style="border-top:1px solid rgba(255,255,255,0.05);padding-top:8px;margin-top:2px;">
+      <span style="font-size:11px;opacity:0.5">💡</span>
+      <span class="lb-reward-text" id="reward-text">Заполняй каждую сделку — чем больше данных, тем точнее анализ</span>
     </div>
   </div>
 
@@ -3244,13 +3249,18 @@ function render(){
 }
 
 // ─── LEVEL SYSTEM ─────────────────────────────────
-const LEVELS=[
-  {min:0,max:5,name:'НОВИЧОК',icon:'🌱',color:'#52606e',reward:'Достигни 5% → получи чек-лист входа'},
-  {min:5,max:10,name:'СТАЖЁР',icon:'📈',color:'#3498db',reward:'Достигни 10% → методичка по риск-менеджменту'},
-  {min:10,max:20,name:'ТРЕЙДЕР',icon:'⚡',color:'#9b59b6',reward:'Достигни 20% → разбор сделок в приоритете'},
-  {min:20,max:50,name:'ПРОФИ',icon:'🎯',color:'#e8722a',reward:'Достигни 50% → бесплатная консультация 1 на 1'},
-  {min:50,max:100,name:'ЭКСПЕРТ',icon:'🔥',color:'#f5a623',reward:'Достигни 100% → VIP комьюнити'},
-  {min:100,max:999,name:'МАСТЕР',icon:'👑',color:'#34d058',reward:'Ты в элите. Помогай другим расти!'},
+// Уровни теперь по Discipline Score (0-100) + кол-ву сделок
+// Не "кто ты" — а "что у тебя за цифры прямо сейчас"
+const DISCIPLINE_INSIGHTS = [
+  // [minScore, minTrades, insight]
+  [0,  0,  'Заполняй каждую сделку — чем больше данных, тем точнее анализ'],
+  [0,  5,  'Добавь стоп-лосс в следующие сделки — это поднимет Discipline Score'],
+  [30, 5,  'Начало есть. Следи за риском на сделку — не больше 2% депозита'],
+  [50, 10, 'Хорошая база. Начни анализировать в какие часы ты торгуешь лучше'],
+  [65, 15, 'Дисциплина растёт. Проверь свой лучший и худший день недели'],
+  [75, 20, 'Стабильные результаты. Попробуй оптимизировать размер позиции'],
+  [85, 30, 'Высокая дисциплина. Фокус на масштабировании прибыльных сетапов'],
+  [92, 50, 'Профессиональный уровень ведения журнала. Так держать'],
 ];
 function calcStreak(trades){
   if(!trades.length)return 0;
@@ -3260,25 +3270,69 @@ function calcStreak(trades){
   return streak;
 }
 function renderLevelBar(trades){
-  const totalPct=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
-  const streak=calcStreak(trades);
-  const lvl=LEVELS.find(l=>totalPct<l.max)||LEVELS[LEVELS.length-1];
-  const nextLvl=LEVELS[LEVELS.indexOf(lvl)+1];
-  const progress=lvl.max===999?100:Math.min(100,Math.max(0,((totalPct-lvl.min)/(lvl.max-lvl.min))*100));
-  document.getElementById('level-icon').textContent=lvl.icon;
-  document.getElementById('level-icon').style.cssText=`background:${lvl.color}18;border:1px solid ${lvl.color}30;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0`;
-  document.getElementById('level-name').textContent=lvl.name;
-  document.getElementById('level-name').style.color=lvl.color;
-  document.getElementById('level-sub').textContent=`Уровень ${LEVELS.indexOf(lvl)} · ${totalPct>=0?'+':''}${totalPct.toFixed(1)}%`;
-  document.getElementById('level-fill').style.width=progress+'%';
-  document.getElementById('level-fill').style.background=`linear-gradient(90deg,${lvl.color},${lvl.color}bb)`;
-  document.getElementById('level-cur-label').textContent=totalPct.toFixed(1)+'%';
-  document.getElementById('level-next-label').textContent=nextLvl?`Следующий: ${lvl.max}%`:'🏆 Максимум';
-  document.getElementById('level-pnl').textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
-  document.getElementById('reward-text').textContent=lvl.reward;
-  document.getElementById('streak-num').textContent=streak;
-  if(streak>=7)document.getElementById('streak-num').style.color='#ff4d4d';
-  else if(streak>=3)document.getElementById('streak-num').style.color='#f5a623';
+  const totalPct = trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const streak = calcStreak(trades);
+  const n = trades.length;
+
+  // Discipline Score — копируем логику из profile
+  const clamp = (v,mn,mx)=>Math.min(mx,Math.max(mn,v));
+  const withSL = trades.filter(t=>t.stop_loss).length;
+  const slScore = n ? Math.round(withSL/n*100) : 0;
+  const hasFear = trades.filter(t=>t.emotion_fear||t.emotion_conf||t.emotion_greed||t.emotion_calm).length;
+  const avgFear = hasFear ? trades.reduce((s,t)=>s+(t.emotion_fear||5),0)/hasFear : 5;
+  const avgConf = hasFear ? trades.reduce((s,t)=>s+(t.emotion_conf||5),0)/hasFear : 5;
+  const emotionScore = hasFear>=3 ? clamp(Math.round(((10-avgFear)/10*50)+(avgConf/10*50)),0,100) : 50;
+  const withSetup = trades.filter(t=>t.setup_type||t.note_why).length;
+  const setupScore = n ? Math.round(withSetup/n*100) : 0;
+  const byDay={};
+  trades.forEach(t=>{const d=new Date(t.created_at).toDateString();byDay[d]=(byDay[d]||0)+1;});
+  const avgPD = Object.values(byDay).length ? Object.values(byDay).reduce((s,v)=>s+v,0)/Object.values(byDay).length : 1;
+  const wr = n ? Math.round(trades.filter(t=>t.result==='win').length/n*100) : 50;
+  const consistScore = clamp(Math.round(clamp(100-(Math.max(0,avgPD-5)*12),0,100)*0.5+wr*0.5),0,100);
+  const ds = clamp(Math.round(slScore*0.30+emotionScore*0.25+setupScore*0.25+consistScore*0.20),0,100);
+
+  // Цвет по DS
+  const dsColor = ds>=80?'#34d058':ds>=60?'#e8722a':ds>=40?'#f5a623':'#52606e';
+  const dsLabel = ds>=80?'ВЫСОКАЯ':ds>=60?'СРЕДНЯЯ':ds>=40?'БАЗОВАЯ':'НИЗКАЯ';
+
+  // Подбираем инсайт
+  const eligible = DISCIPLINE_INSIGHTS.filter(([minDs,minT])=>ds>=minDs&&n>=minT);
+  const insight = eligible.length ? eligible[eligible.length-1][2] : DISCIPLINE_INSIGHTS[0][2];
+
+  // Рендерим
+  const iconEl = document.getElementById('level-icon');
+  if(iconEl){
+    const ico = ds>=80?'🎯':ds>=60?'⚡':ds>=40?'📊':'🌱';
+    iconEl.textContent=ico;
+    iconEl.style.cssText=`background:${dsColor}18;border:1px solid ${dsColor}30;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0`;
+  }
+  const nameEl = document.getElementById('level-name');
+  if(nameEl){ nameEl.textContent='Дисциплина: '+dsLabel; nameEl.style.color=dsColor; }
+  const subEl = document.getElementById('level-sub');
+  if(subEl) subEl.textContent=`${n} сделок · Score ${ds}/100 · ROI ${totalPct>=0?'+':''}${totalPct.toFixed(1)}%`;
+
+  const fillEl = document.getElementById('level-fill');
+  if(fillEl){ fillEl.style.width=ds+'%'; fillEl.style.background=`linear-gradient(90deg,${dsColor},${dsColor}bb)`; }
+
+  const curEl = document.getElementById('level-cur-label');
+  if(curEl) curEl.textContent=`Score: ${ds}/100`;
+  const nextEl = document.getElementById('level-next-label');
+  if(nextEl){
+    const next = ds<40?40:ds<60?60:ds<80?80:100;
+    nextEl.textContent = ds>=100?'Максимум 💎':`Цель: ${next} pts`;
+  }
+
+  const pnlEl = document.getElementById('level-pnl');
+  if(pnlEl){ pnlEl.textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%'; pnlEl.style.color=dsColor; }
+
+  const rwEl = document.getElementById('reward-text');
+  if(rwEl) rwEl.textContent=insight;
+
+  const strEl = document.getElementById('streak-num');
+  if(strEl){
+    strEl.textContent=streak;
+    strEl.style.color=streak>=7?'#ff4d4d':streak>=3?'#f5a623':'var(--y)';
+  }
 }
 
 // ─── DASHBOARD ────────────────────────────────────
@@ -5050,7 +5104,7 @@ function updateBalanceWidget() {
       delta.textContent = (positive ? '+' : '') + pct.toFixed(1) + '%';
       delta.style.color = positive ? 'rgba(52,208,88,0.7)' : 'rgba(255,77,77,0.7)';
     } else {
-      delta.textContent = 'старт: $' + balanceStart.toLocaleString();
+      delta.textContent = '+0.0%';
       delta.style.color = 'rgba(255,255,255,0.2)';
     }
   }
@@ -5278,6 +5332,28 @@ function renderQNotesList(notes){
   el.innerHTML=notes.map(n=>`<div class="qnote-item"><div class="qnote-item-type">${icons[n.type]||'📝'}</div><div class="qnote-item-text">${(n.text||'').replace(/</g,'&lt;')}</div></div>`).join('');
 }
 </script>
+
+
+<!-- QUICK NOTE OVERLAY -->
+<div class="qnote-overlay" id="qnote-overlay" onclick="if(event.target===this)closeQNote()">
+  <div class="qnote-popup">
+    <div class="qnote-head">
+      <span class="qnote-title">✏️ БЫСТРАЯ ЗАМЕТКА</span>
+      <button onclick="closeQNote()" style="background:none;border:none;color:var(--m);cursor:pointer;font-size:16px;padding:0 4px">✕</button>
+    </div>
+    <div class="qnote-type-row">
+      <button class="qnote-type-btn active" data-type="note" onclick="document.querySelectorAll('.qnote-type-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">📝 Заметка</button>
+      <button class="qnote-type-btn" data-type="idea" onclick="document.querySelectorAll('.qnote-type-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">💡 Идея</button>
+      <button class="qnote-type-btn" data-type="mistake" onclick="document.querySelectorAll('.qnote-type-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">⚠️ Ошибка</button>
+      <button class="qnote-type-btn" data-type="lesson" onclick="document.querySelectorAll('.qnote-type-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">🎯 Урок</button>
+    </div>
+    <textarea id="qnote-text" class="qnote-textarea" placeholder="Что на уме?..." rows="4"></textarea>
+    <div class="qnote-footer">
+      <button class="qnote-save" onclick="saveQNote()">СОХРАНИТЬ</button>
+    </div>
+    <div class="qnote-list" id="qnote-list"></div>
+  </div>
+</div>
 
 </body>
 </html>
