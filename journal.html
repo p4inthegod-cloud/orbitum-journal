@@ -5054,6 +5054,23 @@ function closeBalancePopupOutside(e) {
   }
 }
 
+function toggleBalancePopup(){
+  const popup = document.getElementById('balance-popup');
+  if(!popup) return;
+  balancePopupOpen = !balancePopupOpen;
+  popup.classList.toggle('open', balancePopupOpen);
+  if(balancePopupOpen){
+    // Вписываем текущий стартовый баланс в поле
+    const inp = document.getElementById('balance-start-input');
+    if(inp && balanceStart) inp.value = balanceStart;
+    updateBalancePopupStats();
+    // Закрываем по клику снаружи
+    setTimeout(()=>{
+      document.addEventListener('click', closeBalancePopupOutside, {once:true});
+    }, 50);
+  }
+}
+
 function saveBalance() {
   const val = parseFloat(document.getElementById('balance-start-input').value) || 1000;
   balanceStart = val;
