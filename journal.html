@@ -3407,44 +3407,56 @@ body::after {
   100%{ transform:translateX(-50%); }
 }
 .ticker-item{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:0 18px;height:100%;cursor:default;
-  border-right:1px solid rgba(255,255,255,0.05);
+  display:inline-flex;align-items:center;gap:7px;
+  padding:0 16px;height:100%;cursor:default;
   transition:background 0.15s;white-space:nowrap;
   position:relative;
 }
-.ticker-item:hover{ background:rgba(255,255,255,0.04); }
+.ticker-item:hover{ background:rgba(232,114,42,0.06); }
+/* Символ — оранжевый для всех */
 .ticker-sym{
   font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:500;letter-spacing:0.8px;
-  color:rgba(255,255,255,0.65);
+  font-size:10px;font-weight:600;letter-spacing:1px;
+  color:var(--a);
+  text-shadow:0 0 10px rgba(232,114,42,0.4);
 }
+/* Цена — белая */
 .ticker-price{
   font-family:'JetBrains Mono',monospace;
   font-size:10px;font-weight:500;
-  color:rgba(255,255,255,0.9);
-  min-width:70px;
+  color:rgba(255,255,255,0.88);
+  min-width:64px;
 }
+/* % изменение */
 .ticker-chg{
   font-family:'JetBrains Mono',monospace;
   font-size:9px;font-weight:500;
   padding:1px 5px;border-radius:3px;
   min-width:46px;text-align:center;
 }
-.ticker-chg.up{
-  color:#2ecc71;background:rgba(46,204,113,0.1);
+.ticker-chg.up{ color:#2ecc71;background:rgba(46,204,113,0.1); }
+.ticker-chg.dn{ color:#e74c3c;background:rgba(231,76,60,0.1); }
+.ticker-chg.flat{ color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.04); }
+/* Flash при изменении цены */
+@keyframes priceFlashUp{ 0%,100%{color:rgba(255,255,255,0.88)} 50%{color:#2ecc71;text-shadow:0 0 10px rgba(46,204,113,0.8);} }
+@keyframes priceFlashDn{ 0%,100%{color:rgba(255,255,255,0.88)} 50%{color:#e74c3c;text-shadow:0 0 10px rgba(231,76,60,0.8);} }
+.ticker-price.flash-up{ animation:priceFlashUp 0.6s ease; }
+.ticker-price.flash-dn{ animation:priceFlashDn 0.6s ease; }
+/* Разделитель секции CRYPTO / FOREX */
+.ticker-divider{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:0 14px;height:100%;flex-shrink:0;
+  border-left:1px solid rgba(232,114,42,0.2);
+  border-right:1px solid rgba(232,114,42,0.2);
 }
-.ticker-chg.dn{
-  color:#e74c3c;background:rgba(231,76,60,0.1);
+.ticker-divider-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:3px;font-weight:600;
+  color:rgba(232,114,42,0.5);text-transform:uppercase;
+  background:rgba(232,114,42,0.08);
+  border:1px solid rgba(232,114,42,0.18);
+  border-radius:3px;padding:1px 7px;
 }
-.ticker-chg.flat{
-  color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.05);
-}
-/* flash при обновлении цены */
-@keyframes priceFlashUp{ 0%,100%{} 50%{color:#2ecc71;text-shadow:0 0 8px rgba(46,204,113,0.7);} }
-@keyframes priceFlashDn{ 0%,100%{} 50%{color:#e74c3c;text-shadow:0 0 8px rgba(231,76,60,0.7);} }
-.ticker-price.flash-up{ animation:priceFlashUp 0.5s ease; }
-.ticker-price.flash-dn{ animation:priceFlashDn 0.5s ease; }
 
 /* Сдвигаем топбар и main вниз на высоту тикера */
 @media(min-width:861px){
@@ -3455,25 +3467,7 @@ body::after {
 /* Mobile — скрываем */
 @media(max-width:860px){ .ticker-bar{ display:none !important; } }
 
-/* Статус-индикатор */
-.ticker-status{
-  position:absolute;right:86px;top:50%;transform:translateY(-50%);
-  z-index:3;display:flex;align-items:center;gap:4px;
-  font-family:'JetBrains Mono',monospace;font-size:8px;
-  color:rgba(255,255,255,0.25);letter-spacing:1px;
-}
-.ticker-dot-live{
-  width:5px;height:5px;border-radius:50%;
-  background:#2ecc71;
-  box-shadow:0 0 6px #2ecc71;
-  animation:livePulse 2s ease-in-out infinite;
-}
-@keyframes livePulse{
-  0%,100%{opacity:1;} 50%{opacity:0.3;}
-}
-.ticker-dot-live.loading{
-  background:var(--a);box-shadow:0 0 6px var(--a);
-}
+/* ticker-status removed */
 
 </style>
 </head>
@@ -3552,10 +3546,6 @@ body::after {
 
 <!-- ══ TICKER BAR ══════════════════════════════════ -->
 <div class="ticker-bar" id="ticker-bar">
-  <div class="ticker-status">
-    <div class="ticker-dot-live loading" id="ticker-dot"></div>
-    <span id="ticker-status-txt">LOAD</span>
-  </div>
   <div class="ticker-track" id="ticker-track">
     <!-- заполняется JS -->
   </div>
@@ -7726,126 +7716,128 @@ function renderTickerTrack() {
   const track = document.getElementById('ticker-track');
   if (!track) return;
 
-  // Дублируем для бесконечного скролла
-  const items = [...TICKER_SYMBOLS, ...TICKER_SYMBOLS];
-  track.innerHTML = items.map(s => {
-    const d = tickerData[s.sym];
-    const price = fmtPrice(s.sym, d.price);
-    const chg   = d.chg !== null ? d.chg : null;
-    const chgClass = chg === null ? 'flat' : chg >= 0 ? 'up' : 'dn';
-    const chgStr   = chg === null ? '---'
-      : (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-    return `
-      <div class="ticker-item" data-sym="${s.sym}">
-        <span class="ticker-sym" style="color:${s.color}">${s.sym}</span>
-        <span class="ticker-price" id="tp-${s.sym.replace('/','_')}">${price}</span>
-        <span class="ticker-chg ${chgClass}" id="tc-${s.sym.replace('/','_')}">${chgStr}</span>
+  function buildItems(symbols){
+    let html = '';
+    let lastType = null;
+    symbols.forEach(s => {
+      // Разделитель при смене типа
+      if(lastType && lastType !== s.type){
+        html += `<div class="ticker-divider"><span class="ticker-divider-label">${s.type === 'forex' ? 'FX' : 'CRYPTO'}</span></div>`;
+      }
+      if(lastType === null){
+        html += `<div class="ticker-divider"><span class="ticker-divider-label">${s.type === 'forex' ? 'FX' : 'CRYPTO'}</span></div>`;
+      }
+      lastType = s.type;
+      const d = tickerData[s.sym];
+      const price = fmtPrice(s.sym, d.price);
+      const chg   = d.chg !== null ? d.chg : null;
+      const chgClass = chg === null ? 'flat' : chg >= 0 ? 'up' : 'dn';
+      const chgStr   = chg === null ? '···' : (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+      html += `<div class="ticker-item" data-sym="${s.sym}">
+        <span class="ticker-sym">${s.sym}</span>
+        <span class="ticker-price" data-key="${s.sym.replace('/','_')}">${price}</span>
+        <span class="ticker-chg ${chgClass}" data-chg="${s.sym.replace('/','_')}">${chgStr}</span>
       </div>`;
-  }).join('');
+    });
+    return html;
+  }
+  // Дублируем для бесконечного скролла
+  track.innerHTML = buildItems(TICKER_SYMBOLS) + buildItems(TICKER_SYMBOLS);
 }
 
 // ── ОБНОВЛЕНИЕ ОДНОГО ТИКЕРА (без перерендера) ───────────
 function updateTickerItem(sym, newPrice, chg) {
-  const key = sym.replace('/','_');
-  // Обновляем все дубли (2 копии в треке)
-  document.querySelectorAll(`[data-sym="${sym}"] #tp-${key}, [data-sym="${sym}"] .ticker-price`).forEach(el => {
-    if (!el.closest(`[data-sym="${sym}"]`)) return;
-    const prev = tickerData[sym].price;
+  const key  = sym.replace('/','_');
+  const prev = tickerData[sym] ? tickerData[sym].price : null;
+
+  // data-key и data-chg атрибуты — без конфликта id
+  document.querySelectorAll(`.ticker-price[data-key="${key}"]`).forEach(el => {
     el.textContent = fmtPrice(sym, newPrice);
-    if (prev !== null && newPrice !== prev) {
+    if(prev !== null && newPrice !== prev){
       el.classList.remove('flash-up','flash-dn');
-      void el.offsetWidth; // reflow
+      void el.offsetWidth;
       el.classList.add(newPrice > prev ? 'flash-up' : 'flash-dn');
-      setTimeout(() => el.classList.remove('flash-up','flash-dn'), 500);
+      setTimeout(()=>el.classList.remove('flash-up','flash-dn'), 600);
     }
   });
-  document.querySelectorAll(`[data-sym="${sym}"] .ticker-chg`).forEach(el => {
-    const chgClass = chg >= 0 ? 'up' : 'dn';
-    el.className = `ticker-chg ${chgClass}`;
-    el.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-  });
-  tickerData[sym].prev  = tickerData[sym].price;
-  tickerData[sym].price = newPrice;
-  tickerData[sym].chg   = chg;
-}
-
-// ── BINANCE WEBSOCKET ────────────────────────────────────
-function initCryptoWS() {
-  const cryptoSyms = TICKER_SYMBOLS.filter(s => s.type === 'crypto');
-  const streams = cryptoSyms.map(s => s.pair.toLowerCase() + '@ticker').join('/');
-  const wsUrl   = `wss://stream.binance.com:9443/stream?streams=${streams}`;
-
-  function connect() {
-    const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      console.log('[Ticker] Binance WS connected');
-      const dot = document.getElementById('ticker-dot');
-      const txt = document.getElementById('ticker-status-txt');
-      if (dot) { dot.classList.remove('loading'); }
-      if (txt) txt.textContent = 'LIVE';
-    };
-
-    ws.onmessage = (e) => {
-      try {
-        const msg  = JSON.parse(e.data);
-        const d    = msg.data;
-        if (!d || !d.s) return;
-        const sym  = TICKER_SYMBOLS.find(s => s.pair === d.s);
-        if (!sym) return;
-        const price = parseFloat(d.c);  // last price
-        const chg   = parseFloat(d.P);  // % change 24h
-        updateTickerItem(sym.sym, price, chg);
-      } catch(_) {}
-    };
-
-    ws.onerror = () => console.warn('[Ticker] WS error, reconnecting...');
-    ws.onclose = () => {
-      console.warn('[Ticker] WS closed, reconnect in 3s');
-      setTimeout(connect, 3000);
-    };
+  if(chg !== null){
+    document.querySelectorAll(`.ticker-chg[data-chg="${key}"]`).forEach(el => {
+      el.className = `ticker-chg ${chg >= 0 ? 'up' : 'dn'}`;
+      el.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    });
   }
-  connect();
+  if(tickerData[sym]){
+    tickerData[sym].prev  = tickerData[sym].price;
+    tickerData[sym].price = newPrice;
+    if(chg !== null) tickerData[sym].chg = chg;
+  }
 }
 
-// ── FOREX POLLING (Frankfurter — бесплатно, без ключа) ───
-async function fetchForex() {
-  try {
-    // EUR база + все нужные кросс-пары
-    const res  = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD');
-    const data = await res.json();
-    const rates = data.rates; // rates относительно USD
-    if (!rates) return;
 
-    // USD/JPY, USD/CHF, USD/CAD — прямые
-    if (rates.JPY) updateTickerItem('USD/JPY', rates.JPY, null);
-    if (rates.CHF) updateTickerItem('USD/CHF', rates.CHF, null);
-    if (rates.CAD) updateTickerItem('USD/CAD', rates.CAD, null);
+// ── ОПРЕДЕЛЯЕМ BASE URL ──────────────────────────────────
+// На Vercel → /api/ticker, локально → fallback на CORS proxy
+const TICKER_API_BASE = (()=>{
+  const h = location.hostname;
+  if(h === 'localhost' || h === '127.0.0.1' || h === '') {
+    // Локально: используем публичный CORS proxy
+    return 'https://corsproxy.io/?';
+  }
+  return ''; // на Vercel используем /api/ticker
+})();
 
-    // EUR/USD, GBP/USD, AUD/USD, NZD/USD — обратные
-    if (rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR, null);
-    if (rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP, null);
-    if (rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD, null);
-    if (rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD, null);
+function tickerApiUrl(type){
+  if(TICKER_API_BASE){
+    // CORS proxy — проксируем напрямую к источнику
+    if(type==='forex')  return TICKER_API_BASE + encodeURIComponent('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD');
+    if(type==='crypto'){
+      const syms = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT','LINKUSDT','PEPEUSDT','TONUSDT','SUIUSDT'];
+      return TICKER_API_BASE + encodeURIComponent('https://api.binance.com/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(syms)));
+    }
+  }
+  return `/api/ticker?type=${type}`;
+}
 
-    // EUR/GBP
-    if (rates.EUR && rates.GBP) updateTickerItem('EUR/GBP', rates.GBP/rates.EUR, null);
+// ── CRYPTO POLLING ───────────────────────────────────────
+async function fetchCrypto(){
+  try{
+    const r = await fetch(tickerApiUrl('crypto'));
+    const data = await r.json();
+    const arr = Array.isArray(data) ? data : [];
+    arr.forEach(d=>{
+      const sym = TICKER_SYMBOLS.find(s=>s.pair===d.symbol);
+      if(!sym) return;
+      updateTickerItem(sym.sym, parseFloat(d.lastPrice), parseFloat(d.priceChangePercent));
+    });
 
+    console.log('[Ticker] Crypto updated');
+  }catch(e){
+    console.warn('[Ticker] Crypto error:', e.message);
+  }
+}
+
+// ── FOREX POLLING ────────────────────────────────────────
+async function fetchForex(){
+  try{
+    const r    = await fetch(tickerApiUrl('forex'));
+    const data = await r.json();
+    const rates = data.rates;
+    if(!rates) return;
+    if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY, null);
+    if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF, null);
+    if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD, null);
+    if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR, null);
+    if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP, null);
+    if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD, null);
+    if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD, null);
+    if(rates.EUR && rates.GBP) updateTickerItem('EUR/GBP', rates.GBP/rates.EUR, null);
     console.log('[Ticker] Forex updated');
-  } catch(e) {
-    console.warn('[Ticker] Forex fetch error:', e);
+  }catch(e){
+    console.warn('[Ticker] Forex error:', e.message);
   }
-}
-
-// ── СТАРТ ────────────────────────────────────────────────
-function initTicker() {
-  renderTickerTrack();           // рисуем скелет
-  initCryptoWS();                // WebSocket крипта
-  fetchForex();                  // форекс сразу
-  setInterval(fetchForex, 60000); // форекс каждую минуту
 }
 
 // Запуск после загрузки DOM
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initTicker);
 } else {
