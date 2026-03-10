@@ -626,7 +626,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .dash-title{font-family:var(--font-display);font-size:13px;letter-spacing:3px;color:var(--m);margin-bottom:14px;}
 .speedo-wrap{display:flex;flex-direction:column;align-items:center;}
 .speedo-svg{width:200px;height:115px;}
-.speedo-val{font-family:var(--font-display);font-size:36px;color:var(--a);text-align:center;line-height:1;}
+.speedo-val{font-family:var(--font-display);font-size:32px;color:var(--a);text-align:center;line-height:1;}
 .speedo-desc{font-family:var(--font-mono);font-size:12px;color:var(--m);text-align:center;margin-top:4px;letter-spacing:1px;}
 .em-bars{display:flex;flex-direction:column;gap:10px;}
 .em-bar-row{display:flex;flex-direction:column;gap:4px;}
@@ -1495,7 +1495,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ─── TILT DETECTOR ───────────────────────────── */
 .tilt-banner{display:none;background:linear-gradient(135deg,rgba(255,77,77,0.12),rgba(255,77,77,0.04));border:1px solid rgba(255,77,77,0.35);border-radius:10px;padding:14px 16px;margin-bottom:14px;position:relative;overflow:hidden;}
 .tilt-banner.show{display:flex;align-items:flex-start;gap:12px;animation:pgIn 0.3s ease;}
-.tilt-icon{font-size:36px;flex-shrink:0;animation:float 2s ease-in-out infinite;}
+.tilt-icon{font-size:32px;flex-shrink:0;animation:float 2s ease-in-out infinite;}
 .tilt-body{}
 .tilt-title{font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--r);margin-bottom:3px;}
 .tilt-desc{font-family:var(--font-mono);font-size:13px;color:var(--m);line-height:1.6;}
@@ -1675,7 +1675,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .sim-result.show{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;animation:pgIn 0.3s ease;}
 .sim-roi-box{text-align:center;padding:10px;background:rgba(52,208,88,0.06);border-radius:8px;}
 .sim-roi-label{font-family:var(--font-mono);font-size:12px;color:var(--m);letter-spacing:1px;margin-bottom:6px;text-transform:uppercase;}
-.sim-roi-val{font-family:var(--font-display);font-size:36px;color:var(--g);}
+.sim-roi-val{font-family:var(--font-display);font-size:32px;color:var(--g);}
 .sim-roi-sub{font-family:var(--font-mono);font-size:12px;color:rgba(52,208,88,0.6);margin-top:2px;}
 .sim-run-btn{
   width:100%;padding:12px;background:var(--a2);
@@ -1817,32 +1817,27 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
   color:rgba(255,255,255,0.35);font-size:10px;font-family:var(--font-mono);
   cursor:pointer;flex-shrink:0;transition:all 0.15s;
-  position:relative;
+  position:static;  /* НЕ relative — tooltip через JS portal */
 }
 .field-hint:hover{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);color:var(--a);}
-.field-hint::after{
-  content:attr(data-tip);
-  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
-  background:rgba(12,15,24,0.97);border:1px solid rgba(232,114,42,0.25);
-  color:rgba(255,255,255,0.85);font-family:var(--font-mono);font-size:11px;
-  line-height:1.6;padding:10px 14px;border-radius:8px;
-  white-space:pre-wrap;width:230px;text-align:left;
-  opacity:0;pointer-events:none;transition:opacity 0.18s;
-  z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);
+/* Tooltip — фиксированный через JS, не ::after */
+#fh-tooltip{
+  position:fixed;
+  background:rgba(10,13,22,0.98);border:1px solid rgba(232,114,42,0.3);
+  color:rgba(255,255,255,0.88);font-family:'JetBrains Mono',monospace;font-size:11px;
+  line-height:1.65;padding:11px 15px;border-radius:9px;
+  white-space:pre-wrap;width:240px;max-width:90vw;text-align:left;
+  pointer-events:none;
+  z-index:99999;box-shadow:0 8px 40px rgba(0,0,0,0.7);
+  opacity:0;transition:opacity 0.15s;
   letter-spacing:0;text-transform:none;
 }
-.field-hint:hover::after{opacity:1;}
-/* стрелка */
-.field-hint::before{
-  content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);
-  border:5px solid transparent;border-top-color:rgba(232,114,42,0.25);
-  opacity:0;pointer-events:none;transition:opacity 0.18s;z-index:1000;
-}
-.field-hint:hover::before{opacity:1;}
+#fh-tooltip.show{opacity:1;}
 
 </style>
 </head>
 <body>
+<div id="fh-tooltip"></div>
 <div class="bg-orb"></div>
 <!-- SMART NOTIFICATION TRAY -->
 <div class="notif-tray" id="notif-tray"></div>
