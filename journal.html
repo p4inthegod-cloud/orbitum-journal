@@ -3469,6 +3469,143 @@ body::after {
 
 /* ticker-status removed */
 
+
+/* ═══════════════════════════════════════
+   SIDEBAR MARKET WIDGETS
+   ═══════════════════════════════════════ */
+.sb-widgets{
+  padding:6px 8px 4px;
+  display:flex;flex-direction:column;gap:6px;
+  flex:1;overflow:hidden;
+}
+/* Общий стиль виджета */
+.sbw{
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:9px;padding:8px 10px;
+  position:relative;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.sbw::before{
+  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);
+}
+.sbw:hover{ border-color:rgba(232,114,42,0.2); }
+.sbw-title{
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  letter-spacing:2px;color:rgba(255,255,255,0.28);
+  text-transform:uppercase;margin-bottom:6px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sbw-dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--a);box-shadow:0 0 4px var(--a);
+  animation:orbDot 3s ease-in-out infinite;
+}
+
+/* ── FEAR & GREED ── */
+.sbw-fng{
+  display:flex;align-items:center;gap:8px;
+}
+.fng-arc{
+  position:relative;width:44px;height:26px;flex-shrink:0;
+}
+.fng-arc svg{ width:44px;height:26px; }
+.fng-num{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;
+  transition:color 0.4s;
+}
+.fng-label{
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  color:rgba(255,255,255,0.45);letter-spacing:0.5px;margin-top:1px;
+}
+
+/* ── MARKET CAP ── */
+.sbw-market{
+  display:flex;flex-direction:column;gap:3px;
+}
+.mkt-row{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.mkt-label{
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  color:rgba(255,255,255,0.35);letter-spacing:0.5px;
+}
+.mkt-val{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,0.8);font-weight:500;
+}
+.mkt-chg{
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  padding:0 4px;border-radius:3px;
+}
+.mkt-chg.up{ color:#2ecc71;background:rgba(46,204,113,0.1); }
+.mkt-chg.dn{ color:#e74c3c;background:rgba(231,76,60,0.1); }
+.mkt-btc-dom{
+  height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:3px;overflow:hidden;
+}
+.mkt-btc-fill{
+  height:100%;background:linear-gradient(90deg,#f7931a,rgba(247,147,26,0.5));
+  border-radius:2px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ── TRENDING ── */
+.sbw-trend{display:flex;flex-direction:column;gap:3px;}
+.trend-item{
+  display:flex;align-items:center;gap:5px;
+  padding:3px 5px;border-radius:5px;
+  transition:background 0.15s;cursor:default;
+}
+.trend-item:hover{ background:rgba(255,255,255,0.04); }
+.trend-rank{
+  font-family:'JetBrains Mono',monospace;font-size:7px;
+  color:rgba(255,255,255,0.2);width:8px;text-align:right;flex-shrink:0;
+}
+.trend-thumb{
+  width:14px;height:14px;border-radius:50%;
+  background:rgba(255,255,255,0.06);flex-shrink:0;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  font-size:9px;
+}
+.trend-thumb img{ width:100%;height:100%;object-fit:cover; }
+.trend-sym{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,0.75);font-weight:500;flex:1;
+  letter-spacing:0.5px;
+}
+.trend-pos{
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  color:rgba(255,255,255,0.25);
+}
+
+/* ── GAINERS / LOSERS ── */
+.sbw-gl{ display:flex;flex-direction:column;gap:3px; }
+.gl-tabs{
+  display:flex;gap:3px;margin-bottom:4px;
+}
+.gl-tab{
+  flex:1;padding:2px 0;border-radius:4px;border:none;
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  letter-spacing:1px;cursor:pointer;text-transform:uppercase;
+  transition:all 0.15s;background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.3);
+}
+.gl-tab.active.gain{ background:rgba(46,204,113,0.12);color:#2ecc71;border:1px solid rgba(46,204,113,0.25); }
+.gl-tab.active.lose{ background:rgba(231,76,60,0.12);color:#e74c3c;border:1px solid rgba(231,76,60,0.25); }
+.gl-item{
+  display:flex;align-items:center;gap:5px;
+  padding:2px 4px;border-radius:4px;
+}
+.gl-sym{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,0.7);flex:1;letter-spacing:0.5px;font-weight:500;
+}
+.gl-pct{
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;
+}
+.gl-pct.up{ color:#2ecc71; }
+.gl-pct.dn{ color:#e74c3c; }
+
 </style>
 </head>
 <body>
@@ -3531,6 +3668,75 @@ body::after {
       <span class="sb-item-icon">⚙️</span>Админ
     </a>
   </nav>
+
+  <!-- ── MARKET WIDGETS ───────────────────── -->
+  <div class="sb-widgets" id="sb-widgets">
+
+    <!-- Fear & Greed -->
+    <div class="sbw" id="sbw-fng">
+      <div class="sbw-title">
+        <span>СТРАХ / ЖАДНОСТЬ</span>
+        <div class="sbw-dot"></div>
+      </div>
+      <div class="sbw-fng">
+        <div class="fng-arc">
+          <svg viewBox="0 0 44 26">
+            <path d="M4,24 A18,18 0 0,1 40,24" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4" stroke-linecap="round"/>
+            <path id="fng-arc-fill" d="M4,24 A18,18 0 0,1 40,24" fill="none" stroke="#e74c3c" stroke-width="4" stroke-linecap="round" stroke-dasharray="0 57"/>
+          </svg>
+        </div>
+        <div>
+          <div class="fng-num" id="fng-num" style="color:#e74c3c">--</div>
+          <div class="fng-label" id="fng-label">ЗАГРУЗКА</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Market -->
+    <div class="sbw" id="sbw-market">
+      <div class="sbw-title"><span>РЫНОК</span><div class="sbw-dot"></div></div>
+      <div class="sbw-market">
+        <div class="mkt-row">
+          <span class="mkt-label">MCAP</span>
+          <span class="mkt-val" id="mkt-cap">---</span>
+          <span class="mkt-chg" id="mkt-cap-chg">---</span>
+        </div>
+        <div class="mkt-row">
+          <span class="mkt-label">24H VOL</span>
+          <span class="mkt-val" id="mkt-vol">---</span>
+        </div>
+        <div class="mkt-row">
+          <span class="mkt-label">BTC DOM</span>
+          <span class="mkt-val" id="mkt-dom">---</span>
+        </div>
+        <div class="mkt-btc-dom">
+          <div class="mkt-btc-fill" id="mkt-dom-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trending -->
+    <div class="sbw" id="sbw-trend">
+      <div class="sbw-title"><span>ТРЕНДЫ 🔥</span><div class="sbw-dot"></div></div>
+      <div class="sbw-trend" id="trend-list">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.2);text-align:center;padding:4px">загрузка...</div>
+      </div>
+    </div>
+
+    <!-- Gainers / Losers -->
+    <div class="sbw" id="sbw-gl">
+      <div class="sbw-title"><span>ЛИДЕРЫ</span><div class="sbw-dot"></div></div>
+      <div class="gl-tabs">
+        <button class="gl-tab active gain" id="gl-tab-gain" onclick="glSwitch('gain')">▲ РОСТ</button>
+        <button class="gl-tab lose" id="gl-tab-lose" onclick="glSwitch('lose')">▼ ПАДЕНИЕ</button>
+      </div>
+      <div class="sbw-gl" id="gl-list">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.2);text-align:center;padding:4px">загрузка...</div>
+      </div>
+    </div>
+
+  </div>
+
   <div class="sb-footer">
     <div class="sb-user">
       <div class="sb-avatar" id="sf-avatar">?</div>
@@ -7828,6 +8034,171 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initTicker);
 } else {
   initTicker();
+}
+
+</script>
+<script>
+
+// ═══════════════════════════════════════════════════
+// SIDEBAR MARKET WIDGETS
+// ═══════════════════════════════════════════════════
+
+// ── Форматирование больших чисел ──
+function fmtBig(n){
+  if(n>=1e12) return '$'+(n/1e12).toFixed(2)+'T';
+  if(n>=1e9)  return '$'+(n/1e9).toFixed(1)+'B';
+  if(n>=1e6)  return '$'+(n/1e6).toFixed(1)+'M';
+  return '$'+n.toLocaleString();
+}
+
+// ── Fear & Greed ──
+async function fetchFNG(){
+  try{
+    const r = await fetch('/api/ticker?type=fng');
+    const d = await r.json();
+    const val = parseInt(d.value);
+    const cls = d.value_classification || '';
+    const el  = document.getElementById('fng-num');
+    const lb  = document.getElementById('fng-label');
+    const arc = document.getElementById('fng-arc-fill');
+    if(!el) return;
+
+    // Цвет по значению
+    const color = val<=25?'#e74c3c':val<=45?'#e67e22':val<=55?'#f1c40f':val<=75?'#2ecc71':'#27ae60';
+    el.textContent = val;
+    el.style.color  = color;
+
+    // Русские лейблы
+    const labels = {
+      'Extreme Fear':'ЭКСТР. СТРАХ','Fear':'СТРАХ',
+      'Neutral':'НЕЙТРАЛЬНО','Greed':'ЖАДНОСТЬ','Extreme Greed':'ЭКСТР. ЖАДНОСТЬ'
+    };
+    lb.textContent = labels[cls] || cls;
+    lb.style.color = color;
+
+    // Дуга — 57px полная длина
+    const dash = (val/100)*57;
+    if(arc){ arc.style.stroke=color; arc.style.strokeDasharray=`${dash} 57`; }
+  }catch(e){ console.warn('[Widgets] FNG:', e.message); }
+}
+
+// ── Global Market ──
+async function fetchMarket(){
+  try{
+    const r = await fetch('/api/ticker?type=market');
+    const d = await r.json();
+    const g = d.data;
+    if(!g) return;
+
+    const cap  = document.getElementById('mkt-cap');
+    const vol  = document.getElementById('mkt-vol');
+    const dom  = document.getElementById('mkt-dom');
+    const bar  = document.getElementById('mkt-dom-bar');
+    const chg  = document.getElementById('mkt-cap-chg');
+
+    const capVal = g.total_market_cap?.usd || 0;
+    const volVal = g.total_volume?.usd || 0;
+    const domVal = g.market_cap_percentage?.btc || 0;
+    const capChg = g.market_cap_change_percentage_24h_usd || 0;
+
+    if(cap) cap.textContent = fmtBig(capVal);
+    if(vol) vol.textContent = fmtBig(volVal);
+    if(dom) dom.textContent = domVal.toFixed(1)+'%';
+    if(bar) bar.style.width = Math.min(domVal,100)+'%';
+    if(chg){
+      chg.textContent = (capChg>=0?'+':'')+capChg.toFixed(1)+'%';
+      chg.className   = 'mkt-chg '+(capChg>=0?'up':'dn');
+    }
+  }catch(e){ console.warn('[Widgets] Market:', e.message); }
+}
+
+// ── Trending ──
+async function fetchTrending(){
+  try{
+    const r    = await fetch('/api/ticker?type=trending');
+    const data = await r.json();
+    const coins = data.coins?.slice(0,6) || [];
+    const list  = document.getElementById('trend-list');
+    if(!list) return;
+
+    list.innerHTML = coins.map((item,i)=>{
+      const c   = item.item;
+      const img = c.thumb || '';
+      const sym = (c.symbol||'').toUpperCase();
+      const rank= c.market_cap_rank ? '#'+c.market_cap_rank : '';
+      return `<div class="trend-item">
+        <span class="trend-rank">${i+1}</span>
+        <div class="trend-thumb">
+          ${img ? `<img src="${img}" loading="lazy">` : '🪙'}
+        </div>
+        <span class="trend-sym">${sym}</span>
+        <span class="trend-pos">${rank}</span>
+      </div>`;
+    }).join('');
+  }catch(e){ console.warn('[Widgets] Trending:', e.message); }
+}
+
+// ── Gainers / Losers ──
+let glData = {gain:[], lose:[]};
+let glMode = 'gain';
+
+async function fetchGL(){
+  try{
+    const r    = await fetch('/api/ticker?type=gl');
+    const data = await r.json();
+    const arr  = Array.isArray(data) ? data : [];
+
+    // Сортируем
+    const sorted = [...arr].sort((a,b)=>
+      (b.price_change_percentage_24h||0)-(a.price_change_percentage_24h||0)
+    );
+    glData.gain = sorted.slice(0,5);
+    glData.lose = sorted.slice(-5).reverse();
+    renderGL();
+  }catch(e){ console.warn('[Widgets] GL:', e.message); }
+}
+
+function glSwitch(mode){
+  glMode = mode;
+  document.getElementById('gl-tab-gain').className = 'gl-tab'+(mode==='gain'?' active gain':'');
+  document.getElementById('gl-tab-lose').className = 'gl-tab lose'+(mode==='lose'?' active':'');
+  renderGL();
+}
+
+function renderGL(){
+  const list  = document.getElementById('gl-list');
+  if(!list) return;
+  const items = glMode==='gain' ? glData.gain : glData.lose;
+  if(!items.length){
+    list.innerHTML = '<div style="font-family:monospace;font-size:8px;color:rgba(255,255,255,0.2);text-align:center;padding:4px">загрузка...</div>';
+    return;
+  }
+  list.innerHTML = items.map(d=>{
+    const pct = d.price_change_percentage_24h||0;
+    const cls = pct>=0?'up':'dn';
+    const sym = (d.symbol||'').toUpperCase();
+    return `<div class="gl-item">
+      <span class="gl-sym">${sym}</span>
+      <span class="gl-pct ${cls}">${pct>=0?'+':''}${pct.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Инициализация всех виджетов ──
+function initSidebarWidgets(){
+  fetchFNG();
+  fetchMarket();
+  fetchTrending();
+  fetchGL();
+  // Обновление каждые 5 минут
+  setInterval(()=>{ fetchFNG(); fetchMarket(); fetchTrending(); fetchGL(); }, 300000);
+}
+
+// Запуск
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initSidebarWidgets);
+} else {
+  initSidebarWidgets();
 }
 
 </script>
