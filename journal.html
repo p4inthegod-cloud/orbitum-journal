@@ -492,7 +492,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
 .field{display:flex;flex-direction:column;gap:4px;}
-.field label{font-family:var(--font-mono);font-size:7.5px;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
+.field label{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
 .field input,.field select,.field textarea{
   background:var(--bg3);border:var(--line);border-radius:6px;
   padding:7px 10px;color:var(--t);font-family:var(--font-mono);
@@ -552,7 +552,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .em-title{font-family:var(--font-mono);font-size:7.5px;color:rgba(232,114,42,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
 .em-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .em-row{display:flex;flex-direction:column;gap:4px;}
-.em-label{font-family:var(--font-mono);font-size:13px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
+.em-label{font-family:var(--font-mono);font-size:13px;color:rgba(255,255,255,0.6);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
 .em-opts{display:flex;gap:3px;}
 .em-opt{
   flex:1;padding:9px 5px;border-radius:7px;border:var(--line);
@@ -1809,6 +1809,37 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .sim-result.show{grid-template-columns:1fr;}
   .lb-tabs{overflow-x:auto;}
 }
+
+/* ── FIELD TOOLTIPS ── */
+.field-hint{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.35);font-size:10px;font-family:var(--font-mono);
+  cursor:pointer;flex-shrink:0;transition:all 0.15s;
+  position:relative;
+}
+.field-hint:hover{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);color:var(--a);}
+.field-hint::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:rgba(12,15,24,0.97);border:1px solid rgba(232,114,42,0.25);
+  color:rgba(255,255,255,0.85);font-family:var(--font-mono);font-size:11px;
+  line-height:1.6;padding:10px 14px;border-radius:8px;
+  white-space:pre-wrap;width:230px;text-align:left;
+  opacity:0;pointer-events:none;transition:opacity 0.18s;
+  z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  letter-spacing:0;text-transform:none;
+}
+.field-hint:hover::after{opacity:1;}
+/* стрелка */
+.field-hint::before{
+  content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:rgba(232,114,42,0.25);
+  opacity:0;pointer-events:none;transition:opacity 0.18s;z-index:1000;
+}
+.field-hint:hover::before{opacity:1;}
+
 </style>
 </head>
 <body>
@@ -2041,18 +2072,18 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <!-- ROW 1: Pair + Direction + Result -->
       <div class="fg3" style="margin-bottom:12px">
         <div class="field field-key">
-          <label>Пара</label>
+          <label>Пара <span class="field-hint" data-tip="Торговая пара.&#10;Пример: BTC/USDT, ETH/BTC&#10;Пиши как привык на бирже">?</span></label>
           <input id="f-pair" placeholder="BTC/USDT">
         </div>
         <div class="field">
-          <label>Направление</label>
+          <label>Направление <span class="field-hint" data-tip="LONG — ставишь на рост цены&#10;SHORT — ставишь на падение цены">?</span></label>
           <div class="dtoggle">
             <div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div>
             <div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div>
           </div>
         </div>
         <div class="field">
-          <label>Результат</label>
+          <label>Результат <span class="field-hint" data-tip="Прибыль — закрыл в плюс&#10;Убыток — закрыл в минус&#10;BE (безубыток) — вышел в ноль">?</span></label>
           <div class="res-btns">
             <button class="res-btn" id="rb-win" onclick="setRes('win',this)">✓ Прибыль</button>
             <button class="res-btn" id="rb-loss" onclick="setRes('loss',this)">✗ Убыток</button>
@@ -2064,19 +2095,19 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <!-- ROW 2: Deposit + Leverage + Risk% (futures-first) -->
       <div class="fg4" style="margin-bottom:10px">
         <div class="field">
-          <label>Депозит $</label>
+          <label>Депозит $ <span class="field-hint" data-tip="Размер твоего счёта в долларах.&#10;Нужен для расчёта P&amp;L %&#10;и размера позиции">?</span></label>
           <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
         </div>
         <div class="field">
-          <label>Плечо ×</label>
+          <label>Плечо × <span class="field-hint" data-tip="Кредитное плечо сделки.&#10;1x — без плеча&#10;10x — позиция = депозит × 10&#10;Используется при расчёте позиции">?</span></label>
           <input id="f-lev" type="number" placeholder="10" min="1" max="200" oninput="calcRR()">
         </div>
         <div class="field field-key">
-          <label>Риск %</label>
+          <label>Риск % <span class="field-hint" data-tip="Сколько % от депозита&#10;ты готов потерять в этой сделке.&#10;Рекомендация: 1–2% на сделку&#10;Используется для расчёта R:R">?</span></label>
           <input id="f-risk" type="number" placeholder="1" step="0.1" min="0.1" max="100" oninput="calcRR()">
         </div>
         <div class="field">
-          <label>P&L %</label>
+          <label>P&L % <span class="field-hint" data-tip="Процент прибыли/убытка.&#10;Можно ввести вручную ИЛИ&#10;оставить пустым — посчитается&#10;автоматически из цен входа/выхода">?</span></label>
           <input id="f-pnl" type="number" placeholder="авто" step="0.01" oninput="fromPct()">
         </div>
       </div>
@@ -2084,19 +2115,19 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <!-- ROW 3: Entry / SL / TP → auto RR + P&L $ -->
       <div class="fg4" style="margin-bottom:10px">
         <div class="field">
-          <label>Вход $</label>
+          <label>Вход $ <span class="field-hint" data-tip="Цена по которой ты открыл сделку.&#10;Используется для автоматического&#10;расчёта P&amp;L и R:R">?</span></label>
           <input id="f-entry" type="number" placeholder="42000" oninput="calcRR()">
         </div>
         <div class="field">
-          <label>Стоп $</label>
+          <label>Стоп $ <span class="field-hint" data-tip="Уровень стоп-лосса.&#10;Цена при которой ты признаёшь&#10;что ошибся и выходишь из сделки.&#10;Важно для расчёта риска">?</span></label>
           <input id="f-sl" type="number" placeholder="41000" oninput="calcRR()">
         </div>
         <div class="field">
-          <label>Выход $</label>
+          <label>Выход $ <span class="field-hint" data-tip="Цена закрытия сделки&#10;(тейк-профит или стоп).&#10;Вместе с входом считает P&amp;L %">?</span></label>
           <input id="f-exit" type="number" placeholder="43500" oninput="calcRR()">
         </div>
         <div class="field">
-          <label>P&L $</label>
+          <label>P&L $ <span class="field-hint" data-tip="Прибыль/убыток в долларах.&#10;Считается автоматически.&#10;Можно ввести вручную если&#10;знаешь точную сумму">?</span></label>
           <input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()">
         </div>
       </div>
@@ -2123,7 +2154,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
       <!-- Setup type buttons -->
       <div style="margin-bottom:4px">
-        <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">Тип сетапа</div>
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">Тип сетапа <span class="field-hint" data-tip="Выбери паттерн по которому вошёл.&#10;FVG — Fair Value Gap&#10;Order Block — зона крупного игрока&#10;Liquidity Sweep — снятие ликвидности&#10;S/R Level — уровень поддержки/сопротивления&#10;Breakout — пробой уровня">?</span></div>
         <div class="setup-btns" id="setup-btns">
           <button class="setup-btn" onclick="setSetup('FVG',this)">FVG</button>
           <button class="setup-btn" onclick="setSetup('OB',this)">Order Block</button>
@@ -2139,7 +2170,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
         <div class="em-title">Эмоциональное состояние</div>
         <div class="em-grid">
           <div class="em-row">
-            <div class="em-label">Уверенность</div>
+            <div class="em-label">Уверенность <span class="field-hint" data-tip="Насколько ты уверен в этом сетапе?&#10;Низкая — сомневаешься, но входишь&#10;Норм — стандартная сделка&#10;Высокая — всё сходится, сигнал чёткий">?</span></div>
             <div class="em-opts">
               <button class="em-opt" onclick="setEm('conf',3,this)">😰 Низкая</button>
               <button class="em-opt active" onclick="setEm('conf',5,this)">😐 Норм</button>
@@ -2147,7 +2178,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
             </div>
           </div>
           <div class="em-row">
-            <div class="em-label">Страх / Жадность</div>
+            <div class="em-label">Страх / Жадность <span class="field-hint" data-tip="Страх — входишь с опаской, боишься потерять&#10;Спокоен — нейтральный фон&#10;Жадность — хочешь больше, нарушаешь план&#10;Жадность — главный враг трейдера">?</span></div>
             <div class="em-opts">
               <button class="em-opt" onclick="setEm('fear',8,this)">😨 Страх</button>
               <button class="em-opt active" onclick="setEm('fear',3,this)">😌 Спокоен</button>
@@ -2155,7 +2186,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
             </div>
           </div>
           <div class="em-row">
-            <div class="em-label">Фокус</div>
+            <div class="em-label">Фокус <span class="field-hint" data-tip="Рассеян — отвлекался, не был сосредоточен&#10;Сфокусирован — в рабочем состоянии&#10;В потоке — пиковое состояние, всё считываешь&#10;Торгуй только когда сфокусирован">?</span></div>
             <div class="em-opts">
               <button class="em-opt" onclick="setEm('calm',3,this)">😵 Рассеян</button>
               <button class="em-opt active" onclick="setEm('calm',7,this)">🎯 Сфокусирован</button>
@@ -2167,9 +2198,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
       <!-- Notes -->
       <div class="fg3" style="margin-bottom:10px">
-        <div class="field"><label>Сетап / почему вошёл</label><textarea id="f-why" placeholder="Что видел на графике..."></textarea></div>
-        <div class="field"><label>Эмоции / ошибки</label><textarea id="f-feel" placeholder="Нарушил план?..."></textarea></div>
-        <div class="field"><label>Урок из сделки</label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
+        <div class="field"><label>Сетап / почему вошёл <span class="field-hint" data-tip="Опиши что ты увидел на графике.&#10;Какой паттерн? Где уровень?&#10;Почему именно сейчас?&#10;Это помогает учиться на своих сделках">?</span></label><textarea id="f-why" placeholder="Что видел на графике..."></textarea></div>
+        <div class="field"><label>Эмоции / ошибки <span class="field-hint" data-tip="Как себя чувствовал?&#10;Нарушил ли план?&#10;Входил по FOMO или по сигналу?&#10;Честность здесь = рост как трейдера">?</span></label><textarea id="f-feel" placeholder="Нарушил план?..."></textarea></div>
+        <div class="field"><label>Урок из сделки <span class="field-hint" data-tip="Что вынес из этой сделки?&#10;Что сделаешь иначе в следующий раз?&#10;Даже прибыльные сделки&#10;могут быть неправильными">?</span></label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
       </div>
 
       <button class="btn-ai" onclick="openAI()">🤖 ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI</button>
@@ -2702,7 +2733,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     </div>
     <div class="edit-row">
       <div class="edit-field"><div class="edit-label">P&L $</div><input class="edit-input" id="edit-pnl-usd" type="number" step="0.01" placeholder="150"></div>
-      <div class="edit-field"><div class="edit-label">Тип сетапа</div><input class="edit-input" id="edit-setup" placeholder="FVG, OB..."></div>
+      <div class="edit-field"><div class="edit-label">Тип сетапа <span class="field-hint" data-tip="Выбери паттерн по которому вошёл.&#10;FVG — Fair Value Gap&#10;Order Block — зона крупного игрока&#10;Liquidity Sweep — снятие ликвидности&#10;S/R Level — уровень поддержки/сопротивления&#10;Breakout — пробой уровня">?</span></div><input class="edit-input" id="edit-setup" placeholder="FVG, OB..."></div>
     </div>
     <div class="edit-field" style="margin-bottom:10px;">
       <div class="edit-label">Сетап / Почему вошёл</div>
