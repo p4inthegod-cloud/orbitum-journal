@@ -39,42 +39,29 @@
 
 /* ── ORBITUM PRO (mono B&W + orange accent) ─────────────────────── */
 html[data-theme="mono"]{
-  --a:#e8722a; --a2:rgba(232,114,42,0.1); --a3:rgba(232,114,42,0.3);
-  --bg:#080808; --bg2:rgba(255,255,255,0.025); --bg3:rgba(255,255,255,0.04);
-  --bg-card:#0e0e0e; --bg-card2:#141414; --bg-input:rgba(255,255,255,0.05);
-  --bd:rgba(255,255,255,0.08); --bd2:rgba(255,255,255,0.14); --bd3:rgba(255,255,255,0.24);
-  --t:#d8d8d8; --t2:#f0f0f0; --t3:#555555;
-  --m:rgba(210,210,210,0.45); --m2:rgba(210,210,210,0.26);
-  --g:#34d058; --r:#ff4d4d; --y:#f5a623;
-  --gd:rgba(52,208,88,0.08); --rd:rgba(255,77,77,0.07);
-  --shadow:0 4px 28px rgba(0,0,0,0.8);
-  --shadow-card:0 2px 14px rgba(0,0,0,0.6);
-  --topbar-bg:rgba(6,6,6,0.98);
-  --sidebar-bg:rgba(5,5,5,0.99);
-  --orb1:rgba(232,114,42,0.04); --orb2:rgba(232,114,42,0.02); --orb3:rgba(232,114,42,0.01);
-  --line:1px solid rgba(255,255,255,0.08);
+  --bg:#070707; --bg2:rgba(255,255,255,0.03); --bg3:rgba(255,255,255,0.06);
+  --bg-card:#0e0e0e; --bg-card2:#141414; --bg-input:rgba(255,255,255,0.07);
+  --bd:rgba(255,255,255,0.09); --bd2:rgba(255,255,255,0.17); --bd3:rgba(255,255,255,0.28);
+  --t:#dedede; --t2:#ffffff; --t3:#666666;
+  --m:rgba(222,222,222,0.52); --m2:rgba(222,222,222,0.3);
+  --g:var(--a); --r:#777777; --y:var(--a);
+  --gd:rgba(232,114,42,0.08); --rd:rgba(255,255,255,0.04);
+  --shadow:0 4px 24px rgba(0,0,0,0.7);
+  --shadow-card:0 2px 12px rgba(0,0,0,0.55);
+  --topbar-bg:rgba(7,7,7,0.98);
+  --sidebar-bg:rgba(7,7,7,0.99);
+  --orb1:rgba(232,114,42,0.04); --orb2:rgba(232,114,42,0.02);
+  --orb3:rgba(232,114,42,0.015);
 }
-/* PRO: subtle scanline + sharp contrast */
-html[data-theme="mono"]::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);
-}
-/* PRO: sidebar stays orange */
-html[data-theme="mono"] .sb-logo-text{letter-spacing:8px;}
-html[data-theme="mono"] .sb-logo-dot{box-shadow:0 0 10px var(--a),0 0 20px rgba(232,114,42,0.5);}
-/* PRO: trade rows — win/loss border preserved */
-html[data-theme="mono"] .trade-row.win-row{border-left:2px solid rgba(52,208,88,0.5)!important;}
-html[data-theme="mono"] .trade-row.loss-row{border-left:2px solid rgba(255,77,77,0.4)!important;}
-/* PRO: active tab still orange */
-html[data-theme="mono"] .tnav.active{color:var(--a)!important;border-bottom-color:var(--a)!important;}
-/* PRO: stat cells a bit more contrast */
-html[data-theme="mono"] .stat-cell{border-color:rgba(255,255,255,0.07)!important;}
-html[data-theme="mono"] .fcard{border-color:rgba(255,255,255,0.07)!important;}
-/* PRO: keep setup/pair colors */
-html[data-theme="mono"] .sb-fvg,html[data-theme="mono"] .sb-fvg.active{color:rgba(52,208,88,0.85)!important;border-color:rgba(52,208,88,0.4)!important;}
-html[data-theme="mono"] .pair-presets .btc{color:#f7931a!important;border-color:rgba(247,147,26,0.4)!important;}
-html[data-theme="mono"] .pair-presets .eth{color:#627eea!important;border-color:rgba(98,126,234,0.4)!important;}
-html[data-theme="mono"] .pair-presets .sol{color:#9945ff!important;border-color:rgba(153,69,255,0.4)!important;}
+/* PRO: setup type buttons & pair presets keep their colors */
+html[data-theme="mono"] .sb-fvg{color:rgba(52,208,88,0.85)!important;border-color:rgba(52,208,88,0.35)!important;}
+html[data-theme="mono"] .sb-fvg.active{background:rgba(52,208,88,0.12)!important;color:#34d058!important;border-color:rgba(52,208,88,0.5)!important;}
+html[data-theme="mono"] .dir-btn.active-long{background:rgba(52,208,88,0.12)!important;border-color:#34d058!important;color:#34d058!important;}
+html[data-theme="mono"] .dir-btn.active-short{background:rgba(255,77,77,0.1)!important;border-color:#ff4d4d!important;color:#ff4d4d!important;}
+html[data-theme="mono"] .res-btn.active-win{background:rgba(52,208,88,0.12)!important;border-color:#34d058!important;color:#34d058!important;}
+html[data-theme="mono"] .res-btn.active-loss{background:rgba(255,77,77,0.1)!important;border-color:#ff4d4d!important;color:#ff4d4d!important;}
+html[data-theme="mono"] .sv-g{color:#34d058!important;}
+html[data-theme="mono"] .sv-r{color:#ff4d4d!important;}
 
 /* ── FOREST (dark minted teal + gold) ──────────────────────────── */
 html[data-theme="forest"]{
@@ -3935,78 +3922,51 @@ function renderDashboard(){
         ?needMore(trades.length,MIN_COMPARE,'сравнение эмоций побед/убытков')
         :'<div class="data-hint"><span class="dh-icon">⚖️</span><div class="dh-body"><div class="dh-text">Нужны победы <strong>и</strong> убытки</div><div class="dh-sub">для сравнения эмоционального состояния</div></div></div>';
     } else {
-      // Compact MACD-style emotion lines
+      // Emotion chart — clean MACD-style lines (W=320 fixed coords)
       var maxVal = 10;
-      var W = 340, padL = 82, padR = 24;
+      var W = 320, padL = 72, padR = 12;
       var chartW = W - padL - padR;
-      var rowH = 22;  // compact row height
-      var rowGap = 6; // gap between rows
-      var topPad = 10;
-      var botPad = 18;
-      var dynH = topPad + emKeys.length * (rowH + rowGap) - rowGap + botPad;
+      var rowSpacing = 28; // px between row centres
       var svg = '';
 
       emKeys.forEach(function(e, i){
-        var yMid = topPad + i * (rowH + rowGap) + rowH * 0.5;
-        var yWin = yMid - 3.5;
-        var yLoss = yMid + 3.5;
-        var wVal = Math.min(10, Math.max(0, avgArr(wins, e.key)));
+        var yWin  = 18 + i * rowSpacing;
+        var yLoss = yWin + 7;
+        var wVal = Math.min(10, Math.max(0, avgArr(wins,   e.key)));
         var lVal = Math.min(10, Math.max(0, avgArr(losses, e.key)));
         var wX = padL + (wVal / maxVal) * chartW;
         var lX = padL + (lVal / maxVal) * chartW;
-        var pnlColor = wVal > lVal ? '#34d058' : wVal < lVal ? '#ff4d4d' : 'rgba(255,255,255,0.3)';
 
-        // Row separator
+        // Row divider (above each row except first)
         if(i > 0)
-          svg += '<line x1="0" y1="'+(topPad + i*(rowH+rowGap) - rowGap*0.5)+'" x2="'+W+'" y2="'+(topPad + i*(rowH+rowGap) - rowGap*0.5)+'" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>';
+          svg += '<line x1="'+padL+'" y1="'+(yWin-9)+'" x2="'+(padL+chartW)+'" y2="'+(yWin-9)+'" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>';
 
-        // Row background hover area (subtle)
-        svg += '<rect x="0" y="'+(topPad + i*(rowH+rowGap))+'" width="'+W+'" height="'+rowH+'" fill="transparent"/>';
+        // Row label
+        svg += '<text x="'+(padL-6)+'" y="'+(yWin+4)+'" font-family="JetBrains Mono,monospace" font-size="9" fill="rgba(235,235,235,0.55)" text-anchor="end">'+e.label.toUpperCase()+'</text>';
 
-        // Label
-        svg += '<text x="'+(padL-8)+'" y="'+(yMid+4)+'" font-family="JetBrains Mono,monospace" font-size="9" fill="rgba(220,220,220,0.45)" text-anchor="end" letter-spacing="1">'+e.label.toUpperCase()+'</text>';
+        // Win line + dot
+        svg += '<line x1="'+padL+'" y1="'+yWin+'" x2="'+wX.toFixed(1)+'" y2="'+yWin+'" stroke="#34d058" stroke-width="3" stroke-linecap="round" opacity="0.85"/>';
+        svg += '<circle cx="'+wX.toFixed(1)+'" cy="'+yWin+'" r="4" fill="#34d058" opacity="0.9"><animate attributeName="opacity" values="0.9;0.5;0.9" dur="2.5s" repeatCount="indefinite"/></circle>';
+        svg += '<text x="'+(wX+8).toFixed(1)+'" y="'+(yWin+4)+'" font-family="JetBrains Mono,monospace" font-size="8" fill="#34d058">'+wVal.toFixed(1)+'</text>';
 
-        // Track background (full width)
-        svg += '<rect x="'+padL+'" y="'+(yWin-1)+'" width="'+chartW+'" height="3" rx="1.5" fill="rgba(52,208,88,0.07)"/>';
-        svg += '<rect x="'+padL+'" y="'+(yLoss-1)+'" width="'+chartW+'" height="3" rx="1.5" fill="rgba(255,77,77,0.06)"/>';
-
-        // Win line
-        svg += '<rect x="'+padL+'" y="'+(yWin-1)+'" width="'+(wX-padL)+'" height="3" rx="1.5" fill="#34d058" opacity="0.85"/>';
-        // Loss line
-        svg += '<rect x="'+padL+'" y="'+(yLoss-1)+'" width="'+(lX-padL)+'" height="3" rx="1.5" fill="#ff4d4d" opacity="0.7"/>';
-
-        // Win dot
-        svg += '<circle cx="'+wX.toFixed(1)+'" cy="'+yWin+'" r="4" fill="#34d058" opacity="0.9"/>';
-        svg += '<circle cx="'+wX.toFixed(1)+'" cy="'+yWin+'" r="2" fill="rgba(255,255,255,0.6)"/>';
-        // Loss dot
+        // Loss line + dot
+        svg += '<line x1="'+padL+'" y1="'+yLoss+'" x2="'+lX.toFixed(1)+'" y2="'+yLoss+'" stroke="#ff4d4d" stroke-width="3" stroke-linecap="round" opacity="0.75"/>';
         svg += '<circle cx="'+lX.toFixed(1)+'" cy="'+yLoss+'" r="3.5" fill="#ff4d4d" opacity="0.8"/>';
-        svg += '<circle cx="'+lX.toFixed(1)+'" cy="'+yLoss+'" r="1.5" fill="rgba(255,255,255,0.5)"/>';
-
-        // Value labels — win
-        svg += '<text x="'+(wX+7).toFixed(1)+'" y="'+(yWin+3.5)+'" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#34d058" opacity="0.9">'+wVal.toFixed(1)+'</text>';
-        // Value labels — loss (only if different x position to avoid overlap)
-        var lLabelX = Math.abs(lX - wX) > 20 ? lX+7 : lX - 20;
-        svg += '<text x="'+lLabelX.toFixed(1)+'" y="'+(yLoss+3.5)+'" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#ff4d4d" opacity="0.8">'+lVal.toFixed(1)+'</text>';
-
-        // Delta indicator (small arrow or bar on right side)
-        var delta = wVal - lVal;
-        if(Math.abs(delta) > 0.1){
-          var dColor = delta > 0 ? 'rgba(52,208,88,0.7)' : 'rgba(255,77,77,0.6)';
-          svg += '<text x="'+(W-2)+'" y="'+(yMid+4)+'" font-family="JetBrains Mono,monospace" font-size="8" fill="'+dColor+'" text-anchor="end">'+(delta>0?'+':'')+delta.toFixed(1)+'</text>';
-        }
+        svg += '<text x="'+(lX+8).toFixed(1)+'" y="'+(yLoss+4)+'" font-family="JetBrains Mono,monospace" font-size="8" fill="#ff4d4d">'+lVal.toFixed(1)+'</text>';
       });
 
-      // Scale axis (bottom)
-      svg += '<line x1="'+padL+'" y1="'+(dynH-botPad+4)+'" x2="'+(padL+chartW)+'" y2="'+(dynH-botPad+4)+'" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+      // Left axis line
+      var totalH = 18 + emKeys.length * rowSpacing - rowSpacing + 20;
+      svg += '<line x1="'+padL+'" y1="6" x2="'+padL+'" y2="'+(totalH-6)+'" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>';
+
+      // Scale grid: 0, 5, 10
       [0, 5, 10].forEach(function(v){
         var x = padL + (v/maxVal)*chartW;
-        svg += '<line x1="'+x+'" y1="'+topPad+'" x2="'+x+'" y2="'+(dynH-botPad+4)+'" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="2,4"/>';
-        svg += '<text x="'+x+'" y="'+(dynH-4)+'" font-family="JetBrains Mono,monospace" font-size="7" fill="rgba(255,255,255,0.2)" text-anchor="middle">'+v+'</text>';
+        svg += '<line x1="'+x+'" y1="6" x2="'+x+'" y2="'+(totalH-6)+'" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="2,4"/>';
+        svg += '<text x="'+x+'" y="'+totalH+'" font-family="JetBrains Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.22)" text-anchor="middle">'+v+'</text>';
       });
-      // Left axis
-      svg += '<line x1="'+padL+'" y1="'+topPad+'" x2="'+padL+'" y2="'+(dynH-botPad+4)+'" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>';
 
-      emCmp.innerHTML = '<svg width="100%" viewBox="0 0 '+W+' '+dynH+'" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible;">'+svg+'</svg>';
+      emCmp.innerHTML = '<svg width="100%" viewBox="0 0 '+W+' '+(totalH+4)+'" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible;">'+svg+'</svg>';
     }
   }
 
