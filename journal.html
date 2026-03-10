@@ -1576,9 +1576,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .jtb-navs{display:none!important;}
 
   /* Main content offset */
-  .main{margin-left:52px;padding:0 32px 60px;}
-  body:has(.sidebar:hover) .main{margin-left:var(--sb);}
-  body:has(.sidebar:hover) .jnl-topbar{margin-left:var(--sb);}
+  .main{margin-left:var(--sb);padding:0 32px 60px;}
 
   .stats-row{margin-top:24px;}
 }
@@ -5412,26 +5410,74 @@ function restoreFormDefaults(){
 
 // ── PAIR AUTOCOMPLETE ──
 const PAIRS_LIST = [
-  {sym:'BTC', full:'BTC/USDT', icon:'🟠', color:'#f7931a'},
-  {sym:'ETH', full:'ETH/USDT', icon:'🔵', color:'#627eea'},
-  {sym:'SOL', full:'SOL/USDT', icon:'🟣', color:'#9945ff'},
-  {sym:'BNB', full:'BNB/USDT', icon:'🟡', color:'#f3ba2f'},
-  {sym:'XRP', full:'XRP/USDT', icon:'🔷', color:'#00aae4'},
-  {sym:'DOGE',full:'DOGE/USDT',icon:'🐕', color:'#c2a633'},
-  {sym:'ADA', full:'ADA/USDT', icon:'🔵', color:'#0d3349'},
-  {sym:'AVAX',full:'AVAX/USDT',icon:'🔴', color:'#e84142'},
-  {sym:'DOT', full:'DOT/USDT', icon:'⚫', color:'#e6007a'},
-  {sym:'LINK',full:'LINK/USDT',icon:'🔵', color:'#2a5ada'},
-  {sym:'MATIC',full:'MATIC/USDT',icon:'🟣',color:'#8247e5'},
-  {sym:'OP',  full:'OP/USDT',  icon:'🔴', color:'#ff0420'},
-  {sym:'ARB', full:'ARB/USDT', icon:'🔵', color:'#28a0f0'},
-  {sym:'SUI', full:'SUI/USDT', icon:'🔵', color:'#4da2ff'},
-  {sym:'TON', full:'TON/USDT', icon:'💎', color:'#0098ea'},
-  {sym:'NEAR',full:'NEAR/USDT',icon:'⚫', color:'#00c08b'},
-  {sym:'APT', full:'APT/USDT', icon:'🔵', color:'#00b5f5'},
-  {sym:'INJ', full:'INJ/USDT', icon:'🔵', color:'#00b4d8'},
-  {sym:'WIF', full:'WIF/USDT', icon:'🐕', color:'#9945ff'},
-  {sym:'PEPE',full:'PEPE/USDT',icon:'🐸', color:'#4caf50'},
+  // ── КРИПТО (топ) ──
+  {sym:'BTC',  full:'BTC/USDT',  icon:'🟠', color:'#f7931a', cat:'crypto'},
+  {sym:'ETH',  full:'ETH/USDT',  icon:'🔵', color:'#627eea', cat:'crypto'},
+  {sym:'SOL',  full:'SOL/USDT',  icon:'🟣', color:'#9945ff', cat:'crypto'},
+  {sym:'BNB',  full:'BNB/USDT',  icon:'🟡', color:'#f3ba2f', cat:'crypto'},
+  {sym:'XRP',  full:'XRP/USDT',  icon:'🔷', color:'#00aae4', cat:'crypto'},
+  {sym:'DOGE', full:'DOGE/USDT', icon:'🐕', color:'#c2a633', cat:'crypto'},
+  {sym:'ADA',  full:'ADA/USDT',  icon:'🔵', color:'#3498db', cat:'crypto'},
+  {sym:'AVAX', full:'AVAX/USDT', icon:'🔴', color:'#e84142', cat:'crypto'},
+  {sym:'DOT',  full:'DOT/USDT',  icon:'⚫', color:'#e6007a', cat:'crypto'},
+  {sym:'LINK', full:'LINK/USDT', icon:'🔗', color:'#2a5ada', cat:'crypto'},
+  {sym:'MATIC',full:'MATIC/USDT',icon:'🟣', color:'#8247e5', cat:'crypto'},
+  {sym:'OP',   full:'OP/USDT',   icon:'🔴', color:'#ff0420', cat:'crypto'},
+  {sym:'ARB',  full:'ARB/USDT',  icon:'🔵', color:'#28a0f0', cat:'crypto'},
+  {sym:'SUI',  full:'SUI/USDT',  icon:'💧', color:'#4da2ff', cat:'crypto'},
+  {sym:'TON',  full:'TON/USDT',  icon:'💎', color:'#0098ea', cat:'crypto'},
+  {sym:'NEAR', full:'NEAR/USDT', icon:'⚫', color:'#00c08b', cat:'crypto'},
+  {sym:'APT',  full:'APT/USDT',  icon:'🔵', color:'#00b5f5', cat:'crypto'},
+  {sym:'INJ',  full:'INJ/USDT',  icon:'🔵', color:'#00b4d8', cat:'crypto'},
+  {sym:'WIF',  full:'WIF/USDT',  icon:'🐕', color:'#9945ff', cat:'crypto'},
+  {sym:'PEPE', full:'PEPE/USDT', icon:'🐸', color:'#4caf50', cat:'crypto'},
+  {sym:'LTC',  full:'LTC/USDT',  icon:'⚫', color:'#bfbbbb', cat:'crypto'},
+  {sym:'ATOM', full:'ATOM/USDT', icon:'⚛️',  color:'#6f7390', cat:'crypto'},
+  {sym:'TIA',  full:'TIA/USDT',  icon:'🌊', color:'#7b2ff7', cat:'crypto'},
+  {sym:'BONK', full:'BONK/USDT', icon:'🐶', color:'#f09030', cat:'crypto'},
+  {sym:'JUP',  full:'JUP/USDT',  icon:'🪐', color:'#c86400', cat:'crypto'},
+  {sym:'ENA',  full:'ENA/USDT',  icon:'💠', color:'#00d4aa', cat:'crypto'},
+  {sym:'EIGEN',full:'EIGEN/USDT',icon:'🔷', color:'#4a90d9', cat:'crypto'},
+  {sym:'PYTH', full:'PYTH/USDT', icon:'🐍', color:'#e6d25e', cat:'crypto'},
+  {sym:'W',    full:'W/USDT',    icon:'🌐', color:'#9945ff', cat:'crypto'},
+  {sym:'ETHFI',full:'ETHFI/USDT',icon:'🔵', color:'#627eea', cat:'crypto'},
+  {sym:'NOT',  full:'NOT/USDT',  icon:'🐈', color:'#f5a623', cat:'crypto'},
+  {sym:'POPCAT',full:'POPCAT/USDT',icon:'🐱',color:'#ff6b6b',cat:'crypto'},
+  {sym:'TURBO',full:'TURBO/USDT',icon:'🚀', color:'#ff4500', cat:'crypto'},
+  {sym:'DOGS', full:'DOGS/USDT', icon:'🐕', color:'#c2a633', cat:'crypto'},
+  {sym:'HMSTR',full:'HMSTR/USDT',icon:'🐹', color:'#f5a623', cat:'crypto'},
+  {sym:'1000SATS',full:'1000SATS/USDT',icon:'₿',color:'#f7931a',cat:'crypto'},
+  {sym:'ORDI', full:'ORDI/USDT', icon:'₿',  color:'#f7931a', cat:'crypto'},
+  {sym:'RUNE', full:'RUNE/USDT', icon:'⚡', color:'#33ff99', cat:'crypto'},
+  {sym:'LDO',  full:'LDO/USDT',  icon:'🔵', color:'#f0a500', cat:'crypto'},
+  {sym:'MKR',  full:'MKR/USDT',  icon:'🏦', color:'#1aab9b', cat:'crypto'},
+  // ── ФОНДОВЫЕ ИНДЕКСЫ (CFD) ──
+  {sym:'US100', full:'US100/USD', icon:'📈', color:'#00aae4', cat:'index'},
+  {sym:'US500', full:'US500/USD', icon:'📈', color:'#34d058', cat:'index'},
+  {sym:'US30',  full:'US30/USD',  icon:'📈', color:'#3498db', cat:'index'},
+  {sym:'GER40', full:'GER40/EUR', icon:'📈', color:'#000000', cat:'index'},
+  {sym:'UK100', full:'UK100/GBP', icon:'📈', color:'#cf142b', cat:'index'},
+  {sym:'JPN225',full:'JPN225/JPY',icon:'📈', color:'#e84142', cat:'index'},
+  {sym:'HK50',  full:'HK50/HKD', icon:'📈', color:'#de2910', cat:'index'},
+  {sym:'AUS200',full:'AUS200/AUD',icon:'📈', color:'#00843d', cat:'index'},
+  {sym:'FRA40', full:'FRA40/EUR', icon:'📈', color:'#003189', cat:'index'},
+  {sym:'STOXX50',full:'STOXX50/EUR',icon:'📈',color:'#003189',cat:'index'},
+  // ── ФОРЕКС ──
+  {sym:'EUR/USD',full:'EUR/USD',  icon:'💶', color:'#003189', cat:'forex'},
+  {sym:'GBP/USD',full:'GBP/USD', icon:'💷', color:'#cf142b', cat:'forex'},
+  {sym:'USD/JPY',full:'USD/JPY', icon:'💴', color:'#e84142', cat:'forex'},
+  {sym:'AUD/USD',full:'AUD/USD', icon:'🦘', color:'#00843d', cat:'forex'},
+  {sym:'USD/CAD',full:'USD/CAD', icon:'🍁', color:'#ff0000', cat:'forex'},
+  {sym:'NZD/USD',full:'NZD/USD', icon:'🥝', color:'#00843d', cat:'forex'},
+  {sym:'USD/CHF',full:'USD/CHF', icon:'🇨🇭', color:'#ff0000',cat:'forex'},
+  {sym:'EUR/GBP',full:'EUR/GBP', icon:'💶', color:'#003189', cat:'forex'},
+  {sym:'EUR/JPY',full:'EUR/JPY', icon:'💶', color:'#003189', cat:'forex'},
+  {sym:'GBP/JPY',full:'GBP/JPY', icon:'💷', color:'#cf142b', cat:'forex'},
+  // ── СЫРЬЁ ──
+  {sym:'XAUUSD',full:'XAU/USD',  icon:'🥇', color:'#ffd700', cat:'commodity'},
+  {sym:'XAGUSD',full:'XAG/USD',  icon:'🥈', color:'#c0c0c0', cat:'commodity'},
+  {sym:'USOIL', full:'WTI/USD',  icon:'🛢️',  color:'#8b4513', cat:'commodity'},
+  {sym:'BRENT', full:'BRENT/USD',icon:'🛢️',  color:'#654321', cat:'commodity'},
 ];
 let pairHighlight = -1;
 
@@ -5445,6 +5491,7 @@ function filterPairs(val){
   ).slice(0,6);
   if(!matches.length){ hidePairList(); return; }
   pairHighlight = -1;
+  const catLabel = {crypto:'КРИПТО',index:'ИНДЕКС',forex:'ФОРЕКС',commodity:'СЫРЬЁ'};
   list.innerHTML = matches.map((p,i)=>
     `<div class="pair-sug-item" data-pair="${p.full}" style="--pc:${p.color}"
       onmousedown="setPair('${p.full}')"
@@ -5452,6 +5499,7 @@ function filterPairs(val){
       <span class="pair-sug-icon">${p.icon}</span>
       <span class="pair-sug-name" style="color:${p.color}">${p.sym}</span>
       <span class="pair-sug-full">${p.full}</span>
+      ${p.cat && p.cat!=='crypto'?`<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);margin-left:auto">${catLabel[p.cat]||''}</span>`:''}
     </div>`
   ).join('');
   list.style.display = 'block';
