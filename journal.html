@@ -7663,19 +7663,19 @@ function renderQNotesList(notes){
 //  Форекс:  Frankfurter API (бесплатно, ~1 мин задержка)
 // ═══════════════════════════════════════════════════════════
 const TICKER_SYMBOLS = [
-  // ── КРИПТА (Binance) ──────────────────────────────────
-  { sym:'BTC',   pair:'BTCUSDT',  type:'crypto', icon:'₿',  color:'#f7931a' },
-  { sym:'ETH',   pair:'ETHUSDT',  type:'crypto', icon:'Ξ',  color:'#627eea' },
-  { sym:'SOL',   pair:'SOLUSDT',  type:'crypto', icon:'◎',  color:'#9945ff' },
-  { sym:'BNB',   pair:'BNBUSDT',  type:'crypto', icon:'⬡',  color:'#f3ba2f' },
-  { sym:'XRP',   pair:'XRPUSDT',  type:'crypto', icon:'✕',  color:'#00aae4' },
-  { sym:'DOGE',  pair:'DOGEUSDT', type:'crypto', icon:'Ð',  color:'#c2a633' },
-  { sym:'ADA',   pair:'ADAUSDT',  type:'crypto', icon:'₳',  color:'#3498db' },
-  { sym:'AVAX',  pair:'AVAXUSDT', type:'crypto', icon:'▲',  color:'#e84142' },
-  { sym:'LINK',  pair:'LINKUSDT', type:'crypto', icon:'⬡',  color:'#2a5ada' },
-  { sym:'PEPE',  pair:'PEPEUSDT', type:'crypto', icon:'🐸', color:'#4caf50' },
-  { sym:'TON',   pair:'TONUSDT',  type:'crypto', icon:'💎', color:'#0098ea' },
-  { sym:'SUI',   pair:'SUIUSDT',  type:'crypto', icon:'💧', color:'#4da2ff' },
+  // ── КРИПТА (CoinGecko) ────────────────────────────────
+  { sym:'BTC',  pair:'BTCUSDT',  cgId:'bitcoin',       type:'crypto', icon:'₿',  color:'#f7931a' },
+  { sym:'ETH',  pair:'ETHUSDT',  cgId:'ethereum',      type:'crypto', icon:'Ξ',  color:'#627eea' },
+  { sym:'SOL',  pair:'SOLUSDT',  cgId:'solana',        type:'crypto', icon:'◎',  color:'#9945ff' },
+  { sym:'BNB',  pair:'BNBUSDT',  cgId:'binancecoin',   type:'crypto', icon:'⬡',  color:'#f3ba2f' },
+  { sym:'XRP',  pair:'XRPUSDT',  cgId:'ripple',        type:'crypto', icon:'✕',  color:'#00aae4' },
+  { sym:'DOGE', pair:'DOGEUSDT', cgId:'dogecoin',      type:'crypto', icon:'Ð',  color:'#c2a633' },
+  { sym:'ADA',  pair:'ADAUSDT',  cgId:'cardano',       type:'crypto', icon:'₳',  color:'#3498db' },
+  { sym:'AVAX', pair:'AVAXUSDT', cgId:'avalanche-2',   type:'crypto', icon:'▲',  color:'#e84142' },
+  { sym:'LINK', pair:'LINKUSDT', cgId:'chainlink',     type:'crypto', icon:'⬡',  color:'#2a5ada' },
+  { sym:'PEPE', pair:'PEPEUSDT', cgId:'pepe',          type:'crypto', icon:'🐸', color:'#4caf50' },
+  { sym:'TON',  pair:'TONUSDT',  cgId:'the-open-network',type:'crypto',icon:'💎',color:'#0098ea' },
+  { sym:'SUI',  pair:'SUIUSDT',  cgId:'sui',           type:'crypto', icon:'💧', color:'#4da2ff' },
   // ── ФОРЕКС (через Frankfurter API) ───────────────────
   { sym:'EUR/USD', pair:'EUR_USD', type:'forex', icon:'€', color:'#4a90d9' },
   { sym:'GBP/USD', pair:'GBP_USD', type:'forex', icon:'£', color:'#cf142b' },
@@ -7802,10 +7802,11 @@ async function fetchCrypto(){
     const r = await fetch(tickerApiUrl('crypto'));
     const data = await r.json();
     const arr = Array.isArray(data) ? data : [];
+    // CoinGecko формат: {id, current_price, price_change_percentage_24h}
     arr.forEach(d=>{
-      const sym = TICKER_SYMBOLS.find(s=>s.pair===d.symbol);
+      const sym = TICKER_SYMBOLS.find(s=>s.cgId === d.id);
       if(!sym) return;
-      updateTickerItem(sym.sym, parseFloat(d.lastPrice), parseFloat(d.priceChangePercent));
+      updateTickerItem(sym.sym, d.current_price, d.price_change_percentage_24h || 0);
     });
 
     console.log('[Ticker] Crypto updated');
