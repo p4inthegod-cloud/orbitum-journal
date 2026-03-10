@@ -945,22 +945,22 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 
 /* ── NOTIF BELL (journal) ── */
-.jtb-bell{position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;cursor:pointer;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.025);transition:all 0.15s;font-size:14px;flex-shrink:0;}
-.jtb-bell:hover{border-color:var(--a3);background:var(--a2);}
-.jtb-bell-count{position:absolute;top:-5px;right:-5px;min-width:15px;height:15px;border-radius:8px;background:var(--r);color:#fff;font-family:var(--font-mono);font-size:13px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--bg);}
-.jtb-notif-dd{position:absolute;top:calc(100% + 8px);right:0;width:300px;background:rgba(8,10,16,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.8);z-index:300;overflow:hidden;}
-.jnd-head{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--font-mono);font-size:13px;color:var(--a);letter-spacing:1.5px;}
-.jnd-mark{background:none;border:none;color:var(--m);font-family:var(--font-mono);font-size:12px;cursor:pointer;}
+
+
+
+
+
+
 .jnd-mark:hover{color:var(--t);}
-.jnd-list{max-height:280px;overflow-y:auto;}
-.jnd-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.1s;}
+
+
 .jnd-item:hover{background:rgba(255,255,255,0.02);}
 .jnd-item.unread{background:rgba(232,114,42,0.04);}
-.jnd-dot{width:6px;height:6px;border-radius:50%;background:var(--a);flex-shrink:0;margin-top:4px;}
+
 .jnd-dot.read{background:transparent;border:1px solid rgba(255,255,255,0.15);}
-.jnd-text{font-family:var(--font-mono);font-size:13px;color:var(--m2);line-height:1.5;flex:1;}
-.jnd-time{font-family:var(--font-mono);font-size:13px;color:var(--m);margin-top:3px;}
-.jnd-empty{padding:24px;text-align:center;font-family:var(--font-mono);font-size:13px;color:var(--m);}
+
+
+
 /* ── CHAT PAGE ── */
 .chat-room-item{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;transition:background 0.1s;border-bottom:1px solid rgba(255,255,255,0.03);}
 .chat-room-item:hover{background:rgba(255,255,255,0.03);}
@@ -1487,7 +1487,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .ds-desc{font-family:var(--font-mono);font-size:13px;color:var(--m);line-height:1.5;}
 .ds-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
 .ds-item{background:rgba(255,255,255,0.03);border-radius:6px;padding:8px 10px;}
-.ds-item-label{font-family:var(--font-mono);font-size:12px;color:var(--m);letter-spacing:1px;margin-bottom:4px;}
+.ds-item-label{font-family:var(--font-mono);font-size:13px;color:var(--m);letter-spacing:1px;margin-bottom:4px;}
 .ds-item-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
 .ds-item-fill{height:100%;border-radius:2px;transition:width 0.6s ease;}
 .ds-item-val{font-family:var(--font-mono);font-size:12px;margin-top:3px;}
@@ -1996,14 +1996,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     </button>
     <div class="jtb-sep-v"></div>
 
-    <div class="jtb-bell" id="jtb-bell" onclick="toggleJournalNotif()" title="Уведомления">
-      🔔
-      <div class="jtb-bell-count" id="jtb-bell-count" style="display:none">0</div>
-      <div class="jtb-notif-dd" id="jtb-notif-dd" style="display:none" onclick="event.stopPropagation()">
-        <div class="jnd-head">🔔 УВЕДОМЛЕНИЯ <button class="jnd-mark" onclick="markJournalNotifsRead()">✓ прочитано</button></div>
-        <div class="jnd-list" id="jnd-list"><div class="jnd-empty">Нет уведомлений</div></div>
-      </div>
-    </div>
+
     <div class="jtb-user" style="padding:3px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:7px;">
       <div class="jtb-avatar" id="jtb-avatar">?</div>
     </div>
@@ -2015,11 +2008,11 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
   <!-- STATS ROW -->
   <div class="stats-row">
-    <div class="stat-cell"><div class="stat-label">Сделок</div><div class="stat-value" id="s-total">—</div><div class="hover-insight">Всего записано сделок<br>в вашем журнале</div></div>
-    <div class="stat-cell"><div class="stat-label">Винрейт</div><div class="stat-value sv-g" id="s-wr">—</div><div class="hover-insight" id="wr-insight">% выигрышных сделок<br>Цель: >55%</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L %</div><div class="stat-value" id="s-pnl">—</div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L $</div><div class="stat-value" id="s-usd">—</div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
-    <div class="stat-cell"><div class="stat-label">Серия побед</div><div class="stat-value sv-a" id="s-str">—</div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
+    <div class="stat-cell"><div class="stat-label">Сделок <span class="field-hint" data-tip="Общее число сделок в журнале.&#10;Минимум 20–30 для надёжной статистики.&#10;Меньше 10 — выводы ненадёжны">?</span></div><div class="stat-value" id="s-total">—</div><div class="hover-insight">Всего записано сделок<br>в вашем журнале</div></div>
+    <div class="stat-cell"><div class="stat-label">Винрейт <span class="field-hint" data-tip="Процент прибыльных сделок.&#10;50–55% — норма при хорошем R:R.&#10;Не гонись за 80%+ — это редко стабильно.&#10;Важен баланс WR × R:R">?</span></div><div class="stat-value sv-g" id="s-wr">—</div><div class="hover-insight" id="wr-insight">% выигрышных сделок<br>Цель: >55%</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L % <span class="field-hint" data-tip="Суммарный процент прибыли/убытка&#10;по всем сделкам журнала.&#10;Главная метрика роста депозита">?</span></div><div class="stat-value" id="s-pnl">—</div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L $ <span class="field-hint" data-tip="Суммарная прибыль/убыток в долларах.&#10;Считается из полей P&amp;L $ каждой сделки.&#10;Заполняй поле P&amp;L $ при записи сделки">?</span></div><div class="stat-value" id="s-usd">—</div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
+    <div class="stat-cell"><div class="stat-label">Серия побед <span class="field-hint" data-tip="Текущая серия прибыльных сделок подряд.&#10;После серии 5+ — будь осторожен:&#10;самонадеянность растёт, риски растут">?</span></div><div class="stat-value sv-a" id="s-str">—</div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
   </div>
 
   <!-- LEVEL BAR -->
@@ -2238,7 +2231,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <!-- ROW 1: Discipline Score + Emotional Index -->
     <div class="dash-grid">
       <div class="dash-card">
-        <div class="dash-title">Discipline Score
+        <div class="dash-title">Discipline Score <span class="field-hint" data-tip="Общий балл дисциплины.&#10;Считается из 4 компонентов:&#10;· Риск-менедж (ставишь стоп?)&#10;· Эмоции (контролируешь себя?)&#10;· Сетап (заполняешь анализ?)&#10;· Консистентность (нет оверторга?)&#10;Цель: держать выше 70">?</span>
           <span id="ds-badge" style="font-family:var(--font-mono);font-size:8px;color:var(--m);margin-left:8px;"></span>
         </div>
         <div class="ds-ring-wrap">
@@ -2255,14 +2248,14 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
           </div>
         </div>
         <div class="ds-breakdown">
-          <div class="ds-item"><div class="ds-item-label">РИСК-МЕНЕДЖ</div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b1" style="width:0%;background:#e8722a"></div></div><div class="ds-item-val" id="ds-v1">—</div></div>
-          <div class="ds-item"><div class="ds-item-label">ЭМОЦИИ</div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b2" style="width:0%;background:#9b59b6"></div></div><div class="ds-item-val" id="ds-v2">—</div></div>
-          <div class="ds-item"><div class="ds-item-label">СЕТАП</div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b3" style="width:0%;background:#34d058"></div></div><div class="ds-item-val" id="ds-v3">—</div></div>
-          <div class="ds-item"><div class="ds-item-label">КОНСИСТЕНТ.</div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b4" style="width:0%;background:#3498db"></div></div><div class="ds-item-val" id="ds-v4">—</div></div>
+          <div class="ds-item"><div class="ds-item-label">РИСК-МЕНЕДЖ <span class="field-hint" data-tip="% сделок где ты выставил стоп-лосс.&#10;100% = ставишь стоп всегда.&#10;Цель: выше 80%">?</span></div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b1" style="width:0%;background:#e8722a"></div></div><div class="ds-item-val" id="ds-v1">—</div></div>
+          <div class="ds-item"><div class="ds-item-label">ЭМОЦИИ <span class="field-hint" data-tip="Балл эмоциональной стабильности.&#10;Считается из уверенности, спокойствия,&#10;отсутствия страха и жадности.&#10;Цель: выше 70">?</span></div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b2" style="width:0%;background:#9b59b6"></div></div><div class="ds-item-val" id="ds-v2">—</div></div>
+          <div class="ds-item"><div class="ds-item-label">СЕТАП <span class="field-hint" data-tip="% сделок где ты описал сетап.&#10;Заполненное поле Сетап/почему вошёл.&#10;Цель: заполнять каждую сделку">?</span></div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b3" style="width:0%;background:#34d058"></div></div><div class="ds-item-val" id="ds-v3">—</div></div>
+          <div class="ds-item"><div class="ds-item-label">КОНСИСТЕНТ. <span class="field-hint" data-tip="Стабильность торговли.&#10;Штраф за оверторговлю (5+ сделок/день)&#10;и нестабильный винрейт.&#10;Цель: выше 60">?</span></div><div class="ds-item-bar"><div class="ds-item-fill" id="ds-b4" style="width:0%;background:#3498db"></div></div><div class="ds-item-val" id="ds-v4">—</div></div>
         </div>
       </div>
       <div class="dash-card">
-        <div class="dash-title">Эмоциональный индекс</div>
+        <div class="dash-title">Эмоциональный индекс <span class="field-hint" data-tip="Средний уровень эмоций по всем сделкам.&#10;Показывает твой психологический фон.&#10;Страх и жадность снижают индекс.&#10;Спокойствие и уверенность — повышают.&#10;Нужно минимум 5 сделок с эмоциями">?</span></div>
         <div class="speedo-wrap">
           <svg class="speedo-svg" viewBox="0 0 220 130">
             <defs><linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#ff4d4d"/><stop offset="40%" style="stop-color:#f5a623"/><stop offset="80%" style="stop-color:#34d058"/><stop offset="100%" style="stop-color:#34d058"/></linearGradient></defs>
@@ -2294,7 +2287,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
     <!-- ROW 3: Psychology Insights -->
     <div class="dash-card" style="margin-bottom:14px">
-      <div class="dash-title">Психология: когда ты зарабатываешь</div>
+      <div class="dash-title">Психология: когда ты зарабатываешь <span class="field-hint" data-tip="Анализирует твоё эмоциональное состояние&#10;в момент прибыльных сделок.&#10;Помогает понять в каком состоянии&#10;ты торгуешь лучше всего">?</span></div>
       <div class="psych-grid" id="psych-grid">
         <div class="empty" style="grid-column:span 2;padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Нет данных</div>
       </div>
@@ -2303,19 +2296,19 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <!-- ROW 4: Compare wins vs losses emotions + patterns -->
     <div class="dash-grid">
       <div class="dash-card">
-        <div class="dash-title">Эмоции: победы vs убытки</div>
+        <div class="dash-title">Эмоции: победы vs убытки <span class="field-hint" data-tip="Сравнивает твои эмоции&#10;в прибыльных и убыточных сделках.&#10;Если уверенность выше в убыточных —&#10;ты самонадеян. Работай над этим">?</span></div>
         <div class="emc-legend"><div class="ecc"><div class="ecc-dot" style="background:var(--g)"></div>ПРИБЫЛЬ</div><div class="ecc"><div class="ecc-dot" style="background:var(--r)"></div>УБЫТОК</div></div>
         <div class="em-compare" id="em-compare"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
       <div class="dash-card">
-        <div class="dash-title">Паттерны ошибок</div>
+        <div class="dash-title">Паттерны ошибок <span class="field-hint" data-tip="Анализирует твои записи в поле Эмоции.&#10;Ищет повторяющиеся слова — FOMO,&#10;нарушил план, торопился и т.д.&#10;Нужно 5+ сделок с заметками">?</span></div>
         <div class="patterns" id="patterns-list"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
     </div>
 
     <!-- ROW 5: Brutal Analysis -->
     <div class="dash-card" style="margin-top:14px">
-      <div class="dash-title">Brutal Analysis</div>
+      <div class="dash-title">Brutal Analysis <span class="field-hint" data-tip="AI анализирует твой стиль торговли&#10;и говорит правду без прикрас.&#10;Нажми кнопку — получишь честный&#10;разбор сильных и слабых сторон.&#10;Нужно 10+ сделок">?</span></div>
       <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);margin-bottom:12px;">AI даёт максимально честный разбор твоей торговли без фильтров.</div>
       <button class="brutal-btn" id="brutal-btn" onclick="runBrutalAnalysis()">💀 ЗАПУСТИТЬ BRUTAL ANALYSIS</button>
       <div class="brutal-result" id="brutal-result"></div>
@@ -2344,10 +2337,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       </div>
     </div>
     <div class="progress-kpis">
-      <div class="pkpi"><div class="pkpi-label">Макс. прибыль</div><div class="pkpi-val sv-g" id="pk-best">—</div><div class="pkpi-sub" id="pk-best-p">—</div></div>
-      <div class="pkpi"><div class="pkpi-label">Макс. убыток</div><div class="pkpi-val sv-r" id="pk-worst">—</div><div class="pkpi-sub" id="pk-worst-p">—</div></div>
-      <div class="pkpi"><div class="pkpi-label">Risk / Reward</div><div class="pkpi-val sv-a" id="pk-rr">—</div><div class="pkpi-sub">avg win / avg loss</div></div>
-      <div class="pkpi"><div class="pkpi-label">Макс. просадка</div><div class="pkpi-val sv-r" id="pk-dd">—</div><div class="pkpi-sub">от пика капитала</div></div>
+      <div class="pkpi"><div class="pkpi-label">Макс. прибыль <span class="field-hint" data-tip="Лучшая сделка за всё время.&#10;Важно: большая разовая прибыль&#10;не означает стабильной торговли">?</span></div><div class="pkpi-val sv-g" id="pk-best">—</div><div class="pkpi-sub" id="pk-best-p">—</div></div>
+      <div class="pkpi"><div class="pkpi-label">Макс. убыток <span class="field-hint" data-tip="Худшая сделка за всё время.&#10;Если это больше 5% депозита —&#10;у тебя проблема с риск-менеджментом">?</span></div><div class="pkpi-val sv-r" id="pk-worst">—</div><div class="pkpi-sub" id="pk-worst-p">—</div></div>
+      <div class="pkpi"><div class="pkpi-label">Risk / Reward <span class="field-hint" data-tip="Среднее соотношение прибыли к риску.&#10;Считается как avg win / avg loss.&#10;R:R выше 1.5 при WR 50% = прибыльно&#10;R:R ниже 1.0 = убыточная стратегия">?</span></div><div class="pkpi-val sv-a" id="pk-rr">—</div><div class="pkpi-sub">avg win / avg loss</div></div>
+      <div class="pkpi"><div class="pkpi-label">Макс. просадка <span class="field-hint" data-tip="Максимальное падение капитала&#10;от пика до дна.&#10;Drawdown выше 20% — опасно.&#10;Профессионалы держат ниже 10%">?</span></div><div class="pkpi-val sv-r" id="pk-dd">—</div><div class="pkpi-sub">от пика капитала</div></div>
     </div>
     <div class="equity-card">
       <div class="eq-title">
@@ -2361,7 +2354,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <div class="pairs-grid" id="pairs-grid"></div>
     <div class="hm-card">
       <div class="hm-header">
-        <div class="hm-title">Активность</div>
+        <div class="hm-title">Активность <span class="field-hint" data-tip="Тепловая карта твоих торговых дней.&#10;Зелёный — прибыльный день&#10;Красный — убыточный&#10;Помогает видеть паттерны активности">?</span></div>
         <div class="hm-stats">
           <div class="hm-stat">Всего: <strong id="hm-total">—</strong></div>
           <div class="hm-stat">Лучший: <strong id="hm-best-day">—</strong></div>
@@ -2397,7 +2390,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <!-- ТЕПЛОВАЯ КАРТА ПО ЧАСАМ -->
     <div class="hm-card" id="hourly-heatmap-card" style="margin-top:12px">
       <div class="hm-header">
-        <div class="hm-title">⏱ Активность по часам дня</div>
+        <div class="hm-title">⏱ Активность по часам дня <span class="field-hint" data-tip="Показывает в какие часы ты торгуешь.&#10;Высокий зелёный — прибыльный час.&#10;Высокий красный — убыточный час.&#10;Избегай торговли в свои худшие часы">?</span></div>
         <div id="hourly-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
       <div id="hourly-bars" style="display:flex;align-items:flex-end;gap:3px;height:80px;padding:8px 0 4px"></div>
@@ -2408,7 +2401,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <!-- ЧЕЛЛЕНДЖИ -->
     <div class="hm-card" id="challenges-card" style="margin-top:12px">
       <div class="hm-header" style="margin-bottom:12px">
-        <div class="hm-title">🏅 ЧЕЛЛЕНДЖИ</div>
+        <div class="hm-title">🏅 ЧЕЛЛЕНДЖИ <span class="field-hint" data-tip="Задания для роста как трейдер.&#10;Заполняй записи полностью, торгуй&#10;стабильно, держи риск-менеджмент.&#10;Каждый выполненный челлендж —&#10;реальный навык, а не просто значок">?</span></div>
         <div style="font-family:var(--font-mono);font-size:8px;color:var(--m)">Выполняй — получай бейджи</div>
       </div>
       <div id="challenges-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
@@ -2423,21 +2416,21 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div class="dh-sub" id="digest-sub">Добавь сделки чтобы увидеть анализ</div>
     </div>
     <div class="digest-grid">
-      <div class="dg-card"><div class="dg-label">Сделок за неделю</div><div class="dg-val" id="dg-trades">—</div><div class="dg-desc" id="dg-trades-desc">—</div></div>
-      <div class="dg-card good"><div class="dg-label">Лучший день</div><div class="dg-val" id="dg-best-day">—</div><div class="dg-desc" id="dg-best-desc">—</div></div>
-      <div class="dg-card bad"><div class="dg-label">Слабый день</div><div class="dg-val" id="dg-worst-day">—</div><div class="dg-desc" id="dg-worst-desc">—</div></div>
+      <div class="dg-card"><div class="dg-label">Сделок за неделю <span class="field-hint" data-tip="Количество сделок за последние 7 дней.&#10;Много сделок не значит хорошо —&#10;следи за качеством, не количеством">?</span></div><div class="dg-val" id="dg-trades">—</div><div class="dg-desc" id="dg-trades-desc">—</div></div>
+      <div class="dg-card good"><div class="dg-label">Лучший день <span class="field-hint" data-tip="День недели с наибольшей прибылью.&#10;Используй эту информацию:&#10;в лучшие дни можно торговать смелее">?</span></div><div class="dg-val" id="dg-best-day">—</div><div class="dg-desc" id="dg-best-desc">—</div></div>
+      <div class="dg-card bad"><div class="dg-label">Слабый день <span class="field-hint" data-tip="День недели с наибольшими убытками.&#10;Снижай объём или пропускай&#10;торговлю в эти дни">?</span></div><div class="dg-val" id="dg-worst-day">—</div><div class="dg-desc" id="dg-worst-desc">—</div></div>
     </div>
     <div class="digest-insights">
-      <div class="di-label">ВЫВОДЫ НЕДЕЛИ</div>
+      <div class="di-label">ВЫВОДЫ НЕДЕЛИ <span class="field-hint" data-tip="AI анализирует твою неделю&#10;и даёт конкретные рекомендации.&#10;Нажми кнопку для генерации.&#10;Нужно 3+ сделки за неделю">?</span></div>
       <div class="di-items" id="digest-insights-list"><div class="empty" style="padding:14px">Нет данных</div></div>
     </div>
     <div class="month-grid">
       <div class="mc-card">
-        <div class="mc-title">ЭТОТ МЕСЯЦ VS ПРОШЛЫЙ</div>
+        <div class="mc-title">ЭТОТ МЕСЯЦ VS ПРОШЛЫЙ <span class="field-hint" data-tip="Сравнивает ключевые метрики&#10;текущего и прошлого месяца.&#10;Растёшь ли ты как трейдер?">?</span></div>
         <div id="month-compare-rows"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
       <div class="mc-card">
-        <div class="mc-title">ДИНАМИКА ПО НЕДЕЛЯМ</div>
+        <div class="mc-title">ДИНАМИКА ПО НЕДЕЛЯМ <span class="field-hint" data-tip="График P&amp;L по неделям.&#10;Показывает тренд твоего роста.&#10;Важна стабильность, а не пики">?</span></div>
         <div id="weekly-dynamics"><div class="empty" style="padding:14px">Нет данных</div></div>
       </div>
     </div>
@@ -2456,7 +2449,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <!-- Checklists -->
       <div class="pm-body">
         <div class="pm-section-card">
-          <div class="pm-section-title">Технический чек-лист</div>
+          <div class="pm-section-title">Технический чек-лист <span class="field-hint" data-tip="Отметь условия перед торговлей.&#10;Тренд, ключевые уровни, объёмы,&#10;новостной фон, качество сетапов.&#10;Не торгуй пока не выполнено 4/5">?</span></div>
           <div class="pm-checklist">
             <div class="pm-item" id="pm1" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Проверил новости / макро события</div></div>
             <div class="pm-item" id="pm2" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Определил ключевые уровни на день</div></div>
@@ -2465,7 +2458,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
           </div>
         </div>
         <div class="pm-section-card">
-          <div class="pm-section-title">Психологический чек-лист</div>
+          <div class="pm-section-title">Психологический чек-лист <span class="field-hint" data-tip="Оцени своё состояние.&#10;Выспался? Нет стресса? Спокоен?&#10;Если 3+ красных — лучше не торговать.&#10;Эмоциональный трейдер теряет деньги">?</span></div>
           <div class="pm-checklist">
             <div class="pm-item" id="pm5" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Выспался, состояние норм</div></div>
             <div class="pm-item" id="pm6" onclick="togglePM(this)"><div class="pm-check">✓</div><div class="pm-item-text">Нет эмоций от вчерашних сделок</div></div>
@@ -2477,23 +2470,23 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
       <!-- Limits -->
       <div class="pm-limits-card">
-        <div class="pm-section-title" style="margin-bottom:14px;">Лимиты дня</div>
+        <div class="pm-section-title" style="margin-bottom:14px;">Лимиты дня <span class="field-hint" data-tip="Установи жёсткие лимиты ДО начала торговли.&#10;Макс. убыток — стоп-лосс для дня.&#10;Достиг лимита — закрываешь терминал.&#10;Это самое важное правило риск-менеджмента">?</span></div>
         <div class="pm-limits-grid">
           <div class="pm-limit-field">
-            <div class="pm-limit-label">Макс. убыток</div>
+            <div class="pm-limit-label">Макс. убыток <span class="field-hint" data-tip="Если достиг этой суммы убытка —&#10;прекрати торговлю на сегодня.&#10;Рекомендация: 2-3% от депозита">?</span></div>
             <div class="pm-limit-input-wrap">
               <span class="pm-limit-prefix">$</span>
               <input class="pm-limit-input" id="pm-loss-limit" type="number" placeholder="100">
             </div>
           </div>
           <div class="pm-limit-field">
-            <div class="pm-limit-label">Макс. сделок</div>
+            <div class="pm-limit-label">Макс. сделок <span class="field-hint" data-tip="Сколько сделок максимум в день.&#10;Больше сделок ≠ больше прибыли.&#10;Ограничение защищает от оверторговли.&#10;Рекомендация: 3-5 сделок">?</span></div>
             <div class="pm-limit-input-wrap">
               <input class="pm-limit-input no-prefix" id="pm-trade-limit" type="number" placeholder="3">
             </div>
           </div>
           <div class="pm-limit-field">
-            <div class="pm-limit-label">Цель дня</div>
+            <div class="pm-limit-label">Цель дня <span class="field-hint" data-tip="Реалистичная цель прибыли на день.&#10;Достиг цели — можно закончить.&#10;Цель помогает не жадничать.&#10;Рекомендация: 1-2% от депозита">?</span></div>
             <div class="pm-limit-input-wrap">
               <span class="pm-limit-prefix">$</span>
               <input class="pm-limit-input" id="pm-goal" type="number" placeholder="200">
@@ -2504,7 +2497,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
       <!-- Mood -->
       <div class="pm-moods-card">
-        <div class="pm-section-title" style="margin-bottom:14px;">Настроение сейчас</div>
+        <div class="pm-section-title" style="margin-bottom:14px;">Настроение сейчас <span class="field-hint" data-tip="Честно оцени своё состояние.&#10;Огонь — отличный день для торговли.&#10;Ровно — нормально, торгуй по плану.&#10;Устал/Злой — уменьши объём&#10;или не торгуй вообще">?</span></div>
         <div class="pm-moods">
           <button class="pm-mood-btn" onclick="setPMMood(this,'🔥 Огонь')">
             <span class="pm-mood-emoji">🔥</span><span class="pm-mood-label">Огонь</span>
@@ -2539,7 +2532,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
           <div style="font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.65;">Трейдеры с ежедневным чеклистом совершают на 40% меньше импульсивных входов.</div>
         </div>
         <div class="pm-side-card">
-          <div class="pm-side-title">📅 Последние сессии</div>
+          <div class="pm-side-title">📅 Последние сессии <span class="field-hint" data-tip="История заполненных преmarket чеклистов.&#10;Показывает когда и как ты готовился&#10;к торговым сессиям">?</span></div>
           <div id="pm-history"><div class="empty" style="padding:14px">Нет данных</div></div>
         </div>
       </div>
@@ -2551,7 +2544,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   <div class="page" id="page-aichat">
     <div class="chat-layout">
       <div class="chat-sidebar">
-        <div class="chat-sb-title">БЫСТРЫЙ ЗАПРОС</div>
+        <div class="chat-sb-title">БЫСТРЫЙ ЗАПРОС <span class="field-hint" data-tip="Готовые шаблоны вопросов.&#10;Нажми кнопку — вопрос вставится&#10;автоматически. Можно редактировать&#10;перед отправкой">?</span></div>
         <div class="chat-shortcuts" id="chat-shortcuts">
           <div class="chat-sc" onclick="sendShortcut('Разбери актив BTC/USDT — структура, тренд, ключевые уровни сегодня')">
             <div class="chat-sc-icon">🔍</div>
@@ -2590,7 +2583,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div class="chat-main">
         <div class="chat-header">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div class="chat-header-title">🤖 AI СОВЕТНИК</div>
+            <div class="chat-header-title">🤖 AI СОВЕТНИК <span class="field-hint" data-tip="Персональный AI ассистент.&#10;Знает SMC, ICT, технический анализ,&#10;психологию трейдинга.&#10;Задавай любые вопросы по торговле.&#10;История диалога сохраняется в сессии">?</span></div>
             <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.22);box-shadow:0 0 10px rgba(232,114,42,0.1);">
               <span style="font-size:11px;">🔒</span>
               <span style="font-family:var(--font-mono);font-size:8px;letter-spacing:2px;color:var(--a);text-transform:uppercase;">Особый доступ</span>
@@ -2623,7 +2616,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <div class="smart-notif-bar" id="coach-tilt-bar">
       <div class="snb-icon">⚠️</div>
       <div class="snb-body">
-        <div class="snb-title">TILT DETECTED</div>
+        <div class="snb-title">TILT DETECTED <span class="field-hint" data-tip="Тильт — состояние когда эмоции&#10;управляют торговлей, а не план.&#10;Появляется после 2+ убытков подряд.&#10;Рекомендация: стоп на сегодня">?</span></div>
         <div class="snb-msg" id="coach-tilt-msg">Обнаружена серия убытков. Рекомендуется сделать паузу.</div>
       </div>
       <button class="snb-close" onclick="this.parentElement.classList.remove('show')">✕</button>
@@ -2633,7 +2626,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <div class="mistake-card" id="mistake-card" style="display:none">
       <div class="mistake-icon">💸</div>
       <div class="mistake-body">
-        <div class="mistake-label">Biggest Mistake Detected</div>
+        <div class="mistake-label">Biggest Mistake Detected <span class="field-hint" data-tip="Твоя главная повторяющаяся ошибка.&#10;AI находёт паттерн по ключевым словам&#10;в твоих заметках об эмоциях.&#10;FOMO, нарушил план, торопился...&#10;Нужно 5+ сделок с заметками">?</span></div>
         <div class="mistake-title" id="mistake-title">FOMO Entry</div>
         <div class="mistake-loss">Loss from this: <span id="mistake-amount">—</span></div>
       </div>
@@ -2649,7 +2642,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div class="coach-header">
         <div class="coach-avatar">🤖</div>
         <div>
-          <div class="coach-name">AI COACH</div>
+          <div class="coach-name">AI COACH <span class="field-hint" data-tip="Анализирует последние 20 сделок.&#10;Смотрит на паттерны ошибок,&#10;эмоциональные триггеры, сетапы.&#10;Даёт конкретные рекомендации.&#10;Нажми кнопку внизу">?</span></div>
           <div class="coach-sub">Персональный анализ последних сделок</div>
         </div>
       </div>
@@ -2661,7 +2654,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
     <!-- Psychology Insights -->
     <div class="dash-card">
-      <div class="dash-title">Психологическая аналитика</div>
+      <div class="dash-title">Психологическая аналитика <span class="field-hint" data-tip="AI разбирает твои заметки&#10;по всем сделкам и находит паттерны.&#10;Какие мысли приводят к убыткам?&#10;Когда ты торгуешь лучше всего?&#10;Нужно 5+ сделок с заметками">?</span></div>
       <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);margin-bottom:12px;letter-spacing:0.5px;">Результат торговли в зависимости от эмоционального состояния</div>
       <div class="psych-grid" id="coach-psych-grid">
         <div class="empty" style="grid-column:span 2;padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Заполняй эмоции при записи сделок</div>
@@ -2717,14 +2710,14 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <input type="hidden" id="edit-trade-id">
     <div class="edit-row">
       <div class="edit-field"><div class="edit-label">Пара</div><input class="edit-input" id="edit-pair" placeholder="BTC/USDT"></div>
-      <div class="edit-field"><div class="edit-label">Направление</div>
+      <div class="edit-field"><div class="edit-label">Направление <span class="field-hint" data-tip="Long или Short">?</span></div>
         <select class="edit-input" id="edit-direction">
           <option value="long">LONG</option><option value="short">SHORT</option>
         </select>
       </div>
     </div>
     <div class="edit-row">
-      <div class="edit-field"><div class="edit-label">Результат</div>
+      <div class="edit-field"><div class="edit-label">Результат <span class="field-hint" data-tip="Прибыль / Убыток / Безубыток">?</span></div>
         <select class="edit-input" id="edit-result">
           <option value="win">Прибыль</option><option value="loss">Убыток</option><option value="be">Безубыток</option>
         </select>
@@ -2754,7 +2747,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 <div class="ai-modal" id="ai-modal">
   <div class="ai-box">
     <button class="ai-close" onclick="closeAI()">×</button>
-    <div class="ai-title">🤖 AI ЧЕКЕР СЕТАПА</div>
+    <div class="ai-title">🤖 AI ЧЕКЕР СЕТАПА <span class="field-hint" data-tip="Заполни форму сделки сверху&#10;и нажми ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI.&#10;AI оценит качество входа по 5 критериям&#10;и скажет: ВХОДИТЬ / ЖДАТЬ / НЕ ВХОДИТЬ">?</span></div>
     <div class="ai-sub">5 ВОПРОСОВ · 30 СЕКУНД · ЧЕСТНЫЙ ВЕРДИКТ</div>
     <div id="ai-checklist">
       <div class="ck-item"><div class="ck-num">1 · СТРУКТУРА</div><div class="ck-q">Есть подтверждённый BOS или CHoCH в направлении сделки?</div><div class="ck-btns"><button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">✓ ДА</button><button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">✗ НЕТ</button></div></div>
@@ -2782,6 +2775,7 @@ const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let currentUser=null, allTrades=[], currentFilter='all', currentDir='long';
+let balanceStart=1000, balancePopupOpen=false, goalPopupOpen=false;
 
 // ─── SIDEBAR ─────────────────────────────────────
 function openSB(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
@@ -3021,7 +3015,6 @@ async function loadTrades(){
   allTrades=data||[];
   updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);
   // Уведомления — грузим сразу после init
-  loadJournalNotifs();
   // Realtime — слушаем новые уведомления
   try{
     sb.channel('notifs_realtime_'+currentUser.id)
@@ -3046,8 +3039,6 @@ async function loadTrades(){
       .subscribe();
   }catch(e){console.warn('Realtime not available, using polling');}
 
-  // Polling каждые 15 сек
-  setInterval(()=>{ if(currentUser) loadJournalNotifs(); }, 15000);
 }
 
 function setDir(d){
@@ -4994,180 +4985,9 @@ document.addEventListener('click',function(e){
 // ═══════════════════════════════════════════════════
 let _jNotifs=[], _jNotifOpen=false;
 
-async function loadJournalNotifs(){
-  if(!currentUser)return;
-  try{
-    const {data,error}=await sb.from('notifications')
-      .select('*,profiles:from_user_id(full_name,username)')
-      .eq('user_id',currentUser.id)
-      .order('created_at',{ascending:false}).limit(30);
-    if(error){console.warn('[NOTIF] load error:',error.message);return;}
-    _jNotifs=data||[];
-    renderJournalBell();
-  }catch(e){console.warn('[NOTIF] exception:',e);}
-}
 
 let _jNotifsLastCount=0;
-function renderJournalBell(){
-  const unread=_jNotifs.filter(n=>!n.read).length;
-  const cnt=document.getElementById('jtb-bell-count');
-  if(cnt){cnt.textContent=unread>9?'9+':String(unread);cnt.style.display=unread>0?'flex':'none';}
-  // Тост если новых стало больше
-  if(unread>_jNotifsLastCount && _jNotifsLastCount!==undefined){
-    const newest=_jNotifs.find(n=>!n.read);
-    if(newest){
-      const icons={new_follower:'👤',unfollow:'👋',new_idea:'💡',new_message:'💬'};
-      const from=newest.profiles?.full_name||newest.profiles?.username||null;
-      const txt=from?`@${from} ${newest.text||''}`:newest.text||'';
-      showNotif('info',(icons[newest.type]||'🔔')+' '+txt,'',4000);
-    }
-  }
-  _jNotifsLastCount=unread;
-  // Обновляем список
-  const list=document.getElementById('jnd-list');
-  if(!list)return;
-  if(!_jNotifs.length){list.innerHTML='<div class="jnd-empty">Уведомлений нет 🎉</div>';return;}
-  const icons={new_follower:'👤',unfollow:'👋',new_idea:'💡',new_message:'💬'};
-  list.innerHTML=_jNotifs.map(n=>{
-    // Показываем ник отправителя если есть
-    const fromName=n.profiles?.full_name||n.profiles?.username||null;
-    const displayText=fromName
-      ? `<span style="color:var(--a)">@${fromName}</span> ${n.text||''}`
-      : (n.text||'');
-    const ts=new Date(n.created_at);
-    const timeStr=ts.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' '+ts.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-    return `<div class="jnd-item ${n.read?'':'unread'}">
-      <div class="jnd-dot ${n.read?'read':''}"></div>
-      <div style="flex:1">
-        <div class="jnd-text">${icons[n.type]||'🔔'} ${displayText}</div>
-        <div class="jnd-time">${timeStr}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
 
-function toggleJournalNotif(){
-  _jNotifOpen=!_jNotifOpen;
-  const dd=document.getElementById('jtb-notif-dd');
-  if(dd)dd.style.display=_jNotifOpen?'block':'none';
-  if(_jNotifOpen)markJournalNotifsRead();
-}
-
-document.addEventListener('click',e=>{
-  if(!e.target.closest('#jtb-bell')){
-    _jNotifOpen=false;
-    const dd=document.getElementById('jtb-notif-dd');
-    if(dd)dd.style.display='none';
-  }
-});
-
-async function markJournalNotifsRead(){
-  const unread=_jNotifs.filter(n=>!n.read).map(n=>n.id);
-  if(!unread.length)return;
-  try{
-    await sb.from('notifications').update({read:true}).in('id',unread);
-    _jNotifs=_jNotifs.map(n=>({...n,read:true}));
-    renderJournalBell();
-  }catch(e){}
-}
-
-
-// ══════════════════════════════════════════════════
-// CHAT DRAWER
-// ══════════════════════════════════════════════════
-let _cd={
-  open:false, rooms:[], active:null,
-  msgs:[], profiles:{}, sub:null
-};
-const CD_GENERAL='general';
-
-// Открыть/закрыть drawer
-
-
-// Загружаем комнаты
-
-
-
-
-
-
-
-
-// Вызывается из профиля: openChat('uuid','Имя')
-// Также из журнала через кнопку написать
-
-
-// Уведомления загружаются в init()
-
-
-// ─── HOURLY HEATMAP ────────────────────────────────
-function renderHourlyHeatmap(trades){
-  var barsEl=document.getElementById('hourly-bars');
-  var labelsEl=document.getElementById('hourly-labels');
-  var pillsEl=document.getElementById('hourly-pills');
-  var insightEl=document.getElementById('hourly-insight');
-  if(!barsEl)return;
-
-  // Агрегируем по часам
-  var byHour=Array.from({length:24},function(){return{n:0,wins:0,pnl:0};});
-  trades.forEach(function(t){
-    var dt=new Date(t.created_at);
-    var h=dt.getHours(); // локальное время
-    byHour[h].n++;
-    byHour[h].pnl+=(t.pnl_pct||0);
-    if(t.result==='win')byHour[h].wins++;
-  });
-
-  var maxN=Math.max.apply(null,byHour.map(function(h){return h.n;}));
-  if(!maxN){barsEl.innerHTML='<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);padding:20px">Нет данных по часам</div>';return;}
-
-  // Рисуем столбики
-  var barsHtml='', labHtml='';
-  byHour.forEach(function(h,i){
-    var heightPct=maxN?Math.max(4,Math.round(h.n/maxN*100)):0;
-    var wr=h.n?Math.round(h.wins/h.n*100):0;
-    var col=h.n===0?'rgba(255,255,255,0.05)':h.pnl>=0?'rgba(52,208,88,'+(0.3+h.n/maxN*0.7)+')':'rgba(255,77,77,'+(0.3+h.n/maxN*0.7)+')';
-    var tip=i+':00 — '+(h.n?h.n+' сд. · WR '+wr+'% · '+(h.pnl>=0?'+':'')+h.pnl.toFixed(1)+'%':'нет сделок');
-    barsHtml+='<div class="hb-col"><div class="hb-tip">'+tip+'</div><div class="hb-bar" style="height:'+heightPct+'%;background:'+col+'"></div></div>';
-    labHtml+='<div class="hb-label" style="flex:1;text-align:center">'+(i%4===0?i:'')+'</div>';
-  });
-  barsEl.innerHTML=barsHtml;
-  if(labelsEl)labelsEl.innerHTML=labHtml;
-
-  // Сессии
-  var sessions={
-    'Азия':{start:0,end:8},
-    'Лондон':{start:8,end:16},
-    'Нью-Йорк':{start:13,end:22}
-  };
-  var bestHour=byHour.reduce(function(b,h,i){return h.n>b.n?{n:h.n,i:i,pnl:h.pnl}:b;},{n:0,i:0,pnl:0});
-  var worstHour=byHour.filter(function(h){return h.n>0;}).reduce(function(b,h,i){
-    var idx=byHour.indexOf(h);return h.pnl<b.pnl?{pnl:h.pnl,i:idx}:b;},{pnl:Infinity,i:0});
-
-  var bestSess='—';var bestSessVal=-Infinity;
-  Object.keys(sessions).forEach(function(name){
-    var s=sessions[name];
-    var sessData=byHour.slice(s.start,s.end);
-    var sessPnl=sessData.reduce(function(sum,h){return sum+h.pnl;},0);
-    if(sessPnl>bestSessVal){bestSessVal=sessPnl;bestSess=name;}
-  });
-
-  if(pillsEl){
-    var pills='';
-    if(bestHour.n>0)pills+='<span style="background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:var(--g);font-family:var(--font-mono);font-size:7px;padding:3px 8px;border-radius:20px">🕐 Лучший час: '+bestHour.i+':00</span>';
-    if(worstHour.pnl!==Infinity&&worstHour.pnl<0)pills+='<span style="background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:var(--r);font-family:var(--font-mono);font-size:7px;padding:3px 8px;border-radius:20px;margin-left:4px">⚠️ Убыток: '+worstHour.i+':00</span>';
-    if(bestSess!=='—')pills+='<span style="background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.2);color:var(--a);font-family:var(--font-mono);font-size:7px;padding:3px 8px;border-radius:20px;margin-left:4px">🌍 Лучшая сессия: '+bestSess+'</span>';
-    pillsEl.innerHTML=pills;
-  }
-
-  if(insightEl&&trades.length>=5){
-    var text='';
-    if(bestHour.n>=2)text+='Пик активности: <strong style="color:var(--g)">'+bestHour.i+':00</strong> ('+bestHour.n+' сд.). ';
-    if(worstHour.pnl<0)text+='Опасный час: <strong style="color:var(--r)">'+worstHour.i+':00</strong> ('+worstHour.pnl.toFixed(1)+'%). Избегай торговли в это время. ';
-    if(bestSess!=='—')text+='Твоя сессия: <strong style="color:var(--a)">'+bestSess+'</strong>.';
-    if(text){insightEl.innerHTML=text;insightEl.style.display='block';}
-  }
-}
 
 // ─── ЧЕЛЛЕНДЖИ ────────────────────────────────────
 var CHALLENGES=[
@@ -5266,7 +5086,6 @@ function updateBalanceWidget() {
 /* ── DAILY GOAL IN R ── */
 let goalR = 3;       // target R per day
 let goalRSize = 50;  // $ per 1R
-let goalPopupOpen = false;
 
 // Load saved settings
 try {
