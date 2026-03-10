@@ -39,20 +39,35 @@
 
 /* ── ORBITUM PRO (mono B&W + orange accent) ─────────────────────── */
 html[data-theme="mono"]{
-  --bg:#070707; --bg2:rgba(255,255,255,0.03); --bg3:rgba(255,255,255,0.06);
-  --bg-card:#0e0e0e; --bg-card2:#141414; --bg-input:rgba(255,255,255,0.07);
-  --bd:rgba(255,255,255,0.09); --bd2:rgba(255,255,255,0.17); --bd3:rgba(255,255,255,0.28);
-  --t:#dedede; --t2:#ffffff; --t3:#666666;
-  --m:rgba(222,222,222,0.52); --m2:rgba(222,222,222,0.3);
+  --bg:#030303; --bg2:rgba(255,255,255,0.025); --bg3:rgba(255,255,255,0.05);
+  --bg-card:#0a0a0a; --bg-card2:#111111; --bg-input:rgba(255,255,255,0.06);
+  --bd:rgba(255,255,255,0.1); --bd2:rgba(255,255,255,0.18); --bd3:rgba(255,255,255,0.3);
+  --t:#e8e8e8; --t2:#ffffff; --t3:#555555;
+  --m:rgba(220,220,220,0.5); --m2:rgba(220,220,220,0.28);
   --g:#34d058; --r:#ff4d4d; --y:#f5a623;
-  --gd:rgba(232,114,42,0.08); --rd:rgba(255,255,255,0.04);
-  --shadow:0 4px 24px rgba(0,0,0,0.7);
-  --shadow-card:0 2px 12px rgba(0,0,0,0.55);
-  --topbar-bg:rgba(7,7,7,0.98);
-  --sidebar-bg:rgba(7,7,7,0.99);
-  --orb1:rgba(232,114,42,0.04); --orb2:rgba(232,114,42,0.02);
-  --orb3:rgba(232,114,42,0.015);
+  --gd:rgba(52,208,88,0.07); --rd:rgba(255,77,77,0.06);
+  --shadow:0 4px 32px rgba(0,0,0,0.85);
+  --shadow-card:0 2px 16px rgba(0,0,0,0.7);
+  --topbar-bg:rgba(0,0,0,0.99);
+  --sidebar-bg:rgba(0,0,0,1);
+  --orb1:rgba(255,255,255,0.015); --orb2:rgba(255,255,255,0.008);
+  --orb3:rgba(255,255,255,0.005);
+  --line:1px solid rgba(255,255,255,0.1);
 }
+/* PRO: scanline overlay + sharp typography */
+html[data-theme="mono"]::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);
+}
+html[data-theme="mono"] .sidebar{border-right:1px solid rgba(255,255,255,0.08)!important;}
+html[data-theme="mono"] .sb-logo-text{color:#fff!important;letter-spacing:8px;}
+html[data-theme="mono"] .trade-row{border-left:1px solid rgba(255,255,255,0.06)!important;}
+html[data-theme="mono"] .trade-row.win-row{border-left:2px solid rgba(52,208,88,0.5)!important;}
+html[data-theme="mono"] .trade-row.loss-row{border-left:2px solid rgba(255,77,77,0.4)!important;}
+html[data-theme="mono"] .tnav.active{border-bottom-color:rgba(255,255,255,0.8)!important;color:#fff!important;}
+html[data-theme="mono"] .level-bar{border-color:rgba(255,255,255,0.12)!important;}
+html[data-theme="mono"] .fcard{border-color:rgba(255,255,255,0.09)!important;}
+html[data-theme="mono"] .stats-row .stat-cell{border-color:rgba(255,255,255,0.08)!important;}
 
 /* ── FOREST (dark minted teal + gold) ──────────────────────────── */
 html[data-theme="forest"]{
@@ -2415,7 +2430,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <div class="stat-cell"><div class="stat-label">P&L % <span class="field-hint" data-tip="Суммарный процент прибыли/убытка&#10;по всем сделкам журнала.&#10;Главная метрика роста депозита">?</span></div><div class="stat-value" id="s-pnl">—</div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
     <div class="stat-cell"><div class="stat-label">P&L $ <span class="field-hint" data-tip="Суммарная прибыль/убыток в долларах.&#10;Считается из полей P&amp;L $ каждой сделки.&#10;Заполняй поле P&amp;L $ при записи сделки">?</span></div><div class="stat-value" id="s-usd">—</div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
     <div class="stat-cell"><div class="stat-label">Серия побед <span class="field-hint" data-tip="Текущая серия прибыльных сделок подряд.&#10;После серии 5+ — будь осторожен:&#10;самонадеянность растёт, риски растут">?</span></div><div class="stat-value sv-a" id="s-str">—</div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
-  </div>-- ──────────── JOURNAL ──────────────────── -->
+  </div>
+
+  <!-- ──────────── JOURNAL ──────────────────── -->
   <div class="page active" id="page-journal">
     <div class="topnav">
       <button class="tnav active" onclick="showPage('journal',this)" data-page="journal">📋 ЖУРНАЛ</button>
@@ -4400,6 +4417,36 @@ function renderProgress(){
 }
 
 
+// ─── CHALLENGES RENDER ─────────────────────────────────────────────────────
+function renderChallenges(trades){
+  var grid = document.getElementById('challenges-grid');
+  if(!grid || typeof CHALLENGES==='undefined') return;
+  var n = trades.length;
+  var wins = trades.filter(function(t){return t.result==='win';}).length;
+  var wr60 = n>=15 && Math.round(wins/n*100)>=60;
+  var wr70 = n>=20 && Math.round(wins/n*100)>=70;
+  var streak=0; for(var i=0;i<trades.length;i++){if(trades[i].result==='win')streak++;else break;}
+  var vals = {
+    total: n,
+    wr60: wr60?1:0,
+    wr70: wr70?1:0,
+    streak: streak
+  };
+  grid.innerHTML = CHALLENGES.map(function(c){
+    var cur = Math.min(c.goal, vals[c.key]||0);
+    var done = cur>=c.goal;
+    var pct = Math.round(cur/c.goal*100);
+    return '<div class="ch-card'+(done?' ch-done':'')+'">'
+      +'<div class="ch-icon">'+c.icon+'</div>'
+      +'<div class="ch-body">'
+        +'<div class="ch-title">'+c.title+(done?' ✓':'')+'</div>'
+        +'<div class="ch-desc">'+c.desc+'</div>'
+        +'<div class="ch-track"><div class="ch-fill" style="width:'+pct+'%;background:'+(done?'#34d058':'var(--a)')+'"></div></div>'
+        +'<div class="ch-prog" style="color:'+(done?'#34d058':'var(--m)')+'">'+cur+'/'+c.goal+(c.reward?' · '+c.reward:'')+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+
 // ─── HOURLY ACTIVITY HEATMAP ─────────────────────────────────────────────────
 function renderHourlyHeatmap(trades){
   var bars = document.getElementById('hourly-bars');
@@ -4428,49 +4475,103 @@ function renderHourlyHeatmap(trades){
     else if(t.result==='loss') hours[h].losses++;
   });
 
-  // Find max for scale
-  var maxTotal = Math.max.apply(null, Object.values(hours).map(function(v){return v.total;}));
+  var maxTotal = Math.max.apply(null, Object.keys(hours).map(function(h){return hours[h].total;}));
   if(!maxTotal) maxTotal = 1;
 
-  // Find best/worst hours
   var activeHours = Object.keys(hours).filter(function(h){return hours[h].total>0;});
-  var bestHour = activeHours.sort(function(a,b){return (hours[b].pnl/Math.max(1,hours[b].total)) - (hours[a].pnl/Math.max(1,hours[a].total));})[0];
-  var worstHour = activeHours.sort(function(a,b){return (hours[a].pnl/Math.max(1,hours[a].total)) - (hours[b].pnl/Math.max(1,hours[b].total));})[0];
+  var bestHour  = activeHours.slice().sort(function(a,b){return (hours[b].pnl/Math.max(1,hours[b].total))-(hours[a].pnl/Math.max(1,hours[a].total));})[0];
+  var worstHour = activeHours.slice().sort(function(a,b){return (hours[a].pnl/Math.max(1,hours[a].total))-(hours[b].pnl/Math.max(1,hours[b].total));})[0];
 
-  // Render bars
+  // Build wrapper for bars + tooltip
+  var wrapId = 'hourly-bars-inner';
+  bars.style.cssText = 'display:flex;align-items:flex-end;gap:3px;height:80px;padding:8px 0 4px;position:relative;';
+
+  // Tooltip element (shared)
+  var tt = document.getElementById('hourly-tooltip');
+  if(!tt){
+    tt = document.createElement('div');
+    tt.id = 'hourly-tooltip';
+    tt.style.cssText = 'position:absolute;bottom:calc(100% + 8px);background:rgba(5,7,10,0.98);border:1px solid rgba(255,255,255,0.12);border-radius:9px;padding:9px 13px;font-family:var(--font-mono);font-size:11px;line-height:1.7;white-space:nowrap;z-index:100;pointer-events:none;opacity:0;transition:opacity 0.12s;box-shadow:0 4px 20px rgba(0,0,0,0.6);transform:translateX(-50%);';
+    bars.parentNode.style.position = 'relative';
+    bars.parentNode.insertBefore(tt, bars);
+  }
+
   var barsHtml = '';
-  var labelsHtml = '';
   for(var h=0; h<24; h++){
     var d = hours[h];
     var heightPct = maxTotal>0 ? Math.round((d.total/maxTotal)*100) : 0;
     var minH = d.total>0 ? 8 : 2;
-    var barH = Math.max(minH, heightPct);
+    var barH = Math.max(minH, Math.round(heightPct * 0.72));
     var wr = d.total>0 ? d.wins/d.total : 0;
     var avgPnl = d.total>0 ? d.pnl/d.total : 0;
-    // Color: green if profitable avg, red if loss, muted if no data
-    var barColor;
-    if(d.total===0) barColor = 'rgba(255,255,255,0.06)';
-    else if(avgPnl>0.5) barColor = 'rgba(52,208,88,'+(0.3+wr*0.5).toFixed(2)+')';
-    else if(avgPnl<-0.5) barColor = 'rgba(255,77,77,'+(0.3+(1-wr)*0.5).toFixed(2)+')';
-    else barColor = 'rgba(232,114,42,0.3)';
-    var glow = d.total>0 ? ('box-shadow:0 0 '+(d.total*3)+'px '+barColor+';') : '';
-    var title = d.total>0 ? (h+':00 — '+d.total+' сд | '+d.wins+'W '+d.losses+'L | avg '+(avgPnl>=0?'+':'')+avgPnl.toFixed(1)+'%') : (h+':00 — нет сделок');
-    barsHtml += '<div title="'+title+'" style="flex:1;height:'+barH+'%;min-height:'+minH+'px;background:'+barColor+';border-radius:3px 3px 0 0;transition:all 0.2s;cursor:default;'+glow+'"></div>';
-    // Labels every 3 hours
-    labelsHtml += '<div style="flex:1;text-align:center;font-family:var(--font-mono);font-size:7px;color:'+(h%3===0?'rgba(255,255,255,0.35)':'transparent')+';letter-spacing:0.5px;">'+(h%3===0?h:'')+'</div>';
+    var barColor, glowColor;
+    if(d.total===0){ barColor='rgba(255,255,255,0.05)'; glowColor=''; }
+    else if(avgPnl>0.5){ barColor='rgba(52,208,88,'+(0.3+wr*0.5).toFixed(2)+')'; glowColor='rgba(52,208,88,0.3)'; }
+    else if(avgPnl<-0.5){ barColor='rgba(255,77,77,'+(0.3+(1-wr)*0.5).toFixed(2)+')'; glowColor='rgba(255,77,77,0.25)'; }
+    else { barColor='rgba(232,114,42,0.35)'; glowColor='rgba(232,114,42,0.2)'; }
+    var glow = glowColor ? 'box-shadow:0 0 '+(4+d.total*2)+'px '+glowColor+';' : '';
+    var isBest = String(h)===String(bestHour);
+    var border = isBest ? 'border:1px solid rgba(52,208,88,0.5);' : '';
+    // Data attributes for hover
+    var wr100 = Math.round(wr*100);
+    var pnlStr = (avgPnl>=0?'+':'')+avgPnl.toFixed(1)+'%';
+    barsHtml += '<div class="hh-bar" data-h="'+h+'" data-total="'+d.total+'" data-wins="'+d.wins+'" data-losses="'+d.losses+'" data-wr="'+wr100+'" data-pnl="'+pnlStr+'"'+
+      ' style="flex:1;height:'+barH+'px;min-height:'+minH+'px;background:'+barColor+';border-radius:3px 3px 0 0;transition:all 0.15s;cursor:'+(d.total>0?'crosshair':'default')+';'+glow+border+'"></div>';
   }
   bars.innerHTML = barsHtml;
-  if(labels) labels.innerHTML = labelsHtml;
+
+  // Hover events
+  bars.querySelectorAll('.hh-bar').forEach(function(bar){
+    bar.addEventListener('mouseenter', function(e){
+      var h = parseInt(bar.dataset.h);
+      var total = parseInt(bar.dataset.total);
+      if(!total){ tt.style.opacity='0'; return; }
+      var wins = bar.dataset.wins, losses = bar.dataset.losses;
+      var wr = bar.dataset.wr, pnl = bar.dataset.pnl;
+      var pnlColor = parseFloat(pnl)>=0 ? '#34d058' : '#ff4d4d';
+      tt.innerHTML = 
+        '<div style="color:var(--a);font-size:12px;letter-spacing:1px;margin-bottom:5px;">'+
+          (h<10?'0':'')+h+':00 – '+(h+1<10?'0':'')+(h+1)+':00</div>'+
+        '<div>Сделок: <strong style="color:var(--t)">'+total+'</strong></div>'+
+        '<div>Победы: <strong style="color:#34d058">'+wins+'</strong> · Убытки: <strong style="color:#ff4d4d">'+losses+'</strong></div>'+
+        '<div>Winrate: <strong style="color:var(--t)">'+wr+'%</strong></div>'+
+        '<div>Avg PnL: <strong style="color:'+pnlColor+'">'+pnl+'</strong></div>';
+      var barRect = bar.getBoundingClientRect();
+      var parentRect = bars.getBoundingClientRect();
+      var leftPos = barRect.left - parentRect.left + barRect.width/2;
+      tt.style.left = leftPos+'px';
+      tt.style.opacity = '1';
+      bar.style.opacity = '0.75';
+      bar.style.transform = 'scaleY(1.05)';
+      bar.style.transformOrigin = 'bottom';
+    });
+    bar.addEventListener('mouseleave', function(){
+      tt.style.opacity = '0';
+      bar.style.opacity = '';
+      bar.style.transform = '';
+    });
+  });
+
+  // Labels
+  if(labels){
+    var labelsHtml = '';
+    for(var h=0; h<24; h++){
+      labelsHtml += '<div style="flex:1;text-align:center;font-family:var(--font-mono);font-size:7px;color:'+(h%3===0?'rgba(255,255,255,0.3)':'transparent')+';letter-spacing:0.5px;">'+(h%3===0?h:'')+'</div>';
+    }
+    labels.innerHTML = labelsHtml;
+  }
 
   // Pills
-  var pillHtml = '';
-  if(bestHour!==undefined && hours[bestHour].total>0){
-    pillHtml += '<div style="font-family:var(--font-mono);font-size:8px;background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:#34d058;padding:3px 8px;border-radius:20px;">⬆ Лучший: '+bestHour+':00</div>';
+  if(pills){
+    var pillHtml = '';
+    if(bestHour!==undefined && hours[bestHour].total>0){
+      pillHtml += '<div style="font-family:var(--font-mono);font-size:8px;background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.3);color:#34d058;padding:3px 10px;border-radius:20px;cursor:default;" title="Лучший час">⬆ Лучший: '+bestHour+':00</div>';
+    }
+    if(worstHour!==undefined && hours[worstHour].total>0 && worstHour!==bestHour){
+      pillHtml += '<div style="font-family:var(--font-mono);font-size:8px;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.25);color:#ff4d4d;padding:3px 10px;border-radius:20px;cursor:default;" title="Худший час">⬇ Худший: '+worstHour+':00</div>';
+    }
+    pills.innerHTML = pillHtml;
   }
-  if(worstHour!==undefined && hours[worstHour].total>0 && worstHour!==bestHour){
-    pillHtml += '<div style="font-family:var(--font-mono);font-size:8px;background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:#ff4d4d;padding:3px 8px;border-radius:20px;">⬇ Худший: '+worstHour+':00</div>';
-  }
-  if(pills) pills.innerHTML = pillHtml;
 
   // Insight
   if(insight && bestHour!==undefined && hours[bestHour].total>0){
