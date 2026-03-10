@@ -2818,6 +2818,561 @@ html[data-theme="mono"] .bg-o-2{
 html[data-theme="mono"] .bg-o-3{
   background:radial-gradient(circle,rgba(232,114,42,0.02),transparent 70%)!important;
 }
+
+/* ═══════════════════════════════════════════════════
+   ORBITUM — MASTER DESIGN SYSTEM v4
+   Inspired by: Apple, Linear, Vercel, Raycast
+   Color: Deep Space #0c0e13 + Orange #e8722a
+   ═══════════════════════════════════════════════════ */
+
+/* ── ТОЧНАЯ ЦВЕТОВАЯ СИСТЕМА ── */
+:root {
+  --bg:     #06080c;
+  --bg-card:#0d1017;
+  --bg-card2:#111520;
+  --bg-input:rgba(255,255,255,0.045);
+  --bd:     rgba(255,255,255,0.07);
+  --bd-card:rgba(255,255,255,0.09);
+  --bd-glow:rgba(232,114,42,0.22);
+  --a:      #e8722a;
+  --a-soft: rgba(232,114,42,0.12);
+  --a-glow: rgba(232,114,42,0.35);
+  --g:      #2ecc71;   /* зелёный без синевы */
+  --g-glow: rgba(46,204,113,0.3);
+  --r:      #e74c3c;
+  --r-glow: rgba(231,76,60,0.3);
+  --y:      #f39c12;
+  --t:      #e8eaf0;
+  --m:      rgba(232,234,240,0.4);
+  --m2:     rgba(232,234,240,0.22);
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 16px;
+  --shadow-card: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.04) inset;
+  --shadow-glow: 0 0 24px rgba(232,114,42,0.15);
+}
+
+/* ── БАЗОВЫЙ ФОН — тонкая текстура шума ── */
+html, body { background: var(--bg); }
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.6;
+}
+
+/* Ambient glow — статичный, не анимированный */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 12% 15%, rgba(232,114,42,0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 88% 85%, rgba(46,204,113,0.03) 0%, transparent 65%);
+}
+
+/* ── SIDEBAR — premium glass panel ── */
+.sidebar {
+  background: linear-gradient(180deg, #0d1017 0%, #090c11 100%) !important;
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 4px 0 32px rgba(0,0,0,0.6), 2px 0 0 rgba(255,255,255,0.03) inset !important;
+}
+.sb-logo {
+  background: linear-gradient(180deg, rgba(232,114,42,0.06) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  padding-bottom: 14px !important;
+}
+.sb-logo-text {
+  background: linear-gradient(100deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sb-logo-dot {
+  width: 7px; height: 7px;
+  box-shadow: 0 0 0 2px rgba(232,114,42,0.3), 0 0 12px var(--a), 0 0 24px rgba(232,114,42,0.4) !important;
+  animation: orbDot 4s ease-in-out infinite;
+}
+@keyframes orbDot {
+  0%,100% { box-shadow: 0 0 0 2px rgba(232,114,42,0.2), 0 0 10px var(--a); }
+  50%     { box-shadow: 0 0 0 3px rgba(232,114,42,0.35), 0 0 20px var(--a), 0 0 40px rgba(232,114,42,0.25); }
+}
+.sb-item {
+  border-radius: 9px !important;
+  transition: all 0.16s cubic-bezier(0.16,1,0.3,1) !important;
+}
+.sb-item:hover {
+  background: rgba(255,255,255,0.05) !important;
+  transform: translateX(2px);
+  color: rgba(255,255,255,0.75) !important;
+}
+.sb-item.active {
+  background: linear-gradient(90deg, rgba(232,114,42,0.14) 0%, rgba(232,114,42,0.06) 100%) !important;
+  border: 1px solid rgba(232,114,42,0.2) !important;
+  box-shadow: 0 0 20px rgba(232,114,42,0.08), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.sb-section {
+  font-size: 9px !important; letter-spacing: 3px !important;
+  color: rgba(255,255,255,0.22) !important;
+  padding: 16px 10px 5px !important;
+}
+.sb-footer {
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.3));
+}
+.sb-user {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: 10px !important;
+}
+
+/* ── TOPBAR ── */
+.jnl-topbar {
+  background: rgba(8,10,15,0.92) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow: 0 1px 0 rgba(232,114,42,0.08), 0 8px 32px rgba(0,0,0,0.3) !important;
+}
+/* Линия accent снизу топбара */
+.jnl-topbar::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(232,114,42,0.5) 20%, rgba(255,154,92,0.8) 50%, rgba(232,114,42,0.5) 80%, transparent 100%);
+  animation: topLine 4s ease-in-out infinite;
+}
+@keyframes topLine {
+  0%,100% { opacity: 0.5; }
+  50%     { opacity: 1; }
+}
+
+/* ── STAT CELLS — карточки с рамкой и glow ── */
+.stat-cell {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--bd-card) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1) !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+.stat-cell::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+.stat-cell:hover {
+  border-color: rgba(232,114,42,0.28) !important;
+  box-shadow: var(--shadow-card), 0 0 24px rgba(232,114,42,0.1) !important;
+  transform: translateY(-2px);
+}
+.stat-value {
+  font-size: 22px !important; font-weight: 600 !important;
+  letter-spacing: -0.5px !important;
+}
+/* ИСПРАВЛЕНИЕ: убираем зелёный gradient на оранжевых значениях */
+.sv-g {
+  color: var(--g) !important;
+  background: none !important; -webkit-text-fill-color: var(--g) !important;
+  filter: drop-shadow(0 0 10px rgba(46,204,113,0.5));
+}
+.sv-r {
+  color: var(--r) !important;
+  background: none !important; -webkit-text-fill-color: var(--r) !important;
+  filter: drop-shadow(0 0 10px rgba(231,76,60,0.5));
+}
+.sv-a {
+  color: var(--a) !important;
+  background: none !important; -webkit-text-fill-color: var(--a) !important;
+  filter: drop-shadow(0 0 10px rgba(232,114,42,0.6));
+}
+/* Обычный stat-value — белый без gradient */
+.stat-value:not(.sv-g):not(.sv-r):not(.sv-a) {
+  color: var(--t) !important;
+  background: none !important; -webkit-text-fill-color: var(--t) !important;
+}
+
+/* ── LEVEL BAR ── */
+.level-bar {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--bd-card) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-card) !important;
+  position: relative !important; overflow: hidden !important;
+}
+.level-bar::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,114,42,0.4) 50%, transparent);
+}
+.lb-track {
+  height: 5px !important; border-radius: 3px !important;
+  background: rgba(255,255,255,0.05) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.4) !important;
+}
+.lb-fill {
+  border-radius: 3px !important;
+  box-shadow: 0 0 12px currentColor !important;
+  position: relative; overflow: hidden;
+}
+.lb-fill::after {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: barShimmer 2.5s ease-in-out infinite;
+}
+@keyframes barShimmer { 0%{left:-60%} 100%{left:120%} }
+
+/* ── FORM CARD — ключевой раздел ── */
+.fcard {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--bd-card) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+  position: relative !important; overflow: hidden !important;
+  margin-bottom: 10px !important;
+}
+.fcard::before {
+  content: '';
+  position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,114,42,0.5), transparent);
+  animation: fcardLine 5s ease-in-out infinite;
+}
+@keyframes fcardLine {
+  0%,100%{ opacity: 0.5; left: 20%; right: 20%; }
+  50%    { opacity: 1;   left: 5%;  right: 5%; }
+}
+.fcard-title {
+  font-size: 11px !important; letter-spacing: 4px !important;
+  color: var(--a) !important;
+  text-shadow: 0 0 20px rgba(232,114,42,0.5) !important;
+}
+
+/* ── INPUTS — redesign ── */
+.field label {
+  font-size: 10px !important; letter-spacing: 2px !important;
+  color: rgba(232,234,240,0.45) !important;
+  margin-bottom: 5px !important;
+}
+.field input, .field select, .field textarea {
+  background: rgba(255,255,255,0.045) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 9px !important;
+  color: #e8eaf0 !important;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1) !important;
+  font-size: 13px !important;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: rgba(232,114,42,0.55) !important;
+  background: rgba(232,114,42,0.06) !important;
+  box-shadow: 0 0 0 3px rgba(232,114,42,0.1), 0 0 20px rgba(232,114,42,0.08) !important;
+  outline: none !important;
+}
+.field input::placeholder { color: rgba(255,255,255,0.18) !important; }
+
+/* ── DIRECTION TOGGLE ── */
+.dbtn {
+  border-radius: 9px !important;
+  font-size: 13px !important; letter-spacing: 2.5px !important;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1) !important;
+}
+/* ИСПРАВЛЕНИЕ: LONG — только зелёный, не смешиваем с оранжевым */
+.dbtn.long.active {
+  background: rgba(46,204,113,0.12) !important;
+  border: 1px solid rgba(46,204,113,0.45) !important;
+  color: #2ecc71 !important;
+  box-shadow: 0 0 24px rgba(46,204,113,0.18), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  text-shadow: 0 0 14px rgba(46,204,113,0.8) !important;
+  animation: longPulse 2.5s ease-in-out infinite !important;
+}
+@keyframes longPulse {
+  0%,100% { box-shadow: 0 0 16px rgba(46,204,113,0.15), inset 0 1px 0 rgba(255,255,255,0.07); }
+  50%     { box-shadow: 0 0 32px rgba(46,204,113,0.3),  inset 0 1px 0 rgba(255,255,255,0.1); }
+}
+.dbtn.short.active {
+  background: rgba(231,76,60,0.12) !important;
+  border: 1px solid rgba(231,76,60,0.45) !important;
+  color: #e74c3c !important;
+  box-shadow: 0 0 24px rgba(231,76,60,0.18), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  text-shadow: 0 0 14px rgba(231,76,60,0.8) !important;
+  animation: shortPulse 2.5s ease-in-out infinite !important;
+}
+@keyframes shortPulse {
+  0%,100% { box-shadow: 0 0 16px rgba(231,76,60,0.15), inset 0 1px 0 rgba(255,255,255,0.07); }
+  50%     { box-shadow: 0 0 32px rgba(231,76,60,0.3),  inset 0 1px 0 rgba(255,255,255,0.1); }
+}
+
+/* ── RES BUTTONS ── */
+.res-btn {
+  border-radius: 9px !important;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1) !important;
+  font-size: 12px !important;
+}
+.res-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important; }
+.res-btn.active[id="rb-win"] {
+  box-shadow: 0 0 24px rgba(46,204,113,0.25), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+}
+.res-btn.active[id="rb-loss"] {
+  box-shadow: 0 0 24px rgba(231,76,60,0.25), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+}
+
+/* ── SETUP BUTTONS — цветной glow ── */
+.setup-btn {
+  border-radius: 8px !important;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1) !important;
+  font-size: 10px !important; letter-spacing: 0.8px !important;
+}
+.setup-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.4) !important; }
+.sb-fvg.active  { box-shadow: 0 0 20px rgba(46,204,113,0.45),  0 0 0 1px rgba(46,204,113,0.6) !important; }
+.sb-ob.active   { box-shadow: 0 0 20px rgba(232,114,42,0.45),  0 0 0 1px rgba(232,114,42,0.6) !important; }
+.sb-liq.active  { box-shadow: 0 0 20px rgba(155,89,182,0.45),  0 0 0 1px rgba(155,89,182,0.6) !important; }
+.sb-sr.active   { box-shadow: 0 0 20px rgba(52,152,219,0.45),  0 0 0 1px rgba(52,152,219,0.6) !important; }
+.sb-bo.active   { box-shadow: 0 0 20px rgba(243,156,18,0.45),  0 0 0 1px rgba(243,156,18,0.6) !important; }
+.sb-wy.active   { box-shadow: 0 0 20px rgba(231,76,60,0.45),   0 0 0 1px rgba(231,76,60,0.6) !important; }
+
+/* ── EMOTION BUTTONS ── */
+.em-btn {
+  border-radius: 9px !important;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1) !important;
+  font-size: 12px !important;
+}
+.em-btn:hover { transform: translateY(-1px); }
+.em-btn.active {
+  box-shadow: 0 0 18px var(--a-glow), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+}
+
+/* ── TRADE CARDS — premiere ── */
+.tcard {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.45) !important;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1) !important;
+  position: relative !important; overflow: hidden !important;
+}
+/* Shimmer sweep при hover */
+.tcard::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%);
+  transform: translateX(-100%); transition: transform 0.55s ease; pointer-events: none;
+}
+.tcard:hover::after { transform: translateX(120%); }
+.tcard:hover {
+  border-color: rgba(232,114,42,0.2) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(232,114,42,0.1) !important;
+  transform: translateY(-2px);
+}
+/* Win/Loss — цветная полоска */
+.tcard.win {
+  box-shadow: inset 3px 0 0 #2ecc71, inset 3px 0 28px rgba(46,204,113,0.07), 0 2px 16px rgba(0,0,0,0.45) !important;
+  border-left: none !important;
+}
+.tcard.win:hover { box-shadow: inset 3px 0 0 #2ecc71, inset 3px 0 28px rgba(46,204,113,0.12), 0 8px 32px rgba(0,0,0,0.55) !important; }
+.tcard.loss {
+  box-shadow: inset 3px 0 0 #e74c3c, inset 3px 0 28px rgba(231,76,60,0.07), 0 2px 16px rgba(0,0,0,0.45) !important;
+  border-left: none !important;
+}
+.tcard.loss:hover { box-shadow: inset 3px 0 0 #e74c3c, inset 3px 0 28px rgba(231,76,60,0.12), 0 8px 32px rgba(0,0,0,0.55) !important; }
+.tpair { font-size: 20px !important; letter-spacing: 3px !important; }
+.tpnl.p { color: #2ecc71 !important; filter: drop-shadow(0 0 8px rgba(46,204,113,0.6)); }
+.tpnl.n { color: #e74c3c !important; filter: drop-shadow(0 0 8px rgba(231,76,60,0.6)); }
+
+/* ── DASH CARDS — section blocks ── */
+.dash-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--bd-card) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: all 0.2s ease !important;
+  position: relative !important; overflow: hidden !important;
+}
+.dash-card::before {
+  content: '';
+  position: absolute; top: 0; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+.dash-card:hover {
+  border-color: rgba(255,255,255,0.14) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.dash-title {
+  color: rgba(255,255,255,0.45) !important;
+  font-size: 10px !important; letter-spacing: 3px !important;
+}
+
+/* ── SECTION BLOCKS — рамки разделов ── */
+.em-section {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: var(--radius) !important;
+  padding: 14px !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3) !important;
+  position: relative !important; overflow: hidden !important;
+}
+.em-section::before {
+  content: '';
+  position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,114,42,0.25), transparent);
+}
+
+/* ── ADD TRADE BUTTON — flagship ── */
+.btn-add {
+  background: linear-gradient(135deg, #e8722a 0%, #d4611f 60%, #e8722a 100%) !important;
+  background-size: 200% auto !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 24px rgba(232,114,42,0.4), 0 1px 0 rgba(255,255,255,0.15) inset !important;
+  font-size: 13px !important; letter-spacing: 4px !important;
+  animation: btnFlow 4s linear infinite !important;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1) !important;
+}
+@keyframes btnFlow {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.btn-add:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 40px rgba(232,114,42,0.55), 0 1px 0 rgba(255,255,255,0.2) inset !important;
+}
+.btn-add:active { transform: translateY(0) !important; }
+
+/* ── AI CHECK BUTTON ── */
+.btn-ai {
+  border-radius: 12px !important;
+  background: linear-gradient(90deg, rgba(46,204,113,0.1) 0%, rgba(46,204,113,0.06) 100%) !important;
+  border: 1px solid rgba(46,204,113,0.3) !important;
+  box-shadow: 0 0 20px rgba(46,204,113,0.08) !important;
+  transition: all 0.2s !important;
+}
+.btn-ai:hover {
+  box-shadow: 0 0 32px rgba(46,204,113,0.2), 0 4px 20px rgba(0,0,0,0.3) !important;
+  border-color: rgba(46,204,113,0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── RR DISPLAY ── */
+.rr-display {
+  color: var(--a) !important;
+  background: none !important; -webkit-text-fill-color: var(--a) !important;
+  filter: drop-shadow(0 0 12px rgba(232,114,42,0.7));
+  font-size: 26px !important;
+}
+
+/* ── PAIR PRESETS ── */
+.pair-presets button {
+  border-radius: 7px !important;
+  font-weight: 700 !important; font-size: 9px !important;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1) !important;
+}
+.pair-presets button:hover {
+  transform: translateY(-3px) scale(1.08) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5), 0 0 0 1px currentColor !important;
+}
+.pair-presets button.active {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 0 14px rgba(255,255,255,0.1), 0 0 0 1px currentColor !important;
+}
+
+/* ── LEV PRESETS ── */
+.lev-presets button {
+  border-radius: 7px !important;
+  transition: all 0.18s cubic-bezier(0.16,1,0.3,1) !important;
+}
+.lev-presets button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(232,114,42,0.3) !important;
+}
+.lev-presets button.active {
+  box-shadow: 0 0 16px rgba(232,114,42,0.4) !important;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(232,114,42,0.4), rgba(232,114,42,0.15));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(232,114,42,0.6); }
+::selection { background: rgba(232,114,42,0.28); color: #fff; }
+
+/* ── EDIT MODAL ── */
+.edit-modal.open { background: rgba(3,5,9,0.88) !important; backdrop-filter: blur(16px) !important; }
+.edit-box {
+  background: linear-gradient(145deg, #0f1318 0%, #0c0f14 100%) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+.edit-save {
+  background: linear-gradient(135deg, #e8722a, #d4611f) !important;
+  border-radius: 10px !important; letter-spacing: 3px !important;
+  box-shadow: 0 4px 20px rgba(232,114,42,0.4) !important;
+  transition: all 0.2s !important;
+}
+.edit-save:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 30px rgba(232,114,42,0.55) !important; }
+
+/* ── NOTIF TOASTS ── */
+.notif-item {
+  background: linear-gradient(135deg, #0f1318 0%, #0c0f14 100%) !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.notif-item.ok   { border-left: 3px solid #2ecc71 !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6), -2px 0 20px rgba(46,204,113,0.1) !important; }
+.notif-item.warn { border-left: 3px solid #f39c12 !important; }
+.notif-item.err  { border-left: 3px solid #e74c3c !important; }
+@keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
+.notif-item { animation: toastIn 0.3s cubic-bezier(0.16,1,0.3,1) !important; }
+
+/* ── BALANCE WIDGET ── */
+.jtb-balance {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 9px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.jtb-balance-val {
+  color: #2ecc71 !important;
+  background: none !important; -webkit-text-fill-color: #2ecc71 !important;
+  filter: drop-shadow(0 0 8px rgba(46,204,113,0.5));
+}
+
+/* ── PROGRESS PAGE — section rounding ── */
+.prog-section, .hm-wrap, .challenge-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--bd-card) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+/* ── QNOTE POPUP ── */
+.qnote-popup {
+  background: linear-gradient(145deg, #0f1318 0%, #0c0f14 100%) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(232,114,42,0.08), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+.qnote-save {
+  background: linear-gradient(135deg, #e8722a, #d4611f) !important;
+  border-radius: 10px !important; letter-spacing: 3px !important;
+  box-shadow: 0 4px 18px rgba(232,114,42,0.38) !important;
+  transition: all 0.2s !important;
+}
+.qnote-save:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 28px rgba(232,114,42,0.5) !important; }
+
+/* ── PAGE TRANSITION ── */
+@keyframes pgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.page.active { animation: pgIn 0.28s cubic-bezier(0.16,1,0.3,1) both !important; }
+
+/* ── STAGGERED STAT REVEAL ── */
+.stats-row .stat-cell { animation: cellIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+.stats-row .stat-cell:nth-child(1){animation-delay:0.04s}
+.stats-row .stat-cell:nth-child(2){animation-delay:0.08s}
+.stats-row .stat-cell:nth-child(3){animation-delay:0.12s}
+.stats-row .stat-cell:nth-child(4){animation-delay:0.16s}
+.stats-row .stat-cell:nth-child(5){animation-delay:0.20s}
+@keyframes cellIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
 </style>
 </head>
 <body>
@@ -6932,5 +7487,71 @@ function renderQNotesList(notes){
   </div>
 </div>
 
+<script>
+// ═══════════════════════════════════════════════════
+// ORBITUM — PARTICLE SYSTEM (orange sparks)
+// Искры появляются при: клик на кнопки, запись сделки
+// ═══════════════════════════════════════════════════
+(function(){
+  const COLORS = ['#e8722a','#ff9a5c','#ffb380','#f5a623','#ffffff'];
+
+  function spawnParticles(x, y, count=12){
+    for(let i=0;i<count;i++){
+      const p = document.createElement('div');
+      const angle  = (Math.random()*360);
+      const speed  = 60 + Math.random()*80;
+      const size   = 2 + Math.random()*4;
+      const color  = COLORS[Math.floor(Math.random()*COLORS.length)];
+      const life   = 500 + Math.random()*400;
+      const dx = Math.cos(angle*Math.PI/180)*speed;
+      const dy = Math.sin(angle*Math.PI/180)*speed;
+
+      p.style.cssText = `
+        position:fixed;left:${x}px;top:${y}px;width:${size}px;height:${size}px;
+        border-radius:50%;background:${color};pointer-events:none;z-index:99999;
+        box-shadow:0 0 ${size*2}px ${color};
+        transition:transform ${life}ms cubic-bezier(0,1,0.5,1), opacity ${life}ms ease;
+      `;
+      document.body.appendChild(p);
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          p.style.transform = `translate(${dx}px,${dy}px)`;
+          p.style.opacity   = '0';
+        });
+      });
+      setTimeout(()=>p.remove(), life+50);
+    }
+  }
+
+  // Слушаем клики на интерактивных элементах
+  document.addEventListener('click', function(e){
+    const el = e.target.closest(
+      '.btn-add,.btn-ai,.setup-btn,.res-btn,.dbtn,.pair-presets button,.lev-presets button,.em-btn,.sb-item,.jtb-action-btn,.qnote-save,.edit-save'
+    );
+    if(!el) return;
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width/2;
+    const y = r.top + r.height/2;
+    const count = el.classList.contains('btn-add') ? 22 : 10;
+    spawnParticles(x, y, count);
+  });
+
+  // Большой взрыв искр при записи сделки
+  const origAdd = window.addTrade;
+  if(typeof origAdd === 'function'){
+    window.addTrade = function(...args){
+      const btn = document.querySelector('.btn-add');
+      if(btn){
+        const r = btn.getBoundingClientRect();
+        spawnParticles(r.left+r.width/2, r.top+r.height/2, 30);
+      }
+      return origAdd.apply(this, args);
+    };
+  }
+
+  // Экспозиция для вызова из других мест
+  window.spawnParticles = spawnParticles;
+})();
+</script>
 </body>
 </html>
