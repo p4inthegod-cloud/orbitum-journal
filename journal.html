@@ -1830,6 +1830,43 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .qnote-type-btn{padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--m);font-family:var(--font-mono);font-size:9px;cursor:pointer;transition:all 0.15s;}
 .qnote-type-btn.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.3);color:var(--a);}
 
+
+/* ── PAIR PRESETS ── */
+.pair-presets{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
+.pair-presets button{
+  padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);font-family:var(--font-mono);font-size:9px;
+  cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;font-weight:600;
+}
+.pair-presets button:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.25);transform:translateY(-1px);}
+.pair-presets button.active{border-color:currentColor;background:rgba(255,255,255,0.1);}
+
+/* ── LEVERAGE PRESETS ── */
+.lev-presets{display:flex;gap:4px;margin-top:5px;}
+.lev-presets button{
+  padding:3px 8px;border-radius:5px;border:1px solid rgba(232,114,42,0.2);
+  background:rgba(232,114,42,0.06);color:rgba(232,114,42,0.7);
+  font-family:var(--font-mono);font-size:9px;cursor:pointer;transition:all 0.15s;
+}
+.lev-presets button:hover{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);color:var(--a);}
+.lev-presets button.active{background:rgba(232,114,42,0.2);border-color:var(--a);color:var(--a);}
+
+/* ── SETUP BUTTON COLORS ── */
+.sb-fvg{border-color:rgba(52,208,88,0.25)!important;color:rgba(52,208,88,0.8)!important;}
+.sb-fvg.active,.sb-fvg:hover{background:rgba(52,208,88,0.12)!important;border-color:rgba(52,208,88,0.5)!important;color:#34d058!important;}
+.sb-ob{border-color:rgba(232,114,42,0.25)!important;color:rgba(232,114,42,0.8)!important;}
+.sb-ob.active,.sb-ob:hover{background:rgba(232,114,42,0.12)!important;border-color:rgba(232,114,42,0.5)!important;color:var(--a)!important;}
+.sb-liq{border-color:rgba(155,89,182,0.3)!important;color:rgba(155,89,182,0.85)!important;}
+.sb-liq.active,.sb-liq:hover{background:rgba(155,89,182,0.12)!important;border-color:rgba(155,89,182,0.5)!important;color:#9b59b6!important;}
+.sb-sr{border-color:rgba(52,152,219,0.3)!important;color:rgba(52,152,219,0.85)!important;}
+.sb-sr.active,.sb-sr:hover{background:rgba(52,152,219,0.12)!important;border-color:rgba(52,152,219,0.5)!important;color:#3498db!important;}
+.sb-bo{border-color:rgba(245,166,35,0.3)!important;color:rgba(245,166,35,0.85)!important;}
+.sb-bo.active,.sb-bo:hover{background:rgba(245,166,35,0.12)!important;border-color:rgba(245,166,35,0.5)!important;color:var(--y)!important;}
+.sb-wy{border-color:rgba(231,76,60,0.3)!important;color:rgba(231,76,60,0.85)!important;}
+.sb-wy.active,.sb-wy:hover{background:rgba(231,76,60,0.12)!important;border-color:rgba(231,76,60,0.5)!important;color:#e74c3c!important;}
+.sb-other{border-color:rgba(255,255,255,0.12)!important;color:rgba(255,255,255,0.4)!important;}
+.sb-other.active,.sb-other:hover{background:rgba(255,255,255,0.06)!important;color:var(--t)!important;}
+
 </style>
 </head>
 <body>
@@ -2077,12 +2114,19 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <!-- ROW 2: Deposit + Leverage + Risk% (futures-first) -->
       <div class="fg4" style="margin-bottom:10px">
         <div class="field">
-          <label>Депозит $ <span class="field-hint" data-tip="Размер твоего счёта в долларах.&#10;Нужен для расчёта P&amp;L %&#10;и размера позиции">?</span></label>
+          <label>Размер позиции $ <span class="field-hint" data-tip="Размер позиции в долларах.&#10;Нужен для расчёта P&amp;L %&#10;и размера риска на сделку">?</span></label>
           <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
         </div>
         <div class="field">
           <label>Плечо × <span class="field-hint" data-tip="Кредитное плечо сделки.&#10;1x — без плеча&#10;10x — позиция = депозит × 10&#10;Используется при расчёте позиции">?</span></label>
           <input id="f-lev" type="number" placeholder="10" min="1" max="200" oninput="calcRR()">
+          <div class="lev-presets">
+            <button onclick="setLev(5)">5×</button>
+            <button onclick="setLev(10)">10×</button>
+            <button onclick="setLev(25)">25×</button>
+            <button onclick="setLev(50)">50×</button>
+            <button onclick="setLev(100)">100×</button>
+          </div>
         </div>
         <div class="field field-key">
           <label>Риск % <span class="field-hint" data-tip="Сколько % от депозита&#10;ты готов потерять в этой сделке.&#10;Рекомендация: 1–2% на сделку&#10;Используется для расчёта R:R">?</span></label>
@@ -2105,7 +2149,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
           <input id="f-sl" type="number" placeholder="41000" oninput="calcRR()">
         </div>
         <div class="field">
-          <label>Выход $ <span class="field-hint" data-tip="Цена закрытия сделки&#10;(тейк-профит или стоп).&#10;Вместе с входом считает P&amp;L %">?</span></label>
+          <label>Тейк $ <span class="field-hint" data-tip="Цена тейк-профита.&#10;Вместе с входом считает P&amp;L %&#10;и R:R автоматически">?</span></label>
           <input id="f-exit" type="number" placeholder="43500" oninput="calcRR()">
         </div>
         <div class="field">
@@ -2138,12 +2182,13 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <div style="margin-bottom:4px">
         <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">Тип сетапа <span class="field-hint" data-tip="Выбери паттерн по которому вошёл.&#10;FVG — Fair Value Gap&#10;Order Block — зона крупного игрока&#10;Liquidity Sweep — снятие ликвидности&#10;S/R Level — уровень поддержки/сопротивления&#10;Breakout — пробой уровня">?</span></div>
         <div class="setup-btns" id="setup-btns">
-          <button class="setup-btn" onclick="setSetup('FVG',this)">FVG</button>
-          <button class="setup-btn" onclick="setSetup('OB',this)">Order Block</button>
-          <button class="setup-btn" onclick="setSetup('Liquidity',this)">Liquidity Sweep</button>
-          <button class="setup-btn" onclick="setSetup('SR',this)">S/R Level</button>
-          <button class="setup-btn" onclick="setSetup('Breakout',this)">Breakout</button>
-          <button class="setup-btn" onclick="setSetup('Other',this)">Другое</button>
+          <button class="setup-btn sb-fvg" onclick="setSetup('FVG',this)">FVG</button>
+          <button class="setup-btn sb-ob" onclick="setSetup('OB',this)">Order Block</button>
+          <button class="setup-btn sb-liq" onclick="setSetup('Liquidity',this)">Liquidity Sweep</button>
+          <button class="setup-btn sb-sr" onclick="setSetup('SR',this)">S/R Level</button>
+          <button class="setup-btn sb-bo" onclick="setSetup('Breakout',this)">Breakout</button>
+          <button class="setup-btn sb-wy" onclick="setSetup('Wyckoff',this)">Wyckoff</button>
+          <button class="setup-btn sb-other" onclick="setSetup('Other',this)">Другое</button>
         </div>
       </div>
 
@@ -3002,7 +3047,7 @@ async function loadTrades(){
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
   allTrades=data||[];
-  updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);
+  updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);restoreFormDefaults();
   // Уведомления — грузим сразу после init
   // Realtime — слушаем новые уведомления
   try{
@@ -3177,6 +3222,7 @@ async function addTrade(){
   if(error){showNotif('error','Ошибка',error.message,5000);return;}
 
   // Reset form
+  rememberFormDefaults();
   ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('rr-val').textContent='—';
   ['risk-usd-val','tp-usd-val','pos-size-val'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='—';}});
@@ -5274,6 +5320,49 @@ document.addEventListener('keydown', e => {
 });
 
 // ══ INIT CALL ══
+// ── PAIR PRESETS ──
+function setPair(pair){
+  const inp = document.getElementById('f-pair');
+  if(inp){ inp.value = pair; }
+  document.querySelectorAll('.pair-presets button').forEach(b=>{
+    b.classList.toggle('active', b.textContent.trim() === pair.split('/')[0]);
+  });
+}
+// ── LEVERAGE PRESETS ──
+function setLev(x){
+  const inp = document.getElementById('f-lev');
+  if(inp){ inp.value = x; calcRR(); }
+  document.querySelectorAll('.lev-presets button').forEach(b=>{
+    b.classList.toggle('active', b.textContent === x+'×');
+  });
+}
+
+// ── REMEMBER LAST PAIR + LEV ──
+function rememberFormDefaults(){
+  const pair = document.getElementById('f-pair')?.value;
+  const lev  = document.getElementById('f-lev')?.value;
+  if(pair) try{ localStorage.setItem('orb_last_pair', pair); }catch(_){}
+  if(lev)  try{ localStorage.setItem('orb_last_lev',  lev);  }catch(_){}
+}
+function restoreFormDefaults(){
+  try{
+    const pair = localStorage.getItem('orb_last_pair') || 'BTC/USDT';
+    const lev  = localStorage.getItem('orb_last_lev')  || '10';
+    const pInp = document.getElementById('f-pair');
+    const lInp = document.getElementById('f-lev');
+    if(pInp && !pInp.value){ pInp.value = pair; }
+    if(lInp && !lInp.value){ lInp.value = lev; }
+    // Подсветим активную кнопку пары
+    const sym = pair.split('/')[0];
+    document.querySelectorAll('.pair-presets button').forEach(b=>{
+      b.classList.toggle('active', b.textContent.trim()===sym);
+    });
+    document.querySelectorAll('.lev-presets button').forEach(b=>{
+      b.classList.toggle('active', b.textContent===lev+'×');
+    });
+  }catch(_){}
+}
+
 init();
 
 // ══ TOOLTIP (fixed position portal) ══
@@ -5323,20 +5412,17 @@ async function saveQNote(){
   const type = typeBtn ? typeBtn.dataset.type : 'note';
   const text = ta ? ta.value.trim() : '';
   if(!text){ closeQNote(); return; }
-  // Сохраняем локально (localStorage) — не требует авторизации
-  try{
-    const notes = JSON.parse(localStorage.getItem('orb_qnotes')||'[]');
-    notes.unshift({id:Date.now(), type, text, created_at:new Date().toISOString()});
-    localStorage.setItem('orb_qnotes', JSON.stringify(notes.slice(0,50)));
-    // Дополнительно в Supabase если авторизован
-    if(currentUser){
-      sb.from('quick_notes').insert({user_id:currentUser.id, type, text, created_at:new Date().toISOString()}).catch(()=>{});
-    }
-    showNotif('ok','Заметка сохранена','');
-    if(ta) ta.value = '';
-    closeQNote();
-    renderQNotesList(JSON.parse(localStorage.getItem('orb_qnotes')||'[]'));
-  }catch(e){ showNotif('warn','Ошибка',''); }
+  let notes = [];
+  try{ notes = JSON.parse(localStorage.getItem('orb_qnotes')||'[]'); }catch(_){}
+  notes.unshift({id:Date.now(), type, text, created_at:new Date().toISOString()});
+  try{ localStorage.setItem('orb_qnotes', JSON.stringify(notes.slice(0,50))); }catch(_){}
+  if(currentUser){
+    sb.from('quick_notes').insert({user_id:currentUser.id,type,text,created_at:new Date().toISOString()}).catch(()=>{});
+  }
+  showNotif('ok','Заметка сохранена','');
+  if(ta) ta.value='';
+  closeQNote();
+  renderQNotesList(notes.slice(0,50));
 }
 function loadQNotes(){
   renderQNotesList(JSON.parse(localStorage.getItem('orb_qnotes')||'[]'));
