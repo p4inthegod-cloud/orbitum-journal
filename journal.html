@@ -4637,9 +4637,7 @@ body::after {
 
   <!-- ──────────── LEADERBOARD ──────────────── -->
 
-<!-- MOBILE BOTTOM NAV (scrollable) -->
-<div class="mob-bottom-nav" id="mob-bottom-nav">
-  <!-- ══ СТРАНИЦА: НАСТРОЙКИ ══════════════════════════════════════ -->
+<!-- ══ СТРАНИЦА: НАСТРОЙКИ ══════════════════════════════════════ -->
   <div class="page" id="page-settings">
     <div class="page-inner" style="max-width:640px;margin:0 auto;padding:20px 16px;">
 
@@ -4775,6 +4773,11 @@ body::after {
 
     </div>
   </div>
+
+
+<!-- MOBILE BOTTOM NAV (scrollable) -->
+<div class="mob-bottom-nav" id="mob-bottom-nav">
+
 
 
   <div class="mob-nav-inner">
@@ -5010,7 +5013,7 @@ function showPage(p,btn){
   if(p==='ideas')initIdeasPage();
   if(p==='chat')
   if(p==='coach'){renderBiggestMistake(allTrades);renderPsychInsightsTo(document.getElementById('coach-psych-grid'),allTrades,allTrades.filter(t=>t.result==='win'),allTrades.filter(t=>t.result==='loss'));}
-  if(p==='settings'){loadSettingsPage();}
+  if(p==='settings'){loadSettingsPage().catch(()=>{});}
   closeSB();
 }
 
@@ -7972,10 +7975,13 @@ async function sendChatMessage() {
 // ══ TELEGRAM / SETTINGS JS ═════════════════════════════════════════
 // Секрет для API — используется Supabase session JWT (безопаснее чем статичный ключ)
 
-async function loadSettingsPage() {
+async async function loadSettingsPage() {
   if (!currentUser) return;
-  const { data: p } = await sb.from('profiles').select('tg_linked,tg_username,tg_notify_trades,tg_notify_alerts,tg_notify_daily,tg_notify_tilt,tg_notify_weekly').eq('id', currentUser.id).single();
-  if (!p) return;
+  let p = {};
+  try {
+    const { data } = await sb.from('profiles').select('tg_linked,tg_username,tg_notify_trades,tg_notify_alerts,tg_notify_daily,tg_notify_tilt,tg_notify_weekly').eq('id', currentUser.id).single();
+    if (data) p = data;
+  } catch(e) { /* колонки tg_ ещё не созданы — показываем страницу с дефолтами */ }
 
   const linked = p.tg_linked && p.tg_username;
   document.getElementById('tg-unlinked-block').style.display = linked ? 'none' : 'block';
