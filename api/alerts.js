@@ -1,100 +1,86 @@
-// api/alerts.js — Vercel Cron Job: проверка ценовых алертов
-// Запускается каждые 5 минут через vercel.json crons
-
-import { createClient } from '@supabase/supabase-js';
+// api/alerts.js — Vercel Cron: проверка ценовых алертов каждые 5 минут
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const SB_URL    = process.env.SUPABASE_URL;
+const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
 
 async function tgSend(chat_id, text) {
   try {
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id, text, parse_mode: 'HTML' })
+      body: JSON.stringify({ chat_id, text, parse_mode: 'HTML' }),
     });
-  } catch(e) { console.error('TG send error:', e); }
+  } catch(e) { console.error('TG error:', e.message); }
 }
 
 export default async function handler(req, res) {
-  // Только cron или GET с секретом
-  const authHeader = req.headers['authorization'];
-  if (req.method !== 'GET' && !authHeader?.includes(process.env.CRON_SECRET || '')) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-
-  // Берём все активные алерты с данными пользователя
-  const { data: alerts, error } = await db
-    .from('price_alerts')
-    .select('*, profiles(tg_chat_id, tg_linked, tg_notify_alerts, full_name)')
-    .eq('triggered', false)
-    .eq('profiles.tg_notify_alerts', true);
-
-  if (error || !alerts?.length) {
-    return res.status(200).json({ checked: 0 });
-  }
-
-  // Получаем уникальные символы для запроса цен
-  const symbols = [...new Set(alerts.map(a => a.coingecko_id).filter(Boolean))];
-  if (!symbols.length) return res.status(200).json({ checked: 0 });
-
-  // Запрашиваем текущие цены одним вызовом
-  let prices = {};
   try {
+    // Берём все активные алерты с tg данными пользователей
     const r = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${symbols.join(',')}&vs_currencies=usd&include_24hr_change=true`,
-      { signal: AbortSignal.timeout(8000) }
+      `${SB_URL}/rest/v1/price_alerts?select=*,profiles(tg_chat_id,tg_linked,tg_notify_alerts)&triggered=eq.false`,
+      { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
     );
-    const d = await r.json();
-    prices = d;
+    const alerts = await r.json();
+    if (!Array.isArray(alerts) || !alerts.length) return res.status(200).json({ checked: 0 });
+
+    // Уникальные CoinGecko ID
+    const ids = [...new Set(alerts.map(a => a.coingecko_id).filter(Boolean))];
+    if (!ids.length) return res.status(200).json({ checked: 0 });
+
+    // Текущие цены одним запросом
+    let prices = {};
+    try {
+      const pr = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=usd&include_24hr_change=true`,
+        { signal: AbortSignal.timeout(8000) }
+      );
+      prices = await pr.json();
+    } catch(e) { return res.status(200).json({ error: 'price fetch failed' }); }
+
+    const triggered = [];
+
+    for (const alert of alerts) {
+      const p = alert.profiles;
+      if (!p?.tg_linked || !p?.tg_chat_id || !p?.tg_notify_alerts) continue;
+
+      const priceData = prices[alert.coingecko_id];
+      if (!priceData) continue;
+
+      const current = priceData.usd;
+      const hit = (alert.condition === 'above' && current >= alert.target_price) ||
+                  (alert.condition === 'below' && current <= alert.target_price);
+      if (!hit) continue;
+
+      const emoji = alert.condition === 'above' ? '🚀' : '📉';
+      const dir   = alert.condition === 'above' ? '▲ ПРОБИЛ ВВЕРХ' : '▼ ПРОБИЛ ВНИЗ';
+      const chg   = priceData.usd_24h_change?.toFixed(2);
+      const chgStr = parseFloat(chg) >= 0 ? `+${chg}%` : `${chg}%`;
+
+      await tgSend(p.tg_chat_id,
+        `${emoji} <b>АЛЕРТ: ${alert.symbol}</b>\n\n` +
+        `${dir} $${Number(alert.target_price).toLocaleString()}\n\n` +
+        `💵 Цена: <b>$${current.toLocaleString('en', { maximumFractionDigits: 4 })}</b>\n` +
+        `📊 24ч: <b>${chgStr}</b>`
+      );
+      triggered.push(alert.id);
+    }
+
+    // Помечаем сработавшие
+    if (triggered.length) {
+      await fetch(`${SB_URL}/rest/v1/price_alerts?id=in.(${triggered.join(',')})`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
+          'Content-Type': 'application/json', 'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ triggered: true, triggered_at: new Date().toISOString() }),
+      });
+    }
+
+    return res.status(200).json({ checked: alerts.length, triggered: triggered.length });
   } catch(e) {
-    return res.status(200).json({ error: 'Price fetch failed' });
+    console.error('Alerts cron error:', e);
+    return res.status(200).json({ error: e.message });
   }
-
-  const triggered = [];
-  const now = new Date().toISOString();
-
-  for (const alert of alerts) {
-    const profile = alert.profiles;
-    if (!profile?.tg_linked || !profile?.tg_chat_id) continue;
-
-    const priceData = prices[alert.coingecko_id];
-    if (!priceData) continue;
-
-    const currentPrice = priceData.usd;
-    const change24h = priceData.usd_24h_change?.toFixed(2);
-
-    let shouldTrigger = false;
-    if (alert.condition === 'above' && currentPrice >= alert.target_price) shouldTrigger = true;
-    if (alert.condition === 'below' && currentPrice <= alert.target_price) shouldTrigger = true;
-
-    if (!shouldTrigger) continue;
-
-    // Отправляем уведомление
-    const direction = alert.condition === 'above' ? '▲ ПРОБИЛ ВВЕРХ' : '▼ ПРОБИЛ ВНИЗ';
-    const emoji = alert.condition === 'above' ? '🚀' : '📉';
-    const changeStr = parseFloat(change24h) >= 0 ? `+${change24h}%` : `${change24h}%`;
-
-    await tgSend(profile.tg_chat_id,
-      `${emoji} <b>АЛЕРТ: ${alert.symbol}</b>\n\n` +
-      `${direction} $${alert.target_price.toLocaleString()}\n\n` +
-      `💵 Текущая цена: <b>$${currentPrice.toLocaleString('en', { maximumFractionDigits: 6 })}</b>\n` +
-      `📊 За 24ч: <b>${changeStr}</b>\n\n` +
-      `⏰ ${new Date().toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`
-    );
-
-    triggered.push(alert.id);
-  }
-
-  // Помечаем сработавшие алерты
-  if (triggered.length) {
-    await db.from('price_alerts')
-      .update({ triggered: true, triggered_at: now })
-      .in('id', triggered);
-  }
-
-  return res.status(200).json({ checked: alerts.length, triggered: triggered.length });
 }
