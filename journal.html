@@ -1661,6 +1661,17 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .chat-status-dot{width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:blink 2s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.chat-msg{display:flex;margin-bottom:8px;}
+.chat-msg.user{justify-content:flex-end;}
+.chat-msg.ai{justify-content:flex-start;}
+.chat-bubble{max-width:82%;padding:8px 12px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;}
+.user-bubble{background:rgba(232,114,42,0.14);border:1px solid rgba(232,114,42,0.25);color:rgba(255,255,255,0.9);border-radius:10px 10px 2px 10px;}
+.ai-bubble{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);border-radius:10px 10px 10px 2px;}
+.typing-dots span{animation:tdot 1.2s infinite;opacity:0;font-size:18px;}
+.typing-dots span:nth-child(1){animation-delay:0s;}
+.typing-dots span:nth-child(2){animation-delay:0.2s;}
+.typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes tdot{0%,60%,100%{opacity:0;}30%{opacity:1;}}
 .chat-messages::-webkit-scrollbar{width:3px;}
 .chat-messages::-webkit-scrollbar-track{background:transparent;}
 .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
@@ -3106,10 +3117,10 @@ body::after {
   font-size: 12px !important;
 }
 .res-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35) !important; }
-.res-btn.active[id="rb-win"] {
+.res-btn.active.res-win {
   box-shadow: 0 0 24px rgba(46,204,113,0.25), inset 0 1px 0 rgba(255,255,255,0.1) !important;
 }
-.res-btn.active[id="rb-loss"] {
+.res-btn.active.res-loss {
   box-shadow: 0 0 24px rgba(231,76,60,0.25), inset 0 1px 0 rgba(255,255,255,0.1) !important;
 }
 
@@ -7605,6 +7616,108 @@ function pairKeyNav(e){
   }
 }
 
+
+// ══ AI CHAT FUNCTIONS ══════════════════════════════════════
+var _chatHistory = [];
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function chatKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+function sendShortcut(text) {
+  var inp = document.getElementById('chat-input');
+  if (inp) { inp.value = text; autoResize(inp); }
+  sendChatMessage();
+}
+
+async function sendChatMessage() {
+  var inp = document.getElementById('chat-input');
+  var msgs = document.getElementById('chat-messages');
+  var btn = document.getElementById('chat-send-btn');
+  var sc = document.getElementById('chat-shortcuts');
+  if (!inp || !msgs) return;
+  var text = inp.value.trim();
+  if (!text) return;
+
+  // Скрываем шорткаты при первом сообщении
+  if (sc) sc.style.display = 'none';
+
+  // Добавляем сообщение юзера
+  var userBubble = document.createElement('div');
+  userBubble.className = 'chat-msg user';
+  userBubble.innerHTML = '<div class="chat-bubble user-bubble">' + text.replace(/</g,'&lt;') + '</div>';
+  msgs.appendChild(userBubble);
+
+  inp.value = '';
+  inp.style.height = 'auto';
+  if (btn) btn.disabled = true;
+
+  // Скролл вниз
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Typing indicator
+  var typing = document.createElement('div');
+  typing.className = 'chat-msg ai';
+  typing.id = 'chat-typing';
+  typing.innerHTML = '<div class="chat-bubble ai-bubble"><span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></div>';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Собираем контекст из сделок
+  var tradesContext = '';
+  if (typeof allTrades !== 'undefined' && allTrades.length) {
+    var wins = allTrades.filter(function(t){return t.result==='win';}).length;
+    var wr = Math.round(wins / allTrades.length * 100);
+    var totalPnl = allTrades.reduce(function(s,t){return s+(t.pnl_pct||0);},0).toFixed(1);
+    tradesContext = '\n\nКонтекст трейдера: ' + allTrades.length + ' сделок, винрейт ' + wr + '%, суммарный P&L ' + totalPnl + '%.';
+  }
+
+  _chatHistory.push({ role: 'user', content: text });
+
+  var systemPrompt = 'Ты — персональный AI-коуч трейдера в приложении ORBITUM. Отвечай на русском языке. Будь конкретным, практичным и лаконичным. Фокусируйся на психологии трейдинга, риск-менеджменте и анализе рынка.' + tradesContext;
+
+  try {
+    var resp = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: systemPrompt + '\n\nИстория диалога:\n' +
+          _chatHistory.slice(-6).map(function(m){ return m.role + ': ' + m.content; }).join('\n')
+      })
+    });
+    var data = await resp.json();
+    var answer = data.text || 'Ошибка получения ответа';
+
+    _chatHistory.push({ role: 'assistant', content: answer });
+
+    var typingEl = document.getElementById('chat-typing');
+    if (typingEl) typingEl.remove();
+
+    var aiBubble = document.createElement('div');
+    aiBubble.className = 'chat-msg ai';
+    aiBubble.innerHTML = '<div class="chat-bubble ai-bubble">' + formatAIText(answer) + '</div>';
+    msgs.appendChild(aiBubble);
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch(e) {
+    var typingEl = document.getElementById('chat-typing');
+    if (typingEl) typingEl.remove();
+    var errBubble = document.createElement('div');
+    errBubble.className = 'chat-msg ai';
+    errBubble.innerHTML = '<div class="chat-bubble ai-bubble" style="color:var(--r)">Ошибка связи с AI. Попробуй ещё раз.</div>';
+    msgs.appendChild(errBubble);
+  }
+  if (btn) btn.disabled = false;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
 init();
 
 // ══ TOOLTIP (fixed position portal) ══
@@ -7731,7 +7844,109 @@ function renderQNotesList(notes){
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
-  else init();
+  else 
+// ══ AI CHAT FUNCTIONS ══════════════════════════════════════
+var _chatHistory = [];
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function chatKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+function sendShortcut(text) {
+  var inp = document.getElementById('chat-input');
+  if (inp) { inp.value = text; autoResize(inp); }
+  sendChatMessage();
+}
+
+async function sendChatMessage() {
+  var inp = document.getElementById('chat-input');
+  var msgs = document.getElementById('chat-messages');
+  var btn = document.getElementById('chat-send-btn');
+  var sc = document.getElementById('chat-shortcuts');
+  if (!inp || !msgs) return;
+  var text = inp.value.trim();
+  if (!text) return;
+
+  // Скрываем шорткаты при первом сообщении
+  if (sc) sc.style.display = 'none';
+
+  // Добавляем сообщение юзера
+  var userBubble = document.createElement('div');
+  userBubble.className = 'chat-msg user';
+  userBubble.innerHTML = '<div class="chat-bubble user-bubble">' + text.replace(/</g,'&lt;') + '</div>';
+  msgs.appendChild(userBubble);
+
+  inp.value = '';
+  inp.style.height = 'auto';
+  if (btn) btn.disabled = true;
+
+  // Скролл вниз
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Typing indicator
+  var typing = document.createElement('div');
+  typing.className = 'chat-msg ai';
+  typing.id = 'chat-typing';
+  typing.innerHTML = '<div class="chat-bubble ai-bubble"><span class="typing-dots"><span>.</span><span>.</span><span>.</span></span></div>';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Собираем контекст из сделок
+  var tradesContext = '';
+  if (typeof allTrades !== 'undefined' && allTrades.length) {
+    var wins = allTrades.filter(function(t){return t.result==='win';}).length;
+    var wr = Math.round(wins / allTrades.length * 100);
+    var totalPnl = allTrades.reduce(function(s,t){return s+(t.pnl_pct||0);},0).toFixed(1);
+    tradesContext = '\n\nКонтекст трейдера: ' + allTrades.length + ' сделок, винрейт ' + wr + '%, суммарный P&L ' + totalPnl + '%.';
+  }
+
+  _chatHistory.push({ role: 'user', content: text });
+
+  var systemPrompt = 'Ты — персональный AI-коуч трейдера в приложении ORBITUM. Отвечай на русском языке. Будь конкретным, практичным и лаконичным. Фокусируйся на психологии трейдинга, риск-менеджменте и анализе рынка.' + tradesContext;
+
+  try {
+    var resp = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: systemPrompt + '\n\nИстория диалога:\n' +
+          _chatHistory.slice(-6).map(function(m){ return m.role + ': ' + m.content; }).join('\n')
+      })
+    });
+    var data = await resp.json();
+    var answer = data.text || 'Ошибка получения ответа';
+
+    _chatHistory.push({ role: 'assistant', content: answer });
+
+    var typingEl = document.getElementById('chat-typing');
+    if (typingEl) typingEl.remove();
+
+    var aiBubble = document.createElement('div');
+    aiBubble.className = 'chat-msg ai';
+    aiBubble.innerHTML = '<div class="chat-bubble ai-bubble">' + formatAIText(answer) + '</div>';
+    msgs.appendChild(aiBubble);
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch(e) {
+    var typingEl = document.getElementById('chat-typing');
+    if (typingEl) typingEl.remove();
+    var errBubble = document.createElement('div');
+    errBubble.className = 'chat-msg ai';
+    errBubble.innerHTML = '<div class="chat-bubble ai-bubble" style="color:var(--r)">Ошибка связи с AI. Попробуй ещё раз.</div>';
+    msgs.appendChild(errBubble);
+  }
+  if (btn) btn.disabled = false;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+init();
 })();
 
 </script>
