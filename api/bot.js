@@ -1,280 +1,258 @@
 // api/bot.js — Telegram Bot Webhook (Vercel Serverless)
-// Команды: /start, /link <code>, /stats, /journal, /alerts, /stop
+// Без npm зависимостей — только fetch
 
-import { createClient } from '@supabase/supabase-js';
+const BOT_TOKEN     = process.env.TELEGRAM_BOT_TOKEN;
+const SB_URL        = process.env.SUPABASE_URL;
+const SB_KEY        = process.env.SUPABASE_SERVICE_KEY;
+const APP_URL       = process.env.APP_URL || 'https://ai-orbitum.vercel.app';
 
-const BOT_TOKEN  = process.env.TELEGRAM_BOT_TOKEN;
-const SUPABASE_URL      = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // service_role ключ
-const BASE_URL   = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.APP_URL;
-
-function sb() {
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+// ── Supabase REST helpers ────────────────────────────────────────
+async function sbSelect(table, filters = {}, select = '*') {
+  let url = `${SB_URL}/rest/v1/${table}?select=${encodeURIComponent(select)}`;
+  for (const [k, v] of Object.entries(filters)) {
+    url += `&${k}=eq.${encodeURIComponent(v)}`;
+  }
+  const r = await fetch(url, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Accept': 'application/json',
+    }
+  });
+  const data = await r.json();
+  return Array.isArray(data) ? data : [];
 }
 
+async function sbUpdate(table, filters, patch) {
+  let url = `${SB_URL}/rest/v1/${table}?`;
+  for (const [k, v] of Object.entries(filters)) {
+    url += `${k}=eq.${encodeURIComponent(v)}&`;
+  }
+  await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify(patch),
+  });
+}
+
+async function sbInsert(table, row) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify(row),
+  });
+  return r.ok;
+}
+
+// ── Telegram helper ──────────────────────────────────────────────
 async function tgSend(chat_id, text, extra = {}) {
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id, text, parse_mode: 'HTML', ...extra })
+    body: JSON.stringify({ chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true, ...extra }),
   });
 }
 
+// ── Handler ──────────────────────────────────────────────────────
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(200).send('OK');
 
-  const body = req.body;
-  const msg  = body.message || body.callback_query?.message;
-  if (!msg) return res.status(200).send('OK');
+  try {
+    const body    = req.body;
+    const msg     = body.message || body.callback_query?.message;
+    if (!msg) return res.status(200).send('OK');
 
-  const chat_id  = msg.chat.id;
-  const from     = body.message?.from || body.callback_query?.from;
-  const text     = (body.message?.text || '').trim();
-  const username = from?.username || '';
-  const tg_name  = from?.first_name || 'Трейдер';
+    const chat_id  = msg.chat.id;
+    const from     = body.message?.from || body.callback_query?.from;
+    const text     = (body.message?.text || '').trim();
+    const username = from?.username || '';
 
-  const db = sb();
+    // ── /start ───────────────────────────────────────────────────
+    if (text === '/start' || text.startsWith('/start ')) {
+      const deepLink = text.split(' ')[1] || '';
 
-  // ── /start ──────────────────────────────────────────────────────
-  if (text === '/start' || text.startsWith('/start ')) {
-    const deepLink = text.split(' ')[1]; // /start link_XXXXX
+      if (deepLink.startsWith('link_')) {
+        const code = deepLink.replace('link_', '');
+        const rows = await sbSelect('profiles', { tg_link_code: code }, 'id,full_name,username');
+        const profile = rows[0];
 
-    if (deepLink && deepLink.startsWith('link_')) {
-      const code = deepLink.replace('link_', '');
-      const { data: profile } = await db
-        .from('profiles')
-        .select('id, full_name, username')
-        .eq('tg_link_code', code)
-        .single();
+        if (!profile) {
+          await tgSend(chat_id, '❌ Код привязки не найден или устарел.\n\nОткрой <b>Настройки → Telegram</b> в журнале и получи новый код.');
+          return res.status(200).send('OK');
+        }
 
-      if (!profile) {
-        return tgSend(chat_id, '❌ Код привязки не найден или устарел.\n\nОткрой <b>Настройки → Telegram</b> в журнале и получи новый код.');
+        await sbUpdate('profiles', { id: profile.id }, {
+          tg_chat_id: String(chat_id),
+          tg_username: username,
+          tg_linked: true,
+          tg_link_code: null,
+          tg_notify_trades: true,
+          tg_notify_daily: true,
+          tg_notify_alerts: true,
+          tg_notify_tilt: true,
+          tg_notify_weekly: false,
+        });
+
+        await tgSend(chat_id,
+          `✅ <b>Аккаунт привязан!</b>\n\n` +
+          `👤 Трейдер: <b>${profile.full_name || profile.username || 'Unknown'}</b>\n\n` +
+          `Теперь ты будешь получать:\n` +
+          `📊 Уведомления о записанных сделках\n` +
+          `🔔 Алерты на цены монет\n` +
+          `⚠️ Тильт-алерт (3 убытка подряд)\n\n` +
+          `/help — список команд`
+        );
+        return res.status(200).send('OK');
       }
 
-      await db.from('profiles').update({
-        tg_chat_id: String(chat_id),
-        tg_username: username,
-        tg_linked: true,
-        tg_link_code: null,
-        tg_notify_trades: true,
-        tg_notify_daily: true,
-        tg_notify_alerts: true,
-      }).eq('id', profile.id);
+      // Обычный /start
+      const rows = await sbSelect('profiles', { tg_chat_id: String(chat_id) }, 'id,full_name,tg_linked');
+      const existing = rows[0];
+
+      if (existing?.tg_linked) {
+        await tgSend(chat_id,
+          `👋 С возвращением, <b>${existing.full_name}</b>!\n\n` +
+          `/stats — моя статистика\n` +
+          `/alerts — мои алерты\n` +
+          `/notify — настройки уведомлений\n` +
+          `/stop — отвязать аккаунт`
+        );
+      } else {
+        await tgSend(chat_id,
+          `🔷 <b>ORBITUM Trading Journal</b>\n\n` +
+          `Чтобы привязать аккаунт:\n` +
+          `1. Открой журнал → <b>Настройки → Telegram</b>\n` +
+          `2. Нажми «Привязать Telegram»\n` +
+          `3. Перейди по ссылке\n\n` +
+          `<a href="${APP_URL}/journal">Открыть журнал →</a>`
+        );
+      }
+      return res.status(200).send('OK');
+    }
+
+    // Для остальных команд — ищем профиль
+    const rows = await sbSelect('profiles', { tg_chat_id: String(chat_id) }, '*');
+    const profile = rows[0];
+
+    if (!profile?.tg_linked) {
+      await tgSend(chat_id, `🔗 Сначала привяжи аккаунт.\n\n<a href="${APP_URL}/journal">Открыть журнал →</a>`);
+      return res.status(200).send('OK');
+    }
+
+    // ── /stats ───────────────────────────────────────────────────
+    if (text === '/stats') {
+      const trades = await sbSelect('trades', { user_id: profile.id }, 'result,pnl_pct,pnl_usd,created_at');
+
+      if (!trades.length) {
+        await tgSend(chat_id, '📭 Сделок пока нет. Иди торгуй!');
+        return res.status(200).send('OK');
+      }
+
+      const wins    = trades.filter(t => t.result === 'win').length;
+      const wr      = Math.round(wins / trades.length * 100);
+      const pnl     = trades.reduce((s, t) => s + (t.pnl_pct || 0), 0).toFixed(1);
+      const pnlUsd  = trades.reduce((s, t) => s + (t.pnl_usd || 0), 0).toFixed(0);
+      const pnlSign = parseFloat(pnl) >= 0 ? '+' : '';
+      const emoji   = parseFloat(pnl) >= 0 ? '📈' : '📉';
+
+      const today = new Date().toDateString();
+      const todayT = trades.filter(t => new Date(t.created_at).toDateString() === today);
+      const todayPnl = todayT.reduce((s, t) => s + (t.pnl_pct || 0), 0).toFixed(1);
+      const todaySign = parseFloat(todayPnl) >= 0 ? '+' : '';
 
       await tgSend(chat_id,
-        `✅ <b>Аккаунт привязан!</b>\n\n` +
-        `👤 Трейдер: <b>${profile.full_name || profile.username}</b>\n` +
-        `🤖 Бот: @aiorbitum_bot\n\n` +
-        `Теперь ты будешь получать:\n` +
-        `📊 Уведомления о записанных сделках\n` +
-        `🌅 Утренний брифинг рынка\n` +
-        `🔔 Алерты на цены монет\n` +
-        `📈 Еженедельный AI-отчёт\n\n` +
-        `Используй /help для списка команд`
+        `${emoji} <b>Статистика</b>\n\n` +
+        `📊 Сделок: <b>${trades.length}</b>\n` +
+        `🎯 Винрейт: <b>${wr}%</b>\n` +
+        `💰 P&L: <b>${pnlSign}${pnl}%</b> (${pnlSign}$${pnlUsd})\n\n` +
+        `📅 Сегодня: <b>${todayT.length} сделок</b> / ${todaySign}${todayPnl}%\n\n` +
+        `<a href="${APP_URL}/journal">→ Открыть журнал</a>`
       );
       return res.status(200).send('OK');
     }
 
-    // Обычный /start без кода
-    const { data: existing } = await db
-      .from('profiles')
-      .select('id, full_name, tg_linked')
-      .eq('tg_chat_id', String(chat_id))
-      .single();
+    // ── /alerts ──────────────────────────────────────────────────
+    if (text === '/alerts') {
+      const alerts = await sbSelect('price_alerts', { user_id: profile.id, triggered: false }, 'symbol,condition,target_price');
+      if (!alerts.length) {
+        await tgSend(chat_id, `🔔 Активных алертов нет.\n\n<a href="${APP_URL}/screener">Открыть скринер →</a>`);
+      } else {
+        const list = alerts.slice(0, 10).map((a, i) =>
+          `${i+1}. <b>${a.symbol}</b> ${a.condition === 'above' ? '▲ выше' : '▼ ниже'} $${Number(a.target_price).toLocaleString()}`
+        ).join('\n');
+        await tgSend(chat_id, `🔔 <b>Активные алерты (${alerts.length}):</b>\n\n${list}`);
+      }
+      return res.status(200).send('OK');
+    }
 
-    if (existing?.tg_linked) {
-      return tgSend(chat_id,
-        `👋 С возвращением, <b>${existing.full_name}</b>!\n\n` +
-        `/stats — моя статистика\n` +
-        `/journal — открыть журнал\n` +
-        `/alerts — мои алерты\n` +
-        `/notify — настройки уведомлений\n` +
-        `/help — все команды`
+    // ── /notify ──────────────────────────────────────────────────
+    if (text === '/notify') {
+      const t = profile.tg_notify_trades ? '✅' : '❌';
+      const d = profile.tg_notify_daily  ? '✅' : '❌';
+      const a = profile.tg_notify_alerts ? '✅' : '❌';
+      const tl = profile.tg_notify_tilt  ? '✅' : '❌';
+      const w = profile.tg_notify_weekly ? '✅' : '❌';
+      await tgSend(chat_id,
+        `⚙️ <b>Настройки уведомлений</b>\n\n` +
+        `${t} Сделки — /toggle_trades\n` +
+        `${a} Алерты — /toggle_alerts\n` +
+        `${d} Утренний брифинг — /toggle_daily\n` +
+        `${tl} Тильт-алерт — /toggle_tilt\n` +
+        `${w} Недельный отчёт — /toggle_weekly`
       );
+      return res.status(200).send('OK');
     }
 
-    return tgSend(chat_id,
-      `🔷 <b>ORBITUM Trading Journal</b>\n\n` +
-      `Чтобы привязать аккаунт:\n` +
-      `1. Открой журнал → <b>Настройки → Telegram</b>\n` +
-      `2. Нажми «Привязать Telegram»\n` +
-      `3. Перейди по ссылке\n\n` +
-      `Или отправь: <code>/link КОД</code>`
-    );
-  }
-
-  // Проверяем привязан ли аккаунт для остальных команд
-  const { data: profile } = await db
-    .from('profiles')
-    .select('*')
-    .eq('tg_chat_id', String(chat_id))
-    .single();
-
-  if (!profile?.tg_linked) {
-    return tgSend(chat_id,
-      `🔗 Сначала привяжи аккаунт.\n\nОткрой журнал → <b>Настройки → Telegram</b>`
-    );
-  }
-
-  // ── /link <code> ────────────────────────────────────────────────
-  if (text.startsWith('/link ')) {
-    const code = text.replace('/link ', '').trim();
-    const { data: target } = await db
-      .from('profiles')
-      .select('id, full_name, username')
-      .eq('tg_link_code', code)
-      .single();
-
-    if (!target) return tgSend(chat_id, '❌ Неверный или устаревший код.');
-
-    await db.from('profiles').update({
-      tg_chat_id: String(chat_id),
-      tg_username: username,
-      tg_linked: true,
-      tg_link_code: null,
-    }).eq('id', target.id);
-
-    return tgSend(chat_id, `✅ Аккаунт <b>${target.full_name || target.username}</b> привязан!`);
-  }
-
-  // ── /stats ───────────────────────────────────────────────────────
-  if (text === '/stats') {
-    const { data: trades } = await db
-      .from('trades')
-      .select('*')
-      .eq('user_id', profile.id)
-      .order('created_at', { ascending: false });
-
-    if (!trades?.length) {
-      return tgSend(chat_id, '📭 Сделок пока нет. Иди торгуй!');
-    }
-
-    const wins   = trades.filter(t => t.result === 'win').length;
-    const losses = trades.filter(t => t.result === 'loss').length;
-    const wr     = Math.round(wins / trades.length * 100);
-    const pnl    = trades.reduce((s, t) => s + (t.pnl_pct || 0), 0).toFixed(1);
-    const pnlUsd = trades.reduce((s, t) => s + (t.pnl_usd || 0), 0).toFixed(0);
-
-    // Серия
-    let streak = 0;
-    const last  = trades[0]?.result;
-    for (const t of trades) {
-      if (t.result === last) streak++; else break;
-    }
-
-    // Сегодня
-    const today = new Date().toDateString();
-    const todayTrades = trades.filter(t => new Date(t.created_at).toDateString() === today);
-    const todayPnl = todayTrades.reduce((s, t) => s + (t.pnl_pct || 0), 0).toFixed(1);
-
-    const pnlSign  = parseFloat(pnl) >= 0 ? '+' : '';
-    const pnlEmoji = parseFloat(pnl) >= 0 ? '📈' : '📉';
-    const todaySign = parseFloat(todayPnl) >= 0 ? '+' : '';
-
-    return tgSend(chat_id,
-      `${pnlEmoji} <b>Статистика ${profile.full_name || profile.username}</b>\n\n` +
-      `📊 Всего сделок: <b>${trades.length}</b>\n` +
-      `✅ Побед: <b>${wins}</b>  ❌ Убытков: <b>${losses}</b>\n` +
-      `🎯 Винрейт: <b>${wr}%</b>\n` +
-      `💰 P&L: <b>${pnlSign}${pnl}%</b> (${pnlSign}$${pnlUsd})\n\n` +
-      `📅 Сегодня: <b>${todayTrades.length} сделок</b> / ${todaySign}${todayPnl}%\n` +
-      `🔥 Серия: <b>${streak} ${last === 'win' ? 'побед подряд' : 'убытков подряд'}</b>\n\n` +
-      `<a href="${BASE_URL}/journal">→ Открыть журнал</a>`
-    );
-  }
-
-  // ── /journal ─────────────────────────────────────────────────────
-  if (text === '/journal') {
-    return tgSend(chat_id,
-      `📋 <b>Твой журнал ORBITUM</b>\n\n` +
-      `<a href="${BASE_URL}/journal">Открыть журнал →</a>`,
-      { reply_markup: { inline_keyboard: [[
-        { text: '📋 Открыть журнал', url: `${BASE_URL}/journal` },
-        { text: '📊 Аналитика', url: `${BASE_URL}/journal#dashboard` }
-      ]]}}
-    );
-  }
-
-  // ── /alerts ──────────────────────────────────────────────────────
-  if (text === '/alerts') {
-    const { data: alerts } = await db
-      .from('price_alerts')
-      .select('*')
-      .eq('user_id', profile.id)
-      .eq('triggered', false)
-      .order('created_at', { ascending: false });
-
-    if (!alerts?.length) {
-      return tgSend(chat_id,
-        `🔔 Активных алертов нет.\n\n` +
-        `Открой <b>Скринер</b> → кликни на монету → «Поставить алерт»\n\n` +
-        `<a href="${BASE_URL}/screener">Открыть скринер →</a>`
-      );
-    }
-
-    const list = alerts.slice(0, 10).map((a, i) =>
-      `${i + 1}. <b>${a.symbol}</b> ${a.condition === 'above' ? '▲ выше' : '▼ ниже'} $${a.target_price}`
-    ).join('\n');
-
-    return tgSend(chat_id, `🔔 <b>Активные алерты (${alerts.length}):</b>\n\n${list}\n\n/alerts_del — удалить алерт`);
-  }
-
-  // ── /notify ──────────────────────────────────────────────────────
-  if (text === '/notify') {
-    const t = profile.tg_notify_trades ? '✅' : '❌';
-    const d = profile.tg_notify_daily  ? '✅' : '❌';
-    const a = profile.tg_notify_alerts ? '✅' : '❌';
-    const w = profile.tg_notify_weekly ? '✅' : '❌';
-
-    return tgSend(chat_id,
-      `⚙️ <b>Настройки уведомлений</b>\n\n` +
-      `${t} Сделки — /toggle_trades\n` +
-      `${d} Утренний брифинг — /toggle_daily\n` +
-      `${a} Ценовые алерты — /toggle_alerts\n` +
-      `${w} Недельный отчёт — /toggle_weekly\n\n` +
-      `Нажми команду чтобы включить/выключить`
-    );
-  }
-
-  // ── /toggle_* ────────────────────────────────────────────────────
-  const toggles = {
-    '/toggle_trades': 'tg_notify_trades',
-    '/toggle_daily':  'tg_notify_daily',
-    '/toggle_alerts': 'tg_notify_alerts',
-    '/toggle_weekly': 'tg_notify_weekly',
-  };
-
-  if (toggles[text]) {
-    const field   = toggles[text];
-    const newVal  = !profile[field];
-    await db.from('profiles').update({ [field]: newVal }).eq('id', profile.id);
-    const labels = {
-      tg_notify_trades: 'Уведомления о сделках',
-      tg_notify_daily:  'Утренний брифинг',
-      tg_notify_alerts: 'Ценовые алерты',
-      tg_notify_weekly: 'Недельный отчёт',
+    // ── /toggle_* ────────────────────────────────────────────────
+    const toggleMap = {
+      '/toggle_trades': ['tg_notify_trades', 'Уведомления о сделках'],
+      '/toggle_alerts': ['tg_notify_alerts', 'Алерты'],
+      '/toggle_daily':  ['tg_notify_daily',  'Утренний брифинг'],
+      '/toggle_tilt':   ['tg_notify_tilt',   'Тильт-алерт'],
+      '/toggle_weekly': ['tg_notify_weekly',  'Недельный отчёт'],
     };
-    return tgSend(chat_id, `${newVal ? '✅' : '❌'} ${labels[field]} ${newVal ? 'включены' : 'выключены'}`);
-  }
+    if (toggleMap[text]) {
+      const [field, label] = toggleMap[text];
+      const newVal = !profile[field];
+      await sbUpdate('profiles', { id: profile.id }, { [field]: newVal });
+      await tgSend(chat_id, `${newVal ? '✅' : '❌'} ${label} ${newVal ? 'включены' : 'выключены'}`);
+      return res.status(200).send('OK');
+    }
 
-  // ── /stop ────────────────────────────────────────────────────────
-  if (text === '/stop') {
-    await db.from('profiles').update({
-      tg_chat_id: null, tg_linked: false,
-      tg_notify_trades: false, tg_notify_daily: false,
-      tg_notify_alerts: false, tg_notify_weekly: false,
-    }).eq('id', profile.id);
-    return tgSend(chat_id, '🔕 Уведомления отключены. Аккаунт отвязан.\n\nДо встречи! /start чтобы снова привязаться.');
-  }
+    // ── /stop ────────────────────────────────────────────────────
+    if (text === '/stop') {
+      await sbUpdate('profiles', { id: profile.id }, {
+        tg_chat_id: null, tg_linked: false, tg_username: null,
+        tg_notify_trades: false, tg_notify_alerts: false,
+        tg_notify_daily: false, tg_notify_tilt: false, tg_notify_weekly: false,
+      });
+      await tgSend(chat_id, '🔕 Аккаунт отвязан. /start чтобы привязаться снова.');
+      return res.status(200).send('OK');
+    }
 
-  // ── /help ────────────────────────────────────────────────────────
-  return tgSend(chat_id,
-    `📖 <b>Команды ORBITUM Bot</b>\n\n` +
-    `/stats — моя статистика\n` +
-    `/journal — открыть журнал\n` +
-    `/alerts — мои ценовые алерты\n` +
-    `/notify — настройки уведомлений\n` +
-    `/stop — отвязать аккаунт\n\n` +
-    `<a href="${BASE_URL}/journal">Открыть журнал →</a>`
-  );
+    // ── /help ────────────────────────────────────────────────────
+    await tgSend(chat_id,
+      `📖 <b>Команды ORBITUM</b>\n\n` +
+      `/stats — моя статистика\n` +
+      `/alerts — ценовые алерты\n` +
+      `/notify — настройки уведомлений\n` +
+      `/stop — отвязать аккаунт\n\n` +
+      `<a href="${APP_URL}/journal">Открыть журнал →</a>`
+    );
+    return res.status(200).send('OK');
+
+  } catch (err) {
+    console.error('Bot error:', err);
+    return res.status(200).send('OK'); // всегда 200 для Telegram
+  }
 }
