@@ -1,4 +1,5 @@
 // api/alerts.js — Vercel Cron: проверка ценовых алертов каждые 5 минут
+// FIXED BUG 4: triggered=is.false (boolean), JOIN через user_id FK
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL    = process.env.SUPABASE_URL;
@@ -16,19 +17,20 @@ async function tgSend(chat_id, text) {
 
 export default async function handler(req, res) {
   try {
-    // Берём все активные алерты с tg данными пользователей
+    // FIX BUG 4: triggered=is.false (boolean), не eq.false
+    // JOIN profiles через foreign key price_alerts.user_id → profiles.id
     const r = await fetch(
-      `${SB_URL}/rest/v1/price_alerts?select=*,profiles(tg_chat_id,tg_linked,tg_notify_alerts)&triggered=eq.false`,
+      `${SB_URL}/rest/v1/price_alerts?select=*,profiles(tg_chat_id,tg_linked,tg_notify_alerts)&triggered=is.false`,
       { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
     );
     const alerts = await r.json();
     if (!Array.isArray(alerts) || !alerts.length) return res.status(200).json({ checked: 0 });
 
-    // Уникальные CoinGecko ID
+    // Уникальные CoinGecko IDs
     const ids = [...new Set(alerts.map(a => a.coingecko_id).filter(Boolean))];
     if (!ids.length) return res.status(200).json({ checked: 0 });
 
-    // Текущие цены одним запросом
+    // Цены одним запросом
     let prices = {};
     try {
       const pr = await fetch(
@@ -36,25 +38,29 @@ export default async function handler(req, res) {
         { signal: AbortSignal.timeout(8000) }
       );
       prices = await pr.json();
-    } catch(e) { return res.status(200).json({ error: 'price fetch failed' }); }
+    } catch(e) {
+      console.error('Price fetch failed:', e.message);
+      return res.status(200).json({ error: 'price fetch failed' });
+    }
 
     const triggered = [];
 
     for (const alert of alerts) {
       const p = alert.profiles;
+      // FIX: проверяем флаги перед отправкой
       if (!p?.tg_linked || !p?.tg_chat_id || !p?.tg_notify_alerts) continue;
 
       const priceData = prices[alert.coingecko_id];
-      if (!priceData) continue;
+      if (!priceData?.usd) continue;
 
       const current = priceData.usd;
       const hit = (alert.condition === 'above' && current >= alert.target_price) ||
                   (alert.condition === 'below' && current <= alert.target_price);
       if (!hit) continue;
 
-      const emoji = alert.condition === 'above' ? '🚀' : '📉';
-      const dir   = alert.condition === 'above' ? '▲ ПРОБИЛ ВВЕРХ' : '▼ ПРОБИЛ ВНИЗ';
-      const chg   = priceData.usd_24h_change?.toFixed(2);
+      const emoji  = alert.condition === 'above' ? '🚀' : '📉';
+      const dir    = alert.condition === 'above' ? '▲ ПРОБИЛ ВВЕРХ' : '▼ ПРОБИЛ ВНИЗ';
+      const chg    = priceData.usd_24h_change?.toFixed(2) ?? '0.00';
       const chgStr = parseFloat(chg) >= 0 ? `+${chg}%` : `${chg}%`;
 
       await tgSend(p.tg_chat_id,
@@ -66,7 +72,7 @@ export default async function handler(req, res) {
       triggered.push(alert.id);
     }
 
-    // Помечаем сработавшие
+    // Помечаем сработавшие — FIX: id=in.(a,b,c) синтаксис
     if (triggered.length) {
       await fetch(`${SB_URL}/rest/v1/price_alerts?id=in.(${triggered.join(',')})`, {
         method: 'PATCH',

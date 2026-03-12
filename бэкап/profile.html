@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBITUM — Профиль трейдера</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --a:#e8722a;--a2:rgba(232,114,42,0.12);--a3:rgba(232,114,42,0.35);
+  --bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);
+  --bd:rgba(255,255,255,0.07);--t:#ebebeb;--m:rgba(255,255,255,0.4);--m2:rgba(255,255,255,0.6);
+  --g:#34d058;--r:#ff4d4d;--y:#f5a623;
+  --gd:rgba(52,208,88,0.08);--rd:rgba(255,77,77,0.08);
+  --font-mono:'JetBrains Mono',monospace;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'Syne',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-height:100vh;}
+
+/* ── BG ATMOSPHERE ── */
+.bg-layer{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.bg-orb1{
+  position:absolute;width:800px;height:800px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,114,42,0.055),transparent 60%);
+  filter:blur(120px);top:-300px;left:50%;transform:translateX(-50%);
+}
+.bg-orb2{
+  position:absolute;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(52,208,88,0.025),transparent 65%);
+  filter:blur(100px);bottom:-200px;right:-100px;
+}
+.bg-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ── TOP NAV ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(5,7,10,0.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  height:54px;display:flex;align-items:center;
+  padding:0 32px;gap:12px;
+}
+.tb-logo{
+  font-family:var(--font-display);font-size:20px;letter-spacing:5px;
+  color:var(--t);text-decoration:none;
+  text-shadow:0 0 20px rgba(255,255,255,0.1);
+}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a),0 0 16px rgba(232,114,42,0.4);}
+.tb-spacer{flex:1;}
+.tb-back{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:8px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);color:var(--m);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  text-decoration:none;transition:all 0.15s;
+}
+.tb-back:hover{border-color:var(--a3);color:var(--a);background:var(--a2);}
+.tb-badge{
+  background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.25);
+  border-radius:6px;padding:3px 10px;
+  font-family:var(--font-mono);font-size:8px;color:var(--a);letter-spacing:2px;
+}
+.tb-share-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:8px;background:var(--a2);border:1px solid var(--a3);
+  color:var(--a);font-family:var(--font-mono);font-size:9px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+}
+.tb-share-btn:hover{background:rgba(232,114,42,0.2);}
+
+/* ── LAYOUT ── */
+.wrap{max-width:960px;margin:0 auto;padding:32px 24px 80px;position:relative;z-index:1;}
+
+/* ── HERO SECTION ── */
+.hero{
+  position:relative;overflow:hidden;
+  background:rgba(255,255,255,0.018);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;padding:32px;margin-bottom:16px;
+}
+.hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),rgba(232,114,42,0.3),transparent);
+}
+.hero::after{
+  content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;
+  border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.07),transparent 65%);
+  pointer-events:none;
+}
+.hero-top{display:flex;align-items:flex-start;gap:20px;margin-bottom:24px;}
+.hero-avatar{
+  width:72px;height:72px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,rgba(232,114,42,0.3),rgba(232,114,42,0.1));
+  border:2px solid rgba(232,114,42,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:32px;color:var(--a);
+  box-shadow:0 0 30px rgba(232,114,42,0.2),inset 0 0 20px rgba(232,114,42,0.05);
+  position:relative;z-index:1;
+}
+.hero-info{flex:1;position:relative;z-index:1;}
+.hero-name{
+  font-family:var(--font-display);font-size:32px;letter-spacing:4px;
+  color:var(--t);line-height:1;margin-bottom:4px;
+  text-shadow:0 0 30px rgba(255,255,255,0.1);
+}
+.hero-handle{font-family:var(--font-mono);font-size:10px;color:var(--m);letter-spacing:1.5px;margin-bottom:10px;}
+.hero-badges{display:flex;flex-wrap:wrap;gap:6px;}
+.hbadge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-family:var(--font-mono);font-size:8px;
+  letter-spacing:0.5px;transition:all 0.2s;
+}
+.hbadge-gold{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:var(--y);box-shadow:0 0 10px rgba(245,166,35,0.1);}
+.hbadge-green{background:rgba(52,208,88,0.08);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
+.hbadge-orange{background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);color:var(--a);}
+.hbadge-blue{background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.25);color:#3498db;}
+.hero-right{display:flex;flex-direction:column;gap:8px;align-items:flex-end;position:relative;z-index:1;}
+.hero-stat-big{text-align:right;}
+.hsb-val{
+  font-family:var(--font-display);font-size:38px;letter-spacing:2px;
+  text-shadow:0 0 20px currentColor;
+}
+.hsb-val.pos{color:var(--g);text-shadow:0 0 24px rgba(52,208,88,0.4);}
+.hsb-val.neg{color:var(--r);}
+.hsb-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-align:right;}
+.hero-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.hm-cell{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;}
+.hm-label{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.hm-val{font-family:var(--font-mono);font-size:18px;font-weight:500;}
+.hm-val.g{color:var(--g);text-shadow:0 0 12px rgba(52,208,88,0.35);}
+.hm-val.a{color:var(--a);text-shadow:0 0 12px rgba(232,114,42,0.35);}
+.hm-val.y{color:var(--y);text-shadow:0 0 12px rgba(245,166,35,0.3);}
+
+/* ── VISIBILITY TOGGLE ── */
+.vis-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:20px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  color:var(--m);font-family:var(--font-mono);font-size:8px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+}
+.vis-toggle:hover{border-color:var(--a3);color:var(--a);}
+.vis-toggle.public{background:var(--gd);border-color:rgba(52,208,88,0.3);color:var(--g);}
+
+/* ── SECTION CARD ── */
+.section-card{
+  background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;
+}
+.section-card::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);
+}
+.sc-title{
+  font-family:var(--font-display);font-size:12px;letter-spacing:3px;
+  color:rgba(232,114,42,0.8);margin-bottom:16px;
+  text-shadow:0 0 14px rgba(232,114,42,0.3);
+  display:flex;align-items:center;gap:8px;
+}
+.sc-title-dot{width:4px;height:4px;border-radius:50%;background:var(--a);box-shadow:0 0 6px var(--a);}
+
+/* ── EQUITY CURVE ── */
+.equity-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.equity-delta{
+  font-family:var(--font-display);font-size:22px;letter-spacing:2px;
+}
+.equity-delta.pos{color:var(--g);text-shadow:0 0 16px rgba(52,208,88,0.4);}
+.equity-delta.neg{color:var(--r);}
+.equity-period{
+  display:flex;gap:4px;
+}
+.ep-btn{
+  padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.07);
+  background:transparent;color:var(--m);font-family:var(--font-mono);
+  font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+}
+.ep-btn.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
+#equity-canvas{width:100%;height:160px;display:block;}
+
+/* ── PSYCHOLOGY PORTRAIT ── */
+.psych-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.psych-block{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:14px;
+}
+.pb-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.pb-val{font-family:var(--font-display);font-size:22px;letter-spacing:1px;margin-bottom:2px;}
+.pb-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);}
+.pb-val.pos{color:var(--g);text-shadow:0 0 14px rgba(52,208,88,0.35);}
+.pb-val.neg{color:var(--r);}
+.pb-val.neutral{color:var(--a);text-shadow:0 0 14px rgba(232,114,42,0.3);}
+
+/* ── DISCIPLINE RING ── */
+.disc-wrap{display:flex;align-items:center;gap:20px;}
+.disc-ring-svg{flex-shrink:0;}
+.disc-info{flex:1;}
+.disc-level{font-family:var(--font-display);font-size:18px;letter-spacing:2px;margin-bottom:3px;}
+.disc-desc{font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.5;}
+.disc-bars{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.db-row{display:flex;flex-direction:column;gap:3px;}
+.db-head{display:flex;justify-content:space-between;}
+.db-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;}
+.db-val{font-family:var(--font-mono);font-size:9px;color:var(--t);}
+.db-track{height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;}
+.db-fill{height:100%;border-radius:1px;transition:width 1s ease;}
+
+/* ── EMOTION PROFILE ── */
+.emo-radar{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.er-item{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+  border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;
+}
+.er-icon{font-size:18px;flex-shrink:0;}
+.er-body{flex:1;}
+.er-label{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.er-bar-track{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:3px;}
+.er-bar-fill{height:100%;border-radius:2px;}
+.er-val{font-family:var(--font-display);font-size:14px;}
+
+/* ── PSYCH INSIGHTS (fear/confidence correlations) ── */
+.insight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.insight-card{
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;padding:14px;
+}
+.ic-cond{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:6px;}
+.ic-result{font-family:var(--font-display);font-size:26px;letter-spacing:1px;}
+.ic-result.pos{color:var(--g);text-shadow:0 0 16px rgba(52,208,88,0.35);}
+.ic-result.neg{color:var(--r);text-shadow:0 0 16px rgba(255,77,77,0.3);}
+.ic-sub{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:2px;}
+
+/* ── BEST PAIRS ── */
+.pairs-wrap{display:flex;flex-direction:column;gap:8px;}
+.pair-row{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);
+  border-radius:9px;transition:all 0.15s;
+}
+.pair-row:hover{border-color:rgba(232,114,42,0.2);}
+.pair-rank{font-family:var(--font-display);font-size:14px;color:var(--m);width:20px;flex-shrink:0;}
+.pair-name{font-family:var(--font-display);font-size:18px;letter-spacing:2px;flex:1;}
+.pair-stats{display:flex;gap:16px;}
+.ps-item{text-align:right;}
+.ps-val{font-family:var(--font-mono);font-size:11px;}
+.ps-val.g{color:var(--g);}
+.ps-val.r{color:var(--r);}
+.ps-val.a{color:var(--a);}
+.ps-label{font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1px;}
+
+/* ── RECENT ACTIVITY (heatmap) ── */
+.hm-weeks-pub{display:flex;gap:3px;}
+.hm-week-pub{display:flex;flex-direction:column;gap:3px;}
+.hm-cell-pub{
+  width:12px;height:12px;border-radius:2px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;transition:transform 0.1s;
+  position:relative;
+}
+.hm-cell-pub:hover{transform:scale(1.5);z-index:10;}
+.hm-cell-pub:hover .hm-tip-pub{display:block;}
+.hm-tip-pub{
+  display:none;position:absolute;bottom:130%;left:50%;transform:translateX(-50%);
+  background:rgba(5,7,10,0.98);border:1px solid rgba(255,255,255,0.12);
+  border-radius:7px;padding:6px 10px;font-family:var(--font-mono);font-size:8px;
+  white-space:nowrap;z-index:30;color:var(--t);pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+.hm-month-pub{font-family:var(--font-mono);font-size:7px;color:rgba(255,255,255,0.2);height:14px;display:flex;align-items:center;justify-content:center;}
+
+/* ── BEST/WORST TRADE ── */
+.trade-showcase{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ts-card{
+  padding:14px 16px;border-radius:10px;
+}
+.ts-card.best{background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.2);}
+.ts-card.worst{background:rgba(255,77,77,0.05);border:1px solid rgba(255,77,77,0.15);}
+.ts-label{font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.ts-card.best .ts-label{color:rgba(52,208,88,0.6);}
+.ts-card.worst .ts-label{color:rgba(255,77,77,0.6);}
+.ts-pair{font-family:var(--font-display);font-size:20px;letter-spacing:2px;margin-bottom:2px;}
+.ts-pnl{font-family:var(--font-display);font-size:28px;letter-spacing:1px;}
+.ts-card.best .ts-pnl{color:var(--g);text-shadow:0 0 16px rgba(52,208,88,0.4);}
+.ts-card.worst .ts-pnl{color:var(--r);}
+.ts-meta{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-top:4px;}
+
+/* ── PUBLIC TRADES FEED ── */
+.feed-empty{
+  text-align:center;padding:40px 20px;
+  font-family:var(--font-mono);font-size:10px;color:var(--m);letter-spacing:1px;
+}
+.feed-trade{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:14px 16px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;transition:all 0.15s;
+}
+.feed-trade.win{border-left:2px solid var(--g);}
+.feed-trade.loss{border-left:2px solid var(--r);}
+.feed-trade:hover{border-color:rgba(232,114,42,0.2);}
+.ft-pair{font-family:var(--font-display);font-size:18px;letter-spacing:2px;min-width:80px;}
+.ft-dir{font-family:var(--font-mono);font-size:8px;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
+.ft-dir.long{background:var(--gd);color:var(--g);}
+.ft-dir.short{background:var(--rd);color:var(--r);}
+.ft-pnl{font-family:var(--font-mono);font-size:13px;margin-left:auto;}
+.ft-pnl.p{color:var(--g);}
+.ft-pnl.n{color:var(--r);}
+.ft-setup{font-family:var(--font-mono);font-size:8px;color:var(--m);margin-left:8px;}
+.ft-note{
+  font-family:var(--font-body);font-size:11px;color:var(--m);
+  width:100%;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);
+  line-height:1.5;
+}
+
+/* ── PRIVATE OVERLAY ── */
+.private-blur{
+  position:relative;
+}
+.private-overlay{
+  position:absolute;inset:0;z-index:10;
+  background:rgba(5,7,10,0.7);backdrop-filter:blur(8px);
+  border-radius:10px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;
+}
+.po-icon{font-size:28px;}
+.po-text{font-family:var(--font-mono);font-size:10px;color:var(--m);letter-spacing:1px;}
+
+/* ── LOADING / EMPTY ── */
+.loading-state{text-align:center;padding:60px;font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:2px;}
+.not-found{text-align:center;padding:80px 20px;}
+.nf-title{font-family:var(--font-display);font-size:40px;letter-spacing:4px;color:var(--a);margin-bottom:8px;text-shadow:0 0 20px rgba(232,114,42,0.4);}
+.nf-sub{font-family:var(--font-mono);font-size:11px;color:var(--m);}
+
+/* ── OWN PROFILE BANNER ── */
+.own-banner{
+  background:rgba(232,114,42,0.06);border:1px solid rgba(232,114,42,0.2);
+  border-radius:10px;padding:12px 16px;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.ob-text{font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:0.5px;flex:1;}
+.ob-btn{
+  padding:6px 14px;border-radius:7px;background:var(--a2);
+  border:1px solid var(--a3);color:var(--a);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  cursor:pointer;transition:all 0.15s;text-decoration:none;
+  white-space:nowrap;
+}
+.ob-btn:hover{background:rgba(232,114,42,0.2);}
+
+/* ── TWO-COL LAYOUT ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.two-col .section-card{margin-bottom:0;}
+
+/* ── FOLLOW BUTTON ── */
+.follow-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 16px;border-radius:8px;
+  background:var(--a2);border:1px solid var(--a3);
+  color:var(--a);font-family:var(--font-mono);font-size:9px;
+  letter-spacing:1px;cursor:pointer;transition:all 0.2s;
+}
+.follow-btn:hover{background:rgba(232,114,42,0.2);box-shadow:0 0 16px rgba(232,114,42,0.15);}
+.follow-btn.following{background:var(--gd);border-color:rgba(52,208,88,0.3);color:var(--g);}
+
+@media(max-width:700px){
+  .hero-top{flex-direction:column;}
+  .hero-right{align-items:flex-start;}
+  .hero-meta{grid-template-columns:repeat(2,1fr);}
+  .psych-grid2{grid-template-columns:1fr;}
+  .trade-showcase{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+  .insight-grid{grid-template-columns:1fr;}
+  .emo-radar{grid-template-columns:1fr;}
+  .wrap{padding:16px 14px 60px;}
+  .topbar{padding:0 16px;}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer">
+  <div class="bg-orb1"></div>
+  <div class="bg-orb2"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="index.html" class="tb-logo" style="text-decoration:none">ORBITUM</a>
+  <div class="tb-dot"></div>
+  <span class="tb-badge">ПРОФИЛЬ ТРЕЙДЕРА</span>
+  <div class="tb-spacer"></div>
+  <button class="tb-share-btn" id="copy-btn" onclick="copyLink()">🔗 Копировать ссылку</button>
+  <a href="journal.html" class="tb-back" style="margin-left:4px">← Журнал</a>
+</div>
+
+<div class="wrap" id="main-wrap">
+  <div class="loading-state" id="loading">⏳ ЗАГРУЖАЕМ ПРОФИЛЬ...</div>
+</div>
+
+<script>
+const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+let profileUser=null, trades=[], currentUser=null, isOwnProfile=false;
+
+async function init(){
+  const params=new URLSearchParams(location.search);
+  let uid=params.get('uid');
+
+  const {data:{user}}=await sb.auth.getUser();
+  currentUser=user;
+
+  if(!uid && user) uid=user.id;
+  if(!uid){showNotFound('Укажи uid в URL или войди в аккаунт');return;}
+  isOwnProfile=user&&user.id===uid;
+
+  const {data:profile,error}=await sb.from('profiles').select('*').eq('id',uid).single();
+  if(error||!profile){showNotFound('Профиль не найден');return;}
+  profileUser=profile;
+
+  // Check if viewed profile has active access
+  const profileHasAccess=
+    profile.role==='admin'||
+    profile.plan==='lifetime'||
+    (profile.plan==='monthly'&&profile.plan_expires_at&&new Date(profile.plan_expires_at)>new Date());
+
+  if(!profileHasAccess){
+    showLockedProfile(profile);
+    return;
+  }
+
+  const {data:tradeData}=await sb.from('trades').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+  trades=tradeData||[];
+
+  render(profile, trades);
+}
+
+function showLockedProfile(p){
+  const displayName=p.full_name||p.username||'Трейдер';
+  const initial=(displayName[0]||'T').toUpperCase();
+  const wrap=document.getElementById('main-wrap');
+  wrap.innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px 20px;">
+      <div style="
+        width:88px;height:88px;border-radius:50%;
+        background:linear-gradient(135deg,rgba(232,114,42,0.2),rgba(232,114,42,0.05));
+        border:2px solid rgba(232,114,42,0.25);
+        display:flex;align-items:center;justify-content:center;
+        font-family:var(--font-display);font-size:36px;color:var(--a);
+        margin-bottom:20px;position:relative;
+        box-shadow:0 0 40px rgba(232,114,42,0.1);
+      ">
+        ${initial}
+        <div style="
+          position:absolute;bottom:-4px;right:-4px;width:28px;height:28px;
+          background:#05070a;border-radius:50%;border:2px solid rgba(232,114,42,0.3);
+          display:flex;align-items:center;justify-content:center;font-size:14px;
+        ">🔒</div>
+      </div>
+      <div style="font-family:var(--font-display);font-size:26px;letter-spacing:4px;color:var(--t);margin-bottom:6px;">${displayName}</div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:2px;margin-bottom:32px;">ПРОФИЛЬ ЗАКРЫТ</div>
+
+      <div style="
+        background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);
+        border-radius:14px;padding:28px 32px;max-width:400px;width:100%;position:relative;overflow:hidden;
+      ">
+        <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.4),transparent);"></div>
+        <div style="font-size:28px;margin-bottom:12px;">🔒</div>
+        <div style="font-family:var(--font-display);font-size:15px;letter-spacing:2px;color:var(--a);margin-bottom:8px;text-shadow:0 0 16px rgba(232,114,42,0.4);">ДОСТУП ЗАКРЫТ</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);letter-spacing:0.5px;line-height:1.7;margin-bottom:20px;">
+          Этот трейдер ещё не активировал аккаунт.<br>
+          Публичный профиль открывается после получения доступа.
+        </div>
+        <a href="journal.html" style="
+          display:inline-flex;align-items:center;gap:6px;padding:9px 22px;
+          background:linear-gradient(135deg,rgba(232,114,42,0.9),rgba(180,75,20,0.9));
+          border:1px solid rgba(232,114,42,0.5);border-radius:9px;
+          color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;
+          text-decoration:none;box-shadow:0 4px 20px rgba(232,114,42,0.25);
+          transition:all 0.2s;
+        ">← ВЕРНУТЬСЯ В ЖУРНАЛ</a>
+      </div>
+    </div>`;
+}
+
+function render(p, trades){
+  const wrap=document.getElementById('main-wrap');
+  const wins=trades.filter(t=>t.result==='win');
+  const losses=trades.filter(t=>t.result==='loss');
+  const wr=trades.length?Math.round(wins.length/trades.length*100):0;
+  const totalPnl=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+  const avgWin=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
+  const avgLoss=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
+  const rr=avgLoss?(avgWin/avgLoss).toFixed(1):'∞';
+
+  // Discipline score calc
+  const withSL=trades.filter(t=>t.stop_loss).length;
+  const slScore=trades.length?Math.round(withSL/trades.length*100):0;
+  const avgFear=avg(trades,'emotion_fear');
+  const avgConf=avg(trades,'emotion_conf');
+  const avgGreed=avg(trades,'emotion_greed');
+  const avgCalm=avg(trades,'emotion_calm');
+  const emotionScore=Math.round(((10-avgFear)/10*25)+((10-avgGreed)/10*25)+(avgConf/10*25)+(avgCalm/10*25));
+  const withSetup=trades.filter(t=>t.setup_type).length;
+  const setupScore=trades.length?Math.round(withSetup/trades.length*100):0;
+  const byDay={};
+  trades.forEach(t=>{const d=new Date(t.created_at).toDateString();byDay[d]=(byDay[d]||0)+1;});
+  const avgPD=Object.values(byDay).length?Object.values(byDay).reduce((s,v)=>s+v,0)/Object.values(byDay).length:1;
+  const consistScore=Math.round(Math.max(0,100-(avgPD-3)*20)*0.5+wr*0.5);
+  const disciplineScore=Math.round(slScore*0.3+emotionScore*0.3+setupScore*0.2+consistScore*0.2);
+
+  // Badges
+  const badges=calcBadges(trades,totalPnl,wr,disciplineScore,avgWin,avgLoss);
+
+  // Best/worst trade
+  const bestTrade=trades.length?trades.reduce((b,t)=>(t.pnl_pct||0)>(b.pnl_pct||0)?t:b,trades[0]):null;
+  const worstTrade=trades.length?trades.reduce((b,t)=>(t.pnl_pct||0)<(b.pnl_pct||0)?t:b,trades[0]):null;
+
+  // Streak
+  const streak=calcStreak(trades);
+
+  // Pairs breakdown
+  const pairs=calcPairs(trades);
+
+  const displayName=p.full_name||p.username||'Трейдер';
+  const initial=(displayName[0]||'T').toUpperCase();
+
+  wrap.innerHTML=`
+  ${isOwnProfile?`<div class="own-banner">
+    <span style="font-size:18px">🌐</span>
+    <span class="ob-text">Это ваш публичный профиль. Поделитесь ссылкой — другие трейдеры увидят вашу статистику и психологию.</span>
+    <a href="journal.html" class="ob-btn">← В Журнал</a>
+  </div>`:''}
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <div class="hero-avatar" id="hero-av">${initial}</div>
+      <div class="hero-info">
+        <div class="hero-name">${displayName}</div>
+        <div class="hero-handle">ORBITUM · ${trades.length} сделок · ${p.plan==='lifetime'?'∞ PRO':p.plan==='monthly'?'MONTHLY':'FREE'}</div>
+        <div class="hero-badges" id="hero-badges">
+          ${badges.map(b=>`<span class="hbadge ${b.cls}">${b.icon} ${b.name}</span>`).join('')}
+          ${badges.length===0?'<span style="font-family:var(--font-mono);font-size:9px;color:var(--m)">Бейджи появятся после первых сделок</span>':''}
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-stat-big">
+          <div class="hsb-val ${totalPnl>=0?'pos':'neg'}">${(totalPnl>=0?'+':'')}${totalPnl.toFixed(1)}%</div>
+          <div class="hsb-label">Общий ROI</div>
+        </div>
+        ${isOwnProfile?'':'<button class="follow-btn" onclick="toggleFollow()">+ FOLLOW</button>'}
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div class="hm-cell"><div class="hm-label">Винрейт</div><div class="hm-val g">${trades.length?wr+'%':'—'}</div></div>
+      <div class="hm-cell"><div class="hm-label">Risk / Reward</div><div class="hm-val a">${trades.length?rr:'—'}</div></div>
+      <div class="hm-cell"><div class="hm-label">Discipline</div><div class="hm-val a">${trades.length?disciplineScore+'/100':'—'}</div></div>
+      <div class="hm-cell"><div class="hm-label">Стрик</div><div class="hm-val y">${streak>0?'🔥 '+streak+' дн':'—'}</div></div>
+    </div>
+  </div>
+
+  <!-- EQUITY CURVE -->
+  <div class="section-card">
+    <div class="equity-header">
+      <div class="sc-title"><div class="sc-title-dot"></div>КРИВАЯ КАПИТАЛА</div>
+      <div class="equity-delta ${totalPnl>=0?'pos':'neg'}" id="eq-delta">${(totalPnl>=0?'+':'')}${totalPnl.toFixed(1)}%</div>
+    </div>
+    <canvas id="eq-canvas" style="width:100%;height:150px;display:block;"></canvas>
+    ${!trades.length?`<div class="feed-empty">Нет данных для графика</div>`:''}
+  </div>
+
+  <!-- PSYCHOLOGY & DISCIPLINE -->
+  <div class="two-col">
+    <!-- Discipline -->
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>DISCIPLINE SCORE</div>
+      <div class="disc-wrap">
+        <svg class="disc-ring-svg" width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
+          <circle id="disc-ring" cx="36" cy="36" r="28" fill="none" stroke="${disciplineScore>=70?'#e8722a':'#ff4d4d'}" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="${(176*disciplineScore/100).toFixed(0)} 176" transform="rotate(-90 36 36)"
+            style="transition:stroke-dasharray 1s ease"/>
+          <text x="36" y="40" text-anchor="middle" fill="white" font-family="Bebas Neue" font-size="18">${trades.length?disciplineScore:'—'}</text>
+        </svg>
+        <div class="disc-info">
+          <div class="disc-level" style="color:${disciplineScore>=90?'var(--g)':disciplineScore>=70?'var(--a)':disciplineScore>=40?'var(--y)':'var(--r)'}">${
+            disciplineScore>=90?'ПРОФЕССИОНАЛ':disciplineScore>=70?'ДИСЦИПЛИНИРОВАННЫЙ':disciplineScore>=40?'НЕСТАБИЛЬНЫЙ':'GAMBLING'
+          }</div>
+          <div class="disc-desc">${
+            disciplineScore>=90?'Системная торговля без эмоций':
+            disciplineScore>=70?'Хорошее следование плану':
+            disciplineScore>=40?'Эмоции влияют на результат':
+            'Торговля без системы'
+          }</div>
+        </div>
+      </div>
+      <div class="disc-bars" style="margin-top:14px">
+        ${[
+          {l:'Риск-менеджмент',v:slScore,c:'#e8722a'},
+          {l:'Эмоции',v:emotionScore,c:'#9b59b6'},
+          {l:'Сетапы',v:setupScore,c:'#34d058'},
+          {l:'Консистентность',v:consistScore,c:'#3498db'},
+        ].map(b=>`<div class="db-row">
+          <div class="db-head"><span class="db-label">${b.l}</span><span class="db-val">${b.v}/100</span></div>
+          <div class="db-track"><div class="db-fill" style="width:${b.v}%;background:${b.c}"></div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Emotion Profile -->
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>ЭМОЦИОНАЛЬНЫЙ ПРОФИЛЬ</div>
+      <div class="emo-radar">
+        ${[
+          {icon:'💪',label:'Уверенность',key:'emotion_conf',col:'#e8722a'},
+          {icon:'😰',label:'Страх',key:'emotion_fear',col:'#ff4d4d'},
+          {icon:'💰',label:'Жадность',key:'emotion_greed',col:'#f5a623'},
+          {icon:'🎯',label:'Фокус',key:'emotion_calm',col:'#34d058'},
+        ].map(e=>{
+          const v=avg(trades,e.key);
+          const pct=v/10*100;
+          return `<div class="er-item">
+            <div class="er-icon">${e.icon}</div>
+            <div class="er-body">
+              <div class="er-label">${e.label}</div>
+              <div class="er-bar-track"><div class="er-bar-fill" style="width:${pct}%;background:${e.col}"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:2px">
+                <span class="er-val" style="color:${e.col};font-size:13px">${v.toFixed(1)}</span>
+                <span style="font-family:var(--font-mono);font-size:8px;color:var(--m)">/10</span>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- PSYCHOLOGY INSIGHTS -->
+  <div class="section-card">
+    <div class="sc-title"><div class="sc-title-dot"></div>ПСИХОЛОГИЧЕСКИЙ ПАТТЕРН</div>
+    <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:12px;">Как эмоции влияют на результат торговли</div>
+    <div class="insight-grid" id="insight-grid">
+      ${renderInsights(trades)}
+    </div>
+  </div>
+
+  <!-- BEST/WORST TRADE + PAIRS -->
+  <div class="two-col">
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>ЛУЧШАЯ / ХУДШАЯ СДЕЛКА</div>
+      <div class="trade-showcase">
+        <div class="ts-card best">
+          <div class="ts-label">🏆 Лучшая</div>
+          <div class="ts-pair">${bestTrade?bestTrade.pair:'—'}</div>
+          <div class="ts-pnl">${bestTrade?'+'+(bestTrade.pnl_pct||0).toFixed(1)+'%':'—'}</div>
+          <div class="ts-meta">${bestTrade?new Date(bestTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}):'нет данных'}</div>
+        </div>
+        <div class="ts-card worst">
+          <div class="ts-label">💀 Худшая</div>
+          <div class="ts-pair">${worstTrade?worstTrade.pair:'—'}</div>
+          <div class="ts-pnl">${worstTrade?(worstTrade.pnl_pct||0).toFixed(1)+'%':'—'}</div>
+          <div class="ts-meta">${worstTrade?new Date(worstTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}):'нет данных'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="sc-title"><div class="sc-title-dot"></div>ТОП ПАРЫ</div>
+      <div class="pairs-wrap">
+        ${pairs.length?pairs.slice(0,4).map((pair,i)=>`
+          <div class="pair-row">
+            <div class="pair-rank">#${i+1}</div>
+            <div class="pair-name">${pair.name}</div>
+            <div class="pair-stats">
+              <div class="ps-item">
+                <div class="ps-val ${pair.wr>=50?'g':'r'}">${pair.wr}%</div>
+                <div class="ps-label">WR</div>
+              </div>
+              <div class="ps-item">
+                <div class="ps-val ${pair.pnl>=0?'g':'r'}">${(pair.pnl>=0?'+':'')+pair.pnl.toFixed(1)}%</div>
+                <div class="ps-label">P&L</div>
+              </div>
+              <div class="ps-item">
+                <div class="ps-val a">${pair.n}</div>
+                <div class="ps-label">сд.</div>
+              </div>
+            </div>
+          </div>
+        `).join(''):`<div class="feed-empty">Нет данных по парам</div>`}
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY HEATMAP -->
+  <div class="section-card">
+    <div class="sc-title" style="margin-bottom:14px"><div class="sc-title-dot"></div>АКТИВНОСТЬ</div>
+    <div id="hm-pub-wrap" style="overflow-x:auto;"></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-family:var(--font-mono);font-size:8px;color:var(--m);">
+      Меньше
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,0.04)"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(52,208,88,0.3)"></div>
+      <div style="width:10px;height:10px;border-radius:2px;background:#34d058"></div>
+      Больше
+      <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,77,77,0.5);margin-left:8px"></div>
+      Убыток
+    </div>
+  </div>
+
+  <!-- PUBLIC TRADES FEED -->
+  <div class="section-card">
+    <div class="sc-title" style="margin-bottom:4px"><div class="sc-title-dot"></div>ПУБЛИЧНЫЕ СДЕЛКИ</div>
+    <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:14px;">
+      ${isOwnProfile?'Нажми «Опубликовать» на любой сделке в журнале чтобы показать её здесь':'Сделки которые трейдер решил сделать публичными'}
+    </div>
+    <div id="public-feed">
+      ${renderPublicFeed(trades)}
+    </div>
+  </div>
+  `;
+
+  // Render equity canvas
+  setTimeout(()=>{
+    renderEquity(trades);
+    renderHeatmapPub(trades);
+  },50);
+}
+
+function avg(arr,key){
+  const v=arr.map(t=>t[key]).filter(x=>x!=null);
+  return v.length?v.reduce((s,x)=>s+x,0)/v.length:5;
+}
+
+function calcStreak(trades){
+  if(!trades.length)return 0;
+  const days=new Set(trades.map(t=>new Date(t.created_at).toDateString()));
+  let streak=0;const now=new Date();
+  for(let i=0;i<365;i++){const d=new Date(now);d.setDate(d.getDate()-i);if(days.has(d.toDateString()))streak++;else if(i>0)break;}
+  return streak;
+}
+
+function calcPairs(trades){
+  const pm={};
+  trades.forEach(t=>{
+    if(!t.pair)return;
+    if(!pm[t.pair])pm[t.pair]={n:0,w:0,pnl:0};
+    pm[t.pair].n++;
+    if(t.result==='win')pm[t.pair].w++;
+    pm[t.pair].pnl+=(t.pnl_pct||0);
+  });
+  return Object.keys(pm).map(name=>({
+    name,n:pm[name].n,
+    wr:Math.round(pm[name].w/pm[name].n*100),
+    pnl:pm[name].pnl
+  })).sort((a,b)=>b.n-a.n);
+}
+
+function calcBadges(trades,roi,wr,disc,avgW,avgL){
+  const badges=[];
+  if(roi>20||(wr>=60&&trades.length>=50))badges.push({icon:'👑',name:'Top Trader',cls:'hbadge-gold'});
+  if(disc>=80&&trades.length>=20)badges.push({icon:'🎖',name:'Discipline Master',cls:'hbadge-blue'});
+  if(wr>=50&&trades.length>=15&&avgL>0&&avgW/avgL>2.5)badges.push({icon:'🎯',name:'Sniper',cls:'hbadge-green'});
+  if(calcStreak(trades)>=7)badges.push({icon:'🔥',name:'Hot Streak',cls:'hbadge-orange'});
+  if(trades.length>=100)badges.push({icon:'📋',name:'Veteran',cls:'hbadge-blue'});
+  return badges;
+}
+
+function renderInsights(trades){
+  if(trades.length<3)return `<div style="grid-column:span 2;text-align:center;padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Нужно больше сделок для анализа</div>`;
+  const avgPnl=arr=>arr.length?arr.reduce((s,t)=>s+(t.pnl_pct||0),0)/arr.length:0;
+  const insights=[];
+
+  const hFear=trades.filter(t=>(t.emotion_fear||0)>7);
+  if(hFear.length>=2){const p=avgPnl(hFear);insights.push({cond:'Страх > 7',pnl:p,n:hFear.length,icon:'😰'});}
+  const gConf=trades.filter(t=>{const c=t.emotion_conf||0;return c>=6&&c<=8;});
+  if(gConf.length>=2){const p=avgPnl(gConf);insights.push({cond:'Уверенность 6–8',pnl:p,n:gConf.length,icon:'💪'});}
+  const hGreed=trades.filter(t=>(t.emotion_greed||0)>7);
+  if(hGreed.length>=2){const p=avgPnl(hGreed);insights.push({cond:'Жадность > 7',pnl:p,n:hGreed.length,icon:'💰'});}
+  const hCalm=trades.filter(t=>(t.emotion_calm||0)>7);
+  if(hCalm.length>=2){const p=avgPnl(hCalm);insights.push({cond:'Фокус > 7',pnl:p,n:hCalm.length,icon:'🎯'});}
+
+  if(!insights.length)return `<div style="grid-column:span 2;text-align:center;padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Нет данных — нужно заполнять эмоции в сделках</div>`;
+  return insights.map(ins=>{
+    const pos=ins.pnl>=0;
+    return `<div class="insight-card">
+      <div class="ic-cond">${ins.icon} ${ins.cond}</div>
+      <div class="ic-result ${pos?'pos':'neg'}">${pos?'+':''}${ins.pnl.toFixed(1)}%</div>
+      <div class="ic-sub">avg из ${ins.n} сделок</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPublicFeed(trades){
+  // Show trades that have notes (treat as "shared") — up to 10 most recent
+  const shown=trades.filter(t=>t.note_why||t.note_lesson).slice(0,10);
+  if(!shown.length)return `<div class="feed-empty">Публичных сделок нет</div>`;
+  return shown.map(t=>{
+    const pnl=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'—';
+    const d=new Date(t.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+    const cls=t.result==='win'?'win':'loss';
+    const pnlCls=t.result==='win'?'p':'n';
+    return `<div class="feed-trade ${cls}">
+      <div class="ft-pair">${t.pair||'?'}</div>
+      <span class="ft-dir ${t.direction||'long'}">${(t.direction||'').toUpperCase()}</span>
+      ${t.setup_type?`<span class="ft-setup">${t.setup_type}</span>`:''}
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--m);margin-left:4px">${d}</span>
+      <span class="ft-pnl ${pnlCls}">${pnl}</span>
+      ${t.note_why||t.note_lesson?`<div class="ft-note">${t.note_why||''} ${t.note_lesson?`<span style="color:rgba(52,208,88,0.6);font-family:var(--font-mono);font-size:9px">💡 ${t.note_lesson}</span>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderEquity(trades){
+  const canvas=document.getElementById('eq-canvas');
+  if(!canvas||trades.length<2)return;
+  const sorted=[...trades].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const W=canvas.parentElement.offsetWidth||700,H=150;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  let cum=0;
+  const pts=[{y:0}];
+  sorted.forEach(t=>{cum+=(t.pnl_pct||0);pts.push({y:cum,res:t.result});});
+
+  const minY=Math.min(...pts.map(p=>p.y));
+  const maxY=Math.max(...pts.map(p=>p.y));
+  const rng=maxY-minY||1;
+  const px=16,py=12,cW=W-px*2,cH=H-py*2;
+  const tx=i=>px+i/(pts.length-1)*cW;
+  const ty=v=>py+cH-((v-minY)/rng)*cH;
+
+  // Zero line
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(px,ty(0));ctx.lineTo(px+cW,ty(0));ctx.stroke();
+  ctx.setLineDash([]);
+
+  const isGreen=cum>=0;
+  const color=isGreen?'#34d058':'#ff4d4d';
+
+  // Fill gradient
+  const grad=ctx.createLinearGradient(0,py,0,H);
+  grad.addColorStop(0,isGreen?'rgba(52,208,88,0.2)':'rgba(255,77,77,0.18)');
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad;
+  ctx.beginPath();
+  ctx.moveTo(tx(0),ty(0));
+  pts.forEach((p,i)=>ctx.lineTo(tx(i),ty(p.y)));
+  ctx.lineTo(tx(pts.length-1),ty(0));
+  ctx.closePath();ctx.fill();
+
+  // Line
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.shadowColor=color;ctx.shadowBlur=8;
+  ctx.beginPath();
+  pts.forEach((p,i)=>i===0?ctx.moveTo(tx(i),ty(p.y)):ctx.lineTo(tx(i),ty(p.y)));
+  ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Dots
+  pts.slice(1).forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(tx(i+1),ty(p.y),2.5,0,Math.PI*2);
+    ctx.fillStyle=p.res==='win'?'#34d058':'#ff4d4d';ctx.fill();
+  });
+}
+
+function renderHeatmapPub(trades){
+  const wrap=document.getElementById('hm-pub-wrap');
+  if(!wrap)return;
+  const byDay={};
+  trades.forEach(t=>{
+    if(!t.created_at)return;
+    const d=new Date(t.created_at).toISOString().split('T')[0];
+    if(!byDay[d])byDay[d]={n:0,pnl:0,wins:0};
+    byDay[d].n++;byDay[d].pnl+=(t.pnl_pct||0);
+    if(t.result==='win')byDay[d].wins++;
+  });
+
+  const WEEKS=20;
+  const today=new Date();today.setHours(0,0,0,0);
+  const startDate=new Date(today);startDate.setDate(today.getDate()-(WEEKS*7)+1);
+  const dow=startDate.getDay();
+  const adj=dow===0?-6:1-dow;startDate.setDate(startDate.getDate()+adj);
+
+  const months=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  let lastMo=-1,html='<div class="hm-weeks-pub">';
+
+  for(let w=0;w<WEEKS;w++){
+    html+='<div class="hm-week-pub">';
+    const fd=new Date(startDate);fd.setDate(startDate.getDate()+w*7);
+    const mo=fd.getMonth();
+    html+=`<div class="hm-month-pub">${mo!==lastMo?(lastMo=mo,months[mo]):''}</div>`;
+    for(let d=0;d<7;d++){
+      const dt=new Date(startDate);dt.setDate(startDate.getDate()+w*7+d);
+      const key=dt.toISOString().split('T')[0];
+      const isFuture=dt>today;
+      const dd=byDay[key];
+      let bg='rgba(255,255,255,0.04)',glow='',tip=key;
+      if(!isFuture&&dd){
+        const intensity=Math.min(1,0.25+dd.n*0.2);
+        bg=dd.pnl>=0?`rgba(52,208,88,${intensity})`:`rgba(255,77,77,${intensity})`;
+        if(dd.n>=3)glow=`box-shadow:0 0 6px ${dd.pnl>=0?'rgba(52,208,88,0.4)':'rgba(255,77,77,0.4)'}`;
+        const wr=Math.round(dd.wins/dd.n*100);
+        tip=dt.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'})+` · ${dd.n} сд. · WR ${wr}% · ${(dd.pnl>=0?'+':'')+dd.pnl.toFixed(1)}%`;
+      } else if(!isFuture){
+        tip=dt.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'})+' · нет сделок';
+      }
+      html+=`<div class="hm-cell-pub" style="background:${bg};${glow}"><div class="hm-tip-pub">${tip}</div></div>`;
+    }
+    html+='</div>';
+  }
+  html+='</div>';
+  wrap.innerHTML=html;
+}
+
+function toggleFollow(){
+  const btn=document.querySelector('.follow-btn');
+  if(!btn)return;
+  const isFollowing=btn.classList.contains('following');
+  btn.classList.toggle('following');
+  btn.textContent=isFollowing?'+ FOLLOW':'✓ FOLLOWING';
+}
+
+function copyLink(){
+  const url=location.href.includes('uid=')
+    ?location.href
+    :(location.origin+'/profile.html?uid='+(profileUser?.id||''));
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(()=>{
+      const btn=document.getElementById('copy-btn');
+      if(btn){const orig=btn.textContent;btn.textContent='✅ Скопировано!';setTimeout(()=>btn.textContent=orig,2500);}
+    });
+  }
+}
+
+function showNotFound(msg){
+  document.getElementById('main-wrap').innerHTML=`<div class="not-found">
+    <div class="nf-title">404</div>
+    <div class="nf-sub">${msg}</div>
+    <a href="journal.html" style="display:inline-block;margin-top:20px;padding:8px 20px;background:var(--a2);border:1px solid var(--a3);border-radius:8px;color:var(--a);font-family:var(--font-mono);font-size:10px;text-decoration:none;letter-spacing:1px">← В журнал</a>
+  </div>`;
+}
+
+init();
+</script>
+</body>
+</html>

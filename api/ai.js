@@ -1,3 +1,6 @@
+// api/ai.js — GROQ AI proxy
+// FIXED BUG 6: messages из req.body теперь используются (история чата)
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -9,6 +12,12 @@ export default async function handler(req, res) {
   try {
     const { prompt, messages } = req.body;
 
+    // FIX BUG 6: если передан массив messages — используем его (история чата)
+    // иначе — оборачиваем одиночный prompt
+    const chatMessages = Array.isArray(messages) && messages.length > 0
+      ? messages
+      : [{ role: 'user', content: prompt }];
+
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -19,15 +28,22 @@ export default async function handler(req, res) {
         model: 'llama-3.3-70b-versatile',
         max_tokens: 1500,
         temperature: 0.3,
-        messages: [{ role: 'user', content: prompt }]
+        messages: chatMessages,
       })
     });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('GROQ error:', err);
+      return res.status(502).json({ error: 'AI service error' });
+    }
 
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content || '';
     res.status(200).json({ text });
 
   } catch (err) {
+    console.error('AI handler error:', err);
     res.status(500).json({ error: err.message });
   }
 }
