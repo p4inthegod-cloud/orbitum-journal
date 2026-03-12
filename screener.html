@@ -856,58 +856,7 @@ async function init(){
   initAutoRefresh();
 }
 init();
-</script>
 
-<!-- ALERT MODAL -->
-<div id="alert-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
-  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:320px;max-width:90vw;position:relative;">
-    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),transparent);"></div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:4px;" id="am-title">АЛЕРТ: BTC</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-bottom:20px;" id="am-price">Текущая цена: $---</div>
-
-    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">УСЛОВИЕ</div>
-    <div style="display:flex;gap:6px;margin-bottom:16px;">
-      <button class="am-cond-btn active" id="am-above" onclick="setAlertCond('above',this)">▲ ВЫШЕ</button>
-      <button class="am-cond-btn" id="am-below" onclick="setAlertCond('below',this)">▼ НИЖЕ</button>
-    </div>
-
-    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">ЦЕНА $</div>
-    <input id="am-price-input" type="number" placeholder="42000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#e8eaf0;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;margin-bottom:16px;">
-
-    <button onclick="saveAlert()" style="width:100%;padding:11px;background:linear-gradient(135deg,#e8722a,#c85e18);border:none;border-radius:9px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:8px;">СОЗДАТЬ АЛЕРТ</button>
-    <button onclick="closeAlertModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
-  </div>
-</div>
-
-<!-- TRADE QUICK-ADD MODAL -->
-<div id="trade-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
-  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:340px;max-width:90vw;position:relative;">
-    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(46,204,113,0.6),transparent);"></div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:16px;" id="tm-title">СДЕЛКА: BTC/USDT</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:6px;">ТЕКУЩАЯ ЦЕНА</div>
-    <div id="tm-price" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:#e8722a;margin-bottom:16px;">---</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:16px;line-height:1.7;">
-      Откроет журнал с предзаполненной парой и ценой входа.
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <button onclick="openTradeInJournal('long')" style="flex:1;padding:10px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:8px;color:#2ecc71;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📈 LONG</button>
-      <button onclick="openTradeInJournal('short')" style="flex:1;padding:10px;background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.25);border-radius:8px;color:#e74c3c;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📉 SHORT</button>
-    </div>
-    <button onclick="closeTradeModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
-  </div>
-</div>
-
-<style>
-.am-cond-btn{flex:1;padding:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;transition:all 0.15s;}
-.am-cond-btn.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.35);color:#e8722a;}
-.cc-actions{display:flex;gap:4px;padding:0 8px 7px;justify-content:flex-end;}
-.cc-action-btn{padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);background:none;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;}
-.cc-action-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);}
-.cc-action-btn.watchlisted{color:#f39c12;border-color:rgba(243,156,18,0.3);}
-.tb-filter-watch.active{background:rgba(243,156,18,0.1)!important;border-color:rgba(243,156,18,0.3)!important;color:#f39c12!important;}
-</style>
-</body>
-</html>
 // ── Watchlist ──
 let watchlist = JSON.parse(localStorage.getItem('orb_watchlist') || '[]');
 
@@ -996,5 +945,55 @@ function openTradeInJournal(direction){
   const url = `journal.html?pair=${encodeURIComponent(pair)}&entry=${price}&dir=${direction}`;
   window.location.href = url;
 }
+</script>
 
+<!-- ALERT MODAL -->
+<div id="alert-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:320px;max-width:90vw;position:relative;">
+    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),transparent);"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:4px;" id="am-title">АЛЕРТ: BTC</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-bottom:20px;" id="am-price">Текущая цена: $---</div>
 
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">УСЛОВИЕ</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button class="am-cond-btn active" id="am-above" onclick="setAlertCond('above',this)">▲ ВЫШЕ</button>
+      <button class="am-cond-btn" id="am-below" onclick="setAlertCond('below',this)">▼ НИЖЕ</button>
+    </div>
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">ЦЕНА $</div>
+    <input id="am-price-input" type="number" placeholder="42000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#e8eaf0;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;margin-bottom:16px;">
+
+    <button onclick="saveAlert()" style="width:100%;padding:11px;background:linear-gradient(135deg,#e8722a,#c85e18);border:none;border-radius:9px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:8px;">СОЗДАТЬ АЛЕРТ</button>
+    <button onclick="closeAlertModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
+  </div>
+</div>
+
+<!-- TRADE QUICK-ADD MODAL -->
+<div id="trade-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:340px;max-width:90vw;position:relative;">
+    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(46,204,113,0.6),transparent);"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:16px;" id="tm-title">СДЕЛКА: BTC/USDT</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:6px;">ТЕКУЩАЯ ЦЕНА</div>
+    <div id="tm-price" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:#e8722a;margin-bottom:16px;">---</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:16px;line-height:1.7;">
+      Откроет журнал с предзаполненной парой и ценой входа.
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button onclick="openTradeInJournal('long')" style="flex:1;padding:10px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:8px;color:#2ecc71;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📈 LONG</button>
+      <button onclick="openTradeInJournal('short')" style="flex:1;padding:10px;background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.25);border-radius:8px;color:#e74c3c;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📉 SHORT</button>
+    </div>
+    <button onclick="closeTradeModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
+  </div>
+</div>
+
+<style>
+.am-cond-btn{flex:1;padding:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;transition:all 0.15s;}
+.am-cond-btn.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.35);color:#e8722a;}
+.cc-actions{display:flex;gap:4px;padding:0 8px 7px;justify-content:flex-end;}
+.cc-action-btn{padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);background:none;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;}
+.cc-action-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);}
+.cc-action-btn.watchlisted{color:#f39c12;border-color:rgba(243,156,18,0.3);}
+.tb-filter-watch.active{background:rgba(243,156,18,0.1)!important;border-color:rgba(243,156,18,0.3)!important;color:#f39c12!important;}
+</style>
+</body>
+</html>
