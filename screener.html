@@ -804,12 +804,13 @@ function focusCoin(id){
 // ── Авторизация ──
 async function initAuth(){
   const { data:{user} } = await sb.auth.getUser();
-  if(!user){ window.location.href='login.html'; return; }
+  if(!user){ window.location.href='login.html'; return false; }
   const { data:profile } = await sb.from('profiles').select('full_name,username').eq('id',user.id).single();
   const name = profile?.full_name || profile?.username || user.email?.split('@')[0] || '?';
   document.getElementById('sb-avatar').textContent = name[0].toUpperCase();
   document.getElementById('sb-name').textContent   = name;
   document.getElementById('sb-plan').textContent   = '∞ НАВСЕГДА';
+  return true;
 }
 
 async function doLogout(){
@@ -835,7 +836,8 @@ function initAutoRefresh(){
 
 // ── INIT ──
 async function init(){
-  await initAuth();
+  const ok = await initAuth();
+  if (!ok) return; // initAuth уже сделал redirect
   await loadCoins();
   initAutoRefresh();
 }
