@@ -456,6 +456,7 @@ body::before{
       <button class="tb-filter" onclick="setFilter('layer1',this)">L1</button>
       <button class="tb-filter" onclick="setFilter('layer2',this)">L2</button>
       <button class="tb-filter" onclick="setFilter('meme',this)">МЕМЫ</button>
+      <button class="tb-filter tb-filter-watch" onclick="setFilter('watchlist',this)">⭐ ИЗБРАННОЕ</button>
     </div>
     <div class="tb-sep"></div>
     <!-- Сортировка -->
@@ -590,8 +591,11 @@ function setFilter(f, btn){
 
 function applyFilter(){
   let coins = [...allCoins];
-  if(currentFilter === 'top')   coins = coins.slice(0,50);
-  if(currentFilter !== 'all' && currentFilter !== 'top'){
+  if(currentFilter === 'watchlist') {
+    coins = coins.filter(c => watchlist.includes(c.id));
+  } else if(currentFilter === 'top') {
+    coins = coins.slice(0,50);
+  } else if(currentFilter !== 'all'){
     const ids = CATEGORIES[currentFilter] || [];
     coins = coins.filter(c => ids.includes(c.id));
   }
@@ -694,6 +698,17 @@ function renderCharts(){
             </div>
           </div>
         </div>
+        <div class="cc-actions">
+          <button class="cc-action-btn ${isWatched(coin.id)?'watchlisted':''}" 
+            onclick="event.stopPropagation();toggleWatch('${coin.id}',this)"
+            title="Избранное">${isWatched(coin.id)?'★':'☆'}</button>
+          <button class="cc-action-btn" 
+            onclick="event.stopPropagation();openAlertModal(allCoins.find(c=>c.id==='${coin.id}'))"
+            title="Алерт">🔔</button>
+          <button class="cc-action-btn" 
+            onclick="event.stopPropagation();openTradeModal(allCoins.find(c=>c.id==='${coin.id}'))"
+            title="Добавить сделку">+ СДЕЛКА</button>
+        </div>
       </div>`;
   }).join('');
 
@@ -795,10 +810,9 @@ function renderTable(){
 function focusCoin(id){
   document.querySelectorAll('.tp-row').forEach(r=>r.classList.remove('active'));
   const rows = document.querySelectorAll('.tp-row');
-  rows.forEach(r=>{ if(r.onclick?.toString().includes(id)) r.classList.add('active'); });
-  // Scroll к карточке
-  const card = document.querySelector(`[onclick*="${id}"]`);
-  if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
+  rows.forEach(r=>{ if(r.getAttribute('onclick')?.includes(id)) r.classList.add('active'); });
+  const coin = allCoins.find(c=>c.id===id);
+  if(coin) openTradeModal(coin);
 }
 
 // ── Авторизация ──
@@ -843,5 +857,144 @@ async function init(){
 }
 init();
 </script>
+
+<!-- ALERT MODAL -->
+<div id="alert-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:320px;max-width:90vw;position:relative;">
+    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),transparent);"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:4px;" id="am-title">АЛЕРТ: BTC</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-bottom:20px;" id="am-price">Текущая цена: $---</div>
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">УСЛОВИЕ</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button class="am-cond-btn active" id="am-above" onclick="setAlertCond('above',this)">▲ ВЫШЕ</button>
+      <button class="am-cond-btn" id="am-below" onclick="setAlertCond('below',this)">▼ НИЖЕ</button>
+    </div>
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">ЦЕНА $</div>
+    <input id="am-price-input" type="number" placeholder="42000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#e8eaf0;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;margin-bottom:16px;">
+
+    <button onclick="saveAlert()" style="width:100%;padding:11px;background:linear-gradient(135deg,#e8722a,#c85e18);border:none;border-radius:9px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:8px;">СОЗДАТЬ АЛЕРТ</button>
+    <button onclick="closeAlertModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
+  </div>
+</div>
+
+<!-- TRADE QUICK-ADD MODAL -->
+<div id="trade-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:340px;max-width:90vw;position:relative;">
+    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(46,204,113,0.6),transparent);"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:16px;" id="tm-title">СДЕЛКА: BTC/USDT</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:6px;">ТЕКУЩАЯ ЦЕНА</div>
+    <div id="tm-price" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:#e8722a;margin-bottom:16px;">---</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:16px;line-height:1.7;">
+      Откроет журнал с предзаполненной парой и ценой входа.
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button onclick="openTradeInJournal('long')" style="flex:1;padding:10px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:8px;color:#2ecc71;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📈 LONG</button>
+      <button onclick="openTradeInJournal('short')" style="flex:1;padding:10px;background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.25);border-radius:8px;color:#e74c3c;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📉 SHORT</button>
+    </div>
+    <button onclick="closeTradeModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
+  </div>
+</div>
+
+<style>
+.am-cond-btn{flex:1;padding:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;transition:all 0.15s;}
+.am-cond-btn.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.35);color:#e8722a;}
+.cc-actions{display:flex;gap:4px;padding:0 8px 7px;justify-content:flex-end;}
+.cc-action-btn{padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);background:none;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;}
+.cc-action-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);}
+.cc-action-btn.watchlisted{color:#f39c12;border-color:rgba(243,156,18,0.3);}
+.tb-filter-watch.active{background:rgba(243,156,18,0.1)!important;border-color:rgba(243,156,18,0.3)!important;color:#f39c12!important;}
+</style>
 </body>
 </html>
+// ── Watchlist ──
+let watchlist = JSON.parse(localStorage.getItem('orb_watchlist') || '[]');
+
+// ── Alerts state ──
+let alertModalData = {}; 
+let alertCondition = 'above';
+let tradeModalData = {};
+
+// ── Watchlist helpers ──
+function isWatched(id){ return watchlist.includes(id); }
+function toggleWatch(id, btn){
+  if(isWatched(id)){
+    watchlist = watchlist.filter(x=>x!==id);
+    if(btn){ btn.textContent='☆'; btn.classList.remove('watchlisted'); }
+  } else {
+    watchlist.push(id);
+    if(btn){ btn.textContent='★'; btn.classList.add('watchlisted'); }
+  }
+  localStorage.setItem('orb_watchlist', JSON.stringify(watchlist));
+  // Если сейчас watchlist фильтр — перерисовываем
+  if(currentFilter === 'watchlist') applyFilter();
+}
+
+// ── Alert Modal ──
+function openAlertModal(coin){
+  alertModalData = coin;
+  alertCondition = 'above';
+  document.getElementById('am-title').textContent = 'АЛЕРТ: ' + coin.symbol.toUpperCase();
+  document.getElementById('am-price').textContent = 'Текущая цена: ' + fmtPrice(coin.current_price);
+  document.getElementById('am-price-input').value = coin.current_price?.toFixed(2) || '';
+  document.getElementById('am-above').classList.add('active');
+  document.getElementById('am-below').classList.remove('active');
+  const m = document.getElementById('alert-modal');
+  if(m){ m.style.display='flex'; }
+}
+function closeAlertModal(){
+  const m = document.getElementById('alert-modal');
+  if(m) m.style.display='none';
+}
+function setAlertCond(cond, btn){
+  alertCondition = cond;
+  document.getElementById('am-above').classList.toggle('active', cond==='above');
+  document.getElementById('am-below').classList.toggle('active', cond==='below');
+}
+async function saveAlert(){
+  const price = parseFloat(document.getElementById('am-price-input').value);
+  if(!price || isNaN(price)){ return; }
+  const { data:{user} } = await sb.auth.getUser();
+  if(!user) return;
+  const { error } = await sb.from('price_alerts').insert({
+    user_id: user.id,
+    symbol: alertModalData.symbol?.toUpperCase(),
+    coingecko_id: alertModalData.id,
+    target_price: price,
+    condition: alertCondition,
+    triggered: false,
+  });
+  if(!error){
+    closeAlertModal();
+    // mini toast
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;font-family:JetBrains Mono,monospace;font-size:11px;padding:8px 18px;border-radius:8px;z-index:99999;';
+    toast.textContent = '✅ Алерт создан — получишь уведомление в Telegram';
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(), 3000);
+  }
+}
+
+// ── Trade Modal (быстрое добавление из скринера) ──
+function openTradeModal(coin){
+  tradeModalData = coin;
+  document.getElementById('tm-title').textContent = 'СДЕЛКА: ' + coin.symbol.toUpperCase() + '/USDT';
+  document.getElementById('tm-price').textContent = fmtPrice(coin.current_price);
+  const m = document.getElementById('trade-modal');
+  if(m) m.style.display='flex';
+}
+function closeTradeModal(){
+  const m = document.getElementById('trade-modal');
+  if(m) m.style.display='none';
+}
+function openTradeInJournal(direction){
+  const coin = tradeModalData;
+  const pair = coin.symbol?.toUpperCase() + '/USDT';
+  const price = coin.current_price;
+  // Передаём через URL параметры в journal.html
+  const url = `journal.html?pair=${encodeURIComponent(pair)}&entry=${price}&dir=${direction}`;
+  window.location.href = url;
+}
+
+
