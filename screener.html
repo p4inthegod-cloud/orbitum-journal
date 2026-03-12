@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBITUM — Screener</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════
+   ORBITUM SCREENER — Deep Space Terminal
+   ═══════════════════════════════════════════════════ */
+:root{
+  --bg:     #06080c;
+  --bg1:    #0c0f15;
+  --bg2:    #101420;
+  --a:      #e8722a;
+  --a2:     rgba(232,114,42,0.12);
+  --a3:     rgba(232,114,42,0.28);
+  --g:      #2ecc71;
+  --r:      #e74c3c;
+  --y:      #f39c12;
+  --t:      #e8eaf0;
+  --m:      rgba(232,234,240,0.4);
+  --m2:     rgba(232,234,240,0.2);
+  --bd:     rgba(255,255,255,0.07);
+  --bd2:    rgba(255,255,255,0.12);
+  --sb:     220px;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'Syne',sans-serif;
+  --radius: 10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font-body);overflow:hidden;}
+
+/* ── Фон ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 20%, rgba(232,114,42,0.05) 0%,transparent 65%),
+    radial-gradient(ellipse 50% 60% at 90% 80%, rgba(46,204,113,0.025) 0%,transparent 65%);
+}
+
+/* ══ SIDEBAR ══════════════════════════════════════ */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:var(--sb);
+  background:linear-gradient(180deg,#0d1017 0%,#090c11 100%);
+  border-right:1px solid rgba(255,255,255,0.08);
+  box-shadow:4px 0 32px rgba(0,0,0,0.6);
+  display:flex;flex-direction:column;z-index:100;
+}
+.sb-logo{
+  height:52px;display:flex;align-items:center;gap:8px;padding:0 16px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  background:linear-gradient(180deg,rgba(232,114,42,0.06) 0%,transparent 100%);
+  flex-shrink:0;
+}
+.sb-logo-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--a);flex-shrink:0;
+  box-shadow:0 0 10px var(--a),0 0 20px rgba(232,114,42,0.5);
+  animation:dotPulse 3s ease-in-out infinite;
+}
+@keyframes dotPulse{
+  0%,100%{box-shadow:0 0 8px var(--a),0 0 16px rgba(232,114,42,0.4);}
+  50%{box-shadow:0 0 16px var(--a),0 0 32px rgba(232,114,42,0.6);}
+}
+.sb-logo-text{
+  font-family:var(--font-display);font-size:20px;letter-spacing:6px;
+  background:linear-gradient(100deg,#fff,rgba(255,255,255,0.6));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.sb-nav{flex:1;padding:8px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+.sb-section{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:3px;
+  color:rgba(255,255,255,0.22);padding:14px 10px 5px;text-transform:uppercase;
+}
+.sb-item{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;
+  border-radius:8px;text-decoration:none;cursor:pointer;
+  color:var(--m);font-family:var(--font-mono);font-size:12px;
+  letter-spacing:0.5px;transition:all 0.16s cubic-bezier(0.16,1,0.3,1);
+  border:1px solid transparent;background:none;width:100%;text-align:left;
+}
+.sb-item:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.75);transform:translateX(2px);}
+.sb-item.active{
+  background:linear-gradient(90deg,rgba(232,114,42,0.14),rgba(232,114,42,0.06));
+  border-color:rgba(232,114,42,0.2);color:var(--a);
+  box-shadow:0 0 20px rgba(232,114,42,0.08);
+}
+.sb-divider{height:1px;background:rgba(255,255,255,0.06);margin:5px 4px;}
+.sb-footer{
+  padding:8px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;
+}
+.sb-user{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  border-radius:8px;background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;
+}
+.sb-avatar{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:12px;color:var(--a);flex-shrink:0;
+}
+.sb-user-name{font-size:13px;font-weight:500;}
+.sb-user-plan{font-family:var(--font-mono);font-size:10px;color:var(--a);letter-spacing:1px;}
+.sb-logout{
+  width:100%;padding:6px;background:none;border:1px solid rgba(255,255,255,0.07);
+  border-radius:6px;color:var(--m);font-family:var(--font-mono);
+  font-size:11px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;
+}
+.sb-logout:hover{border-color:var(--r);color:var(--r);background:rgba(231,76,60,0.06);}
+
+/* ══ MAIN LAYOUT ══════════════════════════════════ */
+.main{
+  margin-left:var(--sb);height:100vh;display:flex;flex-direction:column;
+  position:relative;z-index:1;overflow:hidden;
+}
+
+/* ══ TOPBAR ═══════════════════════════════════════ */
+.topbar{
+  height:48px;flex-shrink:0;
+  display:flex;align-items:center;padding:0 20px;gap:12px;
+  background:rgba(8,10,15,0.95);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  box-shadow:0 1px 0 rgba(232,114,42,0.08),0 4px 20px rgba(0,0,0,0.3);
+  position:relative;
+}
+.topbar::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.5) 20%,rgba(255,154,92,0.8) 50%,rgba(232,114,42,0.5) 80%,transparent);
+  animation:topLine 4s ease-in-out infinite;
+}
+@keyframes topLine{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.tb-badge{
+  background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.25);
+  border-radius:6px;padding:3px 12px;
+  font-family:var(--font-mono);font-size:11px;color:var(--a);letter-spacing:2px;
+  text-shadow:0 0 10px rgba(232,114,42,0.4);
+}
+.tb-sep{width:1px;height:16px;background:rgba(255,255,255,0.08);}
+/* Фильтры категорий */
+.tb-filters{display:flex;gap:4px;}
+.tb-filter{
+  padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);
+  background:none;color:var(--m);font-family:var(--font-mono);
+  font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;
+}
+.tb-filter:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);}
+.tb-filter.active{
+  background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.3);
+  color:var(--a);box-shadow:0 0 12px rgba(232,114,42,0.12);
+}
+/* Кол-во монет */
+.tb-count{
+  margin-left:auto;font-family:var(--font-mono);font-size:10px;
+  color:var(--m2);letter-spacing:1px;
+}
+.tb-count span{color:var(--a);}
+/* Сортировка */
+.tb-sort{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-mono);font-size:10px;color:var(--m);
+}
+.tb-sort select{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);
+  border-radius:6px;padding:3px 8px;color:var(--t);
+  font-family:var(--font-mono);font-size:10px;cursor:pointer;outline:none;
+}
+/* Переключатель вид */
+.tb-view{display:flex;gap:2px;}
+.tb-view-btn{
+  width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.08);
+  background:none;color:var(--m);cursor:pointer;font-size:12px;
+  transition:all 0.15s;display:flex;align-items:center;justify-content:center;
+}
+.tb-view-btn.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.3);color:var(--a);}
+/* Поиск */
+.tb-search{
+  background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.08);
+  border-radius:7px;padding:4px 10px;color:var(--t);
+  font-family:var(--font-mono);font-size:10px;outline:none;
+  transition:all 0.15s;width:130px;
+}
+.tb-search:focus{border-color:rgba(232,114,42,0.4);background:rgba(232,114,42,0.05);}
+.tb-search::placeholder{color:var(--m2);}
+
+/* ══ CONTENT AREA ═════════════════════════════════ */
+.content{
+  flex:1;display:flex;gap:0;overflow:hidden;
+}
+
+/* ══ CHARTS GRID ══════════════════════════════════ */
+.charts-area{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:12px;
+  scrollbar-width:thin;scrollbar-color:rgba(232,114,42,0.3) transparent;
+}
+.charts-area::-webkit-scrollbar{width:3px;}
+.charts-area::-webkit-scrollbar-thumb{background:rgba(232,114,42,0.3);border-radius:2px;}
+
+.charts-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:8px;
+}
+.charts-grid.view-large{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}
+.charts-grid.view-list{grid-template-columns:1fr;}
+
+/* ── Chart Card ── */
+.chart-card{
+  background:var(--bg1);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:all 0.2s cubic-bezier(0.16,1,0.3,1);
+  cursor:pointer;
+  position:relative;
+  animation:cardIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.chart-card::before{
+  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
+}
+.chart-card:hover{
+  border-color:rgba(232,114,42,0.25);
+  transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(0,0,0,0.5),0 0 0 1px rgba(232,114,42,0.12);
+}
+.chart-card.up:hover{border-color:rgba(46,204,113,0.3);}
+.chart-card.dn:hover{border-color:rgba(231,76,60,0.25);}
+
+/* Карточка — заголовок */
+.cc-head{
+  padding:8px 10px 4px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.cc-left{display:flex;align-items:center;gap:6px;}
+.cc-rank{
+  font-family:var(--font-mono);font-size:8px;color:var(--m2);
+  width:16px;text-align:center;flex-shrink:0;
+}
+.cc-thumb{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,0.06);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+}
+.cc-thumb img{width:100%;height:100%;object-fit:cover;}
+.cc-sym{
+  font-family:var(--font-display);font-size:15px;letter-spacing:1.5px;color:var(--t);
+}
+.cc-name{
+  font-family:var(--font-mono);font-size:8px;color:var(--m2);
+  letter-spacing:0.5px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cc-right{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+.cc-price{
+  font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--t);
+}
+.cc-chg{
+  font-family:var(--font-mono);font-size:9px;font-weight:600;
+  padding:1px 5px;border-radius:3px;
+}
+.cc-chg.up{color:var(--g);background:rgba(46,204,113,0.1);}
+.cc-chg.dn{color:var(--r);background:rgba(231,76,60,0.1);}
+
+/* Мини-график */
+.cc-chart{
+  height:64px;padding:0 0 2px;position:relative;
+}
+.cc-chart canvas{display:block;}
+
+/* Мета-строка снизу */
+.cc-meta{
+  padding:4px 10px 8px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,0.04);
+}
+.cc-meta-item{display:flex;flex-direction:column;gap:1px;}
+.cc-meta-label{font-family:var(--font-mono);font-size:7px;color:var(--m2);letter-spacing:1px;}
+.cc-meta-val{font-family:var(--font-mono);font-size:9px;color:var(--m);}
+
+/* LIST VIEW */
+.charts-grid.view-list .chart-card{border-radius:8px;}
+.charts-grid.view-list .cc-chart{height:40px;}
+
+/* ══ TABLE PANEL (правая панель) ══════════════════ */
+.table-panel{
+  width:320px;flex-shrink:0;
+  border-left:1px solid rgba(255,255,255,0.07);
+  display:flex;flex-direction:column;overflow:hidden;
+  background:rgba(8,10,15,0.6);
+}
+.tp-head{
+  padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.tp-title{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:2px;
+  color:rgba(255,255,255,0.45);text-transform:uppercase;
+}
+.tp-live{
+  display:flex;align-items:center;gap:5px;
+  font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.25);
+}
+.tp-live-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--g);
+  box-shadow:0 0 5px var(--g);animation:dotPulse 2s ease-in-out infinite;
+}
+/* Заголовки таблицы */
+.tp-cols{
+  display:grid;
+  grid-template-columns:24px 1fr 80px 64px 64px;
+  gap:0;padding:6px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  flex-shrink:0;
+}
+.tp-col-hd{
+  font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;
+  color:rgba(255,255,255,0.25);text-transform:uppercase;
+  cursor:pointer;transition:color 0.15s;user-select:none;
+}
+.tp-col-hd:hover{color:rgba(255,255,255,0.6);}
+.tp-col-hd.sorted{color:var(--a);}
+/* Список */
+.tp-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(232,114,42,0.2) transparent;}
+.tp-list::-webkit-scrollbar{width:2px;}
+.tp-list::-webkit-scrollbar-thumb{background:rgba(232,114,42,0.2);}
+.tp-row{
+  display:grid;
+  grid-template-columns:24px 1fr 80px 64px 64px;
+  gap:0;padding:5px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  transition:all 0.15s;cursor:pointer;
+  align-items:center;
+}
+.tp-row:hover{background:rgba(255,255,255,0.03);}
+.tp-row.active{background:rgba(232,114,42,0.07);border-left:2px solid var(--a);}
+.tp-rank{font-family:var(--font-mono);font-size:8px;color:var(--m2);}
+.tp-coin{display:flex;align-items:center;gap:5px;overflow:hidden;}
+.tp-thumb{
+  width:14px;height:14px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,0.06);overflow:hidden;
+}
+.tp-thumb img{width:100%;height:100%;object-fit:cover;}
+.tp-sym{font-family:var(--font-mono);font-size:10px;font-weight:500;color:var(--t);}
+.tp-price{font-family:var(--font-mono);font-size:9px;color:var(--t);text-align:right;}
+.tp-chg{font-family:var(--font-mono);font-size:9px;font-weight:600;text-align:right;}
+.tp-chg.up{color:var(--g);}
+.tp-chg.dn{color:var(--r);}
+.tp-vol{font-family:var(--font-mono);font-size:8px;color:var(--m2);text-align:right;}
+
+/* ══ LOADING STATE ════════════════════════════════ */
+.loading-screen{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;
+}
+.loading-logo{
+  font-family:var(--font-display);font-size:48px;letter-spacing:12px;
+  background:linear-gradient(90deg,#e8722a,rgba(232,114,42,0.4));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.loading-bar{
+  width:200px;height:2px;background:rgba(255,255,255,0.05);border-radius:1px;overflow:hidden;
+}
+.loading-fill{
+  height:100%;background:linear-gradient(90deg,var(--a),rgba(232,114,42,0.3));
+  border-radius:1px;animation:loadFill 1.5s ease-in-out infinite alternate;
+}
+@keyframes loadFill{from{width:0%;}to{width:100%;}}
+.loading-txt{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:3px;
+  color:rgba(255,255,255,0.3);
+}
+
+/* ══ EMPTY ════════════════════════════════════════ */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;height:200px;color:var(--m2);
+  font-family:var(--font-mono);font-size:11px;letter-spacing:1px;
+}
+
+/* ── Sparkline цвет win/loss ── */
+.chart-card.up .cc-chart{ background:linear-gradient(180deg,rgba(46,204,113,0.04) 0%,transparent 100%); }
+.chart-card.dn .cc-chart{ background:linear-gradient(180deg,rgba(231,76,60,0.04) 0%,transparent 100%); }
+
+/* ── Анимация новых данных ── */
+@keyframes priceFlash{
+  0%,100%{} 40%{background:rgba(232,114,42,0.12);border-radius:3px;}
+}
+.price-updated{ animation:priceFlash 0.5s ease; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loading">
+  <div class="loading-logo">ORBITUM</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-txt">ЗАГРУЗКА СКРИНЕРА...</div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-dot"></div>
+    <span class="sb-logo-text">ORBITUM</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Кабинет</div>
+    <a href="journal.html" class="sb-item">
+      <span>📋</span>Журнал сделок
+    </a>
+    <a href="journal.html" class="sb-item" onclick="event.preventDefault();window.location='journal.html#dashboard'">
+      <span>📊</span>Аналитика
+    </a>
+    <a href="journal.html" class="sb-item" onclick="event.preventDefault();window.location='journal.html#progress'">
+      <span>📈</span>Прогресс
+    </a>
+    <div class="sb-divider"></div>
+    <div class="sb-section">Инструменты</div>
+    <a href="screener.html" class="sb-item active">
+      <span>🔍</span>Скринер
+    </a>
+    <a href="profile.html" class="sb-item">
+      <span>🧠</span>Мой профиль ↗
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">?</div>
+      <div>
+        <div class="sb-user-name" id="sb-name">...</div>
+        <div class="sb-user-plan" id="sb-plan">—</div>
+      </div>
+    </div>
+    <button class="sb-logout" onclick="doLogout()">ВЫЙТИ</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="tb-badge">СКРИНЕР</span>
+    <div class="tb-sep"></div>
+    <!-- Фильтры -->
+    <div class="tb-filters">
+      <button class="tb-filter active" onclick="setFilter('all',this)">ВСЕ</button>
+      <button class="tb-filter" onclick="setFilter('top',this)">ТОП-50</button>
+      <button class="tb-filter" onclick="setFilter('defi',this)">DEFI</button>
+      <button class="tb-filter" onclick="setFilter('layer1',this)">L1</button>
+      <button class="tb-filter" onclick="setFilter('layer2',this)">L2</button>
+      <button class="tb-filter" onclick="setFilter('meme',this)">МЕМЫ</button>
+      <button class="tb-filter tb-filter-watch" onclick="setFilter('watchlist',this)">⭐ ИЗБРАННОЕ</button>
+    </div>
+    <div class="tb-sep"></div>
+    <!-- Сортировка -->
+    <div class="tb-sort">
+      <span>СОРТ:</span>
+      <select id="sort-select" onchange="applySort()">
+        <option value="market_cap">MCAP</option>
+        <option value="change_desc">% ▼</option>
+        <option value="change_asc">% ▲</option>
+        <option value="volume">ОБЪЁМ</option>
+        <option value="price">ЦЕНА</option>
+      </select>
+    </div>
+    <div class="tb-sep"></div>
+    <!-- Поиск -->
+    <input class="tb-search" id="search-inp" placeholder="🔍 ПОИСК..." oninput="applySearch(this.value)">
+    <!-- Вид -->
+    <div class="tb-view">
+      <button class="tb-view-btn active" id="view-grid" onclick="setView('grid',this)" title="Сетка">⊞</button>
+      <button class="tb-view-btn" id="view-large" onclick="setView('large',this)" title="Большие">⊟</button>
+      <button class="tb-view-btn" id="view-list" onclick="setView('list',this)" title="Список">☰</button>
+    </div>
+    <div class="tb-count">
+      МОНЕТ: <span id="count-shown">0</span>/<span id="count-total">0</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- CHARTS GRID -->
+    <div class="charts-area" id="charts-area">
+      <div class="charts-grid" id="charts-grid">
+        <!-- заполняется JS -->
+      </div>
+    </div>
+
+    <!-- TABLE PANEL -->
+    <div class="table-panel">
+      <div class="tp-head">
+        <span class="tp-title">МОНЕТЫ</span>
+        <div class="tp-live"><div class="tp-live-dot"></div>LIVE</div>
+      </div>
+      <div class="tp-cols">
+        <div class="tp-col-hd">#</div>
+        <div class="tp-col-hd sorted" onclick="tableSortBy('market_cap')">МОНЕТА</div>
+        <div class="tp-col-hd" onclick="tableSortBy('price')" style="text-align:right">ЦЕНА</div>
+        <div class="tp-col-hd" onclick="tableSortBy('change')" style="text-align:right">24Ч%</div>
+        <div class="tp-col-hd" onclick="tableSortBy('volume')" style="text-align:right">ОБЪ</div>
+      </div>
+      <div class="tp-list" id="tp-list">
+        <!-- заполняется JS -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════
+// ORBITUM SCREENER
+// ═══════════════════════════════════════════════════
+
+const SUPABASE_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── Категории монет ──
+const CATEGORIES = {
+  defi:   ['uniswap','aave','compound-governance-token','maker','curve-dao-token','sushi','yearn-finance','synthetix-network-token','balancer','1inch'],
+  layer1: ['bitcoin','ethereum','solana','avalanche-2','cardano','polkadot','near','cosmos','algorand','tron'],
+  layer2: ['matic-network','optimism','arbitrum','immutable-x','loopring','metis-token','boba-network','zkspace'],
+  meme:   ['dogecoin','shiba-inu','pepe','floki','bonk','dogwifcoin','book-of-meme','popcat'],
+};
+
+// ── Состояние ──
+let allCoins     = [];
+let filteredCoins= [];
+let currentFilter= 'all';
+let currentSort  = 'market_cap';
+let searchQuery  = '';
+let currentView  = 'grid';
+let charts       = {}; // canvasId → Chart instance
+let tableSortField = 'market_cap';
+let tableSortDir   = -1;
+
+// ── Форматирование ──
+function fmtPrice(p){
+  if(p===null||p===undefined) return '---';
+  if(p >= 1000)  return '$' + p.toLocaleString('en',{maximumFractionDigits:0});
+  if(p >= 1)     return '$' + p.toFixed(2);
+  if(p >= 0.01)  return '$' + p.toFixed(4);
+  return '$' + p.toFixed(7);
+}
+function fmtBig(n){
+  if(!n) return '---';
+  if(n>=1e12) return (n/1e12).toFixed(1)+'T';
+  if(n>=1e9)  return (n/1e9).toFixed(1)+'B';
+  if(n>=1e6)  return (n/1e6).toFixed(0)+'M';
+  return n.toLocaleString();
+}
+
+// ── Загрузка данных ──
+async function loadCoins(){
+  try{
+    // Берём топ 100 по mcap + sparkline 7d для мини-графиков
+    const r = await fetch('/api/ticker?type=screener');
+    const d = await r.json();
+    if(!Array.isArray(d) || !d.length) throw new Error('empty');
+    allCoins = d;
+    document.getElementById('count-total').textContent = d.length;
+    applyFilter();
+    document.getElementById('loading').style.display = 'none';
+  }catch(e){
+    console.error('[Screener] Load error:', e);
+    document.getElementById('loading').innerHTML =
+      `<div style="font-family:'JetBrains Mono',monospace;color:rgba(232,114,42,0.7);font-size:13px;text-align:center">
+        ⚠️ ОШИБКА ЗАГРУЗКИ<br><span style="font-size:10px;opacity:0.6;margin-top:8px;display:block">Убедитесь что api/ticker.js задеплоен на Vercel</span>
+       </div>`;
+  }
+}
+
+// ── Фильтрация ──
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.tb-filter').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter(){
+  let coins = [...allCoins];
+  if(currentFilter === 'watchlist') {
+    coins = coins.filter(c => watchlist.includes(c.id));
+  } else if(currentFilter === 'top') {
+    coins = coins.slice(0,50);
+  } else if(currentFilter !== 'all'){
+    const ids = CATEGORIES[currentFilter] || [];
+    coins = coins.filter(c => ids.includes(c.id));
+  }
+  if(searchQuery){
+    const q = searchQuery.toLowerCase();
+    coins = coins.filter(c =>
+      c.symbol.toLowerCase().includes(q) ||
+      c.name.toLowerCase().includes(q)
+    );
+  }
+  filteredCoins = coins;
+  applySort();
+}
+
+function applySearch(q){
+  searchQuery = q;
+  applyFilter();
+}
+
+function applySort(){
+  const s = document.getElementById('sort-select').value;
+  currentSort = s;
+  const sorted = [...filteredCoins].sort((a,b)=>{
+    if(s==='change_desc') return (b.price_change_percentage_24h||0)-(a.price_change_percentage_24h||0);
+    if(s==='change_asc')  return (a.price_change_percentage_24h||0)-(b.price_change_percentage_24h||0);
+    if(s==='volume')      return (b.total_volume||0)-(a.total_volume||0);
+    if(s==='price')       return (b.current_price||0)-(a.current_price||0);
+    return (b.market_cap||0)-(a.market_cap||0);
+  });
+  filteredCoins = sorted;
+  renderCharts();
+  renderTable();
+}
+
+// ── Вид ──
+function setView(v, btn){
+  currentView = v;
+  document.querySelectorAll('.tb-view-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const grid = document.getElementById('charts-grid');
+  grid.className = 'charts-grid' + (v==='large'?' view-large':v==='list'?' view-list':'');
+  // Перерисовываем чтобы canvas обновил размер
+  setTimeout(()=>{ Object.values(charts).forEach(ch=>ch.resize()); },100);
+}
+
+// ── Рендер мини-графиков ──
+function renderCharts(){
+  const grid = document.getElementById('charts-grid');
+  const shown = filteredCoins.slice(0,60);
+  document.getElementById('count-shown').textContent = shown.length;
+
+  // Уничтожаем старые чарты
+  Object.values(charts).forEach(ch=>{ try{ch.destroy();}catch(_){} });
+  charts = {};
+
+  grid.innerHTML = shown.map((coin,i) => {
+    const chg  = coin.price_change_percentage_24h || 0;
+    const isUp = chg >= 0;
+    const clr  = isUp ? '#2ecc71' : '#e74c3c';
+    const cid  = `chart-${coin.id.replace(/[^a-z0-9]/g,'-')}`;
+    const thumb = coin.image || '';
+    const vol   = fmtBig(coin.total_volume);
+    const mcap  = fmtBig(coin.market_cap);
+
+    return `
+      <div class="chart-card ${isUp?'up':'dn'}" style="animation-delay:${i*0.02}s"
+           onclick="focusCoin('${coin.id}')">
+        <div class="cc-head">
+          <div class="cc-left">
+            <span class="cc-rank">${coin.market_cap_rank||'—'}</span>
+            <div class="cc-thumb">
+              ${thumb?`<img src="${thumb}" loading="lazy" onerror="this.style.display='none'">`:'🪙'}
+            </div>
+            <div>
+              <div class="cc-sym">${coin.symbol.toUpperCase()}</div>
+              <div class="cc-name">${coin.name}</div>
+            </div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-price">${fmtPrice(coin.current_price)}</div>
+            <div class="cc-chg ${isUp?'up':'dn'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
+          </div>
+        </div>
+        <div class="cc-chart">
+          <canvas id="${cid}" height="64"></canvas>
+        </div>
+        <div class="cc-meta">
+          <div class="cc-meta-item">
+            <div class="cc-meta-label">ОБЪЁМ</div>
+            <div class="cc-meta-val">$${vol}</div>
+          </div>
+          <div class="cc-meta-item" style="text-align:center">
+            <div class="cc-meta-label">MCAP</div>
+            <div class="cc-meta-val">$${mcap}</div>
+          </div>
+          <div class="cc-meta-item" style="text-align:right">
+            <div class="cc-meta-label">7D %</div>
+            <div class="cc-meta-val" style="color:${coin.price_change_percentage_7d_in_currency>=0?'var(--g)':'var(--r)'}">
+              ${coin.price_change_percentage_7d_in_currency!=null?(coin.price_change_percentage_7d_in_currency>=0?'+':'')+coin.price_change_percentage_7d_in_currency.toFixed(1)+'%':'—'}
+            </div>
+          </div>
+        </div>
+        <div class="cc-actions">
+          <button class="cc-action-btn ${isWatched(coin.id)?'watchlisted':''}" 
+            onclick="event.stopPropagation();toggleWatch('${coin.id}',this)"
+            title="Избранное">${isWatched(coin.id)?'★':'☆'}</button>
+          <button class="cc-action-btn" 
+            onclick="event.stopPropagation();openAlertModal(allCoins.find(c=>c.id==='${coin.id}'))"
+            title="Алерт">🔔</button>
+          <button class="cc-action-btn" 
+            onclick="event.stopPropagation();openTradeModal(allCoins.find(c=>c.id==='${coin.id}'))"
+            title="Добавить сделку">+ СДЕЛКА</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Рисуем sparklines
+  requestAnimationFrame(()=>{
+    shown.forEach(coin=>{
+      const cid = `chart-${coin.id.replace(/[^a-z0-9]/g,'-')}`;
+      const canvas = document.getElementById(cid);
+      if(!canvas) return;
+      const spark = coin.sparkline_in_7d?.price || [];
+      if(!spark.length) return;
+
+      const chg  = coin.price_change_percentage_24h || 0;
+      const isUp = chg >= 0;
+      const color = isUp ? '#2ecc71' : '#e74c3c';
+      const fill  = isUp ? 'rgba(46,204,113,0.08)' : 'rgba(231,76,60,0.08)';
+
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createLinearGradient(0,0,0,64);
+      grad.addColorStop(0, isUp?'rgba(46,204,113,0.25)':'rgba(231,76,60,0.25)');
+      grad.addColorStop(1,'rgba(0,0,0,0)');
+
+      charts[cid] = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels: spark.map((_,i)=>i),
+          datasets:[{
+            data: spark,
+            borderColor: color,
+            borderWidth: 1.5,
+            fill: true,
+            backgroundColor: grad,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+          }]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          animation:{duration:400},
+          plugins:{legend:{display:false},tooltip:{enabled:false}},
+          scales:{
+            x:{display:false,grid:{display:false}},
+            y:{display:false,grid:{display:false}}
+          },
+          elements:{line:{capBezierPoints:false}}
+        }
+      });
+    });
+  });
+}
+
+// ── Таблица ──
+let _tableSortField = 'market_cap';
+let _tableSortDir   = -1;
+
+function tableSortBy(field){
+  if(_tableSortField===field) _tableSortDir*=-1;
+  else { _tableSortField=field; _tableSortDir=-1; }
+  document.querySelectorAll('.tp-col-hd').forEach(h=>h.classList.remove('sorted'));
+  renderTable();
+}
+
+function renderTable(){
+  const list = document.getElementById('tp-list');
+  let coins = [...allCoins];
+  coins.sort((a,b)=>{
+    const fa = _tableSortField==='price' ? (a.current_price||0)
+             : _tableSortField==='change' ? (a.price_change_percentage_24h||0)
+             : _tableSortField==='volume' ? (a.total_volume||0)
+             : (a.market_cap||0);
+    const fb = _tableSortField==='price' ? (b.current_price||0)
+             : _tableSortField==='change' ? (b.price_change_percentage_24h||0)
+             : _tableSortField==='volume' ? (b.total_volume||0)
+             : (b.market_cap||0);
+    return (fb-fa)*_tableSortDir;
+  });
+
+  list.innerHTML = coins.slice(0,100).map((c,i)=>{
+    const chg  = c.price_change_percentage_24h || 0;
+    const isUp = chg >= 0;
+    return `
+      <div class="tp-row" onclick="focusCoin('${c.id}')">
+        <div class="tp-rank">${c.market_cap_rank||i+1}</div>
+        <div class="tp-coin">
+          <div class="tp-thumb">
+            ${c.image?`<img src="${c.image}" loading="lazy">`:''}
+          </div>
+          <span class="tp-sym">${c.symbol.toUpperCase()}</span>
+        </div>
+        <div class="tp-price">${fmtPrice(c.current_price)}</div>
+        <div class="tp-chg ${isUp?'up':'dn'}">${isUp?'+':''}${chg.toFixed(2)}%</div>
+        <div class="tp-vol">$${fmtBig(c.total_volume)}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Фокус на монету ──
+function focusCoin(id){
+  document.querySelectorAll('.tp-row').forEach(r=>r.classList.remove('active'));
+  const rows = document.querySelectorAll('.tp-row');
+  rows.forEach(r=>{ if(r.getAttribute('onclick')?.includes(id)) r.classList.add('active'); });
+  const coin = allCoins.find(c=>c.id===id);
+  if(coin) openTradeModal(coin);
+}
+
+// ── Авторизация ──
+async function initAuth(){
+  const { data:{user} } = await sb.auth.getUser();
+  if(!user){ window.location.href='login.html'; return false; }
+  const { data:profile } = await sb.from('profiles').select('full_name,username').eq('id',user.id).single();
+  const name = profile?.full_name || profile?.username || user.email?.split('@')[0] || '?';
+  document.getElementById('sb-avatar').textContent = name[0].toUpperCase();
+  document.getElementById('sb-name').textContent   = name;
+  document.getElementById('sb-plan').textContent   = '∞ НАВСЕГДА';
+  return true;
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  window.location.href='login.html';
+}
+
+// ── Автообновление ──
+function initAutoRefresh(){
+  setInterval(async()=>{
+    try{
+      const r = await fetch('/api/ticker?type=screener');
+      const d = await r.json();
+      if(!Array.isArray(d)||!d.length) return;
+      // Обновляем только цены в таблице (без перерисовки графиков)
+      d.forEach(coin=>{
+        allCoins = allCoins.map(c=> c.id===coin.id ? {...c, current_price:coin.current_price, price_change_percentage_24h:coin.price_change_percentage_24h} : c);
+      });
+      renderTable();
+    }catch(_){}
+  }, 60000); // раз в минуту
+}
+
+// ── INIT ──
+async function init(){
+  const ok = await initAuth();
+  if (!ok) return; // initAuth уже сделал redirect
+  await loadCoins();
+  initAutoRefresh();
+}
+init();
+</script>
+
+<!-- ALERT MODAL -->
+<div id="alert-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:320px;max-width:90vw;position:relative;">
+    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),transparent);"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:4px;" id="am-title">АЛЕРТ: BTC</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-bottom:20px;" id="am-price">Текущая цена: $---</div>
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">УСЛОВИЕ</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button class="am-cond-btn active" id="am-above" onclick="setAlertCond('above',this)">▲ ВЫШЕ</button>
+      <button class="am-cond-btn" id="am-below" onclick="setAlertCond('below',this)">▼ НИЖЕ</button>
+    </div>
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:8px;">ЦЕНА $</div>
+    <input id="am-price-input" type="number" placeholder="42000" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;color:#e8eaf0;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;margin-bottom:16px;">
+
+    <button onclick="saveAlert()" style="width:100%;padding:11px;background:linear-gradient(135deg,#e8722a,#c85e18);border:none;border-radius:9px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-bottom:8px;">СОЗДАТЬ АЛЕРТ</button>
+    <button onclick="closeAlertModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
+  </div>
+</div>
+
+<!-- TRADE QUICK-ADD MODAL -->
+<div id="trade-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:#0d1017;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:340px;max-width:90vw;position:relative;">
+    <div style="position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(46,204,113,0.6),transparent);"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;margin-bottom:16px;" id="tm-title">СДЕЛКА: BTC/USDT</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-bottom:6px;">ТЕКУЩАЯ ЦЕНА</div>
+    <div id="tm-price" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:#e8722a;margin-bottom:16px;">---</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:16px;line-height:1.7;">
+      Откроет журнал с предзаполненной парой и ценой входа.
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button onclick="openTradeInJournal('long')" style="flex:1;padding:10px;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:8px;color:#2ecc71;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📈 LONG</button>
+      <button onclick="openTradeInJournal('short')" style="flex:1;padding:10px;background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.25);border-radius:8px;color:#e74c3c;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;">📉 SHORT</button>
+    </div>
+    <button onclick="closeTradeModal()" style="width:100%;padding:8px;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">ОТМЕНА</button>
+  </div>
+</div>
+
+<style>
+.am-cond-btn{flex:1;padding:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;transition:all 0.15s;}
+.am-cond-btn.active{background:rgba(232,114,42,0.12);border-color:rgba(232,114,42,0.35);color:#e8722a;}
+.cc-actions{display:flex;gap:4px;padding:0 8px 7px;justify-content:flex-end;}
+.cc-action-btn{padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);background:none;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;}
+.cc-action-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);}
+.cc-action-btn.watchlisted{color:#f39c12;border-color:rgba(243,156,18,0.3);}
+.tb-filter-watch.active{background:rgba(243,156,18,0.1)!important;border-color:rgba(243,156,18,0.3)!important;color:#f39c12!important;}
+</style>
+</body>
+</html>
+// ── Watchlist ──
+let watchlist = JSON.parse(localStorage.getItem('orb_watchlist') || '[]');
+
+// ── Alerts state ──
+let alertModalData = {}; 
+let alertCondition = 'above';
+let tradeModalData = {};
+
+// ── Watchlist helpers ──
+function isWatched(id){ return watchlist.includes(id); }
+function toggleWatch(id, btn){
+  if(isWatched(id)){
+    watchlist = watchlist.filter(x=>x!==id);
+    if(btn){ btn.textContent='☆'; btn.classList.remove('watchlisted'); }
+  } else {
+    watchlist.push(id);
+    if(btn){ btn.textContent='★'; btn.classList.add('watchlisted'); }
+  }
+  localStorage.setItem('orb_watchlist', JSON.stringify(watchlist));
+  // Если сейчас watchlist фильтр — перерисовываем
+  if(currentFilter === 'watchlist') applyFilter();
+}
+
+// ── Alert Modal ──
+function openAlertModal(coin){
+  alertModalData = coin;
+  alertCondition = 'above';
+  document.getElementById('am-title').textContent = 'АЛЕРТ: ' + coin.symbol.toUpperCase();
+  document.getElementById('am-price').textContent = 'Текущая цена: ' + fmtPrice(coin.current_price);
+  document.getElementById('am-price-input').value = coin.current_price?.toFixed(2) || '';
+  document.getElementById('am-above').classList.add('active');
+  document.getElementById('am-below').classList.remove('active');
+  const m = document.getElementById('alert-modal');
+  if(m){ m.style.display='flex'; }
+}
+function closeAlertModal(){
+  const m = document.getElementById('alert-modal');
+  if(m) m.style.display='none';
+}
+function setAlertCond(cond, btn){
+  alertCondition = cond;
+  document.getElementById('am-above').classList.toggle('active', cond==='above');
+  document.getElementById('am-below').classList.toggle('active', cond==='below');
+}
+async function saveAlert(){
+  const price = parseFloat(document.getElementById('am-price-input').value);
+  if(!price || isNaN(price)){ return; }
+  const { data:{user} } = await sb.auth.getUser();
+  if(!user) return;
+  const { error } = await sb.from('price_alerts').insert({
+    user_id: user.id,
+    symbol: alertModalData.symbol?.toUpperCase(),
+    coingecko_id: alertModalData.id,
+    target_price: price,
+    condition: alertCondition,
+    triggered: false,
+  });
+  if(!error){
+    closeAlertModal();
+    // mini toast
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;font-family:JetBrains Mono,monospace;font-size:11px;padding:8px 18px;border-radius:8px;z-index:99999;';
+    toast.textContent = '✅ Алерт создан — получишь уведомление в Telegram';
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(), 3000);
+  }
+}
+
+// ── Trade Modal (быстрое добавление из скринера) ──
+function openTradeModal(coin){
+  tradeModalData = coin;
+  document.getElementById('tm-title').textContent = 'СДЕЛКА: ' + coin.symbol.toUpperCase() + '/USDT';
+  document.getElementById('tm-price').textContent = fmtPrice(coin.current_price);
+  const m = document.getElementById('trade-modal');
+  if(m) m.style.display='flex';
+}
+function closeTradeModal(){
+  const m = document.getElementById('trade-modal');
+  if(m) m.style.display='none';
+}
+function openTradeInJournal(direction){
+  const coin = tradeModalData;
+  const pair = coin.symbol?.toUpperCase() + '/USDT';
+  const price = coin.current_price;
+  // Передаём через URL параметры в journal.html
+  const url = `journal.html?pair=${encodeURIComponent(pair)}&entry=${price}&dir=${direction}`;
+  window.location.href = url;
+}
+
+
