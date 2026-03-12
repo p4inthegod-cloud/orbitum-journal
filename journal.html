@@ -7970,7 +7970,7 @@ async function sendChatMessage() {
 
 
 // ══ TELEGRAM / SETTINGS JS ═════════════════════════════════════════
-const NOTIFY_SECRET = 'orbitum2024';
+// Секрет для API — используется Supabase session JWT (безопаснее чем статичный ключ)
 
 async function loadSettingsPage() {
   if (!currentUser) return;
@@ -8033,7 +8033,7 @@ async function testTgNotify() {
   try {
     await fetch('/api/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Secret': NOTIFY_SECRET },
+      headers: { 'Content-Type': 'application/json', 'X-Notify-User': currentUser?.id || '' },
       body: JSON.stringify({
         type: 'trade',
         chat_id: p.tg_chat_id,
@@ -8099,7 +8099,7 @@ async function sendTradeNotify(tradeData) {
 
     await fetch('/api/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Secret': NOTIFY_SECRET },
+      headers: { 'Content-Type': 'application/json', 'X-Notify-User': currentUser?.id || '' },
       body: JSON.stringify({ type: 'trade', chat_id: p.tg_chat_id, data: tradeData })
     });
   } catch(e) { /* тихо — не мешаем основному флоу */ }
@@ -8117,7 +8117,7 @@ async function checkTiltAlert() {
     const totalLoss = last3.reduce((s,t) => s + (t.pnl_pct || 0), 0);
     await fetch('/api/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Secret': NOTIFY_SECRET },
+      headers: { 'Content-Type': 'application/json', 'X-Notify-User': currentUser?.id || '' },
       body: JSON.stringify({ type: 'tilt', chat_id: p.tg_chat_id, data: { losses_count: 3, total_loss_pct: totalLoss } })
     });
   }
@@ -8353,7 +8353,7 @@ async function sendChatMessage() {
 
 
 // ══ TELEGRAM / SETTINGS JS ═════════════════════════════════════════
-const NOTIFY_SECRET = 'orbitum2024';
+// Секрет для API — используется Supabase session JWT (безопаснее чем статичный ключ)
 
 async function loadSettingsPage() {
   if (!currentUser) return;
@@ -8416,7 +8416,7 @@ async function testTgNotify() {
   try {
     await fetch('/api/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Secret': NOTIFY_SECRET },
+      headers: { 'Content-Type': 'application/json', 'X-Notify-User': currentUser?.id || '' },
       body: JSON.stringify({
         type: 'trade',
         chat_id: p.tg_chat_id,
@@ -8482,7 +8482,7 @@ async function sendTradeNotify(tradeData) {
 
     await fetch('/api/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Secret': NOTIFY_SECRET },
+      headers: { 'Content-Type': 'application/json', 'X-Notify-User': currentUser?.id || '' },
       body: JSON.stringify({ type: 'trade', chat_id: p.tg_chat_id, data: tradeData })
     });
   } catch(e) { /* тихо — не мешаем основному флоу */ }
@@ -8500,7 +8500,7 @@ async function checkTiltAlert() {
     const totalLoss = last3.reduce((s,t) => s + (t.pnl_pct || 0), 0);
     await fetch('/api/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Secret': NOTIFY_SECRET },
+      headers: { 'Content-Type': 'application/json', 'X-Notify-User': currentUser?.id || '' },
       body: JSON.stringify({ type: 'tilt', chat_id: p.tg_chat_id, data: { losses_count: 3, total_loss_pct: totalLoss } })
     });
   }
