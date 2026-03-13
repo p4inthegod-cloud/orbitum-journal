@@ -37,6 +37,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   border-right:1px solid rgba(232,114,42,0.12);
   display:flex;flex-direction:column;overflow:hidden;
   box-shadow:4px 0 32px rgba(0,0,0,0.5);
+  min-height:0;
 }
 .sb-logo{
   height:52px;display:flex;align-items:center;gap:9px;padding:0 16px;
@@ -46,7 +47,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .sb-dot{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);flex-shrink:0;}
 .sb-logo-text{font-family:var(--font-display);font-size:20px;letter-spacing:6px;color:#fff;}
-.sb-nav{flex:1;padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.sb-nav{flex:1;padding:8px;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:1px;min-height:0;scrollbar-width:thin;scrollbar-color:rgba(232,114,42,0.2) transparent;}
 .sb-section{font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:2.5px;padding:12px 8px 4px;text-transform:uppercase;}
 .sb-item{
   display:flex;align-items:center;gap:8px;padding:9px 10px;
@@ -1127,6 +1128,84 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   height:100px;font-size:9px;color:var(--m2);letter-spacing:2px;
 }
 
+
+/* ══ DRAWING TOOLBAR ═════════════════════════════════════════════ */
+.draw-toolbar{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:2px;
+  padding:4px 10px;border-bottom:1px solid var(--bd);
+  background:#080b10;
+}
+.draw-btn{
+  height:28px;min-width:28px;padding:0 6px;border-radius:4px;
+  border:1px solid transparent;cursor:pointer;background:transparent;
+  font-size:12px;color:rgba(232,234,240,0.4);transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  font-family:var(--font-mono);
+  position:relative;
+}
+.draw-btn:hover{background:rgba(255,255,255,.05);color:var(--t);}
+.draw-btn.active{
+  background:rgba(232,114,42,.15);color:var(--a);
+  border-color:rgba(232,114,42,.3);
+}
+.draw-btn .draw-lbl{font-size:8px;letter-spacing:.5px;}
+.draw-sep{width:1px;height:20px;background:var(--bd);margin:0 4px;flex-shrink:0;}
+/* Chart alert price input popup */
+.chart-alert-popup{
+  position:fixed;background:#0d1017;border:1px solid rgba(232,114,42,.35);
+  border-radius:8px;padding:12px 14px;z-index:9999;
+  box-shadow:0 12px 40px rgba(0,0,0,.8);
+  font-family:var(--font-mono);min-width:220px;
+}
+.cap-title{font-size:10px;color:var(--a);letter-spacing:2px;margin-bottom:8px;}
+.cap-price{font-size:13px;color:var(--t);margin-bottom:10px;}
+.cap-input{
+  width:100%;background:#070a0e;border:1px solid var(--bd);border-radius:5px;
+  color:var(--t);font-family:var(--font-mono);font-size:11px;
+  padding:7px 10px;outline:none;margin-bottom:8px;
+  transition:border-color .15s;
+}
+.cap-input:focus{border-color:rgba(232,114,42,.4);}
+.cap-row{display:flex;gap:6px;}
+.cap-ok{flex:1;height:30px;border-radius:5px;border:none;cursor:pointer;
+  background:rgba(232,114,42,.2);color:var(--a);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;
+  transition:background .15s;}
+.cap-ok:hover{background:rgba(232,114,42,.35);}
+.cap-cancel{height:30px;padding:0 12px;border-radius:5px;
+  border:1px solid var(--bd);cursor:pointer;background:transparent;
+  color:var(--m2);font-family:var(--font-mono);font-size:9px;}
+
+/* Drawing tooltip */
+.draw-cursor-tooltip{
+  position:fixed;pointer-events:none;z-index:9998;
+  background:rgba(6,8,12,.92);border:1px solid rgba(232,114,42,.2);
+  border-radius:4px;padding:3px 7px;
+  font-family:var(--font-mono);font-size:8.5px;color:var(--m);
+  white-space:nowrap;transform:translate(14px,-50%);
+}
+
+
+/* ── NEWS ITEM DESCRIPTIONS ──────────────────────────── */
+.news-desc{
+  font-size:9px;color:rgba(232,234,240,0.35);
+  line-height:1.5;margin-bottom:4px;margin-top:1px;
+  font-style:italic;
+}
+.news-impact-row{
+  display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap;
+}
+.news-impact-lbl{font-size:7.5px;color:var(--m2);letter-spacing:.5px;}
+.news-asset-tag{
+  font-size:7.5px;padding:1px 5px;border-radius:3px;
+  background:rgba(232,114,42,.1);color:rgba(232,114,42,.8);
+  border:1px solid rgba(232,114,42,.15);letter-spacing:.5px;font-weight:600;
+}
+.news-impact-dir{font-size:7.5px;margin-left:2px;}
+.news-impact-dir.bull{color:var(--g);}
+.news-impact-dir.bear{color:var(--r);}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -1340,6 +1419,46 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
               <span id="scv-time" style="font-size:7.5px;color:var(--m2)">—</span>
             </div>
             <!-- Canvas -->
+            <!-- Drawing toolbar -->
+            <div class="draw-toolbar" id="draw-toolbar">
+              <button class="draw-btn active" id="dt-cursor" onclick="drawTool('cursor')" title="Курсор (V)">
+                <span>↖</span><span class="draw-lbl">КУРСОР</span>
+              </button>
+              <div class="draw-sep"></div>
+              <button class="draw-btn" id="dt-line" onclick="drawTool('line')" title="Линия тренда (L)">
+                <span>╱</span><span class="draw-lbl">ЛИНИЯ</span>
+              </button>
+              <button class="draw-btn" id="dt-hline" onclick="drawTool('hline')" title="Горизонтальный уровень (H)">
+                <span>—</span><span class="draw-lbl">УРОВЕНЬ</span>
+              </button>
+              <button class="draw-btn" id="dt-ray" onclick="drawTool('ray')" title="Луч (R)">
+                <span>⟶</span><span class="draw-lbl">ЛУЧ</span>
+              </button>
+              <button class="draw-btn" id="dt-fib" onclick="drawTool('fib')" title="Фибоначчи (F)">
+                <span>◈</span><span class="draw-lbl">ФИБО</span>
+              </button>
+              <button class="draw-btn" id="dt-rect" onclick="drawTool('rect')" title="Прямоугольник (X)">
+                <span>▭</span><span class="draw-lbl">ЗОНА</span>
+              </button>
+              <div class="draw-sep"></div>
+              <button class="draw-btn" id="dt-alert" onclick="drawTool('alert')" title="Алерт по цене (A)" style="color:var(--a);border-color:rgba(232,114,42,.2)">
+                <span>🔔</span><span class="draw-lbl">АЛЕРТ</span>
+              </button>
+              <div class="draw-sep"></div>
+              <button class="draw-btn" onclick="clearDrawings()" title="Очистить всё" style="color:var(--r)">
+                <span>✕</span><span class="draw-lbl">ОЧИСТИТЬ</span>
+              </button>
+              <!-- color + undo -->
+              <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+                <input type="color" id="draw-color" value="#e8722a"
+                  style="width:22px;height:22px;border-radius:4px;border:1px solid var(--bd);background:transparent;cursor:pointer;padding:1px;"
+                  title="Цвет линии">
+                <button class="draw-btn" onclick="undoDrawing()" title="Отменить (Z)" style="font-size:10px;">↩</button>
+              </div>
+            </div>
+            <!-- Cursor tooltip -->
+            <div class="draw-cursor-tooltip" id="draw-tooltip" style="display:none"></div>
+
             <div class="scv-canvas-wrap" id="scv-canvas-wrap">
               <canvas id="scv-canvas" style="display:block;cursor:crosshair;"></canvas>
               <div id="scv-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#06080c;font-size:9px;color:var(--m2);letter-spacing:2px;">ЗАГРУЗКА...</div>
@@ -2526,7 +2645,7 @@ function drawChart(candles){
   ctx.scale(dpr, dpr);
 
   // Constants
-  const PAD_L = 60, PAD_R = 4, PAD_T = 8;
+  const PAD_L = 60, PAD_R = 72, PAD_T = 8;
   const VOL_H = _chartState.indicators.volume ? Math.round(HH * 0.15) : 0;
   const PAD_B = VOL_H + 20; // time axis
   const CW    = W - PAD_L - PAD_R;
@@ -2652,7 +2771,7 @@ function drawChart(candles){
       const x   = PAD_L + i*gap + gap/2;
       const isUp= c.c >= c.o;
       const vh  = (c.v/maxV)*VOL_H*0.9;
-      ctx.fillStyle = isUp ? 'rgba(46,204,113,0.25)' : 'rgba(231,76,60,0.25)';
+      ctx.fillStyle = isUp ? 'rgba(232,114,42,0.35)' : 'rgba(120,120,140,0.3)';
       ctx.fillRect(x - cw/2, volBase-vh, Math.max(1,cw), vh);
     });
   }
@@ -2663,7 +2782,7 @@ function drawChart(candles){
     const isUp = c.c >= c.o;
 
     // Wick
-    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.6)' : 'rgba(231,76,60,0.6)';
+    ctx.strokeStyle = isUp ? 'rgba(232,114,42,0.7)' : 'rgba(140,140,160,0.6)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x, toY(c.h)); ctx.lineTo(x, toY(c.l)); ctx.stroke();
 
@@ -2671,13 +2790,17 @@ function drawChart(candles){
     const yO = toY(c.o), yC = toY(c.c);
     const bTop = Math.min(yO,yC), bH = Math.max(1.5, Math.abs(yC-yO));
     if(isUp){
-      ctx.strokeStyle = C_GREEN; ctx.lineWidth = 1;
+      // LONG — orange solid
+      ctx.fillStyle = '#e8722a';
+      ctx.fillRect(x-cw/2, bTop, cw, bH);
+      ctx.strokeStyle = 'rgba(255,140,60,0.4)'; ctx.lineWidth = 1;
       ctx.strokeRect(x-cw/2, bTop, cw, bH);
-      ctx.fillStyle = 'rgba(46,204,113,0.18)';
-      ctx.fillRect(x-cw/2, bTop, cw, bH);
     } else {
-      ctx.fillStyle = C_RED;
+      // SHORT — grey
+      ctx.fillStyle = '#5a5a6e';
       ctx.fillRect(x-cw/2, bTop, cw, bH);
+      ctx.strokeStyle = 'rgba(160,160,180,0.2)'; ctx.lineWidth = 1;
+      ctx.strokeRect(x-cw/2, bTop, cw, bH);
     }
   });
 
@@ -2691,9 +2814,9 @@ function drawChart(candles){
       ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W-PAD_R, y); ctx.stroke();
       ctx.setLineDash([]); ctx.globalAlpha = 1;
       ctx.fillStyle = 'rgba(232,114,42,0.15)';
-      ctx.fillRect(W-PAD_R-70, y-8, 70, 16);
+      ctx.fillRect(W-PAD_R+2, y-8, PAD_R-4, 16);
       ctx.fillStyle = C_ORANGE; ctx.font = 'bold 8px JetBrains Mono,monospace'; ctx.textAlign = 'right';
-      ctx.fillText('🔔 ' + fmtPrice(a.target_price), W-PAD_R-2, y+3);
+      ctx.fillText('🔔 ' + fmtPrice(a.target_price), W-4, y+3);
     });
   }
 
@@ -2709,10 +2832,11 @@ function drawChart(candles){
   const lbl   = fmtPrice(last.c);
   ctx.font    = 'bold 9px JetBrains Mono,monospace'; ctx.textAlign = 'right';
   const bw    = ctx.measureText(lbl).width + 10;
-  ctx.fillStyle = isLastUp ? C_GREEN : C_RED;
-  ctx.fillRect(W-PAD_R-bw, lastY-7, bw, 14);
+  ctx.fillStyle = isLastUp ? '#e8722a' : '#5a5a6e';
+  // Price badge fits within PAD_R right margin
+  ctx.fillRect(W-PAD_R+2, lastY-7, PAD_R-4, 14);
   ctx.fillStyle = '#fff';
-  ctx.fillText(lbl, W-PAD_R-2, lastY+3.5);
+  ctx.fillText(lbl, W-4, lastY+3.5);
 
   // ── Crosshair
   if(_chartState.crosshair){
@@ -2738,6 +2862,10 @@ function drawChart(candles){
   if(_chartState.indicators.ema20){ ctx.fillStyle=C_BLUE; ctx.fillText('EMA20', lx, PAD_T+10); lx+=45; }
   if(_chartState.indicators.ema50){ ctx.fillStyle=C_ORANGE; ctx.fillText('EMA50', lx, PAD_T+10); lx+=45; }
   if(_chartState.indicators.bb){ ctx.fillStyle='rgba(168,85,247,0.8)'; ctx.fillText('BB(20)', lx, PAD_T+10); }
+
+  // ── Render drawings (tech analysis)
+  ctx.restore && ctx.restore();
+  if(typeof renderDrawings === 'function') renderDrawings(ctx, canvas);
 }
 
 
@@ -4282,7 +4410,7 @@ function scvDraw(){
   const vis     = slice.length;
   if(!vis) return;
 
-  const PAD_L = 60, PAD_R = 10, PAD_T = 14, PAD_B = 22;
+  const PAD_L = 60, PAD_R = 72, PAD_T = 14, PAD_B = 22;
   const VOL_H = _scv.ind.vol ? Math.floor(H * 0.16) : 0;
   const CW    = W - PAD_L - PAD_R;
   const CH    = H - PAD_T - PAD_B - VOL_H;
@@ -4377,7 +4505,7 @@ function scvDraw(){
     slice.forEach((cd, i) => {
       const x  = PAD_L + i * gap + gap / 2;
       const vh = Math.max(1, (cd.v / maxV) * VOL_H * 0.88);
-      ctx.fillStyle = cd.c >= cd.o ? 'rgba(46,204,113,0.25)' : 'rgba(231,76,60,0.22)';
+      ctx.fillStyle = cd.c >= cd.o ? 'rgba(232,114,42,0.38)' : 'rgba(120,120,140,0.28)';
       ctx.fillRect(x - cw/2, volTop - vh, Math.max(1, cw), vh);
     });
   }
@@ -4390,7 +4518,7 @@ function scvDraw(){
     const bTop = Math.min(yO, yC);
     const bH   = Math.max(1.5, Math.abs(yC - yO));
     // Wick
-    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.55)' : 'rgba(231,76,60,0.55)';
+    ctx.strokeStyle = isUp ? 'rgba(232,114,42,0.7)' : 'rgba(140,140,160,0.55)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x, yH); ctx.lineTo(x, yL); ctx.stroke();
     // Body
@@ -4418,10 +4546,10 @@ function scvDraw(){
              : last.c >= 1 ? '$' + last.c.toFixed(2) : '$' + last.c.toFixed(5);
   ctx.font = 'bold 8.5px JetBrains Mono,monospace'; ctx.textAlign = 'right';
   const bw = ctx.measureText(pLbl).width + 10;
-  ctx.fillStyle = isUp ? '#2ecc71' : '#e74c3c';
-  ctx.fillRect(W - PAD_R - bw, lastY - 8, bw, 16);
-  ctx.fillStyle = '#000';
-  ctx.fillText(pLbl, W - PAD_R - 3, lastY + 3.5);
+  ctx.fillStyle = isUp ? '#e8722a' : '#5a5a6e';
+  ctx.fillRect(W - PAD_R + 2, lastY - 8, PAD_R - 4, 16);
+  ctx.fillStyle = '#fff';
+  ctx.fillText(pLbl, W - 4, lastY + 3.5);
 
   // ── Time axis ──
   const tStep = Math.max(1, Math.round(vis / 8));
@@ -4609,6 +4737,132 @@ const IMPORTANCE_LABEL = { high:'high', medium:'medium', low:'low', 3:'high', 2:
 
 // Major economic event calendar (static high-quality fallback + structure)
 // Real data comes from investing.com unofficial feed via allorigins proxy
+
+// ══════════════════════════════════════════════════════════════════
+// NEWS CONTEXT DATABASE — описания и влияние на рынок
+// ══════════════════════════════════════════════════════════════════
+const NEWS_DB = {
+  // ── США ──────────────────────────────────────────────────────
+  'nonfarm payrolls': {
+    desc: 'Число новых рабочих мест вне с/х сектора США. Главный индикатор здоровья экономики — выходит каждую 1-ю пятницу месяца. Выше прогноза → экономика сильная.',
+    assets: ['USD', 'S&P500', 'BTC', 'GOLD'],
+    bullish: true // bullish for USD/stocks if above forecast
+  },
+  'cpi': {
+    desc: 'Индекс потребительских цен (инфляция). Рост CPI = больше инфляции → ФРС поднимает ставки → давление на акции и крипто. Снижение CPI → позитив для рынков.',
+    assets: ['USD', 'BTC', 'ETH', 'S&P500', 'GOLD'],
+    bullish: false
+  },
+  'core cpi': {
+    desc: 'CPI без еды и энергоносителей — более стабильный показатель инфляции, на него ориентируется ФРС при решениях по ставке.',
+    assets: ['USD', 'BTC', 'S&P500'],
+    bullish: false
+  },
+  'fed interest rate': {
+    desc: 'Решение ФРС по базовой процентной ставке. Повышение ставки → дорогие кредиты → продажи рисковых активов (BTC, акции). Снижение → ралли.',
+    assets: ['USD', 'BTC', 'ETH', 'S&P500', 'NASDAQ'],
+    bullish: false
+  },
+  'fomc': {
+    desc: 'Протокол заседания ФРС — детали обсуждений и будущие планы по ставке. Рынки ищут сигналы о смягчении/ужесточении политики.',
+    assets: ['USD', 'BTC', 'S&P500'],
+    bullish: false
+  },
+  'pce': {
+    desc: 'Расходы на личное потребление — любимый инфляционный показатель ФРС. Важнее CPI для прогнозирования ставки. Рост = медвежий для крипто.',
+    assets: ['USD', 'BTC', 'S&P500'],
+    bullish: false
+  },
+  'gdp': {
+    desc: 'Валовый внутренний продукт — темп роста экономики США. Сильный GDP → позитив для акций и доллара, умеренно позитивен для крипто как риск-актива.',
+    assets: ['USD', 'S&P500', 'BTC'],
+    bullish: true
+  },
+  'jobless claims': {
+    desc: 'Первичные заявки на пособие по безработице. Меньше заявок = рынок труда сильный = поддержка ставки высокой. Растёт = сигнал рецессии.',
+    assets: ['USD', 'S&P500'],
+    bullish: false
+  },
+  'unemployment': {
+    desc: 'Уровень безработицы в США. Рост безработицы может заставить ФРС снизить ставку — позитив для рисковых активов на долгосроче.',
+    assets: ['USD', 'S&P500', 'BTC'],
+    bullish: false
+  },
+  'retail sales': {
+    desc: 'Объём розничных продаж — показатель потребительской активности. Рост = экономика работает = бычий для акций и умеренно для крипто.',
+    assets: ['USD', 'S&P500'],
+    bullish: true
+  },
+  'ppi': {
+    desc: 'Индекс цен производителей — опережающий индикатор инфляции. Рост PPI = скоро вырастет CPI → медвежий фактор для крипто и акций.',
+    assets: ['USD', 'BTC', 'GOLD'],
+    bullish: false
+  },
+  'manufacturing pmi': {
+    desc: 'Деловая активность в производственном секторе. Выше 50 = рост, ниже 50 = спад. Сильный PMI → позитив для акций США и доллара.',
+    assets: ['USD', 'S&P500'],
+    bullish: true
+  },
+  'services pmi': {
+    desc: 'Деловая активность в секторе услуг (70% ВВП США). Сильный Services PMI → экономика устойчива → ФРС не спешит снижать ставку.',
+    assets: ['USD', 'S&P500', 'BTC'],
+    bullish: true
+  },
+  'consumer confidence': {
+    desc: 'Уверенность потребителей в экономике. Высокое значение → люди тратят больше → рост экономики. Влияет на розничные продажи следующего месяца.',
+    assets: ['USD', 'S&P500'],
+    bullish: true
+  },
+  'trade balance': {
+    desc: 'Разница между экспортом и импортом. Дефицит торговли (отрицательный) давит на доллар. Для крипто — косвенный эффект через USD.',
+    assets: ['USD', 'GOLD'],
+    bullish: false
+  },
+  // ── ЕЦБ / Европа ──────────────────────────────────────────
+  'ecb interest rate': {
+    desc: 'Ставка Европейского Центробанка. Снижение ставки ЕЦБ ослабляет EUR → укрепляет USD → обычно давит на золото и BTC краткосрочно.',
+    assets: ['EUR', 'EUR/USD', 'GOLD', 'BTC'],
+    bullish: false
+  },
+  'inflation rate': {
+    desc: 'Уровень инфляции в еврозоне. Высокая инфляция вынуждает ЕЦБ держать ставку высокой → медвежий для акций ЕС и EUR-пар.',
+    assets: ['EUR', 'EUR/USD', 'DAX'],
+    bullish: false
+  },
+  'industrial production': {
+    desc: 'Объём промышленного производства (Германия/ЕС). Падение = экономика ЕС замедляется → слабее EUR → может укрепить USD.',
+    assets: ['EUR', 'DAX'],
+    bullish: true
+  },
+  // ── Великобритания ─────────────────────────────────────────
+  'boe interest rate': {
+    desc: 'Ставка Банка Англии. Снижение = смягчение политики → слабее GBP, но позитив для акций UK. Крипто реагирует умеренно.',
+    assets: ['GBP', 'GBP/USD', 'FTSE100'],
+    bullish: false
+  },
+  // ── Япония ─────────────────────────────────────────────────
+  'boj interest rate': {
+    desc: 'Банк Японии — держит ставку около нуля. Любое повышение = шок для рынков: carry trade разматывается → продажи рисковых активов по всему миру.',
+    assets: ['JPY', 'USD/JPY', 'BTC', 'S&P500'],
+    bullish: false
+  },
+  // ── Канада ─────────────────────────────────────────────────
+  'employment change': {
+    desc: 'Изменение числа занятых в Канаде. Аналог NFP для канадской экономики. Влияет на CAD и нефть (Канада — крупный экспортёр нефти).',
+    assets: ['CAD', 'OIL', 'USD/CAD'],
+    bullish: true
+  },
+};
+
+function getNewsInfo(title){
+  if(!title) return null;
+  const lower = title.toLowerCase();
+  for(const [key, info] of Object.entries(NEWS_DB)){
+    if(lower.includes(key)) return info;
+  }
+  return null;
+}
+
 async function loadEconNews(){
   if(_newsLoading) return;
   _newsLoading = true;
@@ -4746,17 +5000,24 @@ function renderNews(){
       if(!isNaN(a) && !isNaN(f)) actualClass = a >= f ? 'pos' : 'neg';
     }
 
+    const info = getNewsInfo(ev.title);
     return `<div class="news-item" style="opacity:${isPast?'0.65':'1'}">
       <div class="news-imp ${imp}"></div>
       <div class="news-time">${dateStr}<br>${time}</div>
       <div class="news-body">
         <div class="news-title">${ev.title}</div>
+        ${info ? `<div class="news-desc">${info.desc}</div>` : ''}
         <div class="news-meta">
           <span class="news-country">🌐 ${ev.country || 'US'}</span>
           ${ev.forecast ? `<span class="news-forecast">Прогноз: <b>${ev.forecast}</b></span>` : ''}
           ${ev.previous ? `<span class="news-prev">Пред: ${ev.previous}</span>` : ''}
           ${hasActual   ? `<span class="news-actual ${actualClass}">Факт: <b>${ev.actual}</b></span>` : ''}
         </div>
+        ${info ? `<div class="news-impact-row">
+          <span class="news-impact-lbl">Влияет на:</span>
+          ${info.assets.map(a=>`<span class="news-asset-tag">${a}</span>`).join('')}
+          <span class="news-impact-dir ${info.bullish?'bull':'bear'}">${info.bullish?'📈 БЫЧИЙ':'📉 МЕДВЕЖИЙ'} при росте</span>
+        </div>` : ''}
       </div>
       <span class="news-badge ${imp}">${impLabel}</span>
     </div>`;
@@ -4782,6 +5043,396 @@ function renderUpcoming(){
 // Auto-refresh news every 5 min
 setInterval(() => { if(currentView === 'news') loadEconNews(); }, 5 * 60 * 1000);
 
+</script>
+
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// ORBITUM — CHART DRAWING ENGINE
+// Tools: cursor, line, hline (level), ray, fib, rect, alert
+// ══════════════════════════════════════════════════════════════════
+
+let _drawMode   = 'cursor';   // active tool
+let _drawings   = [];         // [{type, pts, color, ...}]
+let _drawActive = null;       // in-progress drawing {type, pts[]}
+let _drawColor  = '#e8722a';
+
+const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0];
+const FIB_COLORS = ['#e8722a','#f39c12','#2ecc71','#fff','#3b82f6','#a855f7','#e74c3c'];
+
+// ── Set active drawing tool ────────────────────────────────────────
+function drawTool(tool){
+  _drawMode   = tool;
+  _drawActive = null;
+  document.querySelectorAll('.draw-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('dt-' + tool);
+  if(btn) btn.classList.add('active');
+  // Change cursor style
+  const canvas = document.getElementById('scv-canvas');
+  if(canvas){
+    canvas.style.cursor = tool === 'cursor' ? 'crosshair'
+      : tool === 'alert' ? 'crosshair' : 'crosshair';
+  }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if(document.activeElement.tagName === 'INPUT') return;
+  const map = { v:'cursor', l:'line', h:'hline', r:'ray', f:'fib', x:'rect', a:'alert' };
+  if(map[e.key.toLowerCase()]) drawTool(map[e.key.toLowerCase()]);
+  if((e.key==='z'||e.key==='Z') && !e.ctrlKey) undoDrawing();
+});
+
+// ── Color picker sync ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const cp = document.getElementById('draw-color');
+  if(cp) cp.addEventListener('input', e => { _drawColor = e.target.value; });
+});
+
+// ── Undo / Clear ──────────────────────────────────────────────────
+function undoDrawing(){ _drawings.pop(); _drawActive=null; redrawChart(); }
+function clearDrawings(){ _drawings=[]; _drawActive=null; redrawChart(); }
+function redrawChart(){
+  if(_chartState.candles.length) drawChart(_chartState.candles);
+}
+
+// ── Canvas coord → chart price / index ────────────────────────────
+function canvasToPrice(y, canvas){
+  const HH = canvas.clientHeight;
+  const VOL_H = _chartState.indicators.volume ? Math.round(HH * 0.15) : 0;
+  const PAD_T = 8, PAD_B = VOL_H + 20;
+  const CH = HH - PAD_T - PAD_B;
+
+  const {startIdx, endIdx} = _chartState.zoom;
+  const slice = _chartState.candles.slice(startIdx, endIdx+1);
+  let minP = Math.min(...slice.map(c=>c.l));
+  let maxP = Math.max(...slice.map(c=>c.h));
+  const pad = (maxP-minP)*0.05; minP -= pad; maxP += pad;
+  const range = maxP - minP || 1;
+  return maxP - ((y - PAD_T) / CH) * range;
+}
+
+function canvasToIdx(x, canvas){
+  const W = canvas.clientWidth;
+  const PAD_L = 60, PAD_R = 72;
+  const CW = W - PAD_L - PAD_R;
+  const {startIdx, endIdx} = _chartState.zoom;
+  const vis = endIdx - startIdx + 1;
+  const gap = CW / vis;
+  return startIdx + Math.max(0, Math.min(vis-1, Math.round((x - PAD_L) / gap - 0.5)));
+}
+
+function idxToX(idx, canvas){
+  const W = canvas.clientWidth;
+  const PAD_L = 60, PAD_R = 72;
+  const CW = W - PAD_L - PAD_R;
+  const {startIdx, endIdx} = _chartState.zoom;
+  const vis = endIdx - startIdx + 1;
+  const gap = CW / vis;
+  return PAD_L + (idx - startIdx) * gap + gap/2;
+}
+
+function priceToY(price, canvas){
+  const HH = canvas.clientHeight;
+  const VOL_H = _chartState.indicators.volume ? Math.round(HH*0.15) : 0;
+  const PAD_T = 8, PAD_B = VOL_H + 20;
+  const CH = HH - PAD_T - PAD_B;
+  const {startIdx, endIdx} = _chartState.zoom;
+  const slice = _chartState.candles.slice(startIdx, endIdx+1);
+  let minP = Math.min(...slice.map(c=>c.l));
+  let maxP = Math.max(...slice.map(c=>c.h));
+  const pad = (maxP-minP)*0.05; minP -= pad; maxP += pad;
+  const range = maxP - minP || 1;
+  return PAD_T + CH - ((price-minP)/range)*CH;
+}
+
+// ── Mouse handlers (overrides on scv canvas) ──────────────────────
+// We hook into the existing scvMouseDown/Move/Up but add drawing logic
+
+const _origScvMouseDown = window.scvMouseDown || function(){};
+const _origScvMouseMove = window.scvMouseMove || function(){};
+const _origScvMouseUp   = (() => {})();
+
+function scvMouseDown(e){
+  if(_drawMode === 'cursor'){
+    _scv.drag.active   = true;
+    _scv.drag.startX   = e.clientX - e.target.getBoundingClientRect().left;
+    _scv.drag.startIdx = _scv.zoom.start;
+    return;
+  }
+
+  const canvas = e.target;
+  const rect   = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const price = canvasToPrice(my, canvas);
+  const idx   = canvasToIdx(mx, canvas);
+  const col   = _drawColor;
+
+  if(_drawMode === 'hline'){
+    _drawings.push({ type:'hline', price, color:col });
+    redrawChart(); return;
+  }
+  if(_drawMode === 'alert'){
+    showChartAlertPopup(price, e.clientX, e.clientY); return;
+  }
+
+  // Two-click drawing: line, ray, fib, rect
+  if(!_drawActive){
+    _drawActive = { type:_drawMode, pts:[{x:mx, y:my, price, idx}], color:col };
+  } else {
+    _drawActive.pts.push({x:mx, y:my, price, idx});
+    _drawings.push({..._drawActive});
+    _drawActive = null;
+    drawTool('cursor');
+    redrawChart();
+  }
+}
+
+function scvMouseMove(e){
+  const canvas = e.target;
+  const rect   = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  if(_drawMode === 'cursor'){
+    // Normal drag + crosshair
+    if(_scv.drag.active){
+      const vis = _scv.zoom.end - _scv.zoom.start + 1;
+      const W   = canvas.clientWidth;
+      const PAD_L = 60, PAD_R = 72;
+      const CW  = W - PAD_L - PAD_R;
+      const gap = CW / vis;
+      const dx  = mx - _scv.drag.startX;
+      const shift = Math.round(-dx / gap);
+      let ns = _scv.drag.startIdx + shift;
+      ns = Math.max(0, Math.min(_scv.candles.length - vis, ns));
+      _scv.zoom.start = ns; _scv.zoom.end = ns + vis - 1;
+      scvDraw(); return;
+    }
+    _scv.crosshair = {x:mx, y:my};
+    scvDraw();
+    const slice = _scv.candles.slice(_scv.zoom.start, _scv.zoom.end+1);
+    const vis = slice.length;
+    const W = canvas.clientWidth;
+    const gap = (W-132)/vis;
+    const idx = Math.min(vis-1, Math.max(0, Math.round((mx-60)/gap - 0.5)));
+    if(slice[idx]) scvUpdateOHLCV(slice[idx]);
+    return;
+  }
+
+  // Drawing in progress — show preview
+  if(_drawActive){
+    _scv.crosshair = {x:mx, y:my};
+    _drawActive._preview = {x:mx, y:my, price:canvasToPrice(my, canvas), idx:canvasToIdx(mx, canvas)};
+  } else {
+    _scv.crosshair = {x:mx, y:my};
+  }
+  scvDraw();
+
+  // Show tooltip with price
+  const tt = document.getElementById('draw-tooltip');
+  if(tt){
+    const price = canvasToPrice(my, canvas);
+    tt.style.display = 'block';
+    tt.style.left = (e.clientX) + 'px';
+    tt.style.top  = (e.clientY) + 'px';
+    tt.textContent = fmtPrice(price);
+  }
+}
+
+function scvMouseLeave(){
+  _scv.crosshair = null;
+  _scv.drag.active = false;
+  const last = _scv.candles[_scv.candles.length-1];
+  if(last) scvUpdateOHLCV(last);
+  const tt = document.getElementById('draw-tooltip');
+  if(tt) tt.style.display = 'none';
+  scvDraw();
+}
+
+// ── Chart Alert Popup ─────────────────────────────────────────────
+function showChartAlertPopup(price, cx, cy){
+  let popup = document.getElementById('chart-alert-popup');
+  if(!popup){
+    popup = document.createElement('div');
+    popup.className = 'chart-alert-popup';
+    popup.id = 'chart-alert-popup';
+    document.body.appendChild(popup);
+  }
+  popup.innerHTML = `
+    <div class="cap-title">🔔 АЛЕРТ ПО ЦЕНЕ</div>
+    <div class="cap-price">Цена: <b style="color:var(--a)">${fmtPrice(price)}</b></div>
+    <input class="cap-input" id="cap-price-input" type="number" value="${price.toFixed(price>100?2:6)}" step="any" placeholder="Целевая цена">
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <select id="cap-cond" style="flex:1;background:#070a0e;border:1px solid var(--bd);border-radius:5px;color:var(--t);font-family:var(--font-mono);font-size:10px;padding:5px 8px;">
+        <option value="above">Выше цены</option>
+        <option value="below">Ниже цены</option>
+      </select>
+    </div>
+    <div class="cap-row">
+      <button class="cap-ok" onclick="saveChartAlert()">СОЗДАТЬ АЛЕРТ</button>
+      <button class="cap-cancel" onclick="document.getElementById('chart-alert-popup').style.display='none'">✕</button>
+    </div>`;
+  popup.style.display = 'block';
+  // Position near click
+  const pw = 230, ph = 160;
+  let left = cx + 12;
+  let top  = cy - 30;
+  if(left + pw > window.innerWidth)  left = cx - pw - 12;
+  if(top  + ph > window.innerHeight) top  = window.innerHeight - ph - 10;
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+  // Close on outside click
+  setTimeout(() => document.addEventListener('click', function _close(e){
+    if(!popup.contains(e.target)){ popup.style.display='none'; document.removeEventListener('click',_close); }
+  }), 100);
+}
+
+function saveChartAlert(){
+  const priceInput = document.getElementById('cap-price-input');
+  const condInput  = document.getElementById('cap-cond');
+  if(!priceInput || !currentDetailCoin) return;
+  const price = parseFloat(priceInput.value);
+  const cond  = condInput?.value || 'above';
+  if(isNaN(price) || price <= 0) return;
+
+  // Use existing alert system
+  const alertData = {
+    coingecko_id: currentDetailCoin.id,
+    symbol:       (currentDetailCoin.symbol||'').toUpperCase(),
+    alert_type:   'price',
+    target_price: price,
+    condition:    cond,
+    active:       true,
+  };
+  // Save via existing openAlertModal or direct Supabase
+  saveAlertDirect(alertData);
+  document.getElementById('chart-alert-popup').style.display = 'none';
+  drawTool('cursor');
+}
+
+async function saveAlertDirect(data){
+  try{
+    const { data: user } = await sb.auth.getUser();
+    if(!user?.user) return;
+    await sb.from('alerts').insert({ ...data, user_id: user.user.id });
+    showToast('🔔 Алерт создан: ' + fmtPrice(data.target_price), 'success');
+    await loadAlerts();
+    redrawChart();
+  } catch(e){
+    showToast('Ошибка алерта: ' + e.message, 'error');
+  }
+}
+
+// ── Render drawings on canvas ─────────────────────────────────────
+// Called from within drawChart() — injected after candles
+function renderDrawings(ctx, canvas){
+  if(!_drawings.length && !_drawActive) return;
+  const W = canvas.clientWidth;
+
+  const drawHLine = (price, col, dashed, label) => {
+    const y = priceToY(price, canvas);
+    const HH = canvas.clientHeight;
+    if(y < 8 || y > HH - 22) return;
+    ctx.save();
+    ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.8;
+    if(dashed) ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W-72, y); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    if(label){
+      ctx.fillStyle = col+'33'; ctx.fillRect(W-72+2, y-8, 70, 16);
+      ctx.fillStyle = col; ctx.font = '8px JetBrains Mono,monospace'; ctx.textAlign = 'right';
+      ctx.fillText(label, W-4, y+3);
+    }
+    ctx.restore();
+  };
+
+  const drawLine2pts = (p1, p2, col, extend) => {
+    const x1 = idxToX(p1.idx, canvas), y1 = priceToY(p1.price, canvas);
+    const x2 = idxToX(p2.idx, canvas), y2 = priceToY(p2.price, canvas);
+    ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    if(extend){
+      // Extend ray to right edge
+      const dx = x2 - x1, dy = y2 - y1;
+      if(Math.abs(dx) < 0.5){ ctx.moveTo(x1, 0); ctx.lineTo(x1, canvas.clientHeight); }
+      else {
+        const t = (W - 72 - x1) / dx;
+        ctx.moveTo(x1, y1); ctx.lineTo(x1 + t*dx, y1 + t*dy);
+      }
+    } else {
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1; ctx.restore();
+    // End dots
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(x1, y1, 3, 0, Math.PI*2); ctx.fill();
+    if(!extend){ ctx.beginPath(); ctx.arc(x2, y2, 3, 0, Math.PI*2); ctx.fill(); }
+  };
+
+  const drawFib = (p1, p2, col) => {
+    const minP = Math.min(p1.price, p2.price);
+    const maxP = Math.max(p1.price, p2.price);
+    const rng  = maxP - minP;
+    FIB_LEVELS.forEach((lvl, i) => {
+      const price = p2.price > p1.price ? maxP - lvl*rng : minP + lvl*rng;
+      const y = priceToY(price, canvas);
+      const HH = canvas.clientHeight;
+      if(y < 8 || y > HH-22) return;
+      ctx.save();
+      ctx.strokeStyle = FIB_COLORS[i]||col; ctx.lineWidth = 1; ctx.globalAlpha = 0.5;
+      ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W-72, y); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 0.8;
+      ctx.fillStyle = FIB_COLORS[i]||col;
+      ctx.font = '8px JetBrains Mono,monospace'; ctx.textAlign = 'left';
+      ctx.fillText(`${(lvl*100).toFixed(1)}%  ${fmtPrice(price)}`, 64, y-2);
+      ctx.restore();
+    });
+  };
+
+  const drawRect = (p1, p2, col) => {
+    const x1 = idxToX(p1.idx, canvas), y1 = priceToY(p1.price, canvas);
+    const x2 = idxToX(p2.idx, canvas), y2 = priceToY(p2.price, canvas);
+    ctx.save();
+    ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.7;
+    ctx.strokeRect(Math.min(x1,x2), Math.min(y1,y2), Math.abs(x2-x1), Math.abs(y2-y1));
+    ctx.fillStyle = col+'18'; ctx.globalAlpha = 0.3;
+    ctx.fillRect(Math.min(x1,x2), Math.min(y1,y2), Math.abs(x2-x1), Math.abs(y2-y1));
+    ctx.restore();
+  };
+
+  // Render saved drawings
+  _drawings.forEach(d => {
+    switch(d.type){
+      case 'hline':
+        drawHLine(d.price, d.color, false, fmtPrice(d.price)); break;
+      case 'line':
+        if(d.pts.length===2) drawLine2pts(d.pts[0], d.pts[1], d.color, false); break;
+      case 'ray':
+        if(d.pts.length===2) drawLine2pts(d.pts[0], d.pts[1], d.color, true); break;
+      case 'fib':
+        if(d.pts.length===2) drawFib(d.pts[0], d.pts[1], d.color); break;
+      case 'rect':
+        if(d.pts.length===2) drawRect(d.pts[0], d.pts[1], d.color); break;
+    }
+  });
+
+  // Render in-progress drawing preview
+  if(_drawActive && _drawActive._preview && _drawActive.pts.length===1){
+    const p1 = _drawActive.pts[0];
+    const p2 = _drawActive._preview;
+    ctx.save(); ctx.globalAlpha = 0.5;
+    switch(_drawActive.type){
+      case 'line':  drawLine2pts(p1, p2, _drawActive.color, false); break;
+      case 'ray':   drawLine2pts(p1, p2, _drawActive.color, true);  break;
+      case 'fib':   drawFib(p1, p2, _drawActive.color); break;
+      case 'rect':  drawRect(p1, p2, _drawActive.color); break;
+    }
+    ctx.restore();
+  }
+}
 </script>
 
 </body>
