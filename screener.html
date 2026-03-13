@@ -2056,16 +2056,21 @@ async function safeFetch(url){
 // ── CoinGecko fallback (multiple paths) ──────────────────────────
 async function loadFromCoinGecko(){
   showLoadingMsg('Подключение к CoinGecko...', '#f39c12');
-  const cgPath = '/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C7d%2C30d';
+  // Matches ticker.js screener endpoint exactly (2 pages = 200 coins)
+  const cgPath = '/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d%2C30d';
 
   // Path 1: direct (works if deployed on same domain OR if CG allows)
+  const cgPath2 = cgPath.replace('page=1', 'page=2');
   const attempts = [
-    { label: 'CoinGecko direct',
-      url: 'https://api.coingecko.com' + cgPath },
+    { label: 'CoinGecko direct (p1+p2)',
+      url: 'https://api.coingecko.com' + cgPath,
+      url2: 'https://api.coingecko.com' + cgPath2 },
     { label: 'CoinGecko via allorigins',
-      url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.coingecko.com' + cgPath) },
+      url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.coingecko.com' + cgPath),
+      url2: null },
     { label: 'CoinGecko via corsproxy.io',
-      url: 'https://corsproxy.io/?' + encodeURIComponent('https://api.coingecko.com' + cgPath) },
+      url: 'https://corsproxy.io/?' + encodeURIComponent('https://api.coingecko.com' + cgPath),
+      url2: null },
   ];
 
   let lastErr = null;
@@ -2078,9 +2083,19 @@ async function loadFromCoinGecko(){
       const ct = r.headers.get('content-type') || '';
       const text = await r.text();
       if(text.trim().startsWith('<')) throw new Error(attempt.label + ': вернул HTML');
-      const data = JSON.parse(text);
+      let data = JSON.parse(text);
       if(!Array.isArray(data) || data.length === 0) throw new Error(attempt.label + ': пустой ответ');
-      console.info('[Screener] Данные получены через', attempt.label);
+      // Merge page 2 for 200 coins (matches ticker.js)
+      if(attempt.url2){
+        try{
+          const r2 = await fetch(attempt.url2, { signal: AbortSignal.timeout(6000) });
+          if(r2.ok){ const t2 = await r2.text(); if(!t2.trim().startsWith('<')){
+            const p2 = JSON.parse(t2);
+            if(Array.isArray(p2) && p2.length) data = [...data, ...p2];
+          }}
+        }catch(e2){ console.warn('[Screener] page2 skip:', e2.message); }
+      }
+      console.info('[Screener] Данные получены через', attempt.label, '→', data.length, 'монет');
       return data;
     } catch(e){
       console.warn('[Screener]', e.message);
@@ -3377,7 +3392,8 @@ function checkAlertsForCoin(cgId, price){
 }
 
 async function sendTgAlertNotify(alert, currentPrice, sym){
-  if(!_tgProfile?.tg_chat_id || !_currentUserId) return;
+  // Respect user's tg_notify_alerts preference
+  if(!_tgProfile?.tg_chat_id || !_currentUserId || !_tgProfile?.tg_notify_alerts) return;
   try{
     const condLabel = {
       above: 'Цена ВЫШЕ',
@@ -3396,8 +3412,10 @@ async function sendTgAlertNotify(alert, currentPrice, sym){
         chat_id: _tgProfile.tg_chat_id,
         data: {
           coin: sym,
-          signal: '🔔',
-          text: `${condLabel} $${alert.target_price} · Сейчас: ${fmtPrice(currentPrice)}${alert.note ? '\n📝 ' + alert.note : ''}`,
+          signal: alert.condition === 'above' ? '🚀' : alert.condition === 'below' ? '📉' : '↔️',
+          alert_type: alert.alert_type || 'price',
+          condition: alert.condition,
+          text: `${condLabel} $${alert.target_price}${alert.note ? ' · ' + alert.note : ''}`,
           value: fmtPrice(currentPrice),
           time: new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
         }
