@@ -1034,6 +1034,126 @@ img{display:block;}
 .skel-circle{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;}
 .skel-rect{height:8px;border-radius:3px;background:rgba(255,255,255,0.06);}
 
+
+/* ── AI TRADE ANALYZER PANEL ── */
+.aitrade-panel{
+  position:fixed;top:0;left:52px;width:460px;height:100vh;
+  background:var(--bg2);border-right:1px solid var(--bd);
+  z-index:400;transform:translateX(-512px);transition:transform .25s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;
+  box-shadow:4px 0 24px rgba(0,0,0,0.5);
+}
+.aitrade-panel.open{transform:translateX(0);}
+.aitrade-head{
+  height:44px;flex-shrink:0;background:var(--bg3);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:8px;padding:0 14px;
+}
+.aitrade-title{font-size:10px;font-weight:700;color:var(--a);letter-spacing:2px;font-family:var(--font-mono);}
+.aitrade-close{
+  margin-left:auto;width:26px;height:26px;border-radius:5px;border:1px solid var(--bd);
+  background:transparent;color:var(--m);font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+}
+.aitrade-close:hover{color:var(--r);}
+.aitrade-body{flex:1;overflow-y:auto;padding:14px;}
+.aitrade-body::-webkit-scrollbar{width:3px;}
+.aitrade-body::-webkit-scrollbar-thumb{background:var(--bd2);}
+
+/* Form */
+.at-section{margin-bottom:14px;}
+.at-section-label{font-size:8px;color:var(--m2);letter-spacing:2px;font-family:var(--font-mono);margin-bottom:8px;display:block;}
+.at-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
+.at-field{display:flex;flex-direction:column;gap:3px;margin-bottom:6px;}
+.at-label{font-size:8px;color:var(--m2);letter-spacing:1px;font-family:var(--font-mono);}
+.at-input{
+  width:100%;height:34px;background:var(--bg3);border:1px solid var(--bd2);
+  border-radius:6px;color:var(--t);font-size:12px;padding:0 10px;
+  font-family:var(--font-mono);outline:none;transition:border-color .15s;
+}
+.at-input:focus{border-color:rgba(232,114,42,0.4);}
+.at-input::placeholder{color:var(--m2);}
+select.at-input{cursor:pointer;}
+
+/* Direction toggle */
+.at-dir-row{display:flex;gap:4px;margin-bottom:6px;}
+.at-dir-btn{
+  flex:1;height:30px;border-radius:6px;border:1px solid var(--bd);
+  background:transparent;color:var(--m);font-size:10px;
+  font-family:var(--font-mono);letter-spacing:.5px;transition:all .12s;
+}
+.at-dir-btn.long-active{color:#2ecc71;background:rgba(46,204,113,0.1);border-color:rgba(46,204,113,0.25);}
+.at-dir-btn.short-active{color:var(--r);background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.2);}
+.at-dir-btn:hover:not(.long-active):not(.short-active){color:var(--t);background:var(--bg3);}
+
+/* Mini chart */
+.at-chart-wrap{
+  height:200px;border-radius:6px;overflow:hidden;
+  border:1px solid rgba(232,114,42,0.12);background:var(--bg);
+  margin-bottom:10px;position:relative;
+}
+#at-chart{width:100%;height:100%;}
+.at-chart-loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--m2);letter-spacing:2px;font-family:var(--font-mono);
+  background:var(--bg);
+}
+
+/* Metrics grid */
+.at-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:12px;}
+.at-metric{
+  background:rgba(255,255,255,0.025);border:1px solid var(--bd);
+  border-radius:6px;padding:7px 10px;
+}
+.at-m-label{font-size:7px;color:var(--m2);letter-spacing:1.5px;font-family:var(--font-mono);margin-bottom:2px;}
+.at-m-val{font-size:13px;color:var(--t);font-family:var(--font-mono);font-weight:700;}
+.at-m-val.good{color:var(--g);}
+.at-m-val.warn{color:var(--y);}
+.at-m-val.bad{color:var(--r);}
+
+/* Analyze button */
+.at-analyze-btn{
+  width:100%;height:38px;border-radius:8px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--a),#d4661e);
+  color:#fff;font-family:var(--font-mono);font-weight:700;
+  font-size:11px;letter-spacing:1px;transition:opacity .15s;
+  margin-bottom:12px;
+}
+.at-analyze-btn:hover{opacity:.9;}
+.at-analyze-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* AI results */
+.at-ai-header{
+  font-size:8px;color:var(--a);letter-spacing:2px;font-family:var(--font-mono);
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.at-ai-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--a);
+  box-shadow:0 0 6px var(--a);animation:pulse 1.8s infinite;
+}
+.at-ai-card{
+  padding:10px 12px;border-radius:7px;font-size:11px;
+  font-family:var(--font-mono);line-height:1.6;
+  border-left:3px solid;margin-bottom:6px;
+  animation:slideIn .3s ease forwards;opacity:0;
+}
+@keyframes slideIn{from{transform:translateX(-6px);opacity:0}to{transform:none;opacity:1}}
+.at-ai-card.ok{background:rgba(46,204,113,0.08);border-color:var(--g);color:#6ee7b7;}
+.at-ai-card.warn{background:rgba(240,192,64,0.08);border-color:var(--y);color:#f6d860;}
+.at-ai-card.danger{background:rgba(231,76,60,0.08);border-color:var(--r);color:#ff8fa3;}
+.at-ai-card.info{background:rgba(59,130,246,0.08);border-color:#3b82f6;color:#93c5fd;}
+.at-ai-skeleton{
+  height:46px;border-radius:7px;margin-bottom:6px;
+  background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Mobile */
+@media(max-width:768px){
+  .aitrade-panel{width:100%;left:0;transform:translateX(-100%);}
+  .aitrade-panel.open{transform:translateX(0);}
+}
+
 </style>
 </head>
 <body>
@@ -1048,6 +1168,7 @@ img{display:block;}
   <div class="sb-sep"></div>
   <button class="sb-btn" id="sb-alerts-btn" title="Мои алерты" onclick="toggleAlertsPanel()">🔔</button>
   <button class="sb-btn" id="sb-calendar-btn" title="Экономический календарь" onclick="toggleCalendarPanel()" style="position:relative;">📅<span class="cal-notif-dot" id="cal-notif-dot"></span></button>
+  <button class="sb-btn" id="sb-aitrade-btn" title="AI Trade Analyzer" onclick="toggleAiTradePanel()">🧠</button>
   <div class="sb-bottom">
     <div class="sb-sep"></div>
     <button class="sb-btn" id="sb-journal" title="Журнал" onclick="location.href='journal.html'">📋</button>
@@ -1225,6 +1346,91 @@ img{display:block;}
     </div>
   </div>
 </div>
+
+<!-- AI TRADE ANALYZER PANEL -->
+<div class="aitrade-panel" id="aitrade-panel">
+  <div class="aitrade-head">
+    <span style="font-size:14px;">🧠</span>
+    <span class="aitrade-title">AI TRADE ANALYZER</span>
+    <button class="aitrade-close" onclick="toggleAiTradePanel()">✕</button>
+  </div>
+  <div class="aitrade-body">
+
+    <!-- Пара и таймфрейм -->
+    <div class="at-section">
+      <span class="at-section-label">СЕТАП</span>
+      <div class="at-row2">
+        <div class="at-field">
+          <span class="at-label">ПАРА</span>
+          <input class="at-input" id="at-pair" value="BTCUSDT" placeholder="BTCUSDT" oninput="atUpdatePair()">
+        </div>
+        <div class="at-field">
+          <span class="at-label">ТАЙМФРЕЙМ</span>
+          <select class="at-input" id="at-tf" onchange="atLoadChart()">
+            <option value="5m">5m</option>
+            <option value="15m" selected>15m</option>
+            <option value="1h">1h</option>
+            <option value="4h">4h</option>
+            <option value="1d">1D</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Направление -->
+      <span class="at-label">НАПРАВЛЕНИЕ</span>
+      <div class="at-dir-row" style="margin-top:3px;">
+        <button class="at-dir-btn long-active" id="at-dir-long"  onclick="atSetDir('long',this)">▲ LONG</button>
+        <button class="at-dir-btn"             id="at-dir-short" onclick="atSetDir('short',this)">▼ SHORT</button>
+      </div>
+
+      <!-- Уровни -->
+      <div class="at-row2">
+        <div class="at-field">
+          <span class="at-label">ВХОД</span>
+          <input class="at-input" id="at-entry" type="number" placeholder="Цена входа" oninput="atUpdateLines()">
+        </div>
+        <div class="at-field">
+          <span class="at-label">СТОП-ЛОСС</span>
+          <input class="at-input" id="at-sl" type="number" placeholder="Stop Loss" oninput="atUpdateLines()">
+        </div>
+      </div>
+      <div class="at-field">
+        <span class="at-label">ТЕЙК-ПРОФИТ</span>
+        <input class="at-input" id="at-tp" type="number" placeholder="Take Profit" oninput="atUpdateLines()">
+      </div>
+    </div>
+
+    <!-- Мини-график -->
+    <div class="at-chart-wrap">
+      <div id="at-chart"></div>
+      <div class="at-chart-loading" id="at-chart-loading">ЗАГРУЗКА...</div>
+    </div>
+
+    <!-- Метрики -->
+    <div class="at-metrics" id="at-metrics">
+      <div class="at-metric"><div class="at-m-label">РИСК / НАГРАДА</div><div class="at-m-val" id="atm-rr">—</div></div>
+      <div class="at-metric"><div class="at-m-label">РИСК %</div><div class="at-m-val" id="atm-risk">—</div></div>
+      <div class="at-metric"><div class="at-m-label">ПОТЕНЦИАЛ %</div><div class="at-m-val" id="atm-reward">—</div></div>
+      <div class="at-metric"><div class="at-m-label">ПОЗИЦИЯ В ДИАПАЗ.</div><div class="at-m-val" id="atm-range">—</div></div>
+    </div>
+
+    <!-- Кнопка анализа -->
+    <button class="at-analyze-btn" id="at-analyze-btn" onclick="atAnalyze()">⚡ AI АНАЛИЗ СДЕЛКИ</button>
+
+    <!-- AI результаты -->
+    <div id="at-ai-area" style="display:none;">
+      <div class="at-ai-header"><div class="at-ai-dot"></div>AI COACH · ORBITUM</div>
+      <div id="at-ai-loading" style="display:none;">
+        <div class="at-ai-skeleton" style="animation-delay:.0s"></div>
+        <div class="at-ai-skeleton" style="animation-delay:.15s"></div>
+        <div class="at-ai-skeleton" style="animation-delay:.3s"></div>
+      </div>
+      <div id="at-ai-cards"></div>
+    </div>
+
+  </div>
+</div>
+
 
 <!-- ALERT MODAL -->
 <div class="modal-overlay" id="alert-modal">
@@ -1614,8 +1820,8 @@ function checkAlerts(cgId, price, prevPrice){
 async function sendTgNotify(alert, currentPrice){
   const { data: { user } } = await sb.auth.getUser();
   if(!user) return;
-  const sym = alert.symbol;
-  const dir = alert.condition === 'above' ? '▲ ВЫШЕ' : '▼ НИЖЕ';
+  const coin = allCoins.find(c => c.coingecko_id === alert.coingecko_id || c.id === alert.coingecko_id);
+  const ws   = _wsCache[alert.coingecko_id] || {};
   try{
     await fetch('/api/notify', {
       method: 'POST',
@@ -1624,11 +1830,17 @@ async function sendTgNotify(alert, currentPrice){
         type: 'alert',
         chat_id: _tgProfile.tg_chat_id,
         data: {
-          coin: sym,
-          signal: alert.condition === 'above' ? '🚀' : '📉',
-          text: `Цена ${sym} ${dir} ${fmtPrice(alert.target_price)} · Сейчас: ${fmtPrice(currentPrice)}`,
-          value: fmtPrice(currentPrice),
-          time: new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
+          symbol:        alert.symbol,
+          alert_type:    alert.alert_type || 'price',
+          condition:     alert.condition,
+          target_price:  alert.target_price,
+          current_price: currentPrice,
+          change_24h:    ws.chg24 ?? coin?.price_change_percentage_24h ?? null,
+          volume_24h:    coin?.total_volume ?? null,
+          rsi:           _rsiCache[alert.coingecko_id] ?? null,
+          note:          alert.note || null,
+          repeat_mode:   alert.repeat_mode || 'once',
+          app_url:       'https://orbitum-journal.vercel.app/screener.html',
         }
       })
     });
@@ -2258,6 +2470,7 @@ function buildChartHTML(coin){
       <div class="dp-ind-row" style="margin-bottom:6px;">
         <button class="dp-ind-btn active" id="ind-ema20" onclick="toggleInd('ema20',this)">EMA20</button>
         <button class="dp-ind-btn active" id="ind-ema50" onclick="toggleInd('ema50',this)">EMA50</button>
+        <button class="dp-ind-btn" id="ind-bb" onclick="toggleInd('bb',this)">BB</button>
         <button class="dp-ind-btn active" id="ind-vol" onclick="toggleInd('vol',this)">VOL</button>
         <button class="dp-ind-btn" id="ind-rsi" onclick="toggleInd('rsi',this)">RSI</button>
       </div>
@@ -2278,8 +2491,8 @@ function buildChartHTML(coin){
 }
 
 // Indicator state
-let _inds = { ema20: true, ema50: true, vol: true, rsi: false };
-let _lwcEma20 = null, _lwcEma50 = null, _lwcVolSer = null, _lwcRsiChart = null;
+let _inds = { ema20: true, ema50: true, bb: false, vol: true, rsi: false };
+let _lwcEma20 = null, _lwcEma50 = null, _lwcBbUpper = null, _lwcBbLower = null, _lwcBbMid = null, _lwcVolSer = null, _lwcRsiChart = null;
 
 async function loadChart(coin){
   const slot = document.getElementById('dp-chart-slot');
@@ -2350,7 +2563,7 @@ function renderTradeMiniList(coin){
 function destroyChart(){
   if(_lwcChart){ _lwcChart.remove(); _lwcChart = null; }
   if(_lwcResizeObs){ _lwcResizeObs.disconnect(); _lwcResizeObs = null; }
-  _lwcSeries = null; _lwcEma20 = null; _lwcEma50 = null; _lwcVolSer = null;
+  _lwcSeries = null; _lwcEma20 = null; _lwcEma50 = null; _lwcBbUpper = null; _lwcBbLower = null; _lwcBbMid = null; _lwcVolSer = null;
   _lwcAlertLines = {};
   stopKlineWS();
 }
@@ -2528,8 +2741,11 @@ function toggleInd(key, btn){
 }
 
 function applyInds(){
-  if(_lwcEma20) _lwcEma20.applyOptions({ visible: _inds.ema20 });
-  if(_lwcEma50) _lwcEma50.applyOptions({ visible: _inds.ema50 });
+  if(_lwcEma20)  _lwcEma20.applyOptions({ visible: _inds.ema20 });
+  if(_lwcEma50)  _lwcEma50.applyOptions({ visible: _inds.ema50 });
+  if(_lwcBbUpper) _lwcBbUpper.applyOptions({ visible: _inds.bb });
+  if(_lwcBbLower) _lwcBbLower.applyOptions({ visible: _inds.bb });
+  if(_lwcBbMid)   _lwcBbMid.applyOptions({ visible: _inds.bb });
   if(_lwcVolSer) _lwcVolSer.applyOptions({ visible: _inds.vol });
 }
 
@@ -2640,6 +2856,28 @@ async function renderLWChart(candles){
   });
   _lwcEma50.setData(ema50data);
   _lwcEma50._lastEma50 = ema50data[ema50data.length-1]?.value ?? 0;
+
+  // Bollinger Bands (20, 2)
+  function calcBB(data, period=20, mult=2){
+    const result = { upper:[], mid:[], lower:[] };
+    for(let i=period-1;i<data.length;i++){
+      const slice = data.slice(i-period+1, i+1).map(d=>d.close);
+      const mean = slice.reduce((a,b)=>a+b,0)/period;
+      const std = Math.sqrt(slice.reduce((s,v)=>s+(v-mean)**2,0)/period);
+      result.upper.push({ time:data[i].time, value: mean + mult*std });
+      result.mid.push(  { time:data[i].time, value: mean });
+      result.lower.push({ time:data[i].time, value: mean - mult*std });
+    }
+    return result;
+  }
+  const bb = calcBB(candles);
+  const bbOpts = { lineWidth:1, priceLineVisible:false, crosshairMarkerVisible:false, lastValueVisible:false, visible:_inds.bb };
+  _lwcBbUpper = chart.addLineSeries({ ...bbOpts, color:'rgba(240,192,64,0.5)' });
+  _lwcBbUpper.setData(bb.upper);
+  _lwcBbMid = chart.addLineSeries({ ...bbOpts, color:'rgba(240,192,64,0.3)', lineStyle:2 });
+  _lwcBbMid.setData(bb.mid);
+  _lwcBbLower = chart.addLineSeries({ ...bbOpts, color:'rgba(240,192,64,0.5)' });
+  _lwcBbLower.setData(bb.lower);
 
   // Volume as histogram on separate price scale
   const volSeries = chart.addHistogramSeries({
@@ -3323,6 +3561,279 @@ setTimeout(async ()=>{
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
+
+
+// ══════════════════════════════════════════════
+// AI TRADE ANALYZER
+// ══════════════════════════════════════════════
+
+let _atOpen       = false;
+let _atDirection  = 'long';
+let _atChart      = null;
+let _atSeries     = null;
+let _atEntryLine  = null;
+let _atSlLine     = null;
+let _atTpLine     = null;
+let _atCandles    = [];
+let _atResizeObs  = null;
+
+function toggleAiTradePanel(){
+  _atOpen = !_atOpen;
+  document.getElementById('aitrade-panel').classList.toggle('open', _atOpen);
+  document.getElementById('sb-aitrade-btn').classList.toggle('active', _atOpen);
+  if(_atOpen && !_atChart) atInitChart();
+  if(_atOpen) atPrefillFromDetail();
+}
+
+// Prefill from currently open coin in detail panel
+function atPrefillFromDetail(){
+  if(!_detailCoin) return;
+  const ws = _wsCache[_detailCoin.id];
+  const price = ws?.price ?? _detailCoin.current_price;
+  if(!price) return;
+  const pairInput = document.getElementById('at-pair');
+  const wsPair = WS_MAP[_detailCoin.id]?.pair?.toUpperCase() || (_detailCoin.symbol?.toUpperCase()+'USDT');
+  if(pairInput) pairInput.value = wsPair;
+  const entry = document.getElementById('at-entry');
+  if(entry && !entry.value) entry.value = price.toFixed(price >= 1 ? 2 : 6);
+  atLoadChart();
+}
+
+function atSetDir(dir, btn){
+  _atDirection = dir;
+  document.getElementById('at-dir-long').className  = 'at-dir-btn' + (dir==='long'?' long-active':'');
+  document.getElementById('at-dir-short').className = 'at-dir-btn' + (dir==='short'?' short-active':'');
+}
+
+function atUpdatePair(){
+  clearTimeout(atUpdatePair._t);
+  atUpdatePair._t = setTimeout(atLoadChart, 800);
+}
+
+function atUpdateLines(){
+  if(!_atChart || !_atSeries) return;
+  const entry = parseFloat(document.getElementById('at-entry').value);
+  const sl    = parseFloat(document.getElementById('at-sl').value);
+  const tp    = parseFloat(document.getElementById('at-tp').value);
+
+  // Remove old lines
+  [_atEntryLine, _atSlLine, _atTpLine].forEach(l => {
+    if(l) try{ _atSeries.removePriceLine(l); }catch(e){}
+  });
+
+  if(entry > 0) _atEntryLine = _atSeries.createPriceLine({
+    price: entry, color: 'rgba(46,204,113,0.9)', lineWidth: 2,
+    lineStyle: 0, axisLabelVisible: true, title: '● ВХОД',
+  });
+  if(sl > 0) _atSlLine = _atSeries.createPriceLine({
+    price: sl, color: 'rgba(231,76,60,0.9)', lineWidth: 1.5,
+    lineStyle: 2, axisLabelVisible: true, title: '✕ СТОП',
+  });
+  if(tp > 0) _atTpLine = _atSeries.createPriceLine({
+    price: tp, color: 'rgba(59,130,246,0.9)', lineWidth: 1.5,
+    lineStyle: 2, axisLabelVisible: true, title: '◎ ТЕЙК',
+  });
+
+  atCalcMetrics();
+}
+
+function atCalcMetrics(){
+  const entry = parseFloat(document.getElementById('at-entry').value);
+  const sl    = parseFloat(document.getElementById('at-sl').value);
+  const tp    = parseFloat(document.getElementById('at-tp').value);
+  if(!entry || !sl || !tp || isNaN(entry) || isNaN(sl) || isNaN(tp)) return;
+
+  const risk   = Math.abs(entry - sl);
+  const reward = Math.abs(tp - entry);
+  const rr     = reward / risk;
+  const riskPct   = (risk   / entry * 100);
+  const rewardPct = (reward / entry * 100);
+
+  // Range position from recent candles
+  let rangePos = null;
+  if(_atCandles.length >= 10){
+    const recent = _atCandles.slice(-30);
+    const high = Math.max(...recent.map(c => c.high));
+    const low  = Math.min(...recent.map(c => c.low));
+    if(high > low) rangePos = ((entry - low) / (high - low) * 100).toFixed(0);
+  }
+
+  const rrEl = document.getElementById('atm-rr');
+  rrEl.textContent = `1:${rr.toFixed(2)}`;
+  rrEl.className = `at-m-val ${rr >= 2 ? 'good' : rr >= 1 ? 'warn' : 'bad'}`;
+
+  const riskEl = document.getElementById('atm-risk');
+  riskEl.textContent = `−${riskPct.toFixed(2)}%`;
+  riskEl.className = `at-m-val ${riskPct <= 1 ? 'good' : riskPct <= 2 ? 'warn' : 'bad'}`;
+
+  document.getElementById('atm-reward').textContent = `+${rewardPct.toFixed(2)}%`;
+  document.getElementById('atm-reward').className = 'at-m-val good';
+
+  const rangeEl = document.getElementById('atm-range');
+  if(rangePos != null){
+    rangeEl.textContent = `${rangePos}%`;
+    rangeEl.className = `at-m-val ${rangePos > 25 && rangePos < 75 ? 'warn' : 'good'}`;
+  }
+
+  return { rr, riskPct, rewardPct, rangePos: rangePos ? +rangePos : 50 };
+}
+
+async function atInitChart(){
+  const LWC = await getLWC();
+  if(!LWC) return;
+  const el = document.getElementById('at-chart');
+  if(!el || _atChart) return;
+
+  const chart = (LWC.createChart || LWC.default?.createChart)(el, {
+    width:  el.clientWidth,
+    height: el.clientHeight || 200,
+    layout: { background:{ color:'#06080c' }, textColor:'rgba(232,234,240,0.3)', fontFamily:"'JetBrains Mono',monospace", fontSize:9 },
+    grid:   { vertLines:{ color:'rgba(255,255,255,0.03)' }, horzLines:{ color:'rgba(255,255,255,0.03)' } },
+    crosshair: { mode:1, vertLine:{ color:'rgba(232,114,42,0.3)' }, horzLine:{ color:'rgba(232,114,42,0.3)' } },
+    rightPriceScale: { borderColor:'rgba(255,255,255,0.06)', scaleMargins:{ top:0.1, bottom:0.1 } },
+    timeScale: { borderColor:'rgba(255,255,255,0.06)', timeVisible:true, secondsVisible:false },
+    handleScale: { mouseWheel:true, pinch:true },
+    handleScroll: { mouseWheel:true, pressedMouseMove:true },
+  });
+  _atChart = chart;
+
+  _atSeries = chart.addCandlestickSeries({
+    upColor:'#2ecc71', downColor:'#e74c3c',
+    borderUpColor:'#2ecc71', borderDownColor:'#e74c3c',
+    wickUpColor:'rgba(46,204,113,0.5)', wickDownColor:'rgba(231,76,60,0.5)',
+  });
+
+  if(_atResizeObs) _atResizeObs.disconnect();
+  _atResizeObs = new ResizeObserver(() => {
+    if(_atChart && el) _atChart.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+  });
+  _atResizeObs.observe(el);
+
+  await atLoadChart();
+}
+
+async function atLoadChart(){
+  if(!_atChart || !_atSeries) return;
+  const pair = (document.getElementById('at-pair')?.value || 'BTCUSDT').toUpperCase();
+  const tf   = document.getElementById('at-tf')?.value || '15m';
+  const loading = document.getElementById('at-chart-loading');
+  if(loading) loading.style.display = 'flex';
+
+  try{
+    const url = `https://api.binance.com/api/v3/klines?symbol=${pair}&interval=${tf}&limit=120`;
+    const raw = await safeFetch(url);
+    if(!Array.isArray(raw)) throw new Error('no data');
+    const candles = raw.map(k => ({
+      time: Math.floor(k[0]/1000),
+      open: parseFloat(k[1]), high: parseFloat(k[2]),
+      low:  parseFloat(k[3]), close: parseFloat(k[4]),
+    }));
+    _atCandles = candles;
+    _atSeries.setData(candles);
+    _atChart.timeScale().fitContent();
+    if(loading) loading.style.display = 'none';
+
+    // Если вход не заполнен — prefill последней ценой
+    const lastClose = candles[candles.length - 1]?.close;
+    const entryEl = document.getElementById('at-entry');
+    if(entryEl && !entryEl.value && lastClose){
+      entryEl.value = lastClose.toFixed(lastClose >= 1 ? 2 : 6);
+    }
+    atUpdateLines();
+  }catch(e){
+    if(loading){ loading.style.display = 'flex'; loading.textContent = 'Ошибка: ' + e.message; }
+  }
+}
+
+async function atAnalyze(){
+  const entry = parseFloat(document.getElementById('at-entry').value);
+  const sl    = parseFloat(document.getElementById('at-sl').value);
+  const tp    = parseFloat(document.getElementById('at-tp').value);
+  const pair  = document.getElementById('at-pair').value.toUpperCase();
+  const tf    = document.getElementById('at-tf').value;
+
+  if(!entry || !sl || !tp){ showToast('Заполни вход, стоп и тейк','err'); return; }
+
+  const metrics = atCalcMetrics();
+  if(!metrics) return;
+
+  // Show loading
+  const aiArea    = document.getElementById('at-ai-area');
+  const aiLoading = document.getElementById('at-ai-loading');
+  const aiCards   = document.getElementById('at-ai-cards');
+  aiArea.style.display    = 'block';
+  aiLoading.style.display = 'block';
+  aiCards.innerHTML       = '';
+
+  const btn = document.getElementById('at-analyze-btn');
+  btn.disabled = true; btn.textContent = '⏳ АНАЛИЗИРУЮ...';
+
+  const prompt = `Ты — профессиональный крипто-трейдер и коуч. Проанализируй сделку.
+
+Сетап:
+- Пара: ${pair} | ТФ: ${tf} | Направление: ${_atDirection.toUpperCase()}
+- Вход: ${entry} | Стоп: ${sl} | Тейк: ${tp}
+- R/R: 1:${metrics.rr.toFixed(2)} | Риск: ${metrics.riskPct.toFixed(2)}% | Потенциал: ${metrics.rewardPct.toFixed(2)}%
+- Позиция в диапазоне 30 свечей: ${metrics.rangePos}% (0%=дно, 100%=верх)
+
+Верни JSON массив карточек. Каждая: {"type":"ok"|"warn"|"danger"|"info", "text":"..."}
+Правила: RR<1=danger, RR 1-1.5=warn, RR>=2=ok. Риск>3%=danger, 1.5-3%=warn.
+Long у топа диапазона (>75%)=danger. Short у дна (<25%)=danger.
+Добавь 1 info карточку с конкретным советом.
+Текст каждой карточки — по-русски, начиная с эмодзи, до 90 символов.
+Верни ТОЛЬКО валидный JSON массив без markdown.`;
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text || '[]';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const cards = JSON.parse(clean);
+    aiLoading.style.display = 'none';
+    atRenderCards(cards, aiCards);
+  }catch(e){
+    aiLoading.style.display = 'none';
+    atRenderCards(atLocalAnalysis(entry, sl, tp, metrics), aiCards);
+  }
+
+  btn.disabled = false; btn.textContent = '⚡ AI АНАЛИЗ СДЕЛКИ';
+}
+
+function atRenderCards(cards, container){
+  container.innerHTML = '';
+  cards.forEach((card, i) => {
+    const div = document.createElement('div');
+    div.className = `at-ai-card ${card.type || 'info'}`;
+    div.style.animationDelay = `${i * 0.1}s`;
+    div.textContent = card.text;
+    container.appendChild(div);
+  });
+}
+
+function atLocalAnalysis(entry, sl, tp, metrics){
+  const { rr, riskPct, rangePos } = metrics;
+  const cards = [];
+  if(rr < 1)        cards.push({ type:'danger', text:`🚫 R/R = 1:${rr.toFixed(2)} — риск превышает награду, пропусти сделку` });
+  else if(rr < 1.5) cards.push({ type:'warn',   text:`⚠️ R/R = 1:${rr.toFixed(2)} — ниже минимума 1:1.5, пересмотри TP` });
+  else              cards.push({ type:'ok',     text:`✅ R/R = 1:${rr.toFixed(2)} — хорошее соотношение риск/награда` });
+  if(riskPct > 3)        cards.push({ type:'danger', text:`🚫 Риск ${riskPct.toFixed(1)}% — критически высокий, макс 1-2% на сделку` });
+  else if(riskPct > 1.5) cards.push({ type:'warn',   text:`⚠️ Риск ${riskPct.toFixed(1)}% — допустимо, но можно тighter стоп` });
+  else                   cards.push({ type:'ok',     text:`✅ Риск ${riskPct.toFixed(1)}% — отличное управление капиталом` });
+  if(_atDirection==='long' && rangePos > 75)  cards.push({ type:'danger', text:'🚫 Лонг у вершины диапазона — гонишься за ценой' });
+  else if(_atDirection==='long' && rangePos < 30)  cards.push({ type:'ok', text:'✅ Лонг у дна диапазона — хорошая позиция для входа' });
+  if(_atDirection==='short' && rangePos < 25) cards.push({ type:'danger', text:'🚫 Шорт у дна диапазона — не лучший момент' });
+  cards.push({ type:'info', text:'💡 Подтверди вход на старшем ТФ перед открытием позиции' });
+  return cards;
+}
+
 </script>
 </body>
 </html>
