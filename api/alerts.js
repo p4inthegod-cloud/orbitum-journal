@@ -72,9 +72,9 @@ export default async function handler(req, res) {
       const hit =
         (alert.condition === 'above' && current >= alert.target_price) ||
         (alert.condition === 'below' && current <= alert.target_price) ||
-        (alert.condition === 'cross' && (
-          (alert._prev_price < alert.target_price && current >= alert.target_price) ||
-          (alert._prev_price > alert.target_price && current <= alert.target_price)
+        (alert.condition === 'cross' && alert.last_price != null && (
+          (alert.last_price < alert.target_price && current >= alert.target_price) ||
+          (alert.last_price > alert.target_price && current <= alert.target_price)
         ));
       if (!hit) continue;
 
@@ -130,6 +130,24 @@ export default async function handler(req, res) {
           },
           body: JSON.stringify({ triggered: false, triggered_at: new Date().toISOString() }),
         });
+      }
+    }
+
+    // Update last_price for all checked alerts (needed for cross condition)
+    const allIds = alerts.filter(a => prices[a.coingecko_id]?.usd).map(a => a.id);
+    if (allIds.length) {
+      // Batch update last_price per coingecko_id
+      const byId = {};
+      alerts.forEach(a => { if (prices[a.coingecko_id]?.usd) byId[a.id] = prices[a.coingecko_id].usd; });
+      for (const [alertId, price] of Object.entries(byId)) {
+        await fetch(`${SB_URL}/rest/v1/price_alerts?id=eq.${alertId}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
+            'Content-Type': 'application/json', 'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({ last_price: price }),
+        }).catch(() => {});
       }
     }
 

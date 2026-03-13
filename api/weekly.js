@@ -100,6 +100,50 @@ export default async function handler(req, res) {
       }
       const worstDay = Object.entries(dayMap).sort((a, b) => a[1] - b[1])[0];
 
+      // ── AI Weekly Analysis (new in v2) ──
+      let aiInsight = '';
+      if (trades.length >= 3 && process.env.GROQ_API_KEY) {
+        try {
+          const compactTrades = trades.slice(0, 30).map(t => ({
+            pair: t.pair, direction: t.direction, result: t.result,
+            pnl_pct: t.pnl_pct, pnl_usd: t.pnl_usd,
+            setup_type: t.setup_type,
+            emotion_conf: t.emotion_conf, emotion_fear: t.emotion_fear,
+            emotion_greed: t.emotion_greed, emotion_calm: t.emotion_calm,
+            created_at: t.created_at,
+          }));
+          const aiResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
+            body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              max_tokens: 400,
+              temperature: 0.25,
+              messages: [{
+                role: 'system',
+                content: `Ты AI-коуч. Дай краткий разбор недели трейдера (${trades.length} сделок, WR ${wr}%, P&L ${pnlSign}${pnl.toFixed(1)}%). Данные: ${JSON.stringify(compactTrades).slice(0, 3000)}. Ответь 2-3 предложения: главный паттерн + конкретный совет с числами. На русском. Без markdown.`
+              }, {
+                role: 'user',
+                content: 'Дай краткий AI-разбор недели.'
+              }],
+            }),
+            signal: AbortSignal.timeout(12000),
+          });
+          if (aiResp.ok) {
+            const aiData = await aiResp.json();
+            const aiText = aiData.choices?.[0]?.message?.content || '';
+            if (aiText.length > 10) {
+              aiInsight = `\n\n🤖 <b>AI Coach:</b>\n${aiText.slice(0, 400)}`;
+            }
+          }
+        } catch(e) {
+          console.warn('[weekly] AI analysis failed:', e.message);
+        }
+      }
+
+      const weekLabel = weekStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+      const worstDay = Object.entries(dayMap).sort((a, b) => a[1] - b[1])[0];
+
       const weekLabel = weekStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 
       await tgSend(user.tg_chat_id,
@@ -110,6 +154,7 @@ export default async function handler(req, res) {
         (bestPair  ? `\n🏆 Лучшая пара: <b>${bestPair[0]}</b> (${bestPair[1] >= 0 ? '+' : ''}${bestPair[1].toFixed(1)}%)` : '') +
         (bestSetup ? `\n🔷 Лучший сетап: <b>${bestSetup[0]}</b> (${bestSetup[1].count} сд.)` : '') +
         (worstDay && worstDay[1] < 0 ? `\n⚠️ Худший день: <b>${worstDay[0]}</b> (${worstDay[1].toFixed(1)}%)` : '') +
+        aiInsight +
         `\n\nХорошей недели! 💪`
       );
       sent++;
