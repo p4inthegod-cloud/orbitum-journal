@@ -5428,6 +5428,13 @@ async function init(){
   }
 }
 
+// ── ЗАПУСК ───────────────────────────────────────────────────
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
 function enablePreviewMode(name){
   // Inject preview banner
   const banner=document.createElement('div');
@@ -9351,47 +9358,50 @@ function updateTickerItem(sym, newPrice, chg) {
 // tickerApiUrl removed — using /api/ticker directly
 
 // ── CRYPTO POLLING ───────────────────────────────────────
-async function fetchCrypto(){
-  try{
-    const r   = await fetch('/api/ticker?type=crypto');
-    const ct  = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=crypto');
-    const data = await r.json();
-    const arr  = Array.isArray(data) ? data : [];
-    arr.forEach(d=>{
-      const sym = TICKER_SYMBOLS.find(s=>s.cgId === d.id);
-      if(!sym) return;
-      updateTickerItem(sym.sym, d.current_price, d.price_change_percentage_24h || 0);
-    });
-    console.log('[Ticker] Crypto ✓', arr.length);
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) throw new Error('Non-JSON: ' + url);
+  return r.json();
+}
 
-    console.log('[Ticker] Crypto updated');
-  }catch(e){
-    console.warn('[Ticker] Crypto error:', e.message);
+async function fetchCrypto(){
+  const CG_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,cardano,avalanche-2,chainlink,pepe,the-open-network,sui&price_change_percentage=24h&per_page=20&sparkline=false';
+  let data = null;
+  try { data = await fetchJSON('/api/ticker?type=crypto'); }
+  catch(e) {
+    try { data = await fetchJSON(CG_URL); }
+    catch(e2) { console.warn('[Ticker] Crypto error:', e2.message); return; }
   }
+  const arr = Array.isArray(data) ? data : [];
+  arr.forEach(d=>{
+    const sym = TICKER_SYMBOLS.find(s=>s.cgId === d.id);
+    if(!sym) return;
+    updateTickerItem(sym.sym, d.current_price, d.price_change_percentage_24h || 0);
+  });
+  console.log('[Ticker] Crypto ✓', arr.length);
 }
 
 // ── FOREX POLLING ────────────────────────────────────────
 async function fetchForex(){
-  try{
-    const r    = await fetch('/api/ticker?type=forex');
-    const ct   = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=forex');
-    const data = await r.json();
-    const rates = data.rates;
-    if(!rates) return;
-    if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY,               null);
-    if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF,               null);
-    if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD,               null);
-    if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR,             null);
-    if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP,             null);
-    if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD,             null);
-    if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD,             null);
-    if(rates.EUR && rates.GBP) updateTickerItem('EUR/GBP', rates.GBP/rates.EUR, null);
-    console.log('[Ticker] Forex ✓');
-  }catch(e){
-    console.warn('[Ticker] Forex error:', e.message);
+  const FX_URL = 'https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD';
+  let data = null;
+  try { data = await fetchJSON('/api/ticker?type=forex'); }
+  catch(e) {
+    try { data = await fetchJSON(FX_URL); }
+    catch(e2) { console.warn('[Ticker] Forex error:', e2.message); return; }
   }
+  const rates = data.rates;
+  if(!rates) return;
+  if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY,               null);
+  if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF,               null);
+  if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD,               null);
+  if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR,             null);
+  if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP,             null);
+  if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD,             null);
+  if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD,             null);
+  if(rates.EUR && rates.GBP) updateTickerItem('EUR/GBP', rates.GBP/rates.EUR, null);
+  console.log('[Ticker] Forex ✓');
 }
 
 // ── СТАРТ ────────────────────────────────────────────────
@@ -9399,8 +9409,8 @@ function initTicker() {
   renderTickerTrack();
   fetchCrypto();
   fetchForex();
-  setInterval(fetchCrypto, 10000); // каждые 30 сек
-  setInterval(fetchForex,  30000); // каждую минуту
+  setInterval(fetchCrypto, 30000); // каждые 30 сек
+  setInterval(fetchForex,  60000); // каждую минуту
 }
 
 if (document.readyState === 'loading') {
@@ -9426,95 +9436,72 @@ function fmtBig(n){
 
 // ── Fear & Greed ──
 async function fetchFNG(){
-  try{
-    const r = await fetch('/api/ticker?type=fng');
-    const ct = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=fng');
-    const d = await r.json();
-    const val = parseInt(d.value);
-    const cls = d.value_classification || '';
-    const el  = document.getElementById('fng-num');
-    const lb  = document.getElementById('fng-label');
-    const arc = document.getElementById('fng-arc-fill');
-    if(!el) return;
-
-    // Цвет по значению
-    const color = val<=25?'#e74c3c':val<=45?'#e67e22':val<=55?'#f1c40f':val<=75?'#2ecc71':'#27ae60';
-    el.textContent = val;
-    el.style.color  = color;
-
-    // Русские лейблы
-    const labels = {
-      'Extreme Fear':'ЭКСТР. СТРАХ','Fear':'СТРАХ',
-      'Neutral':'НЕЙТРАЛЬНО','Greed':'ЖАДНОСТЬ','Extreme Greed':'ЭКСТР. ЖАДНОСТЬ'
-    };
-    lb.textContent = labels[cls] || cls;
-    lb.style.color = color;
-
-    // Дуга — 57px полная длина
-    const dash = (val/100)*57;
-    if(arc){ arc.style.stroke=color; arc.style.strokeDasharray=`${dash} 57`; }
-  }catch(e){ console.warn('[Widgets] FNG:', e.message); }
+  const FNG_URL = 'https://api.alternative.me/fng/?limit=1';
+  let d = null;
+  try { d = await fetchJSON('/api/ticker?type=fng'); }
+  catch(e) {
+    try { const r2 = await fetchJSON(FNG_URL); d = r2.data?.[0] || {}; }
+    catch(e2) { console.warn('[Widgets] FNG:', e2.message); return; }
+  }
+  const val = parseInt(d.value);
+  const cls = d.value_classification || '';
+  const el  = document.getElementById('fng-num');
+  const lb  = document.getElementById('fng-label');
+  const arc = document.getElementById('fng-arc-fill');
+  if(!el) return;
+  const color = val<=25?'#e74c3c':val<=45?'#e67e22':val<=55?'#f1c40f':val<=75?'#2ecc71':'#27ae60';
+  el.textContent = val;
+  el.style.color  = color;
+  const labels = {'Extreme Fear':'ЭКСТР. СТРАХ','Fear':'СТРАХ','Neutral':'НЕЙТРАЛЬНО','Greed':'ЖАДНОСТЬ','Extreme Greed':'ЭКСТР. ЖАДНОСТЬ'};
+  lb.textContent = labels[cls] || cls;
+  lb.style.color = color;
+  const dash = (val/100)*57;
+  if(arc){ arc.style.stroke=color; arc.style.strokeDasharray=`${dash} 57`; }
 }
 
 // ── Global Market ──
 async function fetchMarket(){
-  try{
-    const r = await fetch('/api/ticker?type=market');
-    const ct = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=market');
-    const d = await r.json();
-    const g = d.data;
-    if(!g) return;
-
-    const capVal = g.total_market_cap?.usd || 0;
-    const volVal = g.total_volume?.usd || 0;
-    const domVal = g.market_cap_percentage?.btc || 0;
-    const capChg = g.market_cap_change_percentage_24h_usd || 0;
-
-    const capEl = document.getElementById('mkt-cap');
-    const volEl = document.getElementById('mkt-vol');
-    const domEl = document.getElementById('mkt-dom');
-    const barEl = document.getElementById('mkt-dom-bar');
-    const chgEl = document.getElementById('mkt-cap-chg');
-
-    if(capEl) capEl.textContent = fmtBig(capVal);
-    if(volEl) volEl.textContent = fmtBig(volVal);
-    if(domEl) domEl.textContent = domVal.toFixed(1)+'%';
-    if(barEl) barEl.style.width = Math.min(domVal,100)+'%';
-    if(chgEl){
-      chgEl.textContent  = (capChg>=0?'+':'')+capChg.toFixed(1)+'%';
-      chgEl.className    = 'sbw-metric-val '+(capChg>=0?'up':'dn');
-    }
-  }catch(e){ console.warn('[Widgets] Market:', e.message); }
+  const MKT_URL = 'https://api.coingecko.com/api/v3/global';
+  let d = null;
+  try { d = await fetchJSON('/api/ticker?type=market'); }
+  catch(e) {
+    try { d = await fetchJSON(MKT_URL); }
+    catch(e2) { console.warn('[Widgets] Market:', e2.message); return; }
+  }
+  const g = d.data;
+  if(!g) return;
+  const capVal = g.total_market_cap?.usd || 0;
+  const volVal = g.total_volume?.usd || 0;
+  const domVal = g.market_cap_percentage?.btc || 0;
+  const capChg = g.market_cap_change_percentage_24h_usd || 0;
+  const capEl = document.getElementById('mkt-cap');
+  const volEl = document.getElementById('mkt-vol');
+  const domEl = document.getElementById('mkt-dom');
+  const barEl = document.getElementById('mkt-dom-bar');
+  const chgEl = document.getElementById('mkt-cap-chg');
+  if(capEl) capEl.textContent = fmtBig(capVal);
+  if(volEl) volEl.textContent = fmtBig(volVal);
+  if(domEl) domEl.textContent = domVal.toFixed(1)+'%';
+  if(barEl) barEl.style.width = Math.min(domVal,100)+'%';
+  if(chgEl){ chgEl.textContent=(capChg>=0?'+':'')+capChg.toFixed(1)+'%'; chgEl.className='sbw-metric-val '+(capChg>=0?'up':'dn'); }
 }
 
 // ── Trending ──
 async function fetchTrending(){
-  try{
-    const r    = await fetch('/api/ticker?type=trending');
-    const ct   = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=trending');
-    const data = await r.json();
-    const coins = data.coins?.slice(0,6) || [];
-    const list  = document.getElementById('trend-list');
-    if(!list) return;
-
-    list.innerHTML = coins.map((item,i)=>{
-      const c   = item.item;
-      const img = c.thumb || '';
-      const sym = (c.symbol||'').toUpperCase();
-      const rank= c.market_cap_rank ? '#'+c.market_cap_rank : '';
-      return `<div class="trend-item">
-        <span class="trend-rank">${i+1}</span>
-        <div class="trend-thumb">
-          ${img ? `<img src="${img}" loading="lazy">` : '🪙'}
-        </div>
-        <span class="trend-sym">${sym}</span>
-        <span class="trend-pos">${rank}</span>
-      </div>`;
-    }).join('');
-  }catch(e){ console.warn('[Widgets] Trending:', e.message); }
+  const TR_URL = 'https://api.coingecko.com/api/v3/search/trending';
+  let data = null;
+  try { data = await fetchJSON('/api/ticker?type=trending'); }
+  catch(e) {
+    try { data = await fetchJSON(TR_URL); }
+    catch(e2) { console.warn('[Widgets] Trending:', e2.message); return; }
+  }
+  const coins = data.coins?.slice(0,6) || [];
+  const list  = document.getElementById('trend-list');
+  if(!list) return;
+  list.innerHTML = coins.map((item,i)=>{
+    const c=item.item; const img=c.thumb||''; const sym=(c.symbol||'').toUpperCase(); const rank=c.market_cap_rank?'#'+c.market_cap_rank:'';
+    return `<div class="trend-item"><span class="trend-rank">${i+1}</span><div class="trend-thumb">${img?`<img src="${img}" loading="lazy">`:'🪙'}</div><span class="trend-sym">${sym}</span><span class="trend-pos">${rank}</span></div>`;
+  }).join('');
 }
 
 // ── Gainers / Losers ──
@@ -9522,21 +9509,18 @@ let glData = {gain:[], lose:[]};
 let glMode = 'gain';
 
 async function fetchGL(){
-  try{
-    const r    = await fetch('/api/ticker?type=gl');
-    const ct   = r.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=gl');
-    const data = await r.json();
-    const arr  = Array.isArray(data) ? data : [];
-
-    // Сортируем
-    const sorted = [...arr].sort((a,b)=>
-      (b.price_change_percentage_24h||0)-(a.price_change_percentage_24h||0)
-    );
-    glData.gain = sorted.slice(0,5);
-    glData.lose = sorted.slice(-5).reverse();
-    renderGL();
-  }catch(e){ console.warn('[Widgets] GL:', e.message); }
+  const GL_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h&sparkline=false';
+  let data = null;
+  try { data = await fetchJSON('/api/ticker?type=gl'); }
+  catch(e) {
+    try { data = await fetchJSON(GL_URL); }
+    catch(e2) { console.warn('[Widgets] GL:', e2.message); return; }
+  }
+  const arr = Array.isArray(data) ? data : [];
+  const sorted = [...arr].sort((a,b)=>(b.price_change_percentage_24h||0)-(a.price_change_percentage_24h||0));
+  glData.gain = sorted.slice(0,5);
+  glData.lose = sorted.slice(-5).reverse();
+  renderGL();
 }
 
 function glSwitch(mode){
