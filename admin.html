@@ -762,6 +762,14 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
 .plan-badge2.lifetime{background:var(--a2);border:1px solid rgba(232,114,42,0.3);color:var(--a);}
 .plan-badge2.monthly{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
 .plan-badge2.none{background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--m);}
+.feat-panel{margin-top:10px;padding:10px 12px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:10px;}
+.feat-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.35);margin-bottom:8px;text-transform:uppercase;}
+.feat-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.feat-toggle{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);cursor:pointer;transition:all .15s;}
+.feat-toggle.on{border-color:rgba(232,114,42,0.5);background:rgba(232,114,42,0.1);color:var(--a);}
+.feat-toggle.locked{opacity:0.4;cursor:not-allowed;}
+.feat-save{margin-top:8px;padding:5px 14px;border-radius:6px;border:1px solid rgba(232,114,42,0.4);background:rgba(232,114,42,0.08);color:var(--a);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .15s;}
+.feat-save:hover{background:rgba(232,114,42,0.18);}
 .utrades{display:flex;gap:20px;flex-wrap:wrap;}
 .ut{display:flex;flex-direction:column;gap:2px;}
 .utl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
@@ -1023,6 +1031,13 @@ function renderUsers(){
         <button class="ua-btn ua-msg" onclick="adminSendMessage('${u.id}','${u.tg_chat_id||''}')">✈️ НАПИСАТЬ</button>
         <button class="ua-btn ua-del" onclick="adminDeleteUser('${u.id}','${u.full_name||u.username||'?'}')">🗑 УДАЛИТЬ</button>
       </div>
+      <div class="feat-panel">
+        <div class="feat-title">🔓 ДОСТУП К СЕКЦИЯМ</div>
+        <div class="feat-grid" id="feat-grid-${u.id}">
+          ${buildFeatToggles(u.id, u.features)}
+        </div>
+        <button class="feat-save" onclick="adminSaveFeatures('${u.id}')">💾 СОХРАНИТЬ ДОСТУП</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1146,6 +1161,45 @@ async function adminCall(action, params={}){
 }
 
 // ── Admin actions ─────────────────────────────────────────────
+// ── FEATURES CONFIG ──────────────────────────────────────────
+const FEATURES = [
+  { key:'journal',    label:'📋 Журнал',    locked:true  },
+  { key:'dashboard',  label:'📊 Аналитика', locked:false },
+  { key:'progress',   label:'📈 Прогресс',  locked:false },
+  { key:'digest',     label:'📅 Дайджест',  locked:false },
+  { key:'premarket',  label:'☀️ Сессия',    locked:false },
+  { key:'coach',      label:'🤖 AI Coach',  locked:false },
+  { key:'aichat',     label:'💬 AI Чат',    locked:false },
+  { key:'screener',   label:'🔍 Скринер',   locked:false },
+];
+
+function buildFeatToggles(userId, currentFeatures){
+  const active = Array.isArray(currentFeatures) ? currentFeatures : ['journal'];
+  return FEATURES.map(f => {
+    const isOn = f.locked || active.includes(f.key);
+    const cls = f.locked ? 'feat-toggle on locked' : (isOn ? 'feat-toggle on' : 'feat-toggle');
+    const onclick = f.locked ? '' : `onclick="toggleFeat('${userId}','${f.key}',this)"`;
+    return `<button class="${cls}" data-feat="${f.key}" ${onclick}>${f.label}</button>`;
+  }).join('');
+}
+
+function toggleFeat(userId, featKey, btn){
+  btn.classList.toggle('on');
+}
+
+async function adminSaveFeatures(userId){
+  const grid = document.getElementById('feat-grid-' + userId);
+  if(!grid) return;
+  const active = Array.from(grid.querySelectorAll('.feat-toggle.on'))
+    .map(b => b.dataset.feat)
+    .filter(Boolean);
+  try{
+    await adminCall('set_features', { userId, features: active });
+    showToast('✅ Доступ обновлён');
+    await loadAll();
+  }catch(e){ alert('Ошибка: ' + e.message); }
+}
+
 async function adminSetPlan(userId, plan){
   if(!confirm('Изменить план на ' + plan + '?')) return;
   try{

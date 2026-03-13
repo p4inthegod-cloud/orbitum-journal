@@ -132,6 +132,18 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    // ── Set features (sections) ───────────────────────────
+    if (action === 'set_features') {
+      if (!userId) return res.status(400).json({ error: 'Missing userId' });
+      // features = array like ['journal','dashboard','coach'] or null (journal only)
+      const features = req.body.features; // array or null
+      await sbFetch(`profiles?id=eq.${userId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ features: features || null }),
+      });
+      return res.status(200).json({ ok: true });
+    }
+
     return res.status(400).json({ error: 'Unknown action' });
   } catch (e) {
     console.error('[admin]', action, e.message);
