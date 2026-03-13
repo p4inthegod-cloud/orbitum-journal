@@ -7,6 +7,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Fallback: if CDN blocked by Tracking Prevention -->
+<script>
+if(typeof supabase==='undefined'){
+  console.warn('[ORBITUM] CDN blocked — loading from unpkg fallback');
+  var s1=document.createElement('script');s1.src='https://unpkg.com/@supabase/supabase-js@2';document.head.appendChild(s1);
+}
+</script>
+<script>
+// Show user-friendly error if Supabase still not loaded after 5s
+setTimeout(function(){
+  if(typeof supabase==='undefined'){
+    var msg=document.createElement('div');
+    msg.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#1a0800;border-bottom:2px solid #e8722a;padding:14px 20px;font-family:monospace;font-size:12px;color:#ffaa60;text-align:center;';
+    msg.innerHTML='⚠️ Браузер блокирует загрузку скриптов (Tracking Prevention). <b>Отключи блокировку для этого сайта</b> или используй Chrome/Firefox. <a href="https://ai-orbitum.vercel.app/journal" style="color:#e8722a;margin-left:8px">Перезагрузить →</a>';
+    document.body.insertBefore(msg,document.body.firstChild);
+    // Hide skeletons
+    document.querySelectorAll('.sk,.sk-tcard').forEach(function(el){el.style.display='none';});
+    var sl=document.getElementById('trades-list');
+    if(sl)sl.innerHTML='<div style="text-align:center;padding:40px;font-family:monospace;font-size:11px;color:rgba(255,255,255,0.4)">⚠️ Скрипты заблокированы браузером.<br>Отключи Tracking Prevention для этого сайта.</div>';
+  }
+},5000);
+</script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
    ORBITUM THEME SYSTEM v3 — 4 themes only
@@ -7699,7 +7721,7 @@ try {
   const saved = JSON.parse(localStorage.getItem('orb_goal') || '{}');
   if (saved.r) goalR = saved.r;
   if (saved.rSize) goalRSize = saved.rSize;
-} catch(e) {}
+} catch(e) { /* localStorage blocked */ }
 
 function toggleGoalPopup() {
   goalPopupOpen = !goalPopupOpen;
@@ -9078,7 +9100,7 @@ function renderQNotesList(notes){
 
   // Init
   function init(){
-    var theme = localStorage.getItem('orb_theme') || 'mono';
+    var theme = 'mono'; try{ theme = localStorage.getItem('orb_theme') || 'mono'; }catch(e){}
     applyTheme(theme, false);
     // Close on outside click
     document.addEventListener('click', function(e){
