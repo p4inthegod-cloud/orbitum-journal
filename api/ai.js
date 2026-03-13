@@ -26,16 +26,17 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 1500,
-        temperature: 0.3,
+        max_tokens: Math.min(req.body.max_tokens || 1500, 4096),
+        temperature: req.body.temperature ?? 0.3,
         messages: chatMessages,
       })
     });
 
     if (!response.ok) {
       const err = await response.text();
-      console.error('GROQ error:', err);
-      return res.status(502).json({ error: 'AI service error' });
+      console.error('GROQ error:', response.status, err.slice(0, 200));
+      // Pass Groq error details to client for debugging
+      return res.status(502).json({ error: 'AI service error', detail: err.slice(0, 100) });
     }
 
     const data = await response.json();
