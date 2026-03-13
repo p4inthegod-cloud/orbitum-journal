@@ -72,6 +72,12 @@ export default async function handler(req, res) {
       );
     }
 
+    // ── RAW (прямой текст) ────────────────────────────────────────
+    if (type === 'raw') {
+      const { text } = data;
+      if(text) await tgSend(chat_id, text);
+    }
+
     // ── TILT ───────────────────────────────────────────────────────
     if (type === 'tilt') {
       const { losses_count, total_loss_pct } = data;
