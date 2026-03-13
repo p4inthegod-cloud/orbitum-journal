@@ -97,6 +97,47 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .tb-sep{width:1px;height:22px;background:var(--bd);margin:0 12px;flex-shrink:0;}
 
+/* ── TICKER BAR (бегущая строка) ── */
+.ticker-bar{
+  height:30px;flex-shrink:0;position:relative;overflow:hidden;
+  background:linear-gradient(90deg,#080b10 0%,#0b0e14 100%);
+  border-bottom:1px solid rgba(232,114,42,0.1);
+  display:flex;align-items:center;
+}
+.ticker-bar::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:60px;z-index:2;
+  background:linear-gradient(90deg,#080b10,transparent);pointer-events:none;
+}
+.ticker-bar::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:60px;z-index:2;
+  background:linear-gradient(90deg,transparent,#080b10);pointer-events:none;
+}
+.ticker-track{
+  display:flex;align-items:center;gap:0;white-space:nowrap;
+  animation:tickerScroll 80s linear infinite;will-change:transform;
+}
+.ticker-track:hover{animation-play-state:paused;}
+@keyframes tickerScroll{
+  0%{transform:translateX(0);}
+  100%{transform:translateX(-50%);}
+}
+.ticker-item{
+  display:inline-flex;align-items:center;gap:5px;padding:0 14px;
+  border-right:1px solid rgba(255,255,255,0.05);cursor:default;
+  transition:background 0.15s;flex-shrink:0;
+}
+.ticker-item:hover{background:rgba(232,114,42,0.06);}
+.ticker-sym{font-size:9.5px;font-weight:600;letter-spacing:0.8px;color:rgba(255,255,255,0.5);}
+.ticker-price{font-size:10px;font-weight:500;color:var(--t);letter-spacing:0.3px;}
+.ticker-chg{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:500;}
+.ticker-chg.up{color:#2ecc71;background:rgba(46,204,113,0.1);}
+.ticker-chg.dn{color:#e74c3c;background:rgba(231,76,60,0.1);}
+.ticker-chg.flat{color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.04);}
+@keyframes flashUp{0%,100%{color:var(--t);}50%{color:#2ecc71;text-shadow:0 0 8px #2ecc71;}}
+@keyframes flashDn{0%,100%{color:var(--t);}50%{color:#e74c3c;text-shadow:0 0 8px #e74c3c;}}
+.flash-up{animation:flashUp 0.5s ease;}
+.flash-dn{animation:flashDn 0.5s ease;}
+
 /* ── TIMEFRAME BAR ── */
 .tb-timeframes{display:flex;gap:3px;flex-shrink:0;}
 .tb-tf{
@@ -546,6 +587,13 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       </div>
 
       <div class="tb-count">МОНЕТ: <span id="count-shown">0</span>/<span id="count-total">0</span></div>
+    </div>
+
+    <!-- TICKER BAR -->
+    <div class="ticker-bar" id="ticker-bar">
+      <div class="ticker-track" id="ticker-track">
+        <div class="ticker-item"><span class="ticker-sym">ЗАГРУЗКА</span><span class="ticker-price">···</span></div>
+      </div>
     </div>
 
     <!-- CONTENT -->
@@ -1281,6 +1329,131 @@ function openTradeInJournal(){
   window.location.href = 'journal.html?' + params.toString();
 }
 
+// ── TICKER BAR LOGIC ──────────────────────────────
+const SCREENER_TICKER_SYMS = [
+  { sym:'BTC',  pair:'btcusdt',  cgId:'bitcoin' },
+  { sym:'ETH',  pair:'ethusdt',  cgId:'ethereum' },
+  { sym:'SOL',  pair:'solusdt',  cgId:'solana' },
+  { sym:'BNB',  pair:'bnbusdt',  cgId:'binancecoin' },
+  { sym:'XRP',  pair:'xrpusdt',  cgId:'ripple' },
+  { sym:'DOGE', pair:'dogeusdt', cgId:'dogecoin' },
+  { sym:'ADA',  pair:'adausdt',  cgId:'cardano' },
+  { sym:'AVAX', pair:'avaxusdt', cgId:'avalanche-2' },
+  { sym:'LINK', pair:'linkusdt', cgId:'chainlink' },
+  { sym:'PEPE', pair:'pepeusdt', cgId:'pepe' },
+  { sym:'TON',  pair:'tonusdt',  cgId:'the-open-network' },
+  { sym:'SUI',  pair:'suiusdt',  cgId:'sui' },
+];
+const scrTickerData = {};
+SCREENER_TICKER_SYMS.forEach(s=>{scrTickerData[s.sym]={price:null,chg:null,prev:null};});
+
+function fmtTickerPrice(sym, p){
+  if(p===null||p===undefined||isNaN(p)) return '---';
+  p=parseFloat(p);
+  if(p<0.0001) return '$'+p.toFixed(8);
+  if(p<0.01)   return '$'+p.toFixed(6);
+  if(p<1)      return '$'+p.toFixed(4);
+  if(p<10)     return '$'+p.toFixed(3);
+  if(p<1000)   return '$'+p.toFixed(2);
+  return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});
+}
+
+function buildTickerHTML(){
+  let html='';
+  SCREENER_TICKER_SYMS.forEach(s=>{
+    const d=scrTickerData[s.sym];
+    const price=fmtTickerPrice(s.sym,d.price);
+    const chg=d.chg;
+    const chgClass=chg===null?'flat':chg>=0?'up':'dn';
+    const chgStr=chg===null?'···':(chg>=0?'+':'')+chg.toFixed(2)+'%';
+    html+=`<div class="ticker-item">
+      <span class="ticker-sym">${s.sym}</span>
+      <span class="ticker-price" data-tsym="${s.sym}">${price}</span>
+      <span class="ticker-chg ${chgClass}" data-tchg="${s.sym}">${chgStr}</span>
+    </div>`;
+  });
+  return html;
+}
+
+function renderTickerBar(){
+  const track=document.getElementById('ticker-track');
+  if(!track) return;
+  const html=buildTickerHTML();
+  track.innerHTML=html+html; // дублируем для бесконечного скролла
+}
+
+function updateTickerSym(sym, newPrice, chg){
+  const prev=scrTickerData[sym]?.price;
+  scrTickerData[sym]={price:newPrice, chg, prev};
+  document.querySelectorAll(`[data-tsym="${sym}"]`).forEach(el=>{
+    el.textContent=fmtTickerPrice(sym,newPrice);
+    if(prev!==null && newPrice!==prev){
+      el.classList.remove('flash-up','flash-dn');
+      void el.offsetWidth;
+      el.classList.add(newPrice>prev?'flash-up':'flash-dn');
+      setTimeout(()=>el.classList.remove('flash-up','flash-dn'),500);
+    }
+  });
+  document.querySelectorAll(`[data-tchg="${sym}"]`).forEach(el=>{
+    if(chg===null) return;
+    el.className='ticker-chg '+(chg>=0?'up':'dn');
+    el.textContent=(chg>=0?'+':'')+chg.toFixed(2)+'%';
+  });
+}
+
+// Binance WebSocket — реальное время
+let scrWs=null;
+function connectTickerWS(){
+  const streams=SCREENER_TICKER_SYMS.map(s=>s.pair+'@miniTicker').join('/');
+  scrWs=new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+  scrWs.onmessage=e=>{
+    try{
+      const msg=JSON.parse(e.data);
+      const d=msg.data;
+      if(!d||!d.s) return;
+      const sym=SCREENER_TICKER_SYMS.find(s=>s.pair.toUpperCase()===d.s);
+      if(!sym) return;
+      const price=parseFloat(d.c);
+      const open=parseFloat(d.o);
+      const chg=open?((price-open)/open*100):null;
+      updateTickerSym(sym.sym, price, chg);
+    }catch(err){}
+  };
+  scrWs.onclose=()=>{ setTimeout(connectTickerWS,3000); };
+  scrWs.onerror=()=>{ scrWs.close(); };
+}
+
+// Fallback: CoinGecko polling если WS недоступен
+async function fallbackTickerFetch(){
+  try{
+    const r=await fetch('/api/ticker?type=crypto');
+    const arr=await r.json();
+    if(!Array.isArray(arr)) return;
+    arr.forEach(d=>{
+      const s=SCREENER_TICKER_SYMS.find(x=>x.cgId===d.id);
+      if(!s) return;
+      updateTickerSym(s.sym, d.current_price, d.price_change_percentage_24h||0);
+    });
+  }catch(e){}
+}
+
+function initScreenerTicker(){
+  renderTickerBar();
+  // Пробуем WebSocket первым
+  try{
+    connectTickerWS();
+  }catch(e){
+    // Fallback polling
+    fallbackTickerFetch();
+    setInterval(fallbackTickerFetch, 15000);
+  }
+  // Polling как бэкап на случай если WS не дал данных
+  setTimeout(()=>{
+    const hasData=Object.values(scrTickerData).some(d=>d.price!==null);
+    if(!hasData){ fallbackTickerFetch(); setInterval(fallbackTickerFetch,15000); }
+  }, 4000);
+}
+
 // ── Auth ──
 async function initAuth(){
   const { data:{ user } } = await sb.auth.getUser();
@@ -1338,6 +1511,7 @@ async function init(){
   await initAuth();
   await loadCoins();
   initAutoRefresh();
+  initScreenerTicker();
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
