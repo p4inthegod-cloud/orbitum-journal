@@ -175,59 +175,75 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .stat-val.down{color:var(--r);}
 .stat-sub{font-size:9px;color:var(--m2);}
 
-/* ── CHARTS GRID ── */
+/* charts-grid: see card section below */
+
+/* ── COIN CARD — Compact ScalpBoard style ── */
 .charts-grid{
-  display:grid;gap:10px;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  display:grid;gap:6px;
+  grid-template-columns:repeat(auto-fill,minmax(175px,1fr));
 }
-.charts-grid.view-large{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+.charts-grid.view-large{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));}
 .charts-grid.view-list{grid-template-columns:1fr;}
 
-/* ── COIN CARD ── */
 .coin-card{
-  background:var(--bg2);border:1px solid var(--bd);border-radius:var(--radius);
-  padding:12px 14px;cursor:pointer;transition:all 0.18s;
+  background:#0c0f15;border:1px solid rgba(255,255,255,0.07);
+  border-radius:6px;padding:8px 10px;cursor:pointer;
+  transition:border-color .15s,background .15s;
   position:relative;overflow:hidden;
 }
-.coin-card::before{
-  content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;
-  background:radial-gradient(ellipse at 50% 0%,rgba(232,114,42,0.06) 0%,transparent 70%);
+.coin-card:hover{border-color:rgba(232,114,42,0.4);background:#0f1218;}
+.coin-card.watched{border-color:rgba(240,192,64,0.3);}
+/* top row: rank · icon · sym · chg · buttons */
+.cc-top{
+  display:flex;align-items:center;gap:5px;margin-bottom:5px;
 }
-.coin-card:hover{border-color:rgba(232,114,42,0.3);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,0.3);}
-.coin-card:hover::before{opacity:1;}
-.coin-card.watched{border-color:rgba(240,192,64,0.25);background:rgba(240,192,64,0.03);}
-
-.cc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.cc-rank{font-size:8px;color:var(--m2);letter-spacing:1px;min-width:18px;}
-.cc-icon{width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;}
-.cc-icon-placeholder{
-  width:26px;height:26px;border-radius:50%;flex-shrink:0;
-  background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.2);
+.cc-rank{font-size:7.5px;color:rgba(232,234,240,0.25);min-width:16px;flex-shrink:0;}
+.cc-ico{width:16px;height:16px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.cc-ico-ph{
+  width:16px;height:16px;border-radius:50%;flex-shrink:0;
+  background:rgba(232,114,42,0.15);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);font-size:10px;color:var(--a);letter-spacing:1px;
+  font-size:7px;color:var(--a);font-weight:700;
 }
-.cc-name{flex:1;min-width:0;}
-.cc-sym{font-size:13px;font-weight:600;color:var(--t);letter-spacing:0.5px;}
-.cc-full{font-size:9px;color:var(--m2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-/* cc-btn: see chart section below */
-
-.cc-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;}
-.cc-price{font-size:16px;font-weight:600;color:var(--t);letter-spacing:-0.3px;}
-.cc-chg{font-size:11px;font-weight:500;padding:2px 6px;border-radius:4px;}
-.cc-chg.up{color:var(--g);background:rgba(46,204,113,0.1);}
-.cc-chg.down{color:var(--r);background:rgba(231,76,60,0.1);}
-
-.cc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-bottom:8px;}
-.cc-metric{display:flex;flex-direction:column;gap:1px;}
-.cc-m-label{font-size:7.5px;color:var(--m2);letter-spacing:1.5px;text-transform:uppercase;}
-.cc-m-val{font-size:10px;color:var(--m);}
-
-/* Sparkline mini chart */
-.cc-spark{height:36px;width:100%;position:relative;overflow:hidden;}
-.cc-spark canvas{width:100%!important;height:36px!important;}
-
-/* Volume bar */
-.cc-vol-bar{height:2px;background:rgba(255,255,255,0.06);border-radius:1px;margin-top:6px;overflow:hidden;}
+.cc-sym{font-size:11px;font-weight:700;color:var(--t);letter-spacing:.3px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cc-chg{font-size:9.5px;font-weight:600;flex-shrink:0;}
+.cc-chg.up{color:var(--g);}
+.cc-chg.down{color:var(--r);}
+.cc-alert-dot{font-size:7px;color:var(--a);flex-shrink:0;}
+/* action buttons */
+.cc-actions{
+  display:flex;gap:2px;flex-shrink:0;
+  position:relative;z-index:2;
+}
+.cc-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:20px;height:20px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  color:rgba(232,234,240,0.4);
+  font-size:10px;border-radius:4px;
+  cursor:pointer;transition:all .12s;padding:0;line-height:1;
+}
+.cc-btn:hover{background:rgba(232,114,42,0.18);color:var(--a);border-color:rgba(232,114,42,0.4);}
+.cc-btn.watch-btn.active{color:#f0c040;background:rgba(240,192,64,0.1);border-color:rgba(240,192,64,0.3);}
+/* price row */
+.cc-price-row{margin-bottom:5px;}
+.cc-price{font-size:14px;font-weight:700;color:var(--t);letter-spacing:-.3px;font-family:var(--font-mono);}
+/* 3×2 metrics */
+.cc-mini-metrics{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px 6px;
+  margin-bottom:5px;
+}
+.cc-mm{display:flex;flex-direction:column;gap:0px;}
+.cc-mm-l{font-size:6.5px;color:rgba(232,234,240,0.22);letter-spacing:1px;text-transform:uppercase;}
+.cc-mm-v{font-size:9px;color:rgba(232,234,240,0.55);}
+.cc-mm-v.up{color:var(--g);}
+.cc-mm-v.down{color:var(--r);}
+/* sparkline */
+.cc-spark{height:32px;width:100%;overflow:hidden;border-radius:3px;}
+.cc-spark canvas{width:100%!important;height:32px!important;}
+/* volume bar */
+.cc-vol-bar{height:1.5px;background:rgba(255,255,255,0.05);border-radius:1px;margin-top:4px;overflow:hidden;}
 .cc-vol-fill{height:100%;border-radius:1px;background:rgba(232,114,42,0.5);transition:width 0.4s;}
 
 /* Alert badge */
@@ -271,8 +287,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 /* ── ALERT MODAL ── */
 .modal-backdrop{
-  display:none;position:fixed;inset:0;z-index:9000;
-  background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);
+  display:none;position:fixed;inset:0;z-index:9500;
+  background:rgba(0,0,0,0.8);backdrop-filter:blur(12px);
   align-items:center;justify-content:center;
 }
 .modal-backdrop.open{display:flex;}
@@ -1544,38 +1560,46 @@ function renderCoins(coins){
 }
 
 function renderCard(c, maxVol){
-  const chg = getChg(c);
+  const chg  = getChg(c);
   const isUp = chg >= 0;
-  const vlt = getVolatility(c).toFixed(1);
+  const vlt  = getVolatility(c).toFixed(1);
   const watched = watchlist.includes(c.id);
   const alerted = hasAlert(c.id);
   const volPct = maxVol > 0 ? Math.min(100, ((c.total_volume||0)/maxVol)*100) : 0;
-  
+  const chg7   = c.price_change_percentage_7d_in_currency || c.price_change_percentage_7d || 0;
+  const ws     = _wsCache[c.id];
+  const chg24  = ws?.chg24 ?? (c.price_change_percentage_24h || 0);
+
   return `<div class="coin-card ${watched?'watched':''}" onclick="focusCoin('${c.id}')">
-    ${alerted ? `<div class="cc-alert-badge">🔔 АЛЕРТ</div>` : ''}
-    <div class="cc-head">
+    <!-- compact header: rank + sym + chg + buttons -->
+    <div class="cc-top">
       <span class="cc-rank">#${c.market_cap_rank||'?'}</span>
-      ${c.image ? `<img class="cc-icon" src="${c.image}" alt="${c.symbol}" loading="lazy">` : `<div class="cc-icon-placeholder">${(c.symbol||'?').slice(0,2).toUpperCase()}</div>`}
-      <div class="cc-name">
-        <div class="cc-sym">${(c.symbol||'').toUpperCase()}</div>
-        <div class="cc-full">${c.name||''}</div>
-      </div>
+      ${c.image?`<img class="cc-ico" src="${c.image}" alt="" loading="lazy">`:
+        `<div class="cc-ico-ph">${(c.symbol||'?').slice(0,2).toUpperCase()}</div>`}
+      <span class="cc-sym">${(c.symbol||'').toUpperCase()}</span>
+      <span class="cc-chg ${isUp?'up':'down'}">${fmtChg(chg)}</span>
+      ${alerted?`<span class="cc-alert-dot" title="Алерт активен">●</span>`:''}
       <div class="cc-actions" onclick="event.stopPropagation()">
-        <button class="cc-btn watch-btn ${watched?'active':''}" onclick="toggleWatch(event,'${c.id}');event.stopPropagation()">${watched?'⭐':'☆'}</button>
-        <button class="cc-btn" onclick="event.stopPropagation();openAlertModal(null,'${c.id}')">🔔</button>
+        <button class="cc-btn watch-btn ${watched?'active':''}" onclick="toggleWatch(event,'${c.id}');event.stopPropagation()" title="${watched?'Убрать':'Добавить в избранное'}">${watched?'★':'☆'}</button>
+        <button class="cc-btn" onclick="event.stopPropagation();openAlertModal(null,'${c.id}')" title="Создать алерт">🔔</button>
       </div>
     </div>
+    <!-- price -->
     <div class="cc-price-row">
       <span class="cc-price" data-price="${c.id}">${fmtPrice(c.current_price)}</span>
-      <span class="cc-chg ${isUp?'up':'down'}" data-chg="${c.id}">${fmtChg(chg)}</span>
     </div>
-    <div class="cc-metrics">
-      <div class="cc-metric"><div class="cc-m-label">MCAP</div><div class="cc-m-val">${fmtBig(c.market_cap)}</div></div>
-      <div class="cc-metric"><div class="cc-m-label">ОБЪ 24Ч</div><div class="cc-m-val">${fmtBig(c.total_volume)}</div></div>
-      <div class="cc-metric"><div class="cc-m-label">ВОЛАТ.</div><div class="cc-m-val" style="color:${parseFloat(vlt)>10?'var(--y)':vlt>5?'var(--a)':'var(--m)'}">${vlt}%</div></div>
-      <div class="cc-metric"><div class="cc-m-label">ATH ОТ</div><div class="cc-m-val" style="color:var(--r)">${c.ath_change_percentage ? c.ath_change_percentage.toFixed(0)+'%' : '—'}</div></div>
+    <!-- mini metrics: 2 rows x 3 cols -->
+    <div class="cc-mini-metrics">
+      <div class="cc-mm"><span class="cc-mm-l">MCAP</span><span class="cc-mm-v">${fmtBig(c.market_cap)}</span></div>
+      <div class="cc-mm"><span class="cc-mm-l">VOL</span><span class="cc-mm-v">${fmtBig(c.total_volume)}</span></div>
+      <div class="cc-mm"><span class="cc-mm-l">7Д</span><span class="cc-mm-v ${chg7>=0?'up':'down'}">${fmtChg(chg7)}</span></div>
+      <div class="cc-mm"><span class="cc-mm-l">ATH</span><span class="cc-mm-v" style="color:var(--r)">${c.ath_change_percentage?c.ath_change_percentage.toFixed(0)+'%':'—'}</span></div>
+      <div class="cc-mm"><span class="cc-mm-l">ВОЛ.</span><span class="cc-mm-v" style="color:${parseFloat(vlt)>10?'var(--y)':parseFloat(vlt)>5?'var(--a)':'var(--m)'}">${vlt}%</span></div>
+      <div class="cc-mm"><span class="cc-mm-l">24Ч</span><span class="cc-mm-v" style="color:${chg24>=0?'var(--g)':'var(--r)'}">${fmtChg(chg24)}</span></div>
     </div>
+    <!-- sparkline -->
     <div class="cc-spark"><canvas id="spark-${c.id.replace(/[^a-z0-9]/gi,'_')}"></canvas></div>
+    <!-- volume fill bar -->
     <div class="cc-vol-bar"><div class="cc-vol-fill" style="width:${volPct}%"></div></div>
   </div>`;
 }
@@ -1712,12 +1736,31 @@ function focusCoin(id){
 
   document.getElementById('detail-panel').classList.add('open');
   document.getElementById('detail-overlay').classList.add('open');
-  // Загружаем мини-чарт из Binance Klines
   loadDetailChart(coin);
 }
 
-// ── Detail panel chart: Binance Klines (свои данные, своя отрисовка) ──
-// ══════════════════════════════════════════════════════
+function closeDetail(){
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('detail-overlay').classList.remove('open');
+  // Stop chart resize observer
+  if(_resizeObs){ _resizeObs.disconnect(); _resizeObs=null; }
+}
+
+function toggleWatchDetail(){
+  if(!currentDetailCoin) return;
+  const id = currentDetailCoin.id;
+  if(watchlist.includes(id)) watchlist = watchlist.filter(x=>x!==id);
+  else watchlist.push(id);
+  localStorage.setItem('orb_watch', JSON.stringify(watchlist));
+  const wb = document.getElementById('dp-watch-btn');
+  if(wb){
+    wb.textContent = watchlist.includes(id) ? '★ В ИЗБРАННОМ' : '☆ ИЗБРАННОЕ';
+    wb.style.color = watchlist.includes(id) ? '#f0c040' : '';
+  }
+  applyFilter();
+}
+
+// ── Detail panel chart: Binance Klines ──═══════════════════════════════
 // PROFESSIONAL TRADING CHART — Binance Klines + Canvas
 // ══════════════════════════════════════════════════════
 let _chartState = {
@@ -1730,10 +1773,8 @@ let _chartState = {
 
 async function loadDetailChart(coin){
   const ws = BINANCE_WS_PAIRS.find(p => p.cgId === coin.id);
-  if(!ws){ 
-    // Монета не в WS списке — пропускаем чарт
-    return; 
-  }
+  // For non-WS coins use CoinGecko sparkline as fallback (will attempt to find similar Binance pair)
+  const binancePair = ws?.pair || (coin.symbol?.toLowerCase() + 'usdt');
 
   // Rebuild chart section every time coin changes
   let chartSection = document.getElementById('dp-chart-section');
@@ -1748,7 +1789,7 @@ async function loadDetailChart(coin){
         <div class="dp-chart-sym">${(coin.symbol||'').toUpperCase()}/USDT</div>
         <div class="dp-tf-row" id="dp-tf-btns">
           ${['1m','3m','5m','15m','1h','4h','1d'].map(tf =>
-            `<button class="dp-tf-btn${tf==='15m'?' active':''}" data-tf="${tf}" onclick="chartSetTF('${ws.pair}','${tf}',this)">${tf.toUpperCase()}</button>`
+            `<button class="dp-tf-btn${tf==='15m'?' active':''}" data-tf="${tf}" onclick="chartSetTF('${binancePair}','${tf}',this)">${tf.toUpperCase()}</button>`
           ).join('')}
         </div>
         <div class="dp-ind-row">
@@ -1791,9 +1832,9 @@ async function loadDetailChart(coin){
   canvas.addEventListener('mousedown', chartOnMouseDown);
   canvas.addEventListener('mouseup',   chartOnMouseUp);
 
-  _chartState.pair = ws.pair;
+  _chartState.pair = binancePair;
   _chartState.tf   = '15m';
-  await fetchAndDrawChart(ws.pair, '15m');
+  await fetchAndDrawChart(binancePair, '15m');
 }
 
 async function chartSetTF(pair, tf, btn){
@@ -2505,60 +2546,14 @@ async function sendTgAlertNotify(alert, currentPrice, sym){
 }
 
 // ── Trade Modal ──
-function openTradeModal(coin){
-  if(!coin) return;
-  tradeModalData = coin;
-  tradeDir = 'long';
-  document.getElementById('tm-sub').textContent = (coin.symbol||'').toUpperCase() + ' · ' + fmtPrice(coin.current_price);
-  document.getElementById('tm-price').value = coin.current_price?.toFixed(2) || '';
-  document.getElementById('tm-size').value = '';
-  document.getElementById('tm-long').className = 'alert-cond-btn active-up';
-  document.getElementById('tm-short').className = 'alert-cond-btn';
-  document.getElementById('trade-modal').classList.add('open');
-}
 
-function closeTradeModal(){
-  document.getElementById('trade-modal').classList.remove('open');
-}
 
-function setTradeDir(dir){
-  tradeDir = dir;
-  document.getElementById('tm-long').className = 'alert-cond-btn ' + (dir==='long'?'active-up':'');
-  document.getElementById('tm-short').className = 'alert-cond-btn ' + (dir==='short'?'active-down':'');
-}
 
-function openTradeInJournal(){
-  if(!tradeModalData) return;
-  const price = document.getElementById('tm-price').value;
-  const size  = document.getElementById('tm-size').value;
-  const sym   = tradeModalData.symbol?.toUpperCase() || '';
-  const params = new URLSearchParams({ symbol:sym, dir:tradeDir, price, size });
-  window.location.href = 'journal.html?' + params.toString();
-}
 
 // ── Auth ──
-async function initAuth(){
-  const { data:{ user } } = await sb.auth.getUser();
-  if(!user){ window.location.href = 'login.html'; return; }
-  const em = user.email || '';
-  document.getElementById('sb-email').textContent = em;
-  document.getElementById('sb-avatar').textContent = em.slice(0,2).toUpperCase();
-  await loadAlerts();
-}
 
-async function doLogout(){
-  await sb.auth.signOut();
-  window.location.href = 'login.html';
-}
 
 // ── Toast ──
-function showToast(msg, type='info'){
-  const t = document.createElement('div');
-  t.className = 'toast toast-' + type;
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(), 3200);
-}
 
 // ── Stats strip updater (gainer/loser — раз в 3 сек, не каждый тик) ──
 let _statsTimer = null;
@@ -2570,17 +2565,7 @@ function initAutoRefresh(){
 }
 
 // ── Keyboard ──
-document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape'){
-    closeDetail();
-    closeAlertModal();
-    closeTradeModal();
-  }
-  if((e.key === 'f' || e.key === 'с') && !e.ctrlKey && !e.metaKey){
-    const inp = document.getElementById('search-inp');
-    if(document.activeElement !== inp){ e.preventDefault(); inp.focus(); }
-  }
-});
+
 
 // ── Init ──
 
