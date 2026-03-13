@@ -860,90 +860,118 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 
 /* ══ CANDLE CARD (ScalpBoard mode) ══════════════════════════════ */
-.candle-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+/* ══ CANDLE CARD (ScalpBoard style) ══════════════════════════════ */
+.candle-grid{
+  display:grid;gap:6px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+}
 .candle-card{
-  background:#0c0f15;border:1px solid rgba(255,255,255,0.07);
-  border-radius:8px;overflow:hidden;cursor:pointer;
-  transition:border-color .15s;position:relative;
+  background:#0b0e14;border:1px solid rgba(255,255,255,0.07);
+  border-radius:6px;overflow:hidden;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;position:relative;
 }
-.candle-card:hover{border-color:rgba(232,114,42,0.4);}
+.candle-card:hover{border-color:rgba(232,114,42,0.45);box-shadow:0 0 0 1px rgba(232,114,42,0.1);}
 .candle-card.watched{border-color:rgba(240,192,64,0.3);}
+/* Top indicator bar — like ScalpBoard: sym | chg ∿ | natr ∿ | vol | extra */
 .cc2-topbar{
-  display:flex;align-items:center;
+  display:flex;align-items:center;gap:0;
+  padding:5px 8px;
+  font-family:'JetBrains Mono',monospace;
   border-bottom:1px solid rgba(255,255,255,0.04);
-  padding:4px 8px;background:rgba(0,0,0,0.3);
-  font-family:'JetBrains Mono',monospace;font-size:8px;
 }
-.cc2-ind{
-  display:flex;align-items:center;gap:3px;
-  padding:0 7px;border-right:1px solid rgba(255,255,255,0.05);
-  color:rgba(232,234,240,0.45);
+.cc2-sym{
+  /* Full ticker, never truncated — small font like ScalpBoard */
+  font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--t);
+  flex-shrink:0;margin-right:6px;
+  white-space:nowrap; /* no truncation */
 }
-.cc2-ind:first-child{padding-left:0;}
-.cc2-ind.last{border-right:none;margin-left:auto;}
-.cc2-ind-lbl{font-size:6.5px;color:rgba(232,234,240,0.2);margin-right:2px;}
-.cc2-ind-val{font-weight:600;}
-.cc2-head{display:flex;align-items:center;gap:6px;padding:6px 8px 4px;}
-.cc2-sym{font-size:13px;font-weight:700;letter-spacing:.5px;flex:1;}
-.cc2-price{font-size:12px;font-weight:600;color:var(--t);}
-.cc2-chg{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;}
-.cc2-chg.up{color:var(--g);background:rgba(46,204,113,0.1);}
-.cc2-chg.down{color:var(--r);background:rgba(231,76,60,0.1);}
-.cc2-metrics{display:flex;padding:2px 8px 5px;border-bottom:1px solid rgba(255,255,255,0.04);}
-.cc2-metric{flex:1;display:flex;flex-direction:column;gap:1px;border-right:1px solid rgba(255,255,255,0.04);padding:0 5px;}
+.cc2-pair{font-size:7px;color:rgba(232,234,240,0.2);margin-right:auto;}
+.cc2-chg{
+  font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:3px;flex-shrink:0;
+}
+.cc2-chg.up{color:#2ecc71;background:rgba(46,204,113,0.1);}
+.cc2-chg.down{color:#e74c3c;background:rgba(231,76,60,0.1);}
+/* Indicator pills — right side of topbar */
+.cc2-inds{display:flex;align-items:center;gap:4px;margin-left:6px;flex-shrink:0;}
+.cc2-pill{
+  font-family:'JetBrains Mono',monospace;font-size:7.5px;
+  color:rgba(232,234,240,0.35);white-space:nowrap;
+}
+.cc2-pill span{font-weight:600;}
+/* Chart container — tall enough to show candles clearly */
+.cc2-chart-wrap{
+  position:relative;height:120px;background:#06080c;overflow:hidden;
+}
+.cc2-chart-wrap canvas{display:block;} /* sized by JS */
+/* Watermark ticker — like ScalpBoard center text */
+.cc2-watermark{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:1;
+}
+.cc2-watermark span{
+  font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;
+  color:rgba(232,234,240,0.06);letter-spacing:2px;text-transform:uppercase;
+  user-select:none;
+}
+/* Bottom metrics row */
+.cc2-metrics{
+  display:flex;align-items:center;gap:0;
+  padding:4px 8px;border-top:1px solid rgba(255,255,255,0.03);
+}
+.cc2-metric{
+  flex:1;display:flex;flex-direction:column;gap:0px;
+  border-right:1px solid rgba(255,255,255,0.04);padding:0 5px;
+}
 .cc2-metric:first-child{padding-left:0;}
-.cc2-metric:last-child{border-right:none;}
-.cc2-ml{font-size:6px;color:rgba(232,234,240,0.2);letter-spacing:1px;text-transform:uppercase;}
-.cc2-mv{font-size:9px;color:rgba(232,234,240,0.6);}
-.cc2-mv.up{color:var(--g);}
-.cc2-mv.dn{color:var(--r);}
-.cc2-chart{height:110px;width:100%;position:relative;background:#06080c;}
-.cc2-chart canvas{display:block;width:100%;height:100%;}
+.cc2-metric:last-child{border-right:none;padding-right:0;}
+.cc2-ml{font-size:6px;color:rgba(232,234,240,0.2);letter-spacing:1px;text-transform:uppercase;margin-bottom:1px;}
+.cc2-mv{font-size:8.5px;font-weight:500;color:rgba(232,234,240,0.55);}
+.cc2-mv.up{color:#2ecc71;}.cc2-mv.dn{color:#e74c3c;}
+/* Volume mini-bar */
 .cc2-volbar{height:2px;background:rgba(255,255,255,0.04);}
 .cc2-volfill{height:100%;background:rgba(232,114,42,0.4);transition:width .4s;}
+/* Actions */
 .cc2-actions{
-  position:absolute;top:6px;right:6px;display:flex;gap:2px;
-  opacity:0;transition:opacity .15s;z-index:5;
+  position:absolute;top:5px;right:5px;display:flex;gap:2px;
+  opacity:0;transition:opacity .12s;z-index:10;
 }
 .candle-card:hover .cc2-actions{opacity:1;}
+/* Impulse badge */
 .cc2-impulse{
   position:absolute;top:0;left:0;right:0;
   font-family:'JetBrains Mono',monospace;font-size:8px;
   letter-spacing:1px;text-align:center;padding:2px 0;
   display:none;z-index:6;pointer-events:none;
 }
-.candle-card.impulse-up .cc2-impulse{
-  display:block;background:rgba(46,204,113,0.18);
-  border-bottom:1px solid rgba(46,204,113,0.4);color:#2ecc71;
-}
-.candle-card.impulse-dn .cc2-impulse{
-  display:block;background:rgba(231,76,60,0.15);
-  border-bottom:1px solid rgba(231,76,60,0.4);color:#e74c3c;
+.candle-card.impulse-up .cc2-impulse{display:block;background:rgba(46,204,113,0.18);border-bottom:1px solid rgba(46,204,113,0.4);color:#2ecc71;}
+.candle-card.impulse-dn .cc2-impulse{display:block;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.4);color:#e74c3c;}
+/* Loading shimmer */
+.cc2-loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(232,234,240,0.15);
+  letter-spacing:2px;z-index:2;
 }
 /* Impulse popup */
 .impulse-popup{
   position:fixed;bottom:20px;right:20px;z-index:9990;
-  display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:240px;
+  display:flex;flex-direction:column;gap:5px;pointer-events:none;max-width:230px;
 }
 .impulse-item{
   background:#0d1018;border:1px solid rgba(232,114,42,0.35);
-  border-radius:8px;padding:8px 12px;
+  border-radius:7px;padding:7px 12px;
   font-family:'JetBrains Mono',monospace;font-size:10px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 4px 24px rgba(0,0,0,0.7);
+  display:flex;align-items:center;gap:9px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.7);
   animation:impulseIn .25s cubic-bezier(0.16,1,0.3,1);
   pointer-events:all;
 }
 @keyframes impulseIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .impulse-item.pump{border-color:rgba(46,204,113,0.5);}
 .impulse-item.dump{border-color:rgba(231,76,60,0.5);}
-.ii-icon{font-size:15px;}
-.ii-sym{font-weight:700;color:var(--t);font-size:11px;}
-.ii-pct{font-size:11px;font-weight:600;}
-.ii-pct.up{color:#2ecc71;}
-.ii-pct.dn{color:#e74c3c;}
-.ii-tf{font-size:7.5px;color:var(--m2);margin-left:auto;}
-</style>
+.ii-icon{font-size:14px;}.ii-sym{font-weight:700;color:var(--t);font-size:11px;}
+.ii-pct{font-size:11px;font-weight:600;}.ii-pct.up{color:#2ecc71;}.ii-pct.dn{color:#e74c3c;}
+.ii-tf{font-size:7px;color:var(--m2);margin-left:auto;}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -3340,99 +3368,116 @@ else init();
 <div class="impulse-popup" id="impulse-popup"></div>
 
 <script>
+<script>
 // ══════════════════════════════════════════════════════
-// SCALPBOARD-STYLE CANDLE CARDS + IMPULSE ENGINE
+// SCALPBOARD-STYLE CANDLE CARDS — полный rebuild
 // ══════════════════════════════════════════════════════
 
-const _klineCache = {};  // pair → { candles, ts }
-const KLINE_TTL   = 60000; // 1 min
+const _klineCache   = {};   // PAIR → { candles, ts }
+const KLINE_TTL     = 60000;
 const _impulseCooldown = {};
-const _impulseMinPct   = 3; // %
+const _impulseMinPct   = 3;
 
+// ── Render grid ───────────────────────────────────────
 function renderCandleGrid(coins){
   const area   = document.getElementById('coins-area');
   const maxVol = Math.max(...coins.map(c => c.total_volume || 0));
   area.innerHTML = '<div class="candle-grid" id="candle-grid"></div>';
   const grid = document.getElementById('candle-grid');
   grid.innerHTML = coins.map(c => renderCandleCard(c, maxVol)).join('');
-  // Staggered kline load — avoid Binance rate limit
-  coins.forEach((c, i) => setTimeout(() => loadCandleChart(c), i * 100));
+
+  // Wait for layout then load charts — use requestAnimationFrame to ensure DOM is painted
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      coins.forEach((c, i) => setTimeout(() => loadCandleChart(c), i * 80));
+    });
+  });
 }
 
+// ── Render single card ────────────────────────────────
 function renderCandleCard(c, maxVol){
-  const ws     = _wsCache[c.id];
-  const chg24  = ws?.chg24 ?? (c.price_change_percentage_24h || 0);
-  const chg7   = c.price_change_percentage_7d_in_currency || c.price_change_percentage_7d || 0;
-  const vol    = c.total_volume || 0;
-  const volPct = maxVol > 0 ? Math.min(100, (vol / maxVol) * 100) : 0;
+  const ws      = _wsCache[c.id];
+  const chg24   = ws?.chg24 ?? (c.price_change_percentage_24h || 0);
+  const chg1h   = c.price_change_percentage_1h_in_currency || 0;
+  const chg7    = c.price_change_percentage_7d_in_currency || c.price_change_percentage_7d || 0;
+  const vol     = c.total_volume || 0;
+  const volPct  = maxVol > 0 ? Math.min(100, (vol / maxVol) * 100) : 0;
   const watched = watchlist.includes(c.id);
   const alerted = hasAlert(c.id);
 
   // NATR from 24h range
-  let natrStr = '—';
+  let natrVal = null;
   const h24 = ws?.high24 || c.high_24h;
   const l24 = ws?.low24  || c.low_24h;
-  if(h24 && l24 && l24 > 0) natrStr = ((h24 - l24) / l24 * 100).toFixed(1) + '%';
+  if(h24 && l24 && l24 > 0) natrVal = ((h24 - l24) / l24 * 100);
+  const natrStr = natrVal !== null ? natrVal.toFixed(1) + '%' : '—';
+  const natrColor = natrVal > 8 ? '#f39c12' : natrVal > 4 ? '#e8722a' : 'rgba(232,234,240,0.35)';
 
-  // Activity = vol / mcap
-  const actRatio = c.market_cap > 0 ? (vol / c.market_cap * 100).toFixed(1) + '%' : '—';
+  // Activity ratio vol/mcap
+  const act = c.market_cap > 0 ? (vol / c.market_cap * 100).toFixed(1) + '%' : '—';
 
-  const safeId = c.id.replace(/[^a-z0-9]/gi, '_');
+  const safeId  = c.id.replace(/[^a-z0-9]/gi, '_');
+  const sym     = (c.symbol || '').toUpperCase();
+  const isUp    = chg24 >= 0;
 
   return `<div class="candle-card ${watched ? 'watched' : ''}" id="cc2-${safeId}" onclick="focusCoin('${c.id}')">
     <div class="cc2-impulse"></div>
-    <!-- ScalpBoard top indicator bar: chg | natr | vol/mc | rank -->
+
+    <!-- Top bar: SYM · chg · natr · vol/mc · rank -->
     <div class="cc2-topbar">
-      <div class="cc2-ind">
-        <span class="cc2-ind-lbl">24Ч</span>
-        <span class="cc2-ind-val" data-chg="${c.id}" style="color:${chg24>=0?'var(--g)':'var(--r)'}">${fmtChg(chg24)}</span>
+      <span class="cc2-sym">${sym}</span>
+      <span class="cc2-pair">/ USDT</span>
+      <span class="cc2-chg ${isUp ? 'up' : 'down'}" data-chg="${c.id}" data-chg24="${c.id}">${fmtChg(chg24)}</span>
+      <div class="cc2-inds">
+        <span class="cc2-pill" title="NATR 24h — диапазон свечи">∿ <span data-natr="${c.id}" style="color:${natrColor}">${natrStr}</span></span>
+        <span class="cc2-pill" title="Vol/Mcap — активность">⬛ <span>${act}</span></span>
+        <span class="cc2-pill" style="color:rgba(232,234,240,0.2)">#${c.market_cap_rank || '?'}</span>
       </div>
-      <div class="cc2-ind">
-        <span class="cc2-ind-lbl">NATR</span>
-        <span class="cc2-ind-val" data-natr="${c.id}">${natrStr}</span>
+      ${alerted ? '<span style="color:var(--a);font-size:9px;margin-left:4px">●</span>' : ''}
+      <div class="cc2-actions" onclick="event.stopPropagation()">
+        <button class="cc-btn watch-btn ${watched ? 'active' : ''}" onclick="toggleWatch(event,'${c.id}')">${watched ? '★' : '☆'}</button>
+        <button class="cc-btn" onclick="event.stopPropagation();openAlertModal(null,'${c.id}')">🔔</button>
       </div>
-      <div class="cc2-ind">
-        <span class="cc2-ind-lbl">ACT</span>
-        <span class="cc2-ind-val">${actRatio}</span>
-      </div>
-      ${alerted ? '<div class="cc2-ind last"><span style="color:var(--a)">●</span></div>' : '<div class="cc2-ind last"><span class="cc2-ind-lbl">#${c.market_cap_rank||'?'}</span></div>'}
     </div>
-    <!-- Header -->
-    <div class="cc2-head">
-      ${c.image
-        ? `<img style="width:18px;height:18px;border-radius:50%;flex-shrink:0" src="${c.image}" loading="lazy">`
-        : `<div style="width:18px;height:18px;border-radius:50%;background:rgba(232,114,42,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--a);flex-shrink:0">${(c.symbol||'?').slice(0,2).toUpperCase()}</div>`}
-      <span class="cc2-sym">${(c.symbol||'').toUpperCase()}</span>
-      <span class="cc2-price" data-price="${c.id}">${fmtPrice(c.current_price)}</span>
-      <span class="cc2-chg ${chg24>=0?'up':'down'}" data-chg24="${c.id}">${fmtChg(chg24)}</span>
-    </div>
-    <!-- Mini metrics -->
-    <div class="cc2-metrics">
-      <div class="cc2-metric"><span class="cc2-ml">ОБЪ</span><span class="cc2-mv">${fmtBig(vol)}</span></div>
-      <div class="cc2-metric"><span class="cc2-ml">MCAP</span><span class="cc2-mv">${fmtBig(c.market_cap)}</span></div>
-      <div class="cc2-metric"><span class="cc2-ml">7Д</span><span class="cc2-mv ${chg7>=0?'up':'dn'}">${fmtChg(chg7)}</span></div>
-      <div class="cc2-metric"><span class="cc2-ml">ATH%</span><span class="cc2-mv dn">${c.ath_change_percentage ? c.ath_change_percentage.toFixed(0)+'%' : '—'}</span></div>
-    </div>
-    <!-- Candle chart canvas -->
-    <div class="cc2-chart">
+
+    <!-- Chart with watermark ticker -->
+    <div class="cc2-chart-wrap" id="cc2wrap-${safeId}">
+      <div class="cc2-watermark"><span>${sym}</span></div>
+      <div class="cc2-loading" id="cc2load-${safeId}">ЗАГРУЗКА...</div>
       <canvas id="cc2cv-${safeId}"></canvas>
     </div>
-    <!-- Volume bar -->
-    <div class="cc2-volbar"><div class="cc2-volfill" style="width:${volPct}%"></div></div>
-    <!-- Actions -->
-    <div class="cc2-actions" onclick="event.stopPropagation()">
-      <button class="cc-btn watch-btn ${watched?'active':''}" onclick="toggleWatch(event,'${c.id}')">${watched?'★':'☆'}</button>
-      <button class="cc-btn" onclick="event.stopPropagation();openAlertModal(null,'${c.id}')">🔔</button>
+
+    <!-- Bottom metrics -->
+    <div class="cc2-metrics">
+      <div class="cc2-metric">
+        <span class="cc2-ml">ЦЕНА</span>
+        <span class="cc2-mv" data-price="${c.id}">${fmtPrice(c.current_price)}</span>
+      </div>
+      <div class="cc2-metric">
+        <span class="cc2-ml">ОБЪ 24Ч</span>
+        <span class="cc2-mv">${fmtBig(vol)}</span>
+      </div>
+      <div class="cc2-metric">
+        <span class="cc2-ml">1Ч</span>
+        <span class="cc2-mv ${chg1h >= 0 ? 'up' : 'dn'}">${fmtChg(chg1h)}</span>
+      </div>
+      <div class="cc2-metric">
+        <span class="cc2-ml">7Д</span>
+        <span class="cc2-mv ${chg7 >= 0 ? 'up' : 'dn'}">${fmtChg(chg7)}</span>
+      </div>
     </div>
+    <div class="cc2-volbar"><div class="cc2-volfill" style="width:${volPct}%"></div></div>
   </div>`;
 }
 
-// ── Load mini Binance kline ────────────────────────────
+// ── Load Binance 5m kline ─────────────────────────────
 async function loadCandleChart(coin){
-  const wsCfg = BINANCE_WS_PAIRS.find(p => p.cgId === coin.id);
-  const pair  = (wsCfg?.pair || coin.symbol?.toLowerCase() + 'usdt').toUpperCase();
+  const wsCfg  = BINANCE_WS_PAIRS.find(p => p.cgId === coin.id);
+  // Build pair: prefer WS mapping, fallback to symbol+USDT
+  const pair   = (wsCfg?.pair || coin.symbol?.toLowerCase() + 'usdt').toUpperCase();
   const safeId = coin.id.replace(/[^a-z0-9]/gi, '_');
-  const canvas = document.getElementById('cc2cv-' + safeId);
+  const canvas  = document.getElementById('cc2cv-' + safeId);
+  const loadEl  = document.getElementById('cc2load-' + safeId);
   if(!canvas) return;
 
   try{
@@ -3441,33 +3486,96 @@ async function loadCandleChart(coin){
     if(cached && Date.now() - cached.ts < KLINE_TTL){
       candles = cached.candles;
     } else {
-      const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=5m&limit=60`);
-      if(!r.ok) return; // silently skip unknown pairs (e.g. WBTCUSDT)
+      const r = await fetch(
+        `https://api.binance.com/api/v3/klines?symbol=${pair}&interval=5m&limit=80`,
+        { signal: AbortSignal.timeout(6000) }
+      );
+      if(!r.ok){
+        // Pair not on Binance (e.g. some CoinGecko-only tokens) — show sparkline fallback
+        drawSparklineFallback(canvas, coin);
+        if(loadEl) loadEl.style.display = 'none';
+        return;
+      }
       const raw = await r.json();
-      if(!Array.isArray(raw)) return;
+      if(!Array.isArray(raw) || raw.length < 5){
+        drawSparklineFallback(canvas, coin);
+        if(loadEl) loadEl.style.display = 'none';
+        return;
+      }
       candles = raw.map(k => ({ t:+k[0], o:+k[1], h:+k[2], l:+k[3], c:+k[4], v:+k[5] }));
       _klineCache[pair] = { candles, ts: Date.now() };
     }
-    drawMiniCandles(canvas, candles);
-  } catch(e){ /* ignore */ }
+
+    if(loadEl) loadEl.style.display = 'none';
+    drawCandleChart(canvas, candles);
+  } catch(e){
+    // Network error — try sparkline
+    drawSparklineFallback(canvas, coin);
+    if(loadEl) loadEl.style.display = 'none';
+  }
 }
 
-function drawMiniCandles(canvas, candles){
+// ── Sparkline fallback (uses CoinGecko 7d data) ───────
+function drawSparklineFallback(canvas, coin){
+  const sp = coin.sparkline_in_7d?.price;
+  if(!sp || sp.length < 2){ return; }
+  const wrap = canvas.parentElement;
+  if(!wrap) return;
+  sizeCanvas(canvas, wrap);
+  const ctx = canvas.getContext('2d');
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+  ctx.scale ? null : null; // already scaled in sizeCanvas
+  const pts = sp;
+  const min = Math.min(...pts), max = Math.max(...pts), range = max - min || 1;
+  const isUp = pts[pts.length-1] >= pts[0];
+  const col  = isUp ? '#2ecc71' : '#e74c3c';
+  // clear
+  ctx.fillStyle = '#06080c'; ctx.fillRect(0, 0, W, H);
+  // line
+  ctx.beginPath();
+  pts.forEach((v, i) => {
+    const x = (i / (pts.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 8) - 4;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.stroke();
+  // fill
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = isUp ? 'rgba(46,204,113,0.12)' : 'rgba(231,76,60,0.1)';
+  ctx.fill();
+}
+
+// ── Size canvas to wrapper ────────────────────────────
+function sizeCanvas(canvas, wrap){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  // Use getBoundingClientRect for reliable width even before full layout
+  const rect = wrap.getBoundingClientRect();
+  const W = rect.width  > 10 ? rect.width  : wrap.offsetWidth  || 260;
+  const H = rect.height > 10 ? rect.height : wrap.offsetHeight || 120;
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  canvas.getContext('2d').scale(dpr, dpr);
+  return { W, H };
+}
+
+// ── Draw professional candle chart ────────────────────
+function drawCandleChart(canvas, candles){
   const wrap = canvas.parentElement;
   if(!wrap || !candles || candles.length < 2) return;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const W   = wrap.clientWidth  || 280;
-  const H   = wrap.clientHeight || 110;
-  canvas.width  = W * dpr; canvas.height = H * dpr;
-  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
 
-  const slice = candles.slice(-40);
+  const { W, H } = sizeCanvas(canvas, wrap);
+  const ctx = canvas.getContext('2d');
+
+  const slice = candles.slice(-60);
   const vis   = slice.length;
-  const PAD_L = 38, PAD_R = 2, PAD_T = 4, PAD_B = 18, VOL_H = 14;
-  const CW = W - PAD_L - PAD_R;
-  const CH = H - PAD_T - PAD_B - VOL_H;
+
+  const PAD_L = 46, PAD_R = 3, PAD_T = 6, PAD_B = 20;
+  const VOL_H = 18; // volume panel height
+  const CW    = W - PAD_L - PAD_R;
+  const CH    = H - PAD_T - PAD_B - VOL_H;
 
   let minP = Math.min(...slice.map(c => c.l));
   let maxP = Math.max(...slice.map(c => c.h));
@@ -3475,95 +3583,128 @@ function drawMiniCandles(canvas, candles){
   minP -= padP; maxP += padP;
   const range = maxP - minP || 1;
   const toY   = p => PAD_T + CH - ((p - minP) / range) * CH;
-  const maxV  = Math.max(...slice.map(c => c.v)) || 1;
-  const gap   = CW / vis;
-  const cw    = Math.max(1, Math.min(gap * 0.72, 9));
 
-  // Background
+  const maxV = Math.max(...slice.map(c => c.v)) || 1;
+  const gap  = CW / vis;
+  const cw   = Math.max(1.5, Math.min(gap * 0.72, 10));
+
+  const C_UP   = '#2ecc71';
+  const C_DN   = '#e74c3c';
+  const C_GRID = 'rgba(255,255,255,0.032)';
+  const C_AXIS = 'rgba(232,234,240,0.22)';
+
+  // ── Background ──
   ctx.fillStyle = '#06080c';
   ctx.fillRect(0, 0, W, H);
 
-  // Grid
-  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  ctx.lineWidth = 1;
+  // ── Grid + price axis ──
+  const gridCount = 4;
   ctx.font = '7px JetBrains Mono,monospace';
   ctx.textAlign = 'right';
-  ctx.fillStyle = 'rgba(232,234,240,0.18)';
-  for(let i = 0; i <= 3; i++){
-    const p = maxP - (range / 3) * i;
+  for(let i = 0; i <= gridCount; i++){
+    const p = maxP - (range / gridCount) * i;
     const y = toY(p);
+    if(y < PAD_T - 2 || y > PAD_T + CH + 2) continue;
+    ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
-    const lbl = p >= 10000 ? p.toLocaleString('en',{maximumFractionDigits:0})
-              : p >= 1     ? p.toFixed(2)
-              : p >= 0.01  ? p.toFixed(4) : p.toFixed(6);
-    ctx.fillText('$'+lbl, PAD_L - 2, y + 2.5);
+    ctx.fillStyle = C_AXIS;
+    const lbl = p >= 10000 ? '$' + (p/1000).toFixed(1) + 'K'
+              : p >= 1     ? '$' + p.toFixed(p >= 100 ? 1 : 2)
+              : p >= 0.01  ? '$' + p.toFixed(4)
+              :               '$' + p.toFixed(6);
+    ctx.fillText(lbl, PAD_L - 3, y + 2.5);
   }
 
-  // EMA 20
+  // ── Volume separator ──
+  const volTop = H - PAD_B;
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD_L, volTop); ctx.lineTo(W - PAD_R, volTop); ctx.stroke();
+
+  // ── EMA 20 ──
   const closes = slice.map(c => c.c);
-  const k = 2 / 21; let ema = closes[0];
-  ctx.beginPath(); ctx.strokeStyle = 'rgba(59,130,246,0.6)'; ctx.lineWidth = 1;
+  const k20 = 2 / 21; let ema20 = closes[0];
+  ctx.beginPath(); ctx.strokeStyle = 'rgba(59,130,246,0.7)'; ctx.lineWidth = 1;
   closes.forEach((v, i) => {
-    ema = v * k + ema * (1 - k);
+    ema20 = v * k20 + ema20 * (1 - k20);
     const x = PAD_L + i * gap + gap / 2;
-    const y = toY(ema);
+    const y = toY(ema20);
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
 
-  // Volume bars
-  const volBase = H - PAD_B;
+  // ── Volume bars ──
   slice.forEach((c, i) => {
     const x  = PAD_L + i * gap + gap / 2;
-    const vh = (c.v / maxV) * VOL_H * 0.9;
-    ctx.fillStyle = c.c >= c.o ? 'rgba(46,204,113,0.2)' : 'rgba(231,76,60,0.2)';
-    ctx.fillRect(x - cw / 2, volBase - vh, Math.max(1, cw), vh);
+    const vh = Math.max(1, (c.v / maxV) * VOL_H * 0.85);
+    ctx.fillStyle = c.c >= c.o ? 'rgba(46,204,113,0.22)' : 'rgba(231,76,60,0.22)';
+    ctx.fillRect(x - cw / 2, volTop - vh, Math.max(1, cw), vh);
   });
 
-  // Candle bodies + wicks
+  // ── Candles ──
   slice.forEach((c, i) => {
     const x    = PAD_L + i * gap + gap / 2;
     const isUp = c.c >= c.o;
-    const yH = toY(c.h), yL = toY(c.l), yO = toY(c.o), yC = toY(c.c);
+    const yH   = toY(c.h), yL = toY(c.l);
+    const yO   = toY(c.o), yC = toY(c.c);
+
     // Wick
-    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.55)' : 'rgba(231,76,60,0.55)';
+    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.6)' : 'rgba(231,76,60,0.6)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x, yH); ctx.lineTo(x, yL); ctx.stroke();
+
     // Body
     const bTop = Math.min(yO, yC);
     const bH   = Math.max(1.5, Math.abs(yC - yO));
     if(isUp){
-      ctx.strokeStyle = '#2ecc71'; ctx.lineWidth = 1;
+      ctx.strokeStyle = C_UP; ctx.lineWidth = 1;
       ctx.strokeRect(x - cw / 2, bTop, cw, bH);
       ctx.fillStyle = 'rgba(46,204,113,0.15)';
       ctx.fillRect(x - cw / 2, bTop, cw, bH);
     } else {
-      ctx.fillStyle = '#e74c3c';
+      ctx.fillStyle = C_DN;
       ctx.fillRect(x - cw / 2, bTop, cw, bH);
     }
   });
 
-  // Last price dashed line
+  // ── Last price dashed line + badge ──
   const last  = slice[slice.length - 1];
   const lastY = toY(last.c);
-  ctx.strokeStyle = last.c >= last.o ? 'rgba(46,204,113,0.35)' : 'rgba(231,76,60,0.35)';
+  const isLastUp = last.c >= last.o;
+  ctx.strokeStyle = isLastUp ? 'rgba(46,204,113,0.4)' : 'rgba(231,76,60,0.4)';
   ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
   ctx.beginPath(); ctx.moveTo(PAD_L, lastY); ctx.lineTo(W - PAD_R, lastY); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Time labels
-  const vStep = Math.max(1, Math.round(vis / 5));
+  // Badge right side
+  const lbl = last.c >= 1000 ? '$' + last.c.toLocaleString('en',{maximumFractionDigits:0})
+            : last.c >= 1    ? '$' + last.c.toFixed(2)
+            : last.c >= 0.01 ? '$' + last.c.toFixed(4)
+            :                   '$' + last.c.toFixed(6);
+  ctx.font = 'bold 8px JetBrains Mono,monospace'; ctx.textAlign = 'right';
+  const bw = ctx.measureText(lbl).width + 8;
+  ctx.fillStyle = isLastUp ? C_UP : C_DN;
+  ctx.fillRect(W - PAD_R - bw, lastY - 7, bw, 14);
+  ctx.fillStyle = '#000';
+  ctx.fillText(lbl, W - PAD_R - 2, lastY + 3);
+
+  // ── Time axis ──
+  const vStep = Math.max(1, Math.round(vis / 6));
   ctx.font = '7px JetBrains Mono,monospace'; ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(232,234,240,0.13)';
   for(let i = 0; i < vis; i += vStep){
-    const x   = PAD_L + i * gap + gap / 2;
-    const d   = new Date(slice[i].t);
-    const lbl = d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
-    ctx.fillText(lbl, x, H - PAD_B + 12);
+    const x = PAD_L + i * gap + gap / 2;
+    const d = new Date(slice[i].t);
+    const lbl2 = d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+    ctx.fillText(lbl2, x, H - PAD_B + 12);
   }
+
+  // ── EMA legend ──
+  ctx.font = '7px JetBrains Mono,monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(59,130,246,0.7)';
+  ctx.fillText('EMA20', PAD_L + 3, PAD_T + 9);
 }
 
-// ── Impulse detection ──────────────────────────────────
+// ── Impulse detection ─────────────────────────────────
 function detectImpulse(cgId, chg24){
   if(Math.abs(chg24) < _impulseMinPct) return;
   const now = Date.now();
@@ -3574,7 +3715,6 @@ function detectImpulse(cgId, chg24){
   const coin = allCoins.find(c => c.id === cgId);
   const sym  = coin?.symbol?.toUpperCase() || cgId;
 
-  // Flash card if in candle view
   const cardId = 'cc2-' + cgId.replace(/[^a-z0-9]/gi, '_');
   const card   = document.getElementById(cardId);
   if(card){
@@ -3587,7 +3727,7 @@ function detectImpulse(cgId, chg24){
   }
 
   showImpulsePopup(sym, chg24, isUp);
-  if(soundEnabled) playBeep(isUp ? 880 : 440);
+  if(typeof soundEnabled !== 'undefined' && soundEnabled && typeof playBeep === 'function') playBeep(isUp ? 880 : 440);
 }
 
 function showImpulsePopup(sym, pct, isUp){
@@ -3600,44 +3740,39 @@ function showImpulsePopup(sym, pct, isUp){
   setTimeout(() => { if(item.parentNode) item.parentNode.removeChild(item); }, 6000);
 }
 
-// ── Hook into setView ──────────────────────────────────
-const _baseSetView = setView;
-function setView(v, btn){
+// ── Hook setView ──────────────────────────────────────
+const _baseSetView2 = window.setView;
+window.setView = function(v, btn){
   currentView = v;
   document.querySelectorAll('.tb-view-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   applyFilter();
-}
+};
 
-// ── Hook into renderCoins ──────────────────────────────
-const _baseRenderCoins = renderCoins;
-function renderCoins(coins){
+// ── Hook renderCoins ──────────────────────────────────
+const _baseRenderCoins2 = window.renderCoins;
+window.renderCoins = function(coins){
   if(currentView === 'candle'){
     document.getElementById('count-shown').textContent = coins.length;
     renderCandleGrid(coins);
     return;
   }
-  _baseRenderCoins(coins);
-}
+  _baseRenderCoins2(coins);
+};
 
-// ── Hook into patchPriceDOM — also update candle card ──
-const _basePatchPrice = patchPriceDOM;
-function patchPriceDOM(cgId, price, chg24, prevPrice){
-  _basePatchPrice(cgId, price, chg24, prevPrice);
-  // Candle card price
-  if(currentView === 'candle'){
-    const safeId = cgId.replace(/[^a-z0-9]/gi, '_');
-    const card   = document.getElementById('cc2-' + safeId);
-    if(card){
-      const prEl  = card.querySelector('[data-price]');
-      const chgEl = card.querySelector('.cc2-chg');
-      if(prEl)  prEl.textContent = fmtPrice(price);
-      if(chgEl){ chgEl.textContent = fmtChg(chg24); chgEl.className = 'cc2-chg ' + (chg24>=0?'up':'down'); }
-    }
-  }
-  // Impulse check on every tick
+// ── Hook patchPriceDOM ────────────────────────────────
+const _basePatch2 = window.patchPriceDOM;
+window.patchPriceDOM = function(cgId, price, chg24, prevPrice){
+  _basePatch2(cgId, price, chg24, prevPrice);
+  // Update candle card price display
+  const safeId = cgId.replace(/[^a-z0-9]/gi, '_');
+  const prEl   = document.querySelector(`#cc2-${safeId} [data-price="${cgId}"]`);
+  const chgEl  = document.querySelector(`#cc2-${safeId} .cc2-chg`);
+  if(prEl)  prEl.textContent  = fmtPrice(price);
+  if(chgEl){ chgEl.textContent = fmtChg(chg24); chgEl.className = 'cc2-chg ' + (chg24>=0?'up':'down'); }
+  // Impulse check
   detectImpulse(cgId, chg24);
-}
+};
 
 // ── Refresh klines every 60s ──────────────────────────
 setInterval(() => {
@@ -3651,6 +3786,7 @@ setInterval(() => {
 }, 60000);
 
 </script>
+
 
 </body>
 </html>
