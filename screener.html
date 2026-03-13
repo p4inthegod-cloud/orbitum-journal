@@ -863,45 +863,47 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* ══ CANDLE CARD (ScalpBoard mode) ══════════════════════════════ */
 /* ══ CANDLE CARD (ScalpBoard style) ══════════════════════════════ */
 .candle-grid{
-  display:grid;gap:6px;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  display:grid;gap:4px;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
 }
 .candle-card{
-  background:#0b0e14;border:1px solid rgba(255,255,255,0.07);
-  border-radius:6px;overflow:hidden;cursor:pointer;
-  transition:border-color .15s,box-shadow .15s;position:relative;
+  background:#090c11;border:1px solid rgba(255,255,255,0.055);
+  border-radius:4px;overflow:hidden;cursor:pointer;
+  transition:border-color .12s;position:relative;
 }
-.candle-card:hover{border-color:rgba(232,114,42,0.45);box-shadow:0 0 0 1px rgba(232,114,42,0.1);}
-.candle-card.watched{border-color:rgba(240,192,64,0.3);}
+.candle-card:hover{border-color:rgba(232,114,42,0.35);}
+.candle-card.watched{border-color:rgba(240,192,64,0.25);}
 /* Top indicator bar — like ScalpBoard: sym | chg ∿ | natr ∿ | vol | extra */
 .cc2-topbar{
-  display:flex;align-items:center;gap:0;
-  padding:5px 8px;
+  display:flex;align-items:center;
+  padding:4px 7px;gap:5px;
   font-family:'JetBrains Mono',monospace;
-  border-bottom:1px solid rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.035);
+  min-height:24px;
 }
 .cc2-sym{
-  /* Full ticker, never truncated — small font like ScalpBoard */
-  font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--t);
-  flex-shrink:0;margin-right:6px;
-  white-space:nowrap; /* no truncation */
+  font-size:10px;font-weight:700;letter-spacing:.5px;color:rgba(232,234,240,.92);
+  flex-shrink:0;white-space:nowrap;
 }
-.cc2-pair{font-size:7px;color:rgba(232,234,240,0.2);margin-right:auto;}
+.cc2-pair{font-size:6.5px;color:rgba(232,234,240,0.18);flex-shrink:0;}
 .cc2-chg{
-  font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:3px;flex-shrink:0;
+  font-size:9px;font-weight:700;flex-shrink:0;margin-left:auto;
+  letter-spacing:.3px;
 }
-.cc2-chg.up{color:#2ecc71;background:rgba(46,204,113,0.1);}
-.cc2-chg.down{color:#e74c3c;background:rgba(231,76,60,0.1);}
-/* Indicator pills — right side of topbar */
-.cc2-inds{display:flex;align-items:center;gap:4px;margin-left:6px;flex-shrink:0;}
+.cc2-chg.up{color:#2ecc71;}
+.cc2-chg.down{color:#e74c3c;}
+/* Separator dot */
+.cc2-sep{font-size:7px;color:rgba(255,255,255,0.12);flex-shrink:0;}
+/* Indicator pills */
+.cc2-inds{display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .cc2-pill{
-  font-family:'JetBrains Mono',monospace;font-size:7.5px;
-  color:rgba(232,234,240,0.35);white-space:nowrap;
+  font-family:'JetBrains Mono',monospace;font-size:7px;
+  color:rgba(232,234,240,0.3);white-space:nowrap;
 }
 .cc2-pill span{font-weight:600;}
 /* Chart container — tall enough to show candles clearly */
 .cc2-chart-wrap{
-  position:relative;height:120px;background:#06080c;overflow:hidden;
+  position:relative;height:108px;background:#06080c;overflow:hidden;
 }
 .cc2-chart-wrap canvas{display:block;} /* sized by JS */
 /* Watermark ticker — like ScalpBoard center text */
@@ -916,18 +918,26 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 /* Bottom metrics row */
 .cc2-metrics{
-  display:flex;align-items:center;gap:0;
-  padding:4px 8px;border-top:1px solid rgba(255,255,255,0.03);
+  display:flex;align-items:center;
+  padding:3px 7px;border-top:1px solid rgba(255,255,255,0.03);
+  gap:8px;
 }
 .cc2-metric{
-  flex:1;display:flex;flex-direction:column;gap:0px;
-  border-right:1px solid rgba(255,255,255,0.04);padding:0 5px;
+  display:flex;align-items:center;gap:3px;flex-shrink:0;
 }
-.cc2-metric:first-child{padding-left:0;}
-.cc2-metric:last-child{border-right:none;padding-right:0;}
-.cc2-ml{font-size:6px;color:rgba(232,234,240,0.2);letter-spacing:1px;text-transform:uppercase;margin-bottom:1px;}
-.cc2-mv{font-size:8.5px;font-weight:500;color:rgba(232,234,240,0.55);}
-.cc2-mv.up{color:#2ecc71;}.cc2-mv.dn{color:#e74c3c;}
+.cc2-ml{font-size:6.5px;color:rgba(232,234,240,0.2);letter-spacing:.5px;text-transform:uppercase;}
+.cc2-mv{font-size:8px;font-weight:600;color:rgba(232,234,240,0.5);}
+.cc2-mv.up{color:rgba(46,204,113,.8);}.cc2-mv.dn{color:rgba(231,76,60,.8);}
+/* Signal badges inline */
+.cc2-sigs{margin-left:auto;display:flex;gap:3px;align-items:center;}
+.cc2-sig-tag{
+  font-size:6.5px;letter-spacing:.5px;font-weight:700;
+  padding:1px 4px;border-radius:2px;
+}
+.cc2-sig-tag.bull{background:rgba(46,204,113,.12);color:rgba(46,204,113,.9);}
+.cc2-sig-tag.bear{background:rgba(231,76,60,.12);color:rgba(231,76,60,.9);}
+.cc2-sig-tag.warn{background:rgba(243,156,18,.12);color:rgba(243,156,18,.9);}
+.cc2-sig-tag.neu{background:rgba(255,255,255,.05);color:rgba(232,234,240,.4);}
 /* Volume mini-bar */
 .cc2-volbar{height:2px;background:rgba(255,255,255,0.04);}
 .cc2-volfill{height:100%;background:rgba(232,114,42,0.4);transition:width .4s;}
@@ -940,12 +950,13 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* Impulse badge */
 .cc2-impulse{
   position:absolute;top:0;left:0;right:0;
-  font-family:'JetBrains Mono',monospace;font-size:8px;
-  letter-spacing:1px;text-align:center;padding:2px 0;
+  font-family:'JetBrains Mono',monospace;font-size:7.5px;
+  letter-spacing:.8px;text-align:left;padding:2px 7px;
   display:none;z-index:6;pointer-events:none;
+  display:none;
 }
-.candle-card.impulse-up .cc2-impulse{display:block;background:rgba(46,204,113,0.18);border-bottom:1px solid rgba(46,204,113,0.4);color:#2ecc71;}
-.candle-card.impulse-dn .cc2-impulse{display:block;background:rgba(231,76,60,0.15);border-bottom:1px solid rgba(231,76,60,0.4);color:#e74c3c;}
+.candle-card.impulse-up .cc2-impulse{display:block;background:rgba(46,204,113,0.13);border-bottom:1px solid rgba(46,204,113,0.3);color:rgba(46,204,113,.95);}
+.candle-card.impulse-dn .cc2-impulse{display:block;background:rgba(231,76,60,0.1);border-bottom:1px solid rgba(231,76,60,0.3);color:rgba(231,76,60,.95);}
 /* Loading shimmer */
 .cc2-loading{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -1217,44 +1228,43 @@ a.news-item:hover{border-color:rgba(59,130,246,.3)!important;background:#0c1018!
 #crypto-news-list .sat-coin{font-size:13px;}
 .news-desc{font-size:10.5px;color:rgba(232,234,240,.4);line-height:1.55;margin:3px 0 5px;font-style:italic;}
 
-/* ── PERSISTENT SIGNAL TOASTS ── */
+/* ── PERSISTENT SIGNAL TOASTS — slim strip style ── */
 #sig-toasts{
-  position:fixed;top:54px;right:14px;z-index:9999;
-  display:flex;flex-direction:column;gap:6px;
-  max-width:290px;pointer-events:none;
+  position:fixed;top:52px;right:14px;z-index:9999;
+  display:flex;flex-direction:column;gap:3px;
+  max-width:260px;pointer-events:none;
 }
 .sig-toast{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:10px 12px 10px 10px;border-radius:8px;
-  font-family:var(--font-mono);
-  box-shadow:0 6px 30px rgba(0,0,0,.85);
-  animation:toastIn .25s cubic-bezier(.16,1,.3,1);
+  display:flex;align-items:center;gap:7px;
+  padding:5px 10px 5px 8px;border-radius:4px;
+  font-family:var(--font-mono);font-size:10px;
+  box-shadow:0 2px 12px rgba(0,0,0,.7);
+  animation:toastIn .2s cubic-bezier(.16,1,.3,1);
   pointer-events:all;position:relative;
-  border-left:3px solid;
+  border-left:2px solid;
 }
-.sig-toast.pump{background:rgba(10,20,12,.97);border-color:#2ecc71;}
-.sig-toast.dump{background:rgba(20,10,10,.97);border-color:#e74c3c;}
-.sig-toast.break-high{background:rgba(20,15,8,.97);border-color:#f39c12;}
-.sig-toast.break-low{background:rgba(20,10,10,.97);border-color:#e74c3c;}
-.sig-toast.vol{background:rgba(8,14,22,.97);border-color:#3b82f6;}
-.sig-toast.price-alert{background:rgba(20,14,8,.97);border-color:#f39c12;}
-.st-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.st-body{flex:1;min-width:0;}
-.st-coin{font-size:13px;font-weight:700;color:#fff;letter-spacing:.5px;}
-.st-text{font-size:10px;color:rgba(232,234,240,.6);margin-top:2px;}
-.st-price{font-size:12px;font-weight:600;margin-top:3px;}
+.sig-toast.pump{background:rgba(8,18,10,.96);border-color:rgba(46,204,113,.7);}
+.sig-toast.dump{background:rgba(18,8,8,.96);border-color:rgba(231,76,60,.7);}
+.sig-toast.break-high{background:rgba(18,13,6,.96);border-color:rgba(243,156,18,.7);}
+.sig-toast.break-low{background:rgba(18,8,8,.96);border-color:rgba(231,76,60,.7);}
+.sig-toast.vol{background:rgba(6,12,20,.96);border-color:rgba(59,130,246,.7);}
+.sig-toast.price-alert{background:rgba(18,13,6,.96);border-color:rgba(232,114,42,.9);}
+.st-icon{font-size:12px;flex-shrink:0;}
+.st-body{flex:1;min-width:0;display:flex;align-items:center;gap:6px;}
+.st-coin{font-size:10px;font-weight:700;color:#fff;letter-spacing:.3px;}
+.st-text{font-size:8.5px;color:rgba(232,234,240,.45);}
+.st-price{font-size:9.5px;font-weight:600;margin-left:auto;}
 .st-price.pump{color:#2ecc71;}.st-price.dump{color:#e74c3c;}
 .st-price.break-high,.st-price.break-low,.st-price.price-alert{color:#f39c12;}
 .st-price.vol{color:#3b82f6;}
-.st-time{font-size:8px;color:rgba(232,234,240,.3);margin-top:3px;}
+.st-time{display:none;}
 .st-close{
-  position:absolute;top:6px;right:8px;
-  background:none;border:none;color:rgba(255,255,255,.25);
-  cursor:pointer;font-size:12px;padding:2px 4px;
-  transition:color .15s;line-height:1;
+  background:none;border:none;color:rgba(255,255,255,.2);
+  cursor:pointer;font-size:10px;padding:0 0 0 4px;
+  transition:color .12s;line-height:1;flex-shrink:0;
 }
-.st-close:hover{color:rgba(255,255,255,.7);}
-@keyframes toastIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:none;}}
+.st-close:hover{color:rgba(255,255,255,.6);}
+@keyframes toastIn{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:none;}}
 
 /* ── SENTIMENT INDEX CARD ── */
 .sentiment-card{
@@ -1271,6 +1281,19 @@ a.news-item:hover{border-color:rgba(59,130,246,.3)!important;background:#0c1018!
   border-radius:5px;letter-spacing:.5px;}
 .sent-advice{font-size:10px;color:rgba(232,234,240,.55);line-height:1.5;margin-top:8px;
   padding-top:8px;border-top:1px solid rgba(255,255,255,.05);}
+/* ── Alert settings toggle ── */
+.as-toggle{
+  width:38px;height:20px;border-radius:10px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);cursor:pointer;position:relative;
+  transition:background .2s;flex-shrink:0;
+}
+.as-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.3);
+  transition:transform .2s,background .2s;
+}
+.as-toggle.on{background:rgba(232,114,42,.3);border-color:rgba(232,114,42,.5);}
+.as-toggle.on::after{transform:translateX(18px);background:#e8722a;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -1413,6 +1436,7 @@ a.news-item:hover{border-color:rgba(59,130,246,.3)!important;background:#0c1018!
       <button class="sound-btn on" id="sound-btn" onclick="toggleSound()" title="Звук при сигнале">
         🔔 <span id="sound-label">ЗВУК ВКЛ</span>
       </button>
+      <button class="sound-btn" onclick="openAlertSettings()" title="Настройка сигналов" style="margin-left:4px">⚙️ СИГНАЛЫ</button>
     </div>
 
     <!-- CONTENT -->
@@ -3778,6 +3802,89 @@ function updateLiveIndicator(ok){
 
 
 // ════════════════════════════════════════════════════
+// ── Alert Settings (user-configurable) ────────────────────────────
+const _alertSettings = {
+  pumpThreshold: 1.5,   // % per tick to trigger pump/dump
+  breakHighLow: true,   // fire on 24h high/low breakout
+  volSpike: true,       // fire on volume spike
+  showPersistentToasts: true, // show big toast cards on screen
+  toastTypes: ['break-high','break-low'], // which types show as toasts
+  cooldown: 120000,     // ms between same signal for same coin
+};
+
+// Load from localStorage
+try {
+  const saved = JSON.parse(localStorage.getItem('orb_alert_settings') || '{}');
+  Object.assign(_alertSettings, saved);
+} catch(e){}
+
+function saveAlertSettings(){
+  try{ localStorage.setItem('orb_alert_settings', JSON.stringify(_alertSettings)); }catch(e){}
+}
+function openAlertSettings(){
+  const modal = document.getElementById('alert-settings-modal');
+  modal.style.display = 'flex';
+  syncAlertSettingsUI();
+}
+
+function syncAlertSettingsUI(){
+  const pumpEl = document.getElementById('as-pump-val');
+  const coolEl = document.getElementById('as-cool-val');
+  if(pumpEl) pumpEl.textContent = _alertSettings.pumpThreshold.toFixed(1) + '%';
+  if(coolEl) coolEl.textContent = Math.round(_alertSettings.cooldown/60000) + 'м';
+  ['as-breakhl','as-vol','as-toasts'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    const key = ['breakHighLow','volSpike','showPersistentToasts'][i];
+    if(el) el.classList.toggle('on', !!_alertSettings[key]);
+  });
+}
+
+function adjustSetting(key, delta){
+  _alertSettings[key] = Math.max(
+    key === 'pumpThreshold' ? 0.5 : 30000,
+    Math.min(key === 'pumpThreshold' ? 10 : 600000, _alertSettings[key] + delta)
+  );
+  saveAlertSettings();
+  syncAlertSettingsUI();
+}
+
+function toggleSetting(key, elId){
+  _alertSettings[key] = !_alertSettings[key];
+  const el = document.getElementById(elId);
+  if(el) el.classList.toggle('on', _alertSettings[key]);
+  saveAlertSettings();
+}
+
+// Enhanced impulse badge with multiple signals
+function updateImpulseBadge(cgId, chg24, natr, rsi, vol24, prevVol){
+  const safeId = cgId.replace(/[^a-z0-9]/gi, '_');
+  const badge = document.getElementById('cc2imp-' + safeId);
+  const card  = document.getElementById('cc2-' + safeId);
+  if(!badge || !card) return;
+
+  const signals = [];
+  const isUp = chg24 >= 0;
+  const abschg = Math.abs(chg24);
+
+  if(abschg > 8)   signals.push({ t: (isUp?'🔥 ПАМП':'🧊 ДАМП')+' '+fmtChg(chg24), cls: isUp?'up':'dn' });
+  if(natr > 8)     signals.push({ t:'⚡ HIGH-VOL '+natr.toFixed(1)+'%', cls:'warn' });
+  if(rsi && rsi > 72) signals.push({ t:'⬆ OB RSI '+rsi.toFixed(0), cls:'dn' });
+  if(rsi && rsi < 28) signals.push({ t:'⬇ OS RSI '+rsi.toFixed(0), cls:'up' });
+  if(prevVol && vol24 > prevVol * 1.5) signals.push({ t:'📊 ОБЪ ×'+( vol24/prevVol).toFixed(1), cls:'warn' });
+
+  if(!signals.length){ card.classList.remove('impulse-up','impulse-dn'); badge.textContent=''; return; }
+
+  const s = signals[0];
+  card.classList.remove('impulse-up','impulse-dn');
+  card.classList.add(s.cls === 'up' ? 'impulse-up' : 'impulse-dn');
+  badge.textContent = s.t;
+  badge.style.color = s.cls === 'up' ? '#2ecc71' : s.cls === 'dn' ? '#e74c3c' : '#f39c12';
+  badge.style.background = s.cls === 'up' ? 'rgba(46,204,113,0.1)' : s.cls === 'dn' ? 'rgba(231,76,60,0.08)' : 'rgba(243,156,18,0.1)';
+  badge.style.borderBottom = `1px solid ${s.cls === 'up' ? 'rgba(46,204,113,0.25)' : s.cls === 'dn' ? 'rgba(231,76,60,0.2)' : 'rgba(243,156,18,0.25)'}`;
+  badge.style.display = 'block';
+}
+
+
 // SIGNALS ENGINE — анализ на каждый WS-тик
 // ════════════════════════════════════════════════════
 let soundEnabled = true;
@@ -3855,40 +3962,41 @@ function analyzeSignalsTick(coin, price, prevPrice, chg24, vol24, high24, low24)
   // Кулдаун: один сигнал одного типа для монеты не чаще раза в 60 сек
   const canFire = (key) => {
     const last = _sigCooldown[key] || 0;
-    if(Date.now() - last < 60000) return false;
+    if(Date.now() - last < (_alertSettings.cooldown || 120000)) return false;
     _sigCooldown[key] = Date.now();
     return true;
   };
 
-  // 1. Быстрый памп — цена выросла >0.5% за тик (~1 сек)
+  // 1. Быстрый памп/дамп — только значимые движения ≥1.5% за тик
   if(prevPrice && prevPrice > 0 && price > 0){
     const tickPct = ((price - prevPrice) / prevPrice) * 100;
-    if(tickPct >= 0.5 && canFire(cgId+'_pump')){
+    const threshold = _alertSettings.pumpThreshold || 1.5;
+    if(tickPct >= threshold && canFire(cgId+'_pump')){
       newSignals.push({ id:cgId+'_pump', type:'pump', icon:'🚀', coin:sym,
-        text:`+${tickPct.toFixed(2)}% за тик`, val:fmtPrice(price), time:timeStr, coinId:cgId });
+        text:`+${tickPct.toFixed(2)}% памп`, val:fmtPrice(price), time:timeStr, coinId:cgId });
     }
-    if(tickPct <= -0.5 && canFire(cgId+'_dump')){
+    if(tickPct <= -threshold && canFire(cgId+'_dump')){
       newSignals.push({ id:cgId+'_dump', type:'dump', icon:'💥', coin:sym,
-        text:`${tickPct.toFixed(2)}% за тик`, val:fmtPrice(price), time:timeStr, coinId:cgId });
+        text:`${tickPct.toFixed(2)}% дамп`, val:fmtPrice(price), time:timeStr, coinId:cgId });
     }
   }
 
   // 2. Пробой High 24h
   const prevP = _prevPricesSignal[cgId];
-  if(high24 > 0 && prevP && prevP < high24 && price >= high24 && canFire(cgId+'_bh')){
+  if(_alertSettings.breakHighLow && high24 > 0 && prevP && prevP < high24 && price >= high24 && canFire(cgId+'_bh')){
     newSignals.push({ id:cgId+'_bh', type:'break-high', icon:'⬆️', coin:sym,
       text:'пробой High 24ч', val:fmtPrice(high24), time:timeStr, coinId:cgId });
   }
 
   // 3. Пробой Low 24h
-  if(low24 > 0 && prevP && prevP > low24 && price <= low24 && canFire(cgId+'_bl')){
+  if(_alertSettings.breakHighLow && low24 > 0 && prevP && prevP > low24 && price <= low24 && canFire(cgId+'_bl')){
     newSignals.push({ id:cgId+'_bl', type:'break-low', icon:'⬇️', coin:sym,
       text:'пробой Low 24ч', val:fmtPrice(low24), time:timeStr, coinId:cgId });
   }
 
-  // 4. Объёмный всплеск (сравниваем с предыдущим снапшотом vol)
+  // 4. Объёмный всплеск
   const prevVol = _prevVolumes[cgId];
-  if(prevVol && prevVol > 0 && vol24 > prevVol * 1.3 && vol24 > 1_000_000 && canFire(cgId+'_vol')){
+  if(_alertSettings.volSpike && prevVol && prevVol > 0 && vol24 > prevVol * 1.5 && vol24 > 1_000_000 && canFire(cgId+'_vol')){
     newSignals.push({ id:cgId+'_vol', type:'vol', icon:'📊', coin:sym,
       text:`объём ×${(vol24/prevVol).toFixed(1)}`, val:fmtBig(vol24), time:timeStr, coinId:cgId });
   }
@@ -3913,12 +4021,14 @@ function analyzeSignalsTick(coin, price, prevPrice, chg24, vol24, high24, low24)
   _signalHistory = [...fresh, ..._signalHistory].slice(0, 60);
   renderSignals(_signalHistory);
 
-  // Show persistent toasts for important signals
-  fresh.forEach(sig => {
-    if(['break-high','break-low','pump','dump'].includes(sig.type)){
-      showSignalToast(sig);
-    }
-  });
+  // Show persistent toasts only for configured types
+  if(_alertSettings.showPersistentToasts){
+    fresh.forEach(sig => {
+      if((_alertSettings.toastTypes || ['break-high','break-low']).includes(sig.type)){
+        showSignalToast(sig);
+      }
+    });
+  }
 
   // Звук для важнейшего сигнала
   const priority = ['break-high','break-low','pump','dump','vol'];
@@ -3965,18 +4075,19 @@ function showSignalToast(sig){
   const el = document.createElement('div');
   el.className = 'sig-toast ' + sig.type;
   el.id = 'st-' + sig.id.replace(/\W/g,'_');
-  el.innerHTML = `
-    <span class="st-icon">${sig.icon}</span>
+  el.innerHTML = `<span class="st-icon">${sig.icon}</span>
     <div class="st-body">
-      <div class="st-coin">${sig.coin}</div>
-      <div class="st-text">${sig.text}</div>
-      <div class="st-price ${priceColor}">${sig.val}</div>
-      <div class="st-time">${sig.time}</div>
+      <span class="st-coin">${sig.coin}</span>
+      <span class="st-text">${sig.text}</span>
+      <span class="st-price ${priceColor}">${sig.val}</span>
     </div>
     <button class="st-close" onclick="event.stopPropagation();this.closest('.sig-toast').remove()">✕</button>`;
   el.onclick = () => focusCoin(sig.coinId);
   container.prepend(el);
-  // Keep max 5 toasts visible
+  // Auto-dismiss break/vol after 12s, pump/dump after 8s
+  const autoDismiss = ['break-high','break-low'].includes(sig.type) ? 12000 : 8000;
+  setTimeout(() => { if(el.parentNode) el.remove(); }, autoDismiss);
+  // Keep max 5 visible
   const all = container.querySelectorAll('.sig-toast');
   if(all.length > 5) all[all.length-1].remove();
 }
@@ -4094,66 +4205,63 @@ function renderCandleCard(c, maxVol){
   const watched = watchlist.includes(c.id);
   const alerted = hasAlert(c.id);
 
-  // NATR from 24h range
-  let natrVal = null;
   const h24 = ws?.high24 || c.high_24h;
   const l24 = ws?.low24  || c.low_24h;
-  if(h24 && l24 && l24 > 0) natrVal = ((h24 - l24) / l24 * 100);
-  const natrStr = natrVal !== null ? natrVal.toFixed(1) + '%' : '—';
-  const natrColor = natrVal > 8 ? '#f39c12' : natrVal > 4 ? '#e8722a' : 'rgba(232,234,240,0.35)';
+  const natrVal = (h24 && l24 && l24 > 0) ? (h24 - l24) / l24 * 100 : null;
+  const natrColor = natrVal > 8 ? '#f39c12' : natrVal > 4 ? '#e8722a' : 'rgba(232,234,240,0.3)';
+  const natrStr = natrVal !== null ? natrVal.toFixed(1)+'%' : '—';
 
-  // Activity ratio vol/mcap
-  const act = c.market_cap > 0 ? (vol / c.market_cap * 100).toFixed(1) + '%' : '—';
+  // RSI from sparkline
+  const sp = c.sparkline_in_7d?.price;
+  const rsiVal = (sp && sp.length >= 15) ? calcRSI14(sp) : null;
+  const rsiStr = rsiVal !== null ? rsiVal.toFixed(0) : '—';
+  const rsiColor = rsiVal > 70 ? '#e74c3c' : rsiVal < 30 ? '#2ecc71' : 'rgba(232,234,240,0.3)';
+  const rsiLabel = rsiVal > 70 ? 'OB' : rsiVal < 30 ? 'OS' : '';
 
-  const safeId  = c.id.replace(/[^a-z0-9]/gi, '_');
-  const sym     = (c.symbol || '').toUpperCase();
-  const isUp    = chg24 >= 0;
+  // Trend signal tags
+  const sigs = [];
+  if(natrVal > 8) sigs.push({label:'HIGH-VOL', cls:'warn'});
+  if(rsiVal && rsiVal > 72) sigs.push({label:'OB', cls:'bear'});
+  if(rsiVal && rsiVal < 28) sigs.push({label:'OS', cls:'bull'});
+  if(Math.abs(chg24) > 8) sigs.push({label: chg24>0?'ПАМП':'ДАМП', cls: chg24>0?'bull':'bear'});
+  if(chg7 > 20 && chg1h > 0) sigs.push({label:'ТРЕНД↑', cls:'bull'});
 
-  return `<div class="candle-card ${watched ? 'watched' : ''}" id="cc2-${safeId}" onclick="focusCoin('${c.id}')">
-    <div class="cc2-impulse"></div>
+  const safeId = c.id.replace(/[^a-z0-9]/gi, '_');
+  const sym    = (c.symbol || '').toUpperCase();
+  const isUp   = chg24 >= 0;
+  const price  = ws?.price ?? c.current_price;
 
-    <!-- Top bar: SYM · chg · natr · vol/mc · rank -->
+  const sigsHtml = sigs.slice(0,2).map(s =>
+    `<span class="cc2-sig-tag ${s.cls}">${s.label}</span>`).join('');
+
+  return `<div class="candle-card ${watched?'watched':''}" id="cc2-${safeId}" onclick="focusCoin('${c.id}')">
+    <div class="cc2-impulse" id="cc2imp-${safeId}"></div>
     <div class="cc2-topbar">
       <span class="cc2-sym">${sym}</span>
-      <span class="cc2-pair">/ USDT</span>
-      <span class="cc2-chg ${isUp ? 'up' : 'down'}" data-chg="${c.id}" data-chg24="${c.id}">${fmtChg(chg24)}</span>
-      <div class="cc2-inds">
-        <span class="cc2-pill" title="NATR 24h — диапазон свечи">∿ <span data-natr="${c.id}" style="color:${natrColor}">${natrStr}</span></span>
-        <span class="cc2-pill" title="Vol/Mcap — активность">⬛ <span>${act}</span></span>
-        <span class="cc2-pill" style="color:rgba(232,234,240,0.2)">#${c.market_cap_rank || '?'}</span>
-      </div>
-      ${alerted ? '<span style="color:var(--a);font-size:9px;margin-left:4px">●</span>' : ''}
+      <span class="cc2-sep">·</span>
+      <span class="cc2-chg ${isUp?'up':'down'}" data-chg24="${c.id}">${fmtChg(chg24)}</span>
+      <span class="cc2-sep" style="margin-left:3px">·</span>
+      <span style="font-size:7px;color:rgba(232,234,240,.22);font-family:var(--font-mono)">1H <span style="color:${chg1h>=0?'rgba(46,204,113,.7)':'rgba(231,76,60,.7)'}">${fmtChg(chg1h)}</span></span>
+      <span class="cc2-sep">·</span>
+      <span style="font-size:7px;color:${natrColor};font-family:var(--font-mono)" title="NATR 24h">∿${natrStr}</span>
+      ${alerted ? '<span style="color:rgba(232,114,42,.6);font-size:8px;margin-left:2px">🔔</span>' : ''}
       <div class="cc2-actions" onclick="event.stopPropagation()">
-        <button class="cc-btn watch-btn ${watched ? 'active' : ''}" onclick="toggleWatch(event,'${c.id}')">${watched ? '★' : '☆'}</button>
-        <button class="cc-btn" onclick="event.stopPropagation();openAlertModal(null,'${c.id}')">🔔</button>
+        <button class="cc-btn watch-btn ${watched?'active':''}" onclick="toggleWatch(event,'${c.id}')">${watched?'★':'☆'}</button>
+        <button class="cc-btn" onclick="event.stopPropagation();openAlertModal(null,'${c.id}')">+</button>
       </div>
     </div>
-
-    <!-- Chart with watermark ticker -->
     <div class="cc2-chart-wrap" id="cc2wrap-${safeId}">
       <div class="cc2-watermark"><span>${sym}</span></div>
-      <div class="cc2-loading" id="cc2load-${safeId}">ЗАГРУЗКА...</div>
+      <div class="cc2-loading" id="cc2load-${safeId}">···</div>
       <canvas id="cc2cv-${safeId}"></canvas>
     </div>
-
-    <!-- Bottom metrics -->
     <div class="cc2-metrics">
-      <div class="cc2-metric">
-        <span class="cc2-ml">ЦЕНА</span>
-        <span class="cc2-mv" data-price="${c.id}">${fmtPrice(c.current_price)}</span>
-      </div>
-      <div class="cc2-metric">
-        <span class="cc2-ml">ОБЪ 24Ч</span>
-        <span class="cc2-mv">${fmtBig(vol)}</span>
-      </div>
-      <div class="cc2-metric">
-        <span class="cc2-ml">1Ч</span>
-        <span class="cc2-mv ${chg1h >= 0 ? 'up' : 'dn'}">${fmtChg(chg1h)}</span>
-      </div>
-      <div class="cc2-metric">
-        <span class="cc2-ml">7Д</span>
-        <span class="cc2-mv ${chg7 >= 0 ? 'up' : 'dn'}">${fmtChg(chg7)}</span>
-      </div>
+      <span class="cc2-ml">VOL</span><span class="cc2-mv">${fmtBig(vol)}</span>
+      <span class="cc2-sep">·</span>
+      <span class="cc2-ml">RSI</span><span class="cc2-mv" style="color:${rsiColor}">${rsiStr}${rsiLabel?'<span style="font-size:6px;opacity:.7"> '+rsiLabel+'</span>':''}</span>
+      <span class="cc2-sep">·</span>
+      <span class="cc2-ml">7D</span><span class="cc2-mv ${chg7>=0?'up':'dn'}">${fmtChg(chg7)}</span>
+      <div class="cc2-sigs">${sigsHtml}</div>
     </div>
     <div class="cc2-volbar"><div class="cc2-volfill" style="width:${volPct}%"></div></div>
   </div>`;
@@ -5938,5 +6046,72 @@ function renderDrawings(ctx, canvas){
 }
 </script>
 
+
+<!-- ── ALERT SETTINGS MODAL ── -->
+<div id="alert-settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9995;align-items:center;justify-content:center;">
+  <div style="background:#0e1219;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:22px 24px;width:380px;font-family:var(--font-mono);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <span style="font-size:13px;font-weight:700;letter-spacing:1px;color:var(--t);">⚙️ НАСТРОЙКА СИГНАЛОВ</span>
+      <button onclick="document.getElementById('alert-settings-modal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:16px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <!-- Pump threshold -->
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:10px;color:var(--t);margin-bottom:2px;">Памп/Дамп порог</div>
+          <div style="font-size:8px;color:var(--m2);">Мин. % за тик для сигнала</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="adjustSetting('pumpThreshold',-0.5)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--t);width:24px;height:24px;cursor:pointer;font-size:14px;">−</button>
+          <span id="as-pump-val" style="font-size:12px;color:var(--a);font-weight:700;min-width:35px;text-align:center;">1.5%</span>
+          <button onclick="adjustSetting('pumpThreshold',+0.5)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--t);width:24px;height:24px;cursor:pointer;font-size:14px;">+</button>
+        </div>
+      </div>
+
+      <!-- Break High/Low -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);">
+        <div>
+          <div style="font-size:10px;color:var(--t);margin-bottom:2px;">Пробой High/Low 24ч</div>
+          <div style="font-size:8px;color:var(--m2);">Сигнал при пробое уровня</div>
+        </div>
+        <div class="as-toggle" id="as-breakhl" onclick="toggleSetting('breakHighLow','as-breakhl')"></div>
+      </div>
+
+      <!-- Volume spike -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.04);">
+        <div>
+          <div style="font-size:10px;color:var(--t);margin-bottom:2px;">Всплеск объёма ×1.5</div>
+          <div style="font-size:8px;color:var(--m2);">Аномальный объём по сравнению с пред.</div>
+        </div>
+        <div class="as-toggle" id="as-vol" onclick="toggleSetting('volSpike','as-vol')"></div>
+      </div>
+
+      <!-- Toast notifications -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.04);">
+        <div>
+          <div style="font-size:10px;color:var(--t);margin-bottom:2px;">Всплывающие карточки</div>
+          <div style="font-size:8px;color:var(--m2);">Показывать уведомления поверх экрана</div>
+        </div>
+        <div class="as-toggle" id="as-toasts" onclick="toggleSetting('showPersistentToasts','as-toasts')"></div>
+      </div>
+
+      <!-- Cooldown -->
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:10px;color:var(--t);margin-bottom:2px;">Кулдаун повтора</div>
+          <div style="font-size:8px;color:var(--m2);">Мин. время между одинаковыми сигналами</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="adjustSetting('cooldown',-30000)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--t);width:24px;height:24px;cursor:pointer;font-size:14px;">−</button>
+          <span id="as-cool-val" style="font-size:12px;color:var(--a);font-weight:700;min-width:40px;text-align:center;">2м</span>
+          <button onclick="adjustSetting('cooldown',+30000)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--t);width:24px;height:24px;cursor:pointer;font-size:14px;">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="document.getElementById('alert-settings-modal').style.display='none'" style="width:100%;margin-top:18px;padding:9px;background:rgba(232,114,42,.15);border:1px solid rgba(232,114,42,.3);border-radius:6px;color:var(--a);font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;">СОХРАНИТЬ</button>
+  </div>
+</div>
 </body>
 </html>
