@@ -4010,6 +4010,58 @@ body::after {
   font-size:10px;font-family:var(--font-mono);color:var(--a);
   letter-spacing:1px;border-radius:8px;
 }
+
+/* ══════════════════════════════════════════
+   SKELETON LOADERS
+   ══════════════════════════════════════════ */
+@keyframes skPulse {
+  0%,100%{ opacity:.45; }
+  50%     { opacity:.15; }
+}
+.sk{
+  background:rgba(255,255,255,0.07);
+  border-radius:6px;
+  animation:skPulse 1.4s ease-in-out infinite;
+  display:block;
+}
+/* Stat cards */
+.sk-stat-value{ height:28px; width:60px; margin:4px auto 2px; border-radius:5px; }
+.sk-stat-label{ height:9px;  width:44px; margin:0 auto;       border-radius:3px; }
+/* Trade cards */
+.sk-tcard{
+  background:var(--bg2);
+  border:var(--line);
+  border-radius:12px;
+  padding:14px 16px;
+  margin-bottom:8px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.sk-tcard-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.sk-pair  { height:14px; width:80px;  border-radius:4px; }
+.sk-dir   { height:12px; width:44px;  border-radius:10px; }
+.sk-pnl   { height:16px; width:60px;  border-radius:4px; }
+.sk-date  { height:10px; width:48px;  border-radius:3px; }
+.sk-note  { height:10px; width:70%;   border-radius:3px; margin-top:2px; }
+/* Dashboard cards */
+.sk-dash-card{
+  background:var(--bg2);
+  border:var(--line);
+  border-radius:12px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.sk-dash-title{ height:10px; width:100px; border-radius:3px; }
+.sk-dash-value{ height:36px; width:120px; border-radius:6px; }
+.sk-dash-sub  { height:9px;  width:80px;  border-radius:3px; }
+.sk-chart     { height:160px; width:100%; border-radius:8px; }
+/* Progress */
+.sk-equity    { height:220px; width:100%; border-radius:8px; }
+.sk-pk-row    { display:flex; gap:12px; margin-top:4px; }
+.sk-pk-item   { flex:1; height:56px; border-radius:10px; }
 </style>
 </head>
 <body>
@@ -4321,11 +4373,11 @@ body::after {
 
   <!-- STATS ROW -->
   <div class="stats-row">
-    <div class="stat-cell"><div class="stat-label">Сделок <span class="field-hint" data-tip="Общее число сделок в журнале.&#10;Минимум 20–30 для надёжной статистики.&#10;Меньше 10 — выводы ненадёжны">?</span></div><div class="stat-value" id="s-total">—</div><div class="hover-insight">Всего записано сделок<br>в вашем журнале</div></div>
-    <div class="stat-cell"><div class="stat-label">Винрейт <span class="field-hint" data-tip="Процент прибыльных сделок.&#10;50–55% — норма при хорошем R:R.&#10;Не гонись за 80%+ — это редко стабильно.&#10;Важен баланс WR × R:R">?</span></div><div class="stat-value sv-g" id="s-wr">—</div><div class="hover-insight" id="wr-insight">% выигрышных сделок<br>Цель: >55%</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L % <span class="field-hint" data-tip="Суммарный процент прибыли/убытка&#10;по всем сделкам журнала.&#10;Главная метрика роста депозита">?</span></div><div class="stat-value" id="s-pnl">—</div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L $ <span class="field-hint" data-tip="Суммарная прибыль/убыток в долларах.&#10;Считается из полей P&amp;L $ каждой сделки.&#10;Заполняй поле P&amp;L $ при записи сделки">?</span></div><div class="stat-value" id="s-usd">—</div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
-    <div class="stat-cell"><div class="stat-label">Серия побед <span class="field-hint" data-tip="Текущая серия прибыльных сделок подряд.&#10;После серии 5+ — будь осторожен:&#10;самонадеянность растёт, риски растут">?</span></div><div class="stat-value sv-a" id="s-str">—</div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
+    <div class="stat-cell"><div class="stat-label">Сделок <span class="field-hint" data-tip="Общее число сделок в журнале.&#10;Минимум 20–30 для надёжной статистики.&#10;Меньше 10 — выводы ненадёжны">?</span></div><div class="stat-value" id="s-total"><span class="sk sk-stat-value" id="s-total-sk"></span></div><div class="hover-insight">Всего записано сделок<br>в вашем журнале</div></div>
+    <div class="stat-cell"><div class="stat-label">Винрейт <span class="field-hint" data-tip="Процент прибыльных сделок.&#10;50–55% — норма при хорошем R:R.&#10;Не гонись за 80%+ — это редко стабильно.&#10;Важен баланс WR × R:R">?</span></div><div class="stat-value sv-g" id="s-wr"><span class="sk sk-stat-value" id="s-wr-sk"></span></div><div class="hover-insight" id="wr-insight">% выигрышных сделок<br>Цель: >55%</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L % <span class="field-hint" data-tip="Суммарный процент прибыли/убытка&#10;по всем сделкам журнала.&#10;Главная метрика роста депозита">?</span></div><div class="stat-value" id="s-pnl"><span class="sk sk-stat-value" id="s-pnl-sk"></span></div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L $ <span class="field-hint" data-tip="Суммарная прибыль/убыток в долларах.&#10;Считается из полей P&amp;L $ каждой сделки.&#10;Заполняй поле P&amp;L $ при записи сделки">?</span></div><div class="stat-value" id="s-usd"><span class="sk sk-stat-value" id="s-usd-sk"></span></div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
+    <div class="stat-cell"><div class="stat-label">Серия побед <span class="field-hint" data-tip="Текущая серия прибыльных сделок подряд.&#10;После серии 5+ — будь осторожен:&#10;самонадеянность растёт, риски растут">?</span></div><div class="stat-value sv-a" id="s-str"><span class="sk sk-stat-value" id="s-str-sk"></span></div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
   </div>
 
   <!-- ──────────── JOURNAL ──────────────────── -->
@@ -4530,7 +4582,26 @@ body::after {
         <button onclick="clearAllTrades()" style="padding:4px 10px;border-radius:14px;border:1px solid rgba(255,77,77,0.25);background:transparent;color:rgba(255,77,77,0.55);font-family:var(--font-mono);font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.borderColor='rgba(255,77,77,0.5)';this.style.color='var(--r)'" onmouseout="this.style.borderColor='rgba(255,77,77,0.25)';this.style.color='rgba(255,77,77,0.55)'">🗑 ОЧИСТИТЬ ВСЁ</button>
       </div>
     </div>
-    <div id="trades-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
+    <div id="trades-list"><div id="trades-skeleton">
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+    <div class="sk sk-note"></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+    <div class="sk sk-note" style="width:50%"></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+    <div class="sk sk-note" style="width:80%"></div>
+  </div>
+</div>></div>
   </div>
 
   <!-- ──────────── DASHBOARD ─────────────────── -->
@@ -5557,15 +5628,20 @@ async function doLogout(){await sb.auth.signOut();window.location.href='login.ht
 // ─── TRADES ───────────────────────────────────────
 async function loadTrades(){
   if(window._isDemoMode){
+    // Brief skeleton flash for demo too
+    showStatSkeletons();
+    await new Promise(r => setTimeout(r, 400));
     allTrades = demoLoadTrades();
+    hideStatSkeletons();
     updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); restoreFormDefaults();
     orbColorUserByRank(allTrades);
     onbCheck(allTrades.length);
     return;
   }
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
+  if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';hideStatSkeletons();return;}
   allTrades=data||[];
+  hideStatSkeletons();
   updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);restoreFormDefaults();
   orbColorUserByRank(allTrades);
   // First-run onboarding check
@@ -5812,6 +5888,7 @@ function updateStats(){
 }
 
 function render(){
+  hideTradeSkeleton();
   const list=document.getElementById('trades-list');
   let f=allTrades;
   if(currentFilter==='win')f=f.filter(t=>t.result==='win');
@@ -8754,6 +8831,26 @@ async function checkTiltAlert() {
   }
 }
 
+// ── Skeleton helpers ────────────────────────────────────
+function showStatSkeletons(){
+  ['s-total','s-wr','s-pnl','s-usd','s-str'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(!document.getElementById(id+'-sk')){
+      el.innerHTML = '<span class="sk sk-stat-value" id="'+id+'-sk"></span>';
+    }
+  });
+}
+function hideStatSkeletons(){
+  ['s-total','s-wr','s-pnl','s-usd','s-str'].forEach(id => {
+    const sk = document.getElementById(id+'-sk');
+    if(sk) sk.remove();
+  });
+}
+function hideTradeSkeleton(){
+  const sk = document.getElementById('trades-skeleton');
+  if(sk) sk.remove();
+}
 
 </script>
 <!-- ══ DEMO MODE ENGINE ══ -->
