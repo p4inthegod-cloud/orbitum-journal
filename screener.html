@@ -976,6 +976,22 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 </head>
 <body>
 
+<!-- ── AUTH OVERLAY ── -->
+<div class="auth-overlay" id="auth-overlay" style="display:none">
+  <div class="auth-box">
+    <div class="auth-logo"><span class="auth-dot"></span>ORBITUM</div>
+    <div class="auth-sub">Screener Terminal</div>
+    <label class="auth-label">EMAIL</label>
+    <input class="auth-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"
+           onkeydown="if(event.key==='Enter')document.getElementById('auth-pass').focus()">
+    <label class="auth-label">ПАРОЛЬ</label>
+    <input class="auth-input" id="auth-pass" type="password" placeholder="••••••••" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="auth-btn" id="auth-btn" onclick="doLogin()">ВОЙТИ</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+
 <!-- LOADING -->
 <div id="loading">
   <div class="load-logo">ORBITUM</div>
@@ -2603,18 +2619,43 @@ function openTradeInJournal(){
 }
 
 // ── Auth ──
+async function doLogin(){
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-pass').value;
+  const err   = document.getElementById('auth-err');
+  const btn   = document.getElementById('auth-btn');
+  if(!email || !pass){ err.textContent = 'Введи email и пароль'; return; }
+  btn.disabled = true; btn.textContent = 'ВХОДИМ...';
+  err.textContent = '';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'ВОЙТИ';
+  if(error){ err.textContent = error.message; return; }
+  document.getElementById('auth-overlay').style.display = 'none';
+  fillUserUI(data.user);
+  await loadAlerts();
+}
+
 async function initAuth(){
   const { data:{ user } } = await sb.auth.getUser();
-  if(!user){ window.location.href = 'login.html'; return; }
-  const em = user.email || '';
-  document.getElementById('sb-email').textContent = em;
-  document.getElementById('sb-avatar').textContent = em.slice(0,2).toUpperCase();
+  if(!user){
+    document.getElementById('auth-overlay').style.display = 'flex';
+    return;
+  }
+  fillUserUI(user);
   await loadAlerts();
+}
+
+function fillUserUI(user){
+  const em = user.email || '';
+  const el_email = document.getElementById('sb-email');
+  const el_av    = document.getElementById('sb-avatar');
+  if(el_email) el_email.textContent = em;
+  if(el_av)    el_av.textContent    = em.slice(0,2).toUpperCase();
 }
 
 async function doLogout(){
   await sb.auth.signOut();
-  window.location.href = 'login.html';
+  document.getElementById('auth-overlay').style.display='flex';
 }
 
 // ── Toast ──
