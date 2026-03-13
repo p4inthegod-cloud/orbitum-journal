@@ -61,6 +61,10 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;display:f
     <div class="field"><label>Пароль</label><input type="password" id="l-pass" placeholder="••••••••" /></div>
     <button class="btn" id="btn-login" onclick="doLogin()">ВОЙТИ</button>
     <div class="msg" id="l-msg"></div>
+    <div style="margin-top:18px;text-align:center;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px;margin-bottom:10px;">— или —</div>
+      <button onclick="tryDemo()" style="width:100%;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.55);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(232,114,42,0.4)';this.style.color='rgba(232,114,42,0.9)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.55)'">🎮 ПОПРОБОВАТЬ БЕЗ РЕГИСТРАЦИИ</button>
+    </div>
     <a href="index.html" class="back">← Вернуться на главную</a>
   </div>
   <div id="form-register" style="display:none">
@@ -107,6 +111,7 @@ async function doRegister(){const name=document.getElementById('r-name').value.t
     setTimeout(()=>showTab('login'),3000);
   }}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'){if(document.getElementById('form-login').style.display!=='none')doLogin();else doRegister();}});
+function tryDemo(){ localStorage.setItem('orb_demo_mode','1'); window.location.href='journal.html?demo=1'; }
 </script>
 </body>
 </html>
