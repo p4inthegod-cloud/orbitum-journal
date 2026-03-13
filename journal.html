@@ -3639,6 +3639,47 @@ body::after {
 .alert-del{background:none;border:none;color:rgba(231,76,60,0.5);cursor:pointer;font-size:14px;padding:2px 4px;transition:color 0.15s;}
 .alert-del:hover{color:#e74c3c;}
 
+
+/* ── JOURNAL CHART PAGE ─────────────────────────────── */
+.chart-sym-btn{
+  height:24px;padding:0 9px;border-radius:4px;
+  border:1px solid transparent;cursor:pointer;
+  background:transparent;flex-shrink:0;
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.5px;
+  color:rgba(232,234,240,0.4);transition:all 0.15s;
+}
+.chart-sym-btn:hover{background:rgba(255,255,255,0.05);color:var(--t);}
+.chart-sym-btn.active{background:rgba(232,114,42,0.12);color:var(--a);border-color:rgba(232,114,42,0.25);}
+.chart-tf-btn{
+  height:24px;padding:0 8px;border-radius:4px;
+  border:1px solid transparent;cursor:pointer;
+  background:transparent;flex-shrink:0;
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.5px;
+  color:rgba(232,234,240,0.4);transition:all 0.15s;
+}
+.chart-tf-btn:hover{background:rgba(255,255,255,0.05);color:var(--t);}
+.chart-tf-btn.active{background:rgba(232,114,42,0.12);color:var(--a);border-color:rgba(232,114,42,0.25);}
+@keyframes live-pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+/* ── SIDEBAR WS PRICES (live) ───────────────────────── */
+.sbw-live-prices{padding:6px 0;}
+.sbw-lp-row{
+  display:flex;align-items:center;gap:6px;padding:4px 10px;
+  border-radius:5px;transition:background 0.1s;cursor:default;
+}
+.sbw-lp-row:hover{background:rgba(255,255,255,0.03);}
+.sbw-lp-sym{font-size:9.5px;color:rgba(232,234,240,0.4);width:36px;flex-shrink:0;letter-spacing:.5px;}
+.sbw-lp-price{font-size:11px;font-weight:600;color:var(--t);flex:1;font-family:var(--font-mono);}
+.sbw-lp-chg{font-size:9px;width:52px;text-align:right;flex-shrink:0;}
+.sbw-lp-chg.up{color:var(--g);}
+.sbw-lp-chg.dn{color:var(--r);}
+.sbw-lp-flash{animation:lpFlash .25s ease;}
+@keyframes lpFlash{0%{background:rgba(232,114,42,0.18);}100%{background:transparent;}}
+
+/* Dot blink on update */
+.sbw-dot-live{animation:dotLive 1s ease infinite;}
+@keyframes dotLive{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(0.7);}}
+
 </style>
 </head>
 <body>
@@ -3678,6 +3719,9 @@ body::after {
     </button>
     <button class="sb-item" onclick="showPage('progress',this)" data-page="progress">
       <span class="sb-item-icon">📈</span>Прогресс
+    </button>
+    <button class="sb-item" onclick="showPage('chart',this)" data-page="chart">
+      <span class="sb-item-icon">📊</span>График
     </button>
     <button class="sb-item" onclick="showPage('digest',this)" data-page="digest">
       <span class="sb-item-icon">📅</span>Дайджест
@@ -3751,6 +3795,52 @@ body::after {
         </div>
         <div class="mkt-btc-dom">
           <div class="mkt-btc-fill" id="mkt-dom-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── LIVE ЦЕНЫ (Binance WS) ── -->
+    <div class="sbw" id="sbw-live">
+      <div class="sbw-title">
+        <span>ЦЕНЫ LIVE</span>
+        <div class="sbw-dot sbw-dot-live"></div>
+      </div>
+      <div class="sbw-live-prices">
+        <div class="sbw-lp-row" id="lp-btc">
+          <span class="sbw-lp-sym">BTC</span>
+          <span class="sbw-lp-price" id="lp-btc-p">—</span>
+          <span class="sbw-lp-chg" id="lp-btc-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-eth">
+          <span class="sbw-lp-sym">ETH</span>
+          <span class="sbw-lp-price" id="lp-eth-p">—</span>
+          <span class="sbw-lp-chg" id="lp-eth-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-sol">
+          <span class="sbw-lp-sym">SOL</span>
+          <span class="sbw-lp-price" id="lp-sol-p">—</span>
+          <span class="sbw-lp-chg" id="lp-sol-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-bnb">
+          <span class="sbw-lp-sym">BNB</span>
+          <span class="sbw-lp-price" id="lp-bnb-p">—</span>
+          <span class="sbw-lp-chg" id="lp-bnb-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-xrp">
+          <span class="sbw-lp-sym">XRP</span>
+          <span class="sbw-lp-price" id="lp-xrp-p">—</span>
+          <span class="sbw-lp-chg" id="lp-xrp-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-sui">
+          <span class="sbw-lp-sym">SUI</span>
+          <span class="sbw-lp-price" id="lp-sui-p">—</span>
+          <span class="sbw-lp-chg" id="lp-sui-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-doge">
+          <span class="sbw-lp-sym">DOGE</span>
+          <span class="sbw-lp-price" id="lp-doge-p">—</span>
+          <span class="sbw-lp-chg" id="lp-doge-c">—</span>
         </div>
       </div>
     </div>
@@ -3915,6 +4005,7 @@ body::after {
       <button class="tnav active" onclick="showPage('journal',this)" data-page="journal">📋 ЖУРНАЛ</button>
       <button class="tnav" onclick="showPage('dashboard',this)" data-page="dashboard">📊 АНАЛИТИКА</button>
       <button class="tnav" onclick="showPage('progress',this)" data-page="progress">📈 ПРОГРЕСС</button>
+      <button class="tnav" onclick="showPage('chart',this)" data-page="chart">📊 ГРАФИК</button>
       <button class="tnav" onclick="showPage('digest',this)" data-page="digest">📅 ДАЙДЖЕСТ</button>
       <button class="tnav" onclick="showPage('premarket',this)" data-page="premarket">☀️ СЕССИЯ</button>
     </div>
@@ -4727,6 +4818,62 @@ body::after {
     </div>
   </div>
 
+  <!-- ══ PAGE: ГРАФИК ══════════════════════════════════════════════ -->
+  <div class="page" id="page-chart" style="height:100%;display:flex;flex-direction:column;padding:0;">
+
+    <!-- topbar -->
+    <div style="
+      flex-shrink:0;height:44px;display:flex;align-items:center;gap:8px;
+      padding:0 14px;border-bottom:1px solid var(--bd);
+      background:linear-gradient(90deg,#0c0f15,#0a0d12);
+    ">
+      <span style="font-family:var(--font-display);font-size:15px;letter-spacing:3px;color:var(--a)">CHART</span>
+      <div style="width:1px;height:22px;background:var(--bd);margin:0 4px"></div>
+
+      <!-- Symbol chips -->
+      <div id="chart-sym-strip" style="display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;">
+        <button class="chart-sym-btn active" onclick="chartSwitch('BINANCE:BTCUSDT',this)">BTC</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:ETHUSDT',this)">ETH</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:SOLUSDT',this)">SOL</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:BNBUSDT',this)">BNB</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:XRPUSDT',this)">XRP</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:SUIUSDT',this)">SUI</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:AVAXUSDT',this)">AVAX</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:DOGEUSDT',this)">DOGE</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:ADAUSDT',this)">ADA</button>
+        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:LINKUSDT',this)">LINK</button>
+      </div>
+
+      <div style="width:1px;height:22px;background:var(--bd);flex-shrink:0"></div>
+
+      <!-- TF buttons -->
+      <div style="display:flex;gap:2px;flex-shrink:0" id="chart-tf-strip">
+        <button class="chart-tf-btn" onclick="chartTF('5',this)">5M</button>
+        <button class="chart-tf-btn" onclick="chartTF('15',this)">15M</button>
+        <button class="chart-tf-btn" onclick="chartTF('60',this)">1H</button>
+        <button class="chart-tf-btn active" onclick="chartTF('240',this)">4H</button>
+        <button class="chart-tf-btn" onclick="chartTF('D',this)">1D</button>
+        <button class="chart-tf-btn" onclick="chartTF('W',this)">1W</button>
+      </div>
+
+      <!-- live dot -->
+      <div style="display:flex;align-items:center;gap:5px;margin-left:8px;flex-shrink:0">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:live-pulse 2s infinite"></div>
+        <span style="font-size:9px;color:var(--g);letter-spacing:1.5px">LIVE</span>
+      </div>
+    </div>
+
+    <!-- TV chart -->
+    <div style="flex:1;overflow:hidden;background:#06080c;min-height:0;" id="journal-chart-wrap">
+      <!-- will be populated by rebuildJournalChart() when page opens -->
+      <div style="height:100%;width:100%;display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:var(--font-mono);font-size:11px;color:rgba(232,234,240,0.2);letter-spacing:2px;">ЗАГРУЗКА ГРАФИКА...</span>
+      </div>
+    </div>
+
+  </div>
+
+
 
 <!-- MOBILE BOTTOM NAV (scrollable) -->
 <div class="mob-bottom-nav" id="mob-bottom-nav">
@@ -4955,7 +5102,7 @@ function showPage(p,btn){
   document.querySelectorAll('.jtb-nav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.jtb-dd-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   // Update topbar badge
-  const pageNames={journal:'ЖУРНАЛ СДЕЛОК',dashboard:'АНАЛИТИКА',progress:'ПРОГРЕСС',digest:'ДАЙДЖЕСТ',premarket:'ПОДГОТОВКА',aichat:'AI ЧАТ',coach:'AI КОУЧ',settings:'НАСТРОЙКИ'};
+  const pageNames={journal:'ЖУРНАЛ СДЕЛОК',dashboard:'АНАЛИТИКА',progress:'ПРОГРЕСС',chart:'ГРАФИК',digest:'ДАЙДЖЕСТ',premarket:'ПОДГОТОВКА',aichat:'AI ЧАТ',coach:'AI КОУЧ',settings:'НАСТРОЙКИ'};
   const badge=document.getElementById('jtb-page-badge');
   if(badge)badge.textContent=pageNames[p]||p.toUpperCase();
   closeToolsDD();
@@ -8820,6 +8967,189 @@ if(document.readyState==='loading'){
     }, 120000);
   };
 })();
+</script>
+
+
+<script>
+// ══════════════════════════════════════════════════════
+// JOURNAL — Binance WebSocket (live sidebar prices)
+// ══════════════════════════════════════════════════════
+
+const _JWS_PAIRS = ['btcusdt','ethusdt','solusdt','bnbusdt','xrpusdt','suiusdt','dogeusdt'];
+const _JWS_MAP   = {
+  btcusdt:'btc', ethusdt:'eth', solusdt:'sol',
+  bnbusdt:'bnb', xrpusdt:'xrp', suiusdt:'sui', dogeusdt:'doge'
+};
+let _jws = null;
+
+function jFmtPrice(p){
+  if(!p||isNaN(p)) return '—';
+  if(p>=10000) return '$'+p.toLocaleString('en',{maximumFractionDigits:0});
+  if(p>=100)   return '$'+p.toFixed(2);
+  if(p>=1)     return '$'+p.toFixed(3);
+  if(p>=0.01)  return '$'+p.toFixed(5);
+  return '$'+p.toFixed(7);
+}
+
+function initJournalWS(){
+  const streams = _JWS_PAIRS.map(p => p+'@miniTicker').join('/');
+  _jws = new WebSocket('wss://stream.binance.com:9443/stream?streams='+streams);
+
+  _jws.onmessage = function(e){
+    try{
+      const msg = JSON.parse(e.data);
+      const d   = msg.data;
+      if(!d || d.e !== '24hrMiniTicker') return;
+
+      const sym  = d.s?.toLowerCase();
+      const id   = _JWS_MAP[sym];
+      if(!id) return;
+
+      const price = parseFloat(d.c);
+      const open  = parseFloat(d.o);
+      const chg   = open > 0 ? ((price - open) / open * 100) : 0;
+      const chgStr= (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+
+      const prEl  = document.getElementById('lp-'+id+'-p');
+      const chEl  = document.getElementById('lp-'+id+'-c');
+      const rowEl = document.getElementById('lp-'+id);
+
+      if(prEl){
+        const prev = prEl.textContent;
+        prEl.textContent = jFmtPrice(price);
+        if(prev !== prEl.textContent && rowEl){
+          rowEl.classList.remove('sbw-lp-flash');
+          void rowEl.offsetWidth;
+          rowEl.classList.add('sbw-lp-flash');
+        }
+      }
+      if(chEl){
+        chEl.textContent = chgStr;
+        chEl.className = 'sbw-lp-chg ' + (chg >= 0 ? 'up' : 'dn');
+      }
+
+      // Also feed into existing ticker strip if tickerData exists
+      if(typeof tickerData !== 'undefined'){
+        const symUpper = sym.replace('usdt','').toUpperCase();
+        if(tickerData[symUpper]){
+          tickerData[symUpper].price = price;
+          tickerData[symUpper].chg   = chg;
+        }
+        if(typeof renderTickerTrack === 'function') renderTickerTrack();
+      }
+
+    }catch(_){}
+  };
+
+  _jws.onerror = () => {};
+  _jws.onclose = () => { setTimeout(initJournalWS, 2000); };
+}
+
+// ── Chart page: switch symbol ────────────────────────
+let _chartSym = 'BINANCE:BTCUSDT';
+let _chartTF  = '240';
+
+function chartSwitch(sym, el){
+  _chartSym = sym;
+  document.querySelectorAll('.chart-sym-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  rebuildJournalChart();
+}
+
+function chartTF(tf, el){
+  _chartTF = tf;
+  document.querySelectorAll('.chart-tf-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  rebuildJournalChart();
+}
+
+function rebuildJournalChart(){
+  const wrap = document.getElementById('journal-chart-wrap');
+  if(!wrap) return;
+
+  const cfg = {
+    allow_symbol_change: false,
+    calendar:            false,
+    details:             false,
+    hide_side_toolbar:   false,
+    hide_top_toolbar:    false,
+    hide_legend:         false,
+    hide_volume:         false,
+    hotlist:             false,
+    interval:            _chartTF,
+    locale:              'ru',
+    save_image:          true,
+    style:               '1',
+    symbol:              _chartSym,
+    theme:               'dark',
+    timezone:            'Europe/Moscow',
+    backgroundColor:     'rgba(6, 8, 12, 1)',
+    gridColor:           'rgba(242, 242, 242, 0.04)',
+    withdateranges:      true,
+    studies: [
+      'STD;Divergence%1Indicator',
+      'STD;Accumulation_Distribution',
+      'Volume@tv-basicstudies'
+    ],
+    autosize: true
+  };
+
+  wrap.innerHTML = '';
+  const cont = document.createElement('div');
+  cont.className = 'tradingview-widget-container';
+  cont.style.cssText = 'height:100%;width:100%';
+
+  const wd = document.createElement('div');
+  wd.className = 'tradingview-widget-container__widget';
+  wd.style.cssText = 'height:calc(100% - 20px);width:100%';
+
+  const copy = document.createElement('div');
+  copy.className = 'tradingview-widget-copyright';
+  copy.innerHTML = '<span style="font-size:9px;color:rgba(232,234,240,0.12)">TradingView</span>';
+
+  const sc = document.createElement('script');
+  sc.type  = 'text/javascript';
+  sc.src   = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  sc.async = true;
+  sc.innerHTML = JSON.stringify(cfg);
+
+  cont.appendChild(wd);
+  cont.appendChild(copy);
+  cont.appendChild(sc);
+  wrap.appendChild(cont);
+}
+
+// ── Hook into showPage for chart init ────────────────
+const _jBaseShowPage = window.showPage;
+window.showPage = function(p, btn){
+  _jBaseShowPage(p, btn);
+  if(p === 'chart'){
+    // Rebuild chart so it sizes properly after page becomes visible
+    setTimeout(rebuildJournalChart, 50);
+  }
+};
+
+// ── Boost market data refresh to 30s (was 5min) ──────
+// Override the slow setInterval from original journal code
+window._jFastRefreshInstalled = window._jFastRefreshInstalled || false;
+if(!window._jFastRefreshInstalled){
+  window._jFastRefreshInstalled = true;
+  document.addEventListener('DOMContentLoaded', function(){
+    // Wait for init to complete, then set faster intervals
+    setTimeout(function(){
+      if(typeof fetchFNG    === 'function') setInterval(fetchFNG,    30000);
+      if(typeof fetchMarket === 'function') setInterval(fetchMarket, 30000);
+      if(typeof fetchGL     === 'function') setInterval(fetchGL,     60000);
+    }, 5000);
+  });
+}
+
+// ── Auto-start WS after DOM ready ────────────────────
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initJournalWS);
+} else {
+  initJournalWS();
+}
 </script>
 
 </body>
