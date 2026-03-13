@@ -600,6 +600,46 @@ img{display:block;}
 .hm-sym{font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);font-family:var(--font-mono);}
 .hm-chg{font-size:10px;font-family:var(--font-mono);color:rgba(255,255,255,0.75);margin-top:2px;}
 
+/* ── TRADE MINI LIST (detail panel) ── */
+.dp-trades{margin-top:14px;}
+.dp-trades-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;
+}
+.dp-trades-label{font-size:8px;color:var(--m2);letter-spacing:2px;font-family:var(--font-mono);}
+.dp-trades-link{
+  font-size:9px;color:var(--a);letter-spacing:.5px;font-family:var(--font-mono);
+  background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;
+  text-underline-offset:2px;
+}
+.dp-trades-link:hover{color:var(--t);}
+.dp-trade-row{
+  display:grid;
+  grid-template-columns:28px 1fr 60px 60px 60px;
+  gap:4px;align-items:center;
+  padding:6px 8px;border-radius:5px;margin-bottom:3px;
+  background:rgba(255,255,255,0.025);border:1px solid var(--bd);
+  font-size:10px;font-family:var(--font-mono);cursor:pointer;transition:border-color .12s;
+}
+.dp-trade-row:hover{border-color:rgba(232,114,42,0.25);}
+.dp-tr-dir{
+  width:24px;height:24px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;
+}
+.dp-tr-dir.long{background:rgba(59,130,246,0.15);color:#3b82f6;}
+.dp-tr-dir.short{background:rgba(168,85,247,0.15);color:#a855f7;}
+.dp-tr-date{font-size:9px;color:var(--m2);}
+.dp-tr-entry{color:var(--m);}
+.dp-tr-exit{color:var(--m);}
+.dp-tr-pnl{font-weight:700;text-align:right;}
+.dp-tr-pnl.win{color:var(--g);}
+.dp-tr-pnl.loss{color:var(--r);}
+.dp-tr-pnl.be{color:var(--m2);}
+.dp-no-trades{
+  text-align:center;padding:16px 8px;
+  font-size:10px;color:var(--m2);font-family:var(--font-mono);line-height:1.7;
+}
+
 /* ── TOAST ── */
 .toast{
   position:fixed;bottom:20px;right:20px;z-index:99999;
@@ -754,6 +794,8 @@ img{display:block;}
     <div id="dp-chart-slot"></div>
     <!-- ACTIVE ALERTS ON THIS COIN -->
     <div id="dp-alert-lines" class="dp-alert-lines"></div>
+    <!-- JOURNAL TRADES FOR THIS COIN -->
+    <div id="dp-trades-slot"></div>
     <!-- METRICS -->
     <div class="dp-metrics" id="dp-metrics"></div>
   </div>
@@ -871,6 +913,7 @@ let _lwcResizeObs = null;
 let _lwcTF = '15m';
 let _signals = [];
 let _rsiCache = {}; // cgId → rsi value (from klines)
+let _tradeMarkers = []; // cached trades for current coin on chart
 
 // ── Kline WebSocket (live candle for detail panel) ──
 let _klineWS = null;
@@ -1752,8 +1795,64 @@ async function loadChart(coin){
   slot.innerHTML = buildChartHTML(coin);
   const wsPair = WS_MAP[coin.id]?.pair || (coin.symbol?.toLowerCase()+'usdt');
   _lwcTF = '15m';
+  // Load journal trades for this coin
+  _tradeMarkers = await loadTradesForCoin(coin.symbol);
   await fetchAndRenderChart(wsPair, '15m');
+  renderTradeMiniList(coin);
 }
+
+function renderTradeMiniList(coin){
+  const slot = document.getElementById('dp-trades-slot');
+  if(!slot) return;
+  const trades = [..._tradeMarkers].reverse(); // newest first
+  if(!trades.length){
+    slot.innerHTML = `<div class="dp-trades">
+      <div class="dp-trades-head">
+        <span class="dp-trades-label">СДЕЛКИ ИЗ ЖУРНАЛА</span>
+        <button class="dp-trades-link" onclick="openTradeJournal()">+ добавить</button>
+      </div>
+      <div class="dp-no-trades">Нет сделок по ${(coin.symbol||'').toUpperCase()}<br>
+        <button class="dp-trades-link" onclick="openTradeJournal()" style="margin-top:4px;">Открыть в журнале →</button>
+      </div>
+    </div>`;
+    return;
+  }
+  const rows = trades.slice(0, 8).map(t => {
+    const isLong  = (t.direction||'').toLowerCase() === 'long';
+    const isWin   = (t.result||'').toLowerCase() === 'win' || t.pnl_usd > 0;
+    const isBe    = (t.result||'').toLowerCase() === 'be';
+    const pnlCls  = isBe ? 'be' : isWin ? 'win' : 'loss';
+    const pnlTxt  = t.pnl_usd != null
+      ? (t.pnl_usd >= 0 ? '+' : '') + '$' + Math.abs(t.pnl_usd).toFixed(0)
+      : (t.pnl_pct != null ? (t.pnl_pct >= 0 ? '+' : '') + t.pnl_pct.toFixed(1) + '%' : '—');
+    const d = new Date(t.created_at);
+    const dateStr = d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'});
+    return `<div class="dp-trade-row" onclick="openTradeJournal()" title="${t.pair||''} · ${dateStr}">
+      <div class="dp-tr-dir ${isLong?'long':'short'}">${isLong?'L':'S'}</div>
+      <div><div style="font-size:10px;color:var(--t)">${(t.pair||'').toUpperCase()}</div>
+        <div class="dp-tr-date">${dateStr}</div></div>
+      <div class="dp-tr-entry">${t.entry_price ? '$'+parseFloat(t.entry_price).toFixed(t.entry_price>=100?0:2) : '—'}</div>
+      <div class="dp-tr-exit">${t.exit_price  ? '$'+parseFloat(t.exit_price ).toFixed(t.exit_price >=100?0:2) : '—'}</div>
+      <div class="dp-tr-pnl ${pnlCls}">${pnlTxt}</div>
+    </div>`;
+  }).join('');
+  const more = trades.length > 8 ? `<div style="text-align:center;margin-top:4px;">
+    <button class="dp-trades-link" onclick="openTradeJournal()">ещё ${trades.length-8} сделок →</button>
+  </div>` : '';
+  slot.innerHTML = `<div class="dp-trades">
+    <div class="dp-trades-head">
+      <span class="dp-trades-label">СДЕЛКИ · ${trades.length} записей</span>
+      <button class="dp-trades-link" onclick="openTradeJournal()">открыть в журнале →</button>
+    </div>
+    <div class="dp-trades-head" style="font-size:8px;color:var(--m2);font-family:var(--font-mono);gap:4px;padding:0 8px;margin-bottom:4px;">
+      <span style="width:28px"></span>
+      <span style="flex:1">ПАРА / ДАТА</span>
+      <span style="width:60px">ВХОД</span>
+      <span style="width:60px">ВЫХОД</span>
+      <span style="width:60px;text-align:right">P&L</span>
+    </div>
+    ${rows}${more}
+  </div>`;
 
 function destroyChart(){
   if(_lwcChart){ _lwcChart.remove(); _lwcChart = null; }
@@ -1843,12 +1942,90 @@ function stopKlineWS(){
   _klinePair = null; _klineTF = null;
 }
 
+// ── Journal trade markers ─────────────────────
+async function loadTradesForCoin(symbol){
+  try{
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user) return [];
+    const sym = symbol?.toUpperCase().replace('/USDT','').replace('USDT','');
+    // Match pair like BTC/USDT, BTCUSDT, BTC
+    const { data, error } = await sb.from('trades')
+      .select('id, pair, direction, result, entry_price, exit_price, pnl_usd, pnl_pct, created_at')
+      .eq('user_id', user.id)
+      .or(`pair.ilike.%${sym}%`)
+      .order('created_at', { ascending: true })
+      .limit(200);
+    if(error || !data) return [];
+    return data;
+  }catch(e){ return []; }
+}
+
+// Convert trades to LW Chart markers
+function tradesToMarkers(trades, candles){
+  if(!trades?.length || !candles?.length) return [];
+  const firstTime = candles[0].time;
+  const lastTime  = candles[candles.length-1].time;
+  const markers = [];
+  trades.forEach(t => {
+    const ts = Math.floor(new Date(t.created_at).getTime() / 1000);
+    if(ts < firstTime || ts > lastTime) return; // outside visible range
+    // Snap to nearest candle time
+    const snapped = candles.reduce((best, c) =>
+      Math.abs(c.time - ts) < Math.abs(best.time - ts) ? c : best
+    ).time;
+    const isLong  = (t.direction || '').toLowerCase() === 'long';
+    const isWin   = (t.result   || '').toLowerCase() === 'win' || (t.pnl_usd > 0);
+    const pnlTxt  = t.pnl_usd != null
+      ? (t.pnl_usd >= 0 ? '+' : '') + '$' + Math.abs(t.pnl_usd).toFixed(0)
+      : (t.pnl_pct != null ? (t.pnl_pct >= 0 ? '+' : '') + t.pnl_pct.toFixed(1) + '%' : '');
+
+    // Entry marker
+    if(t.entry_price){
+      markers.push({
+        time:     snapped,
+        position: isLong ? 'belowBar' : 'aboveBar',
+        color:    isLong ? 'rgba(59,130,246,0.9)' : 'rgba(168,85,247,0.9)',
+        shape:    isLong ? 'arrowUp' : 'arrowDown',
+        text:     (isLong ? '▲' : '▼') + ' $' + parseFloat(t.entry_price).toFixed(t.entry_price >= 100 ? 0 : 2),
+        size:     1,
+        id:       t.id + '_entry',
+      });
+    }
+    // Exit marker (only if exit_price set)
+    if(t.exit_price && t.exit_price !== t.entry_price){
+      const exitTs = ts + 300; // +5min offset so entry/exit don't collide
+      const snapExit = candles.reduce((best, c) =>
+        Math.abs(c.time - exitTs) < Math.abs(best.time - exitTs) ? c : best
+      ).time;
+      markers.push({
+        time:     snapExit,
+        position: isLong ? 'aboveBar' : 'belowBar',
+        color:    isWin ? 'rgba(46,204,113,0.9)' : 'rgba(231,76,60,0.9)',
+        shape:    'circle',
+        text:     pnlTxt,
+        size:     1,
+        id:       t.id + '_exit',
+      });
+    }
+  });
+  // LW Charts requires markers sorted by time
+  markers.sort((a, b) => a.time - b.time);
+  return markers;
+}
+
+function applyTradeMarkers(candles){
+  if(!_lwcSeries) return;
+  const markers = tradesToMarkers(_tradeMarkers, candles);
+  if(markers.length) _lwcSeries.setMarkers(markers);
+}
+
 async function chartTF(pair, tf, btn){
   document.querySelectorAll('.dp-tf-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   _lwcTF = tf;
   stopKlineWS();
   await fetchAndRenderChart(pair, tf);
+  // Re-apply markers after new candles loaded — handled inside fetchAndRenderChart → renderLWChart
 }
 
 function toggleInd(key, btn){
@@ -2020,8 +2197,8 @@ async function renderLWChart(candles){
     if(el){ el.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%'; el.style.color=pct>=0?'var(--g)':'var(--r)'; }
   }
 
-  // Markers for journal trades (future integration)
-  // candleSeries.setMarkers([]);
+  // Trade markers from journal
+  applyTradeMarkers(candles);
 
   // Resize observer
   if(_lwcResizeObs) _lwcResizeObs.disconnect();
