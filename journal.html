@@ -1008,7 +1008,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
 .field{display:flex;flex-direction:column;gap:4px;}
-.field label{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.field label,.field-label{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
 .field input,.field select,.field textarea{
   background:var(--bg3);border:var(--line);border-radius:6px;
   padding:7px 10px;color:var(--t);font-family:var(--font-mono);
@@ -2878,7 +2878,7 @@ body::after {
 }
 
 /* ── INPUTS — redesign ── */
-.field label {
+.field label, .field-label {
   font-size: 10px !important; letter-spacing: 2px !important;
   color: rgba(232,234,240,0.45) !important;
   margin-bottom: 5px !important;
@@ -4278,14 +4278,14 @@ body::after {
           </div>
         </div>
         <div class="field">
-          <label>Направление <span class="field-hint" data-tip="LONG — ставишь на рост цены&#10;SHORT — ставишь на падение цены">?</span></label>
+          <div class="field-label">Направление <span class="field-hint" data-tip="LONG — ставишь на рост цены&#10;SHORT — ставишь на падение цены">?</span></div>
           <div class="dtoggle">
             <div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div>
             <div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div>
           </div>
         </div>
         <div class="field">
-          <label>Результат <span class="field-hint" data-tip="Прибыль — закрыл в плюс&#10;Убыток — закрыл в минус&#10;BE (безубыток) — вышел в ноль">?</span></label>
+          <div class="field-label">Результат <span class="field-hint" data-tip="Прибыль — закрыл в плюс&#10;Убыток — закрыл в минус&#10;BE (безубыток) — вышел в ноль">?</span></div>
           <div class="res-btns">
             <button class="res-btn" id="rb-win" onclick="setRes('win',this)">✓ Прибыль</button>
             <button class="res-btn" id="rb-loss" onclick="setRes('loss',this)">✗ Убыток</button>
@@ -4415,7 +4415,7 @@ body::after {
 
       <!-- SCREENSHOT -->
       <div class="field" style="margin-bottom:10px;">
-        <label>Скриншот сделки <span class="field-hint" data-tip="Прикрепи скриншот графика.&#10;Drag & Drop, вставь из буфера (Ctrl+V)&#10;или нажми для выбора файла.">?</span></label>
+        <label for="scr-file-input">Скриншот сделки <span class="field-hint" data-tip="Прикрепи скриншот графика.&#10;Drag & Drop, вставь из буфера (Ctrl+V)&#10;или нажми для выбора файла.">?</span></label>
         <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
           <div class="scr-placeholder" id="scr-placeholder">
             <div class="scr-icon">📸</div>
@@ -5206,7 +5206,7 @@ body::after {
       <div class="ck-item"><div class="ck-num">5 · ПСИХОЛОГИЯ</div><div class="ck-q">Ты спокоен? Это не месть рынку и не FOMO?</div><div class="ck-btns"><button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button><button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button></div></div>
     </div>
     <div class="ai-note" style="margin-top:12px">
-      <label>Дополнительно (необязательно)</label>
+      <label for="ai-reason">Дополнительно (необязательно)</label>
       <textarea id="ai-reason" placeholder="Опиши сетап подробнее..."></textarea>
     </div>
     <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
@@ -9354,6 +9354,8 @@ function updateTickerItem(sym, newPrice, chg) {
 async function fetchCrypto(){
   try{
     const r   = await fetch('/api/ticker?type=crypto');
+    const ct  = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=crypto');
     const data = await r.json();
     const arr  = Array.isArray(data) ? data : [];
     arr.forEach(d=>{
@@ -9373,6 +9375,8 @@ async function fetchCrypto(){
 async function fetchForex(){
   try{
     const r    = await fetch('/api/ticker?type=forex');
+    const ct   = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=forex');
     const data = await r.json();
     const rates = data.rates;
     if(!rates) return;
@@ -9424,6 +9428,8 @@ function fmtBig(n){
 async function fetchFNG(){
   try{
     const r = await fetch('/api/ticker?type=fng');
+    const ct = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=fng');
     const d = await r.json();
     const val = parseInt(d.value);
     const cls = d.value_classification || '';
@@ -9455,6 +9461,8 @@ async function fetchFNG(){
 async function fetchMarket(){
   try{
     const r = await fetch('/api/ticker?type=market');
+    const ct = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=market');
     const d = await r.json();
     const g = d.data;
     if(!g) return;
@@ -9485,6 +9493,8 @@ async function fetchMarket(){
 async function fetchTrending(){
   try{
     const r    = await fetch('/api/ticker?type=trending');
+    const ct   = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=trending');
     const data = await r.json();
     const coins = data.coins?.slice(0,6) || [];
     const list  = document.getElementById('trend-list');
@@ -9514,6 +9524,8 @@ let glMode = 'gain';
 async function fetchGL(){
   try{
     const r    = await fetch('/api/ticker?type=gl');
+    const ct   = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('Non-JSON response from /api/ticker?type=gl');
     const data = await r.json();
     const arr  = Array.isArray(data) ? data : [];
 
