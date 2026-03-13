@@ -1854,6 +1854,8 @@ function render(p, trades){
 
   // Store for share widget
   window._widgetStats = { wr, roi: totalPnl, rr, cnt: trades.length };
+  // Hook for PNL card generator
+  _hookPnlTrades(trades);
 
   // Best/worst trade
   const bestTrade=trades.length?trades.reduce((b,t)=>(t.pnl_pct||0)>(b.pnl_pct||0)?t:b,trades[0]):null;
@@ -1918,6 +1920,13 @@ function render(p, trades){
             <div class="sd-item-text">
               <span class="sd-item-label">Telegram карточка</span>
               <span class="sd-item-sub">Превью с твоей статистикой</span>
+            </div>
+          </div>
+          <div class="sd-item" onclick="openPnlModal()">
+            <span class="sd-item-icon">📊</span>
+            <div class="sd-item-text">
+              <span class="sd-item-label">PNL карточка</span>
+              <span class="sd-item-sub">Как на бирже — скачать PNG</span>
             </div>
           </div>
           <div class="sd-item" onclick="openEmbedModal()">
@@ -2948,6 +2957,418 @@ function showShareToast(msg){
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape') closeTgWidgetModal();
 });
+</script>
+<!-- ══ PNL SHARE CARD MODAL ══ -->
+<div class="tg-widget-modal" id="pnl-card-modal" onclick="closePnlModal()">
+  <div class="tgw-box" style="max-width:520px" onclick="event.stopPropagation()">
+    <div class="tgw-head">
+      <span class="tgw-title">PNL SHARE КАРТОЧКА</span>
+      <button class="tgw-close" onclick="closePnlModal()">✕</button>
+    </div>
+    <div class="tgw-body" style="padding:14px 18px">
+      <!-- Canvas preview -->
+      <div style="border-radius:10px;overflow:hidden;margin-bottom:12px;background:#080b0f;line-height:0;">
+        <canvas id="pnl-canvas" width="600" height="340" style="width:100%;display:block;"></canvas>
+      </div>
+      <!-- Trade selector -->
+      <div style="margin-bottom:10px;">
+        <div style="font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:2px;font-family:var(--font-mono);margin-bottom:5px;">ВЫБЕРИ СДЕЛКУ</div>
+        <select id="pnl-trade-select" onchange="renderPnlCard()" style="width:100%;height:36px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#fff;font-family:var(--font-mono);font-size:11px;padding:0 10px;outline:none;cursor:pointer;">
+          <option value="">— выбери сделку —</option>
+        </select>
+      </div>
+      <!-- Style selector -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="pnl-style-btn active" data-style="dark" onclick="setPnlStyle('dark',this)">🌑 DARK</button>
+        <button class="pnl-style-btn" data-style="neon" onclick="setPnlStyle('neon',this)">⚡ NEON</button>
+        <button class="pnl-style-btn" data-style="minimal" onclick="setPnlStyle('minimal',this)">◻ CLEAN</button>
+      </div>
+      <!-- Actions -->
+      <div class="tgw-actions">
+        <button class="tgw-btn primary" onclick="downloadPnlCard()">⬇ СКАЧАТЬ PNG</button>
+        <button class="tgw-btn secondary" onclick="copyPnlToTg()">✈️ TELEGRAM</button>
+      </div>
+      <div class="tgw-note" style="margin-top:8px;">PNG 600×340 · Готово для публикации в TG / Twitter / Instagram</div>
+    </div>
+  </div>
+</div>
+
+<style>
+.pnl-style-btn{
+  flex:1;height:30px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);
+  background:transparent;color:rgba(255,255,255,0.4);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.5px;cursor:pointer;
+  transition:all .12s;
+}
+.pnl-style-btn:hover{color:var(--t);border-color:rgba(255,255,255,0.2);}
+.pnl-style-btn.active{color:var(--a);border-color:rgba(232,114,42,0.4);background:rgba(232,114,42,0.08);}
+</style>
+
+<script>
+// ══════════════════════════════════════════
+// PNL SHARE CARD — Canvas generator
+// ══════════════════════════════════════════
+let _pnlTrades = [];
+let _pnlStyle = 'dark';
+let _pnlSelectedTrade = null;
+
+const PNL_STYLES = {
+  dark: {
+    bg1: '#060910', bg2: '#0d1017', bg3: '#111520',
+    accent: '#e8721a', accentGlow: 'rgba(232,114,42,0.25)',
+    green: '#2ecc71', greenGlow: 'rgba(46,204,113,0.25)',
+    red: '#e74c3c', redGlow: 'rgba(231,76,60,0.25)',
+    text: '#ffffff', textMuted: 'rgba(255,255,255,0.45)',
+    border: 'rgba(255,255,255,0.07)',
+    brand: '#e8721a', grid: 'rgba(255,255,255,0.04)',
+  },
+  neon: {
+    bg1: '#020612', bg2: '#060d1e', bg3: '#0a1228',
+    accent: '#00d4ff', accentGlow: 'rgba(0,212,255,0.3)',
+    green: '#00ff88', greenGlow: 'rgba(0,255,136,0.3)',
+    red: '#ff4466', redGlow: 'rgba(255,68,102,0.3)',
+    text: '#e0f0ff', textMuted: 'rgba(160,210,255,0.5)',
+    border: 'rgba(0,212,255,0.12)',
+    brand: '#00d4ff', grid: 'rgba(0,212,255,0.05)',
+  },
+  minimal: {
+    bg1: '#0a0a0a', bg2: '#111111', bg3: '#161616',
+    accent: '#ffffff', accentGlow: 'rgba(255,255,255,0.1)',
+    green: '#4ade80', greenGlow: 'rgba(74,222,128,0.2)',
+    red: '#f87171', redGlow: 'rgba(248,113,113,0.2)',
+    text: '#ffffff', textMuted: 'rgba(255,255,255,0.4)',
+    border: 'rgba(255,255,255,0.08)',
+    brand: '#ffffff', grid: 'rgba(255,255,255,0.03)',
+  }
+};
+
+function openPnlModal(){
+  document.getElementById('share-dropdown')?.classList.remove('open');
+  _shareOpen = false;
+  // Populate select with trades
+  const sel = document.getElementById('pnl-trade-select');
+  if(!sel) return;
+  const trades = _pnlTrades.length ? _pnlTrades : (window._profileTrades || []);
+  sel.innerHTML = '<option value="">— выбери сделку —</option>';
+  trades.slice(0,50).forEach((t,i) => {
+    const pnl = t.pnl_pct != null ? (t.pnl_pct >= 0 ? '+' : '') + t.pnl_pct.toFixed(2) + '%' : '—';
+    const date = new Date(t.created_at).toLocaleDateString('ru-RU', {day:'2-digit',month:'short'});
+    const dir = (t.direction === 'long' ? 'L' : 'S');
+    sel.innerHTML += `<option value="${i}">${dir} ${t.pair||'?'} · ${pnl} · ${date}</option>`;
+  });
+  if(trades.length) {
+    sel.value = '0';
+    _pnlSelectedTrade = trades[0];
+  }
+  document.getElementById('pnl-card-modal').classList.add('open');
+  renderPnlCard();
+}
+
+function closePnlModal(){
+  document.getElementById('pnl-card-modal')?.classList.remove('open');
+}
+
+function setPnlStyle(style, btn){
+  _pnlStyle = style;
+  document.querySelectorAll('.pnl-style-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPnlCard();
+}
+
+function renderPnlCard(){
+  const sel = document.getElementById('pnl-trade-select');
+  const idx = parseInt(sel?.value);
+  const trades = _pnlTrades.length ? _pnlTrades : (window._profileTrades || []);
+  _pnlSelectedTrade = (!isNaN(idx) && trades[idx]) ? trades[idx] : null;
+  drawPnlCanvas(_pnlSelectedTrade);
+}
+
+function drawPnlCanvas(trade){
+  const canvas = document.getElementById('pnl-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 600, H = 340;
+  const S = PNL_STYLES[_pnlStyle];
+  const isWin = trade ? (trade.result === 'win' || (trade.pnl_pct || 0) >= 0) : true;
+  const pnlColor = isWin ? S.green : S.red;
+  const pnlGlow  = isWin ? S.greenGlow : S.redGlow;
+  const pnl = trade?.pnl_pct ?? null;
+  const pnlUsd = trade?.pnl_usd ?? null;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ── BACKGROUND ──
+  const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, S.bg1);
+  bgGrad.addColorStop(0.6, S.bg2);
+  bgGrad.addColorStop(1, S.bg3);
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = S.grid;
+  ctx.lineWidth = 1;
+  for(let x = 60; x < W; x += 60){
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for(let y = 40; y < H; y += 40){
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Decorative candlestick silhouette (right side background art)
+  drawCandles(ctx, W, H, S);
+
+  // ── TOP ACCENT LINE ──
+  const topGrad = ctx.createLinearGradient(0, 0, W, 0);
+  topGrad.addColorStop(0, S.accent);
+  topGrad.addColorStop(0.5, pnlColor);
+  topGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = topGrad;
+  ctx.fillRect(0, 0, W, 3);
+
+  // ── LOGO / BRAND ──
+  ctx.font = '700 13px monospace';
+  ctx.fillStyle = S.accent;
+  ctx.letterSpacing = '3px';
+  ctx.fillText('ORBITUM', 28, 38);
+
+  // ── TRADE STATUS PILL ──
+  const pillText = isWin ? 'PROFIT' : 'LOSS';
+  roundRect(ctx, W - 110, 20, 82, 24, 12, S.border, isWin ? 'rgba(46,204,113,0.12)' : 'rgba(231,76,60,0.12)');
+  ctx.font = '600 10px monospace';
+  ctx.fillStyle = pnlColor;
+  ctx.textAlign = 'center';
+  ctx.fillText(pillText, W - 69, 36);
+  ctx.textAlign = 'left';
+
+  // ── SEPARATOR LINE ──
+  const sepGrad = ctx.createLinearGradient(28, 0, W - 28, 0);
+  sepGrad.addColorStop(0, S.accent + '60');
+  sepGrad.addColorStop(1, 'transparent');
+  ctx.strokeStyle = sepGrad;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(28, 52); ctx.lineTo(W - 28, 52); ctx.stroke();
+
+  // ── MAIN PNL VALUE ──
+  const pnlStr = pnl != null ? (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%' : '—';
+  const pnlSize = pnl != null && Math.abs(pnl) >= 100 ? 64 : pnl != null && Math.abs(pnl) >= 10 ? 72 : 80;
+
+  // Glow effect behind number
+  ctx.save();
+  ctx.shadowColor = pnlColor;
+  ctx.shadowBlur = 40;
+  ctx.font = `700 ${pnlSize}px monospace`;
+  ctx.fillStyle = pnlColor;
+  ctx.fillText(pnlStr, 28, 148);
+  ctx.restore();
+
+  // USD amount below
+  if(pnlUsd != null){
+    const usdStr = (pnlUsd >= 0 ? '+$' : '-$') + Math.abs(pnlUsd).toFixed(2);
+    ctx.font = '500 18px monospace';
+    ctx.fillStyle = S.textMuted;
+    ctx.fillText(usdStr, 32, 172);
+  }
+
+  // ── TAGS ROW (direction, leverage, pair) ──
+  const tags = [];
+  if(trade?.direction) tags.push({label: trade.direction === 'long' ? 'LONG' : 'SHORT', color: isWin ? S.green : S.red, bg: isWin ? 'rgba(46,204,113,0.12)' : 'rgba(231,76,60,0.12)'});
+  if(trade?.pair) tags.push({label: trade.pair, color: S.text, bg: 'rgba(255,255,255,0.06)'});
+  if(trade?.setup_type) tags.push({label: trade.setup_type, color: S.accent, bg: 'rgba(232,114,42,0.08)'});
+
+  let tagX = 28;
+  tags.forEach(tag => {
+    ctx.font = '600 11px monospace';
+    const tw = ctx.measureText(tag.label).width + 20;
+    roundRect(ctx, tagX, 188, tw, 22, 5, 'transparent', tag.bg);
+    ctx.fillStyle = tag.color;
+    ctx.fillText(tag.label, tagX + 10, 203);
+    tagX += tw + 6;
+  });
+
+  // ── DIVIDER ──
+  ctx.strokeStyle = S.border;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(28, 226); ctx.lineTo(W - 28, 226); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ── ENTRY / EXIT / RR ──
+  const entry = trade?.entry_price;
+  const exit  = trade?.exit_price;
+  const rr    = trade?.rr_actual || trade?.rr;
+  const dateStr = trade?.created_at ? new Date(trade.created_at).toLocaleDateString('ru-RU', {day:'2-digit',month:'short',year:'numeric'}) : '';
+
+  const cols = [
+    {label: 'ENTRY', val: entry != null ? '$' + formatPrice(entry) : '—'},
+    {label: 'EXIT',  val: exit  != null ? '$' + formatPrice(exit)  : '—'},
+    {label: 'R:R',   val: rr    != null ? (typeof rr === 'number' ? rr.toFixed(1) : rr) + 'R' : '—'},
+    {label: 'ДАТА',  val: dateStr || '—'},
+  ];
+
+  const colW = (W - 56) / cols.length;
+  cols.forEach((col, i) => {
+    const cx = 28 + colW * i;
+    ctx.font = '400 10px monospace';
+    ctx.fillStyle = S.textMuted;
+    ctx.fillText(col.label, cx, 248);
+    ctx.font = '600 13px monospace';
+    ctx.fillStyle = S.text;
+    ctx.fillText(col.val, cx, 268);
+  });
+
+  // ── BOTTOM FOOTER ──
+  const footerGrad = ctx.createLinearGradient(0, H - 46, 0, H);
+  footerGrad.addColorStop(0, 'transparent');
+  footerGrad.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = footerGrad;
+  ctx.fillRect(0, H - 46, W, 46);
+
+  // Footer line
+  ctx.strokeStyle = S.border;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, H - 46); ctx.lineTo(W, H - 46); ctx.stroke();
+
+  // URL / watermark
+  ctx.font = '400 11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillText('orbitum.app', 28, H - 17);
+
+  // QR placeholder (colored square)
+  drawQrMock(ctx, W - 50, H - 42, 34, S.accent);
+
+  // Powered by
+  ctx.font = '400 9px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.fillText('Powered by Orbitum Journal', 28, H - 5);
+
+  // No trade state
+  if(!trade){
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.font = '500 16px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.textAlign = 'center';
+    ctx.fillText('Выбери сделку выше', W/2, H/2);
+    ctx.textAlign = 'left';
+  }
+}
+
+// ── Helpers ──
+function roundRect(ctx, x, y, w, h, r, stroke, fill){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+  if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+  if(stroke && stroke !== 'transparent'){ ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+}
+
+function formatPrice(p){
+  if(p >= 1000) return p.toLocaleString('en', {maximumFractionDigits:1});
+  if(p >= 1) return p.toFixed(4);
+  return p.toFixed(6);
+}
+
+function drawCandles(ctx, W, H, S){
+  const candles = [
+    {x:0.56,o:0.38,c:0.62,l:0.28,h:0.72},
+    {x:0.62,o:0.62,c:0.45,l:0.35,h:0.68},
+    {x:0.68,o:0.45,c:0.71,l:0.38,h:0.78},
+    {x:0.74,o:0.71,c:0.58,l:0.50,h:0.82},
+    {x:0.80,o:0.58,c:0.76,l:0.48,h:0.86},
+    {x:0.86,o:0.76,c:0.65,l:0.58,h:0.90},
+    {x:0.92,o:0.65,c:0.82,l:0.55,h:0.94},
+    {x:0.98,o:0.82,c:0.70,l:0.62,h:0.96},
+  ];
+  const CW = 16, yPad = 20;
+  candles.forEach(cd => {
+    const cx = cd.x * W;
+    const isUp = cd.c > cd.o;
+    const col = isUp
+      ? (S.green + '55')
+      : (S.red + '55');
+    const bodyTop = H - cd.c * (H - yPad*2) - yPad;
+    const bodyBot = H - cd.o * (H - yPad*2) - yPad;
+    const bodyH = Math.abs(bodyTop - bodyBot) || 2;
+    ctx.fillStyle = col;
+    ctx.fillRect(cx - CW/2, Math.min(bodyTop,bodyBot), CW, bodyH);
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, H - cd.h * (H - yPad*2) - yPad);
+    ctx.lineTo(cx, H - cd.l * (H - yPad*2) - yPad);
+    ctx.stroke();
+  });
+}
+
+function drawQrMock(ctx, x, y, size, color){
+  const cell = size / 7;
+  ctx.fillStyle = color + '60';
+  const pattern = [
+    [1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1],
+    [1,0,1,0,1,0,1],
+    [1,0,1,1,1,0,1],
+    [1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1],
+  ];
+  pattern.forEach((row, ri) =>
+    row.forEach((v, ci) => {
+      if(v) ctx.fillRect(x + ci*cell, y + ri*cell, cell-0.5, cell-0.5);
+    })
+  );
+}
+
+// ── Download / Share ──
+function downloadPnlCard(){
+  if(!_pnlSelectedTrade){ showShareToast('⚠ Сначала выбери сделку'); return; }
+  drawPnlCanvas(_pnlSelectedTrade);
+  const canvas = document.getElementById('pnl-canvas');
+  const link = document.createElement('a');
+  link.download = `orbitum-pnl-${(_pnlSelectedTrade.pair||'trade').replace('/','')}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showShareToast('✅ PNG сохранён');
+}
+
+function copyPnlToTg(){
+  const t = _pnlSelectedTrade;
+  if(!t){ showShareToast('⚠ Сначала выбери сделку'); return; }
+  const name = profileUser?.full_name || profileUser?.username || 'Трейдер';
+  const pnlStr = t.pnl_pct != null ? (t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%' : '—';
+  const usdStr = t.pnl_usd != null ? ` (${t.pnl_usd>=0?'+$':'-$'}${Math.abs(t.pnl_usd).toFixed(2)})` : '';
+  const dir = t.direction === 'long' ? '📈 LONG' : '📉 SHORT';
+  const url = getProfileUrl();
+  const text = [
+    `${t.result==='win'?'✅':'❌'} *${name}*`,
+    ``,
+    `${dir} · *${t.pair||'?'}*`,
+    `PNL: *${pnlStr}*${usdStr}`,
+    t.entry_price ? `Entry: $${formatPrice(t.entry_price)} → Exit: $${formatPrice(t.exit_price||0)}` : '',
+    t.setup_type  ? `Setup: ${t.setup_type}` : '',
+    ``,
+    `🔗 ${url}`,
+    `_Orbitum Journal_`,
+  ].filter(Boolean).join('\n');
+  navigator.clipboard?.writeText(text).then(() => showShareToast('✅ Скопировано для Telegram'));
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text.replace(/\*/g,'').replace(/_/g,''))}`, '_blank');
+}
+
+// Hook into profile load to store trades
+const _origRender = typeof render !== 'undefined' ? render : null;
+function _hookPnlTrades(trades){
+  _pnlTrades = trades || [];
+  window._profileTrades = trades || [];
+}
 </script>
 
 </body>
