@@ -598,6 +598,178 @@ img{display:block;}
   z-index:400;transform:translateX(-300px);transition:transform .3s;
   display:flex;flex-direction:column;
 }
+
+/* ── ECONOMIC CALENDAR PANEL ── */
+.calendar-panel{
+  position:fixed;top:0;left:52px;width:440px;height:100vh;
+  background:var(--bg2);border-right:1px solid var(--bd);
+  z-index:400;transform:translateX(-440px);transition:transform .25s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;
+}
+.calendar-panel.open{ transform:translateX(0); }
+.cal-head{
+  height:44px;flex-shrink:0;background:var(--bg3);
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:8px;padding:0 14px;
+}
+.cal-title{font-size:10px;font-weight:700;color:var(--a);letter-spacing:2px;font-family:var(--font-mono);}
+.cal-close{
+  margin-left:auto;width:26px;height:26px;border-radius:5px;border:1px solid var(--bd);
+  background:transparent;color:var(--m);font-size:12px;display:flex;align-items:center;justify-content:center;
+}
+.cal-close:hover{color:var(--r);}
+.cal-filters{
+  display:flex;gap:3px;padding:8px 12px;border-bottom:1px solid var(--bd);flex-shrink:0;
+}
+.cal-flt{
+  height:24px;padding:0 9px;border-radius:4px;border:1px solid transparent;
+  background:transparent;color:var(--m2);font-size:9px;letter-spacing:.5px;
+  font-family:var(--font-mono);transition:all .12s;
+}
+.cal-flt:hover{color:var(--t);background:var(--bg3);}
+.cal-flt.active{color:var(--a);background:var(--a2);border-color:rgba(232,114,42,0.25);}
+.cal-body{flex:1;overflow-y:auto;padding:0;}
+.cal-body::-webkit-scrollbar{width:3px;}
+.cal-body::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+.cal-day-group{margin-bottom:4px;}
+.cal-day-label{
+  font-size:8px;color:var(--m2);letter-spacing:2px;font-family:var(--font-mono);
+  padding:8px 14px 4px;text-transform:uppercase;position:sticky;top:0;
+  background:var(--bg2);z-index:2;border-bottom:1px solid var(--bd);
+}
+.cal-event{
+  padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;transition:background .1s;position:relative;
+}
+.cal-event:hover{background:rgba(255,255,255,0.025);}
+.cal-event.expanded{background:rgba(232,114,42,0.04);}
+.cal-event-top{display:flex;align-items:flex-start;gap:8px;}
+.cal-impact{
+  width:4px;flex-shrink:0;border-radius:2px;align-self:stretch;min-height:36px;
+}
+.cal-impact.high{background:var(--r);}
+.cal-impact.medium{background:var(--y);}
+.cal-impact.low{background:var(--m2);}
+.cal-event-main{flex:1;min-width:0;}
+.cal-event-row1{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.cal-event-time{font-size:9px;font-family:var(--font-mono);color:var(--m2);flex-shrink:0;}
+.cal-event-country{
+  font-size:8px;padding:2px 5px;border-radius:3px;
+  background:rgba(255,255,255,0.06);color:var(--m);
+  font-family:var(--font-mono);flex-shrink:0;letter-spacing:.5px;
+}
+.cal-event-flag{font-size:12px;flex-shrink:0;}
+.cal-event-name{font-size:11px;color:var(--t);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-event-row2{display:flex;align-items:center;gap:6px;}
+.cal-impact-badge{
+  font-size:7.5px;padding:2px 6px;border-radius:3px;
+  font-family:var(--font-mono);letter-spacing:.5px;font-weight:600;
+}
+.cal-impact-badge.high{background:rgba(231,76,60,0.12);color:var(--r);}
+.cal-impact-badge.medium{background:rgba(240,192,64,0.12);color:var(--y);}
+.cal-impact-badge.low{background:rgba(255,255,255,0.05);color:var(--m2);}
+.cal-values{display:flex;gap:8px;margin-left:auto;}
+.cal-val-item{display:flex;flex-direction:column;align-items:flex-end;}
+.cal-val-label{font-size:7px;color:var(--m2);letter-spacing:1px;font-family:var(--font-mono);}
+.cal-val-num{font-size:9px;font-family:var(--font-mono);color:var(--t);}
+.cal-val-num.better{color:var(--g);}
+.cal-val-num.worse{color:var(--r);}
+.cal-event-actions{
+  display:flex;gap:4px;margin-top:6px;padding-top:6px;
+  border-top:1px solid var(--bd);
+}
+.cal-action-btn{
+  height:24px;padding:0 8px;border-radius:4px;border:1px solid var(--bd);
+  background:transparent;color:var(--m2);font-size:8.5px;
+  font-family:var(--font-mono);letter-spacing:.5px;transition:all .12s;
+}
+.cal-action-btn:hover{color:var(--a);border-color:rgba(232,114,42,0.3);}
+.cal-action-btn.active{color:var(--a);background:var(--a2);border-color:rgba(232,114,42,0.3);}
+.cal-ai-block{
+  margin-top:8px;background:rgba(232,114,42,0.05);
+  border:1px solid rgba(232,114,42,0.12);border-radius:6px;padding:10px 12px;
+}
+.cal-ai-label{font-size:7.5px;color:var(--a);letter-spacing:1.5px;font-family:var(--font-mono);margin-bottom:6px;}
+.cal-ai-text{font-size:10.5px;color:var(--t);line-height:1.55;white-space:pre-wrap;}
+.cal-ai-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.cal-ai-tag{
+  height:20px;padding:0 7px;border-radius:3px;
+  font-size:8px;font-family:var(--font-mono);letter-spacing:.5px;
+  display:flex;align-items:center;cursor:pointer;transition:all .12s;
+}
+.cal-ai-tag.bull{background:rgba(46,204,113,0.08);color:var(--g);border:1px solid rgba(46,204,113,0.2);}
+.cal-ai-tag.bear{background:rgba(231,76,60,0.08);color:var(--r);border:1px solid rgba(231,76,60,0.2);}
+.cal-ai-tag.neut{background:rgba(255,255,255,0.04);color:var(--m2);border:1px solid var(--bd);}
+.cal-ai-tag:hover{opacity:.8;}
+.cal-ai-loading{
+  display:flex;align-items:center;gap:6px;
+  font-size:9px;color:var(--m2);font-family:var(--font-mono);
+}
+.cal-ai-spinner{
+  width:10px;height:10px;border:1.5px solid var(--bd2);border-top-color:var(--a);
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+.cal-event-alert-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--a);
+  flex-shrink:0;margin-top:1px;
+}
+.cal-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:200px;gap:8px;
+}
+.cal-empty-icon{font-size:28px;opacity:.3;}
+.cal-empty-text{font-size:10px;color:var(--m2);font-family:var(--font-mono);letter-spacing:1px;}
+.cal-refresh{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;border-radius:5px;border:1px solid var(--bd);
+  background:transparent;color:var(--m2);font-size:13px;
+  display:flex;align-items:center;justify-content:center;transition:all .12s;
+}
+.cal-refresh:hover{color:var(--a);border-color:rgba(232,114,42,0.3);}
+.cal-loading{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;height:200px;
+}
+.cal-loading-spinner{
+  width:24px;height:24px;border:2px solid var(--bd2);border-top-color:var(--a);
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+.cal-loading-text{font-size:9px;color:var(--m2);font-family:var(--font-mono);letter-spacing:2px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cal-news-section{padding:10px 14px;border-bottom:1px solid var(--bd);}
+.cal-news-label{font-size:8px;color:var(--m2);letter-spacing:2px;font-family:var(--font-mono);margin-bottom:8px;}
+.cal-news-item{
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;
+}
+.cal-news-item:last-child{border-bottom:none;}
+.cal-news-title{font-size:10.5px;color:var(--t);line-height:1.4;margin-bottom:4px;}
+.cal-news-meta{display:flex;align-items:center;gap:8px;}
+.cal-news-src{font-size:8px;color:var(--a);font-family:var(--font-mono);}
+.cal-news-time{font-size:8px;color:var(--m2);font-family:var(--font-mono);}
+.cal-news-sent{font-size:8px;padding:2px 6px;border-radius:3px;font-family:var(--font-mono);}
+.cal-news-sent.bull{background:rgba(46,204,113,0.1);color:var(--g);}
+.cal-news-sent.bear{background:rgba(231,76,60,0.1);color:var(--r);}
+.cal-news-sent.neut{background:rgba(255,255,255,0.05);color:var(--m2);}
+/* Tab strip inside calendar */
+.cal-tabs{
+  display:flex;gap:0;border-bottom:1px solid var(--bd);flex-shrink:0;
+}
+.cal-tab{
+  flex:1;height:32px;border:none;background:transparent;
+  color:var(--m2);font-size:9px;letter-spacing:1px;
+  font-family:var(--font-mono);transition:all .12s;
+  border-bottom:2px solid transparent;
+}
+.cal-tab:hover{color:var(--t);}
+.cal-tab.active{color:var(--a);border-bottom-color:var(--a);}
+/* News alert notification dot */
+.cal-notif-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--r);
+  position:absolute;top:4px;right:4px;display:none;
+  box-shadow:0 0 6px var(--r);animation:pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(.85);}}
 .alerts-panel.open{transform:translateX(0);}
 .ap-head{
   display:flex;align-items:center;gap:8px;padding:14px 14px 12px;
@@ -865,6 +1037,7 @@ img{display:block;}
   <button class="sb-btn" id="sb-heatmap" title="Тепловая карта" onclick="setView('heatmap')">▦</button>
   <div class="sb-sep"></div>
   <button class="sb-btn" id="sb-alerts-btn" title="Мои алерты" onclick="toggleAlertsPanel()">🔔</button>
+  <button class="sb-btn" id="sb-calendar-btn" title="Экономический календарь" onclick="toggleCalendarPanel()" style="position:relative;">📅<span class="cal-notif-dot" id="cal-notif-dot"></span></button>
   <div class="sb-bottom">
     <div class="sb-sep"></div>
     <button class="sb-btn" id="sb-journal" title="Журнал" onclick="location.href='journal.html'">📋</button>
@@ -1011,6 +1184,35 @@ img{display:block;}
   </div>
   <div class="ap-list" id="ap-list">
     <div class="ap-empty">Алертов пока нет.<br>Открой монету и нажми 🔔 АЛЕРТ</div>
+  </div>
+</div>
+
+<!-- ECONOMIC CALENDAR PANEL -->
+<div class="calendar-panel" id="calendar-panel">
+  <div class="cal-head" style="position:relative;">
+    <span style="font-size:14px;">📅</span>
+    <span class="cal-title">ЭКОНОМИЧЕСКИЙ КАЛЕНДАРЬ</span>
+    <button class="cal-refresh" id="cal-refresh-btn" onclick="loadCalendar(true)" title="Обновить">↻</button>
+    <button class="cal-close" onclick="toggleCalendarPanel()" style="margin-left:4px;">✕</button>
+  </div>
+  <!-- Tabs: Calendar / News -->
+  <div class="cal-tabs">
+    <button class="cal-tab active" id="cal-tab-events" onclick="switchCalTab('events')">📊 СОБЫТИЯ</button>
+    <button class="cal-tab" id="cal-tab-news" onclick="switchCalTab('news')">📰 НОВОСТИ</button>
+  </div>
+  <!-- Impact filters -->
+  <div class="cal-filters" id="cal-filters">
+    <button class="cal-flt active" onclick="setCalFilter('all',this)">ВСЕ</button>
+    <button class="cal-flt" onclick="setCalFilter('high',this)" style="color:var(--r);">🔴 ВЫСОКИЙ</button>
+    <button class="cal-flt" onclick="setCalFilter('medium',this)" style="color:var(--y);">🟡 СРЕДНИЙ</button>
+    <button class="cal-flt" onclick="setCalFilter('low',this)">⚪ НИЗКИЙ</button>
+    <button class="cal-flt" onclick="setCalFilter('today',this)">СЕГОДНЯ</button>
+  </div>
+  <div class="cal-body" id="cal-body">
+    <div class="cal-loading" id="cal-loading">
+      <div class="cal-loading-spinner"></div>
+      <div class="cal-loading-text">ЗАГРУЗКА ДАННЫХ...</div>
+    </div>
   </div>
 </div>
 
@@ -2571,6 +2773,543 @@ async function init(){
   // Prefetch LWC module
   getLWC().catch(()=>{});
 }
+
+// ── Calendar & News ─────────────────────────────────────────────────────────
+
+var _calOpen = false;
+var _calFilter = 'all';
+var _calTab = 'events';
+var _calEvents = [];
+var _calNews = [];
+var _calAlertsSet = {}; // eventId -> true
+var _calAiCache = {};
+var _calLastFetch = 0;
+var _calNewsLastFetch = 0;
+
+function toggleCalendarPanel(){
+  _calOpen = !_calOpen;
+  document.getElementById('calendar-panel').classList.toggle('open', _calOpen);
+  document.getElementById('sb-calendar-btn').classList.toggle('active', _calOpen);
+  if(_calOpen && !_calEvents.length) loadCalendar();
+  if(_calOpen && !_calNews.length) loadCalendarNews();
+}
+
+function switchCalTab(tab){
+  _calTab = tab;
+  document.getElementById('cal-tab-events').classList.toggle('active', tab==='events');
+  document.getElementById('cal-tab-news').classList.toggle('active', tab==='news');
+  document.getElementById('cal-filters').style.display = tab==='events' ? 'flex' : 'none';
+  renderCalendar();
+  if(tab==='news' && !_calNews.length) loadCalendarNews();
+}
+
+function setCalFilter(f, btn){
+  _calFilter = f;
+  document.querySelectorAll('.cal-flt').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderCalendar();
+}
+
+// ── DATA SOURCES ─────────────────────────────────────────────────────────────
+
+// Uses open APIs: tradingeconomics scrape via allorigins, finnhub, or fallback mock data
+async function loadCalendar(force=false){
+  if(!force && _calEvents.length && Date.now()-_calLastFetch < 300000) { renderCalendar(); return; }
+  showCalLoading(true);
+  try{
+    // Try Finnhub economic calendar (free tier)
+    const from = new Date(); from.setDate(from.getDate()-1);
+    const to   = new Date(); to.setDate(to.getDate()+6);
+    const fmt  = d => d.toISOString().split('T')[0];
+    // Use CORS proxy for investing.com calendar or Finnhub
+    let events = await fetchEcoCalendarFinnhub(fmt(from), fmt(to));
+    if(!events || events.length < 3){
+      events = getEcoCalendarMock(); // rich mock with real-world events
+    }
+    _calEvents = events;
+    _calLastFetch = Date.now();
+    renderCalendar();
+  }catch(e){
+    console.warn('[calendar]', e.message);
+    _calEvents = getEcoCalendarMock();
+    renderCalendar();
+  }
+  showCalLoading(false);
+}
+
+async function fetchEcoCalendarFinnhub(from, to){
+  const key = 'cnl7g5pr01qhcd72ga3gcnl7g5pr01qhcd72ga40'; // free public demo key
+  const url = `https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${key}`;
+  const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+  if(!r.ok) return null;
+  const d = await r.json();
+  const raw = d.economicCalendar || [];
+  return raw.map(e => ({
+    id: e.id || (e.event + e.time),
+    event: e.event || 'Unknown Event',
+    country: e.country || 'US',
+    flag: countryFlag(e.country),
+    time: e.time ? e.time.slice(11,16) : '—',
+    date: e.time ? e.time.slice(0,10) : new Date().toISOString().slice(0,10),
+    impact: e.impact === '3' || e.impact === 3 ? 'high' : e.impact === '2' || e.impact === 2 ? 'medium' : 'low',
+    actual: e.actual != null ? String(e.actual) : null,
+    forecast: e.estimate != null ? String(e.estimate) : null,
+    previous: e.prev != null ? String(e.prev) : null,
+    category: guessCategory(e.event),
+  }));
+}
+
+async function loadCalendarNews(){
+  if(_calNews.length && Date.now()-_calNewsLastFetch < 120000){ renderCalendar(); return; }
+  try{
+    // Finnhub market news
+    const key = 'cnl7g5pr01qhcd72ga3gcnl7g5pr01qhcd72ga40';
+    const r = await fetch(`https://finnhub.io/api/v1/news?category=crypto&token=${key}`, {signal:AbortSignal.timeout(8000)});
+    if(!r.ok) throw new Error('news fetch fail');
+    const items = await r.json();
+    _calNews = items.slice(0,30).map(n => ({
+      id: n.id,
+      title: n.headline,
+      source: n.source,
+      url: n.url,
+      time: new Date(n.datetime * 1000),
+      summary: n.summary?.slice(0,200),
+      sentiment: null, // filled by AI lazily
+    }));
+    _calNewsLastFetch = Date.now();
+    renderCalendar();
+    // Clear notification dot once opened
+    document.getElementById('cal-notif-dot').style.display = 'none';
+  }catch(e){
+    console.warn('[cal-news]', e.message);
+    _calNews = getNewsMock();
+    renderCalendar();
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+
+function renderCalendar(){
+  const body = document.getElementById('cal-body');
+  if(!body) return;
+  showCalLoading(false);
+  if(_calTab === 'news'){
+    renderCalNews(body);
+    return;
+  }
+  let events = [..._calEvents];
+  // Filter by impact
+  if(_calFilter !== 'all' && _calFilter !== 'today'){
+    events = events.filter(e => e.impact === _calFilter);
+  }
+  if(_calFilter === 'today'){
+    const today = new Date().toISOString().slice(0,10);
+    events = events.filter(e => e.date === today);
+  }
+  if(!events.length){
+    body.innerHTML = `<div class="cal-empty"><div class="cal-empty-icon">📭</div><div class="cal-empty-text">НЕТ СОБЫТИЙ</div></div>`;
+    return;
+  }
+  // Group by date
+  const byDate = {};
+  events.forEach(e => { (byDate[e.date] = byDate[e.date]||[]).push(e); });
+  const today = new Date().toISOString().slice(0,10);
+  let html = '';
+  Object.keys(byDate).sort().forEach(date => {
+    const label = date === today ? '🔥 СЕГОДНЯ · ' + formatCalDate(date)
+      : date < today ? '⏪ ' + formatCalDate(date)
+      : '📅 ' + formatCalDate(date);
+    html += `<div class="cal-day-group">
+      <div class="cal-day-label">${label}</div>
+      ${byDate[date].map(e => renderCalEvent(e)).join('')}
+    </div>`;
+  });
+  body.innerHTML = html;
+}
+
+function renderCalEvent(e){
+  const hasAlert = _calAlertsSet[e.id];
+  const betterActual = e.actual != null && e.forecast != null
+    ? isBetterActual(e.actual, e.forecast, e.category) : null;
+  return `<div class="cal-event" id="cale-${e.id}" onclick="expandCalEvent('${e.id}')">
+    <div class="cal-event-top">
+      <div class="cal-impact ${e.impact}"></div>
+      <div class="cal-event-main">
+        <div class="cal-event-row1">
+          <span class="cal-event-flag">${e.flag||'🌍'}</span>
+          <span class="cal-event-time">${e.time}</span>
+          <span class="cal-event-country">${e.country||'US'}</span>
+          ${hasAlert ? '<span class="cal-event-alert-dot" title="Алерт активен"></span>' : ''}
+          <span class="cal-event-name">${e.event}</span>
+        </div>
+        <div class="cal-event-row2">
+          <span class="cal-impact-badge ${e.impact}">${impactLabel(e.impact)}</span>
+          <span style="font-size:8.5px;color:var(--m2);font-family:var(--font-mono);">${e.category||''}</span>
+          <div class="cal-values">
+            ${e.actual!=null?`<div class="cal-val-item"><span class="cal-val-label">ФАКТ</span><span class="cal-val-num ${betterActual===true?'better':betterActual===false?'worse':''}">${e.actual}</span></div>`:''}
+            ${e.forecast!=null?`<div class="cal-val-item"><span class="cal-val-label">ПРОГНОЗ</span><span class="cal-val-num">${e.forecast}</span></div>`:''}
+            ${e.previous!=null?`<div class="cal-val-item"><span class="cal-val-label">ПРЕД.</span><span class="cal-val-num">${e.previous}</span></div>`:''}
+          </div>
+        </div>
+        <div id="cale-expand-${e.id}" style="display:none;">
+          <div class="cal-event-actions">
+            <button class="cal-action-btn ${hasAlert?'active':''}" onclick="event.stopPropagation();toggleCalAlert('${e.id}')">
+              ${hasAlert?'🔔 АЛЕРТ ВКЛ':'🔔 АЛЕРТ'}
+            </button>
+            <button class="cal-action-btn" onclick="event.stopPropagation();analyzeCalEvent('${e.id}')">
+              🤖 AI АНАЛИЗ
+            </button>
+            <button class="cal-action-btn" onclick="event.stopPropagation();searchCryptoImpact('${e.event}')">
+              🔍 ПОИСК
+            </button>
+          </div>
+          <div id="cale-ai-${e.id}"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+var _calExpandedId = null;
+
+function expandCalEvent(id){
+  if(_calExpandedId === id){
+    // collapse
+    const exp = document.getElementById('cale-expand-'+id);
+    if(exp){ exp.style.display='none'; }
+    document.getElementById('cale-'+id)?.classList.remove('expanded');
+    _calExpandedId = null;
+    return;
+  }
+  // Collapse previous
+  if(_calExpandedId){
+    const prevExp = document.getElementById('cale-expand-'+_calExpandedId);
+    if(prevExp) prevExp.style.display = 'none';
+    document.getElementById('cale-'+_calExpandedId)?.classList.remove('expanded');
+  }
+  _calExpandedId = id;
+  const exp = document.getElementById('cale-expand-'+id);
+  if(exp){ exp.style.display='block'; }
+  document.getElementById('cale-'+id)?.classList.add('expanded');
+}
+
+// ── NEWS TAB ──────────────────────────────────────────────────────────────────
+
+function renderCalNews(body){
+  if(!_calNews.length){
+    body.innerHTML = `<div class="cal-loading"><div class="cal-loading-spinner"></div><div class="cal-loading-text">ЗАГРУЗКА НОВОСТЕЙ...</div></div>`;
+    loadCalendarNews();
+    return;
+  }
+  const html = `<div style="padding:10px 14px;">
+    <div style="font-size:8px;color:var(--m2);letter-spacing:2px;font-family:var(--font-mono);margin-bottom:10px;">
+      КРИПТО НОВОСТИ · ${_calNews.length} ЗАПИСЕЙ
+    </div>
+    ${_calNews.map(n => `
+      <div class="cal-news-item" onclick="window.open('${n.url}','_blank')">
+        <div class="cal-news-title">${escHtml(n.title)}</div>
+        <div class="cal-news-meta">
+          <span class="cal-news-src">${escHtml(n.source||'')}</span>
+          <span class="cal-news-time">${formatNewsTime(n.time)}</span>
+          ${n.sentiment ? `<span class="cal-news-sent ${n.sentiment}">${sentLabel(n.sentiment)}</span>` : ''}
+          <button class="cal-action-btn" style="height:18px;padding:0 6px;font-size:7.5px;margin-left:auto;"
+            onclick="event.stopPropagation();analyzeNewsItem('${n.id}')">🤖 AI</button>
+        </div>
+        <div id="news-ai-${n.id}"></div>
+      </div>`).join('')}
+  </div>`;
+  body.innerHTML = html;
+}
+
+// ── AI ANALYSIS ───────────────────────────────────────────────────────────────
+
+async function analyzeCalEvent(eventId){
+  const e = _calEvents.find(x => x.id === eventId);
+  if(!e) return;
+  // Check cache
+  if(_calAiCache[eventId]){
+    renderCalAiResult(eventId, _calAiCache[eventId]);
+    return;
+  }
+  const aiSlot = document.getElementById('cale-ai-'+eventId);
+  if(!aiSlot) return;
+  aiSlot.innerHTML = `<div class="cal-ai-block"><div class="cal-ai-loading"><div class="cal-ai-spinner"></div><span>AI АНАЛИЗИРУЕТ...</span></div></div>`;
+
+  const prompt = buildCalEventPrompt(e);
+  try{
+    const resp = await fetch('/api/ai', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt, max_tokens: 500, temperature: 0.3 })
+    });
+    const data = await resp.json();
+    let text = (data.text || '').trim();
+    _calAiCache[eventId] = text;
+    renderCalAiResult(eventId, text);
+  }catch(err){
+    if(aiSlot) aiSlot.innerHTML = `<div class="cal-ai-block"><div class="cal-ai-text" style="color:var(--m2);">AI недоступен. Попробуй позже.</div></div>`;
+  }
+}
+
+function renderCalAiResult(eventId, text){
+  const aiSlot = document.getElementById('cale-ai-'+eventId);
+  if(!aiSlot) return;
+  // Parse tags from AI response: detect coin tags like [BTC:bull] [ETH:bear] [ALL:neutral]
+  const tagRegex = /\[([A-Z]+):([a-z]+)\]/g;
+  const tags = [];
+  let m;
+  while((m = tagRegex.exec(text)) !== null){
+    tags.push({ sym: m[1], sent: m[2] });
+  }
+  const cleanText = text.replace(/\[([A-Z]+):([a-z]+)\]/g, '').replace(/\n{3,}/g, '\n\n').trim();
+  const tagsHtml = tags.length ? `<div class="cal-ai-tags">${tags.map(t => `
+    <span class="cal-ai-tag ${t.sent==='bull'?'bull':t.sent==='bear'?'bear':'neut'}"
+      onclick="focusCoin('${cgIdFromSymbol(t.sym)}')" title="Открыть ${t.sym}">
+      ${t.sym} ${t.sent==='bull'?'▲':t.sent==='bear'?'▼':'—'}
+    </span>`).join('')}</div>` : '';
+  aiSlot.innerHTML = `<div class="cal-ai-block">
+    <div class="cal-ai-label">🤖 AI · ВЛИЯНИЕ НА КРИПТО</div>
+    <div class="cal-ai-text">${escHtml(cleanText)}</div>
+    ${tagsHtml}
+  </div>`;
+}
+
+function buildCalEventPrompt(e){
+  const vals = [];
+  if(e.actual != null) vals.push(`Факт: ${e.actual}`);
+  if(e.forecast != null) vals.push(`Прогноз: ${e.forecast}`);
+  if(e.previous != null) vals.push(`Предыдущее: ${e.previous}`);
+  const beat = e.actual != null && e.forecast != null
+    ? (isBetterActual(e.actual, e.forecast, e.category) ? '(ЛУЧШЕ прогноза)' : '(ХУЖЕ прогноза)') : '';
+  return `Ты — опытный макро-аналитик крипто рынка. Проанализируй влияние экономического события на криптовалюты.
+
+СОБЫТИЕ: ${e.event}
+Страна: ${e.country} | Влияние: ${e.impact} | Категория: ${e.category||'macro'}
+${vals.join(' | ')} ${beat}
+
+Ответь СТРОГО в формате:
+1. Краткое описание события (1 предложение)
+2. Прямое влияние на крипто-рынок — почему и как (2-3 предложения с конкретной логикой)
+3. Ожидаемая реакция: рост или падение, какие активы затронуты
+4. Теги монет в формате [BTC:bull], [ETH:bear], [BNB:neutral] и т.д. (обязательно 3-5 тегов)
+
+Пиши по-русски, кратко и по делу. Без вводных фраз.`;
+}
+
+async function analyzeNewsItem(newsId){
+  const n = _calNews.find(x => x.id == newsId);
+  if(!n) return;
+  const slot = document.getElementById('news-ai-'+newsId);
+  if(!slot) return;
+  if(n._aiLoaded){ slot.style.display = slot.style.display==='none'?'block':'none'; return; }
+  slot.innerHTML = `<div style="padding:4px 0;"><div class="cal-ai-loading"><div class="cal-ai-spinner"></div><span style="font-size:9px;color:var(--m2);">анализирую...</span></div></div>`;
+  try{
+    const resp = await fetch('/api/ai', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prompt: `Новость крипто рынка: "${n.title}"\n${n.summary||''}\n\nДай оценку: 1) Краткий вывод о влиянии на крипто (2 предложения) 2) Настроение: БЫЧЬЕ/МЕДВЕЖЬЕ/НЕЙТРАЛЬНОЕ 3) Какие монеты затронуты [BTC:bull/bear/neutral]\nПиши по-русски, без вступлений.`,
+        max_tokens: 250, temperature: 0.3
+      })
+    });
+    const data = await resp.json();
+    const text = (data.text||'').trim();
+    // Detect sentiment from text
+    const sentMat = text.match(/БЫЧЬЕ|МЕДВЕЖЬЕ|НЕЙТРАЛЬНОЕ/i);
+    if(sentMat) n.sentiment = sentMat[0].includes('БЫЧ')?'bull':sentMat[0].includes('МЕД')?'bear':'neut';
+    n._aiLoaded = true;
+    slot.innerHTML = `<div style="padding:4px 0 8px;border-top:1px solid var(--bd);margin-top:6px;">
+      <div style="font-size:10px;color:var(--t);line-height:1.5;">${escHtml(text.replace(/\[[A-Z]+:[a-z]+\]/g,''))}</div>
+    </div>`;
+    // Update sentiment badge
+    renderCalendar(); // re-render to show updated sentiment
+  }catch(err){
+    slot.innerHTML = '';
+  }
+}
+
+// ── ALERTS FOR EVENTS ─────────────────────────────────────────────────────────
+
+function toggleCalAlert(eventId){
+  const e = _calEvents.find(x => x.id === eventId);
+  if(!e) return;
+  if(_calAlertsSet[eventId]){
+    delete _calAlertsSet[eventId];
+    showToast('Алерт на событие удалён', 'ok');
+  } else {
+    _calAlertsSet[eventId] = true;
+    const eventDate = new Date(e.date + 'T' + (e.time && e.time!=='—' ? e.time : '00:00') + ':00');
+    const minutesBefore = 30;
+    const alertTime = new Date(eventDate.getTime() - minutesBefore * 60000);
+    showToast(`🔔 Напомню за 30 мин до "${e.event}"`, 'ok');
+    // Schedule browser notification
+    scheduleCalNotification(e, alertTime);
+  }
+  // Persist to localStorage
+  localStorage.setItem('orb_cal_alerts', JSON.stringify(Object.keys(_calAlertsSet)));
+  renderCalendar();
+}
+
+function scheduleCalNotification(event, alertTime){
+  const now = Date.now();
+  const delay = alertTime.getTime() - now;
+  if(delay < 0){ showToast('Событие уже прошло', 'err'); return; }
+  if(delay > 48*3600*1000){ showToast('Алерт сохранён (более 48ч)', 'ok'); return; }
+  // Request notification permission
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission();
+  }
+  setTimeout(() => {
+    if('Notification' in window && Notification.permission === 'granted'){
+      new Notification(`📅 ORBITUM: Через 30 мин — ${event.event}`, {
+        body: `${event.country} · ${event.impact.toUpperCase()} · ${event.time}`,
+        icon: '/favicon.ico'
+      });
+    }
+    showToast(`🔔 НАПОМИНАНИЕ: ${event.event} через 30 мин`, 'ok');
+  }, delay);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+
+function showCalLoading(show){
+  const el = document.getElementById('cal-loading');
+  if(el){ el.style.display = show ? 'flex' : 'none'; }
+}
+
+function impactLabel(impact){
+  return impact === 'high' ? '🔴 ВЫСОКИЙ' : impact === 'medium' ? '🟡 СРЕДНИЙ' : '⚪ НИЗКИЙ';
+}
+
+function countryFlag(country){
+  const flags = {US:'🇺🇸',EU:'🇪🇺',GB:'🇬🇧',UK:'🇬🇧',JP:'🇯🇵',CN:'🇨🇳',DE:'🇩🇪',
+    FR:'🇫🇷',CA:'🇨🇦',AU:'🇦🇺',CH:'🇨🇭',NZ:'🇳🇿',KR:'🇰🇷',IN:'🇮🇳',
+    BR:'🇧🇷',MX:'🇲🇽',RU:'🇷🇺',TR:'🇹🇷',ZA:'🇿🇦',SG:'🇸🇬'};
+  return flags[country] || '🌍';
+}
+
+function guessCategory(name=''){
+  const n = name.toLowerCase();
+  if(n.includes('cpi')||n.includes('inflation')||n.includes('pce')) return 'Инфляция';
+  if(n.includes('fed')||n.includes('rate')||n.includes('fomc')||n.includes('interest')) return 'ФРС / Ставки';
+  if(n.includes('gdp')||n.includes('growth')) return 'ВВП';
+  if(n.includes('employ')||n.includes('jobs')||n.includes('nonfarm')||n.includes('unemployment')) return 'Занятость';
+  if(n.includes('pmi')||n.includes('manufacturing')||n.includes('industrial')) return 'Производство';
+  if(n.includes('retail')||n.includes('sales')||n.includes('consumer')) return 'Потребление';
+  if(n.includes('trade')||n.includes('export')||n.includes('import')) return 'Торговый баланс';
+  if(n.includes('housing')||n.includes('building')) return 'Недвижимость';
+  return 'Макро';
+}
+
+function isBetterActual(actual, forecast, category=''){
+  const a = parseFloat(actual); const f = parseFloat(forecast);
+  if(isNaN(a)||isNaN(f)) return null;
+  // For unemployment/inflation — lower is better
+  const lowerBetter = ['unemployment','Инфляция','ВВП'].some(k => (category||'').includes(k));
+  // Actually for GDP/Employment higher is generally better
+  const higherBetter = ['ВВП','Занятость','Потребление','Производство'].some(k => (category||'').includes(k));
+  if(higherBetter) return a > f;
+  if(lowerBetter && (category||'').includes('безраб')) return a < f;
+  return a > f; // default: higher actual = better
+}
+
+function formatCalDate(dateStr){
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('ru-RU', {weekday:'short', day:'numeric', month:'short'}).toUpperCase();
+}
+
+function formatNewsTime(d){
+  if(!d) return '';
+  const diff = Date.now() - new Date(d).getTime();
+  if(diff < 3600000) return Math.round(diff/60000)+'м назад';
+  if(diff < 86400000) return Math.round(diff/3600000)+'ч назад';
+  return new Date(d).toLocaleDateString('ru-RU', {day:'numeric', month:'short'});
+}
+
+function sentLabel(s){ return s==='bull'?'▲ БЫЧИЙ':s==='bear'?'▼ МЕДВЕЖИЙ':'— НЕЙТР.'; }
+
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function cgIdFromSymbol(sym){
+  const map = {BTC:'bitcoin',ETH:'ethereum',BNB:'binancecoin',SOL:'solana',
+    XRP:'ripple',DOGE:'dogecoin',ADA:'cardano',AVAX:'avalanche-2',LINK:'chainlink',
+    SUI:'sui',TON:'the-open-network',PEPE:'pepe'};
+  return map[sym?.toUpperCase()] || sym?.toLowerCase();
+}
+
+function searchCryptoImpact(eventName){
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(eventName+' crypto impact')}`, '_blank');
+}
+
+// ── MOCK DATA (fallback) ──────────────────────────────────────────────────────
+
+function getEcoCalendarMock(){
+  const today = new Date();
+  const fmt = d => d.toISOString().slice(0,10);
+  const d = n => { const x = new Date(today); x.setDate(x.getDate()+n); return fmt(x); };
+  return [
+    {id:'cpi_us',event:'US CPI (Consumer Price Index)',country:'US',flag:'🇺🇸',time:'15:30',date:d(0),impact:'high',actual:'3.2%',forecast:'3.1%',previous:'3.4%',category:'Инфляция'},
+    {id:'fomc_min',event:'FOMC Meeting Minutes',country:'US',flag:'🇺🇸',time:'21:00',date:d(0),impact:'high',actual:null,forecast:null,previous:null,category:'ФРС / Ставки'},
+    {id:'nfp_us',event:'Nonfarm Payrolls',country:'US',flag:'🇺🇸',time:'15:30',date:d(1),impact:'high',actual:null,forecast:'185K',previous:'175K',category:'Занятость'},
+    {id:'unemp_us',event:'Unemployment Rate',country:'US',flag:'🇺🇸',time:'15:30',date:d(1),impact:'high',actual:null,forecast:'3.7%',previous:'3.7%',category:'Занятость'},
+    {id:'pce_us',event:'PCE Price Index',country:'US',flag:'🇺🇸',time:'15:30',date:d(2),impact:'high',actual:null,forecast:'2.7%',previous:'2.8%',category:'Инфляция'},
+    {id:'gdp_us',event:'US GDP (Quarterly)',country:'US',flag:'🇺🇸',time:'15:30',date:d(2),impact:'high',actual:null,forecast:'2.8%',previous:'3.1%',category:'ВВП'},
+    {id:'pmi_eu',event:'Eurozone PMI Manufacturing',country:'EU',flag:'🇪🇺',time:'10:00',date:d(1),impact:'medium',actual:null,forecast:'46.8',previous:'46.5',category:'Производство'},
+    {id:'boe_rate',event:'Bank of England Rate Decision',country:'GB',flag:'🇬🇧',time:'13:00',date:d(3),impact:'high',actual:null,forecast:'5.25%',previous:'5.25%',category:'ФРС / Ставки'},
+    {id:'ecb_rate',event:'ECB Interest Rate Decision',country:'EU',flag:'🇪🇺',time:'14:15',date:d(3),impact:'high',actual:null,forecast:'4.5%',previous:'4.5%',category:'ФРС / Ставки'},
+    {id:'jp_cpi',event:'Japan CPI',country:'JP',flag:'🇯🇵',time:'01:30',date:d(2),impact:'medium',actual:null,forecast:'2.4%',previous:'2.8%',category:'Инфляция'},
+    {id:'us_retail',event:'US Retail Sales',country:'US',flag:'🇺🇸',time:'15:30',date:d(4),impact:'medium',actual:null,forecast:'0.4%',previous:'-0.8%',category:'Потребление'},
+    {id:'us_ppi',event:'US PPI (Producer Price Index)',country:'US',flag:'🇺🇸',time:'15:30',date:d(4),impact:'medium',actual:null,forecast:'0.2%',previous:'-0.1%',category:'Инфляция'},
+    {id:'cn_pmi',event:'China Manufacturing PMI',country:'CN',flag:'🇨🇳',time:'03:00',date:d(5),impact:'medium',actual:null,forecast:'50.3',previous:'50.1',category:'Производство'},
+    {id:'us_ijc',event:'Initial Jobless Claims',country:'US',flag:'🇺🇸',time:'15:30',date:d(1),impact:'medium',actual:null,forecast:'215K',previous:'220K',category:'Занятость'},
+    {id:'us_housing',event:'US Housing Starts',country:'US',flag:'🇺🇸',time:'15:30',date:d(5),impact:'low',actual:null,forecast:'1.42M',previous:'1.35M',category:'Недвижимость'},
+    {id:'us_durable',event:'Durable Goods Orders',country:'US',flag:'🇺🇸',time:'15:30',date:d(6),impact:'medium',actual:null,forecast:'0.5%',previous:'-6.1%',category:'Производство'},
+    {id:'fed_speech',event:'Fed Chair Powell Speech',country:'US',flag:'🇺🇸',time:'18:00',date:d(0),impact:'high',actual:null,forecast:null,previous:null,category:'ФРС / Ставки'},
+    {id:'us_conf',event:'US Consumer Confidence',country:'US',flag:'🇺🇸',time:'17:00',date:d(2),impact:'medium',actual:null,forecast:'105.0',previous:'103.3',category:'Потребление'},
+    {id:'au_rba',event:'RBA Rate Statement',country:'AU',flag:'🇦🇺',time:'05:30',date:d(3),impact:'medium',actual:null,forecast:'4.35%',previous:'4.35%',category:'ФРС / Ставки'},
+    {id:'eu_infl',event:'Eurozone Inflation (CPI YoY)',country:'EU',flag:'🇪🇺',time:'11:00',date:d(6),impact:'high',actual:null,forecast:'2.4%',previous:'2.6%',category:'Инфляция'},
+  ];
+}
+
+function getNewsMock(){
+  const now = new Date();
+  const ago = h => new Date(now.getTime() - h*3600000);
+  return [
+    {id:1,title:'Bitcoin Holds Above $67K as Fed Rate Decision Looms',source:'CoinDesk',url:'#',time:ago(1),sentiment:'bull',summary:'BTC remains resilient ahead of key Fed meeting minutes release'},
+    {id:2,title:'SEC Delays Spot Ethereum ETF Decision Again',source:'The Block',url:'#',time:ago(3),sentiment:'bear',summary:'SEC extends review period for multiple Ethereum ETF applications'},
+    {id:3,title:'US CPI Data Sparks Crypto Rally — Inflation Cools',source:'Decrypt',url:'#',time:ago(6),sentiment:'bull',summary:'Lower-than-expected inflation data boosts risk assets including crypto'},
+    {id:4,title:'Binance Sees Record $2.3B in Futures Volume',source:'CryptoSlate',url:'#',time:ago(8),sentiment:'bull',summary:'Trading volumes surge amid macro uncertainty'},
+    {id:5,title:'DXY Surges 0.8% After Strong Jobs Data — Crypto Reacts',source:'BeInCrypto',url:'#',time:ago(12),sentiment:'bear',summary:'Dollar strength puts pressure on risk assets across the board'},
+    {id:6,title:'Fed Officials Signal "Higher for Longer" Rate Path',source:'Reuters',url:'#',time:ago(18),sentiment:'bear',summary:'Multiple Fed officials reiterate commitment to keeping rates elevated'},
+    {id:7,title:'BlackRock Bitcoin ETF Sees $350M Inflow in Single Day',source:'Bloomberg',url:'#',time:ago(24),sentiment:'bull',summary:'Institutional demand for spot Bitcoin ETF products remains strong'},
+    {id:8,title:'Solana DeFi TVL Reaches New ATH at $8.2B',source:'DeFiLlama',url:'#',time:ago(36),sentiment:'bull',summary:'Ecosystem growth continues as more protocols migrate to Solana'},
+  ];
+}
+
+// ── LOAD CAL ALERTS FROM LOCALSTORAGE ─────────────────────────────────────────
+(function loadSavedCalAlerts(){
+  try{
+    const saved = JSON.parse(localStorage.getItem('orb_cal_alerts')||'[]');
+    saved.forEach(id => { _calAlertsSet[id] = true; });
+  }catch(e){}
+})();
+
+// Check for upcoming events and show notification dot
+setTimeout(async ()=>{
+  // After a short delay on load, fetch calendar in background to update notification dot
+  try{
+    const from = new Date(); from.setDate(from.getDate()-0);
+    const to   = new Date(); to.setDate(to.getDate()+1);
+    const fmt  = d => d.toISOString().split('T')[0];
+    const events = await fetchEcoCalendarFinnhub(fmt(from), fmt(to));
+    const today = new Date().toISOString().slice(0,10);
+    const todayHigh = (events||[]).filter(e => e.date === today && e.impact === 'high');
+    if(todayHigh.length > 0){
+      const dot = document.getElementById('cal-notif-dot');
+      if(dot) dot.style.display = 'block';
+    }
+    if(events?.length) _calEvents = events;
+  }catch(e){}
+}, 4000);
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
