@@ -4601,7 +4601,7 @@ body::after {
     <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
     <div class="sk sk-note" style="width:80%"></div>
   </div>
-</div>></div>
+</div></div>
   </div>
 
   <!-- ──────────── DASHBOARD ─────────────────── -->
@@ -5471,7 +5471,7 @@ function closeAI(){
 function showPage(p,btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   var pg=document.getElementById('page-'+p);
-  if(!pg)return;
+  if(!pg){console.warn('[ORBITUM] Page not found: page-'+p);return;}
   pg.classList.add('active');
 
   document.querySelectorAll('.sb-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
@@ -5495,6 +5495,7 @@ function showPage(p,btn){
 }
 
 // ─── FORMAT AI TEXT ────────────────────────────────
+function sanitizeForAI(t){if(!t)return '';return String(t).replace(/ignore (all )?previous/gi,'').replace(/you are now/gi,'').replace(/system:/gi,'').replace(/<\/?[a-z][^>]*>/gi,'').substring(0,500);}
 function formatAIText(text){
   if(!text) return '';
   return '<p>'+text
@@ -5716,6 +5717,7 @@ function fromPct(){
 function fromUsd(){
   const dep=parseFloat(document.getElementById('f-dep').value)||0;
   const usd=parseFloat(document.getElementById('f-usd').value)||0;
+  if(usd&&!dep){var _d=document.getElementById('f-dep');if(_d){_d.style.borderColor='rgba(245,166,35,0.6)';_d.placeholder='← нужен для P&L%';setTimeout(function(){_d.style.borderColor='';_d.placeholder='1000';},3000);}return;}
   if(dep&&usd) document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);
 }
 
@@ -5887,6 +5889,7 @@ function updateStats(){
   document.getElementById('s-str').textContent=streak;
 }
 
+function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function render(){
   hideTradeSkeleton();
   const list=document.getElementById('trades-list');
@@ -5902,7 +5905,7 @@ function render(){
           <div class="es-icon">🔍</div>
           <div class="es-title">НЕТ СДЕЛОК</div>
           <div class="es-sub">По выбранному фильтру сделок нет.<br>Попробуй другой фильтр или добавь новую сделку.</div>
-          <button class="es-cta" onclick="setFilter('all')">ПОКАЗАТЬ ВСЕ</button>
+          <button class="es-cta" onclick="setF('all',this)">ПОКАЗАТЬ ВСЕ</button>
          </div>`
       : `<div class="empty-state">
           <div class="es-icon">📋</div>
@@ -5929,7 +5932,7 @@ function render(){
           <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
         </div>
       </div>
-      ${t.note_why||t.note_feel||t.note_lesson?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}</div>`:''}
+      ${t.note_why||t.note_feel||t.note_lesson?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${escHtml(t.note_why)}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${escHtml(t.note_feel)}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${escHtml(t.note_lesson)}`:''}</div>`:''}
       ${t.screenshot_url?`<div class="tcard-screenshot" onclick="openLightbox('${t.screenshot_url}')"><img src="${t.screenshot_url}" alt="chart" loading="lazy"></div>`:''}
     </div>`;
   }).join('');
@@ -6629,11 +6632,26 @@ function renderChallenges(trades){
   var wr60 = n>=15 && Math.round(wins/n*100)>=60;
   var wr70 = n>=20 && Math.round(wins/n*100)>=70;
   var streak=0; for(var i=0;i<trades.length;i++){if(trades[i].result==='win')streak++;else break;}
+  // Compute all challenge keys (BUGFIX BONUS)
+  var _bd2={};trades.forEach(function(t){var d=new Date(t.created_at).toDateString();if(!_bd2[d])_bd2[d]=0;_bd2[d]+=(t.pnl_pct||0);});
+  var _sd=Object.keys(_bd2).sort(function(a,b){return new Date(b)-new Date(a);});
+  var greendays=0;for(var _gi=0;_gi<_sd.length;_gi++){if(_bd2[_sd[_gi]]>0)greendays++;else break;}
+  var _ld={};trades.forEach(function(t){if(t.result==='loss'){_ld[new Date(t.created_at).toDateString()]=true;}});
+  var nolossdays=0;var _n2=new Date();for(var _ni=0;_ni<365;_ni++){var _dd2=new Date(_n2);_dd2.setDate(_dd2.getDate()-_ni);var _ds2=_dd2.toDateString();if(_ld[_ds2])break;if(_bd2[_ds2]!==undefined)nolossdays++;}
+  var _wA=trades.filter(function(t){return t.result==='win';}),_lA=trades.filter(function(t){return t.result==='loss';});
+  var _aW=_wA.length?_wA.reduce(function(s,t){return s+Math.abs(t.pnl_pct||0);},0)/_wA.length:0;
+  var _aL=_lA.length?_lA.reduce(function(s,t){return s+Math.abs(t.pnl_pct||0);},0)/_lA.length:1;
+  var rr2=n>=20&&_aL>0&&_aW/_aL>2.0?1:0;
+  var emotions=trades.filter(function(t){return (t.emotion_fear||10)<4&&(t.emotion_conf||0)>6;}).length>=10?1:0;
   var vals = {
     total: n,
     wr60: wr60?1:0,
     wr70: wr70?1:0,
-    streak: streak
+    streak: streak,
+    greendays: greendays,
+    nolossdays: nolossdays,
+    rr2: rr2,
+    emotions: emotions
   };
   grid.innerHTML = CHALLENGES.map(function(c){
     var cur = Math.min(c.goal, vals[c.key]||0);
@@ -7905,6 +7923,7 @@ async function clearAllTrades(){
   if(!confirm('Удалить ВСЕ сделки? Это действие нельзя отменить.')) return;
   const second=confirm('Вы уверены? Все ' + allTrades.length + ' сделок будут удалены навсегда.');
   if(!second) return;
+  if(window._isDemoMode){allTrades=[];if(typeof demoSaveTrades==='function')demoSaveTrades([]);render();updateStatsEnhanced();renderDashboard();renderProgress();renderLevelBar([]);showNotif('success','Очищено','Все demo-сделки удалены',3000);return;}
   const {error}=await sb.from('trades').delete().eq('user_id',currentUser.id);
   if(error){alert('Ошибка удаления: '+error.message);return;}
   allTrades=[];
@@ -7989,6 +8008,7 @@ document.addEventListener('click',function(e){
 // УВЕДОМЛЕНИЯ (колокольчик журнала)
 // ═══════════════════════════════════════════════════
 let _jNotifs=[], _jNotifOpen=false;
+function renderJournalBell(){var c=(_jNotifs||[]).filter(function(n){return !n.read;}).length;var b=document.querySelector(".notif-count");if(b){b.textContent=c;b.style.display=c>0?"flex":"none";}}
 
 
 let _jNotifsLastCount=0;
@@ -8375,7 +8395,7 @@ function onbSaveDeposit(){
   const dep = parseFloat(document.getElementById('onb-deposit')?.value);
   const risk = parseFloat(document.getElementById('onb-risk')?.value);
   if(dep > 0){
-    localStorage.setItem('orb_balance', dep);
+    localStorage.setItem('orb_balance', JSON.stringify({start: dep}));
     // Also set in the journal balance input if it exists
     const balInp = document.getElementById('f-dep');
     if(balInp) balInp.value = dep;
@@ -8387,6 +8407,73 @@ function onbClose(){
   localStorage.setItem(ONB_KEY, '1');
 }
 
+
+
+// ═══ FIX #8: renderDigest + helpers ═══
+function renderDigest(){
+  var trades=allTrades||[];var now=new Date();var weekAgo=new Date(now);weekAgo.setDate(weekAgo.getDate()-7);
+  var wk=trades.filter(function(t){return new Date(t.created_at)>=weekAgo;});
+  var wl=document.getElementById('digest-week-label'),ti=document.getElementById('digest-title'),si=document.getElementById('digest-sub');
+  if(wl)wl.textContent=weekAgo.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' — '+now.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
+  if(!wk.length){if(ti)ti.textContent='НЕТ ДАННЫХ';if(si)si.textContent='Добавь сделки за эту неделю';return;}
+  var wins=wk.filter(function(t){return t.result==='win';}),losses=wk.filter(function(t){return t.result==='loss';});
+  var tp=wk.reduce(function(s,t){return s+(t.pnl_pct||0);},0),wr=Math.round(wins.length/wk.length*100);
+  if(ti)ti.textContent=(tp>=0?'📈 ПРИБЫЛЬНАЯ НЕДЕЛЯ':'📉 УБЫТОЧНАЯ НЕДЕЛЯ');
+  if(si)si.textContent=wk.length+' сделок · WR '+wr+'% · P&L '+(tp>=0?'+':'')+tp.toFixed(1)+'%';
+  var dt=document.getElementById('dg-trades'),dd=document.getElementById('dg-trades-desc');
+  if(dt)dt.textContent=wk.length;if(dd)dd.textContent='WR '+wr+'% · '+wins.length+'W / '+losses.length+'L';
+  var dn=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],bd={};
+  wk.forEach(function(t){var d=new Date(t.created_at),k=d.toDateString();if(!bd[k])bd[k]={pnl:0,count:0,day:dn[d.getDay()]};bd[k].pnl+=(t.pnl_pct||0);bd[k].count++;});
+  var ds=Object.values(bd);
+  if(ds.length){
+    var best=ds.reduce(function(a,b){return a.pnl>b.pnl?a:b;}),worst=ds.reduce(function(a,b){return a.pnl<b.pnl?a:b;});
+    var eb=document.getElementById('dg-best-day'),ebd=document.getElementById('dg-best-desc');
+    var ew=document.getElementById('dg-worst-day'),ewd=document.getElementById('dg-worst-desc');
+    if(eb)eb.textContent=best.day;if(ebd)ebd.textContent='+'+best.pnl.toFixed(1)+'% · '+best.count+' сд.';
+    if(ew)ew.textContent=worst.day;if(ewd)ewd.textContent=worst.pnl.toFixed(1)+'% · '+worst.count+' сд.';
+  }
+  var il=document.getElementById('digest-insights-list');
+  if(il){var ins=[];
+    if(wr>=60)ins.push({i:'🎯',t:'<b>Высокий WR</b> — '+wr+'%'});
+    else if(wr<40&&wk.length>=3)ins.push({i:'⚠️',t:'<b>Низкий WR</b> — '+wr+'%'});
+    var af=wk.reduce(function(s,t){return s+(t.emotion_fear||0);},0)/wk.length;
+    if(af>6)ins.push({i:'😰',t:'<b>Высокий страх</b> — '+af.toFixed(1)+'/10'});
+    var ag=wk.reduce(function(s,t){return s+(t.emotion_greed||0);},0)/wk.length;
+    if(ag>6)ins.push({i:'🤑',t:'<b>Жадность</b> — '+ag.toFixed(1)+'/10'});
+    var ns=wk.filter(function(t){return !t.stop_loss;}).length;
+    if(ns>0)ins.push({i:'🛑',t:'<b>'+ns+' без стопа</b> из '+wk.length});
+    if(tp>0&&wk.length>=3)ins.push({i:'✅',t:'<b>Прибыльная неделя!</b> +'+tp.toFixed(1)+'%'});
+    if(!ins.length)ins.push({i:'📊',t:'Заполняй эмоции и сетапы для анализа.'});
+    il.innerHTML=ins.map(function(x){return '<div class="di-item"><span class="di-icon">'+x.i+'</span><div class="di-text">'+x.t+'</div></div>';}).join('');
+  }
+  _renderMC(trades);_renderWD(trades);
+}
+function _renderMC(trades){
+  var el=document.getElementById('month-compare-rows');if(!el)return;
+  var n=new Date(),tm=n.getMonth(),ty=n.getFullYear(),pm=tm===0?11:tm-1,py=tm===0?ty-1:ty;
+  var ct=trades.filter(function(t){var d=new Date(t.created_at);return d.getMonth()===tm&&d.getFullYear()===ty;});
+  var pt=trades.filter(function(t){var d=new Date(t.created_at);return d.getMonth()===pm&&d.getFullYear()===py;});
+  var ms=[{k:'Сделок',c:ct.length,p:pt.length},
+    {k:'WR%',c:ct.length?Math.round(ct.filter(function(t){return t.result==='win';}).length/ct.length*100):0,
+     p:pt.length?Math.round(pt.filter(function(t){return t.result==='win';}).length/pt.length*100):0},
+    {k:'P&L%',c:ct.reduce(function(s,t){return s+(t.pnl_pct||0);},0),p:pt.reduce(function(s,t){return s+(t.pnl_pct||0);},0)}];
+  el.innerHTML=ms.map(function(m){var d=m.c-m.p;var dc=d>0?'up':d<0?'down':'same';var ds=d>0?'↑':d<0?'↓':'=';
+    var f=function(v){return m.k.includes('%')?v.toFixed(1)+'%':v;};
+    return '<div class="mc-row"><span class="mc-key">'+m.k+'</span><div class="mc-vals"><span class="mc-val prev">'+f(m.p)+'</span><span class="mc-val curr">'+f(m.c)+'</span><span class="mc-delta '+dc+'">'+ds+'</span></div></div>';}).join('');
+}
+function _renderWD(trades){
+  var el=document.getElementById('weekly-dynamics');if(!el)return;
+  if(trades.length<3){el.innerHTML='<div class="empty" style="padding:14px">Нужно больше сделок</div>';return;}
+  var ws=[],n=new Date();for(var w=5;w>=0;w--){var s=new Date(n);s.setDate(s.getDate()-w*7-n.getDay());s.setHours(0,0,0,0);
+    var e=new Date(s);e.setDate(e.getDate()+7);
+    var wt=trades.filter(function(t){var d=new Date(t.created_at);return d>=s&&d<e;});
+    ws.push({l:s.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}),p:wt.reduce(function(a,t){return a+(t.pnl_pct||0);},0)});}
+  var mx=Math.max.apply(null,ws.map(function(w){return Math.abs(w.p);}))||1;
+  el.innerHTML='<div style="display:flex;align-items:flex-end;gap:8px;height:80px;padding:8px 0">'+ws.map(function(w){
+    var h=Math.max(4,Math.round(Math.abs(w.p)/mx*60));var c=w.p>=0?'rgba(52,208,88,0.6)':'rgba(255,77,77,0.6)';
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-family:var(--font-mono);font-size:8px;color:'+(w.p>=0?'var(--g)':'var(--r)')+'">'+(w.p>=0?'+':'')+w.p.toFixed(1)+'%</div><div style="width:100%;height:'+h+'px;background:'+c+';border-radius:3px 3px 0 0"></div><div style="font-family:var(--font-mono);font-size:7px;color:var(--m)">'+w.l+'</div></div>';
+  }).join('')+'</div>';
+}
 
 // ══ INIT CALL ══
 // ── PAIR PRESETS ──
@@ -8898,7 +8985,7 @@ function generateDemoTrades(){
      why:'Свип VAL, думал откупят. Объёма не было.',
      feel:'Жадность — хотел быстрый памп. Ошибка.',
      lesson:'Без объёма на VAL не входить. DOGE непредсказуем.',
-     conf:4,fear:3,greed:8,calc:2},
+     conf:4,fear:3,greed:8,calm:2},
     {pair:'ETH/USDT',dir:'long', r:'win', pct:4.1, usd:102, dAgo:78, setup:'Wyckoff Spring',
      why:'Второй Spring на недельном. Накопление фаза D. Сила покупателей.',
      feel:'Терпел 3 дня. Зашёл точно в момент теста.',
@@ -9318,6 +9405,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 
 <!-- ══ SCREENSHOT LIGHTBOX ══ -->
+<script>
 (function(){
   const tip = document.createElement('div');
   tip.id = 'fh-tooltip';
@@ -9444,8 +9532,7 @@ function renderQNotesList(notes){
   else init();
 
 })();
-
-
+</script>
 <!-- QUICK NOTE OVERLAY -->
 <div class="qnote-overlay" id="qnote-overlay" onclick="if(event.target===this)closeQNote()">
   <div class="qnote-popup">
@@ -10037,19 +10124,7 @@ if(document.readyState==='loading'){
 
   // Also upgrade sidebar metrics interval — poll every 10s instead of 5min
   // Hook onto existing initSidebarWidgets
-  const _origInit = window.initSidebarWidgets;
-  window.initSidebarWidgets = function(){
-    if(_origInit) _origInit();
-    // Override the 5-min interval with 30s for market/GL data
-    setInterval(()=>{
-      if(typeof fetchMarket === 'function') fetchMarket();
-      if(typeof fetchGL === 'function') fetchGL();
-    }, 30000);
-    // Trending every 2 min
-    setInterval(()=>{
-      if(typeof fetchTrending === 'function') fetchTrending();
-    }, 120000);
-  };
+  // FIX #3: override removed — intervals in initSidebarWidgets
 })();
 </script>
 
@@ -10075,7 +10150,10 @@ function jFmtPrice(p){
   return '$'+p.toFixed(7);
 }
 
+var _jwsLock=false;
 function initJournalWS(){
+  if(_jwsLock)return;_jwsLock=true;
+  if(_jws){try{_jws.onclose=null;_jws.close();}catch(e){}}
   const streams = _JWS_PAIRS.map(p => p+'@miniTicker').join('/');
   _jws = new WebSocket('wss://stream.binance.com:9443/stream?streams='+streams);
 
@@ -10119,14 +10197,15 @@ function initJournalWS(){
           tickerData[symUpper].price = price;
           tickerData[symUpper].chg   = chg;
         }
-        if(typeof renderTickerTrack === 'function') renderTickerTrack();
+        if(typeof renderTickerTrack==='function'&&!window._ttThrottle){window._ttThrottle=true;requestAnimationFrame(function(){renderTickerTrack();setTimeout(function(){window._ttThrottle=false;},1000);});}
       }
 
     }catch(_){}
   };
 
+  _jws.onopen = () => {_jwsLock=false;};
   _jws.onerror = () => {};
-  _jws.onclose = () => { setTimeout(initJournalWS, 2000); };
+  _jws.onclose = () => { _jwsLock=false; setTimeout(initJournalWS, 3000); };
 }
 
 // ── Chart page: switch symbol ────────────────────────
@@ -10214,18 +10293,7 @@ window.showPage = function(p, btn){
 
 // ── Boost market data refresh to 30s (was 5min) ──────
 // Override the slow setInterval from original journal code
-window._jFastRefreshInstalled = window._jFastRefreshInstalled || false;
-if(!window._jFastRefreshInstalled){
-  window._jFastRefreshInstalled = true;
-  document.addEventListener('DOMContentLoaded', function(){
-    // Wait for init to complete, then set faster intervals
-    setTimeout(function(){
-      if(typeof fetchFNG    === 'function') setInterval(fetchFNG,    30000);
-      if(typeof fetchMarket === 'function') setInterval(fetchMarket, 30000);
-      if(typeof fetchGL     === 'function') setInterval(fetchGL,     60000);
-    }, 5000);
-  });
-}
+// FIX #15: duplicate intervals removed
 
 // ── Auto-start WS after DOM ready ────────────────────
 if(document.readyState === 'loading'){
@@ -10504,7 +10572,7 @@ document.addEventListener('paste', e => {
       if(!file) continue;
       // Edit modal open?
       const editModal = document.getElementById('edit-modal');
-      if(editModal && editModal.style.display !== 'none'){
+      if(editModal && editModal.classList.contains('open')){
         editScrSetFile(file);
       } else {
         scrSetFile(file);
