@@ -3680,6 +3680,56 @@ body::after {
 .sbw-dot-live{animation:dotLive 1s ease infinite;}
 @keyframes dotLive{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(0.7);}}
 
+
+/* ── COMPACT SIDEBAR OVERRIDES ─────────────────────────── */
+.sb-section-market { padding: 4px 8px 0; }
+.sbw { 
+  border-radius: 6px; padding: 8px 10px; margin-bottom: 4px;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.sbw-title { 
+  font-size: 8px; letter-spacing: 2px; margin-bottom: 5px;
+  padding-bottom: 4px;
+}
+.sbw-title span { font-size: 8px; }
+.sbw-dot { width: 5px; height: 5px; }
+
+/* FNG compact */
+.sbw-fng { gap: 6px; padding: 2px 0; }
+.fng-arc svg { width: 36px; }
+.fng-num { font-size: 20px !important; }
+.fng-label { font-size: 7px; }
+
+/* Metrics 2x2 compact */
+.sbw-metrics { gap: 4px; }
+.sbw-metric { padding: 3px 5px; border-radius: 4px; }
+.sbw-metric-label { font-size: 6.5px; letter-spacing: 1.5px; }
+.sbw-metric-val { font-size: 10px; }
+
+/* Trend list compact */
+.sbw-trend-item { padding: 3px 6px; font-size: 9px; gap: 4px; }
+.sbw-trend-rank { font-size: 7.5px; width: 10px; }
+.sbw-trend-name { font-size: 9px; }
+.sbw-trend-mcap { font-size: 7.5px; }
+
+/* GL list compact */
+.sbw-gl-item { padding: 3px 6px; font-size: 9px; }
+.sbw-gl-name { font-size: 9px; }
+.sbw-gl-chg { font-size: 9px; }
+.gl-tabs { margin-bottom: 4px; }
+.gl-tab { padding: 2px 8px; font-size: 8px; height: 20px; }
+
+/* Live prices compact */
+.sbw-lp-row { padding: 3px 8px; }
+.sbw-lp-sym { font-size: 8.5px; width: 32px; }
+.sbw-lp-price { font-size: 10px; }
+.sbw-lp-chg { font-size: 8.5px; width: 46px; }
+
+/* Nav compact */
+.sb-item { padding: 6px 8px; font-size: 10.5px; }
+.sb-section { padding: 8px 8px 3px; font-size: 8px; }
+.sb-divider { margin: 4px 4px; }
 </style>
 </head>
 <body>
@@ -3719,9 +3769,6 @@ body::after {
     </button>
     <button class="sb-item" onclick="showPage('progress',this)" data-page="progress">
       <span class="sb-item-icon">📈</span>Прогресс
-    </button>
-    <button class="sb-item" onclick="showPage('chart',this)" data-page="chart">
-      <span class="sb-item-icon">📊</span>График
     </button>
     <button class="sb-item" onclick="showPage('digest',this)" data-page="digest">
       <span class="sb-item-icon">📅</span>Дайджест
@@ -4005,7 +4052,6 @@ body::after {
       <button class="tnav active" onclick="showPage('journal',this)" data-page="journal">📋 ЖУРНАЛ</button>
       <button class="tnav" onclick="showPage('dashboard',this)" data-page="dashboard">📊 АНАЛИТИКА</button>
       <button class="tnav" onclick="showPage('progress',this)" data-page="progress">📈 ПРОГРЕСС</button>
-      <button class="tnav" onclick="showPage('chart',this)" data-page="chart">📊 ГРАФИК</button>
       <button class="tnav" onclick="showPage('digest',this)" data-page="digest">📅 ДАЙДЖЕСТ</button>
       <button class="tnav" onclick="showPage('premarket',this)" data-page="premarket">☀️ СЕССИЯ</button>
     </div>
@@ -4818,60 +4864,6 @@ body::after {
     </div>
   </div>
 
-  <!-- ══ PAGE: ГРАФИК ══════════════════════════════════════════════ -->
-  <div class="page" id="page-chart" style="height:100%;display:flex;flex-direction:column;padding:0;">
-
-    <!-- topbar -->
-    <div style="
-      flex-shrink:0;height:44px;display:flex;align-items:center;gap:8px;
-      padding:0 14px;border-bottom:1px solid var(--bd);
-      background:linear-gradient(90deg,#0c0f15,#0a0d12);
-    ">
-      <span style="font-family:var(--font-display);font-size:15px;letter-spacing:3px;color:var(--a)">CHART</span>
-      <div style="width:1px;height:22px;background:var(--bd);margin:0 4px"></div>
-
-      <!-- Symbol chips -->
-      <div id="chart-sym-strip" style="display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;">
-        <button class="chart-sym-btn active" onclick="chartSwitch('BINANCE:BTCUSDT',this)">BTC</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:ETHUSDT',this)">ETH</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:SOLUSDT',this)">SOL</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:BNBUSDT',this)">BNB</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:XRPUSDT',this)">XRP</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:SUIUSDT',this)">SUI</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:AVAXUSDT',this)">AVAX</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:DOGEUSDT',this)">DOGE</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:ADAUSDT',this)">ADA</button>
-        <button class="chart-sym-btn" onclick="chartSwitch('BINANCE:LINKUSDT',this)">LINK</button>
-      </div>
-
-      <div style="width:1px;height:22px;background:var(--bd);flex-shrink:0"></div>
-
-      <!-- TF buttons -->
-      <div style="display:flex;gap:2px;flex-shrink:0" id="chart-tf-strip">
-        <button class="chart-tf-btn" onclick="chartTF('5',this)">5M</button>
-        <button class="chart-tf-btn" onclick="chartTF('15',this)">15M</button>
-        <button class="chart-tf-btn" onclick="chartTF('60',this)">1H</button>
-        <button class="chart-tf-btn active" onclick="chartTF('240',this)">4H</button>
-        <button class="chart-tf-btn" onclick="chartTF('D',this)">1D</button>
-        <button class="chart-tf-btn" onclick="chartTF('W',this)">1W</button>
-      </div>
-
-      <!-- live dot -->
-      <div style="display:flex;align-items:center;gap:5px;margin-left:8px;flex-shrink:0">
-        <div style="width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:live-pulse 2s infinite"></div>
-        <span style="font-size:9px;color:var(--g);letter-spacing:1.5px">LIVE</span>
-      </div>
-    </div>
-
-    <!-- TV chart -->
-    <div style="flex:1;overflow:hidden;background:#06080c;min-height:0;" id="journal-chart-wrap">
-      <!-- will be populated by rebuildJournalChart() when page opens -->
-      <div style="height:100%;width:100%;display:flex;align-items:center;justify-content:center;">
-        <span style="font-family:var(--font-mono);font-size:11px;color:rgba(232,234,240,0.2);letter-spacing:2px;">ЗАГРУЗКА ГРАФИКА...</span>
-      </div>
-    </div>
-
-  </div>
 
 
 
@@ -9064,9 +9056,8 @@ function chartTF(tf, el){
 }
 
 function rebuildJournalChart(){
-  const wrap = document.getElementById('journal-chart-wrap');
-  if(!wrap) return;
-
+  // chart removed
+  return; /* chart removed */
   const cfg = {
     allow_symbol_change: false,
     calendar:            false,
