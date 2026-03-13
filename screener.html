@@ -1161,10 +1161,10 @@ async function safeFetch(url){
 async function loadCoins(){
   showLoadMsg('ЗАГРУЗКА ДАННЫХ...', false);
   let data = await safeFetch('/api/ticker?type=screener');
-  // Fallback: try allorigins proxy to CoinGecko directly
+  // Retry once after 2s if first attempt failed
   if(!Array.isArray(data) || !data.length){
-    const cgPath = '/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h,24h,7d,30d';
-    data = await safeFetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.coingecko.com' + cgPath));
+    await new Promise(r => setTimeout(r, 2000));
+    data = await safeFetch('/api/ticker?type=screener');
   }
   if(!Array.isArray(data) || !data.length){
     showLoadMsg('Ошибка загрузки данных.\nПроверь подключение или попробуй позже.', true);
@@ -1422,7 +1422,6 @@ function initWS(){
   const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
   const ws = new WebSocket(url);
   _wsConn = ws;
-  ws.onopen = () => setLive(true);
   ws.onmessage = e => {
     const msg = JSON.parse(e.data);
     if(!msg?.data) return;
@@ -1449,10 +1448,14 @@ function initWS(){
     // Update detail panel if open
     if(_detailCoin?.id === cfg.cgId) updateDetailPrice(price, chg24);
   };
+  var _wsRetries = 0;
   ws.onclose = () => {
     setLive(false);
-    setTimeout(initWS, 3000);
+    var delay = Math.min(3000 * Math.pow(1.5, _wsRetries), 30000);
+    _wsRetries++;
+    setTimeout(initWS, delay);
   };
+  ws.onopen = () => { setLive(true); _wsRetries = 0; };
   ws.onerror = () => ws.close();
 }
 
