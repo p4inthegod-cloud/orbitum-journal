@@ -9,7 +9,7 @@ const CACHE_TTL = {
   market:   60,
   trending: 300,
   gl:       60,
-  screener: 60,
+  screener: 45,  // refresh every 45s for screener
 };
 
 function sendJSON(res, status, data, extra = {}) {
@@ -48,7 +48,7 @@ const ENDPOINTS = {
   market:   () => `${CG}/global`,
   trending: () => `${CG}/search/trending`,
   gl:       () => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h&sparkline=false`,
-  screener: () => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h,24h,7d,30d`,
+  screener: (page=1) => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}&sparkline=true&price_change_percentage=1h,24h,7d,30d`,
 };
 
 async function handler(req, res) {
@@ -73,8 +73,18 @@ async function handler(req, res) {
   }
 
   try {
-    let raw = await fetchWithRetry(ENDPOINTS[type]());
-    if (type === 'fng') raw = raw.data?.[0] || {};
+    let raw;
+    if (type === 'screener') {
+      // Fetch 2 pages (200 coins) and merge for full screener coverage
+      const [p1, p2] = await Promise.all([
+        fetchWithRetry(ENDPOINTS.screener(1)),
+        fetchWithRetry(ENDPOINTS.screener(2)),
+      ]);
+      raw = [...(Array.isArray(p1) ? p1 : []), ...(Array.isArray(p2) ? p2 : [])];
+    } else {
+      raw = await fetchWithRetry(ENDPOINTS[type]());
+      if (type === 'fng') raw = raw.data?.[0] || {};
+    }
     cache[type] = { ts: now, data: raw };
     return sendJSON(res, 200, raw, { 'Cache-Control': `public, s-maxage=${CACHE_TTL[type]}` });
   } catch(e) {
