@@ -71,33 +71,66 @@ export default async function handler(req, res) {
       const current = priceData.usd;
       const hit =
         (alert.condition === 'above' && current >= alert.target_price) ||
-        (alert.condition === 'below' && current <= alert.target_price);
+        (alert.condition === 'below' && current <= alert.target_price) ||
+        (alert.condition === 'cross' && (
+          (alert._prev_price < alert.target_price && current >= alert.target_price) ||
+          (alert._prev_price > alert.target_price && current <= alert.target_price)
+        ));
       if (!hit) continue;
 
-      const emoji  = alert.condition === 'above' ? '🚀' : '📉';
-      const dir    = alert.condition === 'above' ? '▲ ПРОБИЛ ВВЕРХ' : '▼ ПРОБИЛ ВНИЗ';
+      const emoji  = alert.condition === 'above' ? '🚀' : alert.condition === 'below' ? '📉' : '↔️';
+      const dir    = alert.condition === 'above' ? '▲ ВЫШЕ' : alert.condition === 'below' ? '▼ НИЖЕ' : '↔ ПЕРЕСЕЧЕНИЕ';
       const chg    = priceData.usd_24h_change?.toFixed(2) ?? '0.00';
       const chgStr = parseFloat(chg) >= 0 ? `+${chg}%` : `${chg}%`;
+      const typeLabel = { price:'💵 Цена', volume:'📊 Объём', change:'⚡ Изменение', volatility:'🌊 Волатильность' }[alert.alert_type] || '💵 Цена';
+      const noteStr = alert.note ? `\n📝 ${alert.note}` : '';
+      const repeatStr = alert.repeat_mode === 'every' ? '\n🔁 Повторный' : alert.repeat_mode === 'daily' ? '\n📅 Ежедневный' : '';
 
       await tgSend(p.tg_chat_id,
-        `${emoji} <b>АЛЕРТ: ${alert.symbol}</b>\n\n` +
-        `${dir} $${Number(alert.target_price).toLocaleString()}\n\n` +
-        `💵 Цена: <b>$${current.toLocaleString('en', { maximumFractionDigits: 4 })}</b>\n` +
-        `📊 24ч: <b>${chgStr}</b>`
+        `${emoji} <b>АЛЕРТ: ${alert.symbol}</b>\n` +
+        `${typeLabel} ${dir} <b>$${Number(alert.target_price).toLocaleString('en',{maximumFractionDigits:6})}</b>\n\n` +
+        `💵 Сейчас: <b>$${current.toLocaleString('en', { maximumFractionDigits: 4 })}</b>\n` +
+        `📊 24ч: <b>${chgStr}</b>${noteStr}${repeatStr}`
       );
       triggered.push(alert.id);
     }
 
-    // Помечаем сработавшие
+    // Помечаем сработавшие — с учётом repeat_mode
     if (triggered.length) {
-      await fetch(`${SB_URL}/rest/v1/price_alerts?id=in.(${triggered.join(',')})`, {
-        method: 'PATCH',
-        headers: {
-          'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
-          'Content-Type': 'application/json', 'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify({ triggered: true, triggered_at: new Date().toISOString() }),
+      // Split by repeat mode
+      const onceIds   = triggered.filter(id => {
+        const a = alerts.find(x => x.id === id);
+        return !a?.repeat_mode || a.repeat_mode === 'once';
       });
+      const repeatIds = triggered.filter(id => {
+        const a = alerts.find(x => x.id === id);
+        return a?.repeat_mode === 'every' || a?.repeat_mode === 'daily';
+      });
+
+      // 'once' → mark triggered=true permanently (won't fire again)
+      if (onceIds.length) {
+        await fetch(`${SB_URL}/rest/v1/price_alerts?id=in.(${onceIds.join(',')})`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
+            'Content-Type': 'application/json', 'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({ triggered: true, triggered_at: new Date().toISOString() }),
+        });
+      }
+
+      // 'every'/'daily' → just record triggered_at, keep triggered=false so it fires again
+      if (repeatIds.length) {
+        const cooldown = 5 * 60 * 1000; // 5 min min between repeat fires
+        await fetch(`${SB_URL}/rest/v1/price_alerts?id=in.(${repeatIds.join(',')})`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
+            'Content-Type': 'application/json', 'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({ triggered: false, triggered_at: new Date().toISOString() }),
+        });
+      }
     }
 
     console.log(`[alerts] checked=${alerts.length} triggered=${triggered.length}`);
