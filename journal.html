@@ -5379,6 +5379,46 @@ function formatAIText(text){
     .split('\n').join('<br>')+'</p>';
 }
 
+// ── FEATURE ACCESS ───────────────────────────────────────────
+// Скрывает секции которые не входят в features пользователя
+function applyFeatureAccess(features){
+  const SECTIONS = [
+    { key:'dashboard',  navPage:'dashboard',  sbPage:'dashboard',  mobId:'mbn-dashboard' },
+    { key:'progress',   navPage:'progress',   sbPage:'progress',   mobId:'mbn-progress'  },
+    { key:'digest',     navPage:'digest',     sbPage:'digest',     mobId:'mbn-digest'    },
+    { key:'premarket',  navPage:'premarket',  sbPage:'premarket',  mobId:'mbn-premarket' },
+    { key:'coach',      navPage:'coach',      sbPage:'coach',      mobId:'mbn-coach'     },
+    { key:'aichat',     navPage:'aichat',     sbPage:'aichat',     mobId:'mbn-aichat'    },
+    { key:'screener',   navPage:null,         sbPage:'screener',   mobId:null            },
+  ];
+
+  SECTIONS.forEach(s => {
+    const hasSection = features.includes(s.key);
+
+    // Sidebar nav button
+    const sbBtn = document.querySelector(`.sb-item[data-page="${s.sbPage}"]`);
+    if(sbBtn) sbBtn.style.display = hasSection ? '' : 'none';
+
+    // Top tab nav (inside journal page)
+    if(s.navPage){
+      const tnav = document.querySelector(`.tnav[data-page="${s.navPage}"]`);
+      if(tnav) tnav.style.display = hasSection ? '' : 'none';
+    }
+
+    // Mobile bottom nav
+    if(s.mobId){
+      const mob = document.getElementById(s.mobId);
+      if(mob) mob.style.display = hasSection ? '' : 'none';
+    }
+  });
+
+  // Screener link in sidebar
+  const screenerLinks = document.querySelectorAll('a[href*="screener"]');
+  screenerLinks.forEach(l => {
+    if(!features.includes('screener')) l.style.display = 'none';
+  });
+}
+
 async function init(){
   // ── DEMO MODE ──────────────────────────────────────────
   const urlParams = new URLSearchParams(location.search);
@@ -5397,6 +5437,10 @@ async function init(){
   const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!p){window.location.href='login.html';return;}
   const hasAccess=p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date())||p.role==='admin';
+  
+  // ── FEATURES: apply section access ───────────────────────
+  const userFeatures = Array.isArray(p.features) ? p.features : ['journal'];
+  applyFeatureAccess(userFeatures);
   
   // fill sidebar + topbar
   const initLetter=(p.full_name||p.username||'U')[0].toUpperCase();
