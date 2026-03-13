@@ -872,6 +872,12 @@ let _lwcTF = '15m';
 let _signals = [];
 let _rsiCache = {}; // cgId → rsi value (from klines)
 
+// ── Kline WebSocket (live candle for detail panel) ──
+let _klineWS = null;
+let _klinePair = null;   // active pair e.g. 'btcusdt'
+let _klineTF   = null;   // active tf e.g. '15m'
+let _klineLastCandle = null; // last candle object for live update
+
 // ── Formatters ───────────────────────────────
 function fmtPrice(p){
   if(p == null || isNaN(p)) return '$—';
@@ -1707,6 +1713,7 @@ function buildChartHTML(coin){
     <div class="dp-chart-section">
       <div class="dp-chart-head">
         <span class="dp-chart-label">${(coin.symbol||'').toUpperCase()}/USDT · BINANCE</span>
+        <div id="dp-live-dot" style="width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);opacity:.3;transition:opacity .3s;flex-shrink:0;margin-left:4px;" title="Live feed"></div>
         <div class="dp-tf-row">
           ${['1m','5m','15m','1h','4h','1d'].map(tf =>
             `<button class="dp-tf-btn${tf==='15m'?' active':''}" onclick="chartTF('${wsPair}','${tf}',this)">${tf.toUpperCase()}</button>`
@@ -1753,12 +1760,94 @@ function destroyChart(){
   if(_lwcResizeObs){ _lwcResizeObs.disconnect(); _lwcResizeObs = null; }
   _lwcSeries = null; _lwcEma20 = null; _lwcEma50 = null; _lwcVolSer = null;
   _lwcAlertLines = {};
+  stopKlineWS();
+}
+
+// ── Kline WebSocket — live candle feed ───────────
+function startKlineWS(pair, tf){
+  stopKlineWS();
+  _klinePair = pair;
+  _klineTF = tf;
+  _klineLastCandle = null;
+  const url = `wss://stream.binance.com:9443/ws/${pair.toLowerCase()}@kline_${tf}`;
+  const ws = new WebSocket(url);
+  _klineWS = ws;
+  ws.onmessage = e => {
+    if(!_lwcChart || !_lwcSeries) return;
+    const msg = JSON.parse(e.data);
+    const k = msg.k;
+    if(!k) return;
+    const candle = {
+      time:  Math.floor(k.t / 1000),
+      open:  parseFloat(k.o),
+      high:  parseFloat(k.h),
+      low:   parseFloat(k.l),
+      close: parseFloat(k.c),
+      volume: parseFloat(k.v),
+    };
+    // Update candlestick series (LW Charts handles open vs closed candle)
+    _lwcSeries.update(candle);
+    // Update volume series
+    if(_lwcVolSer){
+      _lwcVolSer.update({
+        time:  candle.time,
+        value: candle.volume,
+        color: candle.close >= candle.open ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.25)',
+      });
+    }
+    // Update EMA lines incrementally
+    if(_lwcEma20 && _lwcEma20._lastEma20 != null){
+      const k20 = 2/21;
+      _lwcEma20._lastEma20 = candle.close * k20 + _lwcEma20._lastEma20 * (1-k20);
+      if(k.x) _lwcEma20.update({ time: candle.time, value: _lwcEma20._lastEma20 });
+    }
+    if(_lwcEma50 && _lwcEma50._lastEma50 != null){
+      const k50 = 2/51;
+      _lwcEma50._lastEma50 = candle.close * k50 + _lwcEma50._lastEma50 * (1-k50);
+      if(k.x) _lwcEma50.update({ time: candle.time, value: _lwcEma50._lastEma50 });
+    }
+    // Update OHLCV info bar with latest candle
+    if(!document.getElementById('dp-ohlcv')) return;
+    const s = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+    s('oi-o', fmtPrice(candle.open));
+    s('oi-h', fmtPrice(candle.high));
+    s('oi-l', fmtPrice(candle.low));
+    s('oi-c', fmtPrice(candle.close));
+    s('oi-v', fmtBig(candle.volume * candle.close));
+    const pct = candle.open > 0 ? ((candle.close - candle.open) / candle.open * 100) : 0;
+    const el = document.getElementById('oi-chg');
+    if(el){
+      el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+      el.style.color = pct >= 0 ? 'var(--g)' : 'var(--r)';
+    }
+    // Flash live dot on chart
+    const ld = document.getElementById('dp-live-dot');
+    if(ld){ ld.style.opacity = '1'; clearTimeout(ld._t); ld._t = setTimeout(()=>ld.style.opacity='.3',300); }
+    _klineLastCandle = candle;
+  };
+  ws.onerror = () => {};
+  ws.onclose = () => {
+    // Auto-reconnect only if still viewing same pair/tf
+    if(_klinePair === pair && _klineTF === tf && _lwcChart){
+      setTimeout(() => startKlineWS(pair, tf), 3000);
+    }
+  };
+}
+
+function stopKlineWS(){
+  if(_klineWS){
+    _klineWS.onclose = null; // prevent reconnect
+    try{ _klineWS.close(); }catch(e){}
+    _klineWS = null;
+  }
+  _klinePair = null; _klineTF = null;
 }
 
 async function chartTF(pair, tf, btn){
   document.querySelectorAll('.dp-tf-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   _lwcTF = tf;
+  stopKlineWS();
   await fetchAndRenderChart(pair, tf);
 }
 
@@ -1793,6 +1882,8 @@ async function fetchAndRenderChart(pair, tf){
     if(!candles.length) throw new Error('Пустой ответ');
     await renderLWChart(candles);
     if(loading) loading.style.display = 'none';
+    // Start live kline WebSocket
+    startKlineWS(pair, tf);
   }catch(e){
     if(loading){ loading.style.display = 'flex'; loading.textContent = 'Ошибка: ' + e.message; }
   }
@@ -1870,6 +1961,7 @@ async function renderLWChart(candles){
     visible: _inds.ema20, lastValueVisible: false,
   });
   _lwcEma20.setData(ema20data);
+  _lwcEma20._lastEma20 = ema20data[ema20data.length-1]?.value ?? 0;
 
   _lwcEma50 = chart.addLineSeries({
     color: 'rgba(232,114,42,0.7)', lineWidth: 1.5,
@@ -1877,6 +1969,7 @@ async function renderLWChart(candles){
     visible: _inds.ema50, lastValueVisible: false,
   });
   _lwcEma50.setData(ema50data);
+  _lwcEma50._lastEma50 = ema50data[ema50data.length-1]?.value ?? 0;
 
   // Volume as histogram on separate price scale
   const volSeries = chart.addHistogramSeries({
