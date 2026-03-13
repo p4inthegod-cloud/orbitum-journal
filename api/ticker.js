@@ -1,6 +1,7 @@
 // api/ticker.js — Vercel Serverless Function
 // Route: GET /api/ticker?type=screener|crypto|forex|fng|market|trending|gl
 
+const cache = {};
 const CACHE_TTL = {
   crypto:   30,
   forex:    60,
@@ -8,11 +9,8 @@ const CACHE_TTL = {
   market:   60,
   trending: 300,
   gl:       60,
-  screener: 45,
+  screener: 45,  // refresh every 45s for screener
 };
-
-// Vercel serverless — глобальный кэш живёт пока инстанс тёплый (best-effort)
-const cache = globalThis._tickerCache || (globalThis._tickerCache = {});
 
 function sendJSON(res, status, data, extra = {}) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -24,26 +22,21 @@ function sendJSON(res, status, data, extra = {}) {
 
 async function fetchWithRetry(url, retries = 2) {
   for (let i = 0; i <= retries; i++) {
-    let resp;
     try {
-      resp = await fetch(url, {
-        signal: AbortSignal.timeout(6000),
+      const r = await fetch(url, {
+        signal: AbortSignal.timeout(9000),
         headers: { 'Accept': 'application/json' }
       });
+      if (r.status === 429 && i < retries) {
+        await new Promise(r => setTimeout(r, 1500 * Math.pow(2, i) + Math.random() * 500));
+        continue;
+      }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
     } catch(e) {
       if (i === retries) throw e;
-      await new Promise(resolve => setTimeout(resolve, 800 * (i + 1)));
-      continue;
+      await new Promise(r => setTimeout(r, 800 * (i + 1)));
     }
-
-    if (resp.status === 429) {
-      if (i === retries) throw new Error('Rate limited (429)');
-      await new Promise(resolve => setTimeout(resolve, 1500 * Math.pow(2, i) + Math.random() * 500));
-      continue;
-    }
-
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return resp.json();
   }
 }
 
@@ -55,10 +48,11 @@ const ENDPOINTS = {
   market:   () => `${CG}/global`,
   trending: () => `${CG}/search/trending`,
   gl:       () => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h&sparkline=false`,
-  screener: (page = 1) => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}&sparkline=true&price_change_percentage=1h,24h,7d,30d`,
+  screener: (page=1) => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}&sparkline=true&price_change_percentage=1h,24h,7d,30d`,
 };
 
-export default async function handler(req, res) {
+async function handler(req, res) {
+  // CORS preflight
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -81,6 +75,7 @@ export default async function handler(req, res) {
   try {
     let raw;
     if (type === 'screener') {
+      // Fetch 2 pages (200 coins) and merge for full screener coverage
       const [p1, p2] = await Promise.all([
         fetchWithRetry(ENDPOINTS.screener(1)),
         fetchWithRetry(ENDPOINTS.screener(2)),
@@ -90,15 +85,14 @@ export default async function handler(req, res) {
       raw = await fetchWithRetry(ENDPOINTS[type]());
       if (type === 'fng') raw = raw.data?.[0] || {};
     }
-
     cache[type] = { ts: now, data: raw };
     return sendJSON(res, 200, raw, { 'Cache-Control': `public, s-maxage=${CACHE_TTL[type]}` });
   } catch(e) {
     console.error(`[ticker] ${type}:`, e.message);
-    // Отдаём устаревший кэш если есть — лучше старые данные чем пустота
-    if (cache[type]) {
-      return sendJSON(res, 200, cache[type].data, { 'X-Cache': 'STALE', 'X-Error': e.message });
-    }
+    if (cache[type]) return sendJSON(res, 200, cache[type].data, { 'X-Cache': 'STALE', 'X-Error': e.message });
     return sendJSON(res, 500, { error: e.message });
   }
 }
+
+// Support both ESM (Vercel default) and CommonJS
+export default handler;

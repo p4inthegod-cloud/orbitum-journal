@@ -1008,7 +1008,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
 .field{display:flex;flex-direction:column;gap:4px;}
-.field label,.field-label{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.field label{font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
 .field input,.field select,.field textarea{
   background:var(--bg3);border:var(--line);border-radius:6px;
   padding:7px 10px;color:var(--t);font-family:var(--font-mono);
@@ -2878,7 +2878,7 @@ body::after {
 }
 
 /* ── INPUTS — redesign ── */
-.field label, .field-label {
+.field label {
   font-size: 10px !important; letter-spacing: 2px !important;
   color: rgba(232,234,240,0.45) !important;
   margin-bottom: 5px !important;
@@ -4259,7 +4259,7 @@ body::after {
       <!-- ROW 1: Pair + Direction + Result -->
       <div class="fg3" style="margin-bottom:12px">
         <div class="field field-key">
-          <label for="f-pair">Пара <span class="field-hint" data-tip="Торговая пара.&#10;Пример: BTC/USDT, ETH/BTC&#10;Пиши как привык на бирже">?</span></label>
+          <label>Пара <span class="field-hint" data-tip="Торговая пара.&#10;Пример: BTC/USDT, ETH/BTC&#10;Пиши как привык на бирже">?</span></label>
           <div class="pair-autocomplete-wrap">
             <input id="f-pair" placeholder="BTC/USDT" autocomplete="off"
               oninput="this.value=this.value.toUpperCase();filterPairs(this.value)"
@@ -4278,14 +4278,14 @@ body::after {
           </div>
         </div>
         <div class="field">
-          <div class="field-label">Направление <span class="field-hint" data-tip="LONG — ставишь на рост цены&#10;SHORT — ставишь на падение цены">?</span></div>
+          <label>Направление <span class="field-hint" data-tip="LONG — ставишь на рост цены&#10;SHORT — ставишь на падение цены">?</span></label>
           <div class="dtoggle">
             <div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div>
             <div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div>
           </div>
         </div>
         <div class="field">
-          <div class="field-label">Результат <span class="field-hint" data-tip="Прибыль — закрыл в плюс&#10;Убыток — закрыл в минус&#10;BE (безубыток) — вышел в ноль">?</span></div>
+          <label>Результат <span class="field-hint" data-tip="Прибыль — закрыл в плюс&#10;Убыток — закрыл в минус&#10;BE (безубыток) — вышел в ноль">?</span></label>
           <div class="res-btns">
             <button class="res-btn" id="rb-win" onclick="setRes('win',this)">✓ Прибыль</button>
             <button class="res-btn" id="rb-loss" onclick="setRes('loss',this)">✗ Убыток</button>
@@ -4297,11 +4297,11 @@ body::after {
       <!-- ROW 2: Deposit + Leverage + Risk% (futures-first) -->
       <div class="fg4" style="margin-bottom:10px">
         <div class="field">
-          <label for="f-dep">Размер позиции $ <span class="field-hint" data-tip="Размер позиции в долларах.&#10;Нужен для расчёта P&amp;L %&#10;и размера риска на сделку">?</span></label>
+          <label>Размер позиции $ <span class="field-hint" data-tip="Размер позиции в долларах.&#10;Нужен для расчёта P&amp;L %&#10;и размера риска на сделку">?</span></label>
           <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
         </div>
         <div class="field">
-          <label for="f-lev">Плечо × <span class="field-hint" data-tip="Кредитное плечо сделки.&#10;1x — без плеча&#10;10x — позиция = депозит × 10&#10;Используется при расчёте позиции">?</span></label>
+          <label>Плечо × <span class="field-hint" data-tip="Кредитное плечо сделки.&#10;1x — без плеча&#10;10x — позиция = депозит × 10&#10;Используется при расчёте позиции">?</span></label>
           <input id="f-lev" type="number" placeholder="10" min="1" max="200" oninput="calcRR()">
           <div class="lev-presets">
             <button onclick="setLev(5)">5×</button>
@@ -4312,11 +4312,11 @@ body::after {
           </div>
         </div>
         <div class="field field-key">
-          <label for="f-risk">Риск % <span class="field-hint" data-tip="Сколько % от депозита&#10;ты готов потерять в этой сделке.&#10;Рекомендация: 1–2% на сделку&#10;Используется для расчёта R:R">?</span></label>
+          <label>Риск % <span class="field-hint" data-tip="Сколько % от депозита&#10;ты готов потерять в этой сделке.&#10;Рекомендация: 1–2% на сделку&#10;Используется для расчёта R:R">?</span></label>
           <input id="f-risk" type="number" placeholder="1" step="0.1" min="0.1" max="100" oninput="calcRR()">
         </div>
         <div class="field">
-          <label for="f-pnl">P&L % <span class="field-hint" data-tip="Процент прибыли/убытка.&#10;Можно ввести вручную ИЛИ&#10;оставить пустым — посчитается&#10;автоматически из цен входа/выхода">?</span></label>
+          <label>P&L % <span class="field-hint" data-tip="Процент прибыли/убытка.&#10;Можно ввести вручную ИЛИ&#10;оставить пустым — посчитается&#10;автоматически из цен входа/выхода">?</span></label>
           <input id="f-pnl" type="number" placeholder="авто" step="0.01" oninput="fromPct()">
         </div>
       </div>
@@ -4324,19 +4324,19 @@ body::after {
       <!-- ROW 3: Entry / SL / TP → auto RR + P&L $ -->
       <div class="fg4" style="margin-bottom:10px">
         <div class="field">
-          <label for="f-entry">Вход $ <span class="field-hint" data-tip="Цена по которой ты открыл сделку.&#10;Используется для автоматического&#10;расчёта P&amp;L и R:R">?</span></label>
+          <label>Вход $ <span class="field-hint" data-tip="Цена по которой ты открыл сделку.&#10;Используется для автоматического&#10;расчёта P&amp;L и R:R">?</span></label>
           <input id="f-entry" type="number" placeholder="42000" oninput="calcRR()">
         </div>
         <div class="field">
-          <label for="f-sl">Стоп $ <span class="field-hint" data-tip="Уровень стоп-лосса.&#10;Цена при которой ты признаёшь&#10;что ошибся и выходишь из сделки.&#10;Важно для расчёта риска">?</span></label>
+          <label>Стоп $ <span class="field-hint" data-tip="Уровень стоп-лосса.&#10;Цена при которой ты признаёшь&#10;что ошибся и выходишь из сделки.&#10;Важно для расчёта риска">?</span></label>
           <input id="f-sl" type="number" placeholder="41000" oninput="calcRR()">
         </div>
         <div class="field">
-          <label for="f-exit">Тейк $ <span class="field-hint" data-tip="Цена тейк-профита.&#10;Вместе с входом считает P&amp;L %&#10;и R:R автоматически">?</span></label>
+          <label>Тейк $ <span class="field-hint" data-tip="Цена тейк-профита.&#10;Вместе с входом считает P&amp;L %&#10;и R:R автоматически">?</span></label>
           <input id="f-exit" type="number" placeholder="43500" oninput="calcRR()">
         </div>
         <div class="field">
-          <label for="f-usd">P&L $ <span class="field-hint" data-tip="Прибыль/убыток в долларах.&#10;Считается автоматически.&#10;Можно ввести вручную если&#10;знаешь точную сумму">?</span></label>
+          <label>P&L $ <span class="field-hint" data-tip="Прибыль/убыток в долларах.&#10;Считается автоматически.&#10;Можно ввести вручную если&#10;знаешь точную сумму">?</span></label>
           <input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()">
         </div>
       </div>
@@ -4408,14 +4408,14 @@ body::after {
 
       <!-- Notes -->
       <div class="fg3" style="margin-bottom:10px">
-        <div class="field"><label for="f-why">Сетап / почему вошёл <span class="field-hint" data-tip="Опиши что ты увидел на графике.&#10;Какой паттерн? Где уровень?&#10;Почему именно сейчас?&#10;Это помогает учиться на своих сделках">?</span></label><textarea id="f-why" placeholder="Что видел на графике..."></textarea></div>
-        <div class="field"><label for="f-feel">Эмоции / ошибки <span class="field-hint" data-tip="Как себя чувствовал?&#10;Нарушил ли план?&#10;Входил по FOMO или по сигналу?&#10;Честность здесь = рост как трейдера">?</span></label><textarea id="f-feel" placeholder="Нарушил план?..."></textarea></div>
-        <div class="field"><label for="f-lesson">Урок из сделки <span class="field-hint" data-tip="Что вынес из этой сделки?&#10;Что сделаешь иначе в следующий раз?&#10;Даже прибыльные сделки&#10;могут быть неправильными">?</span></label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
+        <div class="field"><label>Сетап / почему вошёл <span class="field-hint" data-tip="Опиши что ты увидел на графике.&#10;Какой паттерн? Где уровень?&#10;Почему именно сейчас?&#10;Это помогает учиться на своих сделках">?</span></label><textarea id="f-why" placeholder="Что видел на графике..."></textarea></div>
+        <div class="field"><label>Эмоции / ошибки <span class="field-hint" data-tip="Как себя чувствовал?&#10;Нарушил ли план?&#10;Входил по FOMO или по сигналу?&#10;Честность здесь = рост как трейдера">?</span></label><textarea id="f-feel" placeholder="Нарушил план?..."></textarea></div>
+        <div class="field"><label>Урок из сделки <span class="field-hint" data-tip="Что вынес из этой сделки?&#10;Что сделаешь иначе в следующий раз?&#10;Даже прибыльные сделки&#10;могут быть неправильными">?</span></label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
       </div>
 
       <!-- SCREENSHOT -->
       <div class="field" style="margin-bottom:10px;">
-        <label for="scr-file-input">Скриншот сделки <span class="field-hint" data-tip="Прикрепи скриншот графика.&#10;Drag & Drop, вставь из буфера (Ctrl+V)&#10;или нажми для выбора файла.">?</span></label>
+        <label>Скриншот сделки <span class="field-hint" data-tip="Прикрепи скриншот графика.&#10;Drag & Drop, вставь из буфера (Ctrl+V)&#10;или нажми для выбора файла.">?</span></label>
         <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
           <div class="scr-placeholder" id="scr-placeholder">
             <div class="scr-icon">📸</div>
@@ -5206,7 +5206,7 @@ body::after {
       <div class="ck-item"><div class="ck-num">5 · ПСИХОЛОГИЯ</div><div class="ck-q">Ты спокоен? Это не месть рынку и не FOMO?</div><div class="ck-btns"><button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button><button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button></div></div>
     </div>
     <div class="ai-note" style="margin-top:12px">
-      <label for="ai-reason">Дополнительно (необязательно)</label>
+      <label>Дополнительно (необязательно)</label>
       <textarea id="ai-reason" placeholder="Опиши сетап подробнее..."></textarea>
     </div>
     <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
@@ -5426,13 +5426,6 @@ async function init(){
     // Чистим URL
     history.replaceState({}, '', '/journal');
   }
-}
-
-// ── ЗАПУСК ───────────────────────────────────────────────────
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
 }
 
 function enablePreviewMode(name){
@@ -7944,61 +7937,152 @@ function closeKbPanel(){ document.getElementById('kb-panel')?.classList.remove('
 // ONBOARDING
 // ══════════════════════════════════════════
 let _onbStep = 0;
-const ONB_KEY = 'orb_onboarded_v1';
+const ONB_KEY = 'orb_onboarded_v2';
+let _onbRes = '';
 
 function onbCheck(tradesCount){
-  if(localStorage.getItem(ONB_KEY)) return;
-  if(tradesCount > 0) { localStorage.setItem(ONB_KEY,'1'); return; } // already has trades
+  try{ if(localStorage.getItem(ONB_KEY)) return; }catch(e){}
+  if(tradesCount > 0) { try{localStorage.setItem(ONB_KEY,'1');}catch(e){} return; }
   setTimeout(() => {
     document.getElementById('onb-overlay')?.classList.add('open');
   }, 600);
 }
 
-function onbNext(){
-  onbGoTo(_onbStep + 1);
-}
-function onbPrev(){
-  onbGoTo(_onbStep - 1);
-}
+function onbNext(){ onbGoTo(_onbStep + 1); }
+function onbPrev(){ onbGoTo(_onbStep - 1); }
 function onbGoTo(step){
-  const total = 3;
+  const total = 4;
   if(step < 0 || step >= total) return;
-  // Hide current
   document.getElementById(`onb-step-${_onbStep}`)?.classList.remove('active');
   document.getElementById(`onb-dot-${_onbStep}`)?.classList.remove('active');
   document.getElementById(`onb-dot-${_onbStep}`)?.classList.add('done');
   _onbStep = step;
-  // Show new
   document.getElementById(`onb-step-${_onbStep}`)?.classList.add('active');
   document.querySelectorAll('.onb-dot').forEach((d,i) => {
     d.classList.toggle('active', i === _onbStep);
     d.classList.toggle('done', i < _onbStep);
   });
 }
+
+function onbSetRes(r){
+  _onbRes = r;
+  document.getElementById('onb-res-win').classList.toggle('active', r==='win');
+  document.getElementById('onb-res-loss').classList.toggle('active', r==='loss');
+  document.getElementById('onb-res-win').style.cssText = r==='win' ? 'flex:1;padding:8px;font-size:11px;background:rgba(52,208,88,0.15);border-color:rgba(52,208,88,0.5);color:#34d058' : 'flex:1;padding:8px;font-size:11px';
+  document.getElementById('onb-res-loss').style.cssText = r==='loss' ? 'flex:1;padding:8px;font-size:11px;background:rgba(255,77,77,0.15);border-color:rgba(255,77,77,0.5);color:#ff4d4d' : 'flex:1;padding:8px;font-size:11px';
+}
+
 function onbSetDeposit(val){
   document.getElementById('onb-deposit').value = val;
-  document.querySelectorAll('.onb-preset').forEach(b => {
-    b.classList.toggle('active', parseFloat(b.textContent.replace(/[^0-9]/g,'')) === val ||
-      b.textContent === '$'+val.toLocaleString());
-  });
 }
-function onbSetRisk(val){
-  document.getElementById('onb-risk').value = val;
-}
-function onbSaveDeposit(){
-  const dep = parseFloat(document.getElementById('onb-deposit')?.value);
-  const risk = parseFloat(document.getElementById('onb-risk')?.value);
-  if(dep > 0){
-    localStorage.setItem('orb_balance', JSON.stringify({start: dep}));
-    // Also set in the journal balance input if it exists
-    const balInp = document.getElementById('f-dep');
-    if(balInp) balInp.value = dep;
-  }
+
+async function onbAnalyze(){
+  var pair = (document.getElementById('onb-pair')?.value || 'BTC/USDT').trim().toUpperCase();
+  var pnl = parseFloat(document.getElementById('onb-pnl')?.value) || 0;
+  var conf = parseInt(document.getElementById('onb-conf')?.value) || 7;
+  var greed = parseInt(document.getElementById('onb-greed')?.value) || 3;
+  var feel = (document.getElementById('onb-feel')?.value || '').trim();
+  var result = _onbRes || (pnl >= 0 ? 'win' : 'loss');
+
+  if(!pair){ document.getElementById('onb-pair').focus(); return; }
+
+  // Go to step 3 (AI loading)
   onbNext();
+
+  var titleEl = document.getElementById('onb-ai-title');
+  var resultEl = document.getElementById('onb-ai-result');
+  var iconEl = document.getElementById('onb-ai-icon');
+  var btnsEl = document.getElementById('onb-ai-btns');
+
+  // Build quick AI prompt
+  var hour = new Date().getHours();
+  var dayName = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'][new Date().getDay()];
+
+  try{
+    var resp = await fetch('/api/ai', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prompt: `Ты AI-коуч трейдера. Трейдер только что записал одну сделку:
+Пара: ${pair}, Результат: ${result}, P&L: ${pnl}%, Уверенность: ${conf}/10, Жадность: ${greed}/10, Эмоции: "${feel || 'не указал'}", Время: ${hour}:00 ${dayName}.
+
+Дай ОДИН конкретный инсайт (2-3 предложения) на основе этих данных. Используй числа. Будь прямым. Не давай общих советов. Пример хорошего инсайта: "Ты вошёл в ${pair} при жадности ${greed}/10 — при таком уровне жадности трейдеры теряют в 68% случаев. В следующий раз, когда жадность выше 6, подожди 15 минут перед входом."
+Ответь ТОЛЬКО текст инсайта, без заголовков и markdown.`,
+        max_tokens: 300,
+        temperature: 0.35,
+      })
+    });
+    var data = await resp.json();
+    var insight = data.text || '';
+
+    if(insight.length > 10){
+      iconEl.textContent = result === 'win' ? '✅' : '⚠️';
+      titleEl.textContent = 'Вот что я заметил:';
+      resultEl.innerHTML = `
+        <div style="background:rgba(232,114,42,0.06);border:1px solid rgba(232,114,42,0.2);border-radius:12px;padding:16px;">
+          <div style="font-family:var(--font-body);font-size:13px;color:rgba(255,255,255,0.85);line-height:1.8;">${escHtml(insight)}</div>
+        </div>
+        <div style="margin-top:12px;padding:10px 14px;background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.15);border-radius:8px;font-family:var(--font-mono);font-size:9px;color:rgba(52,208,88,0.7);text-align:center;">
+          ✓ Это инсайт из ОДНОЙ сделки. Представь что AI видит 50 твоих сделок.
+        </div>`;
+      btnsEl.style.display = 'flex';
+    } else { throw new Error('Empty response'); }
+  } catch(e){
+    // Fallback: local insight without AI
+    var localInsight = '';
+    if(greed >= 7 && result === 'loss') localInsight = `Жадность ${greed}/10 при убыточной сделке — классический паттерн. Исследования показывают что при жадности выше 6 трейдеры теряют в 65% случаев. Правило: если чувствуешь жадность — уменьши позицию на 50%.`;
+    else if(conf >= 8 && result === 'loss') localInsight = `Уверенность ${conf}/10 при убытке — overconfidence. Когда "всё очевидно" — это момент максимального риска. Лучшие сделки — при уверенности 5-7, не 8+.`;
+    else if(hour >= 22 || hour <= 5) localInsight = `Сделка в ${hour}:00 — ночная торговля. Статистически винрейт ночью на 15-20% ниже чем днём. Попробуй ограничить торговлю часами 10:00-18:00 на неделю.`;
+    else if(result === 'win') localInsight = `Прибыльная сделка на ${pair}. Запиши ещё 9 — и AI покажет: на каких парах ты зарабатываешь больше, в какие часы твой лучший WR, и при каких эмоциях ты торгуешь сильнее.`;
+    else localInsight = `Убыток на ${pair}. Один убыток — не проблема. Проблема — если он повторяется по паттерну. Запиши 10 сделок и AI найдёт: это случайность или системная ошибка.`;
+
+    iconEl.textContent = result === 'win' ? '✅' : '⚠️';
+    titleEl.textContent = 'Вот что я заметил:';
+    resultEl.innerHTML = `
+      <div style="background:rgba(232,114,42,0.06);border:1px solid rgba(232,114,42,0.2);border-radius:12px;padding:16px;">
+        <div style="font-family:var(--font-body);font-size:13px;color:rgba(255,255,255,0.85);line-height:1.8;">${escHtml(localInsight)}</div>
+      </div>
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(52,208,88,0.05);border:1px solid rgba(52,208,88,0.15);border-radius:8px;font-family:var(--font-mono);font-size:9px;color:rgba(52,208,88,0.7);text-align:center;">
+        ✓ Представь что AI видит 50 твоих сделок — точность вырастет в разы.
+      </div>`;
+    btnsEl.style.display = 'flex';
+  }
+
+  // Also save this trade to journal (silently)
+  try{
+    if(window._isDemoMode){
+      // Demo: add to local trades
+      var newTrade = {
+        id:'onb_'+Date.now(), user_id:'demo', pair:pair, direction:'long', result:result,
+        pnl_pct:pnl, pnl_usd:null, deposit:null,
+        emotion_conf:conf, emotion_fear:3, emotion_greed:greed, emotion_calm:7,
+        note_feel:feel||null, setup_type:null, note_why:null, note_lesson:null,
+        screenshot_url:null, created_at:new Date().toISOString()
+      };
+      allTrades.unshift(newTrade);
+      if(typeof demoSaveTrades === 'function') demoSaveTrades(allTrades);
+    } else if(currentUser){
+      await sb.from('trades').insert([{
+        user_id:currentUser.id, pair:pair, direction:'long', result:result,
+        pnl_pct:pnl, emotion_conf:conf, emotion_fear:3, emotion_greed:greed, emotion_calm:7,
+        note_feel:feel||null,
+      }]);
+    }
+  }catch(e){ console.warn('Onboarding trade save failed:', e); }
 }
+
+function onbFinish(){
+  var dep = parseFloat(document.getElementById('onb-deposit')?.value);
+  if(dep > 0){
+    try{ localStorage.setItem('orb_balance', JSON.stringify({start: dep})); }catch(e){}
+  }
+  onbClose();
+  // Reload trades to show the one just added
+  if(typeof loadTrades === 'function') loadTrades();
+}
+
 function onbClose(){
   document.getElementById('onb-overlay')?.classList.remove('open');
-  localStorage.setItem(ONB_KEY, '1');
+  try{ localStorage.setItem(ONB_KEY, '1'); }catch(e){}
 }
 
 
@@ -9358,50 +9442,43 @@ function updateTickerItem(sym, newPrice, chg) {
 // tickerApiUrl removed — using /api/ticker directly
 
 // ── CRYPTO POLLING ───────────────────────────────────────
-async function fetchJSON(url) {
-  const r = await fetch(url);
-  const ct = r.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) throw new Error('Non-JSON: ' + url);
-  return r.json();
-}
-
 async function fetchCrypto(){
-  const CG_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,cardano,avalanche-2,chainlink,pepe,the-open-network,sui&price_change_percentage=24h&per_page=20&sparkline=false';
-  let data = null;
-  try { data = await fetchJSON('/api/ticker?type=crypto'); }
-  catch(e) {
-    try { data = await fetchJSON(CG_URL); }
-    catch(e2) { console.warn('[Ticker] Crypto error:', e2.message); return; }
+  try{
+    const r   = await fetch('/api/ticker?type=crypto');
+    const data = await r.json();
+    const arr  = Array.isArray(data) ? data : [];
+    arr.forEach(d=>{
+      const sym = TICKER_SYMBOLS.find(s=>s.cgId === d.id);
+      if(!sym) return;
+      updateTickerItem(sym.sym, d.current_price, d.price_change_percentage_24h || 0);
+    });
+    console.log('[Ticker] Crypto ✓', arr.length);
+
+    console.log('[Ticker] Crypto updated');
+  }catch(e){
+    console.warn('[Ticker] Crypto error:', e.message);
   }
-  const arr = Array.isArray(data) ? data : [];
-  arr.forEach(d=>{
-    const sym = TICKER_SYMBOLS.find(s=>s.cgId === d.id);
-    if(!sym) return;
-    updateTickerItem(sym.sym, d.current_price, d.price_change_percentage_24h || 0);
-  });
-  console.log('[Ticker] Crypto ✓', arr.length);
 }
 
 // ── FOREX POLLING ────────────────────────────────────────
 async function fetchForex(){
-  const FX_URL = 'https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD';
-  let data = null;
-  try { data = await fetchJSON('/api/ticker?type=forex'); }
-  catch(e) {
-    try { data = await fetchJSON(FX_URL); }
-    catch(e2) { console.warn('[Ticker] Forex error:', e2.message); return; }
+  try{
+    const r    = await fetch('/api/ticker?type=forex');
+    const data = await r.json();
+    const rates = data.rates;
+    if(!rates) return;
+    if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY,               null);
+    if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF,               null);
+    if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD,               null);
+    if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR,             null);
+    if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP,             null);
+    if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD,             null);
+    if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD,             null);
+    if(rates.EUR && rates.GBP) updateTickerItem('EUR/GBP', rates.GBP/rates.EUR, null);
+    console.log('[Ticker] Forex ✓');
+  }catch(e){
+    console.warn('[Ticker] Forex error:', e.message);
   }
-  const rates = data.rates;
-  if(!rates) return;
-  if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY,               null);
-  if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF,               null);
-  if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD,               null);
-  if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR,             null);
-  if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP,             null);
-  if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD,             null);
-  if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD,             null);
-  if(rates.EUR && rates.GBP) updateTickerItem('EUR/GBP', rates.GBP/rates.EUR, null);
-  console.log('[Ticker] Forex ✓');
 }
 
 // ── СТАРТ ────────────────────────────────────────────────
@@ -9409,8 +9486,8 @@ function initTicker() {
   renderTickerTrack();
   fetchCrypto();
   fetchForex();
-  setInterval(fetchCrypto, 30000); // каждые 30 сек
-  setInterval(fetchForex,  60000); // каждую минуту
+  setInterval(fetchCrypto, 10000); // каждые 30 сек
+  setInterval(fetchForex,  30000); // каждую минуту
 }
 
 if (document.readyState === 'loading') {
@@ -9436,72 +9513,89 @@ function fmtBig(n){
 
 // ── Fear & Greed ──
 async function fetchFNG(){
-  const FNG_URL = 'https://api.alternative.me/fng/?limit=1';
-  let d = null;
-  try { d = await fetchJSON('/api/ticker?type=fng'); }
-  catch(e) {
-    try { const r2 = await fetchJSON(FNG_URL); d = r2.data?.[0] || {}; }
-    catch(e2) { console.warn('[Widgets] FNG:', e2.message); return; }
-  }
-  const val = parseInt(d.value);
-  const cls = d.value_classification || '';
-  const el  = document.getElementById('fng-num');
-  const lb  = document.getElementById('fng-label');
-  const arc = document.getElementById('fng-arc-fill');
-  if(!el) return;
-  const color = val<=25?'#e74c3c':val<=45?'#e67e22':val<=55?'#f1c40f':val<=75?'#2ecc71':'#27ae60';
-  el.textContent = val;
-  el.style.color  = color;
-  const labels = {'Extreme Fear':'ЭКСТР. СТРАХ','Fear':'СТРАХ','Neutral':'НЕЙТРАЛЬНО','Greed':'ЖАДНОСТЬ','Extreme Greed':'ЭКСТР. ЖАДНОСТЬ'};
-  lb.textContent = labels[cls] || cls;
-  lb.style.color = color;
-  const dash = (val/100)*57;
-  if(arc){ arc.style.stroke=color; arc.style.strokeDasharray=`${dash} 57`; }
+  try{
+    const r = await fetch('/api/ticker?type=fng');
+    const d = await r.json();
+    const val = parseInt(d.value);
+    const cls = d.value_classification || '';
+    const el  = document.getElementById('fng-num');
+    const lb  = document.getElementById('fng-label');
+    const arc = document.getElementById('fng-arc-fill');
+    if(!el) return;
+
+    // Цвет по значению
+    const color = val<=25?'#e74c3c':val<=45?'#e67e22':val<=55?'#f1c40f':val<=75?'#2ecc71':'#27ae60';
+    el.textContent = val;
+    el.style.color  = color;
+
+    // Русские лейблы
+    const labels = {
+      'Extreme Fear':'ЭКСТР. СТРАХ','Fear':'СТРАХ',
+      'Neutral':'НЕЙТРАЛЬНО','Greed':'ЖАДНОСТЬ','Extreme Greed':'ЭКСТР. ЖАДНОСТЬ'
+    };
+    lb.textContent = labels[cls] || cls;
+    lb.style.color = color;
+
+    // Дуга — 57px полная длина
+    const dash = (val/100)*57;
+    if(arc){ arc.style.stroke=color; arc.style.strokeDasharray=`${dash} 57`; }
+  }catch(e){ console.warn('[Widgets] FNG:', e.message); }
 }
 
 // ── Global Market ──
 async function fetchMarket(){
-  const MKT_URL = 'https://api.coingecko.com/api/v3/global';
-  let d = null;
-  try { d = await fetchJSON('/api/ticker?type=market'); }
-  catch(e) {
-    try { d = await fetchJSON(MKT_URL); }
-    catch(e2) { console.warn('[Widgets] Market:', e2.message); return; }
-  }
-  const g = d.data;
-  if(!g) return;
-  const capVal = g.total_market_cap?.usd || 0;
-  const volVal = g.total_volume?.usd || 0;
-  const domVal = g.market_cap_percentage?.btc || 0;
-  const capChg = g.market_cap_change_percentage_24h_usd || 0;
-  const capEl = document.getElementById('mkt-cap');
-  const volEl = document.getElementById('mkt-vol');
-  const domEl = document.getElementById('mkt-dom');
-  const barEl = document.getElementById('mkt-dom-bar');
-  const chgEl = document.getElementById('mkt-cap-chg');
-  if(capEl) capEl.textContent = fmtBig(capVal);
-  if(volEl) volEl.textContent = fmtBig(volVal);
-  if(domEl) domEl.textContent = domVal.toFixed(1)+'%';
-  if(barEl) barEl.style.width = Math.min(domVal,100)+'%';
-  if(chgEl){ chgEl.textContent=(capChg>=0?'+':'')+capChg.toFixed(1)+'%'; chgEl.className='sbw-metric-val '+(capChg>=0?'up':'dn'); }
+  try{
+    const r = await fetch('/api/ticker?type=market');
+    const d = await r.json();
+    const g = d.data;
+    if(!g) return;
+
+    const capVal = g.total_market_cap?.usd || 0;
+    const volVal = g.total_volume?.usd || 0;
+    const domVal = g.market_cap_percentage?.btc || 0;
+    const capChg = g.market_cap_change_percentage_24h_usd || 0;
+
+    const capEl = document.getElementById('mkt-cap');
+    const volEl = document.getElementById('mkt-vol');
+    const domEl = document.getElementById('mkt-dom');
+    const barEl = document.getElementById('mkt-dom-bar');
+    const chgEl = document.getElementById('mkt-cap-chg');
+
+    if(capEl) capEl.textContent = fmtBig(capVal);
+    if(volEl) volEl.textContent = fmtBig(volVal);
+    if(domEl) domEl.textContent = domVal.toFixed(1)+'%';
+    if(barEl) barEl.style.width = Math.min(domVal,100)+'%';
+    if(chgEl){
+      chgEl.textContent  = (capChg>=0?'+':'')+capChg.toFixed(1)+'%';
+      chgEl.className    = 'sbw-metric-val '+(capChg>=0?'up':'dn');
+    }
+  }catch(e){ console.warn('[Widgets] Market:', e.message); }
 }
 
 // ── Trending ──
 async function fetchTrending(){
-  const TR_URL = 'https://api.coingecko.com/api/v3/search/trending';
-  let data = null;
-  try { data = await fetchJSON('/api/ticker?type=trending'); }
-  catch(e) {
-    try { data = await fetchJSON(TR_URL); }
-    catch(e2) { console.warn('[Widgets] Trending:', e2.message); return; }
-  }
-  const coins = data.coins?.slice(0,6) || [];
-  const list  = document.getElementById('trend-list');
-  if(!list) return;
-  list.innerHTML = coins.map((item,i)=>{
-    const c=item.item; const img=c.thumb||''; const sym=(c.symbol||'').toUpperCase(); const rank=c.market_cap_rank?'#'+c.market_cap_rank:'';
-    return `<div class="trend-item"><span class="trend-rank">${i+1}</span><div class="trend-thumb">${img?`<img src="${img}" loading="lazy">`:'🪙'}</div><span class="trend-sym">${sym}</span><span class="trend-pos">${rank}</span></div>`;
-  }).join('');
+  try{
+    const r    = await fetch('/api/ticker?type=trending');
+    const data = await r.json();
+    const coins = data.coins?.slice(0,6) || [];
+    const list  = document.getElementById('trend-list');
+    if(!list) return;
+
+    list.innerHTML = coins.map((item,i)=>{
+      const c   = item.item;
+      const img = c.thumb || '';
+      const sym = (c.symbol||'').toUpperCase();
+      const rank= c.market_cap_rank ? '#'+c.market_cap_rank : '';
+      return `<div class="trend-item">
+        <span class="trend-rank">${i+1}</span>
+        <div class="trend-thumb">
+          ${img ? `<img src="${img}" loading="lazy">` : '🪙'}
+        </div>
+        <span class="trend-sym">${sym}</span>
+        <span class="trend-pos">${rank}</span>
+      </div>`;
+    }).join('');
+  }catch(e){ console.warn('[Widgets] Trending:', e.message); }
 }
 
 // ── Gainers / Losers ──
@@ -9509,18 +9603,19 @@ let glData = {gain:[], lose:[]};
 let glMode = 'gain';
 
 async function fetchGL(){
-  const GL_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h&sparkline=false';
-  let data = null;
-  try { data = await fetchJSON('/api/ticker?type=gl'); }
-  catch(e) {
-    try { data = await fetchJSON(GL_URL); }
-    catch(e2) { console.warn('[Widgets] GL:', e2.message); return; }
-  }
-  const arr = Array.isArray(data) ? data : [];
-  const sorted = [...arr].sort((a,b)=>(b.price_change_percentage_24h||0)-(a.price_change_percentage_24h||0));
-  glData.gain = sorted.slice(0,5);
-  glData.lose = sorted.slice(-5).reverse();
-  renderGL();
+  try{
+    const r    = await fetch('/api/ticker?type=gl');
+    const data = await r.json();
+    const arr  = Array.isArray(data) ? data : [];
+
+    // Сортируем
+    const sorted = [...arr].sort((a,b)=>
+      (b.price_change_percentage_24h||0)-(a.price_change_percentage_24h||0)
+    );
+    glData.gain = sorted.slice(0,5);
+    glData.lose = sorted.slice(-5).reverse();
+    renderGL();
+  }catch(e){ console.warn('[Widgets] GL:', e.message); }
 }
 
 function glSwitch(mode){
@@ -9894,86 +9989,117 @@ if(document.readyState === 'loading'){
       <div class="onb-dot active" id="onb-dot-0"></div>
       <div class="onb-dot" id="onb-dot-1"></div>
       <div class="onb-dot" id="onb-dot-2"></div>
+      <div class="onb-dot" id="onb-dot-3"></div>
     </div>
 
-    <!-- Step 1: Welcome -->
+    <!-- Step 1: Hook — "Ты теряешь деньги по паттерну" -->
     <div class="onb-step active" id="onb-step-0">
-      <div class="onb-icon">🚀</div>
-      <div class="onb-title">Добро пожаловать в Orbitum</div>
-      <div class="onb-sub">Твой торговый журнал нового поколения.<br>Минута — и ты готов к работе.</div>
+      <div class="onb-icon">🧠</div>
+      <div class="onb-title">9 из 10 убытков — паттерн</div>
+      <div class="onb-sub">Большинство трейдеров теряют деньги по одним и тем же причинам. FOMO, revenge trading, торговля ночью. <strong>Orbitum находит ТВОИ паттерны</strong> и говорит как их устранить.</div>
       <div class="onb-features">
         <div class="onb-feat">
-          <span class="onb-feat-icon">📋</span>
-          <div class="onb-feat-text"><strong>Журнал сделок</strong>Записывай сделки, считай R:R и позиции автоматически</div>
+          <span class="onb-feat-icon">🔍</span>
+          <div class="onb-feat-text"><strong>AI анализирует каждую сделку</strong>Находит когда, на чём и почему ты теряешь</div>
         </div>
         <div class="onb-feat">
-          <span class="onb-feat-icon">📊</span>
-          <div class="onb-feat-text"><strong>Аналитика</strong>Dashboard с equity curve, винрейтом и лучшими сетапами</div>
+          <span class="onb-feat-icon">💸</span>
+          <div class="onb-feat-text"><strong>Считает $ потерь от каждой ошибки</strong>"DOGE при жадности > 7 стоил тебе $340"</div>
         </div>
         <div class="onb-feat">
-          <span class="onb-feat-icon">🤖</span>
-          <div class="onb-feat-text"><strong>AI Coach</strong>Анализирует паттерны и даёт персональные советы</div>
-        </div>
-        <div class="onb-feat">
-          <span class="onb-feat-icon">🔔</span>
-          <div class="onb-feat-text"><strong>Скринер + Алерты</strong>Живые цены 20 монет с уведомлениями в Telegram</div>
+          <span class="onb-feat-icon">📈</span>
+          <div class="onb-feat-text"><strong>Даёт конкретные действия</strong>Не "снизь риск", а "исключи DOGE, торгуй FVG утром"</div>
         </div>
       </div>
       <div class="onb-btn-row">
-        <button class="onb-btn primary" onclick="onbNext()">НАЧАТЬ →</button>
+        <button class="onb-btn primary" onclick="onbNext()">ПОПРОБОВАТЬ ЗА 60 СЕКУНД →</button>
       </div>
       <span class="onb-skip" onclick="onbClose()">Пропустить</span>
     </div>
 
-    <!-- Step 2: Deposit setup -->
+    <!-- Step 2: Quick trade entry -->
     <div class="onb-step" id="onb-step-1">
-      <div class="onb-icon">💰</div>
-      <div class="onb-title">Укажи депозит</div>
-      <div class="onb-sub">Нужно для автоматического расчёта размера позиции и риска на сделку.</div>
+      <div class="onb-icon">⚡</div>
+      <div class="onb-title">Запиши последнюю сделку</div>
+      <div class="onb-sub">Что ты торговал последним? 30 секунд — и AI даст первый инсайт.</div>
       <div class="onb-input-wrap">
-        <span class="onb-label">РАЗМЕР ДЕПОЗИТА (USDT)</span>
-        <input class="onb-input" id="onb-deposit" type="number" placeholder="Например: 1000" min="1">
+        <span class="onb-label">ПАРА</span>
+        <input class="onb-input" id="onb-pair" placeholder="BTC/USDT" oninput="this.value=this.value.toUpperCase()">
+        <div class="onb-presets">
+          <button class="onb-preset" onclick="document.getElementById('onb-pair').value='BTC/USDT'">BTC</button>
+          <button class="onb-preset" onclick="document.getElementById('onb-pair').value='ETH/USDT'">ETH</button>
+          <button class="onb-preset" onclick="document.getElementById('onb-pair').value='SOL/USDT'">SOL</button>
+          <button class="onb-preset" onclick="document.getElementById('onb-pair').value='BNB/USDT'">BNB</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div class="onb-input-wrap" style="flex:1">
+          <span class="onb-label">РЕЗУЛЬТАТ</span>
+          <div style="display:flex;gap:6px;margin-top:4px;">
+            <button class="onb-preset" id="onb-res-win" onclick="onbSetRes('win')" style="flex:1;padding:8px;font-size:11px">✓ Прибыль</button>
+            <button class="onb-preset" id="onb-res-loss" onclick="onbSetRes('loss')" style="flex:1;padding:8px;font-size:11px">✗ Убыток</button>
+          </div>
+        </div>
+        <div class="onb-input-wrap" style="flex:1">
+          <span class="onb-label">P&L %</span>
+          <input class="onb-input" id="onb-pnl" type="number" placeholder="+2.5 или -1.0" step="0.1">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div class="onb-input-wrap" style="flex:1">
+          <span class="onb-label">УВЕРЕННОСТЬ (1-10)</span>
+          <input class="onb-input" id="onb-conf" type="number" min="1" max="10" placeholder="7">
+        </div>
+        <div class="onb-input-wrap" style="flex:1">
+          <span class="onb-label">ЖАДНОСТЬ (1-10)</span>
+          <input class="onb-input" id="onb-greed" type="number" min="1" max="10" placeholder="3">
+        </div>
+      </div>
+      <div class="onb-input-wrap" style="margin-bottom:14px;">
+        <span class="onb-label">ЧТО ЧУВСТВОВАЛ? (необязательно)</span>
+        <input class="onb-input" id="onb-feel" placeholder="FOMO, торопился, всё по плану...">
+      </div>
+      <div class="onb-btn-row">
+        <button class="onb-btn secondary" onclick="onbPrev()">← НАЗАД</button>
+        <button class="onb-btn primary" id="onb-analyze-btn" onclick="onbAnalyze()">🤖 ПОЛУЧИТЬ AI ИНСАЙТ →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: AI Insight (instant aha moment) -->
+    <div class="onb-step" id="onb-step-2">
+      <div class="onb-icon" id="onb-ai-icon">🤖</div>
+      <div class="onb-title" id="onb-ai-title">AI анализирует...</div>
+      <div id="onb-ai-result" style="margin-bottom:16px;">
+        <div style="text-align:center;padding:20px;font-family:var(--font-mono);font-size:10px;color:var(--m)">
+          <div style="font-size:24px;margin-bottom:8px;animation:blink 1s ease infinite">🧠</div>
+          Анализирую сделку...
+        </div>
+      </div>
+      <div class="onb-btn-row" id="onb-ai-btns" style="display:none">
+        <button class="onb-btn primary" onclick="onbNext()">ХОЧУ БОЛЬШЕ ИНСАЙТОВ →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Setup + CTA -->
+    <div class="onb-step" id="onb-step-3">
+      <div class="onb-icon">🚀</div>
+      <div class="onb-title">Это был 1 инсайт из сотен</div>
+      <div class="onb-sub">Запиши 10 сделок — и AI покажет полную картину: лучшие часы, худшие пары, эмоциональные паттерны и конкретные $ потерь.</div>
+      <div class="onb-input-wrap">
+        <span class="onb-label">РАЗМЕР ДЕПОЗИТА ($)</span>
+        <input class="onb-input" id="onb-deposit" type="number" placeholder="1000" min="1">
         <div class="onb-presets">
           <button class="onb-preset" onclick="onbSetDeposit(500)">$500</button>
           <button class="onb-preset" onclick="onbSetDeposit(1000)">$1 000</button>
-          <button class="onb-preset" onclick="onbSetDeposit(3000)">$3 000</button>
           <button class="onb-preset" onclick="onbSetDeposit(5000)">$5 000</button>
           <button class="onb-preset" onclick="onbSetDeposit(10000)">$10 000</button>
         </div>
       </div>
-      <div class="onb-input-wrap">
-        <span class="onb-label">РИСК НА СДЕЛКУ (%)</span>
-        <input class="onb-input" id="onb-risk" type="number" placeholder="Например: 1" min="0.1" max="100" step="0.1">
-        <div class="onb-presets">
-          <button class="onb-preset" onclick="onbSetRisk(0.5)">0.5%</button>
-          <button class="onb-preset" onclick="onbSetRisk(1)">1%</button>
-          <button class="onb-preset" onclick="onbSetRisk(2)">2%</button>
-          <button class="onb-preset" onclick="onbSetRisk(3)">3%</button>
-        </div>
-      </div>
       <div class="onb-btn-row">
-        <button class="onb-btn secondary" onclick="onbPrev()">← НАЗАД</button>
-        <button class="onb-btn primary" onclick="onbSaveDeposit()">ДАЛЕЕ →</button>
+        <button class="onb-btn primary" onclick="onbFinish()">НАЧАТЬ ЗАПИСЫВАТЬ СДЕЛКИ ✓</button>
       </div>
-      <span class="onb-skip" onclick="onbNext()">Пропустить этот шаг</span>
-    </div>
-
-    <!-- Step 3: Hotkeys -->
-    <div class="onb-step" id="onb-step-2">
-      <div class="onb-icon">⌨️</div>
-      <div class="onb-title">Горячие клавиши</div>
-      <div class="onb-sub">Работай быстрее — без мыши.</div>
-      <div class="onb-hotkeys">
-        <div class="onb-hk"><kbd>N</kbd><span class="onb-hk-desc">Новая сделка</span></div>
-        <div class="onb-hk"><kbd>D</kbd><span class="onb-hk-desc">Dashboard</span></div>
-        <div class="onb-hk"><kbd>S</kbd><span class="onb-hk-desc">Скринер</span></div>
-        <div class="onb-hk"><kbd>A</kbd><span class="onb-hk-desc">Аналитика</span></div>
-        <div class="onb-hk"><kbd>?</kbd><span class="onb-hk-desc">Все хоткеи</span></div>
-        <div class="onb-hk"><kbd>Esc</kbd><span class="onb-hk-desc">Закрыть</span></div>
-      </div>
-      <div class="onb-btn-row">
-        <button class="onb-btn secondary" onclick="onbPrev()">← НАЗАД</button>
-        <button class="onb-btn primary" onclick="onbClose()">НАЧАТЬ РАБОТУ ✓</button>
+      <div style="text-align:center;margin-top:12px;font-family:var(--font-mono);font-size:9px;color:var(--m)">
+        Уже записана 1 сделка · Осталось 9 до полного AI-анализа
       </div>
     </div>
   </div>
