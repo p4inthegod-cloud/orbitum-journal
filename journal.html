@@ -4221,9 +4221,6 @@ body::after {
       </button>
     </div>
     <div class="jtb-sep-v"></div>
-    <button class="jtb-action-btn note" onclick="openQNote()" title="Быстрая заметка">
-      ✏️ Заметка
-    </button>
     <div class="jtb-sep-v"></div>
     <button class="jtb-action-btn profile" onclick="toggleLang()" id="lang-btn" title="Language" style="font-size:11px;min-width:32px;text-align:center;">
       RU
@@ -9523,35 +9520,71 @@ function updateTickerItem(sym, newPrice, chg) {
 // tickerApiUrl removed — using /api/ticker directly
 
 // ── CRYPTO POLLING ───────────────────────────────────────
-async function fetchCrypto(){
+// ── CRYPTO: сначала грузим 24h % через /api/ticker, затем цену — Binance WS ──
+async function fetchCryptoInit(){
   try{
-    const r   = await fetch('/api/ticker?type=crypto');
+    const r    = await fetch('/api/ticker?type=crypto');
     const data = await r.json();
     const arr  = Array.isArray(data) ? data : [];
     arr.forEach(d=>{
       const sym = TICKER_SYMBOLS.find(s=>s.cgId === d.id);
       if(!sym) return;
+      // Загружаем начальную цену и % изменение
       updateTickerItem(sym.sym, d.current_price, d.price_change_percentage_24h || 0);
     });
-    console.log('[Ticker] Crypto ✓', arr.length);
-
-    console.log('[Ticker] Crypto updated');
+    console.log('[Ticker] Crypto init ✓', arr.length);
   }catch(e){
-    console.warn('[Ticker] Crypto error:', e.message);
+    console.warn('[Ticker] Crypto init error:', e.message);
   }
 }
 
-// ── FOREX POLLING ────────────────────────────────────────
+// ── CRYPTO WebSocket: Binance — цена в реальном времени ──────────────
+let _tickerWs = null;
+
+function startCryptoWS(){
+  const cryptoSyms = TICKER_SYMBOLS.filter(s => s.type === 'crypto');
+  // Binance combined stream: все пары одним соединением
+  const streams = cryptoSyms.map(s => s.pair.toLowerCase() + '@miniTicker').join('/');
+  const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+
+  _tickerWs = new WebSocket(url);
+
+  _tickerWs.onmessage = (e) => {
+    try{
+      const msg  = JSON.parse(e.data);
+      const tick = msg.data; // miniTicker payload
+      if(!tick || !tick.s) return;
+      const meta = TICKER_SYMBOLS.find(s => s.pair === tick.s);
+      if(!meta) return;
+      const price = parseFloat(tick.c); // close price
+      // % изменение за 24h: (close - open) / open * 100
+      const open  = parseFloat(tick.o);
+      const chg   = open ? ((price - open) / open * 100) : null;
+      updateTickerItem(meta.sym, price, chg);
+    }catch(_){}
+  };
+
+  _tickerWs.onerror = () => console.warn('[Ticker] WS error');
+
+  _tickerWs.onclose = () => {
+    console.warn('[Ticker] WS closed, reconnect in 3s');
+    setTimeout(startCryptoWS, 3000);
+  };
+
+  console.log('[Ticker] Binance WS connected');
+}
+
+// ── FOREX POLLING — /api/ticker кешированный, обновление раз в 60с ───
 async function fetchForex(){
   try{
     const r    = await fetch('/api/ticker?type=forex');
     const data = await r.json();
     const rates = data.rates;
     if(!rates) return;
-    if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY,               null);
-    if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF,               null);
-    if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD,               null);
-    if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR,             null);
+    if(rates.JPY) updateTickerItem('USD/JPY', rates.JPY,                null);
+    if(rates.CHF) updateTickerItem('USD/CHF', rates.CHF,                null);
+    if(rates.CAD) updateTickerItem('USD/CAD', rates.CAD,                null);
+    if(rates.EUR) updateTickerItem('EUR/USD', 1/rates.EUR,              null);
     if(rates.GBP) updateTickerItem('GBP/USD', 1/rates.GBP,             null);
     if(rates.AUD) updateTickerItem('AUD/USD', 1/rates.AUD,             null);
     if(rates.NZD) updateTickerItem('NZD/USD', 1/rates.NZD,             null);
@@ -9565,10 +9598,13 @@ async function fetchForex(){
 // ── СТАРТ ────────────────────────────────────────────────
 function initTicker() {
   renderTickerTrack();
-  fetchCrypto();
+  // 1. Грузим начальные данные (цена + 24h%) из кеша
+  fetchCryptoInit();
   fetchForex();
-  setInterval(fetchCrypto, 10000); // каждые 30 сек
-  setInterval(fetchForex,  30000); // каждую минуту
+  // 2. Подключаем WebSocket — цена обновляется в реальном времени (~1 сек)
+  startCryptoWS();
+  // 3. Форекс — раз в 60 сек (Frankfurter сам обновляется раз в минуту)
+  setInterval(fetchForex, 60000);
 }
 
 if (document.readyState === 'loading') {
