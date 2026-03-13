@@ -5056,17 +5056,17 @@ async function checkSetup(){
   prompt+='\n\nДай чёткий вердикт: ВХОДИТЬ, ЖДАТЬ или НЕ ВХОДИТЬ. Затем 2-3 предложения объяснения. Будь конкретным и строгим.';
 
   try{
-    var groqKey=typeof GROQ_KEY!=='undefined'?GROQ_KEY:(window.GROQ_API_KEY||'');
     var response,data,text;
-    if(groqKey){
-      response=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
-        body:JSON.stringify({model:'llama3-8b-8192',max_tokens:300,messages:[{role:'user',content:prompt}]})
-      });
-      data=await response.json();
-      text=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'Ошибка ответа';
-    } else {
+    // Always use /api/ai proxy — key never exposed in client
+    if(true){
+      try{
+        var aiResp=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({prompt:prompt})});
+        data=await aiResp.json();
+        text=data.text||'Ошибка ответа';
+      }catch(e){ text=null; }
+    }
+    if(!text){
       // Fallback: local verdict without API
       if(yesCount>=4) text='✅ ВХОДИТЬ — '+yesCount+'/5 условий выполнено. Сетап сильный, риски под контролем.';
       else if(yesCount>=3) text='⏳ ЖДАТЬ — '+yesCount+'/5 условий. Есть сомнения, лучше дождаться подтверждения.';
@@ -8056,13 +8056,13 @@ async function sendChatMessage() {
   var systemPrompt = 'Ты — персональный AI-коуч трейдера в приложении ORBITUM. Отвечай на русском языке. Будь конкретным, практичным и лаконичным. Фокусируйся на психологии трейдинга, риск-менеджменте и анализе рынка.' + tradesContext;
 
   try {
+    // Build proper messages array — ai.js supports it natively (BUG 6 fix)
+    var systemMsg = { role: 'system', content: systemPrompt };
+    var messagesArr = [systemMsg].concat(_chatHistory.slice(-10));
     var resp = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt: systemPrompt + '\n\nИстория диалога:\n' +
-          _chatHistory.slice(-6).map(function(m){ return m.role + ': ' + m.content; }).join('\n')
-      })
+      body: JSON.stringify({ messages: messagesArr })
     });
     var data = await resp.json();
     var answer = data.text || 'Ошибка получения ответа';
