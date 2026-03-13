@@ -1108,6 +1108,153 @@ h1,h2,h3,h4,h5,.title,.heading{color:var(--t)!important;}
 .pnl-card-val{font-family:var(--font-display);font-size:26px;letter-spacing:1px;line-height:1;margin-bottom:4px;}
 .pnl-card.pos .pnl-card-val{color:#34d058;}.pnl-card.neg .pnl-card-val{color:#ff4d4d;}.pnl-card.neg-soft .pnl-card-val{color:rgba(255,120,80,0.8);}.pnl-card.accent .pnl-card-val{color:#e8722a;}
 .pnl-card-sub{font-family:var(--font-mono);font-size:9px;color:var(--m2);letter-spacing:.5px;}
+/* ══════════════════════════════════════════
+   SHARE PANEL + TELEGRAM WIDGET
+   ══════════════════════════════════════════ */
+
+/* Share panel (dropdown) */
+.share-panel-wrap{position:relative;display:inline-flex;}
+.share-panel-btn{
+  display:flex;align-items:center;gap:5px;
+  height:32px;padding:0 12px;border-radius:7px;
+  border:1px solid rgba(232,114,42,0.25);
+  background:rgba(232,114,42,0.08);color:var(--a);
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.8px;
+  cursor:pointer;transition:all .15s;
+}
+.share-panel-btn:hover{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);}
+.share-dropdown{
+  display:none;position:absolute;top:calc(100% + 6px);right:0;
+  background:#0d1017;border:1px solid rgba(232,114,42,0.15);
+  border-radius:10px;min-width:220px;z-index:500;
+  box-shadow:0 12px 40px rgba(0,0,0,0.6);overflow:hidden;
+}
+.share-dropdown.open{display:block;}
+.sd-header{
+  padding:10px 14px 6px;font-size:8px;color:rgba(255,255,255,0.3);
+  letter-spacing:2px;font-family:var(--font-mono);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.sd-item{
+  display:flex;align-items:center;gap:9px;
+  padding:10px 14px;cursor:pointer;transition:background .12s;
+  font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.7);
+}
+.sd-item:hover{background:rgba(255,255,255,0.04);color:#fff;}
+.sd-item-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.sd-item-text{display:flex;flex-direction:column;gap:1px;}
+.sd-item-label{font-size:10px;color:var(--t);}
+.sd-item-sub{font-size:8px;color:rgba(255,255,255,0.3);}
+.sd-sep{height:1px;background:rgba(255,255,255,0.05);margin:2px 0;}
+
+/* Telegram Widget Modal */
+.tg-widget-modal{
+  display:none;position:fixed;inset:0;z-index:9800;
+  background:rgba(0,0,0,0.8);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.tg-widget-modal.open{display:flex;}
+.tgw-box{
+  background:#0d1017;border:1px solid rgba(232,114,42,0.15);
+  border-radius:14px;width:100%;max-width:480px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.7);overflow:hidden;
+}
+.tgw-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.tgw-title{font-size:10px;color:var(--a);letter-spacing:2px;font-family:var(--font-mono);}
+.tgw-close{
+  width:24px;height:24px;border-radius:5px;border:1px solid rgba(255,255,255,0.08);
+  background:transparent;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.tgw-close:hover{color:var(--r);}
+.tgw-body{padding:18px;}
+
+/* The actual widget card preview */
+.tg-card{
+  background:linear-gradient(135deg,#0a0e14 0%,#0d1118 100%);
+  border:1px solid rgba(232,114,42,0.2);border-radius:12px;
+  padding:16px;margin-bottom:14px;position:relative;overflow:hidden;
+}
+.tg-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--a),rgba(232,114,42,0.2),transparent);
+}
+.tgc-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.tgc-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(232,114,42,0.3),rgba(232,114,42,0.1));
+  border:1.5px solid rgba(232,114,42,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;color:var(--a);flex-shrink:0;
+  font-family:var(--font-mono);
+}
+.tgc-info{flex:1;}
+.tgc-name{font-size:13px;font-weight:700;color:#fff;font-family:var(--font-mono);}
+.tgc-sub{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-top:1px;}
+.tgc-orb{
+  font-size:8px;color:var(--a);letter-spacing:1.5px;
+  font-family:var(--font-mono);opacity:.7;
+}
+.tgc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.tgcs{
+  background:rgba(255,255,255,0.03);border-radius:7px;padding:7px 6px;
+  text-align:center;border:1px solid rgba(255,255,255,0.05);
+}
+.tgcs-val{
+  font-size:13px;font-weight:700;font-family:var(--font-mono);
+  color:#fff;letter-spacing:-.3px;
+}
+.tgcs-val.pos{color:#2ecc71;}
+.tgcs-val.neg{color:#e74c3c;}
+.tgcs-lbl{font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:.8px;margin-top:2px;font-family:var(--font-mono);}
+.tgc-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);
+}
+.tgc-link{font-size:8px;color:rgba(255,255,255,0.25);font-family:var(--font-mono);letter-spacing:.5px;}
+.tgc-badge{
+  font-size:7.5px;color:var(--a);background:rgba(232,114,42,0.1);
+  border:1px solid rgba(232,114,42,0.2);border-radius:4px;
+  padding:2px 6px;font-family:var(--font-mono);letter-spacing:.8px;
+}
+
+/* Actions under widget */
+.tgw-actions{display:flex;gap:8px;}
+.tgw-btn{
+  flex:1;height:38px;border-radius:8px;border:none;
+  font-family:var(--font-mono);font-size:10px;font-weight:700;
+  letter-spacing:.8px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.tgw-btn.primary{background:var(--a);color:#fff;}
+.tgw-btn.primary:hover{background:#d4661e;}
+.tgw-btn.secondary{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.6);
+}
+.tgw-btn.secondary:hover{color:#fff;background:rgba(255,255,255,0.07);}
+.tgw-note{
+  font-size:9px;color:rgba(255,255,255,0.25);text-align:center;margin-top:10px;
+  font-family:var(--font-mono);line-height:1.6;
+}
+
+/* Embed code block */
+.tgw-code{
+  background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;padding:10px 12px;margin-bottom:12px;
+  font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.5);
+  word-break:break-all;line-height:1.5;cursor:pointer;transition:border-color .15s;
+  position:relative;
+}
+.tgw-code:hover{border-color:rgba(232,114,42,0.25);}
+.tgw-code::after{
+  content:'КОПИРОВАТЬ';position:absolute;top:6px;right:8px;
+  font-size:7px;color:rgba(232,114,42,0.5);letter-spacing:1px;
+}
+
 </style>
 </head>
 <body>
@@ -1705,6 +1852,9 @@ function render(p, trades){
   // Badges
   const badges=calcBadges(trades,totalPnl,wr,disciplineScore,avgWin,avgLoss);
 
+  // Store for share widget
+  window._widgetStats = { wr, roi: totalPnl, rr, cnt: trades.length };
+
   // Best/worst trade
   const bestTrade=trades.length?trades.reduce((b,t)=>(t.pnl_pct||0)>(b.pnl_pct||0)?t:b,trades[0]):null;
   const worstTrade=trades.length?trades.reduce((b,t)=>(t.pnl_pct||0)<(b.pnl_pct||0)?t:b,trades[0]):null;
@@ -1737,6 +1887,48 @@ function render(p, trades){
         </div>
       </div>
       ${isOwnProfile?'':`<button class="follow-btn" onclick="toggleFollow()">+ FOLLOW</button>`}
+      <div class="share-panel-wrap" id="share-wrap">
+        <button class="share-panel-btn" onclick="toggleShareDropdown()">⬆ ПОДЕЛИТЬСЯ</button>
+        <div class="share-dropdown" id="share-dropdown">
+          <div class="sd-header">ПОДЕЛИТЬСЯ ПРОФИЛЕМ</div>
+          <div class="sd-item" onclick="copyProfileLink()">
+            <span class="sd-item-icon">🔗</span>
+            <div class="sd-item-text">
+              <span class="sd-item-label">Скопировать ссылку</span>
+              <span class="sd-item-sub">orbitum.app/profile.html?uid=...</span>
+            </div>
+          </div>
+          <div class="sd-item" onclick="shareToTelegram()">
+            <span class="sd-item-icon">✈️</span>
+            <div class="sd-item-text">
+              <span class="sd-item-label">Telegram</span>
+              <span class="sd-item-sub">Открыть в Telegram</span>
+            </div>
+          </div>
+          <div class="sd-item" onclick="shareToTwitter()">
+            <span class="sd-item-icon">𝕏</span>
+            <div class="sd-item-text">
+              <span class="sd-item-label">Twitter / X</span>
+              <span class="sd-item-sub">Поделиться результатами</span>
+            </div>
+          </div>
+          <div class="sd-sep"></div>
+          <div class="sd-item" onclick="openTgWidgetModal()">
+            <span class="sd-item-icon">🃏</span>
+            <div class="sd-item-text">
+              <span class="sd-item-label">Telegram карточка</span>
+              <span class="sd-item-sub">Превью с твоей статистикой</span>
+            </div>
+          </div>
+          <div class="sd-item" onclick="openEmbedModal()">
+            <span class="sd-item-icon">⟨/⟩</span>
+            <div class="sd-item-text">
+              <span class="sd-item-label">Embed виджет</span>
+              <span class="sd-item-sub">Вставить на сайт или в bio</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="pnl-cards">
       <div class="pnl-card ${totalPnl>=0?'pos':'neg'}">
@@ -2526,6 +2718,237 @@ init();
     </div>
   </div>
 </div>
+<!-- ══ TELEGRAM WIDGET MODAL ══ -->
+<div class="tg-widget-modal" id="tg-widget-modal" onclick="closeTgWidgetModal()">
+  <div class="tgw-box" onclick="event.stopPropagation()">
+    <div class="tgw-head">
+      <span class="tgw-title" id="tgw-mode-title">TELEGRAM КАРТОЧКА</span>
+      <button class="tgw-close" onclick="closeTgWidgetModal()">✕</button>
+    </div>
+    <div class="tgw-body">
+      <!-- Preview -->
+      <div class="tg-card" id="tg-card-preview">
+        <div class="tgc-top">
+          <div class="tgc-avatar" id="tgc-av">?</div>
+          <div class="tgc-info">
+            <div class="tgc-name" id="tgc-name">—</div>
+            <div class="tgc-sub" id="tgc-sub">ORBITUM TRADER</div>
+          </div>
+          <div class="tgc-orb">ORBITUM</div>
+        </div>
+        <div class="tgc-stats" id="tgc-stats">
+          <div class="tgcs"><div class="tgcs-val" id="tgcs-wr">—</div><div class="tgcs-lbl">ВИНРЕЙТ</div></div>
+          <div class="tgcs"><div class="tgcs-val" id="tgcs-roi">—</div><div class="tgcs-lbl">ROI</div></div>
+          <div class="tgcs"><div class="tgcs-val" id="tgcs-rr">—</div><div class="tgcs-lbl">R:R</div></div>
+          <div class="tgcs"><div class="tgcs-val" id="tgcs-trades">—</div><div class="tgcs-lbl">СДЕЛОК</div></div>
+        </div>
+        <div class="tgc-footer">
+          <span class="tgc-link" id="tgc-link">orbitum.app/profile</span>
+          <span class="tgc-badge" id="tgc-plan">PRO</span>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div id="tgw-content-share">
+        <div class="tgw-actions">
+          <button class="tgw-btn primary" onclick="copyTgCardText()">✈️ СКОПИРОВАТЬ ДЛЯ TG</button>
+          <button class="tgw-btn secondary" onclick="shareTgCard()">⬆ ПОДЕЛИТЬСЯ</button>
+        </div>
+        <div class="tgw-note">
+          Скопируй текст → вставь в Telegram как сообщение.<br>
+          Ссылка откроет твой профиль в Orbitum.
+        </div>
+      </div>
+      <div id="tgw-content-embed" style="display:none">
+        <div class="tgw-code" id="embed-code" onclick="copyEmbedCode()"></div>
+        <div class="tgw-actions">
+          <button class="tgw-btn primary" onclick="copyEmbedCode()">СКОПИРОВАТЬ КОД</button>
+          <button class="tgw-btn secondary" onclick="closeTgWidgetModal()">ЗАКРЫТЬ</button>
+        </div>
+        <div class="tgw-note">Вставь этот iframe на свой сайт, в Notion или Linktree.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// SHARE SYSTEM
+// ══════════════════════════════════════════
+
+function getProfileUrl(){
+  return window.location.origin + '/profile.html?uid=' + (profileUser?.id || '');
+}
+
+// ── Share dropdown ──
+let _shareOpen = false;
+function toggleShareDropdown(){
+  _shareOpen = !_shareOpen;
+  document.getElementById('share-dropdown')?.classList.toggle('open', _shareOpen);
+}
+// Close on outside click
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('share-wrap');
+  if(wrap && !wrap.contains(e.target)){
+    _shareOpen = false;
+    document.getElementById('share-dropdown')?.classList.remove('open');
+  }
+});
+
+function copyProfileLink(){
+  const url = getProfileUrl();
+  navigator.clipboard?.writeText(url).then(() => showShareToast('✅ Ссылка скопирована'));
+  document.getElementById('share-dropdown')?.classList.remove('open');
+  _shareOpen = false;
+}
+
+function shareToTelegram(){
+  const url = getProfileUrl();
+  const name = profileUser?.full_name || profileUser?.username || 'Трейдер';
+  const text = encodeURIComponent(`Мой торговый профиль на Orbitum — ${name}\n${url}`);
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${text}`, '_blank');
+  document.getElementById('share-dropdown')?.classList.remove('open');
+}
+
+function shareToTwitter(){
+  const url = getProfileUrl();
+  const name = profileUser?.full_name || profileUser?.username || 'Трейдер';
+  // Get stats from current DOM if rendered
+  const wr   = document.getElementById('tgcs-wr')?.textContent   || '—';
+  const roi  = document.getElementById('tgcs-roi')?.textContent  || '—';
+  const text = encodeURIComponent(
+    `Мои результаты на Orbitum: Винрейт ${wr} · ROI ${roi}\nТорговый журнал нового поколения 🚀\n${url}`
+  );
+  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+  document.getElementById('share-dropdown')?.classList.remove('open');
+}
+
+// ── Widget Modal ──
+let _tgwMode = 'share'; // 'share' | 'embed'
+
+function openTgWidgetModal(){
+  _tgwMode = 'share';
+  document.getElementById('share-dropdown')?.classList.remove('open');
+  _shareOpen = false;
+  // Populate card with current profile data
+  populateTgCard();
+  document.getElementById('tgw-mode-title').textContent = 'TELEGRAM КАРТОЧКА';
+  document.getElementById('tgw-content-share').style.display = '';
+  document.getElementById('tgw-content-embed').style.display = 'none';
+  document.getElementById('tg-widget-modal').classList.add('open');
+}
+
+function openEmbedModal(){
+  _tgwMode = 'embed';
+  document.getElementById('share-dropdown')?.classList.remove('open');
+  _shareOpen = false;
+  populateTgCard();
+  document.getElementById('tgw-mode-title').textContent = 'EMBED ВИДЖЕТ';
+  document.getElementById('tgw-content-share').style.display = 'none';
+  document.getElementById('tgw-content-embed').style.display = '';
+  // Build embed code
+  const url = getProfileUrl();
+  const code = `<iframe src="${url}&embed=1" width="360" height="200" frameborder="0" style="border-radius:12px;border:1px solid rgba(232,114,42,0.2);background:#0d1017;" scrolling="no"></iframe>`;
+  document.getElementById('embed-code').textContent = code;
+  document.getElementById('tg-widget-modal').classList.add('open');
+}
+
+function closeTgWidgetModal(){
+  document.getElementById('tg-widget-modal')?.classList.remove('open');
+}
+
+function populateTgCard(){
+  if(!profileUser) return;
+  const name = profileUser.full_name || profileUser.username || 'Трейдер';
+  const initial = (name[0] || 'T').toUpperCase();
+  const url = getProfileUrl();
+  // Avatar
+  document.getElementById('tgc-av').textContent    = initial;
+  document.getElementById('tgc-name').textContent  = name;
+  document.getElementById('tgc-sub').textContent   = 'ORBITUM TRADER';
+  document.getElementById('tgc-link').textContent  = url.replace('https://','');
+  document.getElementById('tgc-plan').textContent  =
+    profileUser.plan === 'lifetime' ? '∞ PRO' :
+    profileUser.plan === 'monthly'  ? 'MONTHLY' : 'FREE';
+
+  // Stats — read from DOM (already rendered by render())
+  const wr  = _widgetStats?.wr   ?? '—';
+  const roi = _widgetStats?.roi  ?? '—';
+  const rr  = _widgetStats?.rr   ?? '—';
+  const cnt = _widgetStats?.cnt  ?? '—';
+  const roiPos = typeof roi === 'string' ? !roi.startsWith('-') : roi >= 0;
+
+  document.getElementById('tgcs-wr').textContent    = typeof wr === 'number' ? wr + '%' : wr;
+  document.getElementById('tgcs-roi').textContent   = typeof roi === 'number' ? (roi>=0?'+':'') + roi.toFixed(1) + '%' : roi;
+  document.getElementById('tgcs-rr').textContent    = rr;
+  document.getElementById('tgcs-trades').textContent = cnt;
+
+  document.getElementById('tgcs-roi').className = 'tgcs-val ' + (roiPos ? 'pos' : 'neg');
+}
+
+// Build text for Telegram copy
+function buildTgText(){
+  const name = profileUser?.full_name || profileUser?.username || 'Трейдер';
+  const url  = getProfileUrl();
+  const wr   = _widgetStats?.wr  ?? '—';
+  const roi  = _widgetStats?.roi ?? '—';
+  const rr   = _widgetStats?.rr  ?? '—';
+  const cnt  = _widgetStats?.cnt ?? '—';
+  return [
+    `📊 *${name}* — Торговый профиль`,
+    ``,
+    `✅ Винрейт: *${typeof wr === 'number' ? wr + '%' : wr}*`,
+    `📈 ROI: *${typeof roi === 'number' ? (roi>=0?'+':'') + roi.toFixed(1) + '%' : roi}*`,
+    `⚖️ R:R: *${rr}*`,
+    `🔢 Сделок: *${cnt}*`,
+    ``,
+    `🔗 ${url}`,
+    ``,
+    `_Powered by Orbitum Journal_`,
+  ].join('\n');
+}
+
+function copyTgCardText(){
+  const text = buildTgText();
+  navigator.clipboard?.writeText(text).then(() => {
+    showShareToast('✅ Текст скопирован — вставь в Telegram');
+  });
+}
+
+function shareTgCard(){
+  const url  = getProfileUrl();
+  const text = buildTgText().replace(/\*/g,'').replace(/_/g,''); // plain text
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function copyEmbedCode(){
+  const code = document.getElementById('embed-code')?.textContent;
+  if(code) navigator.clipboard?.writeText(code).then(() => showShareToast('✅ Код скопирован'));
+}
+
+// Toast
+function showShareToast(msg){
+  let t = document.getElementById('share-toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'share-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);' +
+      'background:#0d1017;border:1px solid rgba(46,204,113,0.3);border-radius:8px;' +
+      'padding:10px 18px;font-size:11px;font-family:var(--font-mono);color:#2ecc71;' +
+      'z-index:99999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5);' +
+      'animation:toast-in .2s ease;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+
+// Keyboard close
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeTgWidgetModal();
+});
+</script>
 
 </body>
 </html>
