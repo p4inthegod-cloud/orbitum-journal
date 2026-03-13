@@ -1801,15 +1801,41 @@ async function safeFetch(url){
   return r.json();
 }
 
-// ── CoinGecko direct fallback (when /api/ticker не задеплоен) ──
+// ── CoinGecko fallback (multiple paths) ──────────────────────────
 async function loadFromCoinGecko(){
-  showLoadingMsg('CoinGecko fallback...', '#f39c12');
-  const url = 'https://api.coingecko.com/api/v3/coins/markets' +
-    '?vs_currency=usd&order=market_cap_desc&per_page=100&page=1' +
-    '&sparkline=true&price_change_percentage=1h%2C7d%2C30d';
-  const r = await fetch(url);
-  if(!r.ok) throw new Error('CoinGecko: ' + r.status);
-  return r.json();
+  showLoadingMsg('Подключение к CoinGecko...', '#f39c12');
+  const cgPath = '/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C7d%2C30d';
+
+  // Path 1: direct (works if deployed on same domain OR if CG allows)
+  const attempts = [
+    { label: 'CoinGecko direct',
+      url: 'https://api.coingecko.com' + cgPath },
+    { label: 'CoinGecko via allorigins',
+      url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.coingecko.com' + cgPath) },
+    { label: 'CoinGecko via corsproxy.io',
+      url: 'https://corsproxy.io/?' + encodeURIComponent('https://api.coingecko.com' + cgPath) },
+  ];
+
+  let lastErr = null;
+  for(const attempt of attempts){
+    try{
+      showLoadingMsg(attempt.label + '...', '#f39c12');
+      const r = await fetch(attempt.url, { signal: AbortSignal.timeout(8000) });
+      if(!r.ok) throw new Error(attempt.label + ': HTTP ' + r.status);
+      // Verify it's JSON, not HTML
+      const ct = r.headers.get('content-type') || '';
+      const text = await r.text();
+      if(text.trim().startsWith('<')) throw new Error(attempt.label + ': вернул HTML');
+      const data = JSON.parse(text);
+      if(!Array.isArray(data) || data.length === 0) throw new Error(attempt.label + ': пустой ответ');
+      console.info('[Screener] Данные получены через', attempt.label);
+      return data;
+    } catch(e){
+      console.warn('[Screener]', e.message);
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('Все CoinGecko пути недоступны');
 }
 
 function showLoadingMsg(msg, color='rgba(232,114,42,0.7)'){
