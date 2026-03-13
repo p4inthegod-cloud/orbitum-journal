@@ -251,9 +251,9 @@ footer{border-top:1px solid var(--bd);padding:36px 24px;}
     <a href="#features" class="btn-secondary">Как это работает</a>
   </div>
   <div class="stats-strip">
-    <div class="stat-item"><div class="stat-num">847</div><div class="stat-label">Трейдеров сегодня</div></div>
-    <div class="stat-item"><div class="stat-num">+31%</div><div class="stat-label">Рост WR за 60 дней</div></div>
-    <div class="stat-item"><div class="stat-num">–67%</div><div class="stat-label">Импульсных входов</div></div>
+    <div class="stat-item"><div class="stat-num" id="lp-user-count">—</div><div class="stat-label">Трейдеров на платформе</div></div>
+    <div class="stat-item"><div class="stat-num" id="lp-trade-count">—</div><div class="stat-label">Сделок записано</div></div>
+    <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">Бесплатный demo</div></div>
     <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Coach & Checker</div></div>
   </div>
   <div class="scroll-hint" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">
@@ -606,7 +606,25 @@ const arch={fomo:{n:'FOMO-ОХОТНИК',d:'Входишь на эмоциях 
 function quizAns(q,ans){qA[q]=ans;document.getElementById('qd'+q).classList.add('done');document.getElementById('qq'+q).classList.remove('active');if(q<2){setTimeout(()=>document.getElementById('qq'+(q+1)).classList.add('active'),180);}else{let a='disciplined';if(qA.includes('fomo'))a='fomo';else if(qA.includes('revenge'))a='revenge';else if(!qA.includes('impulsive'))a='sniper';document.getElementById('quiz-arch-name').textContent=arch[a].n;document.getElementById('quiz-arch-desc').textContent=arch[a].d;setTimeout(()=>document.getElementById('quiz-result').classList.add('show'),250);}}
 function calcLoss(){const t=parseInt(document.getElementById('c-trades').value)||40;const lr=parseInt(document.getElementById('c-wr').value)||45;const avg=parseInt(document.getElementById('c-avg').value)||50;const er=parseInt(document.getElementById('c-emo').value)||30;const el=Math.round(t*(lr/100)*avg*(er/100));const sv=Math.round(el*0.67);document.getElementById('c-loss').textContent='$'+el;document.getElementById('c-saved').textContent='$'+sv;}
 calcLoss();
-const spots=Math.floor(Math.random()*8)+18;document.getElementById('spots-hero').textContent=spots;document.getElementById('spots-pricing').textContent=spots;
+// Real user count from Supabase
+(async()=>{
+  try{
+    const r=await fetch(SUPABASE_URL+'/rest/v1/profiles?select=id',{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY,'Accept':'application/json','Prefer':'count=exact'}});
+    const countHeader=r.headers.get('content-range');
+    if(countHeader){
+      const total=countHeader.split('/')[1];
+      const el=document.getElementById('lp-user-count');
+      if(el&&total&&total!=='*') el.textContent=total;
+    }
+    const r2=await fetch(SUPABASE_URL+'/rest/v1/trades?select=id',{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY,'Accept':'application/json','Prefer':'count=exact'}});
+    const countHeader2=r2.headers.get('content-range');
+    if(countHeader2){
+      const total2=countHeader2.split('/')[1];
+      const el2=document.getElementById('lp-trade-count');
+      if(el2&&total2&&total2!=='*') el2.textContent=total2;
+    }
+  }catch(e){}
+})();
 const lm=['Алексей обнаружил: теряет $340 каждую пятницу после 17:00','Дмитрий К. поднялся на уровень МАСТЕР 🔥','Михаил В.: AI Чекер остановил плохой SHORT на BTC','Новый трейдер зарегистрировался 3 минуты назад','Анна нашла паттерн: WR 71% на LONG ETH по понедельникам','Сергей П.: серия из 7 прибыльных сделок 🎯'];
 let pi=0;
 function showPop(){const p=document.getElementById('live-popup');p.classList.remove('show');setTimeout(()=>{document.getElementById('live-text').textContent=lm[pi%lm.length];pi++;p.classList.add('show');setTimeout(()=>p.classList.remove('show'),5000);},500);}

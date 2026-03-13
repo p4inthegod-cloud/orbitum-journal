@@ -993,6 +993,13 @@ img{display:block;}
     <div id="dp-trades-slot"></div>
     <!-- METRICS -->
     <div class="dp-metrics" id="dp-metrics"></div>
+    <!-- AI INSIGHT -->
+    <div id="dp-ai-slot" style="display:none;margin-top:12px;">
+      <div style="font-family:var(--font-mono);font-size:8px;color:var(--a);letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        <span style="width:3px;height:3px;border-radius:50%;background:var(--a);box-shadow:0 0 4px var(--a)"></span>AI INSIGHT
+      </div>
+      <div id="dp-ai-text" style="background:rgba(232,114,42,0.04);border:1px solid rgba(232,114,42,0.15);border-radius:10px;padding:12px;font-family:var(--font-body);font-size:12px;color:rgba(255,255,255,0.75);line-height:1.7;"></div>
+    </div>
   </div>
 </div>
 
@@ -1904,6 +1911,64 @@ function focusCoin(cgId){
   loadChart(coin);
   // Alert lines
   renderDetailAlertLines();
+  // AI Insight (async, non-blocking)
+  loadCoinAI(coin);
+}
+
+// ── AI COIN INSIGHT ────────────────────────────
+var _aiCache = {};
+async function loadCoinAI(coin){
+  var slot = document.getElementById('dp-ai-slot');
+  var textEl = document.getElementById('dp-ai-text');
+  if(!slot || !textEl) return;
+  slot.style.display = 'none';
+  
+  var sym = (coin.symbol||'').toUpperCase();
+  // Cache for 5 min
+  if(_aiCache[sym] && Date.now() - _aiCache[sym].ts < 300000){
+    textEl.innerHTML = _aiCache[sym].text;
+    slot.style.display = 'block';
+    return;
+  }
+  
+  // Build context from user's trade history on this pair
+  var userTradeCtx = '';
+  try{
+    if(typeof allTrades !== 'undefined' && allTrades.length){
+      var pairTrades = allTrades.filter(function(t){ return t.pair && t.pair.toUpperCase().startsWith(sym); });
+      if(pairTrades.length){
+        var w = pairTrades.filter(function(t){return t.result==='win';}).length;
+        var wr = Math.round(w/pairTrades.length*100);
+        var pnl = pairTrades.reduce(function(s,t){return s+(t.pnl_pct||0);},0);
+        userTradeCtx = ' Трейдер торговал '+sym+' '+pairTrades.length+' раз, WR '+wr+'%, P&L '+(pnl>=0?'+':'')+pnl.toFixed(1)+'%.';
+      }
+    }
+  }catch(e){}
+
+  var chg24 = coin.price_change_percentage_24h || 0;
+  var chg7d = coin.price_change_percentage_7d_in_currency || coin.price_change_percentage_7d || 0;
+  var athDrop = coin.ath_change_percentage || 0;
+  var vol = coin.total_volume || 0;
+  var mcap = coin.market_cap || 0;
+
+  try{
+    var resp = await fetch('/api/ai', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prompt: 'Ты AI-аналитик крипто. Дай краткий инсайт (2-3 предложения) по '+sym+'. Цена $'+coin.current_price+', 24ч: '+(chg24>=0?'+':'')+chg24.toFixed(1)+'%, 7д: '+(chg7d>=0?'+':'')+chg7d.toFixed(1)+'%, от ATH: '+athDrop.toFixed(0)+'%.'+userTradeCtx+' Будь конкретным. Без markdown. На русском.',
+        max_tokens: 200,
+        temperature: 0.3,
+      })
+    });
+    var data = await resp.json();
+    var text = data.text || '';
+    if(text.length > 15){
+      var safeText = text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      _aiCache[sym] = { text: safeText, ts: Date.now() };
+      textEl.innerHTML = safeText;
+      slot.style.display = 'block';
+    }
+  }catch(e){ /* silent — AI insight is optional */ }
 }
 
 function closeDetail(){
