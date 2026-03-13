@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORBITUM · CHART</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+/* ══ DESIGN TOKENS (ORBITUM) ══════════════════════════════════════ */
+:root{
+  --bg:#080b10; --bg2:#0c0f15; --bg3:#0f1219;
+  --a:#e8722a; --a2:rgba(232,114,42,0.10); --a3:rgba(232,114,42,0.25);
+  --g:#2ecc71; --r:#e74c3c; --y:#f39c12; --b:#3b82f6;
+  --t:#e8eaf0; --m:rgba(232,234,240,0.45); --m2:rgba(232,234,240,0.2);
+  --bd:rgba(255,255,255,0.07);
+  --sb:160px;
+  --cal:340px;           /* calendar panel width */
+  --topbar:44px;
+  --radius:8px;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-display:'Bebas Neue',sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font-mono);font-size:13px;overflow:hidden;}
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+.shell{display:flex;height:100vh;width:100vw;}
+
+/* ── LEFT SIDEBAR (nav) ──────────────────────────────── */
+.sidebar{
+  width:var(--sb);flex-shrink:0;
+  background:linear-gradient(180deg,#0d1017 0%,#090c11 100%);
+  border-right:1px solid rgba(232,114,42,0.12);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:4px 0 32px rgba(0,0,0,0.5);
+}
+.sb-logo{
+  height:52px;display:flex;align-items:center;gap:9px;padding:0 16px;
+  border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;
+  background:linear-gradient(180deg,rgba(232,114,42,0.05) 0%,transparent 100%);
+  text-decoration:none;
+}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);flex-shrink:0;}
+.sb-logo-text{font-family:var(--font-display);font-size:20px;letter-spacing:6px;color:#fff;}
+.sb-nav{flex:1;padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.sb-section{font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:2.5px;padding:12px 8px 4px;text-transform:uppercase;}
+.sb-item{
+  display:flex;align-items:center;gap:8px;padding:9px 10px;
+  border-radius:8px;border:1px solid transparent;cursor:pointer;width:100%;text-align:left;
+  font-family:var(--font-mono);font-size:11.5px;color:var(--m);
+  background:transparent;transition:all 0.15s;letter-spacing:0.3px;text-decoration:none;
+}
+.sb-item:hover{background:rgba(255,255,255,0.04);color:var(--t);}
+.sb-item.active{background:rgba(232,114,42,0.12);color:var(--a);border-color:rgba(232,114,42,0.2);}
+.sb-item-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0;}
+.sb-divider{height:1px;background:rgba(255,255,255,0.05);margin:8px 4px;}
+.sb-user{padding:12px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.sb-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:14px;letter-spacing:1px;color:var(--a);flex-shrink:0;
+}
+.sb-user-info{flex:1;min-width:0;}
+.sb-user-email{font-size:9px;color:var(--m2);letter-spacing:0.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sb-user-plan{font-size:8px;color:var(--a);letter-spacing:1.5px;margin-top:1px;}
+
+/* ── MAIN COLUMN ─────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* ── TOPBAR ─────────────────────────────────────────── */
+.topbar{
+  height:var(--topbar);flex-shrink:0;
+  background:linear-gradient(90deg,#0c0f15 0%,#0a0d12 100%);
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:8px;padding:0 14px;
+  position:relative;z-index:10;
+}
+.tb-title{
+  font-family:var(--font-display);font-size:15px;letter-spacing:3px;color:var(--a);
+  flex-shrink:0;margin-right:4px;
+}
+.tb-sep{width:1px;height:22px;background:var(--bd);margin:0 8px;flex-shrink:0;}
+
+/* Symbol input */
+.sym-wrap{
+  display:flex;align-items:center;gap:0;
+  background:#0a0d12;border:1px solid var(--bd);border-radius:6px;
+  overflow:hidden;flex-shrink:0;
+}
+.sym-prefix{
+  padding:0 8px;height:28px;display:flex;align-items:center;
+  font-size:9px;letter-spacing:1.5px;color:var(--m2);
+  border-right:1px solid var(--bd);background:rgba(255,255,255,0.02);
+}
+.sym-input{
+  background:transparent;border:none;outline:none;
+  color:var(--t);font-family:var(--font-mono);font-size:11px;
+  padding:0 10px;height:28px;width:130px;letter-spacing:1px;
+  text-transform:uppercase;
+}
+.sym-input::placeholder{color:var(--m2);}
+.sym-btn{
+  height:28px;padding:0 10px;background:rgba(232,114,42,0.1);
+  border:none;border-left:1px solid var(--bd);cursor:pointer;
+  color:var(--a);font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;
+  transition:background 0.15s;
+}
+.sym-btn:hover{background:rgba(232,114,42,0.2);}
+
+/* TF buttons */
+.tf-group{display:flex;gap:2px;flex-shrink:0;}
+.tf-btn{
+  height:28px;padding:0 9px;border-radius:5px;
+  border:1px solid transparent;cursor:pointer;
+  color:var(--m);background:transparent;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:1px;
+  transition:all 0.15s;
+}
+.tf-btn:hover{color:var(--t);background:rgba(255,255,255,0.04);}
+.tf-btn.active{color:var(--a);background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.25);}
+
+/* Style toggle */
+.style-group{display:flex;gap:2px;flex-shrink:0;}
+.style-btn{
+  height:28px;padding:0 9px;border-radius:5px;
+  border:1px solid transparent;cursor:pointer;
+  color:var(--m);background:transparent;
+  font-family:var(--font-mono);font-size:10px;
+  transition:all 0.15s;
+}
+.style-btn:hover{color:var(--t);background:rgba(255,255,255,0.04);}
+.style-btn.active{color:var(--a);background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.25);}
+
+/* Indicators toggle */
+.ind-btn{
+  height:28px;padding:0 10px;border-radius:5px;
+  border:1px solid var(--bd);cursor:pointer;
+  color:var(--m);background:transparent;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:1px;
+  transition:all 0.15s;flex-shrink:0;
+}
+.ind-btn:hover{color:var(--t);border-color:rgba(255,255,255,0.15);}
+.ind-btn.active{color:var(--a);background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.25);}
+
+/* Calendar toggle button */
+.cal-toggle{
+  margin-left:auto;height:28px;padding:0 12px;
+  border-radius:5px;border:1px solid rgba(232,114,42,0.25);
+  cursor:pointer;background:rgba(232,114,42,0.08);
+  color:var(--a);font-family:var(--font-mono);font-size:10px;letter-spacing:1px;
+  transition:all 0.15s;display:flex;align-items:center;gap:6px;flex-shrink:0;
+}
+.cal-toggle:hover{background:rgba(232,114,42,0.15);}
+.cal-toggle.collapsed{color:var(--m);background:transparent;border-color:var(--bd);}
+
+/* Live dot */
+.live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--g);
+  box-shadow:0 0 6px var(--g);animation:pulse 2s infinite;flex-shrink:0;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.live-txt{font-size:9px;color:var(--g);letter-spacing:1.5px;}
+
+/* ── CHART AREA ──────────────────────────────────────── */
+.chart-area{
+  flex:1;display:flex;overflow:hidden;position:relative;
+}
+
+/* ── TV CHART WRAPPER ────────────────────────────────── */
+.tv-wrap{
+  flex:1;min-width:0;position:relative;overflow:hidden;
+  background:#06080c;
+}
+/* Hide TradingView copyright bar (it's tiny) */
+.tv-wrap .tradingview-widget-copyright{
+  display:flex;align-items:center;justify-content:flex-end;
+  height:20px;padding:0 8px;
+  background:#060a0f;border-top:1px solid var(--bd);
+}
+.tv-wrap .tradingview-widget-copyright a{font-size:9px;color:var(--m2);text-decoration:none;}
+.tv-wrap .tradingview-widget-copyright a:hover{color:var(--a);}
+.tv-wrap .tradingview-widget-copyright .trademark{font-size:9px;color:rgba(232,234,240,0.12);}
+.tv-wrap .tradingview-widget-container{height:100%;width:100%;}
+.tv-wrap .tradingview-widget-container__widget{height:calc(100% - 20px);width:100%;}
+
+/* ── RIGHT CALENDAR PANEL ────────────────────────────── */
+.cal-panel{
+  width:var(--cal);flex-shrink:0;
+  background:#090c11;
+  border-left:1px solid var(--bd);
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:width 0.28s cubic-bezier(0.4,0,0.2,1),
+             opacity 0.22s ease;
+}
+.cal-panel.collapsed{width:0;opacity:0;pointer-events:none;}
+
+.cal-header{
+  flex-shrink:0;height:44px;
+  display:flex;align-items:center;gap:10px;padding:0 14px;
+  border-bottom:1px solid var(--bd);
+  background:linear-gradient(90deg,#0c0f15,#090c11);
+}
+.cal-title{
+  font-family:var(--font-display);font-size:14px;letter-spacing:3px;color:var(--a);
+  flex:1;
+}
+.cal-subtitle{font-size:9px;color:var(--m2);letter-spacing:1px;}
+
+/* Filter importance tabs */
+.cal-filters{
+  flex-shrink:0;display:flex;gap:4px;padding:8px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.cal-f-btn{
+  flex:1;height:24px;border-radius:4px;
+  border:1px solid transparent;cursor:pointer;
+  background:transparent;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  color:var(--m2);transition:all 0.15s;
+}
+.cal-f-btn:hover{background:rgba(255,255,255,0.04);color:var(--t);}
+.cal-f-btn.active{background:rgba(232,114,42,0.1);color:var(--a);border-color:rgba(232,114,42,0.2);}
+.cal-f-btn.high.active{background:rgba(231,76,60,0.1);color:var(--r);border-color:rgba(231,76,60,0.2);}
+
+/* TradingView events widget container */
+.cal-widget-wrap{
+  flex:1;overflow:hidden;position:relative;
+}
+.cal-widget-wrap .tradingview-widget-container{height:100%;width:100%;}
+.cal-widget-wrap .tradingview-widget-container__widget{height:calc(100% - 20px);width:100%;}
+.cal-widget-wrap .tradingview-widget-copyright{
+  display:flex;align-items:center;justify-content:flex-end;
+  height:20px;padding:0 8px;
+  background:#060a0f;border-top:1px solid var(--bd);
+}
+.cal-widget-wrap .tradingview-widget-copyright a{font-size:9px;color:var(--m2);text-decoration:none;}
+.cal-widget-wrap .tradingview-widget-copyright .trademark{font-size:9px;color:rgba(232,234,240,0.12);}
+
+/* ── QUICK SYMBOLS STRIP ─────────────────────────────── */
+.sym-strip{
+  flex-shrink:0;height:32px;
+  display:flex;align-items:center;gap:2px;
+  padding:0 10px;overflow-x:auto;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  background:#080b0f;
+  scrollbar-width:none;
+}
+.sym-strip::-webkit-scrollbar{display:none;}
+.sym-chip{
+  height:22px;padding:0 10px;border-radius:4px;
+  border:1px solid transparent;cursor:pointer;
+  background:transparent;flex-shrink:0;
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.5px;
+  color:var(--m);transition:all 0.15s;
+}
+.sym-chip:hover{background:rgba(255,255,255,0.05);color:var(--t);}
+.sym-chip.active{
+  background:rgba(232,114,42,0.1);color:var(--a);
+  border-color:rgba(232,114,42,0.22);
+}
+.sym-strip-sep{width:1px;height:16px;background:var(--bd);flex-shrink:0;margin:0 4px;}
+
+/* ── INDICATORS DROPDOWN ─────────────────────────────── */
+.ind-dropdown{
+  position:absolute;top:calc(var(--topbar) + 36px);right:16px;
+  width:260px;background:#0e1219;
+  border:1px solid var(--bd);border-radius:var(--radius);
+  box-shadow:0 12px 40px rgba(0,0,0,0.8);
+  z-index:100;overflow:hidden;
+  display:none;
+}
+.ind-dropdown.open{display:block;}
+.ind-drop-header{
+  padding:10px 14px;border-bottom:1px solid var(--bd);
+  font-size:9px;letter-spacing:2px;color:var(--m2);text-transform:uppercase;
+}
+.ind-list{padding:6px;}
+.ind-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;border-radius:5px;cursor:pointer;
+  transition:background 0.12s;
+}
+.ind-item:hover{background:rgba(255,255,255,0.04);}
+.ind-item-name{font-size:10px;color:var(--t);}
+.ind-item-desc{font-size:8px;color:var(--m2);margin-top:1px;}
+.ind-toggle{
+  width:28px;height:14px;border-radius:7px;
+  background:rgba(255,255,255,0.1);border:none;cursor:pointer;
+  position:relative;transition:background 0.2s;flex-shrink:0;
+}
+.ind-toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,0.5);transition:left 0.2s,background 0.2s;
+}
+.ind-toggle.on{background:rgba(232,114,42,0.4);}
+.ind-toggle.on::after{left:16px;background:var(--a);}
+
+/* ── PRICE STRIP (live BTC/ETH/SOL) ─────────────────── */
+.price-strip{
+  flex-shrink:0;height:30px;
+  background:linear-gradient(90deg,rgba(232,114,42,0.04),transparent 40%);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:center;gap:0;padding:0 14px;overflow:hidden;
+}
+.ps-item{
+  display:flex;align-items:center;gap:6px;
+  padding:0 14px;border-right:1px solid var(--bd);font-size:10px;
+}
+.ps-item:first-child{padding-left:0;}
+.ps-sym{color:var(--m2);letter-spacing:.5px;font-size:9px;}
+.ps-price{color:var(--t);font-weight:600;}
+.ps-chg{font-size:9px;}
+.ps-chg.up{color:var(--g);} .ps-chg.dn{color:var(--r);}
+
+/* ── SCROLLBAR ───────────────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(232,114,42,0.2);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(232,114,42,0.4);}
+
+/* ── AUTH OVERLAY ────────────────────────────────────── */
+.auth-overlay{
+  position:fixed;inset:0;background:rgba(8,11,16,0.92);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;backdrop-filter:blur(8px);
+}
+.auth-box{
+  background:#0d1017;border:1px solid rgba(232,114,42,0.2);
+  border-radius:12px;padding:40px;width:360px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.8);
+}
+.auth-logo{font-family:var(--font-display);font-size:28px;letter-spacing:8px;color:#fff;margin-bottom:4px;}
+.auth-sub{font-size:9px;color:var(--m2);letter-spacing:2px;margin-bottom:28px;}
+.auth-input{
+  width:100%;background:#070a0e;border:1px solid var(--bd);border-radius:6px;
+  color:var(--t);font-family:var(--font-mono);font-size:12px;
+  padding:11px 14px;margin-bottom:10px;outline:none;transition:border-color 0.15s;
+}
+.auth-input:focus{border-color:rgba(232,114,42,0.4);}
+.auth-btn{
+  width:100%;height:40px;border-radius:6px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,rgba(232,114,42,0.9),rgba(200,90,20,0.9));
+  color:#fff;font-family:var(--font-mono);font-size:11px;letter-spacing:2px;
+  margin-top:6px;transition:opacity 0.15s;font-weight:600;
+}
+.auth-btn:hover{opacity:.85;}
+.auth-msg{font-size:10px;color:var(--m2);margin-top:10px;text-align:center;}
+
+/* Fade-in */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.chart-area{animation:fadeIn .35s ease;}
+</style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">ORBITUM</div>
+    <div class="auth-sub">CHART TERMINAL</div>
+    <input class="auth-input" id="auth-email" type="email" placeholder="Email" autocomplete="email">
+    <input class="auth-input" id="auth-pass"  type="password" placeholder="Пароль" autocomplete="current-password">
+    <button class="auth-btn" onclick="doLogin()">ВОЙТИ</button>
+    <div class="auth-msg" id="auth-msg"></div>
+  </div>
+</div>
+
+<!-- MAIN SHELL -->
+<div class="shell" id="shell" style="display:none">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <a class="sb-logo" href="screener.html">
+      <div class="sb-dot"></div>
+      <span class="sb-logo-text">ORBITUM</span>
+    </a>
+    <nav class="sb-nav">
+      <div class="sb-section">КАБИНЕТ</div>
+      <a class="sb-item" href="journal.html">
+        <span class="sb-item-icon">📒</span>Журнал сделок
+      </a>
+      <a class="sb-item" href="#">
+        <span class="sb-item-icon">📊</span>Аналитика
+      </a>
+      <a class="sb-item" href="#">
+        <span class="sb-item-icon">🎯</span>Прогресс
+      </a>
+      <div class="sb-divider"></div>
+      <div class="sb-section">ИНСТРУМЕНТЫ</div>
+      <a class="sb-item" href="screener.html">
+        <span class="sb-item-icon">🔍</span>Скринер
+      </a>
+      <a class="sb-item active" href="chart.html">
+        <span class="sb-item-icon">📈</span>График
+      </a>
+      <a class="sb-item" href="#">
+        <span class="sb-item-icon">👤</span>Мой профиль
+      </a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">?</div>
+      <div class="sb-user-info">
+        <div class="sb-user-email" id="sb-email">—</div>
+        <div class="sb-user-plan">НАВСЕГДА</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <span class="tb-title">CHART</span>
+      <div class="tb-sep"></div>
+
+      <!-- Symbol selector -->
+      <div class="sym-wrap">
+        <span class="sym-prefix">BINANCE</span>
+        <input class="sym-input" id="sym-input" value="BTCUSDT" placeholder="BTCUSDT"
+               onkeydown="if(event.key==='Enter')applySymbol()">
+        <button class="sym-btn" onclick="applySymbol()">GO</button>
+      </div>
+
+      <div class="tb-sep"></div>
+
+      <!-- Timeframe -->
+      <div class="tf-group" id="tf-group">
+        <button class="tf-btn" onclick="setTF('1',this)">1M</button>
+        <button class="tf-btn" onclick="setTF('5',this)">5M</button>
+        <button class="tf-btn" onclick="setTF('15',this)">15M</button>
+        <button class="tf-btn" onclick="setTF('60',this)">1H</button>
+        <button class="tf-btn active" onclick="setTF('240',this)">4H</button>
+        <button class="tf-btn" onclick="setTF('D',this)">1D</button>
+        <button class="tf-btn" onclick="setTF('W',this)">1W</button>
+      </div>
+
+      <div class="tb-sep"></div>
+
+      <!-- Chart style -->
+      <div class="style-group">
+        <button class="style-btn active" title="Свечи" onclick="setStyle(1,this)">▮</button>
+        <button class="style-btn" title="Бары"        onclick="setStyle(0,this)">⫧</button>
+        <button class="style-btn" title="Линия"       onclick="setStyle(2,this)">╌</button>
+        <button class="style-btn" title="Область"     onclick="setStyle(3,this)">▽</button>
+      </div>
+
+      <div class="tb-sep"></div>
+
+      <!-- Indicators -->
+      <button class="ind-btn" id="ind-btn" onclick="toggleIndDropdown()">⊕ ИНДИКАТОРЫ</button>
+
+      <!-- Live indicator -->
+      <div style="display:flex;align-items:center;gap:5px;margin-left:10px;flex-shrink:0;">
+        <div class="live-dot"></div>
+        <span class="live-txt">LIVE</span>
+      </div>
+
+      <!-- Calendar toggle -->
+      <button class="cal-toggle" id="cal-toggle" onclick="toggleCalendar()">
+        📅 КАЛЕНДАРЬ
+      </button>
+    </div>
+
+    <!-- PRICE STRIP -->
+    <div class="price-strip" id="price-strip">
+      <div class="ps-item">
+        <span class="ps-sym">BTC</span>
+        <span class="ps-price" id="ps-btc">—</span>
+        <span class="ps-chg" id="ps-btc-chg">—</span>
+      </div>
+      <div class="ps-item">
+        <span class="ps-sym">ETH</span>
+        <span class="ps-price" id="ps-eth">—</span>
+        <span class="ps-chg" id="ps-eth-chg">—</span>
+      </div>
+      <div class="ps-item">
+        <span class="ps-sym">SOL</span>
+        <span class="ps-price" id="ps-sol">—</span>
+        <span class="ps-chg" id="ps-sol-chg">—</span>
+      </div>
+      <div class="ps-item">
+        <span class="ps-sym">BNB</span>
+        <span class="ps-price" id="ps-bnb">—</span>
+        <span class="ps-chg" id="ps-bnb-chg">—</span>
+      </div>
+      <div class="ps-item">
+        <span class="ps-sym">XRP</span>
+        <span class="ps-price" id="ps-xrp">—</span>
+        <span class="ps-chg" id="ps-xrp-chg">—</span>
+      </div>
+    </div>
+
+    <!-- QUICK SYMBOL STRIP -->
+    <div class="sym-strip" id="sym-strip">
+      <button class="sym-chip active" onclick="switchSym('BTCUSDT',this)">BTC</button>
+      <button class="sym-chip" onclick="switchSym('ETHUSDT',this)">ETH</button>
+      <button class="sym-chip" onclick="switchSym('SOLUSDT',this)">SOL</button>
+      <button class="sym-chip" onclick="switchSym('BNBUSDT',this)">BNB</button>
+      <button class="sym-chip" onclick="switchSym('XRPUSDT',this)">XRP</button>
+      <button class="sym-chip" onclick="switchSym('ADAUSDT',this)">ADA</button>
+      <button class="sym-chip" onclick="switchSym('AVAXUSDT',this)">AVAX</button>
+      <button class="sym-chip" onclick="switchSym('DOGEUSDT',this)">DOGE</button>
+      <button class="sym-chip" onclick="switchSym('LINKUSDT',this)">LINK</button>
+      <button class="sym-chip" onclick="switchSym('DOTUSDT',this)">DOT</button>
+      <button class="sym-chip" onclick="switchSym('UNIUSDT',this)">UNI</button>
+      <button class="sym-chip" onclick="switchSym('SUIUSDT',this)">SUI</button>
+      <button class="sym-chip" onclick="switchSym('NEARUSDT',this)">NEAR</button>
+      <button class="sym-chip" onclick="switchSym('ATOMUSDT',this)">ATOM</button>
+      <button class="sym-chip" onclick="switchSym('LTCUSDT',this)">LTC</button>
+      <div class="sym-strip-sep"></div>
+      <button class="sym-chip" onclick="switchSym('BTCDOMUSDT',this)" style="color:var(--y)">BTC.D</button>
+      <button class="sym-chip" onclick="switchSym('TOTALUSDT',this)" style="color:var(--b)">TOTAL</button>
+    </div>
+
+    <!-- CHART + CALENDAR -->
+    <div class="chart-area">
+
+      <!-- TradingView Advanced Chart -->
+      <div class="tv-wrap" id="tv-wrap">
+        <!-- injected by initChart() -->
+      </div>
+
+      <!-- Calendar Panel -->
+      <div class="cal-panel" id="cal-panel">
+        <div class="cal-header">
+          <div>
+            <div class="cal-title">КАЛЕНДАРЬ</div>
+            <div class="cal-subtitle">ECONOMIC EVENTS</div>
+          </div>
+          <button onclick="toggleCalendar()" style="background:none;border:none;cursor:pointer;color:var(--m2);font-size:14px;padding:4px;">✕</button>
+        </div>
+        <div class="cal-filters">
+          <button class="cal-f-btn" onclick="setCalFilter('-1,0,1',this)">ВСЕ</button>
+          <button class="cal-f-btn" onclick="setCalFilter('0,1',this)">СРЕДНИЕ+</button>
+          <button class="cal-f-btn high active" onclick="setCalFilter('1',this)">ВЫСОКИЕ</button>
+        </div>
+        <div class="cal-widget-wrap" id="cal-widget-wrap">
+          <!-- injected by initCalendar() -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Indicators dropdown -->
+    <div class="ind-dropdown" id="ind-dropdown">
+      <div class="ind-drop-header">ИНДИКАТОРЫ</div>
+      <div class="ind-list">
+        <div class="ind-item" onclick="toggleInd('Volume')">
+          <div><div class="ind-item-name">Volume</div><div class="ind-item-desc">Объём торгов</div></div>
+          <button class="ind-toggle on" id="ind-Volume"></button>
+        </div>
+        <div class="ind-item" onclick="toggleInd('RSI')">
+          <div><div class="ind-item-name">RSI (14)</div><div class="ind-item-desc">Индекс силы</div></div>
+          <button class="ind-toggle" id="ind-RSI"></button>
+        </div>
+        <div class="ind-item" onclick="toggleInd('MACD')">
+          <div><div class="ind-item-name">MACD</div><div class="ind-item-desc">Схождение/расхождение</div></div>
+          <button class="ind-toggle" id="ind-MACD"></button>
+        </div>
+        <div class="ind-item" onclick="toggleInd('BB')">
+          <div><div class="ind-item-name">Bollinger Bands</div><div class="ind-item-desc">Полосы Боллинджера</div></div>
+          <button class="ind-toggle" id="ind-BB"></button>
+        </div>
+        <div class="ind-item" onclick="toggleInd('EMA')">
+          <div><div class="ind-item-name">EMA 20/50/200</div><div class="ind-item-desc">Скользящие средние</div></div>
+          <button class="ind-toggle" id="ind-EMA"></button>
+        </div>
+        <div class="ind-item" onclick="toggleInd('VWAP')">
+          <div><div class="ind-item-name">VWAP</div><div class="ind-item-desc">Средневзвешенная цена</div></div>
+          <button class="ind-toggle" id="ind-VWAP"></button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ══════════════════════════════════════════════════════
+// ORBITUM CHART — TradingView Integration
+// ══════════════════════════════════════════════════════
+
+const SUPABASE_URL  = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── State ───────────────────────────────────────────
+let currentSymbol   = 'BINANCE:BTCUSDT';
+let currentTF       = '240';
+let currentStyle    = 1;
+let currentStudies  = [];
+let calendarOpen    = true;
+let calFilterImp    = '1';   // importance filter
+let tvWidget        = null;
+let _ws             = null;
+
+// Indicator → TradingView study mapping
+const IND_MAP = {
+  RSI:    'RSI@tv-basicstudies',
+  MACD:   'MACD@tv-basicstudies',
+  BB:     'BB@tv-basicstudies',
+  EMA:    'MAExp@tv-basicstudies',
+  VWAP:   'VWAP@tv-basicstudies',
+  Volume: null, // controlled by hide_volume
+};
+
+// ── Auth ────────────────────────────────────────────
+async function checkAuth(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(session?.user){
+    showApp(session.user);
+  } else {
+    document.getElementById('auth-overlay').style.display = 'flex';
+  }
+}
+
+async function doLogin(){
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-pass').value;
+  const msg   = document.getElementById('auth-msg');
+  msg.textContent = 'Входим...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if(error){ msg.style.color = 'var(--r)'; msg.textContent = error.message; return; }
+  showApp(data.user);
+}
+
+function showApp(user){
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('shell').style.display = 'flex';
+  const initials = (user.email || '?')[0].toUpperCase();
+  document.getElementById('sb-avatar').textContent  = initials;
+  document.getElementById('sb-email').textContent   = user.email || '—';
+  initChart();
+  initCalendar();
+  initWS();
+}
+
+// ── Build TradingView chart ──────────────────────────
+function buildTVConfig(){
+  return {
+    autosize: true,
+    symbol:   currentSymbol,
+    interval: currentTF,
+    style:    String(currentStyle),
+    theme:    'dark',
+    locale:   'ru',
+    timezone: 'Europe/Moscow',
+    backgroundColor:  '#06080c',
+    gridColor:        'rgba(255,255,255,0.04)',
+    allow_symbol_change: false, // we control it ourselves
+    hide_side_toolbar:   true,
+    hide_top_toolbar:    false,
+    hide_legend:         false,
+    hide_volume:         !currentStudies.includes('Volume'),
+    save_image:          true,
+    details:             false,
+    hotlist:             false,
+    calendar:            false,
+    withdateranges:      true,
+    studies: currentStudies.filter(s => IND_MAP[s]).map(s => IND_MAP[s]),
+  };
+}
+
+function initChart(){
+  const wrap = document.getElementById('tv-wrap');
+  wrap.innerHTML = '';
+
+  const container  = document.createElement('div');
+  container.className = 'tradingview-widget-container';
+  container.style.height = '100%';
+  container.style.width  = '100%';
+
+  const widget = document.createElement('div');
+  widget.className = 'tradingview-widget-container__widget';
+  widget.style.height = 'calc(100% - 20px)';
+  widget.style.width  = '100%';
+
+  const copy = document.createElement('div');
+  copy.className = 'tradingview-widget-copyright';
+  copy.innerHTML = `<a href="https://www.tradingview.com/symbols/${currentSymbol}/" rel="noopener nofollow" target="_blank"><span class="blue-text">${currentSymbol} chart</span></a><span class="trademark"> by TradingView</span>`;
+
+  const script = document.createElement('script');
+  script.type  = 'text/javascript';
+  script.src   = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  script.async = true;
+  script.innerHTML = JSON.stringify(buildTVConfig());
+
+  container.appendChild(widget);
+  container.appendChild(copy);
+  container.appendChild(script);
+  wrap.appendChild(container);
+}
+
+// ── Calendar ─────────────────────────────────────────
+function initCalendar(){
+  const wrap = document.getElementById('cal-widget-wrap');
+  wrap.innerHTML = '';
+
+  const container = document.createElement('div');
+  container.className = 'tradingview-widget-container';
+  container.style.height = '100%';
+  container.style.width  = '100%';
+
+  const widget = document.createElement('div');
+  widget.className = 'tradingview-widget-container__widget';
+  widget.style.height = 'calc(100% - 20px)';
+  widget.style.width  = '100%';
+
+  const copy = document.createElement('div');
+  copy.className = 'tradingview-widget-copyright';
+  copy.innerHTML = `<a href="https://www.tradingview.com/economic-calendar/" rel="noopener nofollow" target="_blank"><span class="blue-text">Economic Calendar</span></a><span class="trademark"> by TradingView</span>`;
+
+  const cfg = {
+    colorTheme:       'dark',
+    isTransparent:    true,
+    locale:           'ru',
+    countryFilter:    'us,eu,gb,jp,cn,ca,au,de,fr',
+    importanceFilter: calFilterImp,
+    width:            '100%',
+    height:           '100%',
+  };
+
+  const script = document.createElement('script');
+  script.type  = 'text/javascript';
+  script.src   = 'https://s3.tradingview.com/external-embedding/embed-widget-events.js';
+  script.async = true;
+  script.innerHTML = JSON.stringify(cfg);
+
+  container.appendChild(widget);
+  container.appendChild(copy);
+  container.appendChild(script);
+  wrap.appendChild(container);
+}
+
+// ── Controls ──────────────────────────────────────────
+function setTF(tf, btn){
+  currentTF = tf;
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initChart();
+}
+
+function setStyle(style, btn){
+  currentStyle = style;
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initChart();
+}
+
+function applySymbol(){
+  const val = document.getElementById('sym-input').value.trim().toUpperCase();
+  if(!val) return;
+  const sym = val.includes(':') ? val : 'BINANCE:' + (val.endsWith('USDT') ? val : val + 'USDT');
+  currentSymbol = sym;
+  // deactivate chips
+  document.querySelectorAll('.sym-chip').forEach(c => c.classList.remove('active'));
+  initChart();
+}
+
+function switchSym(pair, el){
+  currentSymbol = 'BINANCE:' + pair;
+  document.getElementById('sym-input').value = pair;
+  document.querySelectorAll('.sym-chip').forEach(c => c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  initChart();
+}
+
+// ── Calendar toggle ───────────────────────────────────
+function toggleCalendar(){
+  calendarOpen = !calendarOpen;
+  const panel  = document.getElementById('cal-panel');
+  const toggle = document.getElementById('cal-toggle');
+  if(calendarOpen){
+    panel.classList.remove('collapsed');
+    toggle.classList.remove('collapsed');
+    toggle.textContent = '📅 КАЛЕНДАРЬ';
+  } else {
+    panel.classList.add('collapsed');
+    toggle.classList.add('collapsed');
+    toggle.textContent = '📅';
+  }
+}
+
+function setCalFilter(filter, btn){
+  calFilterImp = filter;
+  document.querySelectorAll('.cal-f-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initCalendar();
+}
+
+// ── Indicators ────────────────────────────────────────
+function toggleIndDropdown(){
+  const dd  = document.getElementById('ind-dropdown');
+  const btn = document.getElementById('ind-btn');
+  dd.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+
+function toggleInd(name){
+  const toggle = document.getElementById('ind-' + name);
+  const idx    = currentStudies.indexOf(name);
+  if(idx === -1){
+    currentStudies.push(name);
+    if(toggle) toggle.classList.add('on');
+  } else {
+    currentStudies.splice(idx, 1);
+    if(toggle) toggle.classList.remove('on');
+  }
+  initChart();
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  const dd = document.getElementById('ind-dropdown');
+  if(!dd) return;
+  if(!dd.contains(e.target) && !document.getElementById('ind-btn')?.contains(e.target)){
+    dd.classList.remove('open');
+    document.getElementById('ind-btn')?.classList.remove('active');
+  }
+});
+
+// ── Binance WS (price strip) ──────────────────────────
+const WS_PAIRS = ['btcusdt','ethusdt','solusdt','bnbusdt','xrpusdt'];
+const WS_IDS   = { btcusdt:'btc', ethusdt:'eth', solusdt:'sol', bnbusdt:'bnb', xrpusdt:'xrp' };
+
+function initWS(){
+  const streams = WS_PAIRS.map(p => p + '@miniTicker').join('/');
+  _ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+  _ws.onmessage = e => {
+    try{
+      const { data: d } = JSON.parse(e.data);
+      if(!d || d.e !== '24hrMiniTicker') return;
+      const id    = WS_IDS[d.s?.toLowerCase()];
+      if(!id) return;
+      const price = parseFloat(d.c);
+      const open  = parseFloat(d.o);
+      const chg   = open > 0 ? ((price - open) / open * 100) : 0;
+      const prEl  = document.getElementById(`ps-${id}`);
+      const chEl  = document.getElementById(`ps-${id}-chg`);
+      if(prEl) prEl.textContent = fmtPrice(price);
+      if(chEl){
+        chEl.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+        chEl.className   = 'ps-chg ' + (chg >= 0 ? 'up' : 'dn');
+      }
+    }catch(_){}
+  };
+  _ws.onerror = () => {};
+  _ws.onclose = () => { setTimeout(initWS, 3000); };
+}
+
+function fmtPrice(p){
+  if(!p || isNaN(p)) return '—';
+  if(p >= 10000)  return '$' + p.toLocaleString('en', { maximumFractionDigits: 0 });
+  if(p >= 100)    return '$' + p.toFixed(2);
+  if(p >= 1)      return '$' + p.toFixed(3);
+  if(p >= 0.01)   return '$' + p.toFixed(5);
+  return '$' + p.toFixed(8);
+}
+
+// ── Boot ──────────────────────────────────────────────
+checkAuth();
+</script>
+</body>
+</html>
