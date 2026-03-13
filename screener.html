@@ -860,10 +860,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 
 /* ══ CANDLE CARD (ScalpBoard mode) ══════════════════════════════ */
-.candle-grid{
-  display:grid;gap:8px;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-}
+.candle-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
 .candle-card{
   background:#0c0f15;border:1px solid rgba(255,255,255,0.07);
   border-radius:8px;overflow:hidden;cursor:pointer;
@@ -871,94 +868,81 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .candle-card:hover{border-color:rgba(232,114,42,0.4);}
 .candle-card.watched{border-color:rgba(240,192,64,0.3);}
-/* Top indicator bar (like ScalpBoard: change, natr, vol, corr) */
 .cc2-topbar{
-  display:flex;align-items:center;gap:0;
+  display:flex;align-items:center;
   border-bottom:1px solid rgba(255,255,255,0.04);
   padding:4px 8px;background:rgba(0,0,0,0.3);
   font-family:'JetBrains Mono',monospace;font-size:8px;
 }
 .cc2-ind{
   display:flex;align-items:center;gap:3px;
-  padding:0 6px;border-right:1px solid rgba(255,255,255,0.05);
+  padding:0 7px;border-right:1px solid rgba(255,255,255,0.05);
   color:rgba(232,234,240,0.45);
 }
 .cc2-ind:first-child{padding-left:0;}
-.cc2-ind:last-child{border-right:none;padding-right:0;margin-left:auto;}
-.cc2-ind-lbl{font-size:7px;color:rgba(232,234,240,0.2);}
+.cc2-ind.last{border-right:none;margin-left:auto;}
+.cc2-ind-lbl{font-size:6.5px;color:rgba(232,234,240,0.2);margin-right:2px;}
 .cc2-ind-val{font-weight:600;}
-/* Header row */
-.cc2-head{
-  display:flex;align-items:center;gap:6px;
-  padding:6px 8px 4px;
-}
+.cc2-head{display:flex;align-items:center;gap:6px;padding:6px 8px 4px;}
 .cc2-sym{font-size:13px;font-weight:700;letter-spacing:.5px;flex:1;}
 .cc2-price{font-size:12px;font-weight:600;color:var(--t);}
 .cc2-chg{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;}
 .cc2-chg.up{color:var(--g);background:rgba(46,204,113,0.1);}
 .cc2-chg.down{color:var(--r);background:rgba(231,76,60,0.1);}
-/* Mini metrics row below header */
-.cc2-metrics{
-  display:flex;gap:0;padding:2px 8px 4px;
-  border-bottom:1px solid rgba(255,255,255,0.04);
-}
-.cc2-metric{
-  flex:1;display:flex;flex-direction:column;gap:1px;
-  border-right:1px solid rgba(255,255,255,0.04);padding:0 4px;
-}
+.cc2-metrics{display:flex;padding:2px 8px 5px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.cc2-metric{flex:1;display:flex;flex-direction:column;gap:1px;border-right:1px solid rgba(255,255,255,0.04);padding:0 5px;}
 .cc2-metric:first-child{padding-left:0;}
 .cc2-metric:last-child{border-right:none;}
-.cc2-ml{font-size:6.5px;color:rgba(232,234,240,0.2);letter-spacing:1px;text-transform:uppercase;}
-.cc2-mv{font-size:9px;color:rgba(232,234,240,0.65);}
+.cc2-ml{font-size:6px;color:rgba(232,234,240,0.2);letter-spacing:1px;text-transform:uppercase;}
+.cc2-mv{font-size:9px;color:rgba(232,234,240,0.6);}
 .cc2-mv.up{color:var(--g);}
 .cc2-mv.dn{color:var(--r);}
-/* Chart area */
-.cc2-chart{height:100px;width:100%;position:relative;background:#06080c;}
+.cc2-chart{height:110px;width:100%;position:relative;background:#06080c;}
 .cc2-chart canvas{display:block;width:100%;height:100%;}
-/* Volume bar mini */
 .cc2-volbar{height:2px;background:rgba(255,255,255,0.04);}
-.cc2-volfill{height:100%;background:rgba(232,114,42,0.45);transition:width .4s;}
-/* Actions */
+.cc2-volfill{height:100%;background:rgba(232,114,42,0.4);transition:width .4s;}
 .cc2-actions{
-  position:absolute;top:6px;right:6px;
-  display:flex;gap:2px;opacity:0;transition:opacity .15s;
-  z-index:5;
+  position:absolute;top:6px;right:6px;display:flex;gap:2px;
+  opacity:0;transition:opacity .15s;z-index:5;
 }
 .candle-card:hover .cc2-actions{opacity:1;}
-/* Impulse badge */
 .cc2-impulse{
   position:absolute;top:0;left:0;right:0;
-  background:rgba(232,114,42,0.18);border-bottom:1px solid rgba(232,114,42,0.4);
-  font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--a);
+  font-family:'JetBrains Mono',monospace;font-size:8px;
   letter-spacing:1px;text-align:center;padding:2px 0;
-  animation:flash-up 2s ease;display:none;
+  display:none;z-index:6;pointer-events:none;
 }
-.candle-card.impulse-up .cc2-impulse{display:block;background:rgba(46,204,113,0.15);border-bottom-color:rgba(46,204,113,0.4);color:var(--g);}
-.candle-card.impulse-dn .cc2-impulse{display:block;background:rgba(231,76,60,0.15);border-bottom-color:rgba(231,76,60,0.4);color:var(--r);}
-
-/* ── Impulse alert popup (bottom like ScalpBoard) ── */
+.candle-card.impulse-up .cc2-impulse{
+  display:block;background:rgba(46,204,113,0.18);
+  border-bottom:1px solid rgba(46,204,113,0.4);color:#2ecc71;
+}
+.candle-card.impulse-dn .cc2-impulse{
+  display:block;background:rgba(231,76,60,0.15);
+  border-bottom:1px solid rgba(231,76,60,0.4);color:#e74c3c;
+}
+/* Impulse popup */
 .impulse-popup{
   position:fixed;bottom:20px;right:20px;z-index:9990;
-  display:flex;flex-direction:column;gap:6px;pointer-events:none;
+  display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:240px;
 }
 .impulse-item{
-  background:#0d1018;border:1px solid rgba(232,114,42,0.4);
+  background:#0d1018;border:1px solid rgba(232,114,42,0.35);
   border-radius:8px;padding:8px 12px;
   font-family:'JetBrains Mono',monospace;font-size:10px;
   display:flex;align-items:center;gap:10px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.7);
+  box-shadow:0 4px 24px rgba(0,0,0,0.7);
   animation:impulseIn .25s cubic-bezier(0.16,1,0.3,1);
-  pointer-events:all;min-width:200px;
+  pointer-events:all;
 }
-@keyframes impulseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+@keyframes impulseIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .impulse-item.pump{border-color:rgba(46,204,113,0.5);}
 .impulse-item.dump{border-color:rgba(231,76,60,0.5);}
-.ii-icon{font-size:16px;}
-.ii-sym{font-weight:700;color:var(--t);font-size:12px;}
+.ii-icon{font-size:15px;}
+.ii-sym{font-weight:700;color:var(--t);font-size:11px;}
 .ii-pct{font-size:11px;font-weight:600;}
-.ii-pct.up{color:var(--g);}
-.ii-pct.dn{color:var(--r);}
-.ii-tf{font-size:8px;color:var(--m2);margin-left:auto;}
+.ii-pct.up{color:#2ecc71;}
+.ii-pct.dn{color:#e74c3c;}
+.ii-tf{font-size:7.5px;color:var(--m2);margin-left:auto;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -1058,7 +1042,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
         <button class="tb-view-btn active" id="view-grid" onclick="setView('grid',this)" title="Сетка">⊞</button>
         <button class="tb-view-btn" id="view-large" onclick="setView('large',this)" title="Большие">⊟</button>
         <button class="tb-view-btn" id="view-heatmap" onclick="setView('heatmap',this)" title="Тепловая карта" style="font-size:11px;letter-spacing:0.5px;padding:4px 8px;">HEATMAP</button>
-        <button class="tb-view-btn" id="view-candle" onclick="setView('candle',this)" title="Свечной скрин (ScalpBoard)" style="font-size:9px;letter-spacing:0.5px;padding:4px 8px;">СВЕЧИ</button>
+        <button class="tb-view-btn" id="view-candle" onclick="setView('candle',this)" title="Свечи (ScalpBoard)" style="font-size:9px;letter-spacing:0.5px;padding:4px 8px;">СВЕЧИ</button>
         <button class="tb-view-btn" id="view-list" onclick="setView('list',this)" title="Список">☰</button>
       </div>
 
@@ -1479,11 +1463,11 @@ function patchPriceDOM(cgId, price, chg24, prevPrice){
     }
   }
 
-  // Live 24h % in card mini-metrics row
+  // Live 24h % in card mini-metrics
   const chg24El = document.querySelector(`[data-chg24="${cgId}"]`);
   if(chg24El){ chg24El.textContent = chgStr; chg24El.style.color = isUp ? 'var(--g)' : 'var(--r)'; }
 
-  // NATR live update in ScalpBoard cards
+  // NATR live update
   const natrEl = document.querySelector(`[data-natr="${cgId}"]`);
   if(natrEl){
     const ws2 = _wsCache[cgId];
@@ -1494,9 +1478,6 @@ function patchPriceDOM(cgId, price, chg24, prevPrice){
     }
   }
 
-  // Impulse alert detection
-  detectImpulse(cgId, price, chg24);
-
   // Проверяем алерты на каждый тик
   checkAlertsForCoin(cgId, price);
 
@@ -1505,41 +1486,111 @@ function patchPriceDOM(cgId, price, chg24, prevPrice){
 }
 
 // ── Load coins — один раз: метаданные + sparkline ──
-async function loadCoins(){
-  try{
-    const r = await fetch('/api/ticker?type=screener');
-    const d = await r.json();
-    if(!Array.isArray(d) || !d.length) throw new Error('empty');
-    allCoins = d;
-    document.getElementById('count-total').textContent = d.length;
-    updateStats();
-    applyFilter();
-    analyzeSignals(d);
-    document.getElementById('loading').style.display = 'none';
-    // Запускаем WS после рендера
-    initBinanceWS();
-    // Фоновое обновление метаданных (sparkline и т.д.) каждые 5 минут
-    setInterval(async () => {
-      try{
-        const r2 = await fetch('/api/ticker?type=screener');
-        const d2 = await r2.json();
-        if(!Array.isArray(d2)) return;
-        d2.forEach(fresh => {
-          const idx = allCoins.findIndex(c => c.id === fresh.id);
-          if(idx === -1) return;
-          // Сохраняем WS-цену, обновляем только метаданные
-          const wsPrice = _wsCache[fresh.id]?.price;
-          allCoins[idx] = { ...fresh, current_price: wsPrice ?? fresh.current_price };
-        });
-      } catch(e){}
-    }, 5 * 60 * 1000);
-  } catch(e){
-    console.error('[Screener] Load error:', e);
-    document.getElementById('loading').innerHTML =
-      `<div style="font-family:'JetBrains Mono',monospace;color:rgba(232,114,42,0.7);font-size:13px;text-align:center">
-        ⚠️ ОШИБКА ЗАГРУЗКИ<br><span style="font-size:10px;opacity:0.6;margin-top:8px;display:block">Убедитесь что api/ticker.js задеплоен на Vercel</span>
-       </div>`;
+// ── Safe JSON fetch — guards against HTML error pages ──
+async function safeFetch(url){
+  const r = await fetch(url);
+  const ct = r.headers.get('content-type') || '';
+  if(!ct.includes('application/json') && !ct.includes('text/plain')){
+    const preview = await r.text();
+    throw new Error(`API вернул HTML (${r.status}). Проверь Vercel → /api/ticker. Превью: ${preview.slice(0,120)}`);
   }
+  return r.json();
+}
+
+// ── CoinGecko direct fallback (when /api/ticker не задеплоен) ──
+async function loadFromCoinGecko(){
+  showLoadingMsg('CoinGecko fallback...', '#f39c12');
+  const url = 'https://api.coingecko.com/api/v3/coins/markets' +
+    '?vs_currency=usd&order=market_cap_desc&per_page=100&page=1' +
+    '&sparkline=true&price_change_percentage=1h%2C7d%2C30d';
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('CoinGecko: ' + r.status);
+  return r.json();
+}
+
+function showLoadingMsg(msg, color='rgba(232,114,42,0.7)'){
+  const el = document.getElementById('loading');
+  if(!el) return;
+  el.style.display = 'flex';
+  el.innerHTML = `
+    <div class="load-logo">ORBITUM</div>
+    <div class="load-bar"><div class="load-fill"></div></div>
+    <div class="load-txt" style="color:${color}">${msg}</div>`;
+}
+
+function showLoadError(msg, detail=''){
+  const el = document.getElementById('loading');
+  if(!el) return;
+  el.innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;text-align:center;max-width:480px;padding:0 20px">
+      <div style="font-size:28px;margin-bottom:12px">⚠️</div>
+      <div style="color:rgba(232,114,42,0.9);font-size:13px;margin-bottom:8px">${msg}</div>
+      ${detail ? `<div style="color:rgba(232,234,240,0.3);font-size:10px;line-height:1.6;word-break:break-all">${detail}</div>` : ''}
+      <button onclick="location.reload()" style="
+        margin-top:20px;padding:9px 24px;border-radius:8px;border:1px solid rgba(232,114,42,0.4);
+        background:rgba(232,114,42,0.1);color:var(--a);font-family:'JetBrains Mono',monospace;
+        font-size:11px;letter-spacing:2px;cursor:pointer">↺ ПЕРЕЗАГРУЗИТЬ</button>
+    </div>`;
+}
+
+async function loadCoins(){
+  let d = null;
+
+  // ── Attempt 1: /api/ticker (Vercel backend) ──
+  try{
+    showLoadingMsg('Загрузка данных...');
+    d = await safeFetch('/api/ticker?type=screener');
+    if(!Array.isArray(d) || !d.length) throw new Error('Пустой ответ от /api/ticker');
+  } catch(e){
+    console.warn('[Screener] /api/ticker недоступен:', e.message);
+
+    // ── Attempt 2: CoinGecko напрямую ──
+    try{
+      d = await loadFromCoinGecko();
+      if(!Array.isArray(d) || !d.length) throw new Error('CoinGecko: пустой ответ');
+      console.info('[Screener] Используется CoinGecko fallback');
+      // Show subtle warning
+      const liveEl = document.getElementById('live-txt');
+      if(liveEl) liveEl.textContent = 'CoinGecko';
+      showToast('⚠️ /api/ticker недоступен — используется CoinGecko напрямую', 'info');
+    } catch(e2){
+      console.error('[Screener] Все источники данных недоступны:', e2.message);
+      showLoadError(
+        'Не удалось загрузить данные',
+        `1) /api/ticker: ${e.message}<br>2) CoinGecko: ${e2.message}`
+      );
+      return;
+    }
+  }
+
+  allCoins = d;
+  document.getElementById('count-total').textContent = d.length;
+  updateStats();
+  applyFilter();
+  analyzeSignals(d);
+  document.getElementById('loading').style.display = 'none';
+
+  // Запускаем WS после рендера
+  initBinanceWS();
+
+  // Фоновое обновление метаданных каждые 5 минут
+  setInterval(async () => {
+    try{
+      let fresh;
+      try{
+        fresh = await safeFetch('/api/ticker?type=screener');
+      } catch(_){
+        fresh = await loadFromCoinGecko();
+      }
+      if(!Array.isArray(fresh)) return;
+      fresh.forEach(item => {
+        const idx = allCoins.findIndex(c => c.id === item.id);
+        if(idx === -1) return;
+        const wsPrice = _wsCache[item.id]?.price;
+        allCoins[idx] = { ...item, current_price: wsPrice ?? item.current_price };
+      });
+    } catch(e){}
+  }, 5 * 60 * 1000);
 }
 
 // ── Load alerts from Supabase ──
@@ -3293,48 +3344,44 @@ else init();
 // SCALPBOARD-STYLE CANDLE CARDS + IMPULSE ENGINE
 // ══════════════════════════════════════════════════════
 
-// ── Candle card rendering ────────────────────────────
-// Each card has a mini Binance kline canvas (1m/5m)
-const _candleCharts = {}; // coinId → {canvas, ctx, candles, tf}
-const _impulseConfig = { minPct: 3, tf: '5m' }; // % движения за свечу
-const _recentImpulses = new Set(); // debounce coinId
+const _klineCache = {};  // pair → { candles, ts }
+const KLINE_TTL   = 60000; // 1 min
+const _impulseCooldown = {};
+const _impulseMinPct   = 3; // %
 
 function renderCandleGrid(coins){
-  const area = document.getElementById('coins-area');
-  const maxVol = Math.max(...coins.map(c=>c.total_volume||0));
-  area.innerHTML = `<div class="candle-grid" id="candle-grid"></div>`;
+  const area   = document.getElementById('coins-area');
+  const maxVol = Math.max(...coins.map(c => c.total_volume || 0));
+  area.innerHTML = '<div class="candle-grid" id="candle-grid"></div>';
   const grid = document.getElementById('candle-grid');
   grid.innerHTML = coins.map(c => renderCandleCard(c, maxVol)).join('');
-  // Load mini charts batch (staggered to avoid rate limit)
-  coins.forEach((c, i) => {
-    setTimeout(() => loadCandleChart(c), i * 80);
-  });
+  // Staggered kline load — avoid Binance rate limit
+  coins.forEach((c, i) => setTimeout(() => loadCandleChart(c), i * 100));
 }
 
 function renderCandleCard(c, maxVol){
-  const chg  = getChg(c);
-  const isUp = chg >= 0;
-  const ws   = _wsCache[c.id];
-  const chg24 = ws?.chg24 ?? (c.price_change_percentage_24h || 0);
-  const chg7  = c.price_change_percentage_7d_in_currency || 0;
-  const vol   = c.total_volume || 0;
-  const volPct = maxVol > 0 ? Math.min(100, (vol/maxVol)*100) : 0;
+  const ws     = _wsCache[c.id];
+  const chg24  = ws?.chg24 ?? (c.price_change_percentage_24h || 0);
+  const chg7   = c.price_change_percentage_7d_in_currency || c.price_change_percentage_7d || 0;
+  const vol    = c.total_volume || 0;
+  const volPct = maxVol > 0 ? Math.min(100, (vol / maxVol) * 100) : 0;
   const watched = watchlist.includes(c.id);
+  const alerted = hasAlert(c.id);
 
-  // NATR estimate from 24h range
+  // NATR from 24h range
   let natrStr = '—';
-  if(ws && ws.high24 && ws.low24 && ws.low24 > 0){
-    natrStr = ((ws.high24 - ws.low24)/ws.low24*100).toFixed(1)+'%';
-  } else if(c.high_24h && c.low_24h && c.low_24h > 0){
-    natrStr = ((c.high_24h - c.low_24h)/c.low_24h*100).toFixed(1)+'%';
-  }
+  const h24 = ws?.high24 || c.high_24h;
+  const l24 = ws?.low24  || c.low_24h;
+  if(h24 && l24 && l24 > 0) natrStr = ((h24 - l24) / l24 * 100).toFixed(1) + '%';
 
-  // Vol/MCAP ratio = activity indicator
-  const actRatio = c.market_cap > 0 ? (vol/c.market_cap*100).toFixed(1)+'%' : '—';
+  // Activity = vol / mcap
+  const actRatio = c.market_cap > 0 ? (vol / c.market_cap * 100).toFixed(1) + '%' : '—';
 
-  return `<div class="candle-card ${watched?'watched':''}" id="cc2-${c.id.replace(/[^a-z0-9]/gi,'_')}" onclick="focusCoin('${c.id}')">
-    <div class="cc2-impulse">⚡ ИМПУЛЬС</div>
-    <!-- Indicator bar (ScalpBoard style: chg ∿ | NATR ∿ | VOL | CORR) -->
+  const safeId = c.id.replace(/[^a-z0-9]/gi, '_');
+
+  return `<div class="candle-card ${watched ? 'watched' : ''}" id="cc2-${safeId}" onclick="focusCoin('${c.id}')">
+    <div class="cc2-impulse"></div>
+    <!-- ScalpBoard top indicator bar: chg | natr | vol/mc | rank -->
     <div class="cc2-topbar">
       <div class="cc2-ind">
         <span class="cc2-ind-lbl">24Ч</span>
@@ -3345,47 +3392,34 @@ function renderCandleCard(c, maxVol){
         <span class="cc2-ind-val" data-natr="${c.id}">${natrStr}</span>
       </div>
       <div class="cc2-ind">
-        <span class="cc2-ind-lbl">VOL/MC</span>
+        <span class="cc2-ind-lbl">ACT</span>
         <span class="cc2-ind-val">${actRatio}</span>
       </div>
-      <div class="cc2-ind" style="margin-left:auto;border-right:none;">
-        <span class="cc2-ind-lbl">#${c.market_cap_rank||'?'}</span>
-      </div>
+      ${alerted ? '<div class="cc2-ind last"><span style="color:var(--a)">●</span></div>' : '<div class="cc2-ind last"><span class="cc2-ind-lbl">#${c.market_cap_rank||'?'}</span></div>'}
     </div>
     <!-- Header -->
     <div class="cc2-head">
-      ${c.image?`<img style="width:18px;height:18px;border-radius:50%;" src="${c.image}" loading="lazy">`:
-        `<div style="width:18px;height:18px;border-radius:50%;background:rgba(232,114,42,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--a)">${(c.symbol||'?').slice(0,2).toUpperCase()}</div>`}
+      ${c.image
+        ? `<img style="width:18px;height:18px;border-radius:50%;flex-shrink:0" src="${c.image}" loading="lazy">`
+        : `<div style="width:18px;height:18px;border-radius:50%;background:rgba(232,114,42,0.15);display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--a);flex-shrink:0">${(c.symbol||'?').slice(0,2).toUpperCase()}</div>`}
       <span class="cc2-sym">${(c.symbol||'').toUpperCase()}</span>
       <span class="cc2-price" data-price="${c.id}">${fmtPrice(c.current_price)}</span>
-      <span class="cc2-chg ${isUp?'up':'down'}" data-chg24="${c.id}">${fmtChg(chg24)}</span>
+      <span class="cc2-chg ${chg24>=0?'up':'down'}" data-chg24="${c.id}">${fmtChg(chg24)}</span>
     </div>
-    <!-- Mini metrics (Scalpboard indicators above chart) -->
+    <!-- Mini metrics -->
     <div class="cc2-metrics">
-      <div class="cc2-metric">
-        <span class="cc2-ml">ОБЪ</span>
-        <span class="cc2-mv">${fmtBig(vol)}</span>
-      </div>
-      <div class="cc2-metric">
-        <span class="cc2-ml">MCAP</span>
-        <span class="cc2-mv">${fmtBig(c.market_cap)}</span>
-      </div>
-      <div class="cc2-metric">
-        <span class="cc2-ml">7Д</span>
-        <span class="cc2-mv ${chg7>=0?'up':'dn'}">${fmtChg(chg7)}</span>
-      </div>
-      <div class="cc2-metric">
-        <span class="cc2-ml">ATH%</span>
-        <span class="cc2-mv dn">${c.ath_change_percentage?c.ath_change_percentage.toFixed(0)+'%':'—'}</span>
-      </div>
+      <div class="cc2-metric"><span class="cc2-ml">ОБЪ</span><span class="cc2-mv">${fmtBig(vol)}</span></div>
+      <div class="cc2-metric"><span class="cc2-ml">MCAP</span><span class="cc2-mv">${fmtBig(c.market_cap)}</span></div>
+      <div class="cc2-metric"><span class="cc2-ml">7Д</span><span class="cc2-mv ${chg7>=0?'up':'dn'}">${fmtChg(chg7)}</span></div>
+      <div class="cc2-metric"><span class="cc2-ml">ATH%</span><span class="cc2-mv dn">${c.ath_change_percentage ? c.ath_change_percentage.toFixed(0)+'%' : '—'}</span></div>
     </div>
-    <!-- Candle chart -->
+    <!-- Candle chart canvas -->
     <div class="cc2-chart">
-      <canvas id="cc2canvas-${c.id.replace(/[^a-z0-9]/gi,'_')}" style="cursor:crosshair;"></canvas>
+      <canvas id="cc2cv-${safeId}"></canvas>
     </div>
     <!-- Volume bar -->
     <div class="cc2-volbar"><div class="cc2-volfill" style="width:${volPct}%"></div></div>
-    <!-- Action buttons -->
+    <!-- Actions -->
     <div class="cc2-actions" onclick="event.stopPropagation()">
       <button class="cc-btn watch-btn ${watched?'active':''}" onclick="toggleWatch(event,'${c.id}')">${watched?'★':'☆'}</button>
       <button class="cc-btn" onclick="event.stopPropagation();openAlertModal(null,'${c.id}')">🔔</button>
@@ -3393,250 +3427,225 @@ function renderCandleCard(c, maxVol){
   </div>`;
 }
 
-// ── Load Binance kline mini chart ─────────────────────
-const _klineCache = {}; // pair → {candles, ts}
-const KLINE_TTL = 60000; // 1 min cache
-
+// ── Load mini Binance kline ────────────────────────────
 async function loadCandleChart(coin){
-  const ws = BINANCE_WS_PAIRS.find(p => p.cgId === coin.id);
-  const pair = (ws?.pair || (coin.symbol?.toLowerCase() + 'usdt')).toUpperCase();
-  const tf   = '5m';
-  const canvasId = 'cc2canvas-' + coin.id.replace(/[^a-z0-9]/gi,'_');
-  const canvas   = document.getElementById(canvasId);
+  const wsCfg = BINANCE_WS_PAIRS.find(p => p.cgId === coin.id);
+  const pair  = (wsCfg?.pair || coin.symbol?.toLowerCase() + 'usdt').toUpperCase();
+  const safeId = coin.id.replace(/[^a-z0-9]/gi, '_');
+  const canvas = document.getElementById('cc2cv-' + safeId);
   if(!canvas) return;
 
   try{
-    // Use cache if fresh
-    const cached = _klineCache[pair];
     let candles;
+    const cached = _klineCache[pair];
     if(cached && Date.now() - cached.ts < KLINE_TTL){
       candles = cached.candles;
     } else {
-      const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=${tf}&limit=60`);
-      if(!r.ok) return;
+      const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=5m&limit=60`);
+      if(!r.ok) return; // silently skip unknown pairs (e.g. WBTCUSDT)
       const raw = await r.json();
       if(!Array.isArray(raw)) return;
-      candles = raw.map(k => ({ t:k[0], o:+k[1], h:+k[2], l:+k[3], c:+k[4], v:+k[5] }));
+      candles = raw.map(k => ({ t:+k[0], o:+k[1], h:+k[2], l:+k[3], c:+k[4], v:+k[5] }));
       _klineCache[pair] = { candles, ts: Date.now() };
     }
     drawMiniCandles(canvas, candles);
-  } catch(e){ /* ignore 404 for unknown pairs */ }
+  } catch(e){ /* ignore */ }
 }
 
 function drawMiniCandles(canvas, candles){
   const wrap = canvas.parentElement;
-  if(!wrap) return;
-  const dpr  = Math.min(window.devicePixelRatio||1, 2);
-  const W    = wrap.clientWidth  || 280;
-  const H    = wrap.clientHeight || 100;
+  if(!wrap || !candles || candles.length < 2) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W   = wrap.clientWidth  || 280;
+  const H   = wrap.clientHeight || 110;
   canvas.width  = W * dpr; canvas.height = H * dpr;
-  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  if(!candles || candles.length < 2) return;
-  const slice = candles.slice(-40); // last 40 candles
+  const slice = candles.slice(-40);
   const vis   = slice.length;
-
-  const PAD_L=36, PAD_R=2, PAD_T=4, PAD_B=18;
-  const VOL_H = 14;
+  const PAD_L = 38, PAD_R = 2, PAD_T = 4, PAD_B = 18, VOL_H = 14;
   const CW = W - PAD_L - PAD_R;
   const CH = H - PAD_T - PAD_B - VOL_H;
 
-  let minP = Math.min(...slice.map(c=>c.l));
-  let maxP = Math.max(...slice.map(c=>c.h));
-  const padP = (maxP-minP)*0.05;
+  let minP = Math.min(...slice.map(c => c.l));
+  let maxP = Math.max(...slice.map(c => c.h));
+  const padP = (maxP - minP) * 0.06;
   minP -= padP; maxP += padP;
   const range = maxP - minP || 1;
-  const toY   = p => PAD_T + CH - ((p-minP)/range)*CH;
-  const maxV  = Math.max(...slice.map(c=>c.v))||1;
-  const gap   = CW/vis;
-  const cw    = Math.max(1, Math.min(gap*0.7, 8));
+  const toY   = p => PAD_T + CH - ((p - minP) / range) * CH;
+  const maxV  = Math.max(...slice.map(c => c.v)) || 1;
+  const gap   = CW / vis;
+  const cw    = Math.max(1, Math.min(gap * 0.72, 9));
 
   // Background
   ctx.fillStyle = '#06080c';
-  ctx.fillRect(0,0,W,H);
+  ctx.fillRect(0, 0, W, H);
 
-  // Grid lines (3 horizontal)
+  // Grid
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
   ctx.lineWidth = 1;
-  for(let i=0;i<=3;i++){
-    const p = maxP - (range/3)*i;
+  ctx.font = '7px JetBrains Mono,monospace';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(232,234,240,0.18)';
+  for(let i = 0; i <= 3; i++){
+    const p = maxP - (range / 3) * i;
     const y = toY(p);
-    ctx.beginPath(); ctx.moveTo(PAD_L,y); ctx.lineTo(W-PAD_R,y); ctx.stroke();
-    ctx.fillStyle = 'rgba(232,234,240,0.2)';
-    ctx.font = '7px JetBrains Mono,monospace'; ctx.textAlign='right';
-    const lbl = p>=100 ? p.toFixed(0) : p>=1 ? p.toFixed(2) : p.toFixed(4);
-    ctx.fillText(lbl, PAD_L-2, y+2);
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+    const lbl = p >= 10000 ? p.toLocaleString('en',{maximumFractionDigits:0})
+              : p >= 1     ? p.toFixed(2)
+              : p >= 0.01  ? p.toFixed(4) : p.toFixed(6);
+    ctx.fillText('$'+lbl, PAD_L - 2, y + 2.5);
   }
 
   // EMA 20
-  const closes = slice.map(c=>c.c);
-  const k20 = 2/21; let ema20 = closes[0];
-  ctx.beginPath(); ctx.strokeStyle='rgba(59,130,246,0.6)'; ctx.lineWidth=1;
-  closes.forEach((v,i)=>{
-    ema20 = v*k20 + ema20*(1-k20);
-    const x = PAD_L + i*gap + gap/2;
-    const y = toY(ema20);
-    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  const closes = slice.map(c => c.c);
+  const k = 2 / 21; let ema = closes[0];
+  ctx.beginPath(); ctx.strokeStyle = 'rgba(59,130,246,0.6)'; ctx.lineWidth = 1;
+  closes.forEach((v, i) => {
+    ema = v * k + ema * (1 - k);
+    const x = PAD_L + i * gap + gap / 2;
+    const y = toY(ema);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
 
   // Volume bars
   const volBase = H - PAD_B;
-  slice.forEach((c,i)=>{
-    const x = PAD_L + i*gap + gap/2;
-    const vh = (c.v/maxV)*VOL_H*0.9;
-    ctx.fillStyle = c.c>=c.o ? 'rgba(46,204,113,0.2)' : 'rgba(231,76,60,0.2)';
-    ctx.fillRect(x-cw/2, volBase-vh, Math.max(1,cw), vh);
+  slice.forEach((c, i) => {
+    const x  = PAD_L + i * gap + gap / 2;
+    const vh = (c.v / maxV) * VOL_H * 0.9;
+    ctx.fillStyle = c.c >= c.o ? 'rgba(46,204,113,0.2)' : 'rgba(231,76,60,0.2)';
+    ctx.fillRect(x - cw / 2, volBase - vh, Math.max(1, cw), vh);
   });
 
-  // Candles
-  slice.forEach((c,i)=>{
-    const x = PAD_L + i*gap + gap/2;
+  // Candle bodies + wicks
+  slice.forEach((c, i) => {
+    const x    = PAD_L + i * gap + gap / 2;
     const isUp = c.c >= c.o;
     const yH = toY(c.h), yL = toY(c.l), yO = toY(c.o), yC = toY(c.c);
-
     // Wick
-    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.5)' : 'rgba(231,76,60,0.5)';
+    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.55)' : 'rgba(231,76,60,0.55)';
     ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x,yH); ctx.lineTo(x,yL); ctx.stroke();
-
+    ctx.beginPath(); ctx.moveTo(x, yH); ctx.lineTo(x, yL); ctx.stroke();
     // Body
-    const bTop = Math.min(yO,yC);
-    const bH   = Math.max(1.5, Math.abs(yC-yO));
+    const bTop = Math.min(yO, yC);
+    const bH   = Math.max(1.5, Math.abs(yC - yO));
     if(isUp){
-      ctx.strokeStyle = '#2ecc71'; ctx.lineWidth=1;
-      ctx.strokeRect(x-cw/2, bTop, cw, bH);
+      ctx.strokeStyle = '#2ecc71'; ctx.lineWidth = 1;
+      ctx.strokeRect(x - cw / 2, bTop, cw, bH);
       ctx.fillStyle = 'rgba(46,204,113,0.15)';
-      ctx.fillRect(x-cw/2, bTop, cw, bH);
+      ctx.fillRect(x - cw / 2, bTop, cw, bH);
     } else {
       ctx.fillStyle = '#e74c3c';
-      ctx.fillRect(x-cw/2, bTop, cw, bH);
+      ctx.fillRect(x - cw / 2, bTop, cw, bH);
     }
   });
 
-  // Last price dashed line + badge
-  const last  = slice[slice.length-1];
+  // Last price dashed line
+  const last  = slice[slice.length - 1];
   const lastY = toY(last.c);
-  const isLastUp = last.c >= last.o;
-  ctx.strokeStyle = isLastUp ? 'rgba(46,204,113,0.4)' : 'rgba(231,76,60,0.4)';
-  ctx.lineWidth=1; ctx.setLineDash([2,3]);
-  ctx.beginPath(); ctx.moveTo(PAD_L,lastY); ctx.lineTo(W-PAD_R,lastY); ctx.stroke();
+  ctx.strokeStyle = last.c >= last.o ? 'rgba(46,204,113,0.35)' : 'rgba(231,76,60,0.35)';
+  ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+  ctx.beginPath(); ctx.moveTo(PAD_L, lastY); ctx.lineTo(W - PAD_R, lastY); ctx.stroke();
   ctx.setLineDash([]);
 
   // Time labels
-  const vStep = Math.max(1, Math.round(vis/5));
-  ctx.font='7px JetBrains Mono,monospace'; ctx.textAlign='center'; ctx.fillStyle='rgba(232,234,240,0.15)';
-  for(let i=0;i<vis;i+=vStep){
-    const x = PAD_L + i*gap + gap/2;
-    const d = new Date(slice[i].t);
-    const lbl = d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-    ctx.fillText(lbl, x, H-PAD_B+12);
+  const vStep = Math.max(1, Math.round(vis / 5));
+  ctx.font = '7px JetBrains Mono,monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(232,234,240,0.13)';
+  for(let i = 0; i < vis; i += vStep){
+    const x   = PAD_L + i * gap + gap / 2;
+    const d   = new Date(slice[i].t);
+    const lbl = d.toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+    ctx.fillText(lbl, x, H - PAD_B + 12);
   }
 }
 
 // ── Impulse detection ──────────────────────────────────
-// Fires when a coin moves > _impulseConfig.minPct % in one WS tick window
-const _impulseCooldown = {}; // coinId → timestamp
-
-function detectImpulse(cgId, price, chg24){
-  // Simple: if |chg24| just crossed threshold and we haven't fired recently
-  const absChg = Math.abs(chg24);
-  if(absChg < _impulseConfig.minPct) return;
+function detectImpulse(cgId, chg24){
+  if(Math.abs(chg24) < _impulseMinPct) return;
   const now = Date.now();
-  if(_impulseCooldown[cgId] && now - _impulseCooldown[cgId] < 30000) return; // 30s cooldown
+  if(_impulseCooldown[cgId] && now - _impulseCooldown[cgId] < 30000) return;
   _impulseCooldown[cgId] = now;
 
   const isUp = chg24 > 0;
-  const coin = allCoins.find(c=>c.id===cgId);
+  const coin = allCoins.find(c => c.id === cgId);
   const sym  = coin?.symbol?.toUpperCase() || cgId;
 
-  // Flash card
-  if(currentView === 'candle'){
-    const cardId = 'cc2-' + cgId.replace(/[^a-z0-9]/gi,'_');
-    const card   = document.getElementById(cardId);
-    if(card){
-      card.classList.remove('impulse-up','impulse-dn');
-      void card.offsetWidth;
-      card.classList.add(isUp ? 'impulse-up' : 'impulse-dn');
-      const badge = card.querySelector('.cc2-impulse');
-      if(badge) badge.textContent = `⚡ ИМПУЛЬС ${isUp?'+':''}${chg24.toFixed(1)}%`;
-      setTimeout(()=>card.classList.remove('impulse-up','impulse-dn'), 8000);
-    }
+  // Flash card if in candle view
+  const cardId = 'cc2-' + cgId.replace(/[^a-z0-9]/gi, '_');
+  const card   = document.getElementById(cardId);
+  if(card){
+    const badge = card.querySelector('.cc2-impulse');
+    card.classList.remove('impulse-up', 'impulse-dn');
+    void card.offsetWidth;
+    card.classList.add(isUp ? 'impulse-up' : 'impulse-dn');
+    if(badge) badge.textContent = `⚡ ИМПУЛЬС ${isUp?'+':''}${chg24.toFixed(1)}%`;
+    setTimeout(() => { card.classList.remove('impulse-up', 'impulse-dn'); if(badge) badge.textContent=''; }, 8000);
   }
 
-  // Show popup (bottom-right like ScalpBoard)
   showImpulsePopup(sym, chg24, isUp);
-
-  // Play sound if enabled
   if(soundEnabled) playBeep(isUp ? 880 : 440);
 }
 
 function showImpulsePopup(sym, pct, isUp){
   const popup = document.getElementById('impulse-popup');
   if(!popup) return;
-
   const item = document.createElement('div');
-  item.className = 'impulse-item ' + (isUp?'pump':'dump');
-  item.innerHTML = `
-    <span class="ii-icon">${isUp?'🚀':'📉'}</span>
-    <span class="ii-sym">${sym}</span>
-    <span class="ii-pct ${isUp?'up':'dn'}">${isUp?'+':''}${pct.toFixed(1)}%</span>
-    <span class="ii-tf">5М · Binance</span>
-  `;
+  item.className = 'impulse-item ' + (isUp ? 'pump' : 'dump');
+  item.innerHTML = `<span class="ii-icon">${isUp?'🚀':'📉'}</span><span class="ii-sym">${sym}</span><span class="ii-pct ${isUp?'up':'dn'}">${isUp?'+':''}${pct.toFixed(1)}%</span><span class="ii-tf">5М · Binance</span>`;
   popup.appendChild(item);
-
-  // Remove after 6s
-  setTimeout(()=>{ if(item.parentNode) item.parentNode.removeChild(item); }, 6000);
+  setTimeout(() => { if(item.parentNode) item.parentNode.removeChild(item); }, 6000);
 }
 
-// ── Hook candle view into setView / renderCoins ────────
-const _origSetView = setView;
+// ── Hook into setView ──────────────────────────────────
+const _baseSetView = setView;
 function setView(v, btn){
   currentView = v;
-  document.querySelectorAll('.tb-view-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tb-view-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   applyFilter();
 }
 
-const _origRenderCoins = renderCoins;
+// ── Hook into renderCoins ──────────────────────────────
+const _baseRenderCoins = renderCoins;
 function renderCoins(coins){
   if(currentView === 'candle'){
-    renderCandleGrid(coins);
     document.getElementById('count-shown').textContent = coins.length;
+    renderCandleGrid(coins);
     return;
   }
-  _origRenderCoins(coins);
+  _baseRenderCoins(coins);
 }
 
-// ── Patch patchPriceDOM to update candle card prices ──
-const _origPatchPrice = patchPriceDOM;
+// ── Hook into patchPriceDOM — also update candle card ──
+const _basePatchPrice = patchPriceDOM;
 function patchPriceDOM(cgId, price, chg24, prevPrice){
-  _origPatchPrice(cgId, price, chg24, prevPrice);
-
-  // Also update candle card price display
+  _basePatchPrice(cgId, price, chg24, prevPrice);
+  // Candle card price
   if(currentView === 'candle'){
-    const prEl = document.querySelector(`#cc2-${cgId.replace(/[^a-z0-9]/gi,'_')} [data-price="${cgId}"]`);
-    const chgEl = document.querySelector(`#cc2-${cgId.replace(/[^a-z0-9]/gi,'_')} .cc2-chg`);
-    if(prEl){ prEl.textContent = fmtPrice(price); }
-    if(chgEl){
-      chgEl.textContent = fmtChg(chg24);
-      chgEl.className = 'cc2-chg ' + (chg24>=0?'up':'down');
+    const safeId = cgId.replace(/[^a-z0-9]/gi, '_');
+    const card   = document.getElementById('cc2-' + safeId);
+    if(card){
+      const prEl  = card.querySelector('[data-price]');
+      const chgEl = card.querySelector('.cc2-chg');
+      if(prEl)  prEl.textContent = fmtPrice(price);
+      if(chgEl){ chgEl.textContent = fmtChg(chg24); chgEl.className = 'cc2-chg ' + (chg24>=0?'up':'down'); }
     }
   }
+  // Impulse check on every tick
+  detectImpulse(cgId, chg24);
 }
 
-// ── Reload candle charts every minute (kline refresh) ──
-setInterval(()=>{
+// ── Refresh klines every 60s ──────────────────────────
+setInterval(() => {
   if(currentView !== 'candle') return;
-  // Clear cache so charts reload fresh data
-  Object.keys(_klineCache).forEach(k => _klineCache[k].ts = 0);
-  // Redraw all visible cards
+  Object.keys(_klineCache).forEach(k => { _klineCache[k].ts = 0; });
   document.querySelectorAll('.candle-card').forEach(card => {
-    const id = card.id.replace('cc2-','').replace(/_/g, '-');
-    // Try to find coin
-    const coin = allCoins.find(c => c.id.replace(/[^a-z0-9]/gi,'_') === card.id.replace('cc2-',''));
+    const safeId = card.id.replace('cc2-', '');
+    const coin   = allCoins.find(c => c.id.replace(/[^a-z0-9]/gi,'_') === safeId);
     if(coin) loadCandleChart(coin);
   });
 }, 60000);
