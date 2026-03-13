@@ -1644,12 +1644,18 @@ function openTradeInJournal(){
 
 // ── Auth ──
 async function initAuth(){
-  const { data:{ user } } = await sb.auth.getUser();
+  _dbg('auth: getUser...');
+  const authResult = await Promise.race([
+    sb.auth.getUser(),
+    new Promise((_,rej) => setTimeout(()=>rej(new Error('auth timeout 8s')), 8000))
+  ]);
+  const user = authResult?.data?.user;
   if(!user){ window.location.href = 'login.html'; return; }
+  _dbg('auth: OK ' + (user.email||'').slice(0,6));
   const em = user.email || '';
   document.getElementById('sb-email').textContent = em;
   document.getElementById('sb-avatar').textContent = em.slice(0,2).toUpperCase();
-  loadAlerts(); // не блокируем загрузку
+  loadAlerts();
 }
 
 async function doLogout(){
@@ -2409,10 +2415,26 @@ function renderSignals(signals){
 }
 
 async function init(){
-  await initAuth();
-  await loadCoins();
-  initAutoRefresh();
-  initTGAlertCtrl();
+  try{
+    _dbg('1/4 initAuth...');
+    await initAuth();
+    _dbg('2/4 loadCoins...');
+    await loadCoins();
+    _dbg('3/4 initAutoRefresh...');
+    initAutoRefresh();
+    _dbg('4/4 initTGAlertCtrl...');
+    initTGAlertCtrl();
+    _dbg('DONE ✅');
+  } catch(e){
+    _dbg('❌ CRASH: ' + e.message);
+    console.error('init crash:', e);
+  }
+}
+
+function _dbg(msg){
+  console.log('[ORBITUM]', msg);
+  const el = document.getElementById('load-txt');
+  if(el) el.textContent = msg;
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
