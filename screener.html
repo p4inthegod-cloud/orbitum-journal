@@ -718,34 +718,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .strength-badge.weak{background:rgba(231,76,60,.1);color:var(--r);border-color:rgba(231,76,60,.2);}
 .strength-badge.neutral{background:rgba(243,156,18,.1);color:var(--y);border-color:rgba(243,156,18,.2);}
 
-
-/* ── TG Alert Controls ─────────────────────────────────────── */
-.tg-alert-ctrl{display:flex;align-items:center;gap:6px;padding:0 10px;border-left:1px solid var(--bd);}
-.tg-toggle-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;
-  border:1px solid rgba(232,114,42,0.25);border-radius:5px;background:rgba(232,114,42,0.05);
-  color:var(--m2);font-family:var(--font-mono);font-size:9px;cursor:pointer;transition:all .15s;letter-spacing:.5px;}
-.tg-toggle-btn.active{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.5);color:var(--a);}
-.tg-filter-sel,.tg-coins-sel{
-  background:var(--bg2);border:1px solid var(--bd);border-radius:5px;
-  color:var(--m);font-family:var(--font-mono);font-size:8px;padding:3px 6px;cursor:pointer;
-  letter-spacing:.3px;}
-.tg-filter-sel:hover,.tg-coins-sel:hover{border-color:var(--a2);}
-
-/* ── Live countdown bar ─────────────────────────────────────── */
-.tb-live-wrap{display:flex;align-items:center;gap:5px;margin-left:4px;}
-.tb-live-dot{width:6px;height:6px;border-radius:50%;background:var(--g);
-  box-shadow:0 0 6px var(--g);animation:livePulse 1.5s ease-in-out infinite;}
-@keyframes livePulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-.tb-live-label{font-family:var(--font-mono);font-size:8px;color:var(--g);letter-spacing:1px;}
-.tb-live-next{font-family:var(--font-mono);font-size:8px;color:var(--m2);min-width:18px;text-align:right;}
-.tb-live-bar{width:40px;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;}
-.tb-live-fill{height:100%;background:var(--g);width:0%;transition:width 0.5s linear;border-radius:1px;}
-
-/* ── Price flash ─────────────────────────────────────────────── */
-@keyframes flashUp{0%{background:rgba(52,208,88,0.25);}100%{background:transparent;}}
-@keyframes flashDn{0%{background:rgba(255,77,77,0.25);}100%{background:transparent;}}
-[data-price].tick-up{animation:flashUp 0.4s ease;}
-[data-price].tick-dn{animation:flashDn 0.4s ease;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -849,12 +821,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       </div>
 
       <div class="tb-count">МОНЕТ: <span id="count-shown">0</span>/<span id="count-total">0</span></div>
-      <div class="tb-live-wrap">
-        <div class="tb-live-dot" id="tb-live-dot"></div>
-        <span class="tb-live-label">LIVE</span>
-        <span class="tb-live-next" id="live-countdown">—</span>
-        <div class="tb-live-bar"><div class="tb-live-fill" id="live-progress-bar"></div></div>
-      </div>
     </div>
 
     <!-- SIGNALS FEED -->
@@ -870,23 +836,6 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
       <button class="sound-btn" id="sound-btn" onclick="toggleSound()" title="Звук при сигнале">
         🔔 <span id="sound-label">ЗВУК ВЫКЛ</span>
       </button>
-      <div class="tg-alert-ctrl" id="tg-alert-ctrl" style="display:none">
-        <button class="tg-toggle-btn" id="tg-toggle-btn" onclick="toggleTGAlerts()" title="Алерты в Telegram">
-          ✈️ <span id="tg-toggle-label">TG ВЫКЛ</span>
-        </button>
-        <select class="tg-filter-sel" id="tg-filter-sel" onchange="saveTGSettings()" title="Минимальный тип сигнала">
-          <option value="all">Все сигналы</option>
-          <option value="strong" selected>Памп / Дамп</option>
-          <option value="break">Пробои</option>
-          <option value="extreme">Только >5%</option>
-        </select>
-        <select class="tg-coins-sel" id="tg-coins-sel" onchange="saveTGSettings()" title="Монеты для алертов">
-          <option value="all" selected>Все монеты</option>
-          <option value="top10">Топ-10</option>
-          <option value="top50">Топ-50</option>
-          <option value="watchlist">Только избранные</option>
-        </select>
-      </div>
     </div>
 
     <!-- CONTENT -->
@@ -1051,8 +1000,11 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 <script>
 const SUPABASE_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Защита от незагруженного Supabase CDN
+const { createClient } = (window.supabase || {});
+const sb = createClient
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
 let allCoins = [], currentFilter = 'all', currentView = 'grid';
 let currentTimeframe = '24h';
@@ -1109,44 +1061,54 @@ function hasAlert(coinId){
 
 // ── Load coins ──
 async function loadCoins(){
+  // Таймаут 12с — если апи не отвечает, показываем ошибку
+  const timeout = setTimeout(() => {
+    const ld = document.getElementById('loading');
+    if(ld && ld.style.display !== 'none'){
+      ld.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;color:rgba(232,114,42,0.8);font-size:13px;text-align:center;padding:20px">
+        ⚠️ ПРЕВЫШЕНО ВРЕМЯ ОЖИДАНИЯ<br>
+        <span style="font-size:10px;opacity:0.6;margin-top:10px;display:block">API не отвечает — проверьте деплой на Vercel</span>
+        <button onclick="loadCoins()" style="margin-top:16px;background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.3);color:#e8722a;padding:8px 20px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;">↻ ПОВТОРИТЬ</button>
+      </div>`;
+    }
+  }, 12000);
+
   try{
-    const ctrl = new AbortController();
-    const timeout = setTimeout(() => ctrl.abort(), 12000); // 12s timeout
-    const r = await fetch('/api/ticker?type=screener', { signal: ctrl.signal });
-    clearTimeout(timeout);
+    const r = await fetch('/api/ticker?type=screener');
+    if(!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
-    if(!Array.isArray(d) || !d.length) throw new Error('empty');
+    if(!Array.isArray(d) || !d.length) throw new Error('empty response');
+    clearTimeout(timeout);
     allCoins = d;
     analyzeSignals(d);
-    document.getElementById('count-total').textContent = d.length;
+    const countEl = document.getElementById('count-total');
+    if(countEl) countEl.textContent = d.length;
     updateStats();
     applyFilter();
-    document.getElementById('loading').style.display = 'none';
+    const ld = document.getElementById('loading');
+    if(ld) ld.style.display = 'none';
   } catch(e){
+    clearTimeout(timeout);
     console.error('[Screener] Load error:', e);
-    document.getElementById('loading').innerHTML =
-      `<div style="font-family:'JetBrains Mono',monospace;color:rgba(232,114,42,0.7);font-size:13px;text-align:center">
-        ⚠️ ОШИБКА ЗАГРУЗКИ<br>
-        <span style="font-size:10px;opacity:0.6;margin-top:8px;display:block">${e.message === 'empty' ? 'API вернул пустой ответ' : 'Ошибка: ' + e.message}</span>
-        <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.4);color:#e8722a;border-radius:6px;font-family:inherit;font-size:10px;cursor:pointer;letter-spacing:1px">↺ ПЕРЕЗАГРУЗИТЬ</button>
-       </div>`;
+    const ld = document.getElementById('loading');
+    if(ld) ld.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;color:rgba(232,114,42,0.8);font-size:13px;text-align:center;padding:20px">
+      ⚠️ ОШИБКА ЗАГРУЗКИ<br>
+      <span style="font-size:10px;opacity:0.5;margin-top:8px;display:block">${e.message}</span>
+      <button onclick="loadCoins()" style="margin-top:16px;background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.3);color:#e8722a;padding:8px 20px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;">↻ ПОВТОРИТЬ</button>
+    </div>`;
   }
 }
 
 // ── Load alerts from Supabase ──
 async function loadAlerts(){
   try{
+    if(!sb) return;
     const { data: { user } } = await sb.auth.getUser();
     if(!user) return;
-    const timer = new Promise(r => setTimeout(r, 3000)); // 3s timeout
-    const query = sb.from('price_alerts').select('*').eq('user_id', user.id).eq('triggered', false);
-    const result = await Promise.race([query, timer]);
-    if(result && result.data){
-      userAlerts = result.data || [];
-      const el = document.getElementById('stat-alerts');
-      if(el) el.textContent = userAlerts.length;
-    }
-  } catch(e){ console.warn('loadAlerts:', e.message); }
+    const { data } = await sb.from('price_alerts').select('*').eq('user_id', user.id).eq('triggered', false);
+    userAlerts = data || [];
+    document.getElementById('stat-alerts').textContent = userAlerts.length;
+  } catch(e){}
 }
 
 // ── Update stats strip ──
@@ -1644,18 +1606,22 @@ function openTradeInJournal(){
 
 // ── Auth ──
 async function initAuth(){
-  _dbg('auth: getUser...');
-  const authResult = await Promise.race([
-    sb.auth.getUser(),
-    new Promise((_,rej) => setTimeout(()=>rej(new Error('auth timeout 8s')), 8000))
-  ]);
-  const user = authResult?.data?.user;
-  if(!user){ window.location.href = 'login.html'; return; }
-  _dbg('auth: OK ' + (user.email||'').slice(0,6));
-  const em = user.email || '';
-  document.getElementById('sb-email').textContent = em;
-  document.getElementById('sb-avatar').textContent = em.slice(0,2).toUpperCase();
-  loadAlerts();
+  try{
+    if(!sb){ console.warn('[Auth] Supabase не загружен'); return; }
+    const { data, error } = await sb.auth.getUser();
+    const user = data?.user;
+    if(error || !user){ window.location.href = 'login.html'; return; }
+    const em = user.email || '';
+    const emailEl = document.getElementById('sb-email');
+    const avatarEl = document.getElementById('sb-avatar');
+    if(emailEl) emailEl.textContent = em;
+    if(avatarEl) avatarEl.textContent = em.slice(0,2).toUpperCase();
+    await loadAlerts().catch(()=>{});
+  } catch(e){
+    console.warn('[Auth] Supabase error:', e);
+    // Не редиректим сразу — даём скринеру загрузиться
+    // (пользователь увидит данные, но без персональных данных)
+  }
 }
 
 async function doLogout(){
@@ -1674,130 +1640,81 @@ function showToast(msg, type='info'){
 
 // ── Auto-refresh ──
 function initAutoRefresh(){
-  // ── Состояние для интерполяции цен ──
-  let _prevPrices    = {};
-  let _targetPrices  = {};  // цена из API
-  let _displayPrices = {};  // отображаемая (интерполированная)
-  let _priceVelocity = {};  // направление движения
-  let _lastFetch     = 0;
-  let _fetchInterval = 15000; // запрос каждые 15 сек
+  // Сохраняем цены для flash-эффекта
+  let _prevPrices = {};
 
-  // Форматируем цену с подсветкой изменившихся цифр
-  function updatePriceDOM(coinId, price, direction){
-    const formatted = fmtPrice(price);
-    // Grid view
-    const priceEl = document.querySelector(`[data-price="${coinId}"]`);
-    if(priceEl && priceEl.textContent !== formatted){
-      priceEl.textContent = formatted;
-      if(direction){
-        const card = priceEl.closest('.coin-card');
-        if(card){
-          card.classList.remove('flash-up','flash-dn');
-          void card.offsetWidth;
-          card.classList.add('flash-' + direction);
-        }
-      }
-    }
-    // List view
-    const lPriceEl = document.querySelector(`[data-lprice="${coinId}"]`);
-    if(lPriceEl && lPriceEl.textContent !== formatted) lPriceEl.textContent = formatted;
-    // Detail panel
-    if(currentDetailCoin?.id === coinId){
-      const dp = document.getElementById('dp-price');
-      if(dp) dp.textContent = formatted;
-    }
-  }
-
-  // ── Запрос данных из API ──
-  const fetchData = async () => {
+  const doRefresh = async () => {
     try {
       const r = await fetch('/api/ticker?type=screener');
       const d = await r.json();
       if(!Array.isArray(d) || !d.length) return;
-      
-      const now = Date.now();
-      const changed = {};
 
+      // Запоминаем что изменилось
+      const changed = {};
       d.forEach(coin => {
-        const old = _targetPrices[coin.id];
-        const cur = coin.current_price;
-        if(old != null && old !== cur){
-          changed[coin.id] = cur > old ? 'up' : 'dn';
-          _priceVelocity[coin.id] = (cur - old) / _fetchInterval; // цена/мс
+        const old = _prevPrices[coin.id];
+        if(old != null && old !== coin.current_price){
+          changed[coin.id] = coin.current_price > old ? 'up' : 'dn';
         }
-        _targetPrices[coin.id] = cur;
-        if(_displayPrices[coin.id] == null) _displayPrices[coin.id] = cur;
-        // Update chg/meta immediately
-        const chgEl = document.querySelector(`[data-chg="${coin.id}"]`);
-        if(chgEl){ const chg=getChg(coin); chgEl.textContent=fmtChg(chg); chgEl.className='cc-chg '+(chg>=0?'up':'down'); }
-        const lChgEl = document.querySelector(`[data-lchg="${coin.id}"]`);
-        if(lChgEl){ const chg=getChg(coin); lChgEl.textContent=fmtChg(chg); lChgEl.style.color=chg>=0?'var(--g)':'var(--r)'; }
+        _prevPrices[coin.id] = coin.current_price;
       });
 
       allCoins = d;
       updateStats();
       analyzeSignals(d);
+
+      // Обновляем только цены в DOM — без полного перерендера
+      if(Object.keys(changed).length){
+        d.forEach(coin => {
+          // Grid view
+          const priceEl = document.querySelector(`[data-price="${coin.id}"]`);
+          const chgEl   = document.querySelector(`[data-chg="${coin.id}"]`);
+          if(priceEl){
+            priceEl.textContent = fmtPrice(coin.current_price);
+            if(changed[coin.id]){
+              const card = priceEl.closest('.coin-card');
+              if(card){
+                card.classList.remove('flash-up','flash-dn');
+                void card.offsetWidth; // reflow
+                card.classList.add('flash-' + changed[coin.id]);
+              }
+            }
+          }
+          if(chgEl){
+            const chg = getChg(coin);
+            chgEl.textContent = fmtChg(chg);
+            chgEl.className = 'cc-chg ' + (chg >= 0 ? 'up' : 'down');
+          }
+          // List view
+          const lPriceEl = document.querySelector(`[data-lprice="${coin.id}"]`);
+          const lChgEl   = document.querySelector(`[data-lchg="${coin.id}"]`);
+          if(lPriceEl) lPriceEl.textContent = fmtPrice(coin.current_price);
+          if(lChgEl){
+            const chg = getChg(coin);
+            lChgEl.textContent = fmtChg(chg);
+            lChgEl.style.color = chg >= 0 ? 'var(--g)' : 'var(--r)';
+          }
+        });
+      }
+
+      // Обновляем detail panel если открыт
+      if(currentDetailCoin){
+        const fresh = allCoins.find(c => c.id === currentDetailCoin.id);
+        if(fresh){
+          currentDetailCoin = fresh;
+          document.getElementById('dp-price').textContent = fmtPrice(fresh.current_price);
+        }
+      }
+
+      // Обновляем live-индикатор
       updateHeatmapInplace();
       updateLiveIndicator(true);
-      _lastFetch = now;
-
-      // Flash только для реально изменившихся
-      Object.entries(changed).forEach(([id, dir]) => updatePriceDOM(id, _targetPrices[id], dir));
     } catch(e){ updateLiveIndicator(false); }
   };
 
-  // ── Псевдо-реалтайм анимация цен (~30fps) ──
-  let _lastFrame = 0;
-  const animatePrices = (ts) => {
-    if(ts - _lastFrame > 33){ // ~30fps
-      _lastFrame = ts;
-      const sinVal = Math.sin(ts / 800); // медленное колебание для живости
-      allCoins.forEach(coin => {
-        const target = _targetPrices[coin.id];
-        if(target == null) return;
-        const display = _displayPrices[coin.id] || target;
-        const vel = _priceVelocity[coin.id] || 0;
-        // Интерполируем к таргету + добавляем микродвижение
-        const jitter = target * 0.000015 * sinVal * (Math.random() > 0.7 ? 1 : 0);
-        const next = display + (target - display) * 0.08 + vel * 16 + jitter;
-        _displayPrices[coin.id] = next;
-        // Обновляем DOM без flash
-        const priceEl = document.querySelector(`[data-price="${coin.id}"]`);
-        if(priceEl) priceEl.textContent = fmtPrice(next);
-        const lPriceEl = document.querySelector(`[data-lprice="${coin.id}"]`);
-        if(lPriceEl) lPriceEl.textContent = fmtPrice(next);
-        if(currentDetailCoin?.id === coin.id){
-          const dp = document.getElementById('dp-price');
-          if(dp) dp.textContent = fmtPrice(next);
-        }
-      });
-      // Update stats counter animation
-      _updateLiveTimer();
-    }
-    requestAnimationFrame(animatePrices);
-  };
-
-  // ── Живой таймер "последнее обновление" ──
-  let _nextFetchAt = Date.now() + 2000;
-  const _updateLiveTimer = () => {
-    const remaining = Math.max(0, Math.ceil((_nextFetchAt - Date.now()) / 1000));
-    const liveEl = document.getElementById('live-countdown');
-    if(liveEl) liveEl.textContent = remaining > 0 ? remaining + 'с' : '...';
-    // Прогресс-бар
-    const progEl = document.getElementById('live-progress-bar');
-    if(progEl){
-      const pct = 1 - Math.max(0, (_nextFetchAt - Date.now())) / _fetchInterval;
-      progEl.style.width = Math.min(100, pct * 100) + '%';
-    }
-  };
-
-  // ── Старт ──
-  fetchData();
-  requestAnimationFrame(animatePrices);
-  const timer = setInterval(() => {
-    _nextFetchAt = Date.now() + _fetchInterval;
-    fetchData();
-  }, _fetchInterval);
+  // Первый запрос сразу, потом каждые 30 сек
+  doRefresh();
+  setInterval(doRefresh, 30000);
 }
 
 // ── Keyboard ──
@@ -2017,6 +1934,11 @@ function renderCompareTags(){
 function renderCompareChart(){
   const canvas = document.getElementById('compare-chart');
   if(!canvas) return;
+  if(!window.Chart){
+    canvas.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--m2);font-family:var(--font-mono);font-size:10px;">График загружается...</div>';
+    setTimeout(renderCompareChart, 500);
+    return;
+  }
   if(compareChart){ compareChart.destroy(); compareChart = null; }
 
   const datasets = compareCoins.map((id, i) => {
@@ -2382,10 +2304,6 @@ function analyzeSignals(coins){
         const sig = fresh.find(s => s.type === type);
         if(sig){ playSignalSound(sig.type); break; }
       }
-      // Отправляем умные алерты в TG
-      for(const sig of fresh.slice(0, 3)){
-        sendSmartAlertToTG(sig);
-      }
     }
   }
 }
@@ -2416,206 +2334,22 @@ function renderSignals(signals){
 
 async function init(){
   try{
-    _dbg('1/4 initAuth...');
     await initAuth();
-    _dbg('2/4 loadCoins...');
     await loadCoins();
-    _dbg('3/4 initAutoRefresh...');
     initAutoRefresh();
-    _dbg('4/4 initTGAlertCtrl...');
-    initTGAlertCtrl();
-    _dbg('DONE ✅');
   } catch(e){
-    _dbg('❌ CRASH: ' + e.message);
-    console.error('init crash:', e);
+    console.error('[Init] fatal:', e);
+    const ld = document.getElementById('loading');
+    if(ld) ld.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;color:rgba(232,114,42,0.8);font-size:13px;text-align:center;padding:20px">
+      ⚠️ КРИТИЧЕСКАЯ ОШИБКА<br>
+      <span style="font-size:10px;opacity:0.5;margin-top:8px;display:block">${e.message}</span>
+      <button onclick="location.reload()" style="margin-top:16px;background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.3);color:#e8722a;padding:8px 20px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;">↻ ОБНОВИТЬ СТРАНИЦУ</button>
+    </div>`;
   }
-}
-
-function _dbg(msg){
-  console.log('[ORBITUM]', msg);
-  const el = document.getElementById('load-txt');
-  if(el) el.textContent = msg;
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
-
-// ══════════════════════════════════════════════════════
-//  TG ALERT SYSTEM — умные алерты с мини-чартом
-// ══════════════════════════════════════════════════════
-
-let _tgAlertsEnabled = false;
-let _tgLastAlerts    = {};  // id → timestamp, антиспам
-
-// ── Инициализация: показать контрол если TG привязан ──
-async function initTGAlertCtrl(){
-  try{
-    const {data:{user}} = await sb.auth.getUser();
-    if(!user) return;
-    window._orbUserId = user.id;
-    const {data:p} = await sb.from('profiles')
-      .select('tg_chat_id,tg_linked,tg_notify_alerts')
-      .eq('id', user.id).single();
-    if(!p?.tg_linked || !p?.tg_chat_id) return;
-    window._tgChatId = p.tg_chat_id;
-    // Show TG control
-    const ctrl = document.getElementById('tg-alert-ctrl');
-    if(ctrl) ctrl.style.display = 'flex';
-    // Restore saved state
-    const saved = localStorage.getItem('orb_tg_alerts');
-    if(saved === 'on'){
-      _tgAlertsEnabled = true;
-      const btn = document.getElementById('tg-toggle-btn');
-      if(btn){ btn.classList.add('active'); document.getElementById('tg-toggle-label').textContent = 'TG ВКЛ'; }
-    }
-    const filter = localStorage.getItem('orb_tg_filter');
-    if(filter){ const el = document.getElementById('tg-filter-sel'); if(el) el.value = filter; }
-    const coins = localStorage.getItem('orb_tg_coins');
-    if(coins){ const el = document.getElementById('tg-coins-sel'); if(el) el.value = coins; }
-  }catch(e){ console.warn('TG init:', e.message); }
-}
-
-function toggleTGAlerts(){
-  _tgAlertsEnabled = !_tgAlertsEnabled;
-  const btn = document.getElementById('tg-toggle-btn');
-  const lbl = document.getElementById('tg-toggle-label');
-  if(_tgAlertsEnabled){
-    btn.classList.add('active'); lbl.textContent = 'TG ВКЛ';
-    localStorage.setItem('orb_tg_alerts','on');
-    showScreenerToast('✈️ Telegram алерты включены');
-  } else {
-    btn.classList.remove('active'); lbl.textContent = 'TG ВЫКЛ';
-    localStorage.setItem('orb_tg_alerts','off');
-    showScreenerToast('🔕 Telegram алерты выключены');
-  }
-}
-
-function saveTGSettings(){
-  const filter = document.getElementById('tg-filter-sel')?.value;
-  const coins  = document.getElementById('tg-coins-sel')?.value;
-  if(filter) localStorage.setItem('orb_tg_filter', filter);
-  if(coins)  localStorage.setItem('orb_tg_coins', coins);
-}
-
-// ── Проверка: нужно ли отправлять сигнал в TG ──
-function shouldSendTG(sig){
-  if(!_tgAlertsEnabled || !window._tgChatId || !window._orbUserId) return false;
-
-  // Антиспам: один и тот же сигнал не чаще раза в 5 минут
-  const key = sig.coinId + '_' + sig.type;
-  const last = _tgLastAlerts[key] || 0;
-  if(Date.now() - last < 5 * 60 * 1000) return false;
-
-  // Фильтр по типу
-  const filter = localStorage.getItem('orb_tg_filter') || 'strong';
-  if(filter === 'extreme'){
-    // Только памп/дамп > 5%
-    if(!['pump','dump'].includes(sig.type)) return false;
-    const pct = parseFloat(sig.text);
-    if(Math.abs(pct) < 5) return false;
-  } else if(filter === 'break'){
-    if(!['break-high','break-low'].includes(sig.type)) return false;
-  } else if(filter === 'strong'){
-    if(!['pump','dump','break-high','break-low'].includes(sig.type)) return false;
-  }
-  // filter === 'all' → всё пропускаем
-
-  // Фильтр по монетам
-  const coinFilter = localStorage.getItem('orb_tg_coins') || 'all';
-  if(coinFilter !== 'all'){
-    const coin = allCoins.find(c => c.id === sig.coinId);
-    if(coin){
-      const rank = coin.market_cap_rank || 999;
-      if(coinFilter === 'top10'  && rank > 10)  return false;
-      if(coinFilter === 'top50'  && rank > 50)  return false;
-      if(coinFilter === 'watchlist' && !watchlist.includes(sig.coinId)) return false;
-    }
-  }
-
-  _tgLastAlerts[key] = Date.now();
-  return true;
-}
-
-// ── Умный алерт в TG с мини-чартом ──
-async function sendSmartAlertToTG(sig){
-  if(!shouldSendTG(sig)) return;
-  try{
-    const coin = allCoins.find(c => c.id === sig.coinId);
-    if(!coin) return;
-
-    const labels = {
-      'pump':        '🚀 ПАМП',
-      'dump':        '📉 ДАМП',
-      'break-high':  '⚡ ПРОБОЙ ВВЕРХ',
-      'break-low':   '⚡ ПРОБОЙ ВНИЗ',
-      'vol':         '📊 ОБЪЁМ × всплеск',
-    };
-    const label = labels[sig.type] || sig.type.toUpperCase();
-
-    // Сбор данных о монете
-    const pct24  = (coin.price_change_percentage_24h || 0).toFixed(2);
-    const pct1h  = (coin.price_change_percentage_1h_in_currency || 0).toFixed(2);
-    const vol    = fmtBig(coin.total_volume);
-    const mcap   = fmtBig(coin.market_cap);
-    const high24 = fmtPrice(coin.high_24h);
-    const low24  = fmtPrice(coin.low_24h);
-    const sym    = (coin.symbol || '').toUpperCase();
-    const price  = fmtPrice(coin.current_price);
-
-    // Мини-чарт через TradingView widget screenshot — используем chart URL
-    const tvSymbol = sym + 'USDT';
-    const chartUrl = `https://www.tradingview.com/chart/?symbol=BINANCE:${tvSymbol}&interval=15`;
-
-    const pct24Sign = parseFloat(pct24) >= 0 ? '+' : '';
-    const pct1hSign = parseFloat(pct1h) >= 0 ? '+' : '';
-
-    // Формируем богатое сообщение
-    const text = [
-      `${label} — <b>${sym}/USDT</b>`,
-      ``,
-      `💵 Цена: <b>${price}</b>`,
-      `📊 Сигнал: <b>${sig.text}</b>`,
-      ``,
-      `📈 1Ч:  <b>${pct1hSign}${pct1h}%</b>   24Ч: <b>${pct24Sign}${pct24}%</b>`,
-      `📦 Объём: <b>${vol}</b>`,
-      `🏆 Макс 24Ч: <b>${high24}</b>   Мин: <b>${low24}</b>`,
-      `💎 Mcap: <b>${mcap}</b>`,
-      ``,
-      `🕐 ${sig.time}   ⏱ Обновление: 15с`,
-      ``,
-      `<a href="${chartUrl}">📉 Открыть график ${sym}/USDT</a>`,
-    ].join('
-');
-
-    await fetch('/api/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Notify-User': window._orbUserId },
-      body: JSON.stringify({
-        type: 'raw',
-        chat_id: window._tgChatId,
-        text: text,
-      })
-    });
-  } catch(e){ console.warn('[TG alert]', e.message); }
-}
-
-// ── Toast уведомление на скринере ──
-function showScreenerToast(msg){
-  let t = document.getElementById('screener-toast');
-  if(!t){
-    t = document.createElement('div');
-    t.id = 'screener-toast';
-    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);'+
-      'background:#0f1420;border:1px solid rgba(232,114,42,0.4);color:#e8722a;'+
-      'font-family:var(--font-mono);font-size:11px;padding:10px 20px;border-radius:8px;'+
-      'z-index:99999;transition:opacity .3s;pointer-events:none;letter-spacing:.5px;';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity = '1';
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.style.opacity = '0', 2500);
-}
 </script>
 
 <!-- COMPARE MODAL -->
