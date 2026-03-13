@@ -8666,5 +8666,161 @@ if(document.readyState==='loading'){
 }
 
 </script>
+
+<script>
+// ══════════════════════════════════════════════════════
+// JOURNAL: BINANCE WEBSOCKET — живые метрики в сайдбаре
+// Обновление каждые ~300мс без перезагрузки
+// ══════════════════════════════════════════════════════
+
+(function initJournalWS(){
+  const PAIRS = [
+    { sym:'BTC', pair:'btcusdt' },
+    { sym:'ETH', pair:'ethusdt' },
+    { sym:'BNB', pair:'bnbusdt' },
+    { sym:'SOL', pair:'solusdt' },
+  ];
+  const MAP = {};
+  PAIRS.forEach(p => { MAP[p.pair.toUpperCase()] = p; });
+
+  const _prev = {}; // sym → lastPrice
+
+  // ── DOM helpers ──
+  function q(id){ return document.getElementById(id); }
+  function setEl(id, val){ const el = q(id); if(el) el.textContent = val; }
+  function flashEl(id, dir){ // dir: 'up' | 'dn'
+    const el = q(id);
+    if(!el) return;
+    el.style.transition = 'none';
+    el.style.background = dir === 'up' ? 'rgba(46,204,113,0.2)' : 'rgba(231,76,60,0.2)';
+    setTimeout(()=>{ el.style.transition='background 0.8s'; el.style.background=''; }, 50);
+  }
+
+  function fmtP(p){
+    if(!p) return '$—';
+    if(p>=1000) return '$'+p.toLocaleString('en',{maximumFractionDigits:2});
+    if(p>=1)    return '$'+p.toFixed(4);
+    return '$'+p.toFixed(6);
+  }
+
+  function updateBtcEth(sym, price, open24, chg24, high24, low24, vol24){
+    const isUp = chg24 >= 0;
+    const chgStr = (isUp?'+':'') + chg24.toFixed(2) + '%';
+    const prev = _prev[sym];
+
+    // Find ticker item in track
+    const tickerItems = document.querySelectorAll('.ticker-item');
+    tickerItems.forEach(item => {
+      const symEl = item.querySelector('.ti-sym');
+      if(!symEl) return;
+      if(symEl.textContent.trim() !== sym) return;
+      const prEl  = item.querySelector('.ti-price');
+      const chEl  = item.querySelector('.ti-chg');
+      if(prEl){
+        const dir = prev ? (price > prev ? 'up' : price < prev ? 'dn' : null) : null;
+        prEl.textContent = fmtP(price);
+        if(dir){
+          prEl.style.color = dir==='up' ? '#2ecc71' : '#e74c3c';
+          setTimeout(()=>{ prEl.style.color = ''; }, 600);
+        }
+      }
+      if(chEl){
+        chEl.textContent = chgStr;
+        chEl.style.color = isUp ? '#2ecc71' : '#e74c3c';
+      }
+    });
+
+    // Also update any .ticker-price / .ticker-chg spans with data attrs
+    const priceEl2 = document.querySelector(`[data-ticker-price="${sym}"]`);
+    const chgEl2   = document.querySelector(`[data-ticker-chg="${sym}"]`);
+    if(priceEl2){
+      const dir2 = prev ? (price > prev ? 'up' : 'dn') : null;
+      priceEl2.textContent = fmtP(price);
+      if(dir2){ priceEl2.style.color = dir2==='up'?'#2ecc71':'#e74c3c'; setTimeout(()=>priceEl2.style.color='',600); }
+    }
+    if(chgEl2){ chgEl2.textContent = chgStr; chgEl2.style.color = isUp?'#2ecc71':'#e74c3c'; }
+
+    _prev[sym] = price;
+
+    // Sidebar sbw-metric BTC price if visible
+    if(sym === 'BTC'){
+      // Try to find any element showing BTC price in sidebar
+      const btcEls = document.querySelectorAll('[id*="btc-price"],[id*="btc_price"],[class*="btc-live"]');
+      btcEls.forEach(el => { el.textContent = fmtP(price); });
+    }
+  }
+
+  let _ws = null;
+  let _reconnTimer = null;
+
+  function connect(){
+    if(_ws){ try{_ws.close();}catch(e){} }
+    const streams = PAIRS.map(p => p.pair + '@miniTicker').join('/');
+    _ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+
+    _ws.onopen = () => {
+      console.log('[Journal WS] Binance connected');
+      // Update live indicator if present
+      const ind = document.getElementById('live-ind') || document.querySelector('.ws-indicator');
+      if(ind) ind.style.opacity = '1';
+    };
+
+    _ws.onmessage = (e) => {
+      try{
+        const msg  = JSON.parse(e.data);
+        const d    = msg.data;
+        if(!d || !d.s) return;
+        const cfg  = MAP[d.s.toUpperCase()];
+        if(!cfg) return;
+
+        const price  = parseFloat(d.c);
+        const open24 = parseFloat(d.o);
+        const high24 = parseFloat(d.h);
+        const low24  = parseFloat(d.l);
+        const vol24  = parseFloat(d.v) * price;
+        const chg24  = open24 > 0 ? ((price-open24)/open24)*100 : 0;
+
+        updateBtcEth(cfg.sym, price, open24, chg24, high24, low24, vol24);
+
+        // Update stats in sidebar market widget
+        if(cfg.sym === 'BTC'){
+          const domEl = document.getElementById('mkt-dom');
+          // BTC dom is from CoinGecko so skip
+        }
+      }catch(err){}
+    };
+
+    _ws.onclose = () => {
+      clearTimeout(_reconnTimer);
+      _reconnTimer = setTimeout(connect, 3000);
+    };
+    _ws.onerror = () => { _ws.close(); };
+  }
+
+  // Start WS after DOM ready
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', connect);
+  } else {
+    connect();
+  }
+
+  // Also upgrade sidebar metrics interval — poll every 10s instead of 5min
+  // Hook onto existing initSidebarWidgets
+  const _origInit = window.initSidebarWidgets;
+  window.initSidebarWidgets = function(){
+    if(_origInit) _origInit();
+    // Override the 5-min interval with 30s for market/GL data
+    setInterval(()=>{
+      if(typeof fetchMarket === 'function') fetchMarket();
+      if(typeof fetchGL === 'function') fetchGL();
+    }, 30000);
+    // Trending every 2 min
+    setInterval(()=>{
+      if(typeof fetchTrending === 'function') fetchTrending();
+    }, 120000);
+  };
+})();
+</script>
+
 </body>
 </html>
