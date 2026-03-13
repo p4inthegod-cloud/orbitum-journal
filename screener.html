@@ -1027,6 +1027,34 @@ img{display:block;}
 .skel-circle{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;}
 .skel-rect{height:8px;border-radius:3px;background:rgba(255,255,255,0.06);}
 
+
+/* ── ALERT TYPE TABS ── */
+.alert-type-tabs{display:flex;gap:3px;margin-bottom:12px;flex-wrap:wrap;}
+.at-tab{
+  flex:1;min-width:calc(33% - 3px);height:32px;border-radius:6px;
+  border:1px solid var(--bd);background:transparent;
+  color:var(--m);font-size:9px;letter-spacing:.5px;
+  font-family:var(--font-mono);transition:all .15s;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+}
+.at-tab:hover{background:var(--bg3);color:var(--t);}
+.at-tab.active{background:var(--a2);color:var(--a);border-color:rgba(232,114,42,0.3);}
+.at-tab .at-icon{font-size:13px;}
+.alert-section{display:none;}
+.alert-section.visible{display:block;}
+.alert-row2{display:flex;gap:6px;margin-bottom:6px;}
+.alert-row2 .alert-col{flex:1;display:flex;flex-direction:column;}
+.alert-preview{
+  background:var(--bg3);border:1px solid var(--bd);border-radius:6px;
+  padding:8px 10px;margin-bottom:10px;font-size:10px;font-family:var(--font-mono);
+  color:var(--m);line-height:1.7;display:none;
+}
+.alert-preview.visible{display:block;}
+.ap-line{display:flex;justify-content:space-between;}
+.ap-val{color:var(--t);font-weight:600;}
+.ap-val.accent{color:var(--a);}
+.repeat-btn.active{color:var(--t);background:var(--bg3);border-color:var(--bd2);}
+
 </style>
 </head>
 <body>
@@ -1221,30 +1249,114 @@ img{display:block;}
 
 <!-- ALERT MODAL -->
 <div class="modal-overlay" id="alert-modal">
-  <div class="modal-box" style="position:relative;">
+  <div class="modal-box" style="position:relative;max-height:92vh;overflow-y:auto;">
     <button class="modal-close" onclick="closeAlertModal()">✕</button>
     <div class="modal-header">
       <div class="modal-title" id="am-title">АЛЕРТ</div>
       <div class="modal-sub" id="am-sub">—</div>
     </div>
 
-    <span class="alert-label">УСЛОВИЕ</span>
-    <div class="cond-row">
-      <button class="cond-btn active-up" id="cond-above" onclick="setCond('above',this)">▲ ВЫШЕ</button>
-      <button class="cond-btn" id="cond-below" onclick="setCond('below',this)">▼ НИЖЕ</button>
+    <span class="alert-label">ТИП АЛЕРТА</span>
+    <div class="alert-type-tabs" id="am-type-tabs">
+      <button class="at-tab active" data-type="price"       onclick="setAlertType('price',this)"><span class="at-icon">💰</span> ЦЕНА</button>
+      <button class="at-tab"        data-type="price_cross" onclick="setAlertType('price_cross',this)"><span class="at-icon">↔️</span> ПЕРЕСЕЧЕНИЕ</button>
+      <button class="at-tab"        data-type="change"      onclick="setAlertType('change',this)"><span class="at-icon">⚡</span> ДВИЖЕНИЕ %</button>
+      <button class="at-tab"        data-type="volume"      onclick="setAlertType('volume',this)"><span class="at-icon">📊</span> ОБЪЁМ</button>
+      <button class="at-tab"        data-type="rsi_ob"      onclick="setAlertType('rsi_ob',this)"><span class="at-icon">🔴</span> RSI OB</button>
+      <button class="at-tab"        data-type="rsi_os"      onclick="setAlertType('rsi_os',this)"><span class="at-icon">🟢</span> RSI OS</button>
     </div>
 
-    <span class="alert-label">ЦЕНА</span>
-    <input class="alert-input" id="am-price" type="number" placeholder="Целевая цена...">
+    <!-- PRICE / PRICE_CROSS -->
+    <div class="alert-section visible" id="as-price">
+      <span class="alert-label">УСЛОВИЕ</span>
+      <div class="cond-row">
+        <button class="cond-btn active-up" id="cond-above" onclick="setCond('above',this)">▲ ВЫШЕ</button>
+        <button class="cond-btn"           id="cond-below" onclick="setCond('below',this)">▼ НИЖЕ</button>
+      </div>
+      <span class="alert-label">ЦЕЛЕВАЯ ЦЕНА</span>
+      <input class="alert-input" id="am-price" type="number" placeholder="Целевая цена..." oninput="updateAlertPreview()">
+    </div>
 
-    <span class="alert-label">ПОВТОР</span>
+    <!-- CHANGE % -->
+    <div class="alert-section" id="as-change">
+      <div class="alert-row2">
+        <div class="alert-col">
+          <span class="alert-label">ДВИЖЕНИЕ (%)</span>
+          <input class="alert-input" id="am-change-pct" type="number" placeholder="Напр. 5" min="0.1" step="0.5" oninput="updateAlertPreview()">
+        </div>
+        <div class="alert-col">
+          <span class="alert-label">ЗА ПЕРИОД</span>
+          <select class="alert-input" id="am-change-window" onchange="updateAlertPreview()">
+            <option value="15">15 мин</option>
+            <option value="30">30 мин</option>
+            <option value="60" selected>1 час</option>
+            <option value="240">4 часа</option>
+            <option value="1440">24 часа</option>
+          </select>
+        </div>
+      </div>
+      <div class="cond-row" style="margin-top:0;">
+        <button class="cond-btn active-up" id="cond-change-up"   onclick="setChangeCond('above',this)">▲ РОСТ</button>
+        <button class="cond-btn"           id="cond-change-dn"   onclick="setChangeCond('below',this)">▼ ПАДЕНИЕ</button>
+        <button class="cond-btn"           id="cond-change-any"  onclick="setChangeCond('any',this)">↔ ЛЮБОЕ</button>
+      </div>
+    </div>
+
+    <!-- VOLUME -->
+    <div class="alert-section" id="as-volume">
+      <span class="alert-label">МНОЖИТЕЛЬ ОБЪЁМА (× среднего за 7д)</span>
+      <select class="alert-input" id="am-vol-mult" onchange="updateAlertPreview()">
+        <option value="1.5">×1.5 — умеренный</option>
+        <option value="2" selected>×2.0 — значительный</option>
+        <option value="3">×3.0 — сильный</option>
+        <option value="5">×5.0 — экстремальный</option>
+        <option value="10">×10 — аномальный</option>
+      </select>
+      <div style="font-size:9px;color:var(--m2);font-family:var(--font-mono);margin-top:4px;margin-bottom:8px;">
+        Сработает когда объём за 24ч превысит средний в N раз
+      </div>
+    </div>
+
+    <!-- RSI OB -->
+    <div class="alert-section" id="as-rsi_ob">
+      <span class="alert-label">ПОРОГ RSI (перекупленность)</span>
+      <select class="alert-input" id="am-rsi-ob" onchange="updateAlertPreview()">
+        <option value="65">65 — ранний сигнал</option>
+        <option value="70" selected>70 — стандартный</option>
+        <option value="75">75 — сильная OB</option>
+        <option value="80">80 — экстремальная</option>
+      </select>
+    </div>
+
+    <!-- RSI OS -->
+    <div class="alert-section" id="as-rsi_os">
+      <span class="alert-label">ПОРОГ RSI (перепроданность)</span>
+      <select class="alert-input" id="am-rsi-os" onchange="updateAlertPreview()">
+        <option value="35">35 — ранний сигнал</option>
+        <option value="30" selected>30 — стандартный</option>
+        <option value="25">25 — сильная OS</option>
+        <option value="20">20 — экстремальная</option>
+      </select>
+    </div>
+
+    <!-- ПОВТОР -->
+    <span class="alert-label" style="margin-top:4px;">ПОВТОР</span>
     <div class="repeat-row">
-      <button class="repeat-btn active" id="rep-once" onclick="setRepeat('once',this)">ОДИН РАЗ</button>
-      <button class="repeat-btn" id="rep-every" onclick="setRepeat('every',this)">КАЖДЫЙ РАЗ</button>
+      <button class="repeat-btn active" id="rep-once"  onclick="setRepeat('once',this)">ОДИН РАЗ</button>
+      <button class="repeat-btn"        id="rep-every" onclick="setRepeat('every',this)">КАЖДЫЙ РАЗ</button>
+      <button class="repeat-btn"        id="rep-daily" onclick="setRepeat('daily',this)">ЕЖЕДНЕВНО</button>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="alert-preview" id="am-preview">
+      <div class="ap-line"><span>Тип</span><span class="ap-val accent" id="apv-type">—</span></div>
+      <div class="ap-line"><span>Условие</span><span class="ap-val" id="apv-cond">—</span></div>
+      <div class="ap-line"><span>Повтор</span><span class="ap-val" id="apv-repeat">—</span></div>
+      <div class="ap-line"><span>Telegram</span><span class="ap-val" id="apv-tg">—</span></div>
     </div>
 
     <span class="alert-label">ЗАМЕТКА (необязательно)</span>
-    <textarea class="alert-note" id="am-note" placeholder="Уровень поддержки, причина алерта..."></textarea>
+    <textarea class="alert-note" id="am-note" placeholder="Уровень сопротивления, причина сделки..."></textarea>
 
     <div class="tg-status" id="am-tg">
       <div class="tg-dot" id="am-tg-dot"></div>
@@ -1496,60 +1608,154 @@ function toggleAlertsPanel(){
   document.getElementById('sb-alerts-btn').classList.toggle('active', _alertsPanelOpen);
 }
 
-// Alert modal
-function openAlertModal(coin){
-  const c = coin || _detailCoin;
-  if(!c) return;
-  _alertsCoin = c;
-  _alertCond = 'above';
-  _alertRepeat = 'once';
-  document.getElementById('am-title').textContent = 'АЛЕРТ: ' + (c.symbol||'').toUpperCase();
-  document.getElementById('am-sub').textContent = 'ТЕКУЩАЯ ЦЕНА: ' + fmtPrice(c.current_price);
-  document.getElementById('am-price').value = c.current_price?.toFixed(c.current_price >= 1 ? 2 : 6) || '';
-  document.getElementById('am-note').value = '';
-  document.getElementById('cond-above').className = 'cond-btn active-up';
-  document.getElementById('cond-below').className = 'cond-btn';
-  document.getElementById('rep-once').className = 'repeat-btn active';
-  document.getElementById('rep-every').className = 'repeat-btn';
-  updateTgBadge();
-  document.getElementById('alert-modal').classList.add('open');
+// Alert modal — v2 (расширенные типы)
+let _alertType   = 'price';
+let _changeCond  = 'above';
+
+function setAlertType(type, btn) {
+  _alertType = type;
+  document.querySelectorAll('.at-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.alert-section').forEach(s => s.classList.remove('visible'));
+  const map = { price:'as-price', price_cross:'as-price', change:'as-change', volume:'as-volume', rsi_ob:'as-rsi_ob', rsi_os:'as-rsi_os' };
+  if(map[type]) document.getElementById(map[type])?.classList.add('visible');
+  // price_cross — скрыть блок выше/ниже
+  const condRow = document.querySelector('#as-price .cond-row');
+  if(condRow) condRow.style.display = type === 'price_cross' ? 'none' : 'flex';
+  updateAlertPreview();
 }
-function closeAlertModal(){ document.getElementById('alert-modal').classList.remove('open'); }
 
 function setCond(c, btn){
   _alertCond = c;
   document.getElementById('cond-above').className = 'cond-btn' + (c==='above'?' active-up':'');
   document.getElementById('cond-below').className = 'cond-btn' + (c==='below'?' active-dn':'');
+  updateAlertPreview();
 }
+
+function setChangeCond(c, btn){
+  _changeCond = c;
+  document.querySelectorAll('#as-change .cond-btn').forEach(b => b.classList.remove('active-up','active-dn'));
+  btn.classList.add(c === 'above' ? 'active-up' : 'active-dn');
+}
+
 function setRepeat(r, btn){
   _alertRepeat = r;
-  document.getElementById('rep-once').className = 'repeat-btn' + (r==='once'?' active':'');
-  document.getElementById('rep-every').className = 'repeat-btn' + (r==='every'?' active':'');
+  document.querySelectorAll('.repeat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateAlertPreview();
 }
+
+function updateAlertPreview() {
+  const preview = document.getElementById('am-preview');
+  if(!preview) return;
+  const TYPE_LABELS = { price:'💰 Цена', price_cross:'↔️ Пересечение', change:'⚡ Движение %', volume:'📊 Объём', rsi_ob:'🔴 RSI OB', rsi_os:'🟢 RSI OS' };
+  const REPEAT_LABELS = { once:'Один раз', every:'Каждый раз', daily:'Ежедневно' };
+  let condStr = '—';
+  if(_alertType === 'price') {
+    const p = document.getElementById('am-price')?.value;
+    condStr = p ? (_alertCond === 'above' ? `▲ выше $${parseFloat(p).toLocaleString()}` : `▼ ниже $${parseFloat(p).toLocaleString()}`) : '—';
+  } else if(_alertType === 'price_cross') {
+    const p = document.getElementById('am-price')?.value;
+    condStr = p ? `↔ $${parseFloat(p).toLocaleString()}` : '—';
+  } else if(_alertType === 'change') {
+    const pct = document.getElementById('am-change-pct')?.value;
+    const win = document.getElementById('am-change-window')?.value;
+    condStr = pct ? `${pct}% за ${win} мин` : '—';
+  } else if(_alertType === 'volume') {
+    condStr = `×${document.getElementById('am-vol-mult')?.value} от среднего`;
+  } else if(_alertType === 'rsi_ob') {
+    condStr = `RSI ≥ ${document.getElementById('am-rsi-ob')?.value}`;
+  } else if(_alertType === 'rsi_os') {
+    condStr = `RSI ≤ ${document.getElementById('am-rsi-os')?.value}`;
+  }
+  document.getElementById('apv-type').textContent   = TYPE_LABELS[_alertType] || _alertType;
+  document.getElementById('apv-cond').textContent   = condStr;
+  document.getElementById('apv-repeat').textContent = REPEAT_LABELS[_alertRepeat] || _alertRepeat;
+  document.getElementById('apv-tg').textContent     = (_tgProfile?.tg_linked && _tgProfile?.tg_notify_alerts) ? '✅ Активен' : '⚠️ Не настроен';
+  preview.classList.add('visible');
+}
+
+function openAlertModal(coin){
+  const c = coin || _detailCoin;
+  if(!c) return;
+  _alertsCoin  = c;
+  _alertCond   = 'above';
+  _alertRepeat = 'once';
+  _alertType   = 'price';
+  _changeCond  = 'above';
+  // Reset tabs
+  document.querySelectorAll('.at-tab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.at-tab[data-type="price"]')?.classList.add('active');
+  document.querySelectorAll('.alert-section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('as-price')?.classList.add('visible');
+  const condRow = document.querySelector('#as-price .cond-row');
+  if(condRow) condRow.style.display = 'flex';
+  // Reset cond/repeat
+  document.getElementById('cond-above').className = 'cond-btn active-up';
+  document.getElementById('cond-below').className = 'cond-btn';
+  document.querySelectorAll('.repeat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('rep-once').className = 'repeat-btn active';
+  // Fill price
+  document.getElementById('am-title').textContent = 'АЛЕРТ · ' + (c.symbol||'').toUpperCase();
+  document.getElementById('am-sub').textContent   = 'ТЕКУЩАЯ ЦЕНА: ' + fmtPrice(c.current_price);
+  document.getElementById('am-price').value = c.current_price?.toFixed(c.current_price >= 1 ? 2 : 6) || '';
+  document.getElementById('am-note').value  = '';
+  document.getElementById('am-preview')?.classList.remove('visible');
+  updateTgBadge();
+  updateAlertPreview();
+  document.getElementById('alert-modal').classList.add('open');
+}
+
+function closeAlertModal(){ document.getElementById('alert-modal').classList.remove('open'); }
 
 async function saveAlert(){
   if(!_alertsCoin){ showToast('Монета не выбрана','err'); return; }
   const { data: { user } } = await sb.auth.getUser();
   if(!user){ showToast('Войди в аккаунт','err'); return; }
-  const price = parseFloat(document.getElementById('am-price').value);
-  if(!price || isNaN(price) || price <= 0){ showToast('Укажи цену','err'); return; }
-  const note = document.getElementById('am-note').value.trim();
-  const { error } = await sb.from('price_alerts').insert({
-    user_id: user.id,
-    symbol: (_alertsCoin.symbol||'').toUpperCase(),
+
+  const base = {
+    user_id:      user.id,
+    symbol:       (_alertsCoin.symbol||'').toUpperCase(),
     coingecko_id: _alertsCoin.id,
-    condition: _alertCond,        // ONLY 'above' or 'below' — matches DB constraint
-    target_price: price,
-    triggered: false,
-    repeat_mode: _alertRepeat,
-    note: note || null,
-    alert_type: 'price',
-  });
+    triggered:    false,
+    repeat_mode:  _alertRepeat,
+    note:         document.getElementById('am-note').value.trim() || null,
+    alert_type:   _alertType,
+    condition:    _alertCond,
+  };
+
+  if(_alertType === 'price' || _alertType === 'price_cross'){
+    const price = parseFloat(document.getElementById('am-price').value);
+    if(!price || isNaN(price) || price <= 0){ showToast('Укажи цену','err'); return; }
+    base.target_price = price;
+    if(_alertType === 'price_cross') base.condition = 'cross';
+  }
+  if(_alertType === 'change'){
+    const pct = parseFloat(document.getElementById('am-change-pct').value);
+    if(!pct || isNaN(pct) || pct <= 0){ showToast('Укажи % движения','err'); return; }
+    base.change_threshold = pct;
+    base.change_window    = parseInt(document.getElementById('am-change-window').value);
+    base.condition        = _changeCond;
+  }
+  if(_alertType === 'volume'){
+    base.volume_multiplier = parseFloat(document.getElementById('am-vol-mult').value);
+    base.vol_avg_7d        = _alertsCoin.total_volume || null;
+  }
+  if(_alertType === 'rsi_ob'){
+    base.rsi_threshold = parseInt(document.getElementById('am-rsi-ob').value);
+    base.condition     = 'above';
+  }
+  if(_alertType === 'rsi_os'){
+    base.rsi_threshold = parseInt(document.getElementById('am-rsi-os').value);
+    base.condition     = 'below';
+  }
+
+  const { error } = await sb.from('price_alerts').insert(base);
   if(error){ showToast('Ошибка: ' + error.message, 'err'); return; }
   closeAlertModal();
   await loadAlerts();
   renderCoins();
-  renderDetailAlertLines();
+  renderDetailAlertLines?.();
   showToast('✅ Алерт создан', 'ok');
 }
 
