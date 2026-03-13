@@ -1110,7 +1110,10 @@ function hasAlert(coinId){
 // ── Load coins ──
 async function loadCoins(){
   try{
-    const r = await fetch('/api/ticker?type=screener');
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 12000); // 12s timeout
+    const r = await fetch('/api/ticker?type=screener', { signal: ctrl.signal });
+    clearTimeout(timeout);
     const d = await r.json();
     if(!Array.isArray(d) || !d.length) throw new Error('empty');
     allCoins = d;
@@ -1123,7 +1126,9 @@ async function loadCoins(){
     console.error('[Screener] Load error:', e);
     document.getElementById('loading').innerHTML =
       `<div style="font-family:'JetBrains Mono',monospace;color:rgba(232,114,42,0.7);font-size:13px;text-align:center">
-        ⚠️ ОШИБКА ЗАГРУЗКИ<br><span style="font-size:10px;opacity:0.6;margin-top:8px;display:block">Убедитесь что api/ticker.js задеплоен на Vercel</span>
+        ⚠️ ОШИБКА ЗАГРУЗКИ<br>
+        <span style="font-size:10px;opacity:0.6;margin-top:8px;display:block">${e.message === 'empty' ? 'API вернул пустой ответ' : 'Ошибка: ' + e.message}</span>
+        <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.4);color:#e8722a;border-radius:6px;font-family:inherit;font-size:10px;cursor:pointer;letter-spacing:1px">↺ ПЕРЕЗАГРУЗИТЬ</button>
        </div>`;
   }
 }
@@ -1133,10 +1138,15 @@ async function loadAlerts(){
   try{
     const { data: { user } } = await sb.auth.getUser();
     if(!user) return;
-    const { data } = await sb.from('price_alerts').select('*').eq('user_id', user.id).eq('triggered', false);
-    userAlerts = data || [];
-    document.getElementById('stat-alerts').textContent = userAlerts.length;
-  } catch(e){}
+    const timer = new Promise(r => setTimeout(r, 3000)); // 3s timeout
+    const query = sb.from('price_alerts').select('*').eq('user_id', user.id).eq('triggered', false);
+    const result = await Promise.race([query, timer]);
+    if(result && result.data){
+      userAlerts = result.data || [];
+      const el = document.getElementById('stat-alerts');
+      if(el) el.textContent = userAlerts.length;
+    }
+  } catch(e){ console.warn('loadAlerts:', e.message); }
 }
 
 // ── Update stats strip ──
@@ -1639,7 +1649,7 @@ async function initAuth(){
   const em = user.email || '';
   document.getElementById('sb-email').textContent = em;
   document.getElementById('sb-avatar').textContent = em.slice(0,2).toUpperCase();
-  await loadAlerts();
+  loadAlerts(); // не блокируем загрузку
 }
 
 async function doLogout(){
