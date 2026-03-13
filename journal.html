@@ -525,6 +525,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   position:fixed;top:0;left:0;bottom:0;width:var(--sb);
   background:rgba(5,7,10,0.97);border-right:var(--line);
   display:none;flex-direction:column;z-index:100;
+  overflow:hidden;
 }
 .sb-logo{
   height:52px;display:flex;align-items:center;padding:0 16px;
@@ -535,7 +536,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   text-shadow:0 0 16px rgba(255,255,255,0.08);
 }
 .sb-logo-dot{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);}
-.sb-nav{flex:1;padding:8px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.sb-nav{padding:8px 8px;display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
 .sb-section{
   font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.2);
   letter-spacing:2px;padding:12px 10px 4px;text-transform:uppercase;
@@ -2072,6 +2073,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
   /* Footer */
   .sb-user-info,.sb-logout{opacity:1;max-width:200px;}
+
+  /* Scroll body — must be flex:1 on desktop too */
+  .sb-scroll-body{flex:1;overflow-y:auto;}
 
   /* Topbar — hide nav, keep right widgets */
   .jnl-topbar{display:flex;margin-left:var(--sb);}
@@ -3730,6 +3734,26 @@ body::after {
 .sb-item { padding: 6px 8px; font-size: 10.5px; }
 .sb-section { padding: 8px 8px 3px; font-size: 8px; }
 .sb-divider { margin: 4px 4px; }
+
+/* ── SIDEBAR SCROLL BODY — все разделы видны ─────────────── */
+.sb-scroll-body{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(232,114,42,0.18) transparent;
+}
+.sb-scroll-body::-webkit-scrollbar{width:3px;}
+.sb-scroll-body::-webkit-scrollbar-track{background:transparent;}
+.sb-scroll-body::-webkit-scrollbar-thumb{background:rgba(232,114,42,0.18);border-radius:3px;}
+/* sb-nav no longer scrolls itself */
+.sb-nav{overflow:visible!important;flex:0 0 auto!important;}
+/* sb-section-market no longer needs special treatment */
+.sb-section-market{flex-shrink:0;}
+
 </style>
 </head>
 <body>
@@ -3759,6 +3783,7 @@ body::after {
     <div class="sb-logo-dot"></div>
     <span class="sb-logo-text">ORBITUM</span>
   </a>
+  <div class="sb-scroll-body">
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
     <button class="sb-item sb-journal active" onclick="showPage('journal',this)" data-page="journal">
@@ -3914,6 +3939,7 @@ body::after {
 
   </div>
 
+  </div><!-- /sb-scroll-body -->
   <div class="sb-footer">
     <div class="sb-user">
       <div class="sb-avatar" id="sf-avatar">?</div>
