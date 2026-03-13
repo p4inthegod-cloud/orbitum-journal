@@ -5433,6 +5433,14 @@ function formatAIText(text){
 }
 
 async function init(){
+  // ── DEMO MODE ──────────────────────────────────────────
+  const urlParams = new URLSearchParams(location.search);
+  if(urlParams.get('demo')==='1' || localStorage.getItem('orb_demo_mode')==='1'){
+    localStorage.setItem('orb_demo_mode','1');
+    await initDemoMode();
+    return;
+  }
+  // ── NORMAL AUTH ────────────────────────────────────────
   const{data:{user}}=await sb.auth.getUser();
   if(!user){window.location.href='login.html';return;}
   currentUser=user;
@@ -5545,6 +5553,13 @@ async function doLogout(){await sb.auth.signOut();window.location.href='login.ht
 
 // ─── TRADES ───────────────────────────────────────
 async function loadTrades(){
+  if(window._isDemoMode){
+    allTrades = demoLoadTrades();
+    updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); restoreFormDefaults();
+    orbColorUserByRank(allTrades);
+    onbCheck(allTrades.length);
+    return;
+  }
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
   allTrades=data||[];
@@ -5688,6 +5703,7 @@ function sv(inputId,spanId){const el=document.getElementById(spanId);if(el)el.te
 function setF(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 
 async function addTrade(){
+  if(window._isDemoMode){ await window._demoAddTrade(); return; }
   if(document.getElementById('preview-banner')){
     showNotif('warn','Preview режим','Получи доступ чтобы добавлять сделки',4000);
     return;
@@ -5768,6 +5784,7 @@ async function addTrade(){
 }
 
 async function deleteTrade(id){
+  if(window._isDemoMode){ window._demoDeleteTrade(id); return; }
   if(!confirm('Удалить сделку?'))return;
   await sb.from('trades').delete().eq('id',id).eq('user_id',currentUser.id);
   await loadTrades();
@@ -7837,6 +7854,7 @@ function closeEditModal(){
   document.getElementById('edit-modal').classList.remove('open');
 }
 async function saveEditTrade(){
+  if(window._isDemoMode){ await window._demoSaveEditTrade(); return; }
   const id=document.getElementById('edit-trade-id').value;
   if(!id) return;
   const pnlPct=document.getElementById('edit-pnl-pct').value;
@@ -9771,6 +9789,258 @@ if(document.readyState === 'loading'){
     </div>
   </div>
 </div>
+<!-- ══ DEMO MODE ENGINE ══ -->
+<script>
+// ══════════════════════════════════════════════════════════
+// DEMO MODE — полностью локальный, без Supabase
+// ══════════════════════════════════════════════════════════
+const DEMO_KEY = 'orb_demo_trades';
+
+// Realistic seed trades
+function generateDemoTrades(){
+  const pairs  = ['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','AVAX/USDT','LINK/USDT','ARB/USDT','DOGE/USDT','SUI/USDT'];
+  const setups = ['Wyckoff Spring','SMC BOS','OB + FVG','Elliott W3','VRVP Sweep','Accumulation','Market Structure Shift','Liquidity Grab'];
+  const whys   = ['Чёткий BOS на 4H + FVG закрыт. Объём подтвердил разворот.','Wyckoff Spring на уровне ключевой поддержки. Накопление завершено.','Elliott Wave 3 — импульс с хорошим R:R. Вход после ретеста.','OB + FVG совпадение. Тренд восходящий на Daily.','VRVP VAH пробой с закреплением. Ликвидность выметена.','Структура: HH+HL. Ретест EMA20 на 1H. Риск чёткий.','Liquidity grab под локальный лоу. Быстрый реверс.','SMC: смена структуры + inducement отработан.'];
+  const feels  = ['Спокоен, всё по плану.','Немного нервничал при входе, но держался правил.','Уверен — сетап кристально чистый.','Ждал долго, зато вошёл точно.','Жадность потянула к большому размеру, устоял.'];
+  const lessons = ['Подтверждать вход на младшем ТФ всегда быстрее выход.','Не двигать SL раньше +1R — уже проверено.','Планировать TP заранее, не во время движения.','Объём важнее паттерна — без объёма не входить.'];
+  const trades = [];
+  let id = 1000;
+  const now = Date.now();
+  const baseDeposit = 2500;
+
+  const results = [
+    {r:'win',pnlPct:3.2,pnlUsd:80,dir:'long'},
+    {r:'loss',pnlPct:-1.5,pnlUsd:-37.5,dir:'long'},
+    {r:'win',pnlPct:5.8,pnlUsd:145,dir:'long'},
+    {r:'win',pnlPct:2.1,pnlUsd:52.5,dir:'short'},
+    {r:'loss',pnlPct:-1.0,pnlUsd:-25,dir:'short'},
+    {r:'win',pnlPct:7.4,pnlUsd:185,dir:'long'},
+    {r:'be',pnlPct:0,pnlUsd:0,dir:'long'},
+    {r:'win',pnlPct:4.2,pnlUsd:105,dir:'long'},
+    {r:'loss',pnlPct:-2.0,pnlUsd:-50,dir:'short'},
+    {r:'win',pnlPct:6.1,pnlUsd:152.5,dir:'long'},
+    {r:'win',pnlPct:3.9,pnlUsd:97.5,dir:'long'},
+    {r:'loss',pnlPct:-1.5,pnlUsd:-37.5,dir:'long'},
+    {r:'win',pnlPct:2.8,pnlUsd:70,dir:'short'},
+    {r:'win',pnlPct:8.3,pnlUsd:207.5,dir:'long'},
+    {r:'loss',pnlPct:-1.0,pnlUsd:-25,dir:'long'},
+    {r:'win',pnlPct:4.5,pnlUsd:112.5,dir:'long'},
+    {r:'be',pnlPct:0,pnlUsd:0,dir:'short'},
+    {r:'win',pnlPct:3.3,pnlUsd:82.5,dir:'long'},
+    {r:'loss',pnlPct:-2.0,pnlUsd:-50,dir:'long'},
+    {r:'win',pnlPct:9.1,pnlUsd:227.5,dir:'long'},
+  ];
+
+  results.forEach((res, i) => {
+    const pair = pairs[i % pairs.length];
+    const msAgo = (20 - i) * 2.3 * 24 * 3600 * 1000 + Math.random() * 3600000;
+    const entry = pair.startsWith('BTC') ? 61000 + Math.random()*4000
+                : pair.startsWith('ETH') ? 2800 + Math.random()*400
+                : pair.startsWith('SOL') ? 140 + Math.random()*30
+                : 1 + Math.random()*5;
+    const sl = entry * (res.dir==='long' ? 0.97 : 1.03);
+    const exit = res.r==='win' ? entry*(res.dir==='long'?1.045:0.955)
+               : res.r==='loss' ? entry*(res.dir==='long'?0.975:1.025)
+               : entry;
+    trades.push({
+      id: String(id++),
+      user_id: 'demo',
+      pair,
+      direction: res.dir,
+      result: res.r,
+      deposit: baseDeposit,
+      pnl_pct: res.pnlPct,
+      pnl_usd: res.pnlUsd,
+      entry_price: parseFloat(entry.toFixed(2)),
+      exit_price: parseFloat(exit.toFixed(2)),
+      stop_loss: parseFloat(sl.toFixed(2)),
+      setup_type: setups[i % setups.length],
+      note_why: whys[i % whys.length],
+      note_feel: feels[i % feels.length],
+      note_lesson: i % 3 === 0 ? lessons[i % lessons.length] : null,
+      emotion_conf: 5 + Math.floor(Math.random()*4),
+      emotion_fear: 2 + Math.floor(Math.random()*3),
+      emotion_greed: 2 + Math.floor(Math.random()*3),
+      emotion_calm: 5 + Math.floor(Math.random()*4),
+      screenshot_url: null,
+      created_at: new Date(now - msAgo).toISOString(),
+    });
+  });
+  return trades;
+}
+
+function demoLoadTrades(){
+  try{
+    const stored = localStorage.getItem(DEMO_KEY);
+    if(stored) return JSON.parse(stored);
+  }catch(e){}
+  const seed = generateDemoTrades();
+  localStorage.setItem(DEMO_KEY, JSON.stringify(seed));
+  return seed;
+}
+function demoSaveTrades(trades){
+  localStorage.setItem(DEMO_KEY, JSON.stringify(trades));
+}
+
+async function initDemoMode(){
+  // Fake currentUser
+  currentUser = {id:'demo', email:'demo@orbitum.app'};
+  window._isDemoMode = true;
+
+  // UI: sidebar + topbar
+  const initLetter = 'D';
+  const displayName = 'Demo Trader';
+  const sfAv = document.getElementById('sf-avatar');
+  const sfNm = document.getElementById('sf-name');
+  const sfPl = document.getElementById('sf-plan');
+  if(sfAv) sfAv.textContent = initLetter;
+  if(sfNm) sfNm.textContent = displayName;
+  if(sfPl){ sfPl.textContent = 'DEMO'; sfPl.style.color='rgba(255,200,50,0.9)'; }
+  const jtbAv = document.getElementById('jtb-avatar');
+  const jtbNm = document.getElementById('jtb-name');
+  if(jtbAv) jtbAv.textContent = initLetter;
+  if(jtbNm) jtbNm.textContent = 'DEMO';
+  window._orbUserName = displayName;
+
+  // Load demo trades
+  allTrades = demoLoadTrades();
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); restoreFormDefaults();
+  orbColorUserByRank(allTrades);
+  renderPMHistory(); renderPMStreak();
+
+  // Inject demo banner
+  injectDemoBanner();
+}
+
+function injectDemoBanner(){
+  const banner = document.createElement('div');
+  banner.id = 'demo-banner';
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:220px">
+        <span style="font-size:16px">🎮</span>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:#f0f0f0;letter-spacing:1.5px;margin-bottom:2px">ДЕМО РЕЖИМ — данные ненастоящие</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.5px">Попробуй все функции. Изменения сохраняются локально и не попадут в реальный аккаунт.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="demoExitToRegister()" style="padding:8px 18px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:8px;color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;cursor:pointer;box-shadow:0 4px 16px rgba(232,114,42,0.35);">🚀 СОЗДАТЬ АККАУНТ</button>
+        <button onclick="demoExitToLogin()" style="padding:8px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.55);font-family:var(--font-mono);font-size:9px;letter-spacing:1px;cursor:pointer;">ВОЙТИ</button>
+      </div>
+    </div>`;
+  banner.style.cssText = 'position:sticky;top:48px;z-index:80;background:rgba(8,6,18,0.96);border-bottom:1px solid rgba(255,200,50,0.18);backdrop-filter:blur(16px);padding:12px 24px;';
+  const statsRow = document.querySelector('.stats-row');
+  if(statsRow && statsRow.parentNode) statsRow.parentNode.insertBefore(banner, statsRow);
+  else { const main = document.querySelector('.main'); if(main) main.insertBefore(banner, main.firstChild); }
+}
+
+function demoExitToRegister(){
+  localStorage.removeItem('orb_demo_mode');
+  window.location.href = 'login.html?tab=register';
+}
+function demoExitToLogin(){
+  localStorage.removeItem('orb_demo_mode');
+  window.location.href = 'login.html';
+}
+
+// ── Override Supabase calls when in demo mode ──────────────
+
+// Patch addTrade to use localStorage
+const _origAddTrade = typeof addTrade === 'function' ? addTrade : null;
+window._demoAddTrade = async function(){
+  const pair=(document.getElementById('f-pair').value||'').trim().toUpperCase();
+  if(!pair){showNotif('warn','Укажи пару','Например BTC/USDT',3000);return;}
+  if(!currentRes){showNotif('warn','Выбери результат','Прибыль, Убыток или BE',3000);return;}
+  const btn=document.getElementById('btn-add');
+  btn.disabled=true; btn.textContent='СОХРАНЯЕМ...';
+  const lev=parseFloat(document.getElementById('f-lev')?.value)||1;
+  const noteWhy=(document.getElementById('f-why').value.trim()+(lev>1?` [${lev}x]`:'')).trim()||null;
+  const newTrade = {
+    id: 'demo_'+Date.now(),
+    user_id:'demo',
+    pair, direction:currentDir, result:currentRes,
+    deposit:parseFloat(document.getElementById('f-dep').value)||null,
+    pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,
+    pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,
+    entry_price:parseFloat(document.getElementById('f-entry').value)||null,
+    exit_price:parseFloat(document.getElementById('f-exit').value)||null,
+    stop_loss:parseFloat(document.getElementById('f-sl').value)||null,
+    setup_type:currentSetup||null,
+    note_why:noteWhy, note_feel:document.getElementById('f-feel').value.trim()||null,
+    note_lesson:document.getElementById('f-lesson').value.trim()||null,
+    emotion_conf:emVals.conf, emotion_fear:emVals.fear, emotion_greed:emVals.greed, emotion_calm:emVals.calm,
+    screenshot_url: null,
+    created_at: new Date().toISOString(),
+  };
+  // Handle screenshot (base64 local - no upload)
+  if(_scrFile){
+    const reader = new FileReader();
+    await new Promise(res => { reader.onload = e => { newTrade.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_scrFile); });
+  }
+  allTrades.unshift(newTrade);
+  demoSaveTrades(allTrades);
+  btn.disabled=false; btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
+  rememberFormDefaults();
+  ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('rr-val').textContent='—';
+  ['risk-usd-val','tp-usd-val','pos-size-val'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+  currentRes=''; currentSetup='';
+  document.querySelectorAll('.res-btn').forEach(b=>b.className='res-btn');
+  document.querySelectorAll('.setup-btn').forEach(b=>b.classList.remove('active'));
+  emVals={conf:5,fear:3,greed:3,calm:7};
+  document.querySelectorAll('.em-opts').forEach(row=>{const btns=row.querySelectorAll('.em-opt');btns.forEach(b=>b.classList.remove('active'));if(btns[1])btns[1].classList.add('active');});
+  setDir('long');
+  scrRemove({stopPropagation:()=>{}});
+  showNotif('success','Сделка добавлена','Сохранено локально (demo)',3000);
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
+  checkTiltAlert();
+};
+
+window._demoDeleteTrade = function(id){
+  if(!confirm('Удалить сделку?')) return;
+  allTrades = allTrades.filter(t => String(t.id) !== String(id));
+  demoSaveTrades(allTrades);
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
+};
+
+window._demoSaveEditTrade = async function(){
+  const id = document.getElementById('edit-trade-id').value;
+  if(!id) return;
+  const idx = allTrades.findIndex(x => String(x.id) === String(id));
+  if(idx < 0) return;
+  const btn = document.querySelector('.edit-save');
+  if(btn){btn.textContent='СОХРАНЯЕМ...';btn.disabled=true;}
+  const updates = {
+    pair:document.getElementById('edit-pair').value.trim().toUpperCase()||'BTC/USDT',
+    direction:document.getElementById('edit-direction').value,
+    result:document.getElementById('edit-result').value,
+    pnl_pct:document.getElementById('edit-pnl-pct').value!==''?parseFloat(document.getElementById('edit-pnl-pct').value):null,
+    pnl_usd:document.getElementById('edit-pnl-usd').value!==''?parseFloat(document.getElementById('edit-pnl-usd').value):null,
+    setup_type:document.getElementById('edit-setup').value.trim()||null,
+    note_why:document.getElementById('edit-note-why').value.trim()||null,
+    note_feel:document.getElementById('edit-note-feel').value.trim()||null,
+    note_lesson:document.getElementById('edit-note-lesson').value.trim()||null,
+  };
+  // Screenshot local handling
+  if(_editScrRemoved){ updates.screenshot_url = null; }
+  else if(_editScrFile){
+    const reader = new FileReader();
+    await new Promise(res => { reader.onload = e => { updates.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_editScrFile); });
+  } else { updates.screenshot_url = allTrades[idx].screenshot_url; }
+  allTrades[idx] = {...allTrades[idx], ...updates};
+  demoSaveTrades(allTrades);
+  if(btn){btn.textContent='СОХРАНИТЬ';btn.disabled=false;}
+  closeEditModal(); render(); updateStats();
+};
+
+// Patch functions after DOM ready
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(!window._isDemoMode) return;
+  // Nothing extra needed — patching happens via _isDemoMode checks in original fns
+});
+</script>
+
 <!-- ══ SCREENSHOT LIGHTBOX ══ -->
 <div class="scr-lightbox" id="scr-lightbox" onclick="closeLightbox()">
   <div class="scr-lb-close" onclick="closeLightbox()">✕</div>
