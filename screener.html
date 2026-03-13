@@ -1141,27 +1141,42 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 
 /* ══ DRAWING TOOLBAR ═════════════════════════════════════════════ */
+/* ── TradingView-style drawing toolbar (vertical left) ── */
 .draw-toolbar{
-  flex-shrink:0;
-  display:flex;align-items:center;gap:2px;
-  padding:4px 10px;border-bottom:1px solid var(--bd);
-  background:#080b10;
+  position:absolute;left:6px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  padding:6px 4px;z-index:20;
+  background:rgba(8,11,16,0.92);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;
+  backdrop-filter:blur(8px);
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
 }
 .draw-btn{
-  height:28px;min-width:28px;padding:0 6px;border-radius:4px;
+  width:32px;height:32px;border-radius:5px;
   border:1px solid transparent;cursor:pointer;background:transparent;
-  font-size:12px;color:rgba(232,234,240,0.4);transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:4px;
-  font-family:var(--font-mono);
+  font-size:13px;color:rgba(232,234,240,0.35);transition:all .12s;
+  display:flex;align-items:center;justify-content:center;
   position:relative;
 }
-.draw-btn:hover{background:rgba(255,255,255,.05);color:var(--t);}
-.draw-btn.active{
-  background:rgba(232,114,42,.15);color:var(--a);
-  border-color:rgba(232,114,42,.3);
+.draw-btn:hover{
+  background:rgba(255,255,255,.06);color:rgba(232,234,240,.85);
 }
-.draw-btn .draw-lbl{font-size:8px;letter-spacing:.5px;}
-.draw-sep{width:1px;height:20px;background:var(--bd);margin:0 4px;flex-shrink:0;}
+.draw-btn:hover .draw-tt{display:block;}
+.draw-btn.active{
+  background:rgba(232,114,42,.18);color:var(--a);
+  border-color:rgba(232,114,42,.35);
+}
+/* Tooltip on hover */
+.draw-tt{
+  display:none;position:absolute;left:38px;top:50%;transform:translateY(-50%);
+  background:#0d1117;border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;padding:3px 8px;
+  font-family:var(--font-mono);font-size:9px;color:rgba(232,234,240,.8);
+  white-space:nowrap;pointer-events:none;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.6);
+}
+.draw-sep{width:22px;height:1px;background:rgba(255,255,255,.06);margin:3px 0;flex-shrink:0;}
 /* Chart alert price input popup */
 .chart-alert-popup{
   position:fixed;background:#0d1017;border:1px solid rgba(232,114,42,.35);
@@ -1513,47 +1528,49 @@ a.news-item:hover{border-color:rgba(59,130,246,.3)!important;background:#0c1018!
               <span id="scv-time" style="font-size:7.5px;color:var(--m2)">—</span>
             </div>
             <!-- Canvas -->
-            <!-- Drawing toolbar -->
+            
+            <div class="scv-canvas-wrap" id="scv-canvas-wrap" style="position:relative;">
+              <!-- Drawing toolbar -->
             <div class="draw-toolbar" id="draw-toolbar">
-              <button class="draw-btn active" id="dt-cursor" onclick="drawTool('cursor')" title="Курсор (V)">
-                <span>↖</span><span class="draw-lbl">КУРСОР</span>
+              <button class="draw-btn active" id="dt-cursor" onclick="drawTool('cursor')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M2 1l10 5-5.5 1.5L5 13z"/></svg>
+                <span class="draw-tt">Курсор (V)</span>
               </button>
               <div class="draw-sep"></div>
-              <button class="draw-btn" id="dt-line" onclick="drawTool('line')" title="Линия тренда (L)">
-                <span>╱</span><span class="draw-lbl">ЛИНИЯ</span>
+              <button class="draw-btn" id="dt-line" onclick="drawTool('line')">
+                <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" fill="none"><line x1="2" y1="12" x2="12" y2="2"/></svg>
+                <span class="draw-tt">Линия тренда (L)</span>
               </button>
-              <button class="draw-btn" id="dt-hline" onclick="drawTool('hline')" title="Горизонтальный уровень (H)">
-                <span>—</span><span class="draw-lbl">УРОВЕНЬ</span>
+              <button class="draw-btn" id="dt-hline" onclick="drawTool('hline')">
+                <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" fill="none"><line x1="1" y1="7" x2="13" y2="7"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+                <span class="draw-tt">Горизонтальный уровень (H)</span>
               </button>
-              <button class="draw-btn" id="dt-ray" onclick="drawTool('ray')" title="Луч (R)">
-                <span>⟶</span><span class="draw-lbl">ЛУЧ</span>
+              <button class="draw-btn" id="dt-ray" onclick="drawTool('ray')">
+                <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" fill="none"><line x1="2" y1="10" x2="12" y2="4"/><path d="M10 3l3 1-1 3" stroke-width="1.2"/></svg>
+                <span class="draw-tt">Луч (R)</span>
               </button>
-              <button class="draw-btn" id="dt-fib" onclick="drawTool('fib')" title="Фибоначчи (F)">
-                <span>◈</span><span class="draw-lbl">ФИБО</span>
+              <button class="draw-btn" id="dt-fib" onclick="drawTool('fib')">
+                <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1" fill="none"><line x1="2" y1="3" x2="12" y2="3"/><line x1="2" y1="7" x2="12" y2="7"/><line x1="2" y1="11" x2="12" y2="11"/><line x1="3" y1="3" x2="11" y2="11" stroke-width="1.5"/></svg>
+                <span class="draw-tt">Фибоначчи (F)</span>
               </button>
-              <button class="draw-btn" id="dt-rect" onclick="drawTool('rect')" title="Прямоугольник (X)">
-                <span>▭</span><span class="draw-lbl">ЗОНА</span>
+              <button class="draw-btn" id="dt-rect" onclick="drawTool('rect')">
+                <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" fill="none"><rect x="2" y="4" width="10" height="6" rx="1"/></svg>
+                <span class="draw-tt">Зона / Прямоугольник (X)</span>
               </button>
               <div class="draw-sep"></div>
-              <button class="draw-btn" id="dt-alert" onclick="drawTool('alert')" title="Алерт по цене (A)" style="color:var(--a);border-color:rgba(232,114,42,.2)">
-                <span>🔔</span><span class="draw-lbl">АЛЕРТ</span>
+              <button class="draw-btn" id="dt-alert" onclick="drawTool('alert')" style="color:rgba(232,114,42,.7)">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1a4 4 0 0 0-4 4v3l-1.5 2h11L11 8V5a4 4 0 0 0-4-4zm0 12a1.5 1.5 0 0 1-1.5-1.5h3A1.5 1.5 0 0 1 7 13z"/></svg>
+                <span class="draw-tt">Алерт по цене (A)</span>
               </button>
               <div class="draw-sep"></div>
-              <button class="draw-btn" onclick="clearDrawings()" title="Очистить всё" style="color:var(--r)">
-                <span>✕</span><span class="draw-lbl">ОЧИСТИТЬ</span>
-              </button>
-              <!-- color + undo -->
-              <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
-                <input type="color" id="draw-color" value="#e8722a"
-                  style="width:22px;height:22px;border-radius:4px;border:1px solid var(--bd);background:transparent;cursor:pointer;padding:1px;"
-                  title="Цвет линии">
-                <button class="draw-btn" onclick="undoDrawing()" title="Отменить (Z)" style="font-size:10px;">↩</button>
-              </div>
+              <button class="draw-btn" onclick="undoDrawing()" style="font-size:11px;">↩<span class="draw-tt">Отменить (Z)</span></button>
+              <button class="draw-btn" onclick="clearDrawings()" style="color:rgba(231,76,60,.6);font-size:11px;">✕<span class="draw-tt">Очистить всё</span></button>
+              <div class="draw-sep"></div>
+              <input type="color" id="draw-color" value="#e8722a"
+                style="width:22px;height:22px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:transparent;cursor:pointer;padding:1px;"
+                title="Цвет линии">
             </div>
-            <!-- Cursor tooltip -->
-            <div class="draw-cursor-tooltip" id="draw-tooltip" style="display:none"></div>
-
-            <div class="scv-canvas-wrap" id="scv-canvas-wrap">
+              <div class="draw-cursor-tooltip" id="draw-tooltip" style="display:none"></div>
               <canvas id="scv-canvas" style="display:block;cursor:crosshair;"></canvas>
               <div id="scv-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#06080c;font-size:9px;color:var(--m2);letter-spacing:2px;">ЗАГРУЗКА...</div>
             </div>
@@ -3999,22 +4016,27 @@ function analyzeSignalsTick(coin, price, prevPrice, chg24, vol24, high24, low24)
     }
   }
 
-  // 2. Пробой High 24h
+  // 2. Пробой High 24h — only if price stays above by ≥0.15% (not just a touch)
   const prevP = _prevPricesSignal[cgId];
-  if(_alertSettings.breakHighLow && high24 > 0 && prevP && prevP < high24 && price >= high24 && canFire(cgId+'_bh')){
+  if(_alertSettings.breakHighLow && high24 > 0 && prevP && prevP < high24
+      && price >= high24 * 1.0015 && canFire(cgId+'_bh')){
     newSignals.push({ id:cgId+'_bh', type:'break-high', icon:'⬆️', coin:sym,
-      text:'пробой High 24ч', val:fmtPrice(high24), time:timeStr, coinId:cgId });
+      text:`пробой High 24ч (+${((price/high24-1)*100).toFixed(2)}%)`,
+      val:fmtPrice(price), time:timeStr, coinId:cgId });
   }
 
-  // 3. Пробой Low 24h
-  if(_alertSettings.breakHighLow && low24 > 0 && prevP && prevP > low24 && price <= low24 && canFire(cgId+'_bl')){
+  // 3. Пробой Low 24h — only if price drops below by ≥0.15%
+  if(_alertSettings.breakHighLow && low24 > 0 && prevP && prevP > low24
+      && price <= low24 * 0.9985 && canFire(cgId+'_bl')){
     newSignals.push({ id:cgId+'_bl', type:'break-low', icon:'⬇️', coin:sym,
-      text:'пробой Low 24ч', val:fmtPrice(low24), time:timeStr, coinId:cgId });
+      text:`пробой Low 24ч (-${((1-price/low24)*100).toFixed(2)}%)`,
+      val:fmtPrice(price), time:timeStr, coinId:cgId });
   }
 
-  // 4. Объёмный всплеск
+  // 4. Объёмный всплеск — require ×2.0 and $5M min volume
   const prevVol = _prevVolumes[cgId];
-  if(_alertSettings.volSpike && prevVol && prevVol > 0 && vol24 > prevVol * 1.5 && vol24 > 1_000_000 && canFire(cgId+'_vol')){
+  if(_alertSettings.volSpike && prevVol && prevVol > 0
+      && vol24 > prevVol * 2.0 && vol24 > 5_000_000 && canFire(cgId+'_vol')){
     newSignals.push({ id:cgId+'_vol', type:'vol', icon:'📊', coin:sym,
       text:`объём ×${(vol24/prevVol).toFixed(1)}`, val:fmtBig(vol24), time:timeStr, coinId:cgId });
   }
@@ -4463,7 +4485,7 @@ function drawCandleChart(canvas, candles){
     const yO   = toY(c.o), yC = toY(c.c);
 
     // Wick
-    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.6)' : 'rgba(231,76,60,0.6)';
+    ctx.strokeStyle = isUp ? 'rgba(232,114,42,0.7)' : 'rgba(130,130,150,0.55)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x, yH); ctx.lineTo(x, yL); ctx.stroke();
 
@@ -4471,13 +4493,15 @@ function drawCandleChart(canvas, candles){
     const bTop = Math.min(yO, yC);
     const bH   = Math.max(1.5, Math.abs(yC - yO));
     if(isUp){
-      ctx.strokeStyle = C_UP; ctx.lineWidth = 1;
+      ctx.fillStyle = '#e8722a';
+      ctx.fillRect(x - cw / 2, bTop, cw, bH);
+      ctx.strokeStyle = 'rgba(255,150,80,0.4)'; ctx.lineWidth = 0.5;
       ctx.strokeRect(x - cw / 2, bTop, cw, bH);
-      ctx.fillStyle = 'rgba(46,204,113,0.15)';
-      ctx.fillRect(x - cw / 2, bTop, cw, bH);
     } else {
-      ctx.fillStyle = C_DN;
+      ctx.fillStyle = '#484858';
       ctx.fillRect(x - cw / 2, bTop, cw, bH);
+      ctx.strokeStyle = 'rgba(120,120,140,0.25)'; ctx.lineWidth = 0.5;
+      ctx.strokeRect(x - cw / 2, bTop, cw, bH);
     }
   });
 
@@ -4751,7 +4775,8 @@ function scvDraw(){
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  const slice   = _scv.candles.slice(_scv.zoom.start, _scv.zoom.end + 1);
+  // end may exceed candles.length when panned right (empty space feature)
+  const slice   = _scv.candles.slice(Math.max(0, _scv.zoom.start), Math.min(_scv.candles.length, _scv.zoom.end + 1));
   const vis     = slice.length;
   if(!vis) return;
 
@@ -4767,7 +4792,9 @@ function scvDraw(){
   const range = maxP - minP || 1;
   const toY   = p => PAD_T + CH - ((p - minP) / range) * CH;
   const maxV  = Math.max(...slice.map(c => c.v)) || 1;
-  const gap   = CW / vis;
+  // totalSlots includes empty space to right when panned past last candle
+  const totalSlots = Math.max(vis, _scv.zoom.end - _scv.zoom.start + 1);
+  const gap   = CW / totalSlots;
   const cw    = Math.max(1.5, Math.min(gap * 0.74, 12));
 
   // ── Background ──
@@ -4866,15 +4893,19 @@ function scvDraw(){
     ctx.strokeStyle = isUp ? 'rgba(232,114,42,0.7)' : 'rgba(140,140,160,0.55)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x, yH); ctx.lineTo(x, yL); ctx.stroke();
-    // Body
+    // Body — LONG=orange solid, SHORT=grey solid
+    const bodyColor = isUp ? '#e8722a' : '#4a4a5c';
+    const wickColor = isUp ? 'rgba(232,114,42,0.8)' : 'rgba(130,130,150,0.6)';
     if(isUp){
-      ctx.strokeStyle = '#2ecc71'; ctx.lineWidth = 1;
+      ctx.fillStyle = bodyColor;
+      ctx.fillRect(x - cw/2, bTop, cw, bH);
+      ctx.strokeStyle = 'rgba(255,150,80,0.5)'; ctx.lineWidth = 0.5;
       ctx.strokeRect(x - cw/2, bTop, cw, bH);
-      ctx.fillStyle = 'rgba(46,204,113,0.18)';
-      ctx.fillRect(x - cw/2, bTop, cw, bH);
     } else {
-      ctx.fillStyle = '#e74c3c';
+      ctx.fillStyle = bodyColor;
       ctx.fillRect(x - cw/2, bTop, cw, bH);
+      ctx.strokeStyle = 'rgba(120,120,140,0.3)'; ctx.lineWidth = 0.5;
+      ctx.strokeRect(x - cw/2, bTop, cw, bH);
     }
   });
 
@@ -4955,8 +4986,10 @@ function scvMouseMove(e){
     const dx    = mx - _scv.drag.startX;
     const shift = Math.round(-dx / gap);
     let ns = _scv.drag.startIdx + shift;
-    ns = Math.max(0, Math.min(_scv.candles.length - vis, ns));
-    _scv.zoom.start = ns;
+    // Allow panning right past last candle (30% empty space for price visibility)
+    const rightSlack = Math.max(0, Math.round(vis * 0.3));
+    ns = Math.max(0, Math.min(_scv.candles.length - 1 + rightSlack - vis + 1, ns));
+    _scv.zoom.start = Math.max(0, ns);
     _scv.zoom.end   = ns + vis - 1;
     scvDraw(); return;
   }
@@ -5920,7 +5953,6 @@ function saveChartAlert(){
     alert_type:   'price',
     target_price: price,
     condition:    cond,
-    active:       true,
   };
   saveAlertDirect(alertData);
   document.getElementById('chart-alert-popup').style.display = 'none';
