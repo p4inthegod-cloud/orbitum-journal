@@ -169,14 +169,17 @@ export default async function handler(req, res) {
         ? `\n${streakType === 'win' ? '🔥' : '❄️'} Серия: <b>${streak} ${streakType === 'win' ? 'побед' : 'убытков'}</b>`
         : '';
 
+      const activeAlerts = await sbSelect('price_alerts', { user_id: profile.id, triggered: false }, 'id');
+      const alertsStr = activeAlerts.length ? `🔔 Активных алертов: <b>${activeAlerts.length}</b>\n` : '';
       await tgSend(chat_id,
         `${emoji} <b>Статистика</b>\n\n` +
         `📊 Сделок: <b>${trades.length}</b>\n` +
         `🎯 Винрейт: <b>${wr}%</b>\n` +
         `💰 P&L: <b>${pnlSign}${pnl}%</b> (${pnlSign}$${pnlUsd})` +
         streakStr + `\n\n` +
-        `📅 Сегодня: <b>${todayT.length} сд.</b> / ${parseFloat(todayPnl) >= 0 ? '+' : ''}${todayPnl}%\n\n` +
-        `<a href="${APP_URL}/journal">→ Открыть журнал</a>`
+        `📅 Сегодня: <b>${todayT.length} сд.</b> / ${parseFloat(todayPnl) >= 0 ? '+' : ''}${todayPnl}%\n` +
+        alertsStr +
+        `\n<a href="${APP_URL}/journal">→ Открыть журнал</a>`
       );
       return res.status(200).send('OK');
     }
@@ -187,9 +190,11 @@ export default async function handler(req, res) {
       if (!alerts.length) {
         await tgSend(chat_id, `🔔 Активных алертов нет.\n\n<a href="${APP_URL}/screener">Открыть скринер →</a>`);
       } else {
-        const list = alerts.slice(0, 10).map((a, i) =>
-          `${i+1}. <b>${a.symbol}</b> ${a.condition === 'above' ? '▲ выше' : '▼ ниже'} $${Number(a.target_price).toLocaleString()}`
-        ).join('\n');
+        const list = alerts.slice(0, 10).map((a, i) => {
+          const cond = a.condition === 'above' ? '▲ выше' : a.condition === 'below' ? '▼ ниже' : '↔ пересечение';
+          const typeLabel = a.alert_type && a.alert_type !== 'price' ? ` [${a.alert_type}]` : '';
+          return `${i+1}. <b>${a.symbol}</b>${typeLabel} ${cond} $${Number(a.target_price).toLocaleString()}`;
+        }).join('\n');
         await tgSend(chat_id, `🔔 <b>Активные алерты (${alerts.length}):</b>\n\n${list}`);
       }
       return res.status(200).send('OK');
@@ -243,11 +248,12 @@ export default async function handler(req, res) {
     // ── /help (и неизвестные команды) ─────────────────────────────
     await tgSend(chat_id,
       `📖 <b>Команды ORBITUM</b>\n\n` +
-      `/stats — статистика\n` +
-      `/alerts — ценовые алерты\n` +
+      `/stats — статистика и P&L\n` +
+      `/alerts — активные ценовые алерты\n` +
       `/notify — настройки уведомлений\n` +
       `/stop — отвязать аккаунт\n\n` +
-      `<a href="${APP_URL}/journal">Открыть журнал →</a>`
+      `🔗 Быстрые ссылки:\n` +
+      `<a href="${APP_URL}">Скринер</a> · <a href="${APP_URL}/journal">Журнал</a>`
     );
     return res.status(200).send('OK');
 

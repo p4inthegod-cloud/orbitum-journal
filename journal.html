@@ -525,6 +525,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   position:fixed;top:0;left:0;bottom:0;width:var(--sb);
   background:rgba(5,7,10,0.97);border-right:var(--line);
   display:none;flex-direction:column;z-index:100;
+  overflow:hidden;
 }
 .sb-logo{
   height:52px;display:flex;align-items:center;padding:0 16px;
@@ -535,7 +536,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   text-shadow:0 0 16px rgba(255,255,255,0.08);
 }
 .sb-logo-dot{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);}
-.sb-nav{flex:1;padding:8px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.sb-nav{padding:8px 8px;display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
 .sb-section{
   font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.2);
   letter-spacing:2px;padding:12px 10px 4px;text-transform:uppercase;
@@ -1452,31 +1453,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 
 
-/* ── CHAT PAGE ── */
-.chat-room-item{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;transition:background 0.1s;border-bottom:1px solid rgba(255,255,255,0.03);}
-.chat-room-item:hover{background:rgba(255,255,255,0.03);}
-.chat-room-item.active{background:rgba(232,114,42,0.08);border-left:2px solid var(--a);padding-left:10px;}
-.chat-room-av{width:30px;height:30px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.25);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;color:var(--a);flex-shrink:0;}
-.chat-room-av.general{background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.25);color:#3498db;font-size:16px;}
-.chat-room-name{font-family:var(--font-mono);font-size:13px;color:var(--t);letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.chat-room-sub{font-family:var(--font-mono);font-size:13px;color:var(--m);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.chat-room-unread{background:var(--r);color:#fff;font-family:var(--font-mono);font-size:13px;border-radius:8px;padding:1px 5px;margin-left:auto;flex-shrink:0;}
-.chat-header-av{width:28px;height:28px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.25);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;color:var(--a);flex-shrink:0;}
-.chat-header-name{font-family:var(--font-mono);font-size:12px;color:var(--t);letter-spacing:0.5px;}
-.chat-header-sub{font-family:var(--font-mono);font-size:13px;color:var(--m);}
-.chat-msg.mine{flex-direction:row-reverse;}
-.chat-msg-av{width:26px;height:26px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;color:var(--a);flex-shrink:0;margin-top:2px;}
-.chat-msg-body{display:flex;flex-direction:column;max-width:72%;}
-.chat-msg.mine .chat-msg-body{align-items:flex-end;}
-.chat-msg-name{font-family:var(--font-mono);font-size:13px;color:var(--a);margin-bottom:2px;letter-spacing:0.5px;}
-.chat-msg-time{font-family:var(--font-mono);font-size:13px;color:rgba(255,255,255,0.2);margin-top:3px;}
-.chat-input:focus{border-color:rgba(232,114,42,0.35);}
-.chat-send-btn:hover{background:rgba(232,114,42,0.22);}
-.chat-date-sep{text-align:center;font-family:var(--font-mono);font-size:13px;color:rgba(255,255,255,0.18);letter-spacing:1px;padding:4px 0;position:relative;}
-.chat-date-sep::before,.chat-date-sep::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(255,255,255,0.06);}
-.chat-date-sep::before{left:0;}.chat-date-sep::after{right:0;}
-
-
+/* CHAT PAGE CSS removed (feature disabled) */
 /* ── CHALLENGES ── */
 .ch-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:border-color 0.2s;}
 .ch-card.done{border-color:rgba(52,208,88,0.3);background:rgba(52,208,88,0.04);}
@@ -1502,59 +1479,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 
 
-.chat-drawer{
-  position:fixed;top:0;right:-420px;width:420px;height:100vh;
-  background:rgba(8,10,16,0.98);border-left:1px solid rgba(255,255,255,0.08);
-  z-index:1000;display:flex;flex-direction:column;
-  transition:right 0.25s cubic-bezier(0.4,0,0.2,1);
-  box-shadow:-8px 0 40px rgba(0,0,0,0.6);
-}
-.chat-drawer.open{right:0;}
-.chat-drawer-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;
-  opacity:0;pointer-events:none;transition:opacity 0.25s;
-}
-.chat-drawer-overlay.open{opacity:1;pointer-events:all;}
-.cd-topbar{
-  display:flex;align-items:center;gap:10px;
-  padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.07);
-  flex-shrink:0;
-}
-.cd-title{font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--t);flex:1;}
-.cd-close{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.07);background:none;color:var(--m);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-.cd-close:hover{border-color:var(--r);color:var(--r);}
-.cd-body{display:grid;grid-template-columns:140px 1fr;flex:1;min-height:0;overflow:hidden;}
-.cd-rooms{border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;overflow:hidden;}
-.cd-rooms-head{padding:10px 12px;font-family:var(--font-mono);font-size:13px;letter-spacing:2px;color:var(--a);border-bottom:1px solid rgba(255,255,255,0.05);}
-.cd-room-list{flex:1;overflow-y:auto;}
-.cd-room{display:flex;align-items:center;gap:8px;padding:10px 10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.03);transition:background 0.1s;}
-.cd-room:hover{background:rgba(255,255,255,0.03);}
-.cd-room.active{background:rgba(232,114,42,0.08);border-left:2px solid var(--a);padding-left:8px;}
-.cd-room-av{width:26px;height:26px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;color:var(--a);flex-shrink:0;}
-.cd-room-av.general{background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.25);color:#3498db;}
-.cd-room-name{font-family:var(--font-mono);font-size:12px;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cd-room-unread{background:var(--r);color:#fff;font-family:var(--font-mono);font-size:6px;border-radius:8px;padding:1px 4px;margin-left:auto;flex-shrink:0;}
-.cd-main{display:flex;flex-direction:column;min-width:0;overflow:hidden;}
-.cd-chat-header{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
-.cd-chat-hname{font-family:var(--font-mono);font-size:13px;color:var(--t);letter-spacing:0.5px;}
-.cd-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth;}
-.cd-msg{display:flex;gap:6px;align-items:flex-start;}
-.cd-msg.mine{flex-direction:row-reverse;}
-.cd-msg-av{width:22px;height:22px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;color:var(--a);flex-shrink:0;margin-top:2px;}
-.cd-msg-body{display:flex;flex-direction:column;max-width:80%;}
-.cd-msg.mine .cd-msg-body{align-items:flex-end;}
-.cd-msg-name{font-family:var(--font-mono);font-size:13px;color:var(--a);margin-bottom:2px;}
-.cd-bubble{padding:7px 10px;font-family:var(--font-body);font-size:12px;line-height:1.5;color:var(--t);word-break:break-word;}
-.cd-msg:not(.mine) .cd-bubble{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:3px 10px 10px 10px;}
-.cd-msg.mine .cd-bubble{background:rgba(232,114,42,0.13);border:1px solid rgba(232,114,42,0.22);border-radius:10px 3px 10px 10px;}
-.cd-msg-time{font-family:var(--font-mono);font-size:13px;color:rgba(255,255,255,0.2);margin-top:2px;}
-.cd-input-row{display:flex;gap:6px;padding:8px 10px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
-.cd-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:7px 10px;color:var(--t);font-family:var(--font-body);font-size:12px;outline:none;transition:border-color 0.15s;resize:none;line-height:1.4;max-height:80px;}
-.cd-input:focus{border-color:rgba(232,114,42,0.35);}
-.cd-send{padding:10px 14px;border-radius:7px;background:var(--a2);border:1px solid var(--a3);color:var(--a);font-family:var(--font-mono);font-size:13px;cursor:pointer;transition:all 0.15s;flex-shrink:0;align-self:flex-end;}
-.cd-send:hover{background:rgba(232,114,42,0.22);}
-.cd-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;font-family:var(--font-mono);font-size:13px;color:var(--m);}
-.cd-date-sep{text-align:center;font-family:var(--font-mono);font-size:13px;color:rgba(255,255,255,0.18);padding:4px 0;letter-spacing:1px;}
+/* CHAT DRAWER CSS removed */
 
 @media(max-width:860px){
   .pm-body{grid-template-columns:1fr;}
@@ -1901,63 +1826,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   .pairs-grid{grid-template-columns:1fr 1fr;}
 }
 
-/* ─── IDEAS & FOLLOW PAGE ────────────────────────── */
-.ij-wrap{max-width:760px;margin:0 auto;padding:4px 0 40px;}
-.ij-tabs{display:flex;gap:4px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:3px;margin-bottom:14px;}
-.ij-tab{flex:1;padding:7px 10px;border-radius:7px;border:none;background:transparent;color:var(--m);font-family:var(--font-mono);font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
-.ij-tab.active{background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.25);color:var(--a);}
-.ij-tab:hover:not(.active){color:var(--m2);}
-.ij-search-row{display:flex;gap:8px;margin-bottom:14px;}
-.ij-search{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 12px;color:var(--t);font-family:var(--font-mono);font-size:12px;outline:none;transition:border-color 0.15s;}
-.ij-search:focus{border-color:rgba(232,114,42,0.4);}
-.ij-filter{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 12px;color:var(--m);font-family:var(--font-mono);font-size:12px;outline:none;cursor:pointer;}
-/* Idea card */
-.ij-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px;margin-bottom:10px;transition:border-color 0.2s;}
-.ij-card:hover{border-color:rgba(255,255,255,0.1);}
-.ij-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
-.ij-author{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.ij-author-av{width:28px;height:28px;border-radius:50%;background:rgba(232,114,42,0.15);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;color:var(--a);flex-shrink:0;}
-.ij-author-name{font-family:var(--font-mono);font-size:13px;color:var(--m2);letter-spacing:1px;}
-.ij-author-name a{color:var(--a);text-decoration:none;}
-.ij-author-name a:hover{text-decoration:underline;}
-.ij-pair{font-family:var(--font-display);font-size:20px;letter-spacing:2px;color:var(--t);}
-.ij-dir{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-family:var(--font-mono);font-size:12px;letter-spacing:1px;flex-shrink:0;}
-.ij-dir.bullish{background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
-.ij-dir.bearish{background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:var(--r);}
-.ij-dir.neutral{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--m2);}
-.ij-title{font-family:var(--font-body);font-size:14px;font-weight:600;color:var(--t);margin-bottom:6px;}
-.ij-body{font-family:var(--font-body);font-size:12px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:10px;}
-.ij-targets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
-.ij-target{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-family:var(--font-mono);font-size:13px;}
-.ij-target.tp{background:rgba(52,208,88,0.08);border:1px solid rgba(52,208,88,0.2);color:var(--g);}
-.ij-target.sl{background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);color:var(--r);}
-.ij-target.entry{background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.2);color:var(--a);}
-.ij-footer{display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;flex-wrap:wrap;}
-.ij-date{font-family:var(--font-mono);font-size:12px;color:var(--m);}
-.ij-follow-btn{padding:4px 12px;border-radius:6px;border:1px solid rgba(232,114,42,0.3);background:rgba(232,114,42,0.08);color:var(--a);font-family:var(--font-mono);font-size:12px;cursor:pointer;transition:all 0.15s;margin-left:auto;}
-.ij-follow-btn:hover{background:rgba(232,114,42,0.18);}
-.ij-follow-btn.following{background:rgba(52,208,88,0.08);border-color:rgba(52,208,88,0.3);color:var(--g);}
-.ij-follow-btn.own{display:none;}
-.ij-del-btn{padding:4px 10px;border-radius:6px;border:1px solid rgba(255,77,77,0.2);background:transparent;color:var(--r);font-family:var(--font-mono);font-size:12px;cursor:pointer;transition:all 0.15s;}
-.ij-del-btn:hover{background:rgba(255,77,77,0.1);}
-/* Following list */
-.ij-trader-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:8px;transition:border-color 0.2s;}
-.ij-trader-card:hover{border-color:rgba(232,114,42,0.2);}
-.ij-trader-av{width:36px;height:36px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.25);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:16px;color:var(--a);flex-shrink:0;}
-.ij-trader-info{flex:1;}
-.ij-trader-name{font-family:var(--font-mono);font-size:13px;color:var(--t);letter-spacing:1px;margin-bottom:2px;}
-.ij-trader-stats{font-family:var(--font-mono);font-size:12px;color:var(--m);}
-.ij-unfollow-btn{padding:5px 12px;border-radius:6px;border:1px solid rgba(255,77,77,0.2);background:transparent;color:var(--r);font-family:var(--font-mono);font-size:12px;cursor:pointer;transition:all 0.15s;}
-.ij-unfollow-btn:hover{background:rgba(255,77,77,0.1);}
-/* Notif toast */
-.ij-notif-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
-.ij-notif-item:last-child{border-bottom:none;}
-.ij-notif-dot{width:6px;height:6px;border-radius:50%;background:var(--a);flex-shrink:0;margin-top:3px;}
-.ij-notif-text{font-family:var(--font-mono);font-size:13px;color:var(--m2);line-height:1.5;}
-.ij-notif-time{font-size:12px;color:var(--m);margin-top:2px;}
-/* Bell badge */
-.notif-bell{position:relative;cursor:pointer;}
-.notif-count{position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:var(--r);color:#fff;font-family:var(--font-mono);font-size:13px;display:flex;align-items:center;justify-content:center;}
+/* IDEAS & FOLLOW CSS removed (feature disabled) */
+
 
 /* ─── DATA HINT (порог надёжности) ───────────────── */
 .data-hint{
@@ -2072,6 +1942,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
   /* Footer */
   .sb-user-info,.sb-logout{opacity:1;max-width:200px;}
+
+  /* Scroll body — must be flex:1 on desktop too */
+  .sb-scroll-body{flex:1;overflow-y:auto;}
 
   /* Topbar — hide nav, keep right widgets */
   .jnl-topbar{display:flex;margin-left:var(--sb);}
@@ -2245,35 +2118,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .coach-run-btn:hover{background:rgba(52,208,88,0.14);box-shadow:0 0 20px rgba(52,208,88,0.15);}
 
-/* ─── LEADERBOARD ─────────────────────────────── */
-.lb-card{background:var(--bg2);border:var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
-.lb-tabs{display:flex;gap:4px;margin-bottom:16px;background:rgba(255,255,255,0.02);border-radius:8px;padding:3px;}
-.lb-tab{flex:1;padding:7px;border-radius:6px;border:none;background:transparent;color:var(--m);font-family:var(--font-mono);font-size:13px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;text-align:center;}
-.lb-tab.active{background:rgba(255,255,255,0.07);color:var(--t);}
-.lb-rows{display:flex;flex-direction:column;gap:6px;}
-.lb-row-item{
-  display:flex;align-items:center;gap:10px;padding:10px 12px;
-  background:var(--bg3);border-radius:8px;border:var(--line);transition:all 0.15s;
-}
-.lb-row-item:hover{border-color:rgba(232,114,42,0.2);}
-.lb-row-item.rank-1{background:rgba(245,166,35,0.06);border-color:rgba(245,166,35,0.25);}
-.lb-row-item.rank-2{background:rgba(180,180,200,0.04);border-color:rgba(180,180,200,0.15);}
-.lb-row-item.rank-3{background:rgba(180,100,40,0.05);border-color:rgba(180,100,40,0.15);}
-.lb-rank{font-family:var(--font-display);font-size:16px;width:24px;text-align:center;flex-shrink:0;}
-.lb-rank.r1{color:var(--y);}
-.lb-rank.r2{color:rgba(200,200,220,0.7);}
-.lb-rank.r3{color:#c86428;}
-.lb-user-av{width:32px;height:32px;border-radius:50%;background:var(--a2);border:1px solid var(--a3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px;color:var(--a);flex-shrink:0;}
-.lb-user-info{flex:1;}
-.lb-user-name{font-family:var(--font-body);font-size:12px;font-weight:500;}
-.lb-user-sub{font-family:var(--font-mono);font-size:12px;color:var(--m);margin-top:1px;}
-.lb-value{font-family:var(--font-mono);font-size:13px;font-weight:500;text-align:right;}
-.lb-badge-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
-.lb-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.5px;}
-.badge-gold{background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);color:var(--y);}
-.badge-blue{background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.3);color:#3498db;}
-.badge-green{background:rgba(52,208,88,0.1);border:1px solid rgba(52,208,88,0.25);color:var(--g);}
-.badge-orange{background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.25);color:var(--a);}
+/* LEADERBOARD CSS removed (feature disabled) */
+
 .my-badges{margin-top:12px;padding-top:12px;border-top:var(--line);}
 .my-badges-title{font-family:var(--font-mono);font-size:12px;color:var(--m);letter-spacing:2px;margin-bottom:8px;text-transform:uppercase;}
 
@@ -3639,6 +3485,425 @@ body::after {
 .alert-del{background:none;border:none;color:rgba(231,76,60,0.5);cursor:pointer;font-size:14px;padding:2px 4px;transition:color 0.15s;}
 .alert-del:hover{color:#e74c3c;}
 
+
+/* ── JOURNAL CHART PAGE ─────────────────────────────── */
+.chart-sym-btn{
+  height:24px;padding:0 9px;border-radius:4px;
+  border:1px solid transparent;cursor:pointer;
+  background:transparent;flex-shrink:0;
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.5px;
+  color:rgba(232,234,240,0.4);transition:all 0.15s;
+}
+.chart-sym-btn:hover{background:rgba(255,255,255,0.05);color:var(--t);}
+.chart-sym-btn.active{background:rgba(232,114,42,0.12);color:var(--a);border-color:rgba(232,114,42,0.25);}
+.chart-tf-btn{
+  height:24px;padding:0 8px;border-radius:4px;
+  border:1px solid transparent;cursor:pointer;
+  background:transparent;flex-shrink:0;
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.5px;
+  color:rgba(232,234,240,0.4);transition:all 0.15s;
+}
+.chart-tf-btn:hover{background:rgba(255,255,255,0.05);color:var(--t);}
+.chart-tf-btn.active{background:rgba(232,114,42,0.12);color:var(--a);border-color:rgba(232,114,42,0.25);}
+@keyframes live-pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+/* ── SIDEBAR WS PRICES (live) ───────────────────────── */
+.sbw-live-prices{padding:6px 0;}
+.sbw-lp-row{
+  display:flex;align-items:center;gap:6px;padding:4px 10px;
+  border-radius:5px;transition:background 0.1s;cursor:default;
+}
+.sbw-lp-row:hover{background:rgba(255,255,255,0.03);}
+.sbw-lp-sym{font-size:9.5px;color:rgba(232,234,240,0.4);width:36px;flex-shrink:0;letter-spacing:.5px;}
+.sbw-lp-price{font-size:11px;font-weight:600;color:var(--t);flex:1;font-family:var(--font-mono);}
+.sbw-lp-chg{font-size:9px;width:52px;text-align:right;flex-shrink:0;}
+.sbw-lp-chg.up{color:var(--g);}
+.sbw-lp-chg.dn{color:var(--r);}
+.sbw-lp-flash{animation:lpFlash .25s ease;}
+@keyframes lpFlash{0%{background:rgba(232,114,42,0.18);}100%{background:transparent;}}
+
+/* Dot blink on update */
+.sbw-dot-live{animation:dotLive 1s ease infinite;}
+@keyframes dotLive{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(0.7);}}
+
+
+/* ── COMPACT SIDEBAR OVERRIDES ─────────────────────────── */
+.sb-section-market { padding: 4px 8px 0; }
+.sbw { 
+  border-radius: 6px; padding: 8px 10px; margin-bottom: 4px;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.sbw-title { 
+  font-size: 8px; letter-spacing: 2px; margin-bottom: 5px;
+  padding-bottom: 4px;
+}
+.sbw-title span { font-size: 8px; }
+.sbw-dot { width: 5px; height: 5px; }
+
+/* FNG compact */
+.sbw-fng { gap: 6px; padding: 2px 0; }
+.fng-arc svg { width: 36px; }
+.fng-num { font-size: 20px !important; }
+.fng-label { font-size: 7px; }
+
+/* Metrics 2x2 compact */
+.sbw-metrics { gap: 4px; }
+.sbw-metric { padding: 3px 5px; border-radius: 4px; }
+.sbw-metric-label { font-size: 6.5px; letter-spacing: 1.5px; }
+.sbw-metric-val { font-size: 10px; }
+
+/* Trend list compact */
+.sbw-trend-item { padding: 3px 6px; font-size: 9px; gap: 4px; }
+.sbw-trend-rank { font-size: 7.5px; width: 10px; }
+.sbw-trend-name { font-size: 9px; }
+.sbw-trend-mcap { font-size: 7.5px; }
+
+/* GL list compact */
+.sbw-gl-item { padding: 3px 6px; font-size: 9px; }
+.sbw-gl-name { font-size: 9px; }
+.sbw-gl-chg { font-size: 9px; }
+.gl-tabs { margin-bottom: 4px; }
+.gl-tab { padding: 2px 8px; font-size: 8px; height: 20px; }
+
+/* Live prices compact */
+.sbw-lp-row { padding: 3px 8px; }
+.sbw-lp-sym { font-size: 8.5px; width: 32px; }
+.sbw-lp-price { font-size: 10px; }
+.sbw-lp-chg { font-size: 8.5px; width: 46px; }
+
+/* Nav compact */
+.sb-item { padding: 6px 8px; font-size: 10.5px; }
+.sb-section { padding: 8px 8px 3px; font-size: 8px; }
+.sb-divider { margin: 4px 4px; }
+
+/* ── SIDEBAR SCROLL BODY — все разделы видны ─────────────── */
+.sb-scroll-body{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(232,114,42,0.18) transparent;
+}
+.sb-scroll-body::-webkit-scrollbar{width:3px;}
+.sb-scroll-body::-webkit-scrollbar-track{background:transparent;}
+.sb-scroll-body::-webkit-scrollbar-thumb{background:rgba(232,114,42,0.18);border-radius:3px;}
+/* sb-nav no longer scrolls itself */
+.sb-nav{overflow:visible!important;flex:0 0 auto!important;}
+/* sb-section-market no longer needs special treatment */
+.sb-section-market{flex-shrink:0;}
+
+/* ══════════════════════════════════════════
+   ONBOARDING OVERLAY
+   ══════════════════════════════════════════ */
+.onb-overlay{
+  display:none;position:fixed;inset:0;z-index:99000;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(16px);
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+.onb-overlay.open{display:flex;}
+.onb-box{
+  background:linear-gradient(160deg,#0d1017 0%,#080c10 100%);
+  border:1px solid rgba(232,114,42,0.2);
+  border-radius:16px;width:100%;max-width:440px;
+  padding:28px;box-shadow:0 24px 80px rgba(0,0,0,0.7);
+  position:relative;
+}
+/* Progress dots */
+.onb-dots{display:flex;gap:5px;justify-content:center;margin-bottom:24px;}
+.onb-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,0.1);transition:all .25s;
+}
+.onb-dot.active{background:var(--a);width:18px;border-radius:3px;}
+.onb-dot.done{background:rgba(232,114,42,0.4);}
+
+/* Step content */
+.onb-step{display:none;}
+.onb-step.active{display:block;}
+.onb-icon{font-size:36px;text-align:center;margin-bottom:12px;line-height:1;}
+.onb-title{
+  font-size:18px;font-weight:700;color:var(--t);text-align:center;
+  font-family:var(--font-mono,monospace);letter-spacing:-.3px;margin-bottom:6px;
+}
+.onb-sub{
+  font-size:12px;color:var(--m,rgba(255,255,255,0.5));text-align:center;
+  line-height:1.65;margin-bottom:20px;
+}
+/* Feature list */
+.onb-features{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;}
+.onb-feat{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;padding:9px 12px;
+}
+.onb-feat-icon{font-size:16px;flex-shrink:0;}
+.onb-feat-text{font-size:11px;color:var(--m);line-height:1.4;}
+.onb-feat-text strong{color:var(--t);display:block;font-size:12px;margin-bottom:1px;}
+/* Input inside onboarding */
+.onb-input-wrap{margin-bottom:16px;}
+.onb-label{font-size:9px;color:var(--m2,rgba(255,255,255,0.3));letter-spacing:1.5px;
+  font-family:var(--font-mono,monospace);margin-bottom:5px;display:block;}
+.onb-input{
+  width:100%;height:40px;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);border-radius:8px;
+  color:var(--t);font-size:14px;padding:0 14px;
+  font-family:var(--font-mono,monospace);outline:none;
+  transition:border-color .15s;
+}
+.onb-input:focus{border-color:rgba(232,114,42,0.4);}
+.onb-input::placeholder{color:rgba(255,255,255,0.2);}
+.onb-presets{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.onb-preset{
+  padding:3px 9px;border-radius:4px;border:1px solid rgba(255,255,255,0.08);
+  background:transparent;color:rgba(255,255,255,0.4);font-size:10px;
+  font-family:var(--font-mono,monospace);cursor:pointer;transition:all .12s;
+}
+.onb-preset:hover{color:var(--a);border-color:rgba(232,114,42,0.3);background:rgba(232,114,42,0.08);}
+.onb-preset.active{color:var(--a);border-color:rgba(232,114,42,0.35);background:rgba(232,114,42,0.1);}
+/* Hotkey chips in step 3 */
+.onb-hotkeys{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:20px;}
+.onb-hk{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.03);border-radius:7px;padding:8px 10px;
+}
+.onb-hk kbd{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+  border-radius:4px;padding:2px 6px;font-size:10px;
+  font-family:var(--font-mono,monospace);color:var(--t);
+  min-width:22px;text-align:center;flex-shrink:0;
+}
+.onb-hk-desc{font-size:10px;color:var(--m);}
+/* Buttons */
+.onb-btn-row{display:flex;gap:8px;}
+.onb-btn{
+  flex:1;height:42px;border-radius:9px;border:none;
+  font-size:12px;font-weight:700;letter-spacing:.8px;
+  font-family:var(--font-mono,monospace);cursor:pointer;transition:all .15s;
+}
+.onb-btn.primary{background:var(--a);color:#fff;}
+.onb-btn.primary:hover{background:#d4661e;}
+.onb-btn.secondary{
+  background:transparent;color:rgba(255,255,255,0.4);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.onb-btn.secondary:hover{color:var(--t);}
+.onb-skip{
+  display:block;text-align:center;margin-top:10px;
+  font-size:10px;color:rgba(255,255,255,0.2);
+  cursor:pointer;letter-spacing:.5px;font-family:var(--font-mono,monospace);
+}
+.onb-skip:hover{color:rgba(255,255,255,0.4);}
+
+/* ── EMPTY STATE — журнал ── */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 20px;text-align:center;
+  min-height:280px;
+}
+.es-icon{font-size:40px;margin-bottom:12px;opacity:.6;}
+.es-title{font-size:14px;font-weight:700;color:var(--t);
+  font-family:var(--font-mono,monospace);margin-bottom:6px;letter-spacing:.5px;}
+.es-sub{font-size:11px;color:var(--m);line-height:1.7;margin-bottom:16px;max-width:260px;}
+.es-cta{
+  height:36px;padding:0 20px;border-radius:8px;border:none;
+  background:var(--a);color:#fff;font-size:11px;font-weight:700;
+  letter-spacing:.8px;font-family:var(--font-mono,monospace);cursor:pointer;
+  transition:background .15s;
+}
+.es-cta:hover{background:#d4661e;}
+.es-hint{font-size:9px;color:rgba(255,255,255,0.2);margin-top:8px;
+  font-family:var(--font-mono,monospace);letter-spacing:.5px;}
+
+/* ── HOTKEY HINT TOAST ── */
+.hk-hint{
+  position:fixed;bottom:72px;left:50%;transform:translateX(-50%);
+  background:rgba(13,16,23,0.96);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;padding:8px 14px;font-size:10px;
+  font-family:var(--font-mono,monospace);color:rgba(255,255,255,0.5);
+  z-index:9000;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+.hk-hint.show{opacity:1;}
+.hk-hint kbd{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:3px;padding:1px 5px;font-size:9px;margin:0 2px;
+}
+
+/* ── KEYBOARD SHORTCUT PANEL ── */
+.kb-panel{
+  display:none;position:fixed;inset:0;z-index:98000;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+.kb-panel.open{display:flex;}
+.kb-box{
+  background:#0d1017;border:1px solid rgba(232,114,42,0.15);
+  border-radius:14px;padding:22px;width:340px;max-width:95vw;
+}
+.kb-title{
+  font-size:11px;color:var(--a);letter-spacing:2px;
+  font-family:var(--font-mono,monospace);margin-bottom:14px;text-align:center;
+}
+.kb-list{display:flex;flex-direction:column;gap:5px;}
+.kb-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 8px;border-radius:6px;background:rgba(255,255,255,0.02);
+}
+.kb-row kbd{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  border-radius:4px;padding:2px 7px;font-size:10px;
+  font-family:var(--font-mono,monospace);color:var(--t);
+}
+.kb-row span{font-size:10px;color:var(--m);}
+.kb-close-row{text-align:center;margin-top:14px;}
+.kb-close{
+  padding:6px 18px;border-radius:7px;border:1px solid rgba(255,255,255,0.1);
+  background:transparent;color:var(--m);font-size:10px;
+  font-family:var(--font-mono,monospace);cursor:pointer;
+}
+
+/* ══════════════════════════════════════════
+   SCREENSHOT UPLOAD
+   ══════════════════════════════════════════ */
+.screenshot-zone{
+  border:1.5px dashed rgba(255,255,255,0.1);
+  border-radius:10px;padding:0;margin-top:4px;
+  transition:border-color .15s,background .15s;
+  position:relative;overflow:hidden;
+  background:rgba(255,255,255,0.02);
+}
+.screenshot-zone:hover,.screenshot-zone.drag{
+  border-color:rgba(232,114,42,0.4);
+  background:rgba(232,114,42,0.04);
+}
+.screenshot-zone.has-image{
+  border-color:rgba(232,114,42,0.25);
+  border-style:solid;padding:0;
+}
+.scr-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;padding:18px 12px;cursor:pointer;
+}
+.scr-icon{font-size:22px;opacity:.45;}
+.scr-label{
+  font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;
+  font-family:var(--font-mono);text-align:center;
+}
+.scr-label span{color:rgba(232,114,42,0.7);}
+.scr-preview{
+  display:none;width:100%;position:relative;
+}
+.scr-preview img{
+  width:100%;max-height:220px;object-fit:contain;
+  display:block;border-radius:8px;background:#000;
+}
+.scr-remove{
+  position:absolute;top:6px;right:6px;
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.7);font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .12s;z-index:2;
+}
+.scr-remove:hover{background:rgba(231,76,60,0.7);color:#fff;}
+.scr-input{display:none;}
+/* In trade card */
+.tcard-screenshot{
+  margin-top:8px;border-radius:7px;overflow:hidden;
+  cursor:pointer;position:relative;
+}
+.tcard-screenshot img{
+  width:100%;max-height:160px;object-fit:cover;
+  display:block;transition:opacity .15s;
+}
+.tcard-screenshot:hover img{opacity:.85;}
+.tcard-screenshot::after{
+  content:'🔍';position:absolute;top:6px;right:8px;
+  font-size:14px;opacity:0;transition:opacity .15s;
+}
+.tcard-screenshot:hover::after{opacity:.7;}
+/* Lightbox */
+.scr-lightbox{
+  display:none;position:fixed;inset:0;z-index:99900;
+  background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;cursor:zoom-out;
+}
+.scr-lightbox.open{display:flex;}
+.scr-lightbox img{
+  max-width:90vw;max-height:90vh;
+  object-fit:contain;border-radius:8px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.8);
+}
+.scr-lb-close{
+  position:fixed;top:20px;right:24px;
+  font-size:28px;color:rgba(255,255,255,0.5);
+  cursor:pointer;z-index:99901;line-height:1;
+}
+.scr-lb-close:hover{color:#fff;}
+/* Upload progress */
+.scr-uploading{
+  position:absolute;inset:0;background:rgba(0,0,0,0.6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-family:var(--font-mono);color:var(--a);
+  letter-spacing:1px;border-radius:8px;
+}
+
+/* ══════════════════════════════════════════
+   SKELETON LOADERS
+   ══════════════════════════════════════════ */
+@keyframes skPulse {
+  0%,100%{ opacity:.45; }
+  50%     { opacity:.15; }
+}
+.sk{
+  background:rgba(255,255,255,0.07);
+  border-radius:6px;
+  animation:skPulse 1.4s ease-in-out infinite;
+  display:block;
+}
+/* Stat cards */
+.sk-stat-value{ height:28px; width:60px; margin:4px auto 2px; border-radius:5px; }
+.sk-stat-label{ height:9px;  width:44px; margin:0 auto;       border-radius:3px; }
+/* Trade cards */
+.sk-tcard{
+  background:var(--bg2);
+  border:var(--line);
+  border-radius:12px;
+  padding:14px 16px;
+  margin-bottom:8px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.sk-tcard-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.sk-pair  { height:14px; width:80px;  border-radius:4px; }
+.sk-dir   { height:12px; width:44px;  border-radius:10px; }
+.sk-pnl   { height:16px; width:60px;  border-radius:4px; }
+.sk-date  { height:10px; width:48px;  border-radius:3px; }
+.sk-note  { height:10px; width:70%;   border-radius:3px; margin-top:2px; }
+/* Dashboard cards */
+.sk-dash-card{
+  background:var(--bg2);
+  border:var(--line);
+  border-radius:12px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.sk-dash-title{ height:10px; width:100px; border-radius:3px; }
+.sk-dash-value{ height:36px; width:120px; border-radius:6px; }
+.sk-dash-sub  { height:9px;  width:80px;  border-radius:3px; }
+.sk-chart     { height:160px; width:100%; border-radius:8px; }
+/* Progress */
+.sk-equity    { height:220px; width:100%; border-radius:8px; }
+.sk-pk-row    { display:flex; gap:12px; margin-top:4px; }
+.sk-pk-item   { flex:1; height:56px; border-radius:10px; }
 </style>
 </head>
 <body>
@@ -3668,6 +3933,7 @@ body::after {
     <div class="sb-logo-dot"></div>
     <span class="sb-logo-text">ORBITUM</span>
   </a>
+  <div class="sb-scroll-body">
   <nav class="sb-nav">
     <div class="sb-section">Кабинет</div>
     <button class="sb-item sb-journal active" onclick="showPage('journal',this)" data-page="journal">
@@ -3755,6 +4021,52 @@ body::after {
       </div>
     </div>
 
+
+    <!-- ── LIVE ЦЕНЫ (Binance WS) ── -->
+    <div class="sbw" id="sbw-live">
+      <div class="sbw-title">
+        <span>ЦЕНЫ LIVE</span>
+        <div class="sbw-dot sbw-dot-live"></div>
+      </div>
+      <div class="sbw-live-prices">
+        <div class="sbw-lp-row" id="lp-btc">
+          <span class="sbw-lp-sym">BTC</span>
+          <span class="sbw-lp-price" id="lp-btc-p">—</span>
+          <span class="sbw-lp-chg" id="lp-btc-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-eth">
+          <span class="sbw-lp-sym">ETH</span>
+          <span class="sbw-lp-price" id="lp-eth-p">—</span>
+          <span class="sbw-lp-chg" id="lp-eth-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-sol">
+          <span class="sbw-lp-sym">SOL</span>
+          <span class="sbw-lp-price" id="lp-sol-p">—</span>
+          <span class="sbw-lp-chg" id="lp-sol-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-bnb">
+          <span class="sbw-lp-sym">BNB</span>
+          <span class="sbw-lp-price" id="lp-bnb-p">—</span>
+          <span class="sbw-lp-chg" id="lp-bnb-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-xrp">
+          <span class="sbw-lp-sym">XRP</span>
+          <span class="sbw-lp-price" id="lp-xrp-p">—</span>
+          <span class="sbw-lp-chg" id="lp-xrp-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-sui">
+          <span class="sbw-lp-sym">SUI</span>
+          <span class="sbw-lp-price" id="lp-sui-p">—</span>
+          <span class="sbw-lp-chg" id="lp-sui-c">—</span>
+        </div>
+        <div class="sbw-lp-row" id="lp-doge">
+          <span class="sbw-lp-sym">DOGE</span>
+          <span class="sbw-lp-price" id="lp-doge-p">—</span>
+          <span class="sbw-lp-chg" id="lp-doge-c">—</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Тренды -->
     <div class="sbw" id="sbw-trend">
       <div class="sbw-title"><span>ТРЕНДЫ 🔥</span><div class="sbw-dot"></div></div>
@@ -3777,6 +4089,7 @@ body::after {
 
   </div>
 
+  </div><!-- /sb-scroll-body -->
   <div class="sb-footer">
     <div class="sb-user">
       <div class="sb-avatar" id="sf-avatar">?</div>
@@ -3902,11 +4215,11 @@ body::after {
 
   <!-- STATS ROW -->
   <div class="stats-row">
-    <div class="stat-cell"><div class="stat-label">Сделок <span class="field-hint" data-tip="Общее число сделок в журнале.&#10;Минимум 20–30 для надёжной статистики.&#10;Меньше 10 — выводы ненадёжны">?</span></div><div class="stat-value" id="s-total">—</div><div class="hover-insight">Всего записано сделок<br>в вашем журнале</div></div>
-    <div class="stat-cell"><div class="stat-label">Винрейт <span class="field-hint" data-tip="Процент прибыльных сделок.&#10;50–55% — норма при хорошем R:R.&#10;Не гонись за 80%+ — это редко стабильно.&#10;Важен баланс WR × R:R">?</span></div><div class="stat-value sv-g" id="s-wr">—</div><div class="hover-insight" id="wr-insight">% выигрышных сделок<br>Цель: >55%</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L % <span class="field-hint" data-tip="Суммарный процент прибыли/убытка&#10;по всем сделкам журнала.&#10;Главная метрика роста депозита">?</span></div><div class="stat-value" id="s-pnl">—</div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
-    <div class="stat-cell"><div class="stat-label">P&L $ <span class="field-hint" data-tip="Суммарная прибыль/убыток в долларах.&#10;Считается из полей P&amp;L $ каждой сделки.&#10;Заполняй поле P&amp;L $ при записи сделки">?</span></div><div class="stat-value" id="s-usd">—</div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
-    <div class="stat-cell"><div class="stat-label">Серия побед <span class="field-hint" data-tip="Текущая серия прибыльных сделок подряд.&#10;После серии 5+ — будь осторожен:&#10;самонадеянность растёт, риски растут">?</span></div><div class="stat-value sv-a" id="s-str">—</div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
+    <div class="stat-cell"><div class="stat-label">Сделок <span class="field-hint" data-tip="Общее число сделок в журнале.&#10;Минимум 20–30 для надёжной статистики.&#10;Меньше 10 — выводы ненадёжны">?</span></div><div class="stat-value" id="s-total"><span class="sk sk-stat-value" id="s-total-sk"></span></div><div class="hover-insight">Всего записано сделок<br>в вашем журнале</div></div>
+    <div class="stat-cell"><div class="stat-label">Винрейт <span class="field-hint" data-tip="Процент прибыльных сделок.&#10;50–55% — норма при хорошем R:R.&#10;Не гонись за 80%+ — это редко стабильно.&#10;Важен баланс WR × R:R">?</span></div><div class="stat-value sv-g" id="s-wr"><span class="sk sk-stat-value" id="s-wr-sk"></span></div><div class="hover-insight" id="wr-insight">% выигрышных сделок<br>Цель: >55%</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L % <span class="field-hint" data-tip="Суммарный процент прибыли/убытка&#10;по всем сделкам журнала.&#10;Главная метрика роста депозита">?</span></div><div class="stat-value" id="s-pnl"><span class="sk sk-stat-value" id="s-pnl-sk"></span></div><div class="hover-insight">Суммарный P&L<br>от всех сделок</div></div>
+    <div class="stat-cell"><div class="stat-label">P&L $ <span class="field-hint" data-tip="Суммарная прибыль/убыток в долларах.&#10;Считается из полей P&amp;L $ каждой сделки.&#10;Заполняй поле P&amp;L $ при записи сделки">?</span></div><div class="stat-value" id="s-usd"><span class="sk sk-stat-value" id="s-usd-sk"></span></div><div class="hover-insight" id="usd-insight">Прибыль/убыток<br>в долларах</div></div>
+    <div class="stat-cell"><div class="stat-label">Серия побед <span class="field-hint" data-tip="Текущая серия прибыльных сделок подряд.&#10;После серии 5+ — будь осторожен:&#10;самонадеянность растёт, риски растут">?</span></div><div class="stat-value sv-a" id="s-str"><span class="sk sk-stat-value" id="s-str-sk"></span></div><div class="hover-insight">Текущая серия<br>выигрышных сделок</div></div>
   </div>
 
   <!-- ──────────── JOURNAL ──────────────────── -->
@@ -4078,6 +4391,23 @@ body::after {
         <div class="field"><label>Урок из сделки <span class="field-hint" data-tip="Что вынес из этой сделки?&#10;Что сделаешь иначе в следующий раз?&#10;Даже прибыльные сделки&#10;могут быть неправильными">?</span></label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
       </div>
 
+      <!-- SCREENSHOT -->
+      <div class="field" style="margin-bottom:10px;">
+        <label>Скриншот сделки <span class="field-hint" data-tip="Прикрепи скриншот графика.&#10;Drag & Drop, вставь из буфера (Ctrl+V)&#10;или нажми для выбора файла.">?</span></label>
+        <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
+          <div class="scr-placeholder" id="scr-placeholder">
+            <div class="scr-icon">📸</div>
+            <div class="scr-label">Drag & Drop / <span>нажми</span> / Ctrl+V<br>PNG · JPG · WEBP · до 5MB</div>
+          </div>
+          <div class="scr-preview" id="scr-preview">
+            <img id="scr-img" src="" alt="screenshot">
+            <div class="scr-remove" onclick="scrRemove(event)" title="Удалить">✕</div>
+            <div class="scr-uploading" id="scr-uploading" style="display:none">ЗАГРУЖАЕМ...</div>
+          </div>
+        </div>
+        <input type="file" class="scr-input" id="scr-file-input" accept="image/*" onchange="scrFileSelected(event)">
+      </div>
+
       <button class="btn-ai" onclick="openAI()">🤖 ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI</button>
       <button class="btn-add" id="btn-add" onclick="addTrade()">ЗАПИСАТЬ СДЕЛКУ</button>
     </div>
@@ -4094,7 +4424,26 @@ body::after {
         <button onclick="clearAllTrades()" style="padding:4px 10px;border-radius:14px;border:1px solid rgba(255,77,77,0.25);background:transparent;color:rgba(255,77,77,0.55);font-family:var(--font-mono);font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.borderColor='rgba(255,77,77,0.5)';this.style.color='var(--r)'" onmouseout="this.style.borderColor='rgba(255,77,77,0.25)';this.style.color='rgba(255,77,77,0.55)'">🗑 ОЧИСТИТЬ ВСЁ</button>
       </div>
     </div>
-    <div id="trades-list"><div class="loading">ЗАГРУЖАЕМ...</div></div>
+    <div id="trades-list"><div id="trades-skeleton">
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+    <div class="sk sk-note"></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+    <div class="sk sk-note" style="width:50%"></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+  </div>
+  <div class="sk-tcard">
+    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
+    <div class="sk sk-note" style="width:80%"></div>
+  </div>
+</div></div>
   </div>
 
   <!-- ──────────── DASHBOARD ─────────────────── -->
@@ -4728,6 +5077,8 @@ body::after {
   </div>
 
 
+
+
 <!-- MOBILE BOTTOM NAV (scrollable) -->
 <div class="mob-bottom-nav" id="mob-bottom-nav">
 
@@ -4800,6 +5151,21 @@ body::after {
     <div class="edit-field" style="margin-bottom:10px;">
       <div class="edit-label">Урок из сделки</div>
       <textarea class="edit-input" id="edit-note-lesson" rows="2" placeholder="Что вынес..."></textarea>
+    </div>
+    <div class="edit-field" style="margin-bottom:10px;">
+      <div class="edit-label">Скриншот</div>
+      <div class="screenshot-zone" id="edit-scr-zone" onclick="editScrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="editScrDrop(event)">
+        <div class="scr-placeholder" id="edit-scr-placeholder">
+          <div class="scr-icon">📸</div>
+          <div class="scr-label">Drag & Drop / <span>нажми</span> / Ctrl+V<br>PNG · JPG · WEBP</div>
+        </div>
+        <div class="scr-preview" id="edit-scr-preview">
+          <img id="edit-scr-img" src="" alt="screenshot">
+          <div class="scr-remove" onclick="editScrRemove(event)" title="Удалить">✕</div>
+          <div class="scr-uploading" id="edit-scr-uploading" style="display:none">ЗАГРУЖАЕМ...</div>
+        </div>
+      </div>
+      <input type="file" class="scr-input" id="edit-scr-file-input" accept="image/*" onchange="editScrFileSelected(event)">
     </div>
     <button class="edit-save" onclick="saveEditTrade()">СОХРАНИТЬ</button>
   </div>
@@ -4891,17 +5257,17 @@ async function checkSetup(){
   prompt+='\n\nДай чёткий вердикт: ВХОДИТЬ, ЖДАТЬ или НЕ ВХОДИТЬ. Затем 2-3 предложения объяснения. Будь конкретным и строгим.';
 
   try{
-    var groqKey=typeof GROQ_KEY!=='undefined'?GROQ_KEY:(window.GROQ_API_KEY||'');
     var response,data,text;
-    if(groqKey){
-      response=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
-        body:JSON.stringify({model:'llama3-8b-8192',max_tokens:300,messages:[{role:'user',content:prompt}]})
-      });
-      data=await response.json();
-      text=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'Ошибка ответа';
-    } else {
+    // Always use /api/ai proxy — key never exposed in client
+    if(true){
+      try{
+        var aiResp=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({prompt:prompt})});
+        data=await aiResp.json();
+        text=data.text||'Ошибка ответа';
+      }catch(e){ text=null; }
+    }
+    if(!text){
       // Fallback: local verdict without API
       if(yesCount>=4) text='✅ ВХОДИТЬ — '+yesCount+'/5 условий выполнено. Сетап сильный, риски под контролем.';
       else if(yesCount>=3) text='⏳ ЖДАТЬ — '+yesCount+'/5 условий. Есть сомнения, лучше дождаться подтверждения.';
@@ -4947,7 +5313,7 @@ function closeAI(){
 function showPage(p,btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   var pg=document.getElementById('page-'+p);
-  if(!pg)return;
+  if(!pg){console.warn('[ORBITUM] Page not found: page-'+p);return;}
   pg.classList.add('active');
 
   document.querySelectorAll('.sb-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
@@ -4955,7 +5321,7 @@ function showPage(p,btn){
   document.querySelectorAll('.jtb-nav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.jtb-dd-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   // Update topbar badge
-  const pageNames={journal:'ЖУРНАЛ СДЕЛОК',dashboard:'АНАЛИТИКА',progress:'ПРОГРЕСС',digest:'ДАЙДЖЕСТ',premarket:'ПОДГОТОВКА',aichat:'AI ЧАТ',coach:'AI КОУЧ',settings:'НАСТРОЙКИ'};
+  const pageNames={journal:'ЖУРНАЛ СДЕЛОК',dashboard:'АНАЛИТИКА',progress:'ПРОГРЕСС',chart:'ГРАФИК',digest:'ДАЙДЖЕСТ',premarket:'ПОДГОТОВКА',aichat:'AI ЧАТ',coach:'AI КОУЧ',settings:'НАСТРОЙКИ'};
   const badge=document.getElementById('jtb-page-badge');
   if(badge)badge.textContent=pageNames[p]||p.toUpperCase();
   closeToolsDD();
@@ -4971,6 +5337,7 @@ function showPage(p,btn){
 }
 
 // ─── FORMAT AI TEXT ────────────────────────────────
+function sanitizeForAI(t){if(!t)return '';return String(t).replace(/ignore (all )?previous/gi,'').replace(/you are now/gi,'').replace(/system:/gi,'').replace(/<\/?[a-z][^>]*>/gi,'').substring(0,500);}
 function formatAIText(text){
   if(!text) return '';
   return '<p>'+text
@@ -4980,6 +5347,17 @@ function formatAIText(text){
 }
 
 async function init(){
+  // ── DEMO MODE ──────────────────────────────────────────
+  const urlParams = new URLSearchParams(location.search);
+  const isDemoUrl = urlParams.get('demo')==='1';
+  let isDemoLS = false;
+  try{ isDemoLS = localStorage.getItem('orb_demo_mode')==='1'; }catch(e){}
+  if(isDemoUrl || isDemoLS){
+    try{ localStorage.setItem('orb_demo_mode','1'); }catch(e){}
+    await initDemoMode();
+    return;
+  }
+  // ── NORMAL AUTH ────────────────────────────────────────
   const{data:{user}}=await sb.auth.getUser();
   if(!user){window.location.href='login.html';return;}
   currentUser=user;
@@ -5092,11 +5470,25 @@ async function doLogout(){await sb.auth.signOut();window.location.href='login.ht
 
 // ─── TRADES ───────────────────────────────────────
 async function loadTrades(){
+  if(window._isDemoMode){
+    // Brief skeleton flash for demo too
+    showStatSkeletons();
+    await new Promise(r => setTimeout(r, 400));
+    allTrades = demoLoadTrades();
+    hideStatSkeletons();
+    updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); restoreFormDefaults();
+    orbColorUserByRank(allTrades);
+    onbCheck(allTrades.length);
+    return;
+  }
   const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';return;}
+  if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';hideStatSkeletons();return;}
   allTrades=data||[];
+  hideStatSkeletons();
   updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);restoreFormDefaults();
   orbColorUserByRank(allTrades);
+  // First-run onboarding check
+  onbCheck(allTrades.length);
   // Уведомления — грузим сразу после init
   // Realtime — слушаем новые уведомления
   try{
@@ -5167,6 +5559,7 @@ function fromPct(){
 function fromUsd(){
   const dep=parseFloat(document.getElementById('f-dep').value)||0;
   const usd=parseFloat(document.getElementById('f-usd').value)||0;
+  if(usd&&!dep){var _d=document.getElementById('f-dep');if(_d){_d.style.borderColor='rgba(245,166,35,0.6)';_d.placeholder='← нужен для P&L%';setTimeout(function(){_d.style.borderColor='';_d.placeholder='1000';},3000);}return;}
   if(dep&&usd) document.getElementById('f-pnl').value=(usd/dep*100).toFixed(2);
 }
 
@@ -5233,6 +5626,7 @@ function sv(inputId,spanId){const el=document.getElementById(spanId);if(el)el.te
 function setF(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 
 async function addTrade(){
+  if(window._isDemoMode){ await window._demoAddTrade(); return; }
   if(document.getElementById('preview-banner')){
     showNotif('warn','Preview режим','Получи доступ чтобы добавлять сделки',4000);
     return;
@@ -5266,9 +5660,20 @@ async function addTrade(){
   };
   if(currentSetup) insertData.setup_type=currentSetup;
 
-  const{error}=await sb.from('trades').insert([insertData]);
+  const{error, data: insertedRows}=await sb.from('trades').insert([insertData]).select('id');
   btn.disabled=false;btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
   if(error){showNotif('error','Ошибка',error.message,5000);return;}
+
+  // Upload screenshot if attached
+  if(_scrFile && insertedRows?.[0]?.id){
+    try{
+      document.getElementById('scr-uploading').style.display='flex';
+      const url = await uploadScreenshot(_scrFile, insertedRows[0].id);
+      await sb.from('trades').update({screenshot_url: url}).eq('id', insertedRows[0].id);
+    } catch(e){ console.warn('Screenshot upload failed:', e); }
+    finally{ document.getElementById('scr-uploading').style.display='none'; }
+  }
+  scrRemove({stopPropagation:()=>{}});
 
   // Reset form
   rememberFormDefaults();
@@ -5302,6 +5707,7 @@ async function addTrade(){
 }
 
 async function deleteTrade(id){
+  if(window._isDemoMode){ window._demoDeleteTrade(id); return; }
   if(!confirm('Удалить сделку?'))return;
   await sb.from('trades').delete().eq('id',id).eq('user_id',currentUser.id);
   await loadTrades();
@@ -5325,14 +5731,33 @@ function updateStats(){
   document.getElementById('s-str').textContent=streak;
 }
 
+function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function render(){
+  hideTradeSkeleton();
   const list=document.getElementById('trades-list');
   let f=allTrades;
   if(currentFilter==='win')f=f.filter(t=>t.result==='win');
   else if(currentFilter==='loss')f=f.filter(t=>t.result==='loss');
   else if(currentFilter==='long')f=f.filter(t=>t.direction==='long');
   else if(currentFilter==='short')f=f.filter(t=>t.direction==='short');
-  if(!f.length){list.innerHTML='<div class="empty">Сделок нет. Добавь первую!</div>';return;}
+  if(!f.length){
+    const isFiltered = currentFilter !== 'all';
+    list.innerHTML = isFiltered
+      ? `<div class="empty-state">
+          <div class="es-icon">🔍</div>
+          <div class="es-title">НЕТ СДЕЛОК</div>
+          <div class="es-sub">По выбранному фильтру сделок нет.<br>Попробуй другой фильтр или добавь новую сделку.</div>
+          <button class="es-cta" onclick="setF('all',this)">ПОКАЗАТЬ ВСЕ</button>
+         </div>`
+      : `<div class="empty-state">
+          <div class="es-icon">📋</div>
+          <div class="es-title">ЖУРНАЛ ПУСТОЙ</div>
+          <div class="es-sub">Добавь первую сделку и начни отслеживать свой прогресс. Каждая запись приближает тебя к стабильному результату.</div>
+          <button class="es-cta" onclick="document.getElementById('f-pair')?.focus()">+ ДОБАВИТЬ СДЕЛКУ</button>
+          <div class="es-hint">или нажми <kbd style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:1px 6px;font-size:9px">N</kbd> на клавиатуре</div>
+         </div>`;
+    return;
+  }
   list.innerHTML=f.map(t=>{
     const pnl=t.pnl_pct!=null?(t.pnl_pct>=0?'+':'')+t.pnl_pct.toFixed(2)+'%':'—';
     const usd=t.pnl_usd!=null?(t.pnl_usd>=0?'+$':'-$')+Math.abs(t.pnl_usd).toFixed(0):'';
@@ -5349,7 +5774,8 @@ function render(){
           <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
         </div>
       </div>
-      ${t.note_why||t.note_feel||t.note_lesson?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${t.note_why}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${t.note_feel}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${t.note_lesson}`:''}</div>`:''}
+      ${t.note_why||t.note_feel||t.note_lesson?`<div class="tnotes">${t.note_why?`<span class="ntag" style="color:var(--a)">СЕТАП</span>${escHtml(t.note_why)}<br>`:''}${t.note_feel?`<span class="ntag" style="color:var(--m)">ЭМОЦИИ</span>${escHtml(t.note_feel)}<br>`:''}${t.note_lesson?`<span class="ntag" style="color:var(--g)">УРОК</span>${escHtml(t.note_lesson)}`:''}</div>`:''}
+      ${t.screenshot_url?`<div class="tcard-screenshot" onclick="openLightbox('${t.screenshot_url}')"><img src="${t.screenshot_url}" alt="chart" loading="lazy"></div>`:''}
     </div>`;
   }).join('');
 }
@@ -5862,34 +6288,29 @@ async function runBrutalAnalysis(){
 
   var trades=allTrades;
   var wins=trades.filter(function(t){return t.result==='win';});
-  var losses=trades.filter(function(t){return t.result==='loss';});
   var wr=Math.round(wins.length/trades.length*100);
-  var totalPnl=trades.reduce(function(s,t){return s+(t.pnl_pct||0);},0);
-  var avgWin=wins.length?wins.reduce(function(s,t){return s+(t.pnl_pct||0);},0)/wins.length:0;
-  var avgLoss=losses.length?losses.reduce(function(s,t){return s+(t.pnl_pct||0);},0)/losses.length:0;
+  var totalPnl=trades.reduce(function(s,t){return s+(t.pnl_pct||0);},0).toFixed(1);
 
-  // Count tilt patterns
-  var highGreedLoss=trades.filter(function(t){return (t.emotion_greed||0)>=7&&t.result==='loss';}).length;
-  var noSetup=trades.filter(function(t){return !t.setup_type;}).length;
-  var noSL=trades.filter(function(t){return !t.stop_loss;}).length;
-
-  var byDay={};
-  trades.forEach(function(t){var d=new Date(t.created_at).toDateString();byDay[d]=(byDay[d]||0)+1;});
-  var avgPerDay=Object.values(byDay).reduce(function(s,v){return s+v;},0)/Object.keys(byDay).length;
-
-  var summary='Трейдер: '+trades.length+' сделок. WR '+wr+'%. Итоговый P&L: '+(totalPnl>=0?'+':'')+totalPnl.toFixed(1)+'%. '
-    +'Средний выигрыш: +'+(avgWin).toFixed(1)+'%, средний убыток: '+(avgLoss).toFixed(1)+'%. '
-    +'Сделок без стопа: '+noSL+' из '+trades.length+'. '
-    +'Сделок без типа сетапа: '+noSetup+'. '
-    +'Сделок при жадности >=7 и убытке: '+highGreedLoss+'. '
-    +'Среднее сделок в день: '+avgPerDay.toFixed(1)+'.';
+  // Send full trade data for deep analysis
+  var compactTrades = trades.slice(0, 50).map(function(t){return {
+    pair:t.pair, direction:t.direction, result:t.result,
+    pnl_pct:t.pnl_pct, pnl_usd:t.pnl_usd,
+    setup_type:t.setup_type,
+    emotion_conf:t.emotion_conf, emotion_fear:t.emotion_fear,
+    emotion_greed:t.emotion_greed, emotion_calm:t.emotion_calm,
+    stop_loss:t.stop_loss?true:false,
+    note_feel:(t.note_feel||'').slice(0,60),
+    created_at:t.created_at,
+  };});
 
   try{
     var res=await fetch('/api/ai',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        prompt:'Ты — жёсткий торговый аналитик. Дай BRUTAL ANALYSIS трейдера. Без вежливости, только факты. Укажи конкретные проблемы с цифрами. Используй **жирный** для ключевых выводов. 5-7 пунктов, каждый с новой строки. В конце — 1 главная рекомендация. Данные: '+summary
+        mode: 'brutal',
+        trades: compactTrades,
+        stats: { wr: wr, totalPnl: totalPnl },
       })
     });
     var data=await res.json();
@@ -6048,11 +6469,26 @@ function renderChallenges(trades){
   var wr60 = n>=15 && Math.round(wins/n*100)>=60;
   var wr70 = n>=20 && Math.round(wins/n*100)>=70;
   var streak=0; for(var i=0;i<trades.length;i++){if(trades[i].result==='win')streak++;else break;}
+  // Compute all challenge keys (BUGFIX BONUS)
+  var _bd2={};trades.forEach(function(t){var d=new Date(t.created_at).toDateString();if(!_bd2[d])_bd2[d]=0;_bd2[d]+=(t.pnl_pct||0);});
+  var _sd=Object.keys(_bd2).sort(function(a,b){return new Date(b)-new Date(a);});
+  var greendays=0;for(var _gi=0;_gi<_sd.length;_gi++){if(_bd2[_sd[_gi]]>0)greendays++;else break;}
+  var _ld={};trades.forEach(function(t){if(t.result==='loss'){_ld[new Date(t.created_at).toDateString()]=true;}});
+  var nolossdays=0;var _n2=new Date();for(var _ni=0;_ni<365;_ni++){var _dd2=new Date(_n2);_dd2.setDate(_dd2.getDate()-_ni);var _ds2=_dd2.toDateString();if(_ld[_ds2])break;if(_bd2[_ds2]!==undefined)nolossdays++;}
+  var _wA=trades.filter(function(t){return t.result==='win';}),_lA=trades.filter(function(t){return t.result==='loss';});
+  var _aW=_wA.length?_wA.reduce(function(s,t){return s+Math.abs(t.pnl_pct||0);},0)/_wA.length:0;
+  var _aL=_lA.length?_lA.reduce(function(s,t){return s+Math.abs(t.pnl_pct||0);},0)/_lA.length:1;
+  var rr2=n>=20&&_aL>0&&_aW/_aL>2.0?1:0;
+  var emotions=trades.filter(function(t){return (t.emotion_fear||10)<4&&(t.emotion_conf||0)>6;}).length>=10?1:0;
   var vals = {
     total: n,
     wr60: wr60?1:0,
     wr70: wr70?1:0,
-    streak: streak
+    streak: streak,
+    greendays: greendays,
+    nolossdays: nolossdays,
+    rr2: rr2,
+    emotions: emotions
   };
   grid.innerHTML = CHALLENGES.map(function(c){
     var cur = Math.min(c.goal, vals[c.key]||0);
@@ -6291,276 +6727,8 @@ function renderHeatmap(trades){
   grid.innerHTML=weeksHtml;
 }
 
-// ─── IDEAS & FOLLOW SYSTEM ───────────────────────────
-let _ijTab='feed';
-let _ijAllIdeas=[];
-let _ijFollowing=new Set();
-let _ijNotifs=[];
-let _ijMyIdeas=[];
+// IDEAS & FOLLOW JS removed (feature disabled)
 
-async function initIdeasPage(){
-  if(!currentUser)return;
-  await Promise.all([
-    loadAllIdeas(),
-    loadFollowing(),
-    loadNotifications()
-  ]);
-  renderIdeasTab(_ijTab);
-  renderNotifBell();
-}
-
-async function loadAllIdeas(){
-  try{
-    // Загружаем идеи
-    const {data,error}=await sb.from('ideas')
-      .select('*')
-      .order('created_at',{ascending:false})
-      .limit(100);
-    if(error||!data){console.warn('Ideas error',error);return;}
-    _ijAllIdeas=data;
-    _ijMyIdeas=_ijAllIdeas.filter(i=>i.user_id===currentUser.id);
-
-    // Отдельно грузим профили авторов (нет FK join)
-    const authorIds=[...new Set(data.map(i=>i.user_id))];
-    if(authorIds.length){
-      const {data:profs}=await sb.from('profiles').select('id,full_name,username').in('id',authorIds);
-      if(profs){
-        const profMap={};
-        profs.forEach(p=>profMap[p.id]=p);
-        _ijAllIdeas=_ijAllIdeas.map(i=>({...i,_profile:profMap[i.user_id]||null}));
-        _ijMyIdeas=_ijAllIdeas.filter(i=>i.user_id===currentUser.id);
-      }
-    }
-  }catch(e){console.warn('Ideas load error',e);}
-}
-
-async function loadFollowing(){
-  try{
-    const {data,error}=await sb.from('follows')
-      .select('target_id')
-      .eq('follower_id',currentUser.id);
-    if(!error&&data) _ijFollowing=new Set(data.map(r=>r.target_id));
-  }catch(e){
-    // Таблица follows может не существовать — игнорируем
-    _ijFollowing=new Set();
-  }
-}
-
-async function loadNotifications(){
-  try{
-    const {data,error}=await sb.from('notifications')
-      .select('*')
-      .eq('user_id',currentUser.id)
-      .eq('read',false)
-      .order('created_at',{ascending:false})
-      .limit(20);
-    if(!error&&data) _ijNotifs=data;
-  }catch(e){ _ijNotifs=[]; }
-}
-
-function switchIdeasTab(tab,btn){
-  _ijTab=tab;
-  document.querySelectorAll('.ij-tab').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  const searchRow=document.getElementById('ij-search-row');
-  if(searchRow) searchRow.style.display=(tab==='feed')?'flex':'none';
-  renderIdeasTab(tab);
-}
-
-function renderIdeasTab(tab){
-  const el=document.getElementById('ij-content');
-  if(!el)return;
-  if(tab==='feed') renderFeed(el);
-  else if(tab==='following') renderFollowingList(el);
-  else if(tab==='my') renderMyIdeas(el);
-}
-
-function filterIdeasFeed(){
-  const el=document.getElementById('ij-content');
-  if(el) renderFeed(el);
-}
-
-function renderFeed(el){
-  const q=(document.getElementById('ij-search-input')||{}).value||'';
-  const dir=(document.getElementById('ij-dir-filter')||{}).value||'';
-  let ideas=_ijAllIdeas;
-  if(q) ideas=ideas.filter(i=>(i.pair||'').toLowerCase().includes(q.toLowerCase())||(getAuthorName(i)||'').toLowerCase().includes(q.toLowerCase()));
-  if(dir) ideas=ideas.filter(i=>i.direction===dir);
-  if(!ideas.length){el.innerHTML='<div style="text-align:center;padding:40px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Идей пока нет. Трейдеры ещё не публиковали сигналы.</div>';return;}
-  el.innerHTML=ideas.map(i=>renderIdeaCard(i,true)).join('');
-}
-
-function renderMyIdeas(el){
-  if(!_ijMyIdeas.length){
-    el.innerHTML='<div style="text-align:center;padding:40px;font-family:var(--font-mono);font-size:9px;color:var(--m)">У тебя пока нет опубликованных идей.<br><br><a href="profile.html" style="color:var(--a);text-decoration:none">→ Открыть профиль и опубликовать</a></div>';
-    return;
-  }
-  el.innerHTML=_ijMyIdeas.map(i=>renderIdeaCard(i,false)).join('');
-}
-
-async function renderFollowingList(el){
-  if(!_ijFollowing.size){
-    el.innerHTML='<div style="text-align:center;padding:40px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Ты ещё ни за кем не следишь.<br>Найди трейдеров в ленте идей и нажми Follow.</div>';
-    return;
-  }
-  el.innerHTML='<div style="text-align:center;padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--m)">⏳ Загрузка...</div>';
-  try{
-    const ids=Array.from(_ijFollowing);
-    const {data:profiles}=await sb.from('profiles').select('*').in('id',ids);
-    if(!profiles||!profiles.length){el.innerHTML='<div style="text-align:center;padding:40px;font-family:var(--font-mono);font-size:9px;color:var(--m)">Профили не найдены</div>';return;}
-    const html=profiles.map(p=>{
-      const name=p.full_name||p.username||'Трейдер';
-      const init=(name[0]||'T').toUpperCase();
-      const ideas=_ijAllIdeas.filter(i=>i.user_id===p.id).length;
-      return `<div class="ij-trader-card">
-        <div class="ij-trader-av">${init}</div>
-        <div class="ij-trader-info">
-          <div class="ij-trader-name">${name}</div>
-          <div class="ij-trader-stats">${ideas} идей · <a href="profile.html?uid=${p.id}" style="color:var(--a);text-decoration:none">Посмотреть профиль →</a></div>
-        </div>
-        <button class="ij-unfollow-btn" onclick="unfollowTrader('${p.id}',this)">Отписаться</button>
-      </div>`;
-    }).join('');
-    el.innerHTML=html;
-  }catch(e){el.innerHTML='<div style="padding:20px;font-family:var(--font-mono);font-size:9px;color:var(--r)">Ошибка загрузки</div>';}
-}
-
-function getAuthorName(idea){
-  if(idea._profile) return idea._profile.full_name||idea._profile.username||'Трейдер';
-  if(idea.profiles) return idea.profiles.full_name||idea.profiles.username||'Трейдер';
-  return 'Трейдер';
-}
-
-function renderIdeaCard(idea,showFollow){
-  const dirLabel={bullish:'📈 ЛОНГ',bearish:'📉 ШОРТ',neutral:'➡️ НЕЙТРАЛЬНО'};
-  const dirCls={bullish:'bullish',bearish:'bearish',neutral:'neutral'};
-  const statusLabel={active:'🟢',closed:'⚪',pending:'🟡'};
-  const d=new Date(idea.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
-  const author=getAuthorName(idea);
-  const init=(author[0]||'T').toUpperCase();
-  const isOwn=idea.user_id===currentUser?.id;
-  const isFollowing=_ijFollowing.has(idea.user_id);
-  const body=(idea.body||'').split('\n').join('<br>');
-
-  return `<div class="ij-card" id="ijcard-${idea.id}">
-    <div class="ij-author">
-      <div class="ij-author-av">${init}</div>
-      <div class="ij-author-name">
-        <a href="profile.html?uid=${idea.user_id}">${author}</a>
-        <span style="color:var(--m)"> · ${statusLabel[idea.status||'active']}</span>
-      </div>
-    </div>
-    <div class="ij-card-top">
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span class="ij-pair">${idea.pair||'?'}</span>
-          <span class="ij-dir ${dirCls[idea.direction]||'neutral'}">${dirLabel[idea.direction]||'РАЗБОР'}</span>
-        </div>
-        <div class="ij-title">${idea.title||''}</div>
-      </div>
-    </div>
-    <div class="ij-body">${body}</div>
-    ${(idea.entry||idea.tp||idea.sl)?`<div class="ij-targets">
-      ${idea.entry?`<span class="ij-target entry">🎯 Вход: ${idea.entry}</span>`:''}
-      ${idea.tp?`<span class="ij-target tp">✅ TP: ${idea.tp}</span>`:''}
-      ${idea.sl?`<span class="ij-target sl">❌ SL: ${idea.sl}</span>`:''}
-    </div>`:''}
-    <div class="ij-footer">
-      <span class="ij-date">${d}</span>
-      ${!isOwn&&showFollow?`<button class="ij-follow-btn ${isFollowing?'following':''}" onclick="toggleFollow('${idea.user_id}',this)">${isFollowing?'✓ Следишь':'+ Follow'}</button>`:''}
-      ${isOwn?`<button class="ij-del-btn" onclick="deleteIdeaJ('${idea.id}')">✕ Удалить</button>`:''}
-    </div>
-  </div>`;
-}
-
-async function toggleFollow(targetId,btn){
-  if(!currentUser)return;
-  const isNow=_ijFollowing.has(targetId);
-  try{
-    // Получаем своё имя
-    const {data:myP}=await sb.from('profiles').select('full_name,username').eq('id',currentUser.id).single();
-    const myName=myP?.full_name||myP?.username||'Трейдер';
-
-    if(isNow){
-      await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('target_id',targetId);
-      _ijFollowing.delete(targetId);
-      if(btn){btn.textContent='+ Follow';btn.classList.remove('following');}
-      // Уведомление об отписке
-      await sb.from('notifications').insert({
-        user_id:targetId, type:'unfollow',
-        from_user_id:currentUser.id,
-        text:'перестал следить за тобой',
-        read:false, created_at:new Date().toISOString()
-      });
-      showNotif('info','Отписался','Ты больше не следишь за этим трейдером',2500);
-    } else {
-      await sb.from('follows').insert({follower_id:currentUser.id,target_id:targetId});
-      _ijFollowing.add(targetId);
-      if(btn){btn.textContent='✓ Следишь';btn.classList.add('following');}
-      // Уведомление о подписке с именем
-      await sb.from('notifications').insert({
-        user_id:targetId, type:'new_follower',
-        from_user_id:currentUser.id,
-        text:'начал следить за тобой!',
-        read:false, created_at:new Date().toISOString()
-      });
-      showNotif('success','Follow!','Ты теперь следишь за трейдером',2500);
-    }
-    // Обновляем все кнопки follow для этого трейдера
-    document.querySelectorAll(`[onclick*="toggleFollow('${targetId}'"]`).forEach(b=>{
-      b.textContent=_ijFollowing.has(targetId)?'✓ Следишь':'+ Follow';
-      _ijFollowing.has(targetId)?b.classList.add('following'):b.classList.remove('following');
-    });
-  }catch(e){
-    showNotif('warn','Ошибка','Нужна таблица follows в Supabase',3000);
-  }
-}
-
-async function unfollowTrader(targetId,btn){
-  await toggleFollow(targetId,null);
-  // Перерисовываем список
-  const el=document.getElementById('ij-content');
-  if(el) renderFollowingList(el);
-}
-
-async function deleteIdeaJ(id){
-  if(!confirm('Удалить идею?'))return;
-  await sb.from('ideas').delete().eq('id',id);
-  _ijAllIdeas=_ijAllIdeas.filter(i=>i.id!==id);
-  _ijMyIdeas=_ijMyIdeas.filter(i=>i.id!==id);
-  const card=document.getElementById('ijcard-'+id);
-  if(card) card.remove();
-  showNotif('success','Удалено','Идея удалена',2000);
-}
-
-function renderNotifBell(){
-  const count=_ijNotifs.length;
-  if(!count)return;
-  // Показываем уведомления в блоке
-  const el=document.getElementById('ij-notifs');
-  if(!el)return;
-  el.style.display='block';
-  el.innerHTML=`<div style="font-family:var(--font-mono);font-size:8px;color:var(--a);letter-spacing:1.5px;margin-bottom:8px">🔔 УВЕДОМЛЕНИЯ (${count})</div>`
-    +_ijNotifs.map(n=>`<div class="ij-notif-item">
-      <div class="ij-notif-dot"></div>
-      <div>
-        <div class="ij-notif-text">${n.type==='new_follower'?'👤 '+n.text:n.type==='new_idea'?'💡 '+n.text:n.text}</div>
-        <div class="ij-notif-time">${new Date(n.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
-      </div>
-    </div>`).join('')
-    +`<button style="margin-top:8px;padding:3px 10px;border-radius:5px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--m);font-family:var(--font-mono);font-size:8px;cursor:pointer" onclick="markNotifsRead()">Отметить прочитанными</button>`;
-}
-
-async function markNotifsRead(){
-  if(!_ijNotifs.length)return;
-  const ids=_ijNotifs.map(n=>n.id);
-  try{
-    await sb.from('notifications').update({read:true}).in('id',ids);
-    _ijNotifs=[];
-    const el=document.getElementById('ij-notifs');
-    if(el){el.style.display='none';el.innerHTML='';}
-  }catch(e){console.warn(e);}
-}
 
 // ─── IMPORT (CSV / XLSX) ───────────────────────────
 async function importCSV(input){
@@ -7103,62 +7271,70 @@ async function runAICoach(){
   var btn=document.getElementById('coach-btn');
   var recs=document.getElementById('coach-recs');
   if(!allTrades.length){showNotif('warn','Нет данных','Добавь сделки для анализа');return;}
-  btn.disabled=true;btn.textContent='⏳ АНАЛИЗИРУЮ СДЕЛКИ...';
-  recs.innerHTML='<div class="loading">AI анализирует твои сделки...</div>';
+  btn.disabled=true;btn.textContent='⏳ AI АНАЛИЗИРУЕТ СДЕЛКИ...';
+  recs.innerHTML='<div class="loading">AI изучает каждую сделку — паттерны, эмоции, время...</div>';
   
   var trades=allTrades;
   var wins=trades.filter(t=>t.result==='win');
-  var losses=trades.filter(t=>t.result==='loss');
   var wr=Math.round(wins.length/trades.length*100);
-  var totalPnl=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
-  var avgFear=trades.reduce((s,t)=>s+(t.emotion_fear||0),0)/trades.length;
-  var avgGreed=trades.reduce((s,t)=>s+(t.emotion_greed||0),0)/trades.length;
-  var fridayLoss=trades.filter(t=>new Date(t.created_at).getDay()===5&&t.result==='loss').length;
-  var avgWin=wins.length?wins.reduce((s,t)=>s+(t.pnl_pct||0),0)/wins.length:0;
-  var avgLoss=losses.length?Math.abs(losses.reduce((s,t)=>s+(t.pnl_pct||0),0)/losses.length):0;
-  var rr=avgLoss?(avgWin/avgLoss).toFixed(1):'∞';
-  var noSL=trades.filter(t=>!t.stop_loss).length;
-  
-  var summary=`Трейдер: ${trades.length} сделок. WR ${wr}%. P&L ${totalPnl.toFixed(1)}%. RR ${rr}. Средний страх: ${avgFear.toFixed(1)}/10. Средняя жадность: ${avgGreed.toFixed(1)}/10. Убытков в пятницу: ${fridayLoss}. Сделок без стопа: ${noSL}.`;
-  
+  var totalPnl=trades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1);
+
+  // Compact trade data for AI (last 50 trades)
+  var compactTrades = trades.slice(0, 50).map(t => ({
+    pair: t.pair,
+    direction: t.direction,
+    result: t.result,
+    pnl_pct: t.pnl_pct,
+    pnl_usd: t.pnl_usd,
+    setup_type: t.setup_type,
+    emotion_conf: t.emotion_conf,
+    emotion_fear: t.emotion_fear,
+    emotion_greed: t.emotion_greed,
+    emotion_calm: t.emotion_calm,
+    stop_loss: t.stop_loss ? true : false,
+    note_why: (t.note_why || '').slice(0, 80),
+    note_feel: (t.note_feel || '').slice(0, 80),
+    created_at: t.created_at,
+  }));
+
   try{
     var res=await fetch('/api/ai',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        prompt:`Ты — AI Coach трейдера. Дай 4-5 конкретных рекомендаций на основе данных.
-
-ВАЖНО: Ответь ТОЛЬКО в формате JSON без markdown, без пояснений — просто массив объектов:
-[{"type":"crit|warn|good","icon":"эмодзи","title":"заголовок до 5 слов","text":"1-2 конкретных предложения с цифрами"}]
-
-- "crit" = критическая проблема требующая немедленного исправления (красный)
-- "warn" = важное предупреждение или точка роста (жёлтый)  
-- "good" = что работает хорошо, продолжай (зелёный)
-
-Используй реальные цифры из данных. Будь прямым и конкретным.
-
-Данные: ${summary}`
+        mode: 'coach',
+        trades: compactTrades,
+        stats: { wr, totalPnl },
       })
     });
     var data=await res.json();
     var text=(data.text||'').replace(/```json|```/g,'').trim();
     var items=[];
     try{ items=JSON.parse(text); }catch(e){
-      // fallback: try to extract lines
-      items=text.split('\n').filter(l=>l.trim()).map(l=>({type:'warn',icon:'💡',title:'',text:l.replace(/^[^\w]*\d*[.)]\s*/,'')}));
+      items=text.split('\n').filter(l=>l.trim()).map(l=>({severity:'warning',pattern:'',evidence:l.replace(/^[^\w]*\d*[.)]\s*/,''),action:'',impact_usd:0}));
     }
+
     recs.innerHTML=items.map(item=>{
-      const t=item.type||'warn';
-      const badge=t==='crit'?'⚡ КРИТИЧНО':t==='good'?'✅ ПОЗИТИВ':'⚠️ ВАЖНО';
-      return `<div class="coach-rec ${t}">
-        <div class="coach-rec-icon">${item.icon||'💡'}</div>
+      var sev=item.severity||item.type||'warning';
+      if(sev==='crit') sev='critical';
+      if(sev==='good') sev='positive';
+      var cls=sev==='critical'?'crit':sev==='positive'?'good':'warn';
+      var badge=sev==='critical'?'⚡ КРИТИЧНО':sev==='positive'?'✅ СИЛА':'⚠️ ВАЖНО';
+      var icon=sev==='critical'?'🚨':sev==='positive'?'💪':'⚠️';
+      var impactStr=item.impact_usd?` <span style="font-family:var(--font-mono);font-size:10px;opacity:0.7">(${item.impact_usd>0?'+':''}$${item.impact_usd})</span>`:'';
+      return `<div class="coach-rec ${cls}">
+        <div class="coach-rec-icon">${item.icon||icon}</div>
         <div class="coach-rec-text">
-          ${item.title?`<strong>${item.title}</strong><br>`:''}${item.text||''}
+          <strong>${escHtml(item.pattern||item.title||'')}</strong>${impactStr}<br>
+          ${escHtml(item.evidence||item.text||'')}<br>
+          <span style="color:var(--a);font-size:11px">→ ${escHtml(item.action||'')}</span>
         </div>
         <div class="coach-rec-badge">${badge}</div>
       </div>`;
     }).join('');
+
+    if(items.length) showNotif('success','AI Coach','Найдено '+items.length+' паттернов',3000);
   }catch(e){
-    recs.innerHTML=`<div class="coach-rec crit"><div class="coach-rec-icon">🔴</div><div class="coach-rec-text">Не удалось получить анализ: ${e.message}</div></div>`;
+    recs.innerHTML=`<div class="coach-rec crit"><div class="coach-rec-icon">🔴</div><div class="coach-rec-text">Ошибка: ${e.message}</div></div>`;
   }
   
   btn.disabled=false;btn.textContent='🤖 ОБНОВИТЬ РЕКОМЕНДАЦИИ';
@@ -7195,19 +7371,7 @@ function renderPsychInsightsTo(grid, trades, wins, losses){
 }
 
 // ─── LEADERBOARD ──────────────────────────────────
-var lbCurrentTab='roi';
-var lbRealData=[];
-
-function switchLbTab(tab, btn){
-  lbCurrentTab=tab;
-  document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderLeaderboard();
-}
-
-
-
-
+// LEADERBOARD JS removed (feature disabled)
 function renderMyBadges(trades){
   var list=document.getElementById('my-badges-list');
   if(!list)return;
@@ -7324,6 +7488,7 @@ async function clearAllTrades(){
   if(!confirm('Удалить ВСЕ сделки? Это действие нельзя отменить.')) return;
   const second=confirm('Вы уверены? Все ' + allTrades.length + ' сделок будут удалены навсегда.');
   if(!second) return;
+  if(window._isDemoMode){allTrades=[];if(typeof demoSaveTrades==='function')demoSaveTrades([]);render();updateStatsEnhanced();renderDashboard();renderProgress();renderLevelBar([]);showNotif('success','Очищено','Все demo-сделки удалены',3000);return;}
   const {error}=await sb.from('trades').delete().eq('user_id',currentUser.id);
   if(error){alert('Ошибка удаления: '+error.message);return;}
   allTrades=[];
@@ -7345,12 +7510,15 @@ function openEditModal(id){
   document.getElementById('edit-note-why').value=t.note_why||'';
   document.getElementById('edit-note-feel').value=t.note_feel||'';
   document.getElementById('edit-note-lesson').value=t.note_lesson||'';
+  scrPopulateEdit(t.screenshot_url||null);
+  scrPopulateEdit(t.screenshot_url||null);
   document.getElementById('edit-modal').classList.add('open');
 }
 function closeEditModal(){
   document.getElementById('edit-modal').classList.remove('open');
 }
 async function saveEditTrade(){
+  if(window._isDemoMode){ await window._demoSaveEditTrade(); return; }
   const id=document.getElementById('edit-trade-id').value;
   if(!id) return;
   const pnlPct=document.getElementById('edit-pnl-pct').value;
@@ -7371,7 +7539,24 @@ async function saveEditTrade(){
   const {error}=await sb.from('trades').update(updates).eq('id',id).eq('user_id',currentUser.id);
   if(btn){btn.textContent='СОХРАНИТЬ';btn.disabled=false;}
   if(error){alert('Ошибка: '+error.message);return;}
-  const idx=allTrades.findIndex(x=>x.id===id);
+
+  // Handle screenshot changes
+  const currentTrade = allTrades.find(x=>String(x.id)===String(id));
+  if(_editScrRemoved && currentTrade?.screenshot_url){
+    await deleteScreenshot(id, currentTrade.screenshot_url);
+    await sb.from('trades').update({screenshot_url: null}).eq('id', id);
+    updates.screenshot_url = null;
+  } else if(_editScrFile){
+    try{
+      document.getElementById('edit-scr-uploading').style.display='flex';
+      const url = await uploadScreenshot(_editScrFile, id);
+      await sb.from('trades').update({screenshot_url: url}).eq('id', id);
+      updates.screenshot_url = url;
+    } catch(e){ console.warn('Screenshot upload failed:', e); }
+    finally{ document.getElementById('edit-scr-uploading').style.display='none'; }
+  }
+
+  const idx=allTrades.findIndex(x=>String(x.id)===String(id));
   if(idx>=0) allTrades[idx]={...allTrades[idx],...updates};
   closeEditModal();
   render();
@@ -7388,6 +7573,7 @@ document.addEventListener('click',function(e){
 // УВЕДОМЛЕНИЯ (колокольчик журнала)
 // ═══════════════════════════════════════════════════
 let _jNotifs=[], _jNotifOpen=false;
+function renderJournalBell(){var c=(_jNotifs||[]).filter(function(n){return !n.read;}).length;var b=document.querySelector(".notif-count");if(b){b.textContent=c;b.style.display=c>0?"flex":"none";}}
 
 
 let _jNotifsLastCount=0;
@@ -7638,6 +7824,221 @@ document.addEventListener('keydown', e => {
     document.getElementById('goal-popup').classList.remove('open');
   }
 });
+
+// ══════════════════════════════════════════
+// HOTKEYS
+// ══════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  // Ignore when typing in inputs
+  const tag = document.activeElement?.tagName;
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+
+  // Onboarding open — only Esc
+  if(document.getElementById('onb-overlay')?.classList.contains('open')){
+    if(e.key === 'Escape') onbClose();
+    return;
+  }
+  // KB panel open — only Esc
+  if(document.getElementById('kb-panel')?.classList.contains('open')){
+    if(e.key === 'Escape') closeKbPanel();
+    return;
+  }
+
+  switch(e.key.toLowerCase()){
+    case 'n':
+      e.preventDefault();
+      showPage('journal');
+      // Focus pair input and scroll to form
+      setTimeout(()=>{
+        const inp = document.getElementById('f-pair');
+        if(inp){ inp.focus(); inp.select(); }
+      }, 150);
+      showHkHint('<kbd>N</kbd> — Новая сделка');
+      break;
+    case 'j':
+      e.preventDefault();
+      showPage('journal');
+      showHkHint('<kbd>J</kbd> — Журнал');
+      break;
+    case 'd':
+      e.preventDefault();
+      showPage('dashboard');
+      showHkHint('<kbd>D</kbd> — Dashboard');
+      break;
+    case 's':
+      e.preventDefault();
+      window.location.href = 'screener.html';
+      break;
+    case 'p':
+      e.preventDefault();
+      showPage('progress');
+      showHkHint('<kbd>P</kbd> — Прогресс');
+      break;
+    case 'c':
+      e.preventDefault();
+      showPage('aichat');
+      showHkHint('<kbd>C</kbd> — AI Coach');
+      break;
+    case 'g':
+      e.preventDefault();
+      showPage('settings');
+      showHkHint('<kbd>G</kbd> — Настройки');
+      break;
+    case '?':
+    case '/':
+      e.preventDefault();
+      openKbPanel();
+      break;
+    case 'escape':
+      // Close any open modals
+      const modals = document.querySelectorAll('.modal-overlay.open, .popup.open');
+      modals.forEach(m => m.classList.remove('open'));
+      break;
+  }
+});
+
+let _hkHintTimer = null;
+function showHkHint(html){
+  const el = document.getElementById('hk-hint');
+  if(!el) return;
+  el.innerHTML = html;
+  el.classList.add('show');
+  clearTimeout(_hkHintTimer);
+  _hkHintTimer = setTimeout(()=> el.classList.remove('show'), 1500);
+}
+
+function openKbPanel(){ document.getElementById('kb-panel')?.classList.add('open'); }
+function closeKbPanel(){ document.getElementById('kb-panel')?.classList.remove('open'); }
+
+// ══════════════════════════════════════════
+// ONBOARDING
+// ══════════════════════════════════════════
+let _onbStep = 0;
+const ONB_KEY = 'orb_onboarded_v1';
+
+function onbCheck(tradesCount){
+  if(localStorage.getItem(ONB_KEY)) return;
+  if(tradesCount > 0) { localStorage.setItem(ONB_KEY,'1'); return; } // already has trades
+  setTimeout(() => {
+    document.getElementById('onb-overlay')?.classList.add('open');
+  }, 600);
+}
+
+function onbNext(){
+  onbGoTo(_onbStep + 1);
+}
+function onbPrev(){
+  onbGoTo(_onbStep - 1);
+}
+function onbGoTo(step){
+  const total = 3;
+  if(step < 0 || step >= total) return;
+  // Hide current
+  document.getElementById(`onb-step-${_onbStep}`)?.classList.remove('active');
+  document.getElementById(`onb-dot-${_onbStep}`)?.classList.remove('active');
+  document.getElementById(`onb-dot-${_onbStep}`)?.classList.add('done');
+  _onbStep = step;
+  // Show new
+  document.getElementById(`onb-step-${_onbStep}`)?.classList.add('active');
+  document.querySelectorAll('.onb-dot').forEach((d,i) => {
+    d.classList.toggle('active', i === _onbStep);
+    d.classList.toggle('done', i < _onbStep);
+  });
+}
+function onbSetDeposit(val){
+  document.getElementById('onb-deposit').value = val;
+  document.querySelectorAll('.onb-preset').forEach(b => {
+    b.classList.toggle('active', parseFloat(b.textContent.replace(/[^0-9]/g,'')) === val ||
+      b.textContent === '$'+val.toLocaleString());
+  });
+}
+function onbSetRisk(val){
+  document.getElementById('onb-risk').value = val;
+}
+function onbSaveDeposit(){
+  const dep = parseFloat(document.getElementById('onb-deposit')?.value);
+  const risk = parseFloat(document.getElementById('onb-risk')?.value);
+  if(dep > 0){
+    localStorage.setItem('orb_balance', JSON.stringify({start: dep}));
+    // Also set in the journal balance input if it exists
+    const balInp = document.getElementById('f-dep');
+    if(balInp) balInp.value = dep;
+  }
+  onbNext();
+}
+function onbClose(){
+  document.getElementById('onb-overlay')?.classList.remove('open');
+  localStorage.setItem(ONB_KEY, '1');
+}
+
+
+
+// ═══ FIX #8: renderDigest + helpers ═══
+function renderDigest(){
+  var trades=allTrades||[];var now=new Date();var weekAgo=new Date(now);weekAgo.setDate(weekAgo.getDate()-7);
+  var wk=trades.filter(function(t){return new Date(t.created_at)>=weekAgo;});
+  var wl=document.getElementById('digest-week-label'),ti=document.getElementById('digest-title'),si=document.getElementById('digest-sub');
+  if(wl)wl.textContent=weekAgo.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' — '+now.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
+  if(!wk.length){if(ti)ti.textContent='НЕТ ДАННЫХ';if(si)si.textContent='Добавь сделки за эту неделю';return;}
+  var wins=wk.filter(function(t){return t.result==='win';}),losses=wk.filter(function(t){return t.result==='loss';});
+  var tp=wk.reduce(function(s,t){return s+(t.pnl_pct||0);},0),wr=Math.round(wins.length/wk.length*100);
+  if(ti)ti.textContent=(tp>=0?'📈 ПРИБЫЛЬНАЯ НЕДЕЛЯ':'📉 УБЫТОЧНАЯ НЕДЕЛЯ');
+  if(si)si.textContent=wk.length+' сделок · WR '+wr+'% · P&L '+(tp>=0?'+':'')+tp.toFixed(1)+'%';
+  var dt=document.getElementById('dg-trades'),dd=document.getElementById('dg-trades-desc');
+  if(dt)dt.textContent=wk.length;if(dd)dd.textContent='WR '+wr+'% · '+wins.length+'W / '+losses.length+'L';
+  var dn=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],bd={};
+  wk.forEach(function(t){var d=new Date(t.created_at),k=d.toDateString();if(!bd[k])bd[k]={pnl:0,count:0,day:dn[d.getDay()]};bd[k].pnl+=(t.pnl_pct||0);bd[k].count++;});
+  var ds=Object.values(bd);
+  if(ds.length){
+    var best=ds.reduce(function(a,b){return a.pnl>b.pnl?a:b;}),worst=ds.reduce(function(a,b){return a.pnl<b.pnl?a:b;});
+    var eb=document.getElementById('dg-best-day'),ebd=document.getElementById('dg-best-desc');
+    var ew=document.getElementById('dg-worst-day'),ewd=document.getElementById('dg-worst-desc');
+    if(eb)eb.textContent=best.day;if(ebd)ebd.textContent='+'+best.pnl.toFixed(1)+'% · '+best.count+' сд.';
+    if(ew)ew.textContent=worst.day;if(ewd)ewd.textContent=worst.pnl.toFixed(1)+'% · '+worst.count+' сд.';
+  }
+  var il=document.getElementById('digest-insights-list');
+  if(il){var ins=[];
+    if(wr>=60)ins.push({i:'🎯',t:'<b>Высокий WR</b> — '+wr+'%'});
+    else if(wr<40&&wk.length>=3)ins.push({i:'⚠️',t:'<b>Низкий WR</b> — '+wr+'%'});
+    var af=wk.reduce(function(s,t){return s+(t.emotion_fear||0);},0)/wk.length;
+    if(af>6)ins.push({i:'😰',t:'<b>Высокий страх</b> — '+af.toFixed(1)+'/10'});
+    var ag=wk.reduce(function(s,t){return s+(t.emotion_greed||0);},0)/wk.length;
+    if(ag>6)ins.push({i:'🤑',t:'<b>Жадность</b> — '+ag.toFixed(1)+'/10'});
+    var ns=wk.filter(function(t){return !t.stop_loss;}).length;
+    if(ns>0)ins.push({i:'🛑',t:'<b>'+ns+' без стопа</b> из '+wk.length});
+    if(tp>0&&wk.length>=3)ins.push({i:'✅',t:'<b>Прибыльная неделя!</b> +'+tp.toFixed(1)+'%'});
+    if(!ins.length)ins.push({i:'📊',t:'Заполняй эмоции и сетапы для анализа.'});
+    il.innerHTML=ins.map(function(x){return '<div class="di-item"><span class="di-icon">'+x.i+'</span><div class="di-text">'+x.t+'</div></div>';}).join('');
+  }
+  _renderMC(trades);_renderWD(trades);
+}
+function _renderMC(trades){
+  var el=document.getElementById('month-compare-rows');if(!el)return;
+  var n=new Date(),tm=n.getMonth(),ty=n.getFullYear(),pm=tm===0?11:tm-1,py=tm===0?ty-1:ty;
+  var ct=trades.filter(function(t){var d=new Date(t.created_at);return d.getMonth()===tm&&d.getFullYear()===ty;});
+  var pt=trades.filter(function(t){var d=new Date(t.created_at);return d.getMonth()===pm&&d.getFullYear()===py;});
+  var ms=[{k:'Сделок',c:ct.length,p:pt.length},
+    {k:'WR%',c:ct.length?Math.round(ct.filter(function(t){return t.result==='win';}).length/ct.length*100):0,
+     p:pt.length?Math.round(pt.filter(function(t){return t.result==='win';}).length/pt.length*100):0},
+    {k:'P&L%',c:ct.reduce(function(s,t){return s+(t.pnl_pct||0);},0),p:pt.reduce(function(s,t){return s+(t.pnl_pct||0);},0)}];
+  el.innerHTML=ms.map(function(m){var d=m.c-m.p;var dc=d>0?'up':d<0?'down':'same';var ds=d>0?'↑':d<0?'↓':'=';
+    var f=function(v){return m.k.includes('%')?v.toFixed(1)+'%':v;};
+    return '<div class="mc-row"><span class="mc-key">'+m.k+'</span><div class="mc-vals"><span class="mc-val prev">'+f(m.p)+'</span><span class="mc-val curr">'+f(m.c)+'</span><span class="mc-delta '+dc+'">'+ds+'</span></div></div>';}).join('');
+}
+function _renderWD(trades){
+  var el=document.getElementById('weekly-dynamics');if(!el)return;
+  if(trades.length<3){el.innerHTML='<div class="empty" style="padding:14px">Нужно больше сделок</div>';return;}
+  var ws=[],n=new Date();for(var w=5;w>=0;w--){var s=new Date(n);s.setDate(s.getDate()-w*7-n.getDay());s.setHours(0,0,0,0);
+    var e=new Date(s);e.setDate(e.getDate()+7);
+    var wt=trades.filter(function(t){var d=new Date(t.created_at);return d>=s&&d<e;});
+    ws.push({l:s.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}),p:wt.reduce(function(a,t){return a+(t.pnl_pct||0);},0)});}
+  var mx=Math.max.apply(null,ws.map(function(w){return Math.abs(w.p);}))||1;
+  el.innerHTML='<div style="display:flex;align-items:flex-end;gap:8px;height:80px;padding:8px 0">'+ws.map(function(w){
+    var h=Math.max(4,Math.round(Math.abs(w.p)/mx*60));var c=w.p>=0?'rgba(52,208,88,0.6)':'rgba(255,77,77,0.6)';
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-family:var(--font-mono);font-size:8px;color:'+(w.p>=0?'var(--g)':'var(--r)')+'">'+(w.p>=0?'+':'')+w.p.toFixed(1)+'%</div><div style="width:100%;height:'+h+'px;background:'+c+';border-radius:3px 3px 0 0"></div><div style="font-family:var(--font-mono);font-size:7px;color:var(--m)">'+w.l+'</div></div>';
+  }).join('')+'</div>';
+}
 
 // ══ INIT CALL ══
 // ── PAIR PRESETS ──
@@ -7891,13 +8292,13 @@ async function sendChatMessage() {
   var systemPrompt = 'Ты — персональный AI-коуч трейдера в приложении ORBITUM. Отвечай на русском языке. Будь конкретным, практичным и лаконичным. Фокусируйся на психологии трейдинга, риск-менеджменте и анализе рынка.' + tradesContext;
 
   try {
+    // Build proper messages array — ai.js supports it natively (BUG 6 fix)
+    var systemMsg = { role: 'system', content: systemPrompt };
+    var messagesArr = [systemMsg].concat(_chatHistory.slice(-10));
     var resp = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt: systemPrompt + '\n\nИстория диалога:\n' +
-          _chatHistory.slice(-6).map(function(m){ return m.role + ': ' + m.content; }).join('\n')
-      })
+      body: JSON.stringify({ messages: messagesArr })
     });
     var data = await resp.json();
     var answer = data.text || 'Ошибка получения ответа';
@@ -8082,9 +8483,494 @@ async function checkTiltAlert() {
   }
 }
 
-init();
+// ── Skeleton helpers ────────────────────────────────────
+function showStatSkeletons(){
+  ['s-total','s-wr','s-pnl','s-usd','s-str'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(!document.getElementById(id+'-sk')){
+      el.innerHTML = '<span class="sk sk-stat-value" id="'+id+'-sk"></span>';
+    }
+  });
+}
+function hideStatSkeletons(){
+  ['s-total','s-wr','s-pnl','s-usd','s-str'].forEach(id => {
+    const sk = document.getElementById(id+'-sk');
+    if(sk) sk.remove();
+  });
+}
+function hideTradeSkeleton(){
+  const sk = document.getElementById('trades-skeleton');
+  if(sk) sk.remove();
+}
 
-// ══ TOOLTIP (fixed position portal) ══
+</script>
+<!-- ══ DEMO MODE ENGINE ══ -->
+<script>
+// ══════════════════════════════════════════════════════════
+// DEMO MODE — полностью локальный, без Supabase
+// ══════════════════════════════════════════════════════════
+const DEMO_KEY = 'orb_demo_trades';
+
+// Realistic seed trades
+function generateDemoTrades(){
+  const now = Date.now();
+
+  // ── Helper: random in range ──
+  const rnd = (a,b) => a + Math.random()*(b-a);
+  const rndInt = (a,b) => Math.floor(rnd(a,b+1));
+  const pick = arr => arr[rndInt(0,arr.length-1)];
+
+  // ── Raw trade definitions ── (pair, dir, result, pnlPct, daysAgo, setup, why, feel, lesson, emotion)
+  // Designed to show: best/worst setup, pair breakdown, equity curve with DD+recovery,
+  // emotion patterns, discipline score ~72, win rate ~68%, streak data, heatmap variance
+  const raw = [
+    // === МЕСЯЦ 1 (90-60 дней назад) — начало, нестабильно ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.8, usd:95,  dAgo:89, setup:'Wyckoff Spring',
+     why:'Накопление на 4H завершено. Объём подтвердил Spring. Вход после LPS.',
+     feel:'Немного нервничал, но сетап чистый — дождался подтверждения.',
+     lesson:'Терпение при ожидании LPS окупается. Не входить раньше.',
+     conf:7,fear:4,greed:3,calm:6},
+    {pair:'ETH/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:87, setup:'SMC BOS',
+     why:'BOS на 1H казался чётким, но вошёл без подтверждения на 4H.',
+     feel:'Торопился — боялся пропустить движение.',
+     lesson:'Всегда подтверждать BOS на старшем ТФ перед входом.',
+     conf:4,fear:6,greed:7,calm:3},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:6.2, usd:155, dAgo:85, setup:'Elliott W3',
+     why:'Импульс W3 — самая длинная волна. Ретест W2 идеальный. R:R 1:4.',
+     feel:'Уверен. Сетап готовил 2 дня, вход по плану.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'BTC/USDT',dir:'short',r:'win', pct:2.9, usd:72,  dAgo:83, setup:'OB + FVG',
+     why:'OB на 4H + FVG незакрытый. Продажа от premium зоны.',
+     feel:'Спокоен, всё по плану.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:81, setup:'VRVP Sweep',
+     why:'Свип VAL, думал откупят. Объёма не было.',
+     feel:'Жадность — хотел быстрый памп. Ошибка.',
+     lesson:'Без объёма на VAL не входить. DOGE непредсказуем.',
+     conf:4,fear:3,greed:8,calm:2},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.1, usd:102, dAgo:78, setup:'Wyckoff Spring',
+     why:'Второй Spring на недельном. Накопление фаза D. Сила покупателей.',
+     feel:'Терпел 3 дня. Зашёл точно в момент теста.',
+     lesson:null,
+     conf:8,fear:3,greed:3,calm:8},
+    {pair:'ARB/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:76, setup:'Market Structure',
+     why:'MSS на 1H, но рынок в нисходящем тренде на 4H. Контр-тренд.',
+     feel:'Игнорировал старший ТФ. Просто хотел торговать.',
+     lesson:'Никогда не торговать против 4H тренда на 1H сигнале.',
+     conf:3,fear:4,greed:6,calm:4},
+    {pair:'SOL/USDT',dir:'short',r:'be',  pct:0,   usd:0,   dAgo:74, setup:'OB + FVG',
+     why:'OB + FVG, но движение слабое. Вышел в ноль.',
+     feel:'Правильно — не было подтверждения на объёме.',
+     lesson:null,
+     conf:6,fear:3,greed:2,calm:7},
+    {pair:'BNB/USDT',dir:'long', r:'win', pct:3.3, usd:82,  dAgo:71, setup:'Accumulation',
+     why:'Фаза B накопления. Объём растёт. BNB следует за BTC.',
+     feel:'Спокойный вход. Держал 48 часов.',
+     lesson:null,
+     conf:7,fear:2,greed:3,calm:8},
+    {pair:'XRP/USDT',dir:'long', r:'win', pct:5.5, usd:137, dAgo:69, setup:'Elliott W3',
+     why:'XRP — Elliott отрабатывает чисто. W3 от LG с объёмом.',
+     feel:'Уверен. Цель 1:3.5 достигнута.',
+     lesson:null,
+     conf:9,fear:1,greed:4,calm:9},
+
+    // === МЕСЯЦ 2 (60-30 дней назад) — рост, drawdown, восстановление ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:8.4, usd:210, dAgo:58, setup:'Wyckoff Spring',
+     why:'Monthly Spring на BTC. Ключевой уровень $58k. Огромный объём.',
+     feel:'Лучший сетап за месяц. Держал 5 дней.',
+     lesson:null,
+     conf:10,fear:1,greed:5,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:56, setup:'SMC BOS',
+     why:'BOS + ChoCh, но новости FUD вышли неожиданно.',
+     feel:'Неудача из-за внешнего фактора. Принял.',
+     lesson:'Перед входом проверять новостной фон.',
+     conf:7,fear:5,greed:3,calm:6},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:4.7, usd:117, dAgo:54, setup:'OB + FVG',
+     why:'Premium зона на 4H. OB + незакрытый FVG. Продажа с 1:3.',
+     feel:'Уверен. Структура медвежья на дневном.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'LINK/USDT',dir:'long', r:'win', pct:7.1, usd:177, dAgo:52, setup:'VRVP Sweep',
+     why:'Свип VAH VRVP на высоком объёме. Накопление перед памп.',
+     feel:'Терпел 4 дня после входа. Не вышел рано.',
+     lesson:'Держать позицию до TP — не паниковать при коррекции 1%.',
+     conf:8,fear:3,greed:4,calm:7},
+    {pair:'BTC/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:50, setup:'Market Structure',
+     why:'HH+HL структура. Вход на ретесте. SL выбило на wicks.',
+     feel:'Огорчён. SL нужно было шире.',
+     lesson:'На BTC SL ставить под фракталный лоу, не под свечу.',
+     conf:6,fear:4,greed:3,calm:5},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:5.2, usd:130, dAgo:48, setup:'Elliott W3',
+     why:'SOL — W3 продолжение. Фибо 1.618 цель. Объём растёт.',
+     feel:'Спокоен. Вход точный.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:46, setup:'Accumulation',
+     why:'Думал фаза C накопления. Оказалась дистрибуция.',
+     feel:'Грустно. Не проверил структуру на дневном.',
+     lesson:'DOGE — только трендовые сделки, без контр-тренда.',
+     conf:4,fear:5,greed:6,calm:3},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.6, usd:90,  dAgo:44, setup:'Wyckoff Spring',
+     why:'LPS после Spring. Объём слабее медведей. Вход точный.',
+     feel:'Нейтрально. Стандартная сделка.',
+     lesson:null,
+     conf:7,fear:3,greed:3,calm:7},
+    {pair:'BNB/USDT',dir:'short',r:'win', pct:3.0, usd:75,  dAgo:42, setup:'SMC BOS',
+     why:'BOS вниз на 4H после дистрибуции. Продажа с уровня OB.',
+     feel:'Хладнокровно. Короткие работают хорошо в боковике.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'XRP/USDT',dir:'long', r:'win', pct:9.3, usd:232, dAgo:40, setup:'Elliott W3',
+     why:'XRP W3 — пробой ATH зоны. Объём рекордный. Держал 7 дней.',
+     feel:'Лучшая сделка месяца. Почти вышел рано — устоял.',
+     lesson:'Большие позиции требуют терпения. TP — не паника.',
+     conf:10,fear:2,greed:5,calm:8},
+
+    // === МЕСЯЦ 3 (30-0 дней назад) — стабильный, системный ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:4.3, usd:107, dAgo:28, setup:'OB + FVG',
+     why:'BTC коррекция 8%. OB на 4H + FVG. Зона дискаунта чёткая.',
+     feel:'Уверен. Уровень держал 3 раза.',
+     lesson:null,
+     conf:9,fear:2,greed:3,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'win', pct:5.7, usd:142, dAgo:26, setup:'VRVP Sweep',
+     why:'VRVP POC + свип локального лоу на высоком объёме.',
+     feel:'Спокоен. Сетап отрабатывал уже 2 раза на этом активе.',
+     lesson:null,
+     conf:9,fear:1,greed:3,calm:9},
+    {pair:'SOL/USDT',dir:'short',r:'loss',pct:-1.0,usd:-25, dAgo:25, setup:'Market Structure',
+     why:'Ложный MSS — спровоцировал стоп и развернулся.',
+     feel:'Принял. Стоп маленький, убыток контролируемый.',
+     lesson:null,
+     conf:6,fear:3,greed:2,calm:7},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.9, usd:97,  dAgo:23, setup:'Accumulation',
+     why:'ETH Wyckoff Phase D. Test успешный. BTC поддерживает.',
+     feel:'Хладнокровно. Вход по плану.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'LINK/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:21, setup:'SMC BOS',
+     why:'BOS подтверждён, но движение слабее ожидаемого. Вышел в ноль.',
+     feel:'Правильное решение — рынок замедлился.',
+     lesson:'Если движение слабее нормы — выходить в BE.',
+     conf:6,fear:3,greed:2,calm:8},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:6.8, usd:170, dAgo:19, setup:'Wyckoff Spring',
+     why:'Weekly Spring. Объём абсорбции максимальный за 3 месяца.',
+     feel:'Максимальная уверенность. Добавлял на откате внутри дня.',
+     lesson:null,
+     conf:10,fear:1,greed:5,calm:9},
+    {pair:'ARB/USDT',dir:'long', r:'win', pct:4.4, usd:110, dAgo:17, setup:'Elliott W3',
+     why:'ARB W3 от базы. Фибо .618 ретест + объём.',
+     feel:'Уверен. Цель достигнута за 2 дня.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:3.1, usd:77,  dAgo:16, setup:'OB + FVG',
+     why:'OB дистрибуции на 4H. FVG выше цены закрыт. Продажа с 1:2.5.',
+     feel:'Спокоен.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'SUI/USDT',dir:'long', r:'win', pct:11.2,usd:280, dAgo:14, setup:'Accumulation',
+     why:'SUI — фаза C→D. Тест Creek. Объём подтвердил. Потенциал 3x.',
+     feel:'Взволнован, но держался позиции. Лучшая сделка месяца.',
+     lesson:'Выделять больше капитала на сетапы с Wyckoff Phasing.',
+     conf:9,fear:3,greed:6,calm:7},
+    {pair:'BNB/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:12, setup:'VRVP Sweep',
+     why:'Свип VAL не подтверждён объёмом. Преждевременный вход.',
+     feel:'Нетерпеливость. Надо было ждать объём.',
+     lesson:'Объём — обязательное условие для VRVP сетапов.',
+     conf:5,fear:3,greed:5,calm:5},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:2.8, usd:70,  dAgo:10, setup:'Market Structure',
+     why:'HH+HL на 4H. Ретест структуры + EMA21 совпадение.',
+     feel:'Стандартно. Не лучший сетап, но правила выполнены.',
+     lesson:null,
+     conf:7,fear:2,greed:3,calm:8},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:7.6, usd:190, dAgo:8, setup:'Elliott W3',
+     why:'SOL W3 ускорение. Пробой ATH. Объём экстремальный.',
+     feel:'Очень уверен. Держал позицию через коррекцию 3%.',
+     lesson:null,
+     conf:10,fear:2,greed:5,calm:8},
+    {pair:'XRP/USDT',dir:'short',r:'win', pct:3.5, usd:87,  dAgo:7, setup:'SMC BOS',
+     why:'XRP — BOS вниз после дистрибуции. OB на 4H подтверждён.',
+     feel:'Хладнокровно.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:5, setup:'OB + FVG',
+     why:'OB + FVG, но BTC резко упал — потащил альты.',
+     feel:'Принял потерю спокойно. Риск был под контролем.',
+     lesson:'При нестабильном BTC уменьшать размер позиции на альтах.',
+     conf:6,fear:4,greed:3,calm:7},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.0, usd:100, dAgo:4, setup:'Wyckoff Spring',
+     why:'ETH Spring после коррекции. Абсорбция на объёме. Вход по плану.',
+     feel:'Спокоен. Уже 4-й Spring на этом активе — знаю как ведёт себя.',
+     lesson:null,
+     conf:9,fear:2,greed:3,calm:9},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.2, usd:80,  dAgo:3, setup:'Accumulation',
+     why:'BTC Phase D. Подтверждённый SOS. Добавился на BackUp Action.',
+     feel:'Уверен. BTC структура бычья на всех ТФ.',
+     lesson:null,
+     conf:9,fear:1,greed:4,calm:9},
+    {pair:'SOL/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:2, setup:'VRVP Sweep',
+     why:'Свип VAH, но реакция слабая. Перевёл в BE и вышел.',
+     feel:'Правильное управление. Не жалею.',
+     lesson:null,
+     conf:7,fear:2,greed:2,calm:9},
+    {pair:'LINK/USDT',dir:'long', r:'win', pct:5.9, usd:147, dAgo:1, setup:'Elliott W3',
+     why:'LINK W3 — задержанное движение. Прорыв + объём + структура.',
+     feel:'Уверен. Держал 24 часа.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:2.5, usd:62,  dAgo:0.3, setup:'OB + FVG',
+     why:'ETH откат к OB после импульса. FVG + premium зона.',
+     feel:'Хладнокровно. Короткая внутридневная.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:1.8, usd:45,  dAgo:0.1, setup:'Market Structure',
+     why:'Ретест пробитого уровня сопротивления→поддержки. Быстрый скальп.',
+     feel:'Спокоен. Маленькая сделка для разминки.',
+     lesson:null,
+     conf:7,fear:1,greed:2,calm:9},
+  ];
+
+  let id = 1001;
+  return raw.map(t => {
+    const msAgo = t.dAgo * 24 * 3600 * 1000 + rnd(0, 3600000);
+    const baseDeposit = 2500;
+    const entryBase = t.pair.startsWith('BTC') ? 62000+rnd(-3000,3000)
+                    : t.pair.startsWith('ETH') ? 2900+rnd(-200,200)
+                    : t.pair.startsWith('SOL') ? 155+rnd(-20,20)
+                    : t.pair.startsWith('BNB') ? 580+rnd(-30,30)
+                    : t.pair.startsWith('XRP') ? 0.55+rnd(-0.05,0.05)
+                    : t.pair.startsWith('LINK')? 14+rnd(-1,1)
+                    : t.pair.startsWith('ARB') ? 1.1+rnd(-0.1,0.1)
+                    : t.pair.startsWith('AVAX')? 35+rnd(-3,3)
+                    : t.pair.startsWith('SUI') ? 3.8+rnd(-0.3,0.3)
+                    : t.pair.startsWith('DOGE')? 0.16+rnd(-0.01,0.01)
+                    : 1+rnd(0,2);
+    const entry = parseFloat(entryBase.toFixed(4));
+    const slPct = t.dir==='long' ? 0.975 : 1.025;
+    const sl    = parseFloat((entry * slPct).toFixed(4));
+    const exitMult = t.r==='win' ? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
+                   : t.r==='loss'? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
+                   : 1;
+    const exit  = parseFloat((entry * exitMult).toFixed(4));
+    return {
+      id: String(id++),
+      user_id: 'demo',
+      pair: t.pair,
+      direction: t.dir,
+      result: t.r,
+      deposit: baseDeposit,
+      pnl_pct: t.pct,
+      pnl_usd: t.usd,
+      entry_price: entry,
+      exit_price: exit,
+      stop_loss: sl,
+      setup_type: t.setup,
+      note_why: t.why,
+      note_feel: t.feel,
+      note_lesson: t.lesson || null,
+      emotion_conf: t.conf || 7,
+      emotion_fear: t.fear || 3,
+      emotion_greed: t.greed || 3,
+      emotion_calm: t.calm || 7,
+      screenshot_url: null,
+      created_at: new Date(now - msAgo).toISOString(),
+    };
+  }).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+// Safe localStorage wrapper for private/incognito mode
+const _demoStore = (() => {
+  const mem = {};
+  let _ls = null;
+  function ls(){
+    if(_ls !== null) return _ls;
+    try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); _ls = localStorage; }
+    catch(e){ _ls = { getItem:k=>mem[k]||null, setItem:(k,v)=>{mem[k]=v;}, removeItem:k=>{delete mem[k];} }; }
+    return _ls;
+  }
+  return { get:(k)=>ls().getItem(k), set:(k,v)=>ls().setItem(k,v), del:(k)=>ls().removeItem(k) };
+})();
+
+function demoLoadTrades(){
+  try{
+    const ver = _demoStore.get('orb_demo_seed_ver');
+    if(ver === '2') {
+      const stored = _demoStore.get(DEMO_KEY);
+      if(stored) return JSON.parse(stored);
+    }
+  }catch(e){}
+  const seed = generateDemoTrades();
+  _demoStore.set(DEMO_KEY, JSON.stringify(seed));
+  _demoStore.set('orb_demo_seed_ver', '2');
+  return seed;
+}
+function demoSaveTrades(trades){
+  _demoStore.set(DEMO_KEY, JSON.stringify(trades));
+}
+
+async function initDemoMode(){
+  // Fake currentUser
+  currentUser = {id:'demo', email:'demo@orbitum.app'};
+  window._isDemoMode = true;
+
+  // UI: sidebar + topbar
+  const initLetter = 'D';
+  const displayName = 'Demo Trader';
+  const sfAv = document.getElementById('sf-avatar');
+  const sfNm = document.getElementById('sf-name');
+  const sfPl = document.getElementById('sf-plan');
+  if(sfAv) sfAv.textContent = initLetter;
+  if(sfNm) sfNm.textContent = displayName;
+  if(sfPl){ sfPl.textContent = 'DEMO'; sfPl.style.color='rgba(255,200,50,0.9)'; }
+  const jtbAv = document.getElementById('jtb-avatar');
+  const jtbNm = document.getElementById('jtb-name');
+  if(jtbAv) jtbAv.textContent = initLetter;
+  if(jtbNm) jtbNm.textContent = 'DEMO';
+  window._orbUserName = displayName;
+
+  // Load demo trades
+  allTrades = demoLoadTrades();
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); restoreFormDefaults();
+  orbColorUserByRank(allTrades);
+  renderPMHistory(); renderPMStreak();
+
+  // Inject demo banner
+  injectDemoBanner();
+}
+
+function injectDemoBanner(){
+  const banner = document.createElement('div');
+  banner.id = 'demo-banner';
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:220px">
+        <span style="font-size:16px">🎮</span>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:#f0f0f0;letter-spacing:1.5px;margin-bottom:2px">ДЕМО РЕЖИМ — данные ненастоящие</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.5px">Попробуй все функции. Изменения сохраняются локально и не попадут в реальный аккаунт.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="demoExitToRegister()" style="padding:8px 18px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:8px;color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;cursor:pointer;box-shadow:0 4px 16px rgba(232,114,42,0.35);">🚀 СОЗДАТЬ АККАУНТ</button>
+        <button onclick="demoExitToLogin()" style="padding:8px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.55);font-family:var(--font-mono);font-size:9px;letter-spacing:1px;cursor:pointer;">ВОЙТИ</button>
+      </div>
+    </div>`;
+  banner.style.cssText = 'position:sticky;top:48px;z-index:80;background:rgba(8,6,18,0.96);border-bottom:1px solid rgba(255,200,50,0.18);backdrop-filter:blur(16px);padding:12px 24px;';
+  const statsRow = document.querySelector('.stats-row');
+  if(statsRow && statsRow.parentNode) statsRow.parentNode.insertBefore(banner, statsRow);
+  else { const main = document.querySelector('.main'); if(main) main.insertBefore(banner, main.firstChild); }
+}
+
+function demoExitToRegister(){
+  localStorage.removeItem('orb_demo_mode');
+  window.location.href = 'login.html?tab=register';
+}
+function demoExitToLogin(){
+  localStorage.removeItem('orb_demo_mode');
+  window.location.href = 'login.html';
+}
+
+// ── Override Supabase calls when in demo mode ──────────────
+
+// Patch addTrade to use localStorage
+const _origAddTrade = typeof addTrade === 'function' ? addTrade : null;
+window._demoAddTrade = async function(){
+  const pair=(document.getElementById('f-pair').value||'').trim().toUpperCase();
+  if(!pair){showNotif('warn','Укажи пару','Например BTC/USDT',3000);return;}
+  if(!currentRes){showNotif('warn','Выбери результат','Прибыль, Убыток или BE',3000);return;}
+  const btn=document.getElementById('btn-add');
+  btn.disabled=true; btn.textContent='СОХРАНЯЕМ...';
+  const lev=parseFloat(document.getElementById('f-lev')?.value)||1;
+  const noteWhy=(document.getElementById('f-why').value.trim()+(lev>1?` [${lev}x]`:'')).trim()||null;
+  const newTrade = {
+    id: 'demo_'+Date.now(),
+    user_id:'demo',
+    pair, direction:currentDir, result:currentRes,
+    deposit:parseFloat(document.getElementById('f-dep').value)||null,
+    pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,
+    pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,
+    entry_price:parseFloat(document.getElementById('f-entry').value)||null,
+    exit_price:parseFloat(document.getElementById('f-exit').value)||null,
+    stop_loss:parseFloat(document.getElementById('f-sl').value)||null,
+    setup_type:currentSetup||null,
+    note_why:noteWhy, note_feel:document.getElementById('f-feel').value.trim()||null,
+    note_lesson:document.getElementById('f-lesson').value.trim()||null,
+    emotion_conf:emVals.conf, emotion_fear:emVals.fear, emotion_greed:emVals.greed, emotion_calm:emVals.calm,
+    screenshot_url: null,
+    created_at: new Date().toISOString(),
+  };
+  // Handle screenshot (base64 local - no upload)
+  if(_scrFile){
+    const reader = new FileReader();
+    await new Promise(res => { reader.onload = e => { newTrade.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_scrFile); });
+  }
+  allTrades.unshift(newTrade);
+  demoSaveTrades(allTrades);
+  btn.disabled=false; btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
+  rememberFormDefaults();
+  ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('rr-val').textContent='—';
+  ['risk-usd-val','tp-usd-val','pos-size-val'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+  currentRes=''; currentSetup='';
+  document.querySelectorAll('.res-btn').forEach(b=>b.className='res-btn');
+  document.querySelectorAll('.setup-btn').forEach(b=>b.classList.remove('active'));
+  emVals={conf:5,fear:3,greed:3,calm:7};
+  document.querySelectorAll('.em-opts').forEach(row=>{const btns=row.querySelectorAll('.em-opt');btns.forEach(b=>b.classList.remove('active'));if(btns[1])btns[1].classList.add('active');});
+  setDir('long');
+  scrRemove({stopPropagation:()=>{}});
+  showNotif('success','Сделка добавлена','Сохранено локально (demo)',3000);
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
+  checkTiltAlert();
+};
+
+window._demoDeleteTrade = function(id){
+  if(!confirm('Удалить сделку?')) return;
+  allTrades = allTrades.filter(t => String(t.id) !== String(id));
+  demoSaveTrades(allTrades);
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
+};
+
+window._demoSaveEditTrade = async function(){
+  const id = document.getElementById('edit-trade-id').value;
+  if(!id) return;
+  const idx = allTrades.findIndex(x => String(x.id) === String(id));
+  if(idx < 0) return;
+  const btn = document.querySelector('.edit-save');
+  if(btn){btn.textContent='СОХРАНЯЕМ...';btn.disabled=true;}
+  const updates = {
+    pair:document.getElementById('edit-pair').value.trim().toUpperCase()||'BTC/USDT',
+    direction:document.getElementById('edit-direction').value,
+    result:document.getElementById('edit-result').value,
+    pnl_pct:document.getElementById('edit-pnl-pct').value!==''?parseFloat(document.getElementById('edit-pnl-pct').value):null,
+    pnl_usd:document.getElementById('edit-pnl-usd').value!==''?parseFloat(document.getElementById('edit-pnl-usd').value):null,
+    setup_type:document.getElementById('edit-setup').value.trim()||null,
+    note_why:document.getElementById('edit-note-why').value.trim()||null,
+    note_feel:document.getElementById('edit-note-feel').value.trim()||null,
+    note_lesson:document.getElementById('edit-note-lesson').value.trim()||null,
+  };
+  // Screenshot local handling
+  if(_editScrRemoved){ updates.screenshot_url = null; }
+  else if(_editScrFile){
+    const reader = new FileReader();
+    await new Promise(res => { reader.onload = e => { updates.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_editScrFile); });
+  } else { updates.screenshot_url = allTrades[idx].screenshot_url; }
+  allTrades[idx] = {...allTrades[idx], ...updates};
+  demoSaveTrades(allTrades);
+  if(btn){btn.textContent='СОХРАНИТЬ';btn.disabled=false;}
+  closeEditModal(); render(); updateStats();
+};
+
+// Patch functions after DOM ready
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(!window._isDemoMode) return;
+  // Nothing extra needed — patching happens via _isDemoMode checks in original fns
+});
+</script>
+
+<!-- ══ SCREENSHOT LIGHTBOX ══ -->
+<script>
 (function(){
   const tip = document.createElement('div');
   tip.id = 'fh-tooltip';
@@ -8211,10 +9097,7 @@ function renderQNotesList(notes){
   else init();
 
 })();
-
 </script>
-
-
 <!-- QUICK NOTE OVERLAY -->
 <div class="qnote-overlay" id="qnote-overlay" onclick="if(event.target===this)closeQNote()">
   <div class="qnote-popup">
@@ -8666,5 +9549,617 @@ if(document.readyState==='loading'){
 }
 
 </script>
+
+<script>
+// ══════════════════════════════════════════════════════
+// JOURNAL: BINANCE WEBSOCKET — живые метрики в сайдбаре
+// Обновление каждые ~300мс без перезагрузки
+// ══════════════════════════════════════════════════════
+
+(function initJournalWS(){
+  const PAIRS = [
+    { sym:'BTC', pair:'btcusdt' },
+    { sym:'ETH', pair:'ethusdt' },
+    { sym:'BNB', pair:'bnbusdt' },
+    { sym:'SOL', pair:'solusdt' },
+  ];
+  const MAP = {};
+  PAIRS.forEach(p => { MAP[p.pair.toUpperCase()] = p; });
+
+  const _prev = {}; // sym → lastPrice
+
+  // ── DOM helpers ──
+  function q(id){ return document.getElementById(id); }
+  function setEl(id, val){ const el = q(id); if(el) el.textContent = val; }
+  function flashEl(id, dir){ // dir: 'up' | 'dn'
+    const el = q(id);
+    if(!el) return;
+    el.style.transition = 'none';
+    el.style.background = dir === 'up' ? 'rgba(46,204,113,0.2)' : 'rgba(231,76,60,0.2)';
+    setTimeout(()=>{ el.style.transition='background 0.8s'; el.style.background=''; }, 50);
+  }
+
+  function fmtP(p){
+    if(!p) return '$—';
+    if(p>=1000) return '$'+p.toLocaleString('en',{maximumFractionDigits:2});
+    if(p>=1)    return '$'+p.toFixed(4);
+    return '$'+p.toFixed(6);
+  }
+
+  function updateBtcEth(sym, price, open24, chg24, high24, low24, vol24){
+    const isUp = chg24 >= 0;
+    const chgStr = (isUp?'+':'') + chg24.toFixed(2) + '%';
+    const prev = _prev[sym];
+
+    // Find ticker item in track
+    const tickerItems = document.querySelectorAll('.ticker-item');
+    tickerItems.forEach(item => {
+      const symEl = item.querySelector('.ti-sym');
+      if(!symEl) return;
+      if(symEl.textContent.trim() !== sym) return;
+      const prEl  = item.querySelector('.ti-price');
+      const chEl  = item.querySelector('.ti-chg');
+      if(prEl){
+        const dir = prev ? (price > prev ? 'up' : price < prev ? 'dn' : null) : null;
+        prEl.textContent = fmtP(price);
+        if(dir){
+          prEl.style.color = dir==='up' ? '#2ecc71' : '#e74c3c';
+          setTimeout(()=>{ prEl.style.color = ''; }, 600);
+        }
+      }
+      if(chEl){
+        chEl.textContent = chgStr;
+        chEl.style.color = isUp ? '#2ecc71' : '#e74c3c';
+      }
+    });
+
+    // Also update any .ticker-price / .ticker-chg spans with data attrs
+    const priceEl2 = document.querySelector(`[data-ticker-price="${sym}"]`);
+    const chgEl2   = document.querySelector(`[data-ticker-chg="${sym}"]`);
+    if(priceEl2){
+      const dir2 = prev ? (price > prev ? 'up' : 'dn') : null;
+      priceEl2.textContent = fmtP(price);
+      if(dir2){ priceEl2.style.color = dir2==='up'?'#2ecc71':'#e74c3c'; setTimeout(()=>priceEl2.style.color='',600); }
+    }
+    if(chgEl2){ chgEl2.textContent = chgStr; chgEl2.style.color = isUp?'#2ecc71':'#e74c3c'; }
+
+    _prev[sym] = price;
+
+    // Sidebar sbw-metric BTC price if visible
+    if(sym === 'BTC'){
+      // Try to find any element showing BTC price in sidebar
+      const btcEls = document.querySelectorAll('[id*="btc-price"],[id*="btc_price"],[class*="btc-live"]');
+      btcEls.forEach(el => { el.textContent = fmtP(price); });
+    }
+  }
+
+  let _ws = null;
+  let _reconnTimer = null;
+
+  function connect(){
+    if(_ws){ try{_ws.close();}catch(e){} }
+    const streams = PAIRS.map(p => p.pair + '@miniTicker').join('/');
+    _ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+
+    _ws.onopen = () => {
+      console.log('[Journal WS] Binance connected');
+      // Update live indicator if present
+      const ind = document.getElementById('live-ind') || document.querySelector('.ws-indicator');
+      if(ind) ind.style.opacity = '1';
+    };
+
+    _ws.onmessage = (e) => {
+      try{
+        const msg  = JSON.parse(e.data);
+        const d    = msg.data;
+        if(!d || !d.s) return;
+        const cfg  = MAP[d.s.toUpperCase()];
+        if(!cfg) return;
+
+        const price  = parseFloat(d.c);
+        const open24 = parseFloat(d.o);
+        const high24 = parseFloat(d.h);
+        const low24  = parseFloat(d.l);
+        const vol24  = parseFloat(d.v) * price;
+        const chg24  = open24 > 0 ? ((price-open24)/open24)*100 : 0;
+
+        updateBtcEth(cfg.sym, price, open24, chg24, high24, low24, vol24);
+
+        // Update stats in sidebar market widget
+        if(cfg.sym === 'BTC'){
+          const domEl = document.getElementById('mkt-dom');
+          // BTC dom is from CoinGecko so skip
+        }
+      }catch(err){}
+    };
+
+    _ws.onclose = () => {
+      clearTimeout(_reconnTimer);
+      _reconnTimer = setTimeout(connect, 3000);
+    };
+    _ws.onerror = () => { _ws.close(); };
+  }
+
+  // Start WS after DOM ready
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', connect);
+  } else {
+    connect();
+  }
+
+  // Also upgrade sidebar metrics interval — poll every 10s instead of 5min
+  // Hook onto existing initSidebarWidgets
+  // FIX #3: override removed — intervals in initSidebarWidgets
+})();
+</script>
+
+
+<script>
+// ══════════════════════════════════════════════════════
+// JOURNAL — Binance WebSocket (live sidebar prices)
+// ══════════════════════════════════════════════════════
+
+const _JWS_PAIRS = ['btcusdt','ethusdt','solusdt','bnbusdt','xrpusdt','suiusdt','dogeusdt'];
+const _JWS_MAP   = {
+  btcusdt:'btc', ethusdt:'eth', solusdt:'sol',
+  bnbusdt:'bnb', xrpusdt:'xrp', suiusdt:'sui', dogeusdt:'doge'
+};
+let _jws = null;
+
+function jFmtPrice(p){
+  if(!p||isNaN(p)) return '—';
+  if(p>=10000) return '$'+p.toLocaleString('en',{maximumFractionDigits:0});
+  if(p>=100)   return '$'+p.toFixed(2);
+  if(p>=1)     return '$'+p.toFixed(3);
+  if(p>=0.01)  return '$'+p.toFixed(5);
+  return '$'+p.toFixed(7);
+}
+
+var _jwsLock=false;
+function initJournalWS(){
+  if(_jwsLock)return;_jwsLock=true;
+  if(_jws){try{_jws.onclose=null;_jws.close();}catch(e){}}
+  const streams = _JWS_PAIRS.map(p => p+'@miniTicker').join('/');
+  _jws = new WebSocket('wss://stream.binance.com:9443/stream?streams='+streams);
+
+  _jws.onmessage = function(e){
+    try{
+      const msg = JSON.parse(e.data);
+      const d   = msg.data;
+      if(!d || d.e !== '24hrMiniTicker') return;
+
+      const sym  = d.s?.toLowerCase();
+      const id   = _JWS_MAP[sym];
+      if(!id) return;
+
+      const price = parseFloat(d.c);
+      const open  = parseFloat(d.o);
+      const chg   = open > 0 ? ((price - open) / open * 100) : 0;
+      const chgStr= (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+
+      const prEl  = document.getElementById('lp-'+id+'-p');
+      const chEl  = document.getElementById('lp-'+id+'-c');
+      const rowEl = document.getElementById('lp-'+id);
+
+      if(prEl){
+        const prev = prEl.textContent;
+        prEl.textContent = jFmtPrice(price);
+        if(prev !== prEl.textContent && rowEl){
+          rowEl.classList.remove('sbw-lp-flash');
+          void rowEl.offsetWidth;
+          rowEl.classList.add('sbw-lp-flash');
+        }
+      }
+      if(chEl){
+        chEl.textContent = chgStr;
+        chEl.className = 'sbw-lp-chg ' + (chg >= 0 ? 'up' : 'dn');
+      }
+
+      // Also feed into existing ticker strip if tickerData exists
+      if(typeof tickerData !== 'undefined'){
+        const symUpper = sym.replace('usdt','').toUpperCase();
+        if(tickerData[symUpper]){
+          tickerData[symUpper].price = price;
+          tickerData[symUpper].chg   = chg;
+        }
+        if(typeof renderTickerTrack==='function'&&!window._ttThrottle){window._ttThrottle=true;requestAnimationFrame(function(){renderTickerTrack();setTimeout(function(){window._ttThrottle=false;},1000);});}
+      }
+
+    }catch(_){}
+  };
+
+  _jws.onopen = () => {_jwsLock=false;};
+  _jws.onerror = () => {};
+  _jws.onclose = () => { _jwsLock=false; setTimeout(initJournalWS, 3000); };
+}
+
+// ── Chart page: switch symbol ────────────────────────
+let _chartSym = 'BINANCE:BTCUSDT';
+let _chartTF  = '240';
+
+function chartSwitch(sym, el){
+  _chartSym = sym;
+  document.querySelectorAll('.chart-sym-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  rebuildJournalChart();
+}
+
+function chartTF(tf, el){
+  _chartTF = tf;
+  document.querySelectorAll('.chart-tf-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  rebuildJournalChart();
+}
+
+function rebuildJournalChart(){
+  // chart removed
+  return; /* chart removed */
+  const cfg = {
+    allow_symbol_change: false,
+    calendar:            false,
+    details:             false,
+    hide_side_toolbar:   false,
+    hide_top_toolbar:    false,
+    hide_legend:         false,
+    hide_volume:         false,
+    hotlist:             false,
+    interval:            _chartTF,
+    locale:              'ru',
+    save_image:          true,
+    style:               '1',
+    symbol:              _chartSym,
+    theme:               'dark',
+    timezone:            'Europe/Moscow',
+    backgroundColor:     'rgba(6, 8, 12, 1)',
+    gridColor:           'rgba(242, 242, 242, 0.04)',
+    withdateranges:      true,
+    studies: [
+      'STD;Divergence%1Indicator',
+      'STD;Accumulation_Distribution',
+      'Volume@tv-basicstudies'
+    ],
+    autosize: true
+  };
+
+  wrap.innerHTML = '';
+  const cont = document.createElement('div');
+  cont.className = 'tradingview-widget-container';
+  cont.style.cssText = 'height:100%;width:100%';
+
+  const wd = document.createElement('div');
+  wd.className = 'tradingview-widget-container__widget';
+  wd.style.cssText = 'height:calc(100% - 20px);width:100%';
+
+  const copy = document.createElement('div');
+  copy.className = 'tradingview-widget-copyright';
+  copy.innerHTML = '<span style="font-size:9px;color:rgba(232,234,240,0.12)">TradingView</span>';
+
+  const sc = document.createElement('script');
+  sc.type  = 'text/javascript';
+  sc.src   = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  sc.async = true;
+  sc.innerHTML = JSON.stringify(cfg);
+
+  cont.appendChild(wd);
+  cont.appendChild(copy);
+  cont.appendChild(sc);
+  wrap.appendChild(cont);
+}
+
+// ── Hook into showPage for chart init ────────────────
+const _jBaseShowPage = window.showPage;
+window.showPage = function(p, btn){
+  _jBaseShowPage(p, btn);
+  if(p === 'chart'){
+    // Rebuild chart so it sizes properly after page becomes visible
+    setTimeout(rebuildJournalChart, 50);
+  }
+};
+
+// ── Boost market data refresh to 30s (was 5min) ──────
+// Override the slow setInterval from original journal code
+// FIX #15: duplicate intervals removed
+
+// ── Auto-start WS after DOM ready ────────────────────
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initJournalWS);
+} else {
+  initJournalWS();
+}
+</script>
+<!-- ══════════════════════════════════════
+     ONBOARDING OVERLAY
+     ══════════════════════════════════════ -->
+<div class="onb-overlay" id="onb-overlay">
+  <div class="onb-box">
+    <div class="onb-dots">
+      <div class="onb-dot active" id="onb-dot-0"></div>
+      <div class="onb-dot" id="onb-dot-1"></div>
+      <div class="onb-dot" id="onb-dot-2"></div>
+    </div>
+
+    <!-- Step 1: Welcome -->
+    <div class="onb-step active" id="onb-step-0">
+      <div class="onb-icon">🚀</div>
+      <div class="onb-title">Добро пожаловать в Orbitum</div>
+      <div class="onb-sub">Твой торговый журнал нового поколения.<br>Минута — и ты готов к работе.</div>
+      <div class="onb-features">
+        <div class="onb-feat">
+          <span class="onb-feat-icon">📋</span>
+          <div class="onb-feat-text"><strong>Журнал сделок</strong>Записывай сделки, считай R:R и позиции автоматически</div>
+        </div>
+        <div class="onb-feat">
+          <span class="onb-feat-icon">📊</span>
+          <div class="onb-feat-text"><strong>Аналитика</strong>Dashboard с equity curve, винрейтом и лучшими сетапами</div>
+        </div>
+        <div class="onb-feat">
+          <span class="onb-feat-icon">🤖</span>
+          <div class="onb-feat-text"><strong>AI Coach</strong>Анализирует паттерны и даёт персональные советы</div>
+        </div>
+        <div class="onb-feat">
+          <span class="onb-feat-icon">🔔</span>
+          <div class="onb-feat-text"><strong>Скринер + Алерты</strong>Живые цены 20 монет с уведомлениями в Telegram</div>
+        </div>
+      </div>
+      <div class="onb-btn-row">
+        <button class="onb-btn primary" onclick="onbNext()">НАЧАТЬ →</button>
+      </div>
+      <span class="onb-skip" onclick="onbClose()">Пропустить</span>
+    </div>
+
+    <!-- Step 2: Deposit setup -->
+    <div class="onb-step" id="onb-step-1">
+      <div class="onb-icon">💰</div>
+      <div class="onb-title">Укажи депозит</div>
+      <div class="onb-sub">Нужно для автоматического расчёта размера позиции и риска на сделку.</div>
+      <div class="onb-input-wrap">
+        <span class="onb-label">РАЗМЕР ДЕПОЗИТА (USDT)</span>
+        <input class="onb-input" id="onb-deposit" type="number" placeholder="Например: 1000" min="1">
+        <div class="onb-presets">
+          <button class="onb-preset" onclick="onbSetDeposit(500)">$500</button>
+          <button class="onb-preset" onclick="onbSetDeposit(1000)">$1 000</button>
+          <button class="onb-preset" onclick="onbSetDeposit(3000)">$3 000</button>
+          <button class="onb-preset" onclick="onbSetDeposit(5000)">$5 000</button>
+          <button class="onb-preset" onclick="onbSetDeposit(10000)">$10 000</button>
+        </div>
+      </div>
+      <div class="onb-input-wrap">
+        <span class="onb-label">РИСК НА СДЕЛКУ (%)</span>
+        <input class="onb-input" id="onb-risk" type="number" placeholder="Например: 1" min="0.1" max="100" step="0.1">
+        <div class="onb-presets">
+          <button class="onb-preset" onclick="onbSetRisk(0.5)">0.5%</button>
+          <button class="onb-preset" onclick="onbSetRisk(1)">1%</button>
+          <button class="onb-preset" onclick="onbSetRisk(2)">2%</button>
+          <button class="onb-preset" onclick="onbSetRisk(3)">3%</button>
+        </div>
+      </div>
+      <div class="onb-btn-row">
+        <button class="onb-btn secondary" onclick="onbPrev()">← НАЗАД</button>
+        <button class="onb-btn primary" onclick="onbSaveDeposit()">ДАЛЕЕ →</button>
+      </div>
+      <span class="onb-skip" onclick="onbNext()">Пропустить этот шаг</span>
+    </div>
+
+    <!-- Step 3: Hotkeys -->
+    <div class="onb-step" id="onb-step-2">
+      <div class="onb-icon">⌨️</div>
+      <div class="onb-title">Горячие клавиши</div>
+      <div class="onb-sub">Работай быстрее — без мыши.</div>
+      <div class="onb-hotkeys">
+        <div class="onb-hk"><kbd>N</kbd><span class="onb-hk-desc">Новая сделка</span></div>
+        <div class="onb-hk"><kbd>D</kbd><span class="onb-hk-desc">Dashboard</span></div>
+        <div class="onb-hk"><kbd>S</kbd><span class="onb-hk-desc">Скринер</span></div>
+        <div class="onb-hk"><kbd>A</kbd><span class="onb-hk-desc">Аналитика</span></div>
+        <div class="onb-hk"><kbd>?</kbd><span class="onb-hk-desc">Все хоткеи</span></div>
+        <div class="onb-hk"><kbd>Esc</kbd><span class="onb-hk-desc">Закрыть</span></div>
+      </div>
+      <div class="onb-btn-row">
+        <button class="onb-btn secondary" onclick="onbPrev()">← НАЗАД</button>
+        <button class="onb-btn primary" onclick="onbClose()">НАЧАТЬ РАБОТУ ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOTKEY HINT ── -->
+<div class="hk-hint" id="hk-hint"></div>
+
+<!-- ── KEYBOARD SHORTCUTS PANEL ── -->
+<div class="kb-panel" id="kb-panel" onclick="closeKbPanel()">
+  <div class="kb-box" onclick="event.stopPropagation()">
+    <div class="kb-title">ГОРЯЧИЕ КЛАВИШИ</div>
+    <div class="kb-list">
+      <div class="kb-row"><span>Новая сделка</span><kbd>N</kbd></div>
+      <div class="kb-row"><span>Журнал</span><kbd>J</kbd></div>
+      <div class="kb-row"><span>Dashboard</span><kbd>D</kbd></div>
+      <div class="kb-row"><span>Скринер</span><kbd>S</kbd></div>
+      <div class="kb-row"><span>Прогресс</span><kbd>P</kbd></div>
+      <div class="kb-row"><span>AI Coach</span><kbd>C</kbd></div>
+      <div class="kb-row"><span>Настройки</span><kbd>G</kbd></div>
+      <div class="kb-row"><span>Этот экран</span><kbd>?</kbd></div>
+      <div class="kb-row"><span>Закрыть / Отмена</span><kbd>Esc</kbd></div>
+    </div>
+    <div class="kb-close-row">
+      <button class="kb-close" onclick="closeKbPanel()">ЗАКРЫТЬ</button>
+    </div>
+  </div>
+</div>
+<!-- ══ SCREENSHOT LIGHTBOX ══ -->
+<div class="scr-lightbox" id="scr-lightbox" onclick="closeLightbox()">
+  <div class="scr-lb-close" onclick="closeLightbox()">✕</div>
+  <img id="scr-lb-img" src="" alt="screenshot">
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// SCREENSHOT SYSTEM
+// ══════════════════════════════════════════
+const SCR_BUCKET = 'trade-screenshots';
+let _scrFile = null;       // pending file for new trade
+let _editScrFile = null;   // pending file for edit
+let _editScrRemoved = false;
+
+// ── Supabase Storage upload ──
+async function uploadScreenshot(file, tradeId){
+  const ext  = file.name.split('.').pop().toLowerCase() || 'png';
+  const path = `${currentUser.id}/${tradeId}.${ext}`;
+  const { error } = await sb.storage
+    .from(SCR_BUCKET)
+    .upload(path, file, { upsert: true, contentType: file.type });
+  if(error) throw error;
+  const { data } = sb.storage.from(SCR_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function deleteScreenshot(tradeId, url){
+  if(!url) return;
+  // Extract path from URL
+  const parts = url.split('/' + SCR_BUCKET + '/');
+  if(parts[1]){
+    await sb.storage.from(SCR_BUCKET).remove([parts[1]]);
+  }
+}
+
+// ── Zone interactions (shared) ──
+function scrDragOver(e){
+  e.preventDefault();
+  e.currentTarget.classList.add('drag');
+}
+function scrDragLeave(e){
+  e.currentTarget.classList.remove('drag');
+}
+
+// ── ADD FORM screenshot ──
+function scrZoneClick(){
+  document.getElementById('scr-file-input').click();
+}
+function scrFileSelected(e){
+  const file = e.target.files[0];
+  if(file) scrSetFile(file);
+}
+function scrDrop(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) scrSetFile(file);
+}
+function scrSetFile(file){
+  if(file.size > 5 * 1024 * 1024){
+    showNotif('warn','Файл слишком большой','Максимум 5MB',3000); return;
+  }
+  _scrFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('scr-img').src = e.target.result;
+    document.getElementById('scr-placeholder').style.display = 'none';
+    document.getElementById('scr-preview').style.display = 'block';
+    document.getElementById('scr-zone').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+function scrRemove(e){
+  e.stopPropagation();
+  _scrFile = null;
+  document.getElementById('scr-img').src = '';
+  document.getElementById('scr-placeholder').style.display = '';
+  document.getElementById('scr-preview').style.display = 'none';
+  document.getElementById('scr-zone').classList.remove('has-image');
+  document.getElementById('scr-file-input').value = '';
+}
+
+// ── EDIT MODAL screenshot ──
+function editScrZoneClick(){
+  document.getElementById('edit-scr-file-input').click();
+}
+function editScrFileSelected(e){
+  const file = e.target.files[0];
+  if(file) editScrSetFile(file);
+}
+function editScrDrop(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) editScrSetFile(file);
+}
+function editScrSetFile(file){
+  if(file.size > 5 * 1024 * 1024){
+    showNotif('warn','Файл слишком большой','Максимум 5MB',3000); return;
+  }
+  _editScrFile = file;
+  _editScrRemoved = false;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('edit-scr-img').src = e.target.result;
+    document.getElementById('edit-scr-placeholder').style.display = 'none';
+    document.getElementById('edit-scr-preview').style.display = 'block';
+    document.getElementById('edit-scr-zone').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+function editScrRemove(e){
+  e.stopPropagation();
+  _editScrFile = null;
+  _editScrRemoved = true;
+  document.getElementById('edit-scr-img').src = '';
+  document.getElementById('edit-scr-placeholder').style.display = '';
+  document.getElementById('edit-scr-preview').style.display = 'none';
+  document.getElementById('edit-scr-zone').classList.remove('has-image');
+  document.getElementById('edit-scr-file-input').value = '';
+}
+
+// Populate edit modal with existing screenshot
+function scrPopulateEdit(screenshotUrl){
+  _editScrFile = null;
+  _editScrRemoved = false;
+  if(screenshotUrl){
+    document.getElementById('edit-scr-img').src = screenshotUrl;
+    document.getElementById('edit-scr-placeholder').style.display = 'none';
+    document.getElementById('edit-scr-preview').style.display = 'block';
+    document.getElementById('edit-scr-zone').classList.add('has-image');
+  } else {
+    document.getElementById('edit-scr-img').src = '';
+    document.getElementById('edit-scr-placeholder').style.display = '';
+    document.getElementById('edit-scr-preview').style.display = 'none';
+    document.getElementById('edit-scr-zone').classList.remove('has-image');
+  }
+}
+
+// ── Ctrl+V paste ──
+document.addEventListener('paste', e => {
+  // Only if we're on the journal page and form is visible
+  const page = document.getElementById('page-journal');
+  if(!page || page.style.display === 'none') return;
+  const items = e.clipboardData?.items;
+  if(!items) return;
+  for(const item of items){
+    if(item.type.startsWith('image/')){
+      const file = item.getAsFile();
+      if(!file) continue;
+      // Edit modal open?
+      const editModal = document.getElementById('edit-modal');
+      if(editModal && editModal.classList.contains('open')){
+        editScrSetFile(file);
+      } else {
+        scrSetFile(file);
+      }
+      showNotif('success','Скриншот вставлен','Из буфера обмена',2000);
+      break;
+    }
+  }
+});
+
+// ── Lightbox ──
+function openLightbox(url){
+  document.getElementById('scr-lb-img').src = url;
+  document.getElementById('scr-lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('scr-lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeLightbox();
+});
+</script>
+
 </body>
 </html>

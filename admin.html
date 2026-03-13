@@ -974,9 +974,9 @@ async function loadAll(){const[ur,pr,tr]=await Promise.all([sb.from('profiles').
 function renderGlobalStats(){const active=allUsers.filter(u=>u.plan==='lifetime'||(u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)>new Date())).length;const pending=allPayments.filter(p=>p.status==='pending').length;const revenue=allPayments.filter(p=>p.status==='confirmed').reduce((s,p)=>s+(p.amount_usdt||0),0);const wins=allTrades.filter(t=>t.result==='win').length;const wr=allTrades.length?Math.round(wins/allTrades.length*100):0;document.getElementById('gs-users').textContent=allUsers.length;document.getElementById('gs-active').textContent=active;document.getElementById('gs-pending').textContent=pending;document.getElementById('gs-trades').textContent=allTrades.length;document.getElementById('gs-revenue').textContent='$'+revenue.toFixed(0);document.getElementById('gs-wr').textContent=allTrades.length?wr+'%':'—';}
 function renderPayments(){const pending=allPayments.filter(p=>p.status==='pending');document.getElementById('pending-list').innerHTML=pending.length?pending.map(p=>payCard(p)).join(''):'<div class="empty">Нет ожидающих платежей ✓</div>';document.getElementById('all-payments').innerHTML=allPayments.length?allPayments.map(p=>payCard(p)).join(''):'<div class="empty">Платежей нет</div>';}
 function payCard(p){const name=p.profiles?.full_name||p.profiles?.username||'Unknown';const d=new Date(p.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const actions=p.status==='pending'?`<div class="pay-actions"><button class="act-btn approve" onclick="confirmPayment('${p.id}','${p.user_id}','${p.plan}')">ПОДТВЕРДИТЬ</button><button class="act-btn reject" onclick="rejectPayment('${p.id}')">ОТКЛОНИТЬ</button></div>`:`<div class="status-badge ${p.status}">${p.status==='confirmed'?'✓ ПОДТВЕРЖДЁН':'✗ ОТКЛОНЁН'}</div>`;return`<div class="pay-card ${p.status}"><div class="pay-info"><div class="pi"><div class="pil">Юзер</div><div class="piv">${name}</div></div><div class="pi"><div class="pil">План</div><div class="piv">${p.plan==='lifetime'?'Навсегда':'Месяц'}</div></div><div class="pi"><div class="pil">Сумма</div><div class="piv">${p.amount_usdt} USDT</div></div><div class="pi"><div class="pil">TX Hash</div><div class="piv" style="font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis">${p.tx_hash||'—'}</div></div><div class="pi"><div class="pil">Дата</div><div class="piv">${d}</div></div></div>${actions}</div>`;}
-async function confirmPayment(payId,userId,plan){const expiresAt=plan==='monthly'?new Date(Date.now()+30*24*60*60*1000).toISOString():null;await Promise.all([sb.from('payments').update({status:'confirmed',confirmed_at:new Date().toISOString(),confirmed_by:currentAdmin.id}).eq('id',payId),sb.from('profiles').update({plan,plan_expires_at:expiresAt}).eq('id',userId)]);await loadAll();}
-async function rejectPayment(payId){await sb.from('payments').update({status:'rejected'}).eq('id',payId);await loadAll();}
-async function grantAccess(userId,plan){const expiresAt=plan==='monthly'?new Date(Date.now()+30*24*60*60*1000).toISOString():null;const updateData=plan==='none'?{plan:'none',plan_expires_at:null}:{plan,plan_expires_at:expiresAt};await sb.from('profiles').update(updateData).eq('id',userId);await loadAll();}
+async function confirmPayment(payId,userId,plan){await adminCall('confirm_payment',{payId,userId,plan});await loadAll();}
+async function rejectPayment(payId){await adminCall('reject_payment',{payId});await loadAll();}
+async function grantAccess(userId,plan){await adminCall('set_plan',{userId,plan});await loadAll();}
 function renderUsers(){
   const el=document.getElementById('users-list');
   if(!allUsers.length){el.innerHTML='<div class="empty">Пользователей нет</div>';return;}
@@ -1131,18 +1131,27 @@ initLogoParticles();
 
 
 
+// ── Admin API helper ─────────────────────────────────────────
+async function adminCall(action, params={}){
+  const {data:{session}} = await sb.auth.getSession();
+  const r = await fetch('/api/admin', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+(session?.access_token||'')},
+    body: JSON.stringify({action, ...params})
+  });
+  const result = await r.json();
+  if(!r.ok) throw new Error(result.error || 'Admin API error');
+  return result;
+}
+
 // ── Admin actions ─────────────────────────────────────────────
 async function adminSetPlan(userId, plan){
   if(!confirm('Изменить план на ' + plan + '?')) return;
-  const updates = {plan};
-  if(plan === 'monthly'){
-    const d = new Date(); d.setMonth(d.getMonth()+1);
-    updates.plan_expires_at = d.toISOString();
-  }
-  const {error} = await sb.from('profiles').update(updates).eq('id', userId);
-  if(error){ alert('Ошибка: ' + error.message); return; }
-  showToast('✅ План обновлён');
-  await loadAll();
+  try{
+    await adminCall('set_plan', {userId, plan});
+    showToast('✅ План обновлён');
+    await loadAll();
+  }catch(e){ alert('Ошибка: ' + e.message); }
 }
 
 async function adminSendMessage(userId, chatId){
@@ -1150,14 +1159,7 @@ async function adminSendMessage(userId, chatId){
   const msg = prompt('Сообщение пользователю:');
   if(!msg) return;
   try{
-    await fetch('/api/notify',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Notify-User': userId},
-      body: JSON.stringify({type:'trade', chat_id: chatId, data:{
-        pair:'📢 Сообщение от администратора', direction:'long', result:'be',
-        pnl_pct:null, pnl_usd:null, setup_type:msg, entry_price:null
-      }})
-    });
+    await adminCall('send_tg', {userId, data:{text: '📢 <b>Сообщение от администратора:</b>\n\n' + msg}});
     showToast('✅ Сообщение отправлено');
   }catch(e){ alert('Ошибка: ' + e.message); }
 }
@@ -1165,10 +1167,11 @@ async function adminSendMessage(userId, chatId){
 async function adminDeleteUser(userId, name){
   if(!confirm('Удалить пользователя ' + name + '? Это действие необратимо!')) return;
   if(!confirm('Вы уверены? Все сделки пользователя тоже будут удалены.')) return;
-  const {error} = await sb.from('profiles').delete().eq('id', userId);
-  if(error){ alert('Ошибка: ' + error.message); return; }
-  showToast('🗑 Пользователь удалён');
-  await loadAll();
+  try{
+    await adminCall('delete_user', {userId});
+    showToast('🗑 Пользователь удалён');
+    await loadAll();
+  }catch(e){ alert('Ошибка: ' + e.message); }
 }
 
 function showToast(msg){

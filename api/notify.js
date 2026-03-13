@@ -64,9 +64,16 @@ export default async function handler(req, res) {
 
     // ── SIGNAL ALERT ──────────────────────────────────────────────
     if (type === 'alert') {
-      const { coin, signal, value, text, time } = data;
+      const { coin, signal, value, text, time, alert_type, condition } = data;
+      const typeEmoji = {
+        price: signal || '🔔',
+        volume: '📊',
+        change: '⚡',
+        volatility: '🌊',
+      }[alert_type] || signal || '🔔';
+      const condStr = condition === 'above' ? '▲' : condition === 'below' ? '▼' : '↔';
       await tgSend(chat_id,
-        `${signal} <b>${coin}</b>\n` +
+        `${typeEmoji} <b>${coin}</b> ${condStr}\n` +
         `📌 ${text || ''}\n` +
         `💵 ${value || ''}  ·  ⏰ ${time || new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`
       );
