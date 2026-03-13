@@ -62,6 +62,16 @@ export default async function handler(req, res) {
       );
     }
 
+    // ── SIGNAL ALERT ──────────────────────────────────────────────
+    if (type === 'alert') {
+      const { coin, signal, value, text, time } = data;
+      await tgSend(chat_id,
+        `${signal} <b>${coin}</b>\n` +
+        `📌 ${text || ''}\n` +
+        `💵 ${value || ''}  ·  ⏰ ${time || new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`
+      );
+    }
+
     // ── TILT ───────────────────────────────────────────────────────
     if (type === 'tilt') {
       const { losses_count, total_loss_pct } = data;

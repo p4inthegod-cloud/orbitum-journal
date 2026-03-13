@@ -810,6 +810,18 @@ body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-heigh
 html[data-theme="mono"] .tnav.active{color:var(--a)!important;border-bottom-color:var(--a)!important;}
 html[data-theme="mono"] .tab.active{color:var(--a)!important;}
 
+
+.uactions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);}
+.ua-btn{font-family:var(--font-mono,monospace);font-size:9px;letter-spacing:.5px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);cursor:pointer;transition:all .15s;}
+.ua-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.ua-plan{border-color:rgba(52,208,88,0.3);color:#34d058;}
+.ua-plan:hover{background:rgba(52,208,88,0.1);}
+.ua-rev{border-color:rgba(255,77,77,0.3)!important;color:#ff4d4d!important;}
+.ua-rev:hover{background:rgba(255,77,77,0.1)!important;}
+.ua-view{border-color:rgba(232,114,42,0.3);color:#e8722a;}
+.ua-msg{border-color:rgba(100,160,255,0.3);color:#64a0ff;}
+.ua-del{border-color:rgba(255,77,77,0.2);color:rgba(255,100,100,0.6);}
+.ua-del:hover{background:rgba(255,77,77,0.1);color:#ff4d4d;}
 </style>
 </head>
 <body>
@@ -965,7 +977,55 @@ function payCard(p){const name=p.profiles?.full_name||p.profiles?.username||'Unk
 async function confirmPayment(payId,userId,plan){const expiresAt=plan==='monthly'?new Date(Date.now()+30*24*60*60*1000).toISOString():null;await Promise.all([sb.from('payments').update({status:'confirmed',confirmed_at:new Date().toISOString(),confirmed_by:currentAdmin.id}).eq('id',payId),sb.from('profiles').update({plan,plan_expires_at:expiresAt}).eq('id',userId)]);await loadAll();}
 async function rejectPayment(payId){await sb.from('payments').update({status:'rejected'}).eq('id',payId);await loadAll();}
 async function grantAccess(userId,plan){const expiresAt=plan==='monthly'?new Date(Date.now()+30*24*60*60*1000).toISOString():null;const updateData=plan==='none'?{plan:'none',plan_expires_at:null}:{plan,plan_expires_at:expiresAt};await sb.from('profiles').update(updateData).eq('id',userId);await loadAll();}
-function renderUsers(){const el=document.getElementById('users-list');if(!allUsers.length){el.innerHTML='<div class="empty">Пользователей нет</div>';return;}el.innerHTML=allUsers.map(u=>{const userTrades=allTrades.filter(t=>t.user_id===u.id);const wins=userTrades.filter(t=>t.result==='win').length;const pnlPct=userTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);const pnlUsd=userTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);const wr=userTrades.length?Math.round(wins/userTrades.length*100):0;const d=new Date(u.created_at).toLocaleDateString('ru-RU');const planCls=u.plan||'none';return`<div class="ucard"><div class="uhead"><div class="uinfo"><div class="uavatar">${(u.full_name||u.username||'?')[0].toUpperCase()}</div><div><div class="uname">${u.full_name||u.username||'—'}</div><div class="uemail">Зарегистрирован: ${d}</div></div></div><div class="plan-badge2 ${planCls}">${planCls==='lifetime'?'∞ НАВСЕГДА':planCls==='monthly'?'📅 МЕСЯЧНЫЙ':'— НЕТ ДОСТУПА'}</div></div><div class="utrades"><div class="ut"><div class="utl">Сделок</div><div class="utv">${userTrades.length}</div></div><div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${userTrades.length?wr+'%':'—'}</div></div><div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${pnlPct>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlPct>=0?'+':'')+pnlPct.toFixed(1)+'%':'—'}</div></div><div class="ut"><div class="utl">P&L $</div><div class="utv" style="color:${pnlUsd>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlUsd>=0?'+$':'-$')+Math.abs(pnlUsd).toFixed(0):'—'}</div></div></div><div class="grant-row"><span class="grant-label">ВЫДАТЬ ДОСТУП:</span><select class="grant-select" id="gs-${u.id}"><option value="monthly">Месяц</option><option value="lifetime">Навсегда</option><option value="none">Убрать доступ</option></select><button class="grant-btn" onclick="grantAccess('${u.id}',document.getElementById('gs-${u.id}').value)">ПРИМЕНИТЬ</button></div></div>`;}).join('');}
+function renderUsers(){
+  const el=document.getElementById('users-list');
+  if(!allUsers.length){el.innerHTML='<div class="empty">Пользователей нет</div>';return;}
+  el.innerHTML=allUsers.map(u=>{
+    const userTrades=allTrades.filter(t=>t.user_id===u.id);
+    const wins=userTrades.filter(t=>t.result==='win').length;
+    const pnlPct=userTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
+    const pnlUsd=userTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);
+    const wr=userTrades.length?Math.round(wins/userTrades.length*100):0;
+    const d=new Date(u.created_at).toLocaleDateString('ru-RU');
+    const planCls=u.plan||'none';
+    // Last activity — last trade
+    const lastTrade=userTrades.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
+    const lastActive=lastTrade?new Date(lastTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'не торговал';
+    // Days since last active
+    const daysSince=lastTrade?Math.floor((Date.now()-new Date(lastTrade.created_at))/(1000*86400)):999;
+    const actColor=daysSince<=1?'#34d058':daysSince<=7?'#e8722a':'rgba(255,255,255,0.25)';
+    const tgStatus=u.tg_linked?'✈️':'—';
+    return`<div class="ucard">
+      <div class="uhead">
+        <div class="uinfo">
+          <div class="uavatar">${(u.full_name||u.username||'?')[0].toUpperCase()}</div>
+          <div>
+            <div class="uname">${u.full_name||u.username||'—'} <span style="font-size:9px;color:rgba(255,255,255,0.3)">#${u.id.slice(0,8)}</span></div>
+            <div class="uemail">${u.email||'—'}</div>
+            <div class="uemail" style="margin-top:2px">📅 Рег: ${d} · ⏱ Активен: <span style="color:${actColor}">${lastActive}</span> · TG: ${tgStatus}</div>
+          </div>
+        </div>
+        <div class="plan-badge2 ${planCls}">${planCls==='lifetime'?'∞ НАВСЕГДА':planCls==='monthly'?'📅 МЕСЯЧНЫЙ':'— НЕТ'}</div>
+      </div>
+      <div class="utrades">
+        <div class="ut"><div class="utl">Сделок</div><div class="utv">${userTrades.length}</div></div>
+        <div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${userTrades.length?wr+'%':'—'}</div></div>
+        <div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${pnlPct>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlPct>=0?'+':'')+pnlPct.toFixed(1)+'%':'—'}</div></div>
+        <div class="ut"><div class="utl">P&L $</div><div class="utv" style="color:${pnlUsd>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlUsd>=0?'+$':'$-')+Math.abs(pnlUsd).toFixed(0):'—'}</div></div>
+        <div class="ut"><div class="utl">Последняя</div><div class="utv" style="font-size:9px">${lastActive}</div></div>
+      </div>
+      <div class="uactions">
+        <button class="ua-btn ua-plan" onclick="adminSetPlan('${u.id}','lifetime')">∞ НАВСЕГДА</button>
+        <button class="ua-btn ua-plan" onclick="adminSetPlan('${u.id}','monthly')">📅 МЕСЯЦ</button>
+        <button class="ua-btn ua-plan ua-rev" onclick="adminSetPlan('${u.id}','none')">🚫 УБРАТЬ</button>
+        <button class="ua-btn ua-view" onclick="window.open('/profile?id=${u.id}','_blank')">👤 ПРОФИЛЬ</button>
+        <button class="ua-btn ua-msg" onclick="adminSendMessage('${u.id}','${u.tg_chat_id||''}')">✈️ НАПИСАТЬ</button>
+        <button class="ua-btn ua-del" onclick="adminDeleteUser('${u.id}','${u.full_name||u.username||'?'}')">🗑 УДАЛИТЬ</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderTeamStats(){const el=document.getElementById('team-stats');if(!allTrades.length){el.innerHTML='<div class="empty">Сделок нет</div>';return;}const pairs={};allTrades.forEach(t=>{if(!pairs[t.pair])pairs[t.pair]={total:0,wins:0,pnl:0};pairs[t.pair].total++;if(t.result==='win')pairs[t.pair].wins++;pairs[t.pair].pnl+=t.pnl_pct||0;});const rows=Object.entries(pairs).sort((a,b)=>b[1].total-a[1].total).map(([pair,d])=>{const wr=Math.round(d.wins/d.total*100);return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px">${pair}</div><div style="display:flex;gap:20px"><div class="ut"><div class="utl">Сделок</div><div class="utv">${d.total}</div></div><div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${wr}%</div></div><div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${d.pnl>=0?'var(--g)':'var(--r)'}">${(d.pnl>=0?'+':'')+d.pnl.toFixed(1)}%</div></div></div></div>`;}).join('');el.innerHTML=`<div style="background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:20px">${rows}</div>`;}
 function showTab(t){['payments','users','stats'].forEach(id=>{document.getElementById('tab-'+id).style.display=id===t?'block':'none';});document.querySelectorAll('.tab').forEach((btn,i)=>{btn.classList.toggle('active',['payments','users','stats'][i]===t);});}
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
@@ -1070,6 +1130,55 @@ initLogoParticles();
 })();
 
 
+
+// ── Admin actions ─────────────────────────────────────────────
+async function adminSetPlan(userId, plan){
+  if(!confirm('Изменить план на ' + plan + '?')) return;
+  const updates = {plan};
+  if(plan === 'monthly'){
+    const d = new Date(); d.setMonth(d.getMonth()+1);
+    updates.plan_expires_at = d.toISOString();
+  }
+  const {error} = await sb.from('profiles').update(updates).eq('id', userId);
+  if(error){ alert('Ошибка: ' + error.message); return; }
+  showToast('✅ План обновлён');
+  await loadAll();
+}
+
+async function adminSendMessage(userId, chatId){
+  if(!chatId){ alert('У пользователя не привязан Telegram'); return; }
+  const msg = prompt('Сообщение пользователю:');
+  if(!msg) return;
+  try{
+    await fetch('/api/notify',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Notify-User': userId},
+      body: JSON.stringify({type:'trade', chat_id: chatId, data:{
+        pair:'📢 Сообщение от администратора', direction:'long', result:'be',
+        pnl_pct:null, pnl_usd:null, setup_type:msg, entry_price:null
+      }})
+    });
+    showToast('✅ Сообщение отправлено');
+  }catch(e){ alert('Ошибка: ' + e.message); }
+}
+
+async function adminDeleteUser(userId, name){
+  if(!confirm('Удалить пользователя ' + name + '? Это действие необратимо!')) return;
+  if(!confirm('Вы уверены? Все сделки пользователя тоже будут удалены.')) return;
+  const {error} = await sb.from('profiles').delete().eq('id', userId);
+  if(error){ alert('Ошибка: ' + error.message); return; }
+  showToast('🗑 Пользователь удалён');
+  await loadAll();
+}
+
+function showToast(msg){
+  let t = document.getElementById('admin-toast');
+  if(!t){ t=document.createElement('div'); t.id='admin-toast';
+    t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1a1f2e;border:1px solid rgba(232,114,42,0.4);color:#e8722a;font-family:monospace;font-size:12px;padding:12px 20px;border-radius:8px;z-index:99999;transition:opacity .3s';
+    document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.opacity='0', 3000);
+}
 </script>
 
 </body>
