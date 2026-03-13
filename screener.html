@@ -963,22 +963,16 @@ async function safeFetch(url){
   }catch(e){ return null; }
 }
 
-// ── Load coins from CoinGecko ────────────────
+// ── Load coins via /api/ticker (server-side proxy, no CORS issues) ──
 async function loadCoins(){
   showLoadMsg('ЗАГРУЗКА ДАННЫХ...', false);
-  const cgPath = '/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=80&page=1&sparkline=true&price_change_percentage=1h,24h,7d,30d';
-  const attempts = [
-    'https://api.coingecko.com' + cgPath,
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.coingecko.com' + cgPath),
-    'https://corsproxy.io/?' + encodeURIComponent('https://api.coingecko.com' + cgPath),
-  ];
-  let data = null;
-  for(const url of attempts){
-    data = await safeFetch(url);
-    if(Array.isArray(data) && data.length > 0) break;
-    data = null;
+  let data = await safeFetch('/api/ticker?type=screener');
+  // Fallback: try allorigins proxy to CoinGecko directly
+  if(!Array.isArray(data) || !data.length){
+    const cgPath = '/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h,24h,7d,30d';
+    data = await safeFetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.coingecko.com' + cgPath));
   }
-  if(!data){
+  if(!Array.isArray(data) || !data.length){
     showLoadMsg('Ошибка загрузки данных.\nПроверь подключение или попробуй позже.', true);
     return;
   }
@@ -989,18 +983,18 @@ async function loadCoins(){
   updateStatsStrip();
   initWS();
   fetchFNG();
-  // Schedule metadata refresh every 5 min
+  // Refresh metadata every 5 min
   setInterval(refreshMetadata, 300000);
 }
 
 async function refreshMetadata(){
-  const cgPath = '/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=80&page=1&sparkline=true&price_change_percentage=1h,24h,7d,30d';
-  const data = await safeFetch('https://api.coingecko.com' + cgPath);
-  if(!Array.isArray(data)) return;
-  // Merge WS prices into fresh metadata
+  const data = await safeFetch('/api/ticker?type=screener');
+  if(!Array.isArray(data) || !data.length) return;
+  // Merge live WS prices into fresh metadata
   data.forEach(c => {
     const ws = _wsCache[c.id];
     if(ws?.price) c.current_price = ws.price;
+    if(ws?.chg24 != null) c.price_change_percentage_24h = ws.chg24;
   });
   allCoins = data;
   renderCoins();
@@ -1024,11 +1018,12 @@ function showLoadMsg(text, isErr){
 
 // ── Fear & Greed ─────────────────────────────
 async function fetchFNG(){
-  const d = await safeFetch('https://api.alternative.me/fng/?limit=1');
-  if(!d?.data?.[0]) return;
-  const v = parseInt(d.data[0].value);
+  const d = await safeFetch('/api/ticker?type=fng');
+  // Response is already unwrapped to data[0] by api/ticker
+  const v = d?.value ? parseInt(d.value) : null;
+  if(!v) return;
   const cls = v >= 60 ? 'greed' : v <= 40 ? 'fear' : 'neutral';
-  const lbl = d.data[0].value_classification;
+  const lbl = d.value_classification || '';
   const el = document.querySelector('#ss-fng .fng-val');
   if(el){ el.textContent = v + ' · ' + lbl; el.className = 'fng-val ' + cls; }
 }
