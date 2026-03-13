@@ -5122,6 +5122,49 @@ async function loadTrades(){
       .subscribe();
   }catch(e){console.warn('Realtime not available, using polling');}
 
+  // ── REALTIME TRADES SUBSCRIPTION ─────────────────────────────────────
+  // Обновляем метрики мгновенно при любом изменении сделок в Supabase
+  try{
+    sb.channel('trades_live_'+currentUser.id)
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'trades',filter:'user_id=eq.'+currentUser.id},
+        async (payload)=>{
+          // Перезагружаем сделки и обновляем метрики
+          const{data:fresh}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+          if(fresh){ allTrades=fresh; updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); }
+        })
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'trades',filter:'user_id=eq.'+currentUser.id},
+        async ()=>{
+          const{data:fresh}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+          if(fresh){ allTrades=fresh; updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); }
+        })
+      .on('postgres_changes',{event:'DELETE',schema:'public',table:'trades'},
+        async ()=>{
+          const{data:fresh}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+          if(fresh){ allTrades=fresh; updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); }
+        })
+      .subscribe((status)=>{
+        if(status==='SUBSCRIBED') console.log('[Metrics] Realtime trades ✓');
+      });
+  }catch(e){
+    console.warn('[Metrics] Realtime trades failed, fallback polling:', e.message);
+    // Fallback: polling каждые 5 сек если Realtime недоступен
+    setInterval(async()=>{
+      const{data:fresh}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+      if(fresh && JSON.stringify(fresh.map(t=>t.id+t.updated_at))!==JSON.stringify(allTrades.map(t=>t.id+t.updated_at))){
+        allTrades=fresh; updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
+      }
+    }, 5000);
+  }
+
+  // ── LIVE CLOCK для метрик (обновляем каждую секунду визуальные индикаторы) ──
+  if(!window._metricsClockStarted){
+    window._metricsClockStarted=true;
+    setInterval(()=>{
+      // Обновляем динамические метрики которые меняются со временем (стрик, дата)
+      if(allTrades && allTrades.length) updateStatsEnhanced();
+    }, 1000);
+  }
+
 }
 
 function setDir(d){
@@ -8488,10 +8531,43 @@ async function fetchForex(){
 // ── СТАРТ ────────────────────────────────────────────────
 function initTicker() {
   renderTickerTrack();
-  fetchCrypto();
-  fetchForex();
-  setInterval(fetchCrypto, 10000); // каждые 30 сек
-  setInterval(fetchForex,  30000); // каждую минуту
+  // Пробуем Binance WebSocket — реальное время
+  const wsPairs = TICKER_SYMBOLS.filter(s=>s.type==='crypto').map(s=>s.pair.toLowerCase()+'@miniTicker').join('/');
+  let ws;
+  function connectWS(){
+    ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${wsPairs}`);
+    ws.onmessage = e => {
+      try{
+        const msg = JSON.parse(e.data);
+        const d = msg.data;
+        if(!d||!d.s) return;
+        const sym = TICKER_SYMBOLS.find(s=>s.pair.toUpperCase()===d.s);
+        if(!sym) return;
+        const price = parseFloat(d.c);
+        const open  = parseFloat(d.o);
+        const chg   = open ? ((price-open)/open*100) : null;
+        updateTickerItem(sym.sym, price, chg);
+      }catch(err){}
+    };
+    ws.onclose = () => { setTimeout(connectWS, 3000); };
+    ws.onerror = () => { ws.close(); };
+  }
+  try{
+    connectWS();
+    // Forex остаётся на polling (нет free WS)
+    fetchForex();
+    setInterval(fetchForex, 60000);
+    // Fallback: если WS не дал данных за 4 сек — берём из API
+    setTimeout(()=>{
+      const hasData = TICKER_SYMBOLS.filter(s=>s.type==='crypto').some(s=>tickerData[s.sym]?.price!==null);
+      if(!hasData){ fetchCrypto(); setInterval(fetchCrypto, 10000); }
+    }, 4000);
+  }catch(e){
+    // Полный fallback на polling
+    fetchCrypto(); fetchForex();
+    setInterval(fetchCrypto, 10000);
+    setInterval(fetchForex,  60000);
+  }
 }
 
 if (document.readyState === 'loading') {
