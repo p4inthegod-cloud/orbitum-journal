@@ -9798,84 +9798,284 @@ const DEMO_KEY = 'orb_demo_trades';
 
 // Realistic seed trades
 function generateDemoTrades(){
-  const pairs  = ['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','AVAX/USDT','LINK/USDT','ARB/USDT','DOGE/USDT','SUI/USDT'];
-  const setups = ['Wyckoff Spring','SMC BOS','OB + FVG','Elliott W3','VRVP Sweep','Accumulation','Market Structure Shift','Liquidity Grab'];
-  const whys   = ['Чёткий BOS на 4H + FVG закрыт. Объём подтвердил разворот.','Wyckoff Spring на уровне ключевой поддержки. Накопление завершено.','Elliott Wave 3 — импульс с хорошим R:R. Вход после ретеста.','OB + FVG совпадение. Тренд восходящий на Daily.','VRVP VAH пробой с закреплением. Ликвидность выметена.','Структура: HH+HL. Ретест EMA20 на 1H. Риск чёткий.','Liquidity grab под локальный лоу. Быстрый реверс.','SMC: смена структуры + inducement отработан.'];
-  const feels  = ['Спокоен, всё по плану.','Немного нервничал при входе, но держался правил.','Уверен — сетап кристально чистый.','Ждал долго, зато вошёл точно.','Жадность потянула к большому размеру, устоял.'];
-  const lessons = ['Подтверждать вход на младшем ТФ всегда быстрее выход.','Не двигать SL раньше +1R — уже проверено.','Планировать TP заранее, не во время движения.','Объём важнее паттерна — без объёма не входить.'];
-  const trades = [];
-  let id = 1000;
   const now = Date.now();
-  const baseDeposit = 2500;
 
-  const results = [
-    {r:'win',pnlPct:3.2,pnlUsd:80,dir:'long'},
-    {r:'loss',pnlPct:-1.5,pnlUsd:-37.5,dir:'long'},
-    {r:'win',pnlPct:5.8,pnlUsd:145,dir:'long'},
-    {r:'win',pnlPct:2.1,pnlUsd:52.5,dir:'short'},
-    {r:'loss',pnlPct:-1.0,pnlUsd:-25,dir:'short'},
-    {r:'win',pnlPct:7.4,pnlUsd:185,dir:'long'},
-    {r:'be',pnlPct:0,pnlUsd:0,dir:'long'},
-    {r:'win',pnlPct:4.2,pnlUsd:105,dir:'long'},
-    {r:'loss',pnlPct:-2.0,pnlUsd:-50,dir:'short'},
-    {r:'win',pnlPct:6.1,pnlUsd:152.5,dir:'long'},
-    {r:'win',pnlPct:3.9,pnlUsd:97.5,dir:'long'},
-    {r:'loss',pnlPct:-1.5,pnlUsd:-37.5,dir:'long'},
-    {r:'win',pnlPct:2.8,pnlUsd:70,dir:'short'},
-    {r:'win',pnlPct:8.3,pnlUsd:207.5,dir:'long'},
-    {r:'loss',pnlPct:-1.0,pnlUsd:-25,dir:'long'},
-    {r:'win',pnlPct:4.5,pnlUsd:112.5,dir:'long'},
-    {r:'be',pnlPct:0,pnlUsd:0,dir:'short'},
-    {r:'win',pnlPct:3.3,pnlUsd:82.5,dir:'long'},
-    {r:'loss',pnlPct:-2.0,pnlUsd:-50,dir:'long'},
-    {r:'win',pnlPct:9.1,pnlUsd:227.5,dir:'long'},
+  // ── Helper: random in range ──
+  const rnd = (a,b) => a + Math.random()*(b-a);
+  const rndInt = (a,b) => Math.floor(rnd(a,b+1));
+  const pick = arr => arr[rndInt(0,arr.length-1)];
+
+  // ── Raw trade definitions ── (pair, dir, result, pnlPct, daysAgo, setup, why, feel, lesson, emotion)
+  // Designed to show: best/worst setup, pair breakdown, equity curve with DD+recovery,
+  // emotion patterns, discipline score ~72, win rate ~68%, streak data, heatmap variance
+  const raw = [
+    // === МЕСЯЦ 1 (90-60 дней назад) — начало, нестабильно ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.8, usd:95,  dAgo:89, setup:'Wyckoff Spring',
+     why:'Накопление на 4H завершено. Объём подтвердил Spring. Вход после LPS.',
+     feel:'Немного нервничал, но сетап чистый — дождался подтверждения.',
+     lesson:'Терпение при ожидании LPS окупается. Не входить раньше.',
+     conf:7,fear:4,greed:3,calm:6},
+    {pair:'ETH/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:87, setup:'SMC BOS',
+     why:'BOS на 1H казался чётким, но вошёл без подтверждения на 4H.',
+     feel:'Торопился — боялся пропустить движение.',
+     lesson:'Всегда подтверждать BOS на старшем ТФ перед входом.',
+     conf:4,fear:6,greed:7,calm:3},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:6.2, usd:155, dAgo:85, setup:'Elliott W3',
+     why:'Импульс W3 — самая длинная волна. Ретест W2 идеальный. R:R 1:4.',
+     feel:'Уверен. Сетап готовил 2 дня, вход по плану.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'BTC/USDT',dir:'short',r:'win', pct:2.9, usd:72,  dAgo:83, setup:'OB + FVG',
+     why:'OB на 4H + FVG незакрытый. Продажа от premium зоны.',
+     feel:'Спокоен, всё по плану.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:81, setup:'VRVP Sweep',
+     why:'Свип VAL, думал откупят. Объёма не было.',
+     feel:'Жадность — хотел быстрый памп. Ошибка.',
+     lesson:'Без объёма на VAL не входить. DOGE непредсказуем.',
+     conf:4,fear:3,greed:8,calc:2},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.1, usd:102, dAgo:78, setup:'Wyckoff Spring',
+     why:'Второй Spring на недельном. Накопление фаза D. Сила покупателей.',
+     feel:'Терпел 3 дня. Зашёл точно в момент теста.',
+     lesson:null,
+     conf:8,fear:3,greed:3,calm:8},
+    {pair:'ARB/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:76, setup:'Market Structure',
+     why:'MSS на 1H, но рынок в нисходящем тренде на 4H. Контр-тренд.',
+     feel:'Игнорировал старший ТФ. Просто хотел торговать.',
+     lesson:'Никогда не торговать против 4H тренда на 1H сигнале.',
+     conf:3,fear:4,greed:6,calm:4},
+    {pair:'SOL/USDT',dir:'short',r:'be',  pct:0,   usd:0,   dAgo:74, setup:'OB + FVG',
+     why:'OB + FVG, но движение слабое. Вышел в ноль.',
+     feel:'Правильно — не было подтверждения на объёме.',
+     lesson:null,
+     conf:6,fear:3,greed:2,calm:7},
+    {pair:'BNB/USDT',dir:'long', r:'win', pct:3.3, usd:82,  dAgo:71, setup:'Accumulation',
+     why:'Фаза B накопления. Объём растёт. BNB следует за BTC.',
+     feel:'Спокойный вход. Держал 48 часов.',
+     lesson:null,
+     conf:7,fear:2,greed:3,calm:8},
+    {pair:'XRP/USDT',dir:'long', r:'win', pct:5.5, usd:137, dAgo:69, setup:'Elliott W3',
+     why:'XRP — Elliott отрабатывает чисто. W3 от LG с объёмом.',
+     feel:'Уверен. Цель 1:3.5 достигнута.',
+     lesson:null,
+     conf:9,fear:1,greed:4,calm:9},
+
+    // === МЕСЯЦ 2 (60-30 дней назад) — рост, drawdown, восстановление ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:8.4, usd:210, dAgo:58, setup:'Wyckoff Spring',
+     why:'Monthly Spring на BTC. Ключевой уровень $58k. Огромный объём.',
+     feel:'Лучший сетап за месяц. Держал 5 дней.',
+     lesson:null,
+     conf:10,fear:1,greed:5,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:56, setup:'SMC BOS',
+     why:'BOS + ChoCh, но новости FUD вышли неожиданно.',
+     feel:'Неудача из-за внешнего фактора. Принял.',
+     lesson:'Перед входом проверять новостной фон.',
+     conf:7,fear:5,greed:3,calm:6},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:4.7, usd:117, dAgo:54, setup:'OB + FVG',
+     why:'Premium зона на 4H. OB + незакрытый FVG. Продажа с 1:3.',
+     feel:'Уверен. Структура медвежья на дневном.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'LINK/USDT',dir:'long', r:'win', pct:7.1, usd:177, dAgo:52, setup:'VRVP Sweep',
+     why:'Свип VAH VRVP на высоком объёме. Накопление перед памп.',
+     feel:'Терпел 4 дня после входа. Не вышел рано.',
+     lesson:'Держать позицию до TP — не паниковать при коррекции 1%.',
+     conf:8,fear:3,greed:4,calm:7},
+    {pair:'BTC/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:50, setup:'Market Structure',
+     why:'HH+HL структура. Вход на ретесте. SL выбило на wicks.',
+     feel:'Огорчён. SL нужно было шире.',
+     lesson:'На BTC SL ставить под фракталный лоу, не под свечу.',
+     conf:6,fear:4,greed:3,calm:5},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:5.2, usd:130, dAgo:48, setup:'Elliott W3',
+     why:'SOL — W3 продолжение. Фибо 1.618 цель. Объём растёт.',
+     feel:'Спокоен. Вход точный.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:46, setup:'Accumulation',
+     why:'Думал фаза C накопления. Оказалась дистрибуция.',
+     feel:'Грустно. Не проверил структуру на дневном.',
+     lesson:'DOGE — только трендовые сделки, без контр-тренда.',
+     conf:4,fear:5,greed:6,calm:3},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.6, usd:90,  dAgo:44, setup:'Wyckoff Spring',
+     why:'LPS после Spring. Объём слабее медведей. Вход точный.',
+     feel:'Нейтрально. Стандартная сделка.',
+     lesson:null,
+     conf:7,fear:3,greed:3,calm:7},
+    {pair:'BNB/USDT',dir:'short',r:'win', pct:3.0, usd:75,  dAgo:42, setup:'SMC BOS',
+     why:'BOS вниз на 4H после дистрибуции. Продажа с уровня OB.',
+     feel:'Хладнокровно. Короткие работают хорошо в боковике.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'XRP/USDT',dir:'long', r:'win', pct:9.3, usd:232, dAgo:40, setup:'Elliott W3',
+     why:'XRP W3 — пробой ATH зоны. Объём рекордный. Держал 7 дней.',
+     feel:'Лучшая сделка месяца. Почти вышел рано — устоял.',
+     lesson:'Большие позиции требуют терпения. TP — не паника.',
+     conf:10,fear:2,greed:5,calm:8},
+
+    // === МЕСЯЦ 3 (30-0 дней назад) — стабильный, системный ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:4.3, usd:107, dAgo:28, setup:'OB + FVG',
+     why:'BTC коррекция 8%. OB на 4H + FVG. Зона дискаунта чёткая.',
+     feel:'Уверен. Уровень держал 3 раза.',
+     lesson:null,
+     conf:9,fear:2,greed:3,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'win', pct:5.7, usd:142, dAgo:26, setup:'VRVP Sweep',
+     why:'VRVP POC + свип локального лоу на высоком объёме.',
+     feel:'Спокоен. Сетап отрабатывал уже 2 раза на этом активе.',
+     lesson:null,
+     conf:9,fear:1,greed:3,calm:9},
+    {pair:'SOL/USDT',dir:'short',r:'loss',pct:-1.0,usd:-25, dAgo:25, setup:'Market Structure',
+     why:'Ложный MSS — спровоцировал стоп и развернулся.',
+     feel:'Принял. Стоп маленький, убыток контролируемый.',
+     lesson:null,
+     conf:6,fear:3,greed:2,calm:7},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.9, usd:97,  dAgo:23, setup:'Accumulation',
+     why:'ETH Wyckoff Phase D. Test успешный. BTC поддерживает.',
+     feel:'Хладнокровно. Вход по плану.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'LINK/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:21, setup:'SMC BOS',
+     why:'BOS подтверждён, но движение слабее ожидаемого. Вышел в ноль.',
+     feel:'Правильное решение — рынок замедлился.',
+     lesson:'Если движение слабее нормы — выходить в BE.',
+     conf:6,fear:3,greed:2,calm:8},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:6.8, usd:170, dAgo:19, setup:'Wyckoff Spring',
+     why:'Weekly Spring. Объём абсорбции максимальный за 3 месяца.',
+     feel:'Максимальная уверенность. Добавлял на откате внутри дня.',
+     lesson:null,
+     conf:10,fear:1,greed:5,calm:9},
+    {pair:'ARB/USDT',dir:'long', r:'win', pct:4.4, usd:110, dAgo:17, setup:'Elliott W3',
+     why:'ARB W3 от базы. Фибо .618 ретест + объём.',
+     feel:'Уверен. Цель достигнута за 2 дня.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:3.1, usd:77,  dAgo:16, setup:'OB + FVG',
+     why:'OB дистрибуции на 4H. FVG выше цены закрыт. Продажа с 1:2.5.',
+     feel:'Спокоен.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'SUI/USDT',dir:'long', r:'win', pct:11.2,usd:280, dAgo:14, setup:'Accumulation',
+     why:'SUI — фаза C→D. Тест Creek. Объём подтвердил. Потенциал 3x.',
+     feel:'Взволнован, но держался позиции. Лучшая сделка месяца.',
+     lesson:'Выделять больше капитала на сетапы с Wyckoff Phasing.',
+     conf:9,fear:3,greed:6,calm:7},
+    {pair:'BNB/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:12, setup:'VRVP Sweep',
+     why:'Свип VAL не подтверждён объёмом. Преждевременный вход.',
+     feel:'Нетерпеливость. Надо было ждать объём.',
+     lesson:'Объём — обязательное условие для VRVP сетапов.',
+     conf:5,fear:3,greed:5,calm:5},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:2.8, usd:70,  dAgo:10, setup:'Market Structure',
+     why:'HH+HL на 4H. Ретест структуры + EMA21 совпадение.',
+     feel:'Стандартно. Не лучший сетап, но правила выполнены.',
+     lesson:null,
+     conf:7,fear:2,greed:3,calm:8},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:7.6, usd:190, dAgo:8, setup:'Elliott W3',
+     why:'SOL W3 ускорение. Пробой ATH. Объём экстремальный.',
+     feel:'Очень уверен. Держал позицию через коррекцию 3%.',
+     lesson:null,
+     conf:10,fear:2,greed:5,calm:8},
+    {pair:'XRP/USDT',dir:'short',r:'win', pct:3.5, usd:87,  dAgo:7, setup:'SMC BOS',
+     why:'XRP — BOS вниз после дистрибуции. OB на 4H подтверждён.',
+     feel:'Хладнокровно.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:5, setup:'OB + FVG',
+     why:'OB + FVG, но BTC резко упал — потащил альты.',
+     feel:'Принял потерю спокойно. Риск был под контролем.',
+     lesson:'При нестабильном BTC уменьшать размер позиции на альтах.',
+     conf:6,fear:4,greed:3,calm:7},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.0, usd:100, dAgo:4, setup:'Wyckoff Spring',
+     why:'ETH Spring после коррекции. Абсорбция на объёме. Вход по плану.',
+     feel:'Спокоен. Уже 4-й Spring на этом активе — знаю как ведёт себя.',
+     lesson:null,
+     conf:9,fear:2,greed:3,calm:9},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.2, usd:80,  dAgo:3, setup:'Accumulation',
+     why:'BTC Phase D. Подтверждённый SOS. Добавился на BackUp Action.',
+     feel:'Уверен. BTC структура бычья на всех ТФ.',
+     lesson:null,
+     conf:9,fear:1,greed:4,calm:9},
+    {pair:'SOL/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:2, setup:'VRVP Sweep',
+     why:'Свип VAH, но реакция слабая. Перевёл в BE и вышел.',
+     feel:'Правильное управление. Не жалею.',
+     lesson:null,
+     conf:7,fear:2,greed:2,calm:9},
+    {pair:'LINK/USDT',dir:'long', r:'win', pct:5.9, usd:147, dAgo:1, setup:'Elliott W3',
+     why:'LINK W3 — задержанное движение. Прорыв + объём + структура.',
+     feel:'Уверен. Держал 24 часа.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:2.5, usd:62,  dAgo:0.3, setup:'OB + FVG',
+     why:'ETH откат к OB после импульса. FVG + premium зона.',
+     feel:'Хладнокровно. Короткая внутридневная.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:1.8, usd:45,  dAgo:0.1, setup:'Market Structure',
+     why:'Ретест пробитого уровня сопротивления→поддержки. Быстрый скальп.',
+     feel:'Спокоен. Маленькая сделка для разминки.',
+     lesson:null,
+     conf:7,fear:1,greed:2,calm:9},
   ];
 
-  results.forEach((res, i) => {
-    const pair = pairs[i % pairs.length];
-    const msAgo = (20 - i) * 2.3 * 24 * 3600 * 1000 + Math.random() * 3600000;
-    const entry = pair.startsWith('BTC') ? 61000 + Math.random()*4000
-                : pair.startsWith('ETH') ? 2800 + Math.random()*400
-                : pair.startsWith('SOL') ? 140 + Math.random()*30
-                : 1 + Math.random()*5;
-    const sl = entry * (res.dir==='long' ? 0.97 : 1.03);
-    const exit = res.r==='win' ? entry*(res.dir==='long'?1.045:0.955)
-               : res.r==='loss' ? entry*(res.dir==='long'?0.975:1.025)
-               : entry;
-    trades.push({
+  let id = 1001;
+  return raw.map(t => {
+    const msAgo = t.dAgo * 24 * 3600 * 1000 + rnd(0, 3600000);
+    const baseDeposit = 2500;
+    const entryBase = t.pair.startsWith('BTC') ? 62000+rnd(-3000,3000)
+                    : t.pair.startsWith('ETH') ? 2900+rnd(-200,200)
+                    : t.pair.startsWith('SOL') ? 155+rnd(-20,20)
+                    : t.pair.startsWith('BNB') ? 580+rnd(-30,30)
+                    : t.pair.startsWith('XRP') ? 0.55+rnd(-0.05,0.05)
+                    : t.pair.startsWith('LINK')? 14+rnd(-1,1)
+                    : t.pair.startsWith('ARB') ? 1.1+rnd(-0.1,0.1)
+                    : t.pair.startsWith('AVAX')? 35+rnd(-3,3)
+                    : t.pair.startsWith('SUI') ? 3.8+rnd(-0.3,0.3)
+                    : t.pair.startsWith('DOGE')? 0.16+rnd(-0.01,0.01)
+                    : 1+rnd(0,2);
+    const entry = parseFloat(entryBase.toFixed(4));
+    const slPct = t.dir==='long' ? 0.975 : 1.025;
+    const sl    = parseFloat((entry * slPct).toFixed(4));
+    const exitMult = t.r==='win' ? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
+                   : t.r==='loss'? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
+                   : 1;
+    const exit  = parseFloat((entry * exitMult).toFixed(4));
+    return {
       id: String(id++),
       user_id: 'demo',
-      pair,
-      direction: res.dir,
-      result: res.r,
+      pair: t.pair,
+      direction: t.dir,
+      result: t.r,
       deposit: baseDeposit,
-      pnl_pct: res.pnlPct,
-      pnl_usd: res.pnlUsd,
-      entry_price: parseFloat(entry.toFixed(2)),
-      exit_price: parseFloat(exit.toFixed(2)),
-      stop_loss: parseFloat(sl.toFixed(2)),
-      setup_type: setups[i % setups.length],
-      note_why: whys[i % whys.length],
-      note_feel: feels[i % feels.length],
-      note_lesson: i % 3 === 0 ? lessons[i % lessons.length] : null,
-      emotion_conf: 5 + Math.floor(Math.random()*4),
-      emotion_fear: 2 + Math.floor(Math.random()*3),
-      emotion_greed: 2 + Math.floor(Math.random()*3),
-      emotion_calm: 5 + Math.floor(Math.random()*4),
+      pnl_pct: t.pct,
+      pnl_usd: t.usd,
+      entry_price: entry,
+      exit_price: exit,
+      stop_loss: sl,
+      setup_type: t.setup,
+      note_why: t.why,
+      note_feel: t.feel,
+      note_lesson: t.lesson || null,
+      emotion_conf: t.conf || 7,
+      emotion_fear: t.fear || 3,
+      emotion_greed: t.greed || 3,
+      emotion_calm: t.calm || 7,
       screenshot_url: null,
       created_at: new Date(now - msAgo).toISOString(),
-    });
-  });
-  return trades;
+    };
+  }).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
 function demoLoadTrades(){
   try{
-    const stored = localStorage.getItem(DEMO_KEY);
-    if(stored) return JSON.parse(stored);
+    const ver = localStorage.getItem('orb_demo_seed_ver');
+    if(ver === '2') {
+      const stored = localStorage.getItem(DEMO_KEY);
+      if(stored) return JSON.parse(stored);
+    }
   }catch(e){}
+  // Generate fresh seed (first run or version bump)
   const seed = generateDemoTrades();
   localStorage.setItem(DEMO_KEY, JSON.stringify(seed));
+  localStorage.setItem('orb_demo_seed_ver', '2');
   return seed;
 }
 function demoSaveTrades(trades){
