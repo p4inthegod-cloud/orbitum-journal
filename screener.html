@@ -122,12 +122,22 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .tb-sort{display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .tb-sort span{font-size:9px;color:var(--m2);letter-spacing:1.5px;}
 .tb-sort select,.tb-search{
-  background:rgba(255,255,255,0.04);border:1px solid var(--bd);
+  background:#0c0f15;border:1px solid var(--bd);
   color:var(--t);font-family:var(--font-mono);font-size:10px;
   padding:5px 8px;border-radius:6px;outline:none;
   transition:border-color 0.15s;
 }
-.tb-sort select{cursor:pointer;}
+.tb-sort select{
+  cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23e8722a' opacity='.6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 8px center;
+  padding-right:24px;
+}
+.tb-sort select option{
+  background:#0c0f15;color:var(--t);font-family:'JetBrains Mono',monospace;
+}
 .tb-sort select:hover,.tb-search:focus{border-color:rgba(232,114,42,0.35);}
 .tb-search{width:160px;letter-spacing:0.5px;}
 .tb-search::placeholder{color:var(--m2);}
@@ -274,6 +284,18 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   align-items:center;justify-content:center;
 }
 .modal-backdrop.open{display:flex;}
+
+/* Отдельный оверлей для detail-panel — не перекрывает саму панель */
+.detail-overlay{
+  display:none;position:fixed;inset:0;z-index:490;
+  background:rgba(0,0,0,0);
+  transition:background 0.3s ease;
+}
+.detail-overlay.open{
+  display:block;
+  background:rgba(0,0,6,0.55);
+  backdrop-filter:blur(2px);
+}
 .modal-box{
   background:linear-gradient(145deg,#0f1420 0%,#0c1018 100%);
   border:1px solid rgba(255,255,255,0.1);border-radius:16px;
@@ -358,12 +380,12 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 
 /* ── COIN DETAIL PANEL ── */
 .detail-panel{
-  display:none;position:fixed;top:0;right:-420px;width:420px;height:100vh;
-  background:linear-gradient(180deg,#0d1017 0%,#090c11 100%);
-  border-left:1px solid rgba(232,114,42,0.15);
-  z-index:500;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);
+  display:none;position:fixed;top:0;right:-440px;width:440px;height:100vh;
+  background:linear-gradient(180deg,#0d1017 0%,#080c10 100%);
+  border-left:1px solid rgba(232,114,42,0.18);
+  z-index:510;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);
   display:flex;flex-direction:column;overflow:hidden;
-  box-shadow:-8px 0 40px rgba(0,0,0,0.5);
+  box-shadow:-12px 0 60px rgba(0,0,0,0.7);
 }
 .detail-panel.open{right:0;}
 .dp-head{
@@ -609,10 +631,10 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 /* Tooltip при ховере */
 .hm-tooltip{
   position:fixed;z-index:200;
-  background:rgba(10,13,20,0.97);border:1px solid var(--bd2);
+  background:#0a0d14;border:1px solid rgba(232,114,42,0.2);
   border-radius:8px;padding:8px 12px;pointer-events:none;
   font-family:var(--font-mono);font-size:10px;color:var(--t);
-  backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.6);
+  backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.8);
   min-width:160px;display:none;
 }
 .hm-tooltip.show{display:block;}
@@ -692,8 +714,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 }
 .compare-dropdown{
   position:absolute;top:calc(100% + 4px);left:0;right:0;
-  background:var(--bg3);border:1px solid var(--bd2);border-radius:8px;
+  background:#0c0f15;border:1px solid rgba(232,114,42,0.2);border-radius:8px;
   max-height:180px;overflow-y:auto;z-index:50;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
 }
 .compare-dropdown::-webkit-scrollbar{width:3px;}
 .compare-dropdown::-webkit-scrollbar-thumb{background:var(--bd);}
@@ -902,7 +925,7 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
     <div class="dp-grid" id="dp-grid"></div>
   </div>
 </div>
-<div class="modal-backdrop" id="detail-overlay" onclick="closeDetail()"></div>
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail()"></div>
 
 <!-- ALERT MODAL -->
 <div class="modal-backdrop" id="alert-modal">
@@ -989,6 +1012,16 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
         <button class="alert-repeat-btn" id="repeat-every" onclick="setRepeat('every',this)">КАЖДЫЙ РАЗ</button>
         <button class="alert-repeat-btn" id="repeat-daily" onclick="setRepeat('daily',this)">ЕЖЕДНЕВНО</button>
       </div>
+    </div>
+
+    <!-- TG status indicator -->
+    <div id="am-tg-status" style="
+      display:flex;align-items:center;gap:8px;padding:8px 10px;
+      border-radius:8px;margin-bottom:12px;font-size:9px;letter-spacing:1px;
+      border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);
+    ">
+      <span id="am-tg-dot" style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;"></span>
+      <span id="am-tg-label" style="color:var(--m2);">TELEGRAM: проверка...</span>
     </div>
 
     <button class="btn-primary" onclick="saveAlert()">🔔 СОЗДАТЬ АЛЕРТ</button>
@@ -1247,6 +1280,9 @@ function patchPriceDOM(cgId, price, chg24, prevPrice){
       if(pe) pe.textContent = fmtted;
     }
   }
+
+  // Проверяем алерты на каждый тик
+  checkAlertsForCoin(cgId, price);
 
   // Live indicator — сбрасываем stale timer
   updateLiveIndicator(true);
@@ -1624,8 +1660,8 @@ async function loadDetailChart(coin){
           ).join('')}
         </div>
       </div>
-      <div style="background:rgba(0,0,0,0.3);border:1px solid var(--bd);border-radius:8px;overflow:hidden;position:relative;">
-        <canvas id="dp-kline-canvas" height="160" style="width:100%;display:block;"></canvas>
+      <div style="background:#070a0f;border:1px solid rgba(232,114,42,0.15);border-radius:8px;overflow:hidden;position:relative;">
+        <canvas id="dp-kline-canvas" height="220" style="width:100%;display:block;"></canvas>
         <div id="dp-chart-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--m2);letter-spacing:2px;">ЗАГРУЗКА...</div>
       </div>`;
     // Вставляем перед dp-grid
@@ -1669,81 +1705,201 @@ async function loadDetailChartTF(pair, tf){
 function drawDetailChart(candles){
   const canvas = document.getElementById('dp-kline-canvas');
   if(!canvas || !candles.length) return;
-  const dpr = window.devicePixelRatio || 1;
-  const W = canvas.offsetWidth || 380;
-  const H = 160;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = canvas.parentElement?.clientWidth || 380;
+  const H = 220;
   canvas.width = W * dpr; canvas.height = H * dpr;
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  const padL=8, padR=8, padT=12, padB=24;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
+  // Layout constants
+  const PAD_L = 56, PAD_R = 8, PAD_T = 12, PAD_B = 36;
+  const CW = W - PAD_L - PAD_R;
+  const CH = H - PAD_T - PAD_B;
+  const ORANGE = '#e8722a';
+  const GREEN  = '#2ecc71';
+  const RED    = '#e74c3c';
 
-  const highs = candles.map(c=>c.h); const lows = candles.map(c=>c.l);
-  const minP = Math.min(...lows); const maxP = Math.max(...highs);
-  const priceRange = maxP - minP || 1;
-  const toY = p => padT + chartH - ((p - minP) / priceRange) * chartH;
-  const candleW = Math.max(2, Math.floor(chartW / candles.length) - 1);
-  const gap = chartW / candles.length;
+  // Price range with 3% padding
+  const highs = candles.map(c=>c.h);
+  const lows  = candles.map(c=>c.l);
+  let minP = Math.min(...lows);
+  let maxP = Math.max(...highs);
+  const pad = (maxP - minP) * 0.03;
+  minP -= pad; maxP += pad;
+  const range = maxP - minP || 1;
+  const toY = p => PAD_T + CH - ((p - minP) / range) * CH;
 
-  // Background grid
+  // Volume range
+  const vols = candles.map(c=>c.v);
+  const maxV = Math.max(...vols) || 1;
+  const VOL_H = 32; // volume bar area height at bottom of chart
+  const VOL_Y = H - PAD_B - VOL_H;
+
+  // Candle width
+  const gap = CW / candles.length;
+  const cw  = Math.max(1, Math.min(gap * 0.75, 14));
+
+  // ── Background
+  ctx.fillStyle = '#070a0f';
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Grid lines (horizontal)
+  const GRID_STEPS = 5;
   ctx.strokeStyle = 'rgba(255,255,255,0.04)';
   ctx.lineWidth = 1;
-  for(let i=0; i<=4; i++){
-    const y = padT + (chartH / 4) * i;
-    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W-padR, y); ctx.stroke();
+  for(let i = 0; i <= GRID_STEPS; i++){
+    const y = PAD_T + (CH / GRID_STEPS) * i;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
   }
 
-  // Price labels
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.font = `${7 * dpr / dpr}px JetBrains Mono, monospace`;
+  // ── Grid lines (vertical, every ~10 candles)
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  const vStep = Math.max(1, Math.round(candles.length / 8));
+  for(let i = 0; i < candles.length; i += vStep){
+    const x = PAD_L + i * gap + gap/2;
+    ctx.beginPath(); ctx.moveTo(x, PAD_T); ctx.lineTo(x, H - PAD_B); ctx.stroke();
+  }
+
+  // ── Price axis labels (left)
+  ctx.fillStyle = 'rgba(232,234,240,0.3)';
+  ctx.font = '9px JetBrains Mono, monospace';
   ctx.textAlign = 'right';
-  for(let i=0; i<=4; i++){
-    const price = minP + (priceRange / 4) * (4 - i);
-    const y = padT + (chartH / 4) * i;
-    ctx.fillText(fmtPrice(price).replace('$',''), W - padR - 2, y + 3);
+  for(let i = 0; i <= GRID_STEPS; i++){
+    const price = maxP - (range / GRID_STEPS) * i;
+    const y = PAD_T + (CH / GRID_STEPS) * i;
+    let label;
+    if(price >= 1000)      label = '$' + price.toLocaleString('en', {maximumFractionDigits:0});
+    else if(price >= 1)    label = '$' + price.toFixed(2);
+    else if(price >= 0.01) label = '$' + price.toFixed(4);
+    else                   label = '$' + price.toFixed(6);
+    ctx.fillText(label, PAD_L - 4, y + 3);
   }
 
-  // Candles
+  // ── EMA 20 line
+  function calcEMA(data, period){
+    const k = 2 / (period + 1); let ema = data[0];
+    return data.map(v => { ema = v * k + ema * (1-k); return ema; });
+  }
+  const closes = candles.map(c=>c.c);
+  const ema20  = calcEMA(closes, 20);
+  const ema50  = calcEMA(closes, 50);
+
+  const drawEMA = (ema, col) => {
+    ctx.beginPath(); ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.globalAlpha = 0.7;
+    ema.forEach((v, i) => {
+      const x = PAD_L + i * gap + gap/2;
+      const y = toY(v);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke(); ctx.globalAlpha = 1;
+  };
+  drawEMA(ema50, 'rgba(232,114,42,0.5)');  // EMA50 orange (Orbitum color)
+  drawEMA(ema20, 'rgba(59,130,246,0.7)');  // EMA20 blue
+
+  // ── Volume bars (bottom strip)
   candles.forEach((c, i) => {
-    const x = padL + i * gap + gap/2;
+    const x = PAD_L + i * gap + gap/2;
     const isUp = c.c >= c.o;
-    const col = isUp ? '#2ecc71' : '#e74c3c';
+    const volH = (c.v / maxV) * VOL_H;
+    ctx.fillStyle = isUp ? 'rgba(46,204,113,0.2)' : 'rgba(231,76,60,0.2)';
+    ctx.fillRect(x - cw/2, VOL_Y + VOL_H - volH, cw, volH);
+  });
+
+  // ── Candles
+  candles.forEach((c, i) => {
+    const x = PAD_L + i * gap + gap/2;
+    const isUp = c.c >= c.o;
+    const bodyCol  = isUp ? GREEN : RED;
+    const wickCol  = isUp ? 'rgba(46,204,113,0.7)' : 'rgba(231,76,60,0.7)';
 
     // Wick
-    ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.6)' : 'rgba(231,76,60,0.6)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = wickCol; ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x, toY(c.h)); ctx.lineTo(x, toY(c.l)); ctx.stroke();
 
     // Body
-    const bodyTop = toY(Math.max(c.o, c.c));
-    const bodyBot = toY(Math.min(c.o, c.c));
-    const bodyH = Math.max(1, bodyBot - bodyTop);
-    ctx.fillStyle = col;
-    ctx.fillRect(x - candleW/2, bodyTop, candleW, bodyH);
+    const yTop  = toY(Math.max(c.o, c.c));
+    const yBot  = toY(Math.min(c.o, c.c));
+    const bodyH = Math.max(1.5, yBot - yTop);
+    if(isUp){
+      ctx.strokeStyle = bodyCol; ctx.lineWidth = 1;
+      ctx.strokeRect(x - cw/2, yTop, cw, bodyH);
+      ctx.fillStyle = 'rgba(46,204,113,0.15)';
+      ctx.fillRect(x - cw/2, yTop, cw, bodyH);
+    } else {
+      ctx.fillStyle = RED;
+      ctx.fillRect(x - cw/2, yTop, cw, bodyH);
+    }
   });
 
-  // Last price line
-  const lastC = candles[candles.length-1];
+  // ── Alert levels — рисуем горизонтальные линии для активных алертов
+  if(currentDetailCoin && userAlerts.length){
+    const coinAlerts = userAlerts.filter(a => a.coingecko_id === currentDetailCoin.id && a.alert_type === 'price');
+    coinAlerts.forEach(a => {
+      const y = toY(a.target_price);
+      if(y < PAD_T || y > PAD_T + CH) return;
+      ctx.strokeStyle = ORANGE; ctx.lineWidth = 1; ctx.globalAlpha = 0.6;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+      // Label
+      ctx.fillStyle = ORANGE; ctx.font = 'bold 8px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+      ctx.fillText('🔔 ' + fmtPrice(a.target_price), PAD_L + 3, y - 3);
+    });
+  }
+
+  // ── Last price dashed line
+  const lastC = candles[candles.length - 1];
   const lastY = toY(lastC.c);
-  const isLastUp = lastC.c >= lastC.o;
-  ctx.strokeStyle = isLastUp ? 'rgba(46,204,113,0.5)' : 'rgba(231,76,60,0.5)';
-  ctx.lineWidth = 1;
+  const isLastUp = lastC.c >= candles[candles.length - 2]?.c;
+  const lpCol = isLastUp ? 'rgba(46,204,113,0.6)' : 'rgba(231,76,60,0.6)';
+  ctx.strokeStyle = lpCol; ctx.lineWidth = 1;
   ctx.setLineDash([3,3]);
-  ctx.beginPath(); ctx.moveTo(padL, lastY); ctx.lineTo(W-padR, lastY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD_L, lastY); ctx.lineTo(W - PAD_R, lastY); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Time labels (first, middle, last)
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.textAlign = 'center';
-  ctx.font = `${7 * dpr / dpr}px JetBrains Mono, monospace`;
-  [[0, padL], [Math.floor(candles.length/2), padL + chartW/2], [candles.length-1, W-padR]].forEach(([ci, cx]) => {
-    const d = new Date(candles[ci].t);
-    const label = d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-    ctx.fillText(label, cx, H - 6);
+  // Last price badge
+  const lpLabel = fmtPrice(lastC.c);
+  const badgeW  = ctx.measureText(lpLabel).width + 10;
+  ctx.fillStyle = isLastUp ? GREEN : RED;
+  ctx.fillRect(W - PAD_R - badgeW, lastY - 7, badgeW, 14);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 9px JetBrains Mono, monospace'; ctx.textAlign = 'right';
+  ctx.fillText(lpLabel, W - PAD_R - 2, lastY + 3);
+
+  // ── Time axis labels (bottom)
+  ctx.fillStyle = 'rgba(232,234,240,0.3)';
+  ctx.font = '8px JetBrains Mono, monospace'; ctx.textAlign = 'center';
+  const timeSteps = Math.min(6, candles.length);
+  for(let i = 0; i < timeSteps; i++){
+    const ci = Math.round(i * (candles.length - 1) / (timeSteps - 1));
+    const cx = PAD_L + ci * gap + gap/2;
+    const d  = new Date(candles[ci].t);
+    const label = d.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+    ctx.fillText(label, cx, H - PAD_B + 12);
+  }
+
+  // ── EMA legend
+  ctx.font = '8px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(59,130,246,0.8)'; ctx.fillText('EMA20', PAD_L + 4, PAD_T + 12);
+  ctx.fillStyle = 'rgba(232,114,42,0.8)'; ctx.fillText('EMA50', PAD_L + 52, PAD_T + 12);
+
+  // ── OHLCV info (last candle)
+  const info = [
+    {label:'O', val: fmtPrice(lastC.o), col: lastC.c >= lastC.o ? GREEN : RED},
+    {label:'H', val: fmtPrice(lastC.h), col:'rgba(232,234,240,0.6)'},
+    {label:'L', val: fmtPrice(lastC.l), col:'rgba(232,234,240,0.6)'},
+    {label:'C', val: fmtPrice(lastC.c), col: lastC.c >= lastC.o ? GREEN : RED},
+    {label:'V', val: fmtBig(lastC.v * lastC.c), col:'rgba(232,114,42,0.7)'},
+  ];
+  ctx.textAlign = 'left';
+  info.forEach((item, i) => {
+    const xi = PAD_L + 4 + i * (CW / 5);
+    ctx.fillStyle = 'rgba(232,234,240,0.3)'; ctx.font = '7px JetBrains Mono, monospace';
+    ctx.fillText(item.label, xi, PAD_T + 24);
+    ctx.fillStyle = item.col; ctx.font = '8px JetBrains Mono, monospace';
+    ctx.fillText(item.val, xi, PAD_T + 34);
   });
 }
 
@@ -1810,6 +1966,32 @@ function openAlertModal(eOrCoin, id){
   });
 
   document.getElementById('alert-modal').classList.add('open');
+  // Показываем TG статус
+  updateTgStatusBadge();
+}
+
+function updateTgStatusBadge(){
+  const dot = document.getElementById('am-tg-dot');
+  const lbl = document.getElementById('am-tg-label');
+  if(!dot || !lbl) return;
+  if(!_tgProfile){
+    dot.style.background = 'rgba(243,156,18,0.7)';
+    lbl.textContent = 'TELEGRAM: профиль не загружен';
+    lbl.style.color = 'rgba(243,156,18,0.7)';
+  } else if(!_tgProfile.tg_linked){
+    dot.style.background = 'rgba(231,76,60,0.7)';
+    lbl.textContent = 'TELEGRAM: не подключён — уведомления выключены';
+    lbl.style.color = 'rgba(231,76,60,0.7)';
+  } else if(!_tgProfile.tg_notify_alerts){
+    dot.style.background = 'rgba(243,156,18,0.7)';
+    lbl.textContent = 'TELEGRAM: подключён, но уведомления выключены в профиле';
+    lbl.style.color = 'rgba(243,156,18,0.7)';
+  } else {
+    dot.style.background = '#2ecc71';
+    dot.style.animation = 'live-pulse 1.5s ease-in-out infinite';
+    lbl.textContent = 'TELEGRAM: ✓ уведомления активны — chat_id ' + _tgProfile.tg_chat_id;
+    lbl.style.color = 'rgba(46,204,113,0.8)';
+  }
 }
 
 function closeAlertModal(){
@@ -1908,6 +2090,114 @@ async function saveAlert(){
     showToast('✅ Алерт создан', 'ok');
   } else {
     showToast('Ошибка: ' + error.message, 'err');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// TELEGRAM ALERT CHECKER — вызывается на каждый WS тик
+// ══════════════════════════════════════════════════════
+let _tgProfile = null; // кэш профиля (chat_id, tg_linked)
+let _triggeredAlerts = new Set(); // чтобы не стрелять дважды
+let _currentUserId = null;
+
+// Загружаем профиль один раз при старте
+async function loadTgProfile(){
+  try{
+    const { data:{ user } } = await sb.auth.getUser();
+    if(!user) return;
+    _currentUserId = user.id;
+    const { data } = await sb.from('profiles')
+      .select('tg_chat_id,tg_linked,tg_notify_alerts')
+      .eq('id', user.id).single();
+    if(data) _tgProfile = data;
+    console.log('[TG] Profile loaded:', _tgProfile);
+  } catch(e){ console.warn('[TG] Profile load failed:', e.message); }
+}
+
+// Проверяем алерты для конкретной монеты при каждом тике
+function checkAlertsForCoin(cgId, price){
+  if(!userAlerts.length || !_tgProfile?.tg_linked || !_tgProfile?.tg_notify_alerts) return;
+  if(!_currentUserId) return;
+
+  const coinAlerts = userAlerts.filter(a =>
+    a.coingecko_id === cgId && !a.triggered && !_triggeredAlerts.has(a.id)
+  );
+  if(!coinAlerts.length) return;
+
+  coinAlerts.forEach(async (alert) => {
+    let triggered = false;
+    const target = parseFloat(alert.target_price);
+
+    if(alert.alert_type === 'price'){
+      const prevPrice = _wsCache[cgId]?.prevPrice;
+      if(alert.condition === 'above'  && prevPrice < target && price >= target) triggered = true;
+      if(alert.condition === 'below'  && prevPrice > target && price <= target) triggered = true;
+      if(alert.condition === 'cross'  && prevPrice && ((prevPrice < target && price >= target) || (prevPrice > target && price <= target))) triggered = true;
+    }
+
+    if(!triggered) return;
+
+    // Помечаем локально чтобы не дублировать
+    _triggeredAlerts.add(alert.id);
+
+    // Обновляем в Supabase
+    const shouldDelete = alert.repeat_mode === 'once';
+    if(shouldDelete){
+      await sb.from('price_alerts').delete().eq('id', alert.id);
+    } else {
+      await sb.from('price_alerts').update({ triggered: true }).eq('id', alert.id);
+      // Для repeat_mode='every' — сброс через 5 сек
+      if(alert.repeat_mode === 'every'){
+        setTimeout(async () => {
+          await sb.from('price_alerts').update({ triggered: false }).eq('id', alert.id);
+          _triggeredAlerts.delete(alert.id);
+        }, 5000);
+      }
+    }
+
+    // Обновляем локальный список
+    userAlerts = userAlerts.filter(a => a.id !== alert.id || alert.repeat_mode !== 'once');
+
+    // Показываем тост
+    const sym = alert.symbol || cgId.toUpperCase();
+    const dir = alert.condition === 'above' ? '▲' : '▼';
+    showToast(`🔔 ${sym} ${dir} ${fmtPrice(target)}`, 'info');
+
+    // Отправляем в Telegram через /api/notify
+    await sendTgAlertNotify(alert, price, sym);
+  });
+}
+
+async function sendTgAlertNotify(alert, currentPrice, sym){
+  if(!_tgProfile?.tg_chat_id || !_currentUserId) return;
+  try{
+    const condLabel = {
+      above: 'Цена ВЫШЕ',
+      below: 'Цена НИЖЕ',
+      cross: 'Пересечение',
+    }[alert.condition] || alert.condition;
+
+    await fetch('/api/notify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Notify-User': _currentUserId,
+      },
+      body: JSON.stringify({
+        type: 'alert',
+        chat_id: _tgProfile.tg_chat_id,
+        data: {
+          coin: sym,
+          signal: '🔔',
+          text: `${condLabel} $${alert.target_price} · Сейчас: ${fmtPrice(currentPrice)}${alert.note ? '\n📝 ' + alert.note : ''}`,
+          value: fmtPrice(currentPrice),
+          time: new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
+        }
+      })
+    });
+    console.log('[TG] Alert sent for', sym);
+  } catch(e){
+    console.warn('[TG] Notify failed:', e.message);
   }
 }
 
@@ -2538,6 +2828,7 @@ function renderSignals(signals){
 
 async function init(){
   await initAuth();
+  await loadTgProfile();
   await loadCoins();
   initAutoRefresh();
 }
