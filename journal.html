@@ -5435,8 +5435,11 @@ function formatAIText(text){
 async function init(){
   // ── DEMO MODE ──────────────────────────────────────────
   const urlParams = new URLSearchParams(location.search);
-  if(urlParams.get('demo')==='1' || localStorage.getItem('orb_demo_mode')==='1'){
-    localStorage.setItem('orb_demo_mode','1');
+  const isDemoUrl = urlParams.get('demo')==='1';
+  let isDemoLS = false;
+  try{ isDemoLS = localStorage.getItem('orb_demo_mode')==='1'; }catch(e){}
+  if(isDemoUrl || isDemoLS){
+    try{ localStorage.setItem('orb_demo_mode','1'); }catch(e){}
     await initDemoMode();
     return;
   }
@@ -8751,6 +8754,471 @@ async function checkTiltAlert() {
   }
 }
 
+
+<!-- ══ DEMO MODE ENGINE ══ -->
+<script>
+// ══════════════════════════════════════════════════════════
+// DEMO MODE — полностью локальный, без Supabase
+// ══════════════════════════════════════════════════════════
+const DEMO_KEY = 'orb_demo_trades';
+
+// Realistic seed trades
+function generateDemoTrades(){
+  const now = Date.now();
+
+  // ── Helper: random in range ──
+  const rnd = (a,b) => a + Math.random()*(b-a);
+  const rndInt = (a,b) => Math.floor(rnd(a,b+1));
+  const pick = arr => arr[rndInt(0,arr.length-1)];
+
+  // ── Raw trade definitions ── (pair, dir, result, pnlPct, daysAgo, setup, why, feel, lesson, emotion)
+  // Designed to show: best/worst setup, pair breakdown, equity curve with DD+recovery,
+  // emotion patterns, discipline score ~72, win rate ~68%, streak data, heatmap variance
+  const raw = [
+    // === МЕСЯЦ 1 (90-60 дней назад) — начало, нестабильно ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.8, usd:95,  dAgo:89, setup:'Wyckoff Spring',
+     why:'Накопление на 4H завершено. Объём подтвердил Spring. Вход после LPS.',
+     feel:'Немного нервничал, но сетап чистый — дождался подтверждения.',
+     lesson:'Терпение при ожидании LPS окупается. Не входить раньше.',
+     conf:7,fear:4,greed:3,calm:6},
+    {pair:'ETH/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:87, setup:'SMC BOS',
+     why:'BOS на 1H казался чётким, но вошёл без подтверждения на 4H.',
+     feel:'Торопился — боялся пропустить движение.',
+     lesson:'Всегда подтверждать BOS на старшем ТФ перед входом.',
+     conf:4,fear:6,greed:7,calm:3},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:6.2, usd:155, dAgo:85, setup:'Elliott W3',
+     why:'Импульс W3 — самая длинная волна. Ретест W2 идеальный. R:R 1:4.',
+     feel:'Уверен. Сетап готовил 2 дня, вход по плану.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'BTC/USDT',dir:'short',r:'win', pct:2.9, usd:72,  dAgo:83, setup:'OB + FVG',
+     why:'OB на 4H + FVG незакрытый. Продажа от premium зоны.',
+     feel:'Спокоен, всё по плану.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:81, setup:'VRVP Sweep',
+     why:'Свип VAL, думал откупят. Объёма не было.',
+     feel:'Жадность — хотел быстрый памп. Ошибка.',
+     lesson:'Без объёма на VAL не входить. DOGE непредсказуем.',
+     conf:4,fear:3,greed:8,calc:2},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.1, usd:102, dAgo:78, setup:'Wyckoff Spring',
+     why:'Второй Spring на недельном. Накопление фаза D. Сила покупателей.',
+     feel:'Терпел 3 дня. Зашёл точно в момент теста.',
+     lesson:null,
+     conf:8,fear:3,greed:3,calm:8},
+    {pair:'ARB/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:76, setup:'Market Structure',
+     why:'MSS на 1H, но рынок в нисходящем тренде на 4H. Контр-тренд.',
+     feel:'Игнорировал старший ТФ. Просто хотел торговать.',
+     lesson:'Никогда не торговать против 4H тренда на 1H сигнале.',
+     conf:3,fear:4,greed:6,calm:4},
+    {pair:'SOL/USDT',dir:'short',r:'be',  pct:0,   usd:0,   dAgo:74, setup:'OB + FVG',
+     why:'OB + FVG, но движение слабое. Вышел в ноль.',
+     feel:'Правильно — не было подтверждения на объёме.',
+     lesson:null,
+     conf:6,fear:3,greed:2,calm:7},
+    {pair:'BNB/USDT',dir:'long', r:'win', pct:3.3, usd:82,  dAgo:71, setup:'Accumulation',
+     why:'Фаза B накопления. Объём растёт. BNB следует за BTC.',
+     feel:'Спокойный вход. Держал 48 часов.',
+     lesson:null,
+     conf:7,fear:2,greed:3,calm:8},
+    {pair:'XRP/USDT',dir:'long', r:'win', pct:5.5, usd:137, dAgo:69, setup:'Elliott W3',
+     why:'XRP — Elliott отрабатывает чисто. W3 от LG с объёмом.',
+     feel:'Уверен. Цель 1:3.5 достигнута.',
+     lesson:null,
+     conf:9,fear:1,greed:4,calm:9},
+
+    // === МЕСЯЦ 2 (60-30 дней назад) — рост, drawdown, восстановление ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:8.4, usd:210, dAgo:58, setup:'Wyckoff Spring',
+     why:'Monthly Spring на BTC. Ключевой уровень $58k. Огромный объём.',
+     feel:'Лучший сетап за месяц. Держал 5 дней.',
+     lesson:null,
+     conf:10,fear:1,greed:5,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:56, setup:'SMC BOS',
+     why:'BOS + ChoCh, но новости FUD вышли неожиданно.',
+     feel:'Неудача из-за внешнего фактора. Принял.',
+     lesson:'Перед входом проверять новостной фон.',
+     conf:7,fear:5,greed:3,calm:6},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:4.7, usd:117, dAgo:54, setup:'OB + FVG',
+     why:'Premium зона на 4H. OB + незакрытый FVG. Продажа с 1:3.',
+     feel:'Уверен. Структура медвежья на дневном.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'LINK/USDT',dir:'long', r:'win', pct:7.1, usd:177, dAgo:52, setup:'VRVP Sweep',
+     why:'Свип VAH VRVP на высоком объёме. Накопление перед памп.',
+     feel:'Терпел 4 дня после входа. Не вышел рано.',
+     lesson:'Держать позицию до TP — не паниковать при коррекции 1%.',
+     conf:8,fear:3,greed:4,calm:7},
+    {pair:'BTC/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:50, setup:'Market Structure',
+     why:'HH+HL структура. Вход на ретесте. SL выбило на wicks.',
+     feel:'Огорчён. SL нужно было шире.',
+     lesson:'На BTC SL ставить под фракталный лоу, не под свечу.',
+     conf:6,fear:4,greed:3,calm:5},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:5.2, usd:130, dAgo:48, setup:'Elliott W3',
+     why:'SOL — W3 продолжение. Фибо 1.618 цель. Объём растёт.',
+     feel:'Спокоен. Вход точный.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:46, setup:'Accumulation',
+     why:'Думал фаза C накопления. Оказалась дистрибуция.',
+     feel:'Грустно. Не проверил структуру на дневном.',
+     lesson:'DOGE — только трендовые сделки, без контр-тренда.',
+     conf:4,fear:5,greed:6,calm:3},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.6, usd:90,  dAgo:44, setup:'Wyckoff Spring',
+     why:'LPS после Spring. Объём слабее медведей. Вход точный.',
+     feel:'Нейтрально. Стандартная сделка.',
+     lesson:null,
+     conf:7,fear:3,greed:3,calm:7},
+    {pair:'BNB/USDT',dir:'short',r:'win', pct:3.0, usd:75,  dAgo:42, setup:'SMC BOS',
+     why:'BOS вниз на 4H после дистрибуции. Продажа с уровня OB.',
+     feel:'Хладнокровно. Короткие работают хорошо в боковике.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'XRP/USDT',dir:'long', r:'win', pct:9.3, usd:232, dAgo:40, setup:'Elliott W3',
+     why:'XRP W3 — пробой ATH зоны. Объём рекордный. Держал 7 дней.',
+     feel:'Лучшая сделка месяца. Почти вышел рано — устоял.',
+     lesson:'Большие позиции требуют терпения. TP — не паника.',
+     conf:10,fear:2,greed:5,calm:8},
+
+    // === МЕСЯЦ 3 (30-0 дней назад) — стабильный, системный ===
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:4.3, usd:107, dAgo:28, setup:'OB + FVG',
+     why:'BTC коррекция 8%. OB на 4H + FVG. Зона дискаунта чёткая.',
+     feel:'Уверен. Уровень держал 3 раза.',
+     lesson:null,
+     conf:9,fear:2,greed:3,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'win', pct:5.7, usd:142, dAgo:26, setup:'VRVP Sweep',
+     why:'VRVP POC + свип локального лоу на высоком объёме.',
+     feel:'Спокоен. Сетап отрабатывал уже 2 раза на этом активе.',
+     lesson:null,
+     conf:9,fear:1,greed:3,calm:9},
+    {pair:'SOL/USDT',dir:'short',r:'loss',pct:-1.0,usd:-25, dAgo:25, setup:'Market Structure',
+     why:'Ложный MSS — спровоцировал стоп и развернулся.',
+     feel:'Принял. Стоп маленький, убыток контролируемый.',
+     lesson:null,
+     conf:6,fear:3,greed:2,calm:7},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.9, usd:97,  dAgo:23, setup:'Accumulation',
+     why:'ETH Wyckoff Phase D. Test успешный. BTC поддерживает.',
+     feel:'Хладнокровно. Вход по плану.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'LINK/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:21, setup:'SMC BOS',
+     why:'BOS подтверждён, но движение слабее ожидаемого. Вышел в ноль.',
+     feel:'Правильное решение — рынок замедлился.',
+     lesson:'Если движение слабее нормы — выходить в BE.',
+     conf:6,fear:3,greed:2,calm:8},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:6.8, usd:170, dAgo:19, setup:'Wyckoff Spring',
+     why:'Weekly Spring. Объём абсорбции максимальный за 3 месяца.',
+     feel:'Максимальная уверенность. Добавлял на откате внутри дня.',
+     lesson:null,
+     conf:10,fear:1,greed:5,calm:9},
+    {pair:'ARB/USDT',dir:'long', r:'win', pct:4.4, usd:110, dAgo:17, setup:'Elliott W3',
+     why:'ARB W3 от базы. Фибо .618 ретест + объём.',
+     feel:'Уверен. Цель достигнута за 2 дня.',
+     lesson:null,
+     conf:8,fear:2,greed:3,calm:8},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:3.1, usd:77,  dAgo:16, setup:'OB + FVG',
+     why:'OB дистрибуции на 4H. FVG выше цены закрыт. Продажа с 1:2.5.',
+     feel:'Спокоен.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'SUI/USDT',dir:'long', r:'win', pct:11.2,usd:280, dAgo:14, setup:'Accumulation',
+     why:'SUI — фаза C→D. Тест Creek. Объём подтвердил. Потенциал 3x.',
+     feel:'Взволнован, но держался позиции. Лучшая сделка месяца.',
+     lesson:'Выделять больше капитала на сетапы с Wyckoff Phasing.',
+     conf:9,fear:3,greed:6,calm:7},
+    {pair:'BNB/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:12, setup:'VRVP Sweep',
+     why:'Свип VAL не подтверждён объёмом. Преждевременный вход.',
+     feel:'Нетерпеливость. Надо было ждать объём.',
+     lesson:'Объём — обязательное условие для VRVP сетапов.',
+     conf:5,fear:3,greed:5,calm:5},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:2.8, usd:70,  dAgo:10, setup:'Market Structure',
+     why:'HH+HL на 4H. Ретест структуры + EMA21 совпадение.',
+     feel:'Стандартно. Не лучший сетап, но правила выполнены.',
+     lesson:null,
+     conf:7,fear:2,greed:3,calm:8},
+    {pair:'SOL/USDT',dir:'long', r:'win', pct:7.6, usd:190, dAgo:8, setup:'Elliott W3',
+     why:'SOL W3 ускорение. Пробой ATH. Объём экстремальный.',
+     feel:'Очень уверен. Держал позицию через коррекцию 3%.',
+     lesson:null,
+     conf:10,fear:2,greed:5,calm:8},
+    {pair:'XRP/USDT',dir:'short',r:'win', pct:3.5, usd:87,  dAgo:7, setup:'SMC BOS',
+     why:'XRP — BOS вниз после дистрибуции. OB на 4H подтверждён.',
+     feel:'Хладнокровно.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:5, setup:'OB + FVG',
+     why:'OB + FVG, но BTC резко упал — потащил альты.',
+     feel:'Принял потерю спокойно. Риск был под контролем.',
+     lesson:'При нестабильном BTC уменьшать размер позиции на альтах.',
+     conf:6,fear:4,greed:3,calm:7},
+    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.0, usd:100, dAgo:4, setup:'Wyckoff Spring',
+     why:'ETH Spring после коррекции. Абсорбция на объёме. Вход по плану.',
+     feel:'Спокоен. Уже 4-й Spring на этом активе — знаю как ведёт себя.',
+     lesson:null,
+     conf:9,fear:2,greed:3,calm:9},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.2, usd:80,  dAgo:3, setup:'Accumulation',
+     why:'BTC Phase D. Подтверждённый SOS. Добавился на BackUp Action.',
+     feel:'Уверен. BTC структура бычья на всех ТФ.',
+     lesson:null,
+     conf:9,fear:1,greed:4,calm:9},
+    {pair:'SOL/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:2, setup:'VRVP Sweep',
+     why:'Свип VAH, но реакция слабая. Перевёл в BE и вышел.',
+     feel:'Правильное управление. Не жалею.',
+     lesson:null,
+     conf:7,fear:2,greed:2,calm:9},
+    {pair:'LINK/USDT',dir:'long', r:'win', pct:5.9, usd:147, dAgo:1, setup:'Elliott W3',
+     why:'LINK W3 — задержанное движение. Прорыв + объём + структура.',
+     feel:'Уверен. Держал 24 часа.',
+     lesson:null,
+     conf:9,fear:2,greed:4,calm:8},
+    {pair:'ETH/USDT',dir:'short',r:'win', pct:2.5, usd:62,  dAgo:0.3, setup:'OB + FVG',
+     why:'ETH откат к OB после импульса. FVG + premium зона.',
+     feel:'Хладнокровно. Короткая внутридневная.',
+     lesson:null,
+     conf:8,fear:2,greed:2,calm:9},
+    {pair:'BTC/USDT',dir:'long', r:'win', pct:1.8, usd:45,  dAgo:0.1, setup:'Market Structure',
+     why:'Ретест пробитого уровня сопротивления→поддержки. Быстрый скальп.',
+     feel:'Спокоен. Маленькая сделка для разминки.',
+     lesson:null,
+     conf:7,fear:1,greed:2,calm:9},
+  ];
+
+  let id = 1001;
+  return raw.map(t => {
+    const msAgo = t.dAgo * 24 * 3600 * 1000 + rnd(0, 3600000);
+    const baseDeposit = 2500;
+    const entryBase = t.pair.startsWith('BTC') ? 62000+rnd(-3000,3000)
+                    : t.pair.startsWith('ETH') ? 2900+rnd(-200,200)
+                    : t.pair.startsWith('SOL') ? 155+rnd(-20,20)
+                    : t.pair.startsWith('BNB') ? 580+rnd(-30,30)
+                    : t.pair.startsWith('XRP') ? 0.55+rnd(-0.05,0.05)
+                    : t.pair.startsWith('LINK')? 14+rnd(-1,1)
+                    : t.pair.startsWith('ARB') ? 1.1+rnd(-0.1,0.1)
+                    : t.pair.startsWith('AVAX')? 35+rnd(-3,3)
+                    : t.pair.startsWith('SUI') ? 3.8+rnd(-0.3,0.3)
+                    : t.pair.startsWith('DOGE')? 0.16+rnd(-0.01,0.01)
+                    : 1+rnd(0,2);
+    const entry = parseFloat(entryBase.toFixed(4));
+    const slPct = t.dir==='long' ? 0.975 : 1.025;
+    const sl    = parseFloat((entry * slPct).toFixed(4));
+    const exitMult = t.r==='win' ? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
+                   : t.r==='loss'? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
+                   : 1;
+    const exit  = parseFloat((entry * exitMult).toFixed(4));
+    return {
+      id: String(id++),
+      user_id: 'demo',
+      pair: t.pair,
+      direction: t.dir,
+      result: t.r,
+      deposit: baseDeposit,
+      pnl_pct: t.pct,
+      pnl_usd: t.usd,
+      entry_price: entry,
+      exit_price: exit,
+      stop_loss: sl,
+      setup_type: t.setup,
+      note_why: t.why,
+      note_feel: t.feel,
+      note_lesson: t.lesson || null,
+      emotion_conf: t.conf || 7,
+      emotion_fear: t.fear || 3,
+      emotion_greed: t.greed || 3,
+      emotion_calm: t.calm || 7,
+      screenshot_url: null,
+      created_at: new Date(now - msAgo).toISOString(),
+    };
+  }).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+// Safe localStorage wrapper for private/incognito mode
+const _demoStore = (() => {
+  const mem = {};
+  let _ls = null;
+  function ls(){
+    if(_ls !== null) return _ls;
+    try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); _ls = localStorage; }
+    catch(e){ _ls = { getItem:k=>mem[k]||null, setItem:(k,v)=>{mem[k]=v;}, removeItem:k=>{delete mem[k];} }; }
+    return _ls;
+  }
+  return { get:(k)=>ls().getItem(k), set:(k,v)=>ls().setItem(k,v), del:(k)=>ls().removeItem(k) };
+})();
+
+function demoLoadTrades(){
+  try{
+    const ver = _demoStore.get('orb_demo_seed_ver');
+    if(ver === '2') {
+      const stored = _demoStore.get(DEMO_KEY);
+      if(stored) return JSON.parse(stored);
+    }
+  }catch(e){}
+  const seed = generateDemoTrades();
+  _demoStore.set(DEMO_KEY, JSON.stringify(seed));
+  _demoStore.set('orb_demo_seed_ver', '2');
+  return seed;
+}
+function demoSaveTrades(trades){
+  _demoStore.set(DEMO_KEY, JSON.stringify(trades));
+}
+
+async function initDemoMode(){
+  // Fake currentUser
+  currentUser = {id:'demo', email:'demo@orbitum.app'};
+  window._isDemoMode = true;
+
+  // UI: sidebar + topbar
+  const initLetter = 'D';
+  const displayName = 'Demo Trader';
+  const sfAv = document.getElementById('sf-avatar');
+  const sfNm = document.getElementById('sf-name');
+  const sfPl = document.getElementById('sf-plan');
+  if(sfAv) sfAv.textContent = initLetter;
+  if(sfNm) sfNm.textContent = displayName;
+  if(sfPl){ sfPl.textContent = 'DEMO'; sfPl.style.color='rgba(255,200,50,0.9)'; }
+  const jtbAv = document.getElementById('jtb-avatar');
+  const jtbNm = document.getElementById('jtb-name');
+  if(jtbAv) jtbAv.textContent = initLetter;
+  if(jtbNm) jtbNm.textContent = 'DEMO';
+  window._orbUserName = displayName;
+
+  // Load demo trades
+  allTrades = demoLoadTrades();
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); restoreFormDefaults();
+  orbColorUserByRank(allTrades);
+  renderPMHistory(); renderPMStreak();
+
+  // Inject demo banner
+  injectDemoBanner();
+}
+
+function injectDemoBanner(){
+  const banner = document.createElement('div');
+  banner.id = 'demo-banner';
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:220px">
+        <span style="font-size:16px">🎮</span>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:#f0f0f0;letter-spacing:1.5px;margin-bottom:2px">ДЕМО РЕЖИМ — данные ненастоящие</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.5px">Попробуй все функции. Изменения сохраняются локально и не попадут в реальный аккаунт.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="demoExitToRegister()" style="padding:8px 18px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:8px;color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;cursor:pointer;box-shadow:0 4px 16px rgba(232,114,42,0.35);">🚀 СОЗДАТЬ АККАУНТ</button>
+        <button onclick="demoExitToLogin()" style="padding:8px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.55);font-family:var(--font-mono);font-size:9px;letter-spacing:1px;cursor:pointer;">ВОЙТИ</button>
+      </div>
+    </div>`;
+  banner.style.cssText = 'position:sticky;top:48px;z-index:80;background:rgba(8,6,18,0.96);border-bottom:1px solid rgba(255,200,50,0.18);backdrop-filter:blur(16px);padding:12px 24px;';
+  const statsRow = document.querySelector('.stats-row');
+  if(statsRow && statsRow.parentNode) statsRow.parentNode.insertBefore(banner, statsRow);
+  else { const main = document.querySelector('.main'); if(main) main.insertBefore(banner, main.firstChild); }
+}
+
+function demoExitToRegister(){
+  localStorage.removeItem('orb_demo_mode');
+  window.location.href = 'login.html?tab=register';
+}
+function demoExitToLogin(){
+  localStorage.removeItem('orb_demo_mode');
+  window.location.href = 'login.html';
+}
+
+// ── Override Supabase calls when in demo mode ──────────────
+
+// Patch addTrade to use localStorage
+const _origAddTrade = typeof addTrade === 'function' ? addTrade : null;
+window._demoAddTrade = async function(){
+  const pair=(document.getElementById('f-pair').value||'').trim().toUpperCase();
+  if(!pair){showNotif('warn','Укажи пару','Например BTC/USDT',3000);return;}
+  if(!currentRes){showNotif('warn','Выбери результат','Прибыль, Убыток или BE',3000);return;}
+  const btn=document.getElementById('btn-add');
+  btn.disabled=true; btn.textContent='СОХРАНЯЕМ...';
+  const lev=parseFloat(document.getElementById('f-lev')?.value)||1;
+  const noteWhy=(document.getElementById('f-why').value.trim()+(lev>1?` [${lev}x]`:'')).trim()||null;
+  const newTrade = {
+    id: 'demo_'+Date.now(),
+    user_id:'demo',
+    pair, direction:currentDir, result:currentRes,
+    deposit:parseFloat(document.getElementById('f-dep').value)||null,
+    pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,
+    pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,
+    entry_price:parseFloat(document.getElementById('f-entry').value)||null,
+    exit_price:parseFloat(document.getElementById('f-exit').value)||null,
+    stop_loss:parseFloat(document.getElementById('f-sl').value)||null,
+    setup_type:currentSetup||null,
+    note_why:noteWhy, note_feel:document.getElementById('f-feel').value.trim()||null,
+    note_lesson:document.getElementById('f-lesson').value.trim()||null,
+    emotion_conf:emVals.conf, emotion_fear:emVals.fear, emotion_greed:emVals.greed, emotion_calm:emVals.calm,
+    screenshot_url: null,
+    created_at: new Date().toISOString(),
+  };
+  // Handle screenshot (base64 local - no upload)
+  if(_scrFile){
+    const reader = new FileReader();
+    await new Promise(res => { reader.onload = e => { newTrade.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_scrFile); });
+  }
+  allTrades.unshift(newTrade);
+  demoSaveTrades(allTrades);
+  btn.disabled=false; btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
+  rememberFormDefaults();
+  ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('rr-val').textContent='—';
+  ['risk-usd-val','tp-usd-val','pos-size-val'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+  currentRes=''; currentSetup='';
+  document.querySelectorAll('.res-btn').forEach(b=>b.className='res-btn');
+  document.querySelectorAll('.setup-btn').forEach(b=>b.classList.remove('active'));
+  emVals={conf:5,fear:3,greed:3,calm:7};
+  document.querySelectorAll('.em-opts').forEach(row=>{const btns=row.querySelectorAll('.em-opt');btns.forEach(b=>b.classList.remove('active'));if(btns[1])btns[1].classList.add('active');});
+  setDir('long');
+  scrRemove({stopPropagation:()=>{}});
+  showNotif('success','Сделка добавлена','Сохранено локально (demo)',3000);
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
+  checkTiltAlert();
+};
+
+window._demoDeleteTrade = function(id){
+  if(!confirm('Удалить сделку?')) return;
+  allTrades = allTrades.filter(t => String(t.id) !== String(id));
+  demoSaveTrades(allTrades);
+  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
+};
+
+window._demoSaveEditTrade = async function(){
+  const id = document.getElementById('edit-trade-id').value;
+  if(!id) return;
+  const idx = allTrades.findIndex(x => String(x.id) === String(id));
+  if(idx < 0) return;
+  const btn = document.querySelector('.edit-save');
+  if(btn){btn.textContent='СОХРАНЯЕМ...';btn.disabled=true;}
+  const updates = {
+    pair:document.getElementById('edit-pair').value.trim().toUpperCase()||'BTC/USDT',
+    direction:document.getElementById('edit-direction').value,
+    result:document.getElementById('edit-result').value,
+    pnl_pct:document.getElementById('edit-pnl-pct').value!==''?parseFloat(document.getElementById('edit-pnl-pct').value):null,
+    pnl_usd:document.getElementById('edit-pnl-usd').value!==''?parseFloat(document.getElementById('edit-pnl-usd').value):null,
+    setup_type:document.getElementById('edit-setup').value.trim()||null,
+    note_why:document.getElementById('edit-note-why').value.trim()||null,
+    note_feel:document.getElementById('edit-note-feel').value.trim()||null,
+    note_lesson:document.getElementById('edit-note-lesson').value.trim()||null,
+  };
+  // Screenshot local handling
+  if(_editScrRemoved){ updates.screenshot_url = null; }
+  else if(_editScrFile){
+    const reader = new FileReader();
+    await new Promise(res => { reader.onload = e => { updates.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_editScrFile); });
+  } else { updates.screenshot_url = allTrades[idx].screenshot_url; }
+  allTrades[idx] = {...allTrades[idx], ...updates};
+  demoSaveTrades(allTrades);
+  if(btn){btn.textContent='СОХРАНИТЬ';btn.disabled=false;}
+  closeEditModal(); render(); updateStats();
+};
+
+// Patch functions after DOM ready
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(!window._isDemoMode) return;
+  // Nothing extra needed — patching happens via _isDemoMode checks in original fns
+});
+</script>
+
 init();
 
 // ══ TOOLTIP (fixed position portal) ══
@@ -9789,458 +10257,6 @@ if(document.readyState === 'loading'){
     </div>
   </div>
 </div>
-<!-- ══ DEMO MODE ENGINE ══ -->
-<script>
-// ══════════════════════════════════════════════════════════
-// DEMO MODE — полностью локальный, без Supabase
-// ══════════════════════════════════════════════════════════
-const DEMO_KEY = 'orb_demo_trades';
-
-// Realistic seed trades
-function generateDemoTrades(){
-  const now = Date.now();
-
-  // ── Helper: random in range ──
-  const rnd = (a,b) => a + Math.random()*(b-a);
-  const rndInt = (a,b) => Math.floor(rnd(a,b+1));
-  const pick = arr => arr[rndInt(0,arr.length-1)];
-
-  // ── Raw trade definitions ── (pair, dir, result, pnlPct, daysAgo, setup, why, feel, lesson, emotion)
-  // Designed to show: best/worst setup, pair breakdown, equity curve with DD+recovery,
-  // emotion patterns, discipline score ~72, win rate ~68%, streak data, heatmap variance
-  const raw = [
-    // === МЕСЯЦ 1 (90-60 дней назад) — начало, нестабильно ===
-    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.8, usd:95,  dAgo:89, setup:'Wyckoff Spring',
-     why:'Накопление на 4H завершено. Объём подтвердил Spring. Вход после LPS.',
-     feel:'Немного нервничал, но сетап чистый — дождался подтверждения.',
-     lesson:'Терпение при ожидании LPS окупается. Не входить раньше.',
-     conf:7,fear:4,greed:3,calm:6},
-    {pair:'ETH/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:87, setup:'SMC BOS',
-     why:'BOS на 1H казался чётким, но вошёл без подтверждения на 4H.',
-     feel:'Торопился — боялся пропустить движение.',
-     lesson:'Всегда подтверждать BOS на старшем ТФ перед входом.',
-     conf:4,fear:6,greed:7,calm:3},
-    {pair:'SOL/USDT',dir:'long', r:'win', pct:6.2, usd:155, dAgo:85, setup:'Elliott W3',
-     why:'Импульс W3 — самая длинная волна. Ретест W2 идеальный. R:R 1:4.',
-     feel:'Уверен. Сетап готовил 2 дня, вход по плану.',
-     lesson:null,
-     conf:9,fear:2,greed:4,calm:8},
-    {pair:'BTC/USDT',dir:'short',r:'win', pct:2.9, usd:72,  dAgo:83, setup:'OB + FVG',
-     why:'OB на 4H + FVG незакрытый. Продажа от premium зоны.',
-     feel:'Спокоен, всё по плану.',
-     lesson:null,
-     conf:8,fear:2,greed:3,calm:8},
-    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:81, setup:'VRVP Sweep',
-     why:'Свип VAL, думал откупят. Объёма не было.',
-     feel:'Жадность — хотел быстрый памп. Ошибка.',
-     lesson:'Без объёма на VAL не входить. DOGE непредсказуем.',
-     conf:4,fear:3,greed:8,calc:2},
-    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.1, usd:102, dAgo:78, setup:'Wyckoff Spring',
-     why:'Второй Spring на недельном. Накопление фаза D. Сила покупателей.',
-     feel:'Терпел 3 дня. Зашёл точно в момент теста.',
-     lesson:null,
-     conf:8,fear:3,greed:3,calm:8},
-    {pair:'ARB/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:76, setup:'Market Structure',
-     why:'MSS на 1H, но рынок в нисходящем тренде на 4H. Контр-тренд.',
-     feel:'Игнорировал старший ТФ. Просто хотел торговать.',
-     lesson:'Никогда не торговать против 4H тренда на 1H сигнале.',
-     conf:3,fear:4,greed:6,calm:4},
-    {pair:'SOL/USDT',dir:'short',r:'be',  pct:0,   usd:0,   dAgo:74, setup:'OB + FVG',
-     why:'OB + FVG, но движение слабое. Вышел в ноль.',
-     feel:'Правильно — не было подтверждения на объёме.',
-     lesson:null,
-     conf:6,fear:3,greed:2,calm:7},
-    {pair:'BNB/USDT',dir:'long', r:'win', pct:3.3, usd:82,  dAgo:71, setup:'Accumulation',
-     why:'Фаза B накопления. Объём растёт. BNB следует за BTC.',
-     feel:'Спокойный вход. Держал 48 часов.',
-     lesson:null,
-     conf:7,fear:2,greed:3,calm:8},
-    {pair:'XRP/USDT',dir:'long', r:'win', pct:5.5, usd:137, dAgo:69, setup:'Elliott W3',
-     why:'XRP — Elliott отрабатывает чисто. W3 от LG с объёмом.',
-     feel:'Уверен. Цель 1:3.5 достигнута.',
-     lesson:null,
-     conf:9,fear:1,greed:4,calm:9},
-
-    // === МЕСЯЦ 2 (60-30 дней назад) — рост, drawdown, восстановление ===
-    {pair:'BTC/USDT',dir:'long', r:'win', pct:8.4, usd:210, dAgo:58, setup:'Wyckoff Spring',
-     why:'Monthly Spring на BTC. Ключевой уровень $58k. Огромный объём.',
-     feel:'Лучший сетап за месяц. Держал 5 дней.',
-     lesson:null,
-     conf:10,fear:1,greed:5,calm:9},
-    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:56, setup:'SMC BOS',
-     why:'BOS + ChoCh, но новости FUD вышли неожиданно.',
-     feel:'Неудача из-за внешнего фактора. Принял.',
-     lesson:'Перед входом проверять новостной фон.',
-     conf:7,fear:5,greed:3,calm:6},
-    {pair:'ETH/USDT',dir:'short',r:'win', pct:4.7, usd:117, dAgo:54, setup:'OB + FVG',
-     why:'Premium зона на 4H. OB + незакрытый FVG. Продажа с 1:3.',
-     feel:'Уверен. Структура медвежья на дневном.',
-     lesson:null,
-     conf:8,fear:2,greed:3,calm:8},
-    {pair:'LINK/USDT',dir:'long', r:'win', pct:7.1, usd:177, dAgo:52, setup:'VRVP Sweep',
-     why:'Свип VAH VRVP на высоком объёме. Накопление перед памп.',
-     feel:'Терпел 4 дня после входа. Не вышел рано.',
-     lesson:'Держать позицию до TP — не паниковать при коррекции 1%.',
-     conf:8,fear:3,greed:4,calm:7},
-    {pair:'BTC/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:50, setup:'Market Structure',
-     why:'HH+HL структура. Вход на ретесте. SL выбило на wicks.',
-     feel:'Огорчён. SL нужно было шире.',
-     lesson:'На BTC SL ставить под фракталный лоу, не под свечу.',
-     conf:6,fear:4,greed:3,calm:5},
-    {pair:'SOL/USDT',dir:'long', r:'win', pct:5.2, usd:130, dAgo:48, setup:'Elliott W3',
-     why:'SOL — W3 продолжение. Фибо 1.618 цель. Объём растёт.',
-     feel:'Спокоен. Вход точный.',
-     lesson:null,
-     conf:9,fear:2,greed:4,calm:8},
-    {pair:'DOGE/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:46, setup:'Accumulation',
-     why:'Думал фаза C накопления. Оказалась дистрибуция.',
-     feel:'Грустно. Не проверил структуру на дневном.',
-     lesson:'DOGE — только трендовые сделки, без контр-тренда.',
-     conf:4,fear:5,greed:6,calm:3},
-    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.6, usd:90,  dAgo:44, setup:'Wyckoff Spring',
-     why:'LPS после Spring. Объём слабее медведей. Вход точный.',
-     feel:'Нейтрально. Стандартная сделка.',
-     lesson:null,
-     conf:7,fear:3,greed:3,calm:7},
-    {pair:'BNB/USDT',dir:'short',r:'win', pct:3.0, usd:75,  dAgo:42, setup:'SMC BOS',
-     why:'BOS вниз на 4H после дистрибуции. Продажа с уровня OB.',
-     feel:'Хладнокровно. Короткие работают хорошо в боковике.',
-     lesson:null,
-     conf:8,fear:2,greed:2,calm:9},
-    {pair:'XRP/USDT',dir:'long', r:'win', pct:9.3, usd:232, dAgo:40, setup:'Elliott W3',
-     why:'XRP W3 — пробой ATH зоны. Объём рекордный. Держал 7 дней.',
-     feel:'Лучшая сделка месяца. Почти вышел рано — устоял.',
-     lesson:'Большие позиции требуют терпения. TP — не паника.',
-     conf:10,fear:2,greed:5,calm:8},
-
-    // === МЕСЯЦ 3 (30-0 дней назад) — стабильный, системный ===
-    {pair:'BTC/USDT',dir:'long', r:'win', pct:4.3, usd:107, dAgo:28, setup:'OB + FVG',
-     why:'BTC коррекция 8%. OB на 4H + FVG. Зона дискаунта чёткая.',
-     feel:'Уверен. Уровень держал 3 раза.',
-     lesson:null,
-     conf:9,fear:2,greed:3,calm:9},
-    {pair:'AVAX/USDT',dir:'long', r:'win', pct:5.7, usd:142, dAgo:26, setup:'VRVP Sweep',
-     why:'VRVP POC + свип локального лоу на высоком объёме.',
-     feel:'Спокоен. Сетап отрабатывал уже 2 раза на этом активе.',
-     lesson:null,
-     conf:9,fear:1,greed:3,calm:9},
-    {pair:'SOL/USDT',dir:'short',r:'loss',pct:-1.0,usd:-25, dAgo:25, setup:'Market Structure',
-     why:'Ложный MSS — спровоцировал стоп и развернулся.',
-     feel:'Принял. Стоп маленький, убыток контролируемый.',
-     lesson:null,
-     conf:6,fear:3,greed:2,calm:7},
-    {pair:'ETH/USDT',dir:'long', r:'win', pct:3.9, usd:97,  dAgo:23, setup:'Accumulation',
-     why:'ETH Wyckoff Phase D. Test успешный. BTC поддерживает.',
-     feel:'Хладнокровно. Вход по плану.',
-     lesson:null,
-     conf:8,fear:2,greed:3,calm:8},
-    {pair:'LINK/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:21, setup:'SMC BOS',
-     why:'BOS подтверждён, но движение слабее ожидаемого. Вышел в ноль.',
-     feel:'Правильное решение — рынок замедлился.',
-     lesson:'Если движение слабее нормы — выходить в BE.',
-     conf:6,fear:3,greed:2,calm:8},
-    {pair:'BTC/USDT',dir:'long', r:'win', pct:6.8, usd:170, dAgo:19, setup:'Wyckoff Spring',
-     why:'Weekly Spring. Объём абсорбции максимальный за 3 месяца.',
-     feel:'Максимальная уверенность. Добавлял на откате внутри дня.',
-     lesson:null,
-     conf:10,fear:1,greed:5,calm:9},
-    {pair:'ARB/USDT',dir:'long', r:'win', pct:4.4, usd:110, dAgo:17, setup:'Elliott W3',
-     why:'ARB W3 от базы. Фибо .618 ретест + объём.',
-     feel:'Уверен. Цель достигнута за 2 дня.',
-     lesson:null,
-     conf:8,fear:2,greed:3,calm:8},
-    {pair:'ETH/USDT',dir:'short',r:'win', pct:3.1, usd:77,  dAgo:16, setup:'OB + FVG',
-     why:'OB дистрибуции на 4H. FVG выше цены закрыт. Продажа с 1:2.5.',
-     feel:'Спокоен.',
-     lesson:null,
-     conf:8,fear:2,greed:2,calm:9},
-    {pair:'SUI/USDT',dir:'long', r:'win', pct:11.2,usd:280, dAgo:14, setup:'Accumulation',
-     why:'SUI — фаза C→D. Тест Creek. Объём подтвердил. Потенциал 3x.',
-     feel:'Взволнован, но держался позиции. Лучшая сделка месяца.',
-     lesson:'Выделять больше капитала на сетапы с Wyckoff Phasing.',
-     conf:9,fear:3,greed:6,calm:7},
-    {pair:'BNB/USDT',dir:'long', r:'loss',pct:-1.5,usd:-37, dAgo:12, setup:'VRVP Sweep',
-     why:'Свип VAL не подтверждён объёмом. Преждевременный вход.',
-     feel:'Нетерпеливость. Надо было ждать объём.',
-     lesson:'Объём — обязательное условие для VRVP сетапов.',
-     conf:5,fear:3,greed:5,calm:5},
-    {pair:'BTC/USDT',dir:'long', r:'win', pct:2.8, usd:70,  dAgo:10, setup:'Market Structure',
-     why:'HH+HL на 4H. Ретест структуры + EMA21 совпадение.',
-     feel:'Стандартно. Не лучший сетап, но правила выполнены.',
-     lesson:null,
-     conf:7,fear:2,greed:3,calm:8},
-    {pair:'SOL/USDT',dir:'long', r:'win', pct:7.6, usd:190, dAgo:8, setup:'Elliott W3',
-     why:'SOL W3 ускорение. Пробой ATH. Объём экстремальный.',
-     feel:'Очень уверен. Держал позицию через коррекцию 3%.',
-     lesson:null,
-     conf:10,fear:2,greed:5,calm:8},
-    {pair:'XRP/USDT',dir:'short',r:'win', pct:3.5, usd:87,  dAgo:7, setup:'SMC BOS',
-     why:'XRP — BOS вниз после дистрибуции. OB на 4H подтверждён.',
-     feel:'Хладнокровно.',
-     lesson:null,
-     conf:8,fear:2,greed:2,calm:9},
-    {pair:'AVAX/USDT',dir:'long', r:'loss',pct:-2.0,usd:-50, dAgo:5, setup:'OB + FVG',
-     why:'OB + FVG, но BTC резко упал — потащил альты.',
-     feel:'Принял потерю спокойно. Риск был под контролем.',
-     lesson:'При нестабильном BTC уменьшать размер позиции на альтах.',
-     conf:6,fear:4,greed:3,calm:7},
-    {pair:'ETH/USDT',dir:'long', r:'win', pct:4.0, usd:100, dAgo:4, setup:'Wyckoff Spring',
-     why:'ETH Spring после коррекции. Абсорбция на объёме. Вход по плану.',
-     feel:'Спокоен. Уже 4-й Spring на этом активе — знаю как ведёт себя.',
-     lesson:null,
-     conf:9,fear:2,greed:3,calm:9},
-    {pair:'BTC/USDT',dir:'long', r:'win', pct:3.2, usd:80,  dAgo:3, setup:'Accumulation',
-     why:'BTC Phase D. Подтверждённый SOS. Добавился на BackUp Action.',
-     feel:'Уверен. BTC структура бычья на всех ТФ.',
-     lesson:null,
-     conf:9,fear:1,greed:4,calm:9},
-    {pair:'SOL/USDT',dir:'long', r:'be',  pct:0,   usd:0,   dAgo:2, setup:'VRVP Sweep',
-     why:'Свип VAH, но реакция слабая. Перевёл в BE и вышел.',
-     feel:'Правильное управление. Не жалею.',
-     lesson:null,
-     conf:7,fear:2,greed:2,calm:9},
-    {pair:'LINK/USDT',dir:'long', r:'win', pct:5.9, usd:147, dAgo:1, setup:'Elliott W3',
-     why:'LINK W3 — задержанное движение. Прорыв + объём + структура.',
-     feel:'Уверен. Держал 24 часа.',
-     lesson:null,
-     conf:9,fear:2,greed:4,calm:8},
-    {pair:'ETH/USDT',dir:'short',r:'win', pct:2.5, usd:62,  dAgo:0.3, setup:'OB + FVG',
-     why:'ETH откат к OB после импульса. FVG + premium зона.',
-     feel:'Хладнокровно. Короткая внутридневная.',
-     lesson:null,
-     conf:8,fear:2,greed:2,calm:9},
-    {pair:'BTC/USDT',dir:'long', r:'win', pct:1.8, usd:45,  dAgo:0.1, setup:'Market Structure',
-     why:'Ретест пробитого уровня сопротивления→поддержки. Быстрый скальп.',
-     feel:'Спокоен. Маленькая сделка для разминки.',
-     lesson:null,
-     conf:7,fear:1,greed:2,calm:9},
-  ];
-
-  let id = 1001;
-  return raw.map(t => {
-    const msAgo = t.dAgo * 24 * 3600 * 1000 + rnd(0, 3600000);
-    const baseDeposit = 2500;
-    const entryBase = t.pair.startsWith('BTC') ? 62000+rnd(-3000,3000)
-                    : t.pair.startsWith('ETH') ? 2900+rnd(-200,200)
-                    : t.pair.startsWith('SOL') ? 155+rnd(-20,20)
-                    : t.pair.startsWith('BNB') ? 580+rnd(-30,30)
-                    : t.pair.startsWith('XRP') ? 0.55+rnd(-0.05,0.05)
-                    : t.pair.startsWith('LINK')? 14+rnd(-1,1)
-                    : t.pair.startsWith('ARB') ? 1.1+rnd(-0.1,0.1)
-                    : t.pair.startsWith('AVAX')? 35+rnd(-3,3)
-                    : t.pair.startsWith('SUI') ? 3.8+rnd(-0.3,0.3)
-                    : t.pair.startsWith('DOGE')? 0.16+rnd(-0.01,0.01)
-                    : 1+rnd(0,2);
-    const entry = parseFloat(entryBase.toFixed(4));
-    const slPct = t.dir==='long' ? 0.975 : 1.025;
-    const sl    = parseFloat((entry * slPct).toFixed(4));
-    const exitMult = t.r==='win' ? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
-                   : t.r==='loss'? (t.dir==='long' ? 1+(t.pct/100) : 1-(t.pct/100))
-                   : 1;
-    const exit  = parseFloat((entry * exitMult).toFixed(4));
-    return {
-      id: String(id++),
-      user_id: 'demo',
-      pair: t.pair,
-      direction: t.dir,
-      result: t.r,
-      deposit: baseDeposit,
-      pnl_pct: t.pct,
-      pnl_usd: t.usd,
-      entry_price: entry,
-      exit_price: exit,
-      stop_loss: sl,
-      setup_type: t.setup,
-      note_why: t.why,
-      note_feel: t.feel,
-      note_lesson: t.lesson || null,
-      emotion_conf: t.conf || 7,
-      emotion_fear: t.fear || 3,
-      emotion_greed: t.greed || 3,
-      emotion_calm: t.calm || 7,
-      screenshot_url: null,
-      created_at: new Date(now - msAgo).toISOString(),
-    };
-  }).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-}
-
-function demoLoadTrades(){
-  try{
-    const ver = localStorage.getItem('orb_demo_seed_ver');
-    if(ver === '2') {
-      const stored = localStorage.getItem(DEMO_KEY);
-      if(stored) return JSON.parse(stored);
-    }
-  }catch(e){}
-  // Generate fresh seed (first run or version bump)
-  const seed = generateDemoTrades();
-  localStorage.setItem(DEMO_KEY, JSON.stringify(seed));
-  localStorage.setItem('orb_demo_seed_ver', '2');
-  return seed;
-}
-function demoSaveTrades(trades){
-  localStorage.setItem(DEMO_KEY, JSON.stringify(trades));
-}
-
-async function initDemoMode(){
-  // Fake currentUser
-  currentUser = {id:'demo', email:'demo@orbitum.app'};
-  window._isDemoMode = true;
-
-  // UI: sidebar + topbar
-  const initLetter = 'D';
-  const displayName = 'Demo Trader';
-  const sfAv = document.getElementById('sf-avatar');
-  const sfNm = document.getElementById('sf-name');
-  const sfPl = document.getElementById('sf-plan');
-  if(sfAv) sfAv.textContent = initLetter;
-  if(sfNm) sfNm.textContent = displayName;
-  if(sfPl){ sfPl.textContent = 'DEMO'; sfPl.style.color='rgba(255,200,50,0.9)'; }
-  const jtbAv = document.getElementById('jtb-avatar');
-  const jtbNm = document.getElementById('jtb-name');
-  if(jtbAv) jtbAv.textContent = initLetter;
-  if(jtbNm) jtbNm.textContent = 'DEMO';
-  window._orbUserName = displayName;
-
-  // Load demo trades
-  allTrades = demoLoadTrades();
-  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades); restoreFormDefaults();
-  orbColorUserByRank(allTrades);
-  renderPMHistory(); renderPMStreak();
-
-  // Inject demo banner
-  injectDemoBanner();
-}
-
-function injectDemoBanner(){
-  const banner = document.createElement('div');
-  banner.id = 'demo-banner';
-  banner.innerHTML = `
-    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:220px">
-        <span style="font-size:16px">🎮</span>
-        <div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:#f0f0f0;letter-spacing:1.5px;margin-bottom:2px">ДЕМО РЕЖИМ — данные ненастоящие</div>
-          <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.5px">Попробуй все функции. Изменения сохраняются локально и не попадут в реальный аккаунт.</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button onclick="demoExitToRegister()" style="padding:8px 18px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:8px;color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;cursor:pointer;box-shadow:0 4px 16px rgba(232,114,42,0.35);">🚀 СОЗДАТЬ АККАУНТ</button>
-        <button onclick="demoExitToLogin()" style="padding:8px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.55);font-family:var(--font-mono);font-size:9px;letter-spacing:1px;cursor:pointer;">ВОЙТИ</button>
-      </div>
-    </div>`;
-  banner.style.cssText = 'position:sticky;top:48px;z-index:80;background:rgba(8,6,18,0.96);border-bottom:1px solid rgba(255,200,50,0.18);backdrop-filter:blur(16px);padding:12px 24px;';
-  const statsRow = document.querySelector('.stats-row');
-  if(statsRow && statsRow.parentNode) statsRow.parentNode.insertBefore(banner, statsRow);
-  else { const main = document.querySelector('.main'); if(main) main.insertBefore(banner, main.firstChild); }
-}
-
-function demoExitToRegister(){
-  localStorage.removeItem('orb_demo_mode');
-  window.location.href = 'login.html?tab=register';
-}
-function demoExitToLogin(){
-  localStorage.removeItem('orb_demo_mode');
-  window.location.href = 'login.html';
-}
-
-// ── Override Supabase calls when in demo mode ──────────────
-
-// Patch addTrade to use localStorage
-const _origAddTrade = typeof addTrade === 'function' ? addTrade : null;
-window._demoAddTrade = async function(){
-  const pair=(document.getElementById('f-pair').value||'').trim().toUpperCase();
-  if(!pair){showNotif('warn','Укажи пару','Например BTC/USDT',3000);return;}
-  if(!currentRes){showNotif('warn','Выбери результат','Прибыль, Убыток или BE',3000);return;}
-  const btn=document.getElementById('btn-add');
-  btn.disabled=true; btn.textContent='СОХРАНЯЕМ...';
-  const lev=parseFloat(document.getElementById('f-lev')?.value)||1;
-  const noteWhy=(document.getElementById('f-why').value.trim()+(lev>1?` [${lev}x]`:'')).trim()||null;
-  const newTrade = {
-    id: 'demo_'+Date.now(),
-    user_id:'demo',
-    pair, direction:currentDir, result:currentRes,
-    deposit:parseFloat(document.getElementById('f-dep').value)||null,
-    pnl_pct:parseFloat(document.getElementById('f-pnl').value)||null,
-    pnl_usd:parseFloat(document.getElementById('f-usd').value)||null,
-    entry_price:parseFloat(document.getElementById('f-entry').value)||null,
-    exit_price:parseFloat(document.getElementById('f-exit').value)||null,
-    stop_loss:parseFloat(document.getElementById('f-sl').value)||null,
-    setup_type:currentSetup||null,
-    note_why:noteWhy, note_feel:document.getElementById('f-feel').value.trim()||null,
-    note_lesson:document.getElementById('f-lesson').value.trim()||null,
-    emotion_conf:emVals.conf, emotion_fear:emVals.fear, emotion_greed:emVals.greed, emotion_calm:emVals.calm,
-    screenshot_url: null,
-    created_at: new Date().toISOString(),
-  };
-  // Handle screenshot (base64 local - no upload)
-  if(_scrFile){
-    const reader = new FileReader();
-    await new Promise(res => { reader.onload = e => { newTrade.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_scrFile); });
-  }
-  allTrades.unshift(newTrade);
-  demoSaveTrades(allTrades);
-  btn.disabled=false; btn.textContent='ЗАПИСАТЬ СДЕЛКУ';
-  rememberFormDefaults();
-  ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('rr-val').textContent='—';
-  ['risk-usd-val','tp-usd-val','pos-size-val'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
-  currentRes=''; currentSetup='';
-  document.querySelectorAll('.res-btn').forEach(b=>b.className='res-btn');
-  document.querySelectorAll('.setup-btn').forEach(b=>b.classList.remove('active'));
-  emVals={conf:5,fear:3,greed:3,calm:7};
-  document.querySelectorAll('.em-opts').forEach(row=>{const btns=row.querySelectorAll('.em-opt');btns.forEach(b=>b.classList.remove('active'));if(btns[1])btns[1].classList.add('active');});
-  setDir('long');
-  scrRemove({stopPropagation:()=>{}});
-  showNotif('success','Сделка добавлена','Сохранено локально (demo)',3000);
-  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
-  checkTiltAlert();
-};
-
-window._demoDeleteTrade = function(id){
-  if(!confirm('Удалить сделку?')) return;
-  allTrades = allTrades.filter(t => String(t.id) !== String(id));
-  demoSaveTrades(allTrades);
-  updateStatsEnhanced(); render(); renderDashboard(); renderProgress(); renderLevelBar(allTrades);
-};
-
-window._demoSaveEditTrade = async function(){
-  const id = document.getElementById('edit-trade-id').value;
-  if(!id) return;
-  const idx = allTrades.findIndex(x => String(x.id) === String(id));
-  if(idx < 0) return;
-  const btn = document.querySelector('.edit-save');
-  if(btn){btn.textContent='СОХРАНЯЕМ...';btn.disabled=true;}
-  const updates = {
-    pair:document.getElementById('edit-pair').value.trim().toUpperCase()||'BTC/USDT',
-    direction:document.getElementById('edit-direction').value,
-    result:document.getElementById('edit-result').value,
-    pnl_pct:document.getElementById('edit-pnl-pct').value!==''?parseFloat(document.getElementById('edit-pnl-pct').value):null,
-    pnl_usd:document.getElementById('edit-pnl-usd').value!==''?parseFloat(document.getElementById('edit-pnl-usd').value):null,
-    setup_type:document.getElementById('edit-setup').value.trim()||null,
-    note_why:document.getElementById('edit-note-why').value.trim()||null,
-    note_feel:document.getElementById('edit-note-feel').value.trim()||null,
-    note_lesson:document.getElementById('edit-note-lesson').value.trim()||null,
-  };
-  // Screenshot local handling
-  if(_editScrRemoved){ updates.screenshot_url = null; }
-  else if(_editScrFile){
-    const reader = new FileReader();
-    await new Promise(res => { reader.onload = e => { updates.screenshot_url = e.target.result; res(); }; reader.readAsDataURL(_editScrFile); });
-  } else { updates.screenshot_url = allTrades[idx].screenshot_url; }
-  allTrades[idx] = {...allTrades[idx], ...updates};
-  demoSaveTrades(allTrades);
-  if(btn){btn.textContent='СОХРАНИТЬ';btn.disabled=false;}
-  closeEditModal(); render(); updateStats();
-};
-
-// Patch functions after DOM ready
-document.addEventListener('DOMContentLoaded', ()=>{
-  if(!window._isDemoMode) return;
-  // Nothing extra needed — patching happens via _isDemoMode checks in original fns
-});
-</script>
-
 <!-- ══ SCREENSHOT LIGHTBOX ══ -->
 <div class="scr-lightbox" id="scr-lightbox" onclick="closeLightbox()">
   <div class="scr-lb-close" onclick="closeLightbox()">✕</div>
