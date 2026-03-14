@@ -7,19 +7,20 @@ const SB_URL    = process.env.SUPABASE_URL;
 const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
 const WH_SECRET = process.env.TV_WEBHOOK_SECRET || ''; // опционально
 
-async function fetchKlines(symbol, interval='1h', limit=200){
-  const url = `https://api.binance.com/api/v3/klines?symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${limit}`;
+async function fetchKlines(symbol, interval='60', limit=200){
+  const url = `https://api.bybit.com/v5/market/kline?category=linear&symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${limit}`;
   const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-  if(!r.ok) throw new Error('Binance HTTP ' + r.status);
-  const raw = await r.json();
+  if(!r.ok) throw new Error('Bybit HTTP ' + r.status);
+  const data = await r.json();
+  const raw = data.result.list;
   return raw.map(k => ({
-    time:  Math.floor(k[0]/1000),
+    time:  Math.floor(parseInt(k[0]) / 1000),
     open:  parseFloat(k[1]),
     high:  parseFloat(k[2]),
     low:   parseFloat(k[3]),
     close: parseFloat(k[4]),
     volume:parseFloat(k[5]),
-  }));
+  })).reverse(); // чтобы свечи были от старых к новым
 }
 
 function computeRSI(candles, period=14){
