@@ -2,10 +2,11 @@
 // Принимает сигналы из Pine Script → AI анализ → Telegram
 // Pine payload: {"action":"buy/sell","ticker":"BTCUSDT","close":"103450","interval":"1h"}
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const SB_URL    = process.env.SUPABASE_URL;
-const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
-const WH_SECRET = process.env.TV_WEBHOOK_SECRET || ''; // опционально
+const BOT_TOKEN    = process.env.TELEGRAM_BOT_TOKEN;
+const SB_URL       = process.env.SUPABASE_URL;
+const SB_KEY       = process.env.SUPABASE_SERVICE_KEY;
+const WH_SECRET    = process.env.TV_WEBHOOK_SECRET || ''; // опционально
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 
 async function fetchKlines(symbol, interval='1h', limit=200){
   const url = `https://api.binance.com/api/v3/klines?symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${limit}`;
@@ -105,8 +106,13 @@ OB: ${obStr} | FVG: ${fvgStr}
 Дай 3-4 предложения: подтверждает ли структура сигнал, качество входа, ключевые уровни.
 По-русски, конкретно, без вступлений.`;
   try{
+    if(!ANTHROPIC_KEY) return '';
     const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{
+        'Content-Type':'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+      },
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,
         messages:[{role:'user',content:prompt}]})
     });
@@ -129,7 +135,8 @@ export default async function handler(req, res){
   // TradingView sends: action, ticker, close (and optionally interval, user_id)
   const action   = (body.action||body.signal||'').toLowerCase();  // buy/sell/long/short
   const ticker   = (body.ticker||body.symbol||'BTCUSDT').toUpperCase().replace('/','').replace('-','');
-  const closeStr = body.close || body.price || '0';
+  const closeRaw = body.close ?? body.price ?? body.close_price ?? 0;
+  const closeStr = String(closeRaw);
   const price    = parseFloat(closeStr);
   const interval = body.interval || body.tf || '1h';
   const userId   = body.user_id || null; // optional — to find TG chat
@@ -174,15 +181,26 @@ export default async function handler(req, res){
     const obStr2   = obs.length?`🔷 OB: ${obs.map(o=>`${fmtP(o.low)}–${fmtP(o.high)}`).join(', ')}\n`:'';
     const fvgStr2  = fvgs.length?`🟣 FVG: ${fvgs.map(f=>`${fmtP(f.low)}–${fmtP(f.high)}`).join(', ')}\n`:'';
 
+    // Auto-calculate TP/SL from ATR (last 14 candles)
+    const atr14 = candles.slice(-14).reduce((s,c) => s + (c.high - c.low), 0) / 14;
+    const sl  = direction==='long' ? price - atr14 * 1.5 : price + atr14 * 1.5;
+    const tp1 = direction==='long' ? price + atr14 * 2   : price - atr14 * 2;
+    const tp2 = direction==='long' ? price + atr14 * 3.5 : price - atr14 * 3.5;
+    const rr1 = (Math.abs(tp1 - price) / Math.abs(price - sl)).toFixed(1);
+    const rr2 = (Math.abs(tp2 - price) / Math.abs(price - sl)).toFixed(1);
+
     const msg =
       `📡 <b>TV WEBHOOK SIGNAL</b>\n` +
       `━━━━━━━━━━━━━━━━━━━\n` +
       `${dirEmoji}  <b>${ticker}</b> · ${interval.toUpperCase()}\n` +
-      `💵 Цена: <b>${fmtP(price)}</b>\n\n` +
+      `💵 Вход: <b>${fmtP(price)}</b>\n` +
+      `🛑 Стоп: <b>${fmtP(sl)}</b>\n` +
+      `🎯 TP1:  <b>${fmtP(tp1)}</b>  <i>(R/R 1:${rr1})</i>\n` +
+      `🎯 TP2:  <b>${fmtP(tp2)}</b>  <i>(R/R 1:${rr2})</i>\n\n` +
       `${trendCls} Структура: <b>${ms?.trend||'—'}</b>\n` +
       rsiStr + obStr2 + fvgStr2 +
       (aiText ? `\n🧠 <i>${aiText.slice(0,400)}</i>\n` : '') +
-      `\n<a href="https://orbitum-journal.vercel.app/screener.html">🔗 Открыть Orbitum</a>`;
+      `\n<a href="https://ai-orbitum.vercel.app/screener.html">🔗 Открыть Orbitum</a>`;
 
     let sent=0;
     for(const p of recipients){
