@@ -9,7 +9,7 @@ const WH_SECRET    = process.env.TV_WEBHOOK_SECRET || ''; // опциональ�
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 
 async function fetchKlines(symbol, interval='1h', limit=200){
-  const url = `https://api.binance.me/api/v3/klines?symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${limit}`;
+  const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol.toUpperCase()}&interval=${interval}&limit=${limit}`;
   const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
   if(!r.ok) throw new Error('Binance HTTP ' + r.status);
   const raw = await r.json();
