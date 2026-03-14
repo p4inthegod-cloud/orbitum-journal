@@ -48,83 +48,29 @@ img{display:block;}
 
 /* ── SIDEBAR ── */
 .sidebar{
-  width:200px;flex-shrink:0;background:var(--bg2);
+  width:52px;flex-shrink:0;background:var(--bg2);
   border-right:1px solid var(--bd);
-  display:flex;flex-direction:column;
-  padding:0;gap:0;z-index:200;
-  position:relative;overflow:hidden;overflow-y:auto;
+  display:flex;flex-direction:column;align-items:center;
+  padding:12px 0;gap:4px;z-index:200;
+  position:relative; /* stacking context for z-index to work */
 }
-.sidebar::-webkit-scrollbar{width:3px;}
-.sidebar::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
-
-/* Logo area */
-.sb-logo-area{
-  display:flex;align-items:center;gap:10px;
-  padding:16px 14px 12px;border-bottom:1px solid var(--bd);flex-shrink:0;
-}
-.sb-logo{width:28px;height:28px;border-radius:7px;overflow:hidden;flex-shrink:0;}
+.sb-logo{width:32px;height:32px;margin-bottom:12px;border-radius:8px;overflow:hidden;}
 .sb-logo img{width:100%;height:100%;object-fit:cover;}
-.sb-brand{font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--t);font-family:var(--font-mono);}
-
-/* Section labels */
-.sb-section-label{
-  font-size:9px;letter-spacing:2px;color:var(--m2);font-family:var(--font-mono);
-  padding:12px 14px 4px;text-transform:uppercase;flex-shrink:0;
-}
-
-/* Nav items */
-.sb-nav{display:flex;flex-direction:column;gap:1px;padding:4px 8px;}
 .sb-btn{
-  width:100%;height:34px;border-radius:7px;border:none;
+  width:36px;height:36px;border-radius:8px;border:none;
   background:transparent;color:var(--m);
-  display:flex;align-items:center;gap:9px;
-  padding:0 10px;
-  font-size:12px;font-family:var(--font-ui);
-  transition:all .15s;position:relative;text-align:left;
-  white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;transition:all .15s;position:relative;
 }
-.sb-btn .sb-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
-.sb-btn .sb-label{flex:1;font-size:12px;}
-.sb-btn .sb-arrow{font-size:9px;opacity:0.4;}
-.sb-btn:hover{background:var(--bg3);color:var(--t);}
+.sb-btn:hover{background:var(--a2);color:var(--a);}
 .sb-btn.active{background:var(--a2);color:var(--a);}
-.sb-btn.active .sb-icon,.sb-btn.active .sb-label{color:var(--a);}
-
-/* Market widget area */
-.sb-market-section{padding:10px 8px;border-top:1px solid var(--bd);flex-shrink:0;}
-.sb-market-title{font-size:9px;letter-spacing:2px;color:var(--m2);font-family:var(--font-mono);margin-bottom:6px;padding:0 4px;}
-.sb-market-widget{
-  background:var(--bg3);border-radius:8px;padding:8px 10px;
-  border:1px solid var(--bd);cursor:pointer;
+.sb-btn[title]:hover::after{
+  content:attr(title);position:absolute;left:44px;top:50%;transform:translateY(-50%);
+  background:var(--bg3);color:var(--t);font-size:11px;padding:4px 8px;border-radius:5px;
+  white-space:nowrap;z-index:500;border:1px solid var(--bd2);pointer-events:none;
 }
-.sb-sentiment-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.sb-sentiment-dial{position:relative;width:32px;height:32px;flex-shrink:0;}
-.sb-sentiment-num{font-size:14px;font-weight:700;color:var(--r);font-family:var(--font-mono);}
-.sb-sentiment-lbl{font-size:9px;color:var(--r);letter-spacing:.5px;text-transform:uppercase;}
-.sb-metric-row{display:flex;justify-content:space-between;margin-top:4px;}
-.sb-metric{text-align:left;}
-.sb-metric-k{font-size:9px;color:var(--m2);letter-spacing:.5px;text-transform:uppercase;}
-.sb-metric-v{font-size:11px;color:var(--t);font-family:var(--font-mono);font-weight:600;}
-
-/* Live prices */
-.sb-prices-section{padding:6px 8px 10px;border-top:1px solid var(--bd);flex-shrink:0;}
-.sb-prices-title{font-size:9px;letter-spacing:2px;color:var(--m2);font-family:var(--font-mono);margin-bottom:6px;padding:0 4px;}
-.sb-price-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:5px 8px;border-radius:6px;cursor:pointer;transition:background .1s;
-}
-.sb-price-row:hover{background:var(--bg3);}
-.sb-price-row.highlight{background:rgba(232,114,42,0.08);}
-.sb-pr-sym{font-size:11px;font-weight:700;font-family:var(--font-mono);color:var(--t);width:36px;}
-.sb-pr-price{font-size:11px;font-family:var(--font-mono);color:var(--t);}
-.sb-pr-chg{font-size:10px;font-family:var(--font-mono);width:48px;text-align:right;}
-.sb-pr-chg.up{color:var(--g);}
-.sb-pr-chg.dn{color:var(--r);}
-
-/* Bottom utility nav */
-.sb-bottom{margin-top:auto;border-top:1px solid var(--bd);padding:6px 8px;}
-
-.sb-sep{display:none;} /* hide old sep */
+.sb-sep{width:24px;height:1px;background:var(--bd);margin:4px 0;}
+.sb-bottom{margin-top:auto;}
 
 /* ── MAIN AREA ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
@@ -1208,130 +1154,141 @@ select.at-input{cursor:pointer;}
   .aitrade-panel.open{transform:translateX(0);}
 }
 
+
+/* ── AT: Market Structure Tags ── */
+.at-mstruct{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.at-ms-tag{
+  height:20px;padding:0 7px;border-radius:3px;font-size:8px;
+  font-family:var(--font-mono);font-weight:700;letter-spacing:.5px;
+  display:flex;align-items:center;
+}
+.at-ms-tag.bull{background:rgba(46,204,113,0.12);color:var(--g);border:1px solid rgba(46,204,113,0.2);}
+.at-ms-tag.bear{background:rgba(231,76,60,0.1);color:var(--r);border:1px solid rgba(231,76,60,0.18);}
+.at-ms-tag.neut{background:rgba(255,255,255,0.04);color:var(--m2);border:1px solid var(--bd);}
+.at-ms-tag.accent{background:rgba(232,114,42,0.1);color:var(--a);border:1px solid rgba(232,114,42,0.2);}
+
+/* ── AT: Structure block (OB/FVG/Liq) ── */
+.at-struct-block{
+  background:rgba(255,255,255,0.02);border:1px solid var(--bd);
+  border-radius:6px;padding:8px 10px;margin-bottom:8px;
+}
+.at-struct-title{
+  font-size:8px;color:var(--m2);letter-spacing:1.5px;font-family:var(--font-mono);
+  margin-bottom:6px;display:flex;align-items:center;gap:5px;
+}
+.at-struct-title .at-struct-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.at-struct-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03);
+  font-size:10px;font-family:var(--font-mono);
+}
+.at-struct-row:last-child{border-bottom:none;}
+.at-struct-lbl{color:var(--m);}
+.at-struct-val{font-weight:600;}
+.at-struct-val.bull{color:var(--g);}
+.at-struct-val.bear{color:var(--r);}
+.at-struct-val.accent{color:var(--a);}
+.at-struct-val.neut{color:var(--m2);}
+
+/* ── AT: VRVP bar ── */
+.at-vrvp-wrap{margin-bottom:8px;}
+.at-vrvp-row{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.at-vrvp-price{font-size:8px;color:var(--m2);font-family:var(--font-mono);width:72px;flex-shrink:0;text-align:right;}
+.at-vrvp-bar-wrap{flex:1;height:8px;background:rgba(255,255,255,0.03);border-radius:2px;overflow:hidden;}
+.at-vrvp-bar{height:100%;border-radius:2px;transition:width .4s;}
+.at-vrvp-bar.poc{background:rgba(232,114,42,0.8);}
+.at-vrvp-bar.bull{background:rgba(46,204,113,0.5);}
+.at-vrvp-bar.bear{background:rgba(231,76,60,0.4);}
+
+/* ── AT: RSI mini ── */
+.at-rsi-wrap{
+  background:rgba(255,255,255,0.02);border:1px solid var(--bd);border-radius:6px;
+  padding:8px 10px;margin-bottom:8px;
+}
+.at-rsi-row{display:flex;align-items:center;gap:8px;}
+.at-rsi-val{font-size:18px;font-weight:700;font-family:var(--font-mono);}
+.at-rsi-val.ob{color:var(--r);}
+.at-rsi-val.os{color:var(--g);}
+.at-rsi-val.mid{color:var(--t);}
+.at-rsi-bar-track{flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;position:relative;overflow:hidden;}
+.at-rsi-bar-fill{height:100%;border-radius:3px;transition:width .4s;}
+.at-rsi-label{font-size:8px;color:var(--m2);letter-spacing:.5px;font-family:var(--font-mono);}
+
+/* ── AT: Scan button + TG send ── */
+.at-btn-row{display:flex;gap:6px;margin-bottom:10px;}
+.at-scan-btn{
+  flex:1;height:34px;border-radius:7px;border:1px solid var(--bd2);
+  background:transparent;color:var(--m);font-family:var(--font-mono);
+  font-size:10px;letter-spacing:.5px;transition:all .15s;cursor:pointer;
+}
+.at-scan-btn:hover{border-color:rgba(232,114,42,0.4);color:var(--a);}
+.at-tg-btn{
+  flex:1;height:34px;border-radius:7px;border:none;
+  background:rgba(37,99,235,0.15);border:1px solid rgba(59,130,246,0.3);
+  color:#60a5fa;font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.5px;transition:all .15s;cursor:pointer;
+}
+.at-tg-btn:hover{background:rgba(37,99,235,0.25);}
+.at-tg-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── AT: Auto scan mode ── */
+.at-auto-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;border-radius:6px;
+  background:rgba(255,255,255,0.02);border:1px solid var(--bd);
+  margin-bottom:10px;
+}
+.at-auto-label{font-size:9px;color:var(--m);font-family:var(--font-mono);}
+.at-auto-toggle{
+  width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;
+  background:var(--bd2);position:relative;transition:background .2s;flex-shrink:0;
+}
+.at-auto-toggle.on{background:var(--a);}
+.at-auto-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;
+  border-radius:50%;background:#fff;transition:transform .2s;
+}
+.at-auto-toggle.on::after{transform:translateX(16px);}
+
+/* ── AT: webhook info box ── */
+.at-webhook-box{
+  background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);
+  border-radius:6px;padding:8px 10px;margin-bottom:10px;
+  font-size:9px;font-family:var(--font-mono);color:var(--m2);line-height:1.6;
+}
+.at-webhook-url{
+  color:#60a5fa;word-break:break-all;font-size:8.5px;
+  background:rgba(59,130,246,0.08);padding:3px 6px;border-radius:4px;
+  display:block;margin-top:4px;cursor:pointer;
+}
+.at-webhook-url:hover{background:rgba(59,130,246,0.15);}
+
+/* ── AT: panel wider on desktop ── */
+.aitrade-panel{width:500px;}
+@media(max-width:768px){.aitrade-panel{width:100%;}}
+
 </style>
 </head>
 <body>
 <div class="layout">
 
 <!-- SIDEBAR -->
-<nav class="sidebar" id="sidebar">
-  <!-- Logo -->
-  <div class="sb-logo-area">
-    <div class="sb-logo"><img src="orbitum-logo.jpg" alt="" onerror="this.style.display='none'"><span style="display:none">●</span></div>
-    <span class="sb-brand">ORBITUM</span>
-  </div>
-
-  <!-- КАБИНЕТ -->
-  <div class="sb-section-label">КАБИНЕТ</div>
-  <div class="sb-nav">
-    <button class="sb-btn" onclick="location.href='journal.html'">
-      <span class="sb-icon">📋</span><span class="sb-label">Журнал сделок</span>
-    </button>
-    <button class="sb-btn" onclick="location.href='analytics.html'">
-      <span class="sb-icon">📊</span><span class="sb-label">Аналитика</span>
-    </button>
-    <button class="sb-btn" onclick="location.href='progress.html'">
-      <span class="sb-icon">📈</span><span class="sb-label">Прогресс</span>
-    </button>
-    <button class="sb-btn" onclick="location.href='digest.html'">
-      <span class="sb-icon">📰</span><span class="sb-label">Дайджест</span>
-    </button>
-    <button class="sb-btn" onclick="location.href='premarket.html'">
-      <span class="sb-icon">🌅</span><span class="sb-label">Пре-маркет</span>
-    </button>
-  </div>
-
-  <!-- AI & АНАЛИТИКА -->
-  <div class="sb-section-label">AI &amp; АНАЛИТИКА</div>
-  <div class="sb-nav">
-    <button class="sb-btn" onclick="location.href='coach.html'">
-      <span class="sb-icon">🤖</span><span class="sb-label">AI Coach</span>
-    </button>
-    <button class="sb-btn active" id="sb-screener" onclick="location.href='screener.html'">
-      <span class="sb-icon">🔍</span><span class="sb-label">Скринер</span><span class="sb-arrow">›</span>
-    </button>
-    <button class="sb-btn" onclick="location.href='profile.html'">
-      <span class="sb-icon">👤</span><span class="sb-label">Мой профиль</span>
-    </button>
-    <button class="sb-btn" onclick="location.href='settings.html'">
-      <span class="sb-icon">⚙️</span><span class="sb-label">Настройки</span>
-    </button>
-    <button class="sb-btn" onclick="location.href='admin.html'" id="sb-admin-link" style="display:none;">
-      <span class="sb-icon">🛡️</span><span class="sb-label">Админ</span>
-    </button>
-  </div>
-
-  <!-- РЫНОК widget -->
-  <div class="sb-market-section" id="sb-market-section">
-    <div class="sb-market-title">РЫНОК</div>
-    <!-- НАСТРОЕНИЕ -->
-    <div class="sb-section-label" style="padding:0 0 4px;font-size:9px;">НАСТРОЕНИЕ</div>
-    <div class="sb-market-widget" style="margin-bottom:8px;">
-      <div class="sb-sentiment-row">
-        <div style="line-height:1;">
-          <div class="sb-sentiment-num" id="sb-fg-num">—</div>
-          <div class="sb-sentiment-lbl" id="sb-fg-lbl">ЗАГРУЗКА</div>
-        </div>
-      </div>
-    </div>
-    <!-- МЕТРИКИ -->
-    <div class="sb-section-label" style="padding:0 0 4px;font-size:9px;">МЕТРИКИ</div>
-    <div class="sb-market-widget">
-      <div class="sb-metric-row">
-        <div class="sb-metric">
-          <div class="sb-metric-k">MCAP</div>
-          <div class="sb-metric-v" id="sb-mcap">—</div>
-        </div>
-        <div class="sb-metric" style="text-align:right;">
-          <div class="sb-metric-k">24H %</div>
-          <div class="sb-metric-v" id="sb-mcap-chg">—</div>
-        </div>
-      </div>
-      <div class="sb-metric-row" style="margin-top:6px;">
-        <div class="sb-metric">
-          <div class="sb-metric-k">ОБЪЁМ</div>
-          <div class="sb-metric-v" id="sb-vol">—</div>
-        </div>
-        <div class="sb-metric" style="text-align:right;">
-          <div class="sb-metric-k">BTC DOM</div>
-          <div class="sb-metric-v" id="sb-btcdom">—</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LIVE PRICES -->
-  <div class="sb-prices-section">
-    <div class="sb-prices-title">ЦЕНЫ LIVE</div>
-    <div id="sb-live-prices">
-      <div class="sb-price-row"><span class="sb-pr-sym">BTC</span><span class="sb-pr-price" id="sbp-BTC">—</span><span class="sb-pr-chg" id="sbpc-BTC">—</span></div>
-      <div class="sb-price-row"><span class="sb-pr-sym">ETH</span><span class="sb-pr-price" id="sbp-ETH">—</span><span class="sb-pr-chg" id="sbpc-ETH">—</span></div>
-      <div class="sb-price-row"><span class="sb-pr-sym">SOL</span><span class="sb-pr-price" id="sbp-SOL">—</span><span class="sb-pr-chg" id="sbpc-SOL">—</span></div>
-      <div class="sb-price-row"><span class="sb-pr-sym">BNB</span><span class="sb-pr-price" id="sbp-BNB">—</span><span class="sb-pr-chg" id="sbpc-BNB">—</span></div>
-      <div class="sb-price-row"><span class="sb-pr-sym">XRP</span><span class="sb-pr-price" id="sbp-XRP">—</span><span class="sb-pr-chg" id="sbpc-XRP">—</span></div>
-      <div class="sb-price-row"><span class="sb-pr-sym">SUI</span><span class="sb-pr-price" id="sbp-SUI">—</span><span class="sb-pr-chg" id="sbpc-SUI">—</span></div>
-    </div>
-  </div>
-
-  <!-- Bottom -->
+<nav class="sidebar">
+  <div class="sb-logo"><img src="orbitum-logo.jpg" alt="Orbitum" onerror="this.style.display='none'"></div>
+  <button class="sb-btn active" id="sb-screener" title="Скринер" onclick="setView('grid')">⊞</button>
+  <button class="sb-btn" id="sb-list" title="Список" onclick="setView('list')">≡</button>
+  <button class="sb-btn" id="sb-heatmap" title="Тепловая карта" onclick="setView('heatmap')">▦</button>
+  <div class="sb-sep"></div>
+  <button class="sb-btn" id="sb-alerts-btn" title="Мои алерты" onclick="toggleAlertsPanel()">🔔</button>
+  <button class="sb-btn" id="sb-calendar-btn" title="Экономический календарь" onclick="toggleCalendarPanel()" style="position:relative;">📅<span class="cal-notif-dot" id="cal-notif-dot"></span></button>
+  <button class="sb-btn" id="sb-aitrade-btn" title="AI Trade Analyzer" onclick="toggleAiTradePanel()">🧠</button>
   <div class="sb-bottom">
-    <div class="sb-nav">
-      <button class="sb-btn" id="sb-aitrade-btn" onclick="toggleAiTradePanel()">
-        <span class="sb-icon">🧠</span><span class="sb-label">AI Trade Analyzer</span>
-      </button>
-      <button class="sb-btn" id="sb-alerts-btn" onclick="toggleAlertsPanel()">
-        <span class="sb-icon">🔔</span><span class="sb-label">Мои алерты</span>
-      </button>
-      <button class="sb-btn" id="sb-calendar-btn" onclick="toggleCalendarPanel()">
-        <span class="sb-icon">📅</span><span class="sb-label">Календарь</span><span class="cal-notif-dot" id="cal-notif-dot" style="margin-left:auto;"></span>
-      </button>
-      <button class="sb-btn" onclick="doLogout()">
-        <span class="sb-icon">⏻</span><span class="sb-label">Выйти</span>
-      </button>
-    </div>
+    <div class="sb-sep"></div>
+    <button class="sb-btn" id="sb-journal" title="Журнал" onclick="location.href='journal.html'">📋</button>
+    <button class="sb-btn" id="sb-profile" title="Профиль" onclick="location.href='profile.html'">◉</button>
+    <button class="sb-btn" title="Выйти" onclick="doLogout()">⏻</button>
   </div>
 </nav>
-
 
 <!-- MAIN -->
 <div class="main">
@@ -1512,7 +1469,7 @@ select.at-input{cursor:pointer;}
   </div>
   <div class="aitrade-body">
 
-    <!-- Пара и таймфрейм -->
+    <!-- СЕТАП -->
     <div class="at-section">
       <span class="at-section-label">СЕТАП</span>
       <div class="at-row2">
@@ -1531,15 +1488,11 @@ select.at-input{cursor:pointer;}
           </select>
         </div>
       </div>
-
-      <!-- Направление -->
       <span class="at-label">НАПРАВЛЕНИЕ</span>
       <div class="at-dir-row" style="margin-top:3px;">
         <button class="at-dir-btn long-active" id="at-dir-long"  onclick="atSetDir('long',this)">▲ LONG</button>
         <button class="at-dir-btn"             id="at-dir-short" onclick="atSetDir('short',this)">▼ SHORT</button>
       </div>
-
-      <!-- Уровни -->
       <div class="at-row2">
         <div class="at-field">
           <span class="at-label">ВХОД</span>
@@ -1556,24 +1509,101 @@ select.at-input{cursor:pointer;}
       </div>
     </div>
 
-    <!-- Мини-график -->
-    <div class="at-chart-wrap">
+    <!-- ГРАФИК -->
+    <div class="at-chart-wrap" style="height:220px;">
       <div id="at-chart"></div>
       <div class="at-chart-loading" id="at-chart-loading">ЗАГРУЗКА...</div>
     </div>
 
-    <!-- Метрики -->
-    <div class="at-metrics" id="at-metrics">
-      <div class="at-metric"><div class="at-m-label">РИСК / НАГРАДА</div><div class="at-m-val" id="atm-rr">—</div></div>
+    <!-- MARKET STRUCTURE TAGS -->
+    <div class="at-mstruct" id="at-mstruct"></div>
+
+    <!-- МЕТРИКИ -->
+    <div class="at-metrics" id="at-metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:8px;">
+      <div class="at-metric"><div class="at-m-label">R/R</div><div class="at-m-val" id="atm-rr">—</div></div>
       <div class="at-metric"><div class="at-m-label">РИСК %</div><div class="at-m-val" id="atm-risk">—</div></div>
-      <div class="at-metric"><div class="at-m-label">ПОТЕНЦИАЛ %</div><div class="at-m-val" id="atm-reward">—</div></div>
-      <div class="at-metric"><div class="at-m-label">ПОЗИЦИЯ В ДИАПАЗ.</div><div class="at-m-val" id="atm-range">—</div></div>
+      <div class="at-metric"><div class="at-m-label">ПОТЕНЦИАЛ</div><div class="at-m-val" id="atm-reward">—</div></div>
     </div>
 
-    <!-- Кнопка анализа -->
+    <!-- RSI -->
+    <div class="at-rsi-wrap" id="at-rsi-wrap" style="display:none;">
+      <div class="at-struct-title"><div class="at-struct-dot" style="background:#e74c3c;"></div>RSI (14)</div>
+      <div class="at-rsi-row">
+        <div class="at-rsi-val" id="at-rsi-val">—</div>
+        <div style="flex:1;">
+          <div class="at-rsi-bar-track">
+            <div class="at-rsi-bar-fill" id="at-rsi-bar" style="width:50%;background:rgba(232,234,240,0.3);"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:2px;">
+            <span class="at-rsi-label">0 OS</span>
+            <span class="at-rsi-label">30</span>
+            <span class="at-rsi-label">50</span>
+            <span class="at-rsi-label">70</span>
+            <span class="at-rsi-label">OB 100</span>
+          </div>
+        </div>
+        <div class="at-rsi-label" id="at-rsi-label" style="margin-left:8px;color:var(--t);">—</div>
+      </div>
+    </div>
+
+    <!-- MARKET STRUCTURE -->
+    <div class="at-struct-block" id="at-ms-block" style="display:none;">
+      <div class="at-struct-title"><div class="at-struct-dot" style="background:var(--a);"></div>MARKET STRUCTURE</div>
+      <div id="at-ms-rows"></div>
+    </div>
+
+    <!-- ORDER BLOCKS -->
+    <div class="at-struct-block" id="at-ob-block" style="display:none;">
+      <div class="at-struct-title"><div class="at-struct-dot" style="background:#3b82f6;"></div>ORDER BLOCKS</div>
+      <div id="at-ob-rows"></div>
+    </div>
+
+    <!-- FVG -->
+    <div class="at-struct-block" id="at-fvg-block" style="display:none;">
+      <div class="at-struct-title"><div class="at-struct-dot" style="background:#8b5cf6;"></div>FAIR VALUE GAPS</div>
+      <div id="at-fvg-rows"></div>
+    </div>
+
+    <!-- LIQUIDITY -->
+    <div class="at-struct-block" id="at-liq-block" style="display:none;">
+      <div class="at-struct-title"><div class="at-struct-dot" style="background:var(--y);"></div>LIQUIDITY LEVELS</div>
+      <div id="at-liq-rows"></div>
+    </div>
+
+    <!-- VRVP -->
+    <div class="at-struct-block" id="at-vrvp-block" style="display:none;">
+      <div class="at-struct-title"><div class="at-struct-dot" style="background:var(--a);"></div>VRVP — VOLUME PROFILE</div>
+      <div class="at-vrvp-wrap" id="at-vrvp-rows"></div>
+    </div>
+
+    <!-- КНОПКИ -->
+    <div class="at-btn-row">
+      <button class="at-scan-btn" onclick="atScanSetups()">🔍 НАЙТИ СЕТАПЫ</button>
+      <button class="at-tg-btn" id="at-tg-btn" onclick="atSendToTg()" disabled>📨 В TELEGRAM</button>
+    </div>
+
+    <!-- АВТО СКАНЕР -->
+    <div class="at-auto-row">
+      <div>
+        <div class="at-auto-label">🤖 АВТО-СКАНЕР</div>
+        <div style="font-size:8px;color:var(--m2);font-family:var(--font-mono);margin-top:2px;">Сканирует пары каждые 15 мин → TG</div>
+      </div>
+      <button class="at-auto-toggle" id="at-auto-toggle" onclick="atToggleAutoScan(this)"></button>
+    </div>
+
+    <!-- WEBHOOK INFO -->
+    <div class="at-webhook-box" id="at-webhook-box">
+      <div style="color:var(--t);margin-bottom:4px;">📡 TradingView Webhook</div>
+      POST сигнал из Pine Script → автоматический AI анализ → TG<br>
+      Добавь в TradingView Alert → Webhook URL:
+      <span class="at-webhook-url" onclick="atCopyWebhook(this)">https://orbitum-journal.vercel.app/api/webhook-tv</span>
+      <div style="margin-top:4px;">Payload: <code style="color:var(--a);">{{strategy.order.action}} {{ticker}} {{close}}</code></div>
+    </div>
+
+    <!-- АНАЛИЗ КНОПКА -->
     <button class="at-analyze-btn" id="at-analyze-btn" onclick="atAnalyze()">⚡ AI АНАЛИЗ СДЕЛКИ</button>
 
-    <!-- AI результаты -->
+    <!-- AI РЕЗУЛЬТАТЫ -->
     <div id="at-ai-area" style="display:none;">
       <div class="at-ai-header"><div class="at-ai-dot"></div>AI COACH · ORBITUM</div>
       <div id="at-ai-loading" style="display:none;">
@@ -1582,21 +1612,6 @@ select.at-input{cursor:pointer;}
         <div class="at-ai-skeleton" style="animation-delay:.3s"></div>
       </div>
       <div id="at-ai-cards"></div>
-    </div>
-
-    <!-- SCAN SIGNAL section -->
-    <div style="border-top:1px solid var(--bd);margin-top:12px;padding-top:12px;">
-      <span class="at-section-label">🔭 ПОИСК СИГНАЛА</span>
-      <p style="font-size:10px;color:var(--m);margin:4px 0 8px;line-height:1.5;">Автопоиск наиболее чёткого ICT/SMC сигнала на текущем чарте по всем ТФ</p>
-      <button class="at-analyze-btn" id="at-scan-btn" onclick="atScanSignal()" style="background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.4);color:#3b82f6;">🔭 СКАНИРОВАТЬ ЧАРТ</button>
-      <div id="at-scan-area" style="display:none;margin-top:8px;">
-        <div class="at-ai-header" style="color:#3b82f6;"><div class="at-ai-dot" style="background:#3b82f6;"></div>SCAN RESULT</div>
-        <div id="at-scan-loading" style="display:none;">
-          <div class="at-ai-skeleton" style="animation-delay:.0s"></div>
-          <div class="at-ai-skeleton" style="animation-delay:.15s"></div>
-        </div>
-        <div id="at-scan-result"></div>
-      </div>
     </div>
 
   </div>
@@ -3735,19 +3750,27 @@ else init();
 
 
 // ══════════════════════════════════════════════
-// AI TRADE ANALYZER
+// ══════════════════════════════════════════════
+// AI TRADE ANALYZER v2 — Market Structure Engine
 // ══════════════════════════════════════════════
 
-let _atOpen       = false;
-let _atDirection  = 'long';
-let _atChart      = null;
-let _atSeries     = null;
-let _atEntryLine  = null;
-let _atSlLine     = null;
-let _atTpLine     = null;
-let _atCandles    = [];
-let _atResizeObs  = null;
+let _atOpen        = false;
+let _atDirection   = 'long';
+let _atChart       = null;
+let _atSeries      = null;
+let _atEntryLine   = null;
+let _atSlLine      = null;
+let _atTpLine      = null;
+let _atCandles     = [];      // { time, open, high, low, close, volume }
+let _atResizeObs   = null;
+let _atAnalysis    = null;    // last computed structure analysis
+let _atAutoTimer   = null;    // auto-scan interval
+let _atAutoOn      = false;
+let _atObLines     = [];      // price line refs for OBs on chart
+let _atFvgRects    = [];      // rectangle series refs
+let _atLiqLines    = [];
 
+// ── Toggle panel ──────────────────────────────
 function toggleAiTradePanel(){
   _atOpen = !_atOpen;
   document.getElementById('aitrade-panel').classList.toggle('open', _atOpen);
@@ -3756,21 +3779,19 @@ function toggleAiTradePanel(){
   if(_atOpen) atPrefillFromDetail();
 }
 
-// Prefill from currently open coin in detail panel
 function atPrefillFromDetail(){
   if(!_detailCoin) return;
-  const ws = _wsCache[_detailCoin.id];
+  const ws    = _wsCache[_detailCoin.id];
   const price = ws?.price ?? _detailCoin.current_price;
   if(!price) return;
-  const pairInput = document.getElementById('at-pair');
   const wsPair = WS_MAP[_detailCoin.id]?.pair?.toUpperCase() || (_detailCoin.symbol?.toUpperCase()+'USDT');
-  if(pairInput) pairInput.value = wsPair;
-  const entry = document.getElementById('at-entry');
-  if(entry && !entry.value) entry.value = price.toFixed(price >= 1 ? 2 : 6);
+  document.getElementById('at-pair').value = wsPair;
+  const entryEl = document.getElementById('at-entry');
+  if(entryEl && !entryEl.value) entryEl.value = price.toFixed(price >= 1 ? 2 : 6);
   atLoadChart();
 }
 
-function atSetDir(dir, btn){
+function atSetDir(dir){
   _atDirection = dir;
   document.getElementById('at-dir-long').className  = 'at-dir-btn' + (dir==='long'?' long-active':'');
   document.getElementById('at-dir-short').className = 'at-dir-btn' + (dir==='short'?' short-active':'');
@@ -3781,229 +3802,739 @@ function atUpdatePair(){
   atUpdatePair._t = setTimeout(atLoadChart, 800);
 }
 
+// ── Chart lines ───────────────────────────────
 function atUpdateLines(){
   if(!_atChart || !_atSeries) return;
   const entry = parseFloat(document.getElementById('at-entry').value);
   const sl    = parseFloat(document.getElementById('at-sl').value);
   const tp    = parseFloat(document.getElementById('at-tp').value);
-
-  // Remove old lines
-  [_atEntryLine, _atSlLine, _atTpLine].forEach(l => {
-    if(l) try{ _atSeries.removePriceLine(l); }catch(e){}
-  });
-
-  if(entry > 0) _atEntryLine = _atSeries.createPriceLine({
-    price: entry, color: 'rgba(46,204,113,0.9)', lineWidth: 2,
-    lineStyle: 0, axisLabelVisible: true, title: '● ВХОД',
-  });
-  if(sl > 0) _atSlLine = _atSeries.createPriceLine({
-    price: sl, color: 'rgba(231,76,60,0.9)', lineWidth: 1.5,
-    lineStyle: 2, axisLabelVisible: true, title: '✕ СТОП',
-  });
-  if(tp > 0) _atTpLine = _atSeries.createPriceLine({
-    price: tp, color: 'rgba(59,130,246,0.9)', lineWidth: 1.5,
-    lineStyle: 2, axisLabelVisible: true, title: '◎ ТЕЙК',
-  });
-
+  [_atEntryLine, _atSlLine, _atTpLine].forEach(l => { if(l) try{_atSeries.removePriceLine(l);}catch(e){} });
+  if(entry>0) _atEntryLine = _atSeries.createPriceLine({ price:entry, color:'rgba(46,204,113,0.9)', lineWidth:2, lineStyle:0, axisLabelVisible:true, title:'● ВХОД' });
+  if(sl>0)    _atSlLine    = _atSeries.createPriceLine({ price:sl,    color:'rgba(231,76,60,0.9)',  lineWidth:1.5, lineStyle:2, axisLabelVisible:true, title:'✕ СТОП' });
+  if(tp>0)    _atTpLine    = _atSeries.createPriceLine({ price:tp,    color:'rgba(59,130,246,0.9)', lineWidth:1.5, lineStyle:2, axisLabelVisible:true, title:'◎ ТЕЙК' });
   atCalcMetrics();
 }
 
+// ── Metrics ───────────────────────────────────
 function atCalcMetrics(){
   const entry = parseFloat(document.getElementById('at-entry').value);
   const sl    = parseFloat(document.getElementById('at-sl').value);
   const tp    = parseFloat(document.getElementById('at-tp').value);
-  if(!entry || !sl || !tp || isNaN(entry) || isNaN(sl) || isNaN(tp)) return;
-
-  const risk   = Math.abs(entry - sl);
-  const reward = Math.abs(tp - entry);
-  const rr     = reward / risk;
-  const riskPct   = (risk   / entry * 100);
-  const rewardPct = (reward / entry * 100);
-
-  // Range position from recent candles
-  let rangePos = null;
-  if(_atCandles.length >= 10){
-    const recent = _atCandles.slice(-30);
-    const high = Math.max(...recent.map(c => c.high));
-    const low  = Math.min(...recent.map(c => c.low));
-    if(high > low) rangePos = ((entry - low) / (high - low) * 100).toFixed(0);
+  if(!entry||!sl||!tp||isNaN(entry)||isNaN(sl)||isNaN(tp)) return null;
+  const risk      = Math.abs(entry-sl);
+  const reward    = Math.abs(tp-entry);
+  const rr        = reward/risk;
+  const riskPct   = risk/entry*100;
+  const rewardPct = reward/entry*100;
+  let rangePos = 50;
+  if(_atCandles.length>=10){
+    const r   = _atCandles.slice(-30);
+    const hi  = Math.max(...r.map(c=>c.high));
+    const lo  = Math.min(...r.map(c=>c.low));
+    if(hi>lo) rangePos = (entry-lo)/(hi-lo)*100;
   }
-
   const rrEl = document.getElementById('atm-rr');
-  rrEl.textContent = `1:${rr.toFixed(2)}`;
-  rrEl.className = `at-m-val ${rr >= 2 ? 'good' : rr >= 1 ? 'warn' : 'bad'}`;
+  if(rrEl){ rrEl.textContent=`1:${rr.toFixed(2)}`; rrEl.className=`at-m-val ${rr>=2?'good':rr>=1?'warn':'bad'}`; }
+  const rEl = document.getElementById('atm-risk');
+  if(rEl){ rEl.textContent=`−${riskPct.toFixed(2)}%`; rEl.className=`at-m-val ${riskPct<=1?'good':riskPct<=2?'warn':'bad'}`; }
+  const rwEl = document.getElementById('atm-reward');
+  if(rwEl){ rwEl.textContent=`+${rewardPct.toFixed(2)}%`; rwEl.className='at-m-val good'; }
+  return { rr, riskPct, rewardPct, rangePos };
+}
 
-  const riskEl = document.getElementById('atm-risk');
-  riskEl.textContent = `−${riskPct.toFixed(2)}%`;
-  riskEl.className = `at-m-val ${riskPct <= 1 ? 'good' : riskPct <= 2 ? 'warn' : 'bad'}`;
+// ══════════════════════════════════════════════
+// MARKET STRUCTURE ENGINE
+// ══════════════════════════════════════════════
 
-  document.getElementById('atm-reward').textContent = `+${rewardPct.toFixed(2)}%`;
-  document.getElementById('atm-reward').className = 'at-m-val good';
+// ── RSI (14) ──────────────────────────────────
+function atComputeRSI(candles, period=14){
+  if(candles.length < period+1) return null;
+  const closes = candles.map(c=>c.close);
+  let gains=0, losses=0;
+  for(let i=closes.length-period; i<closes.length; i++){
+    const d = closes[i]-closes[i-1];
+    if(d>0) gains+=d; else losses-=d;
+  }
+  const avgG = gains/period, avgL = losses/period;
+  if(avgL===0) return 100;
+  return 100 - 100/(1 + avgG/avgL);
+}
 
-  const rangeEl = document.getElementById('atm-range');
-  if(rangePos != null){
-    rangeEl.textContent = `${rangePos}%`;
-    rangeEl.className = `at-m-val ${rangePos > 25 && rangePos < 75 ? 'warn' : 'good'}`;
+function atRenderRSI(rsi){
+  const wrap = document.getElementById('at-rsi-wrap');
+  if(!wrap) return;
+  if(rsi==null){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const val  = document.getElementById('at-rsi-val');
+  const bar  = document.getElementById('at-rsi-bar');
+  const lbl  = document.getElementById('at-rsi-label');
+  const cls  = rsi>=70?'ob':rsi<=30?'os':'mid';
+  const color= rsi>=70?'rgba(231,76,60,0.8)':rsi<=30?'rgba(46,204,113,0.8)':'rgba(232,234,240,0.4)';
+  val.textContent  = Math.round(rsi);
+  val.className    = `at-rsi-val ${cls}`;
+  bar.style.width  = `${rsi}%`;
+  bar.style.background = color;
+  lbl.textContent  = rsi>=70?'ПЕРЕКУПЛЕН':rsi<=30?'ПЕРЕПРОДАН':rsi>=55?'БЫЧИЙ':'МЕДВЕЖИЙ';
+  lbl.style.color  = rsi>=70?'var(--r)':rsi<=30?'var(--g)':'var(--m)';
+}
+
+// ── Market Structure (HH/HL/LH/LL + BOS/CHoCH) ──
+function atComputeStructure(candles){
+  const n = candles.length;
+  if(n<10) return null;
+
+  // Find swing highs and lows (pivot points, lookback=3)
+  const swingH=[], swingL=[];
+  for(let i=3; i<n-3; i++){
+    const isHigh = candles[i].high >= Math.max(...candles.slice(i-3,i).map(c=>c.high))
+                && candles[i].high >= Math.max(...candles.slice(i+1,i+4).map(c=>c.high));
+    const isLow  = candles[i].low  <= Math.min(...candles.slice(i-3,i).map(c=>c.low))
+                && candles[i].low  <= Math.min(...candles.slice(i+1,i+4).map(c=>c.low));
+    if(isHigh) swingH.push({ idx:i, price:candles[i].high, time:candles[i].time });
+    if(isLow)  swingL.push({ idx:i, price:candles[i].low,  time:candles[i].time });
   }
 
-  return { rr, riskPct, rewardPct, rangePos: rangePos ? +rangePos : 50 };
+  // Determine trend from last 4 swings
+  let trend = 'НЕЙТРАЛЬНЫЙ', bos = null, choch = null;
+  if(swingH.length>=2 && swingL.length>=2){
+    const hh = swingH[swingH.length-1].price > swingH[swingH.length-2].price;
+    const hl = swingL[swingL.length-1].price > swingL[swingL.length-2].price;
+    const lh = swingH[swingH.length-1].price < swingH[swingH.length-2].price;
+    const ll = swingL[swingL.length-1].price < swingL[swingL.length-2].price;
+    if(hh && hl)  trend = 'БЫЧИЙ (HH+HL)';
+    else if(lh && ll) trend = 'МЕДВЕЖИЙ (LH+LL)';
+    else if(hh && ll) trend = 'CHOPPY / РАЗВОРОТ';
+    else if(lh && hl) trend = 'CHOPPY / РАЗВОРОТ';
+
+    // BOS: last close broke above last swing high (bullish BOS) or below swing low
+    const lastClose = candles[n-1].close;
+    const lastSwH = swingH[swingH.length-1]?.price;
+    const lastSwL = swingL[swingL.length-1]?.price;
+    if(lastSwH && lastClose > lastSwH) bos = { dir:'bull', price: lastSwH };
+    if(lastSwL && lastClose < lastSwL) bos = { dir:'bear', price: lastSwL };
+
+    // CHoCH: when in uptrend, last swing low broken; in downtrend, last swing high broken
+    if((hh||hl) && lastSwL && lastClose < lastSwL) choch = { dir:'bear', price: lastSwL };
+    if((lh||ll) && lastSwH && lastClose > lastSwH) choch = { dir:'bull', price: lastSwH };
+  }
+
+  const lastHigh = swingH[swingH.length-1]?.price;
+  const lastLow  = swingL[swingL.length-1]?.price;
+
+  return { trend, bos, choch, lastHigh, lastLow, swingH, swingL };
 }
 
-async function atInitChart(){
-  const LWC = await getLWC();
-  if(!LWC) return;
-  const el = document.getElementById('at-chart');
-  if(!el || _atChart) return;
-
-  const chart = (LWC.createChart || LWC.default?.createChart)(el, {
-    width:  el.clientWidth,
-    height: el.clientHeight || 200,
-    layout: { background:{ color:'#06080c' }, textColor:'rgba(232,234,240,0.3)', fontFamily:"'JetBrains Mono',monospace", fontSize:9 },
-    grid:   { vertLines:{ color:'rgba(255,255,255,0.03)' }, horzLines:{ color:'rgba(255,255,255,0.03)' } },
-    crosshair: { mode:1, vertLine:{ color:'rgba(232,114,42,0.3)' }, horzLine:{ color:'rgba(232,114,42,0.3)' } },
-    rightPriceScale: { borderColor:'rgba(255,255,255,0.06)', scaleMargins:{ top:0.1, bottom:0.1 } },
-    timeScale: { borderColor:'rgba(255,255,255,0.06)', timeVisible:true, secondsVisible:false },
-    handleScale: { mouseWheel:true, pinch:true },
-    handleScroll: { mouseWheel:true, pressedMouseMove:true },
-  });
-  _atChart = chart;
-
-  _atSeries = chart.addCandlestickSeries({
-    upColor:'#2ecc71', downColor:'#e74c3c',
-    borderUpColor:'#2ecc71', borderDownColor:'#e74c3c',
-    wickUpColor:'rgba(46,204,113,0.5)', wickDownColor:'rgba(231,76,60,0.5)',
-  });
-
-  if(_atResizeObs) _atResizeObs.disconnect();
-  _atResizeObs = new ResizeObserver(() => {
-    if(_atChart && el) _atChart.applyOptions({ width: el.clientWidth, height: el.clientHeight });
-  });
-  _atResizeObs.observe(el);
-
-  await atLoadChart();
+function atRenderStructure(ms){
+  const block = document.getElementById('at-ms-block');
+  const rows  = document.getElementById('at-ms-rows');
+  if(!ms||!block||!rows){ if(block) block.style.display='none'; return; }
+  block.style.display='block';
+  const trendCls = ms.trend.includes('БЫЧ')?'bull':ms.trend.includes('МЕД')?'bear':'neut';
+  let html = `<div class="at-struct-row"><span class="at-struct-lbl">Тренд</span><span class="at-struct-val ${trendCls}">${ms.trend}</span></div>`;
+  if(ms.lastHigh) html+=`<div class="at-struct-row"><span class="at-struct-lbl">Swing High</span><span class="at-struct-val accent">${fmtPrice(ms.lastHigh)}</span></div>`;
+  if(ms.lastLow)  html+=`<div class="at-struct-row"><span class="at-struct-lbl">Swing Low</span><span class="at-struct-val accent">${fmtPrice(ms.lastLow)}</span></div>`;
+  if(ms.bos)  html+=`<div class="at-struct-row"><span class="at-struct-lbl">BOS</span><span class="at-struct-val ${ms.bos.dir==='bull'?'bull':'bear'}">${ms.bos.dir==='bull'?'▲ Бычий':'▼ Медвежий'} @ ${fmtPrice(ms.bos.price)}</span></div>`;
+  if(ms.choch) html+=`<div class="at-struct-row"><span class="at-struct-lbl">CHoCH</span><span class="at-struct-val ${ms.choch.dir==='bull'?'bull':'bear'}">${ms.choch.dir==='bull'?'▲':'▼'} @ ${fmtPrice(ms.choch.price)}</span></div>`;
+  rows.innerHTML = html;
 }
 
-async function atLoadChart(){
-  if(!_atChart || !_atSeries) return;
-  const pair = (document.getElementById('at-pair')?.value || 'BTCUSDT').toUpperCase();
-  const tf   = document.getElementById('at-tf')?.value || '15m';
-  const loading = document.getElementById('at-chart-loading');
-  if(loading) loading.style.display = 'flex';
+// ── Order Blocks ──────────────────────────────
+function atComputeOrderBlocks(candles, ms){
+  const obs = [];
+  const n   = candles.length;
+  if(n<5) return obs;
+
+  for(let i=2; i<n-2; i++){
+    const c  = candles[i];
+    const c1 = candles[i+1];
+    const c2 = candles[i+2];
+    // Bullish OB: bearish candle immediately before strong bullish move
+    const bearish   = c.close < c.open;
+    const bullMove  = c1.close > c1.open && (c1.close-c1.open)/(c1.open)*100 > 0.3;
+    const bullMove2 = c2.close > c2.open;
+    if(bearish && bullMove && bullMove2){
+      obs.push({ type:'bull', high:c.high, low:c.low, time:c.time, idx:i,
+        mitigated: candles.slice(i+3).some(x=>x.low<=c.low) });
+    }
+    // Bearish OB: bullish candle before strong bearish move
+    const bullish   = c.close > c.open;
+    const bearMove  = c1.close < c1.open && (c1.open-c1.close)/(c1.open)*100 > 0.3;
+    const bearMove2 = c2.close < c2.open;
+    if(bullish && bearMove && bearMove2){
+      obs.push({ type:'bear', high:c.high, low:c.low, time:c.time, idx:i,
+        mitigated: candles.slice(i+3).some(x=>x.high>=c.high) });
+    }
+  }
+  // Keep only last 3 unmitigated of each type
+  const active = obs.filter(o=>!o.mitigated);
+  const bulls  = active.filter(o=>o.type==='bull').slice(-3);
+  const bears  = active.filter(o=>o.type==='bear').slice(-3);
+  return [...bulls, ...bears];
+}
+
+function atRenderOrderBlocks(obs, currentPrice){
+  const block = document.getElementById('at-ob-block');
+  const rows  = document.getElementById('at-ob-rows');
+  if(!obs.length||!block){ if(block) block.style.display='none'; return; }
+  block.style.display='block';
+
+  // Draw on chart
+  _atObLines.forEach(l=>{ try{_atSeries?.removePriceLine(l);}catch(e){} });
+  _atObLines = [];
+  obs.forEach(ob=>{
+    const color = ob.type==='bull'?'rgba(46,204,113,0.6)':'rgba(231,76,60,0.5)';
+    const lh = _atSeries?.createPriceLine({ price:ob.high, color, lineWidth:1, lineStyle:3, axisLabelVisible:false });
+    const ll = _atSeries?.createPriceLine({ price:ob.low,  color, lineWidth:1, lineStyle:3, axisLabelVisible:false });
+    if(lh) _atObLines.push(lh);
+    if(ll) _atObLines.push(ll);
+  });
+
+  rows.innerHTML = obs.map(ob=>{
+    const dist = currentPrice>0 ? ((ob.high+ob.low)/2 - currentPrice)/currentPrice*100 : 0;
+    const near = Math.abs(dist)<1;
+    return `<div class="at-struct-row">
+      <span class="at-struct-lbl">${ob.type==='bull'?'🟢 Бычий OB':'🔴 Медвежий OB'}</span>
+      <span class="at-struct-val ${ob.type==='bull'?'bull':'bear'}">${fmtPrice(ob.low)}–${fmtPrice(ob.high)}</span>
+      <span class="at-struct-val ${near?'accent':'neut'}" style="font-size:8px;">${dist>=0?'+':''}${dist.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── FVG (Fair Value Gap) ──────────────────────
+function atComputeFVG(candles){
+  const fvgs = [];
+  for(let i=1; i<candles.length-1; i++){
+    const prev = candles[i-1];
+    const cur  = candles[i];
+    const next = candles[i+1];
+    // Bullish FVG: gap between prev.high and next.low (price didn't trade between them)
+    if(next.low > prev.high && (next.low-prev.high)/prev.high*100 > 0.1){
+      fvgs.push({ type:'bull', high:next.low, low:prev.high, time:cur.time, idx:i,
+        filled: candles.slice(i+2).some(c=>c.low<=prev.high) });
+    }
+    // Bearish FVG: gap between next.high and prev.low
+    if(next.high < prev.low && (prev.low-next.high)/prev.low*100 > 0.1){
+      fvgs.push({ type:'bear', high:prev.low, low:next.high, time:cur.time, idx:i,
+        filled: candles.slice(i+2).some(c=>c.high>=prev.low) });
+    }
+  }
+  return fvgs.filter(f=>!f.filled).slice(-4); // last 4 unfilled
+}
+
+function atRenderFVG(fvgs, currentPrice){
+  const block = document.getElementById('at-fvg-block');
+  const rows  = document.getElementById('at-fvg-rows');
+  if(!fvgs.length||!block){ if(block) block.style.display='none'; return; }
+  block.style.display='block';
+  rows.innerHTML = fvgs.map(f=>{
+    const mid  = (f.high+f.low)/2;
+    const dist = currentPrice>0 ? (mid-currentPrice)/currentPrice*100 : 0;
+    const size = (f.high-f.low)/f.low*100;
+    return `<div class="at-struct-row">
+      <span class="at-struct-lbl">${f.type==='bull'?'🟢 Бычий FVG':'🔴 Медвежий FVG'}</span>
+      <span class="at-struct-val ${f.type==='bull'?'bull':'bear'}">${fmtPrice(f.low)}–${fmtPrice(f.high)}</span>
+      <span class="at-struct-val neut" style="font-size:8px;">${dist>=0?'+':''}${dist.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Liquidity Levels ──────────────────────────
+function atComputeLiquidity(candles, ms){
+  const n   = candles.length;
+  const liq = [];
+  if(!ms) return liq;
+
+  // Equal highs / lows (±0.1%) = buy-side / sell-side liquidity
+  const tol = 0.001;
+  const recentHighs = (ms.swingH||[]).slice(-8);
+  const recentLows  = (ms.swingL||[]).slice(-8);
+
+  // Cluster equal highs → sell-side liquidity above
+  recentHighs.forEach((h,i)=>{
+    recentHighs.forEach((h2,j)=>{
+      if(i>=j) return;
+      if(Math.abs(h.price-h2.price)/h.price < tol){
+        liq.push({ type:'sell', price: Math.max(h.price,h2.price), label:'SSL (Equal Highs)',
+          swept: candles.slice(-5).some(c=>c.high>=Math.max(h.price,h2.price)*1.001) });
+      }
+    });
+  });
+  // Cluster equal lows → buy-side liquidity below
+  recentLows.forEach((l,i)=>{
+    recentLows.forEach((l2,j)=>{
+      if(i>=j) return;
+      if(Math.abs(l.price-l2.price)/l.price < tol){
+        liq.push({ type:'buy', price: Math.min(l.price,l2.price), label:'BSL (Equal Lows)',
+          swept: candles.slice(-5).some(c=>c.low<=Math.min(l.price,l2.price)*0.999) });
+      }
+    });
+  });
+
+  // Previous highs/lows as liquidity pools
+  if(ms.lastHigh) liq.push({ type:'sell', price:ms.lastHigh, label:'Prev Swing High', swept:false });
+  if(ms.lastLow)  liq.push({ type:'buy',  price:ms.lastLow,  label:'Prev Swing Low',  swept:false });
+
+  // Dedupe by price proximity
+  const deduped=[];
+  liq.filter(l=>!l.swept).forEach(l=>{
+    if(!deduped.some(d=>Math.abs(d.price-l.price)/l.price<0.002)) deduped.push(l);
+  });
+  return deduped.slice(0,6);
+}
+
+function atRenderLiquidity(liq, currentPrice){
+  const block = document.getElementById('at-liq-block');
+  const rows  = document.getElementById('at-liq-rows');
+  if(!liq.length||!block){ if(block) block.style.display='none'; return; }
+  block.style.display='block';
+
+  // Draw on chart
+  _atLiqLines.forEach(l=>{ try{_atSeries?.removePriceLine(l);}catch(e){} });
+  _atLiqLines = [];
+  liq.forEach(l=>{
+    const line = _atSeries?.createPriceLine({
+      price: l.price, lineWidth:1, lineStyle:1, axisLabelVisible:false,
+      color: l.type==='sell'?'rgba(240,192,64,0.5)':'rgba(240,192,64,0.4)',
+    });
+    if(line) _atLiqLines.push(line);
+  });
+
+  const sorted = [...liq].sort((a,b)=>b.price-a.price);
+  rows.innerHTML = sorted.map(l=>{
+    const dist = currentPrice>0 ? (l.price-currentPrice)/currentPrice*100 : 0;
+    return `<div class="at-struct-row">
+      <span class="at-struct-lbl">${l.type==='sell'?'🟡 Sell-side':'🟡 Buy-side'}</span>
+      <span class="at-struct-val accent">${fmtPrice(l.price)}</span>
+      <span class="at-struct-val neut" style="font-size:8px;">${dist>=0?'+':''}${dist.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── VRVP (Volume-Range Volume Profile) ───────
+function atComputeVRVP(candles, bins=12){
+  if(!candles.length) return [];
+  const high = Math.max(...candles.map(c=>c.high));
+  const low  = Math.min(...candles.map(c=>c.low));
+  if(high<=low) return [];
+  const step = (high-low)/bins;
+  const vols = Array(bins).fill(0);
+  const bVol = Array(bins).fill(0); // bull vol
+  candles.forEach(c=>{
+    const v = c.volume||0;
+    const mid = (c.high+c.low)/2;
+    const idx = Math.min(bins-1, Math.floor((mid-low)/step));
+    vols[idx] += v;
+    if(c.close>=c.open) bVol[idx]+=v;
+  });
+  const maxVol = Math.max(...vols);
+  const pocIdx = vols.indexOf(maxVol);
+  return vols.map((v,i)=>({
+    price: low + (i+0.5)*step,
+    priceLow: low+i*step, priceHigh: low+(i+1)*step,
+    vol: v, pct: maxVol>0?(v/maxVol*100):0,
+    bullPct: v>0?bVol[i]/v*100:50,
+    isPoc: i===pocIdx,
+  })).reverse();
+}
+
+function atRenderVRVP(vrvp){
+  const block = document.getElementById('at-vrvp-block');
+  const rows  = document.getElementById('at-vrvp-rows');
+  if(!vrvp.length||!block){ if(block) block.style.display='none'; return; }
+  block.style.display='block';
+  const poc = vrvp.find(v=>v.isPoc);
+  rows.innerHTML = vrvp.map(v=>{
+    const cls = v.isPoc?'poc': v.bullPct>55?'bull':'bear';
+    return `<div class="at-vrvp-row">
+      <span class="at-vrvp-price">${fmtPrice(v.price)}${v.isPoc?' 🔴':''}</span>
+      <div class="at-vrvp-bar-wrap"><div class="at-vrvp-bar ${cls}" style="width:${v.pct.toFixed(0)}%"></div></div>
+    </div>`;
+  }).join('');
+  // POC price line on chart
+  if(poc) _atSeries?.createPriceLine({ price:poc.price, color:'rgba(232,114,42,0.7)', lineWidth:1.5, lineStyle:1, axisLabelVisible:true, title:'POC' });
+}
+
+// ── Market Structure Tags ─────────────────────
+function atRenderTags(ms, rsi, obs, fvgs, liq){
+  const el = document.getElementById('at-mstruct');
+  if(!el) return;
+  const tags=[];
+  if(ms){
+    const tCls = ms.trend.includes('БЫЧ')?'bull':ms.trend.includes('МЕД')?'bear':'neut';
+    tags.push(`<span class="at-ms-tag ${tCls}">${ms.trend}</span>`);
+    if(ms.bos)  tags.push(`<span class="at-ms-tag ${ms.bos.dir==='bull'?'bull':'bear'}">BOS ${ms.bos.dir==='bull'?'▲':'▼'}</span>`);
+    if(ms.choch) tags.push(`<span class="at-ms-tag ${ms.choch.dir==='bull'?'bull':'bear'}">CHoCH ${ms.choch.dir==='bull'?'▲':'▼'}</span>`);
+  }
+  if(rsi!=null){
+    const rCls = rsi>=70?'bear':rsi<=30?'bull':'neut';
+    tags.push(`<span class="at-ms-tag ${rCls}">RSI ${Math.round(rsi)}${rsi>=70?' OB':rsi<=30?' OS':''}</span>`);
+  }
+  if(obs.length)  tags.push(`<span class="at-ms-tag accent">OB ×${obs.length}</span>`);
+  if(fvgs.length) tags.push(`<span class="at-ms-tag accent">FVG ×${fvgs.length}</span>`);
+  if(liq.length)  tags.push(`<span class="at-ms-tag neut">LIQ ×${liq.length}</span>`);
+  el.innerHTML = tags.join('');
+}
+
+// ── Run full analysis ─────────────────────────
+function atRunStructureAnalysis(){
+  if(!_atCandles.length) return null;
+  const price = _atCandles[_atCandles.length-1].close;
+  const rsi   = atComputeRSI(_atCandles);
+  const ms    = atComputeStructure(_atCandles);
+  const obs   = atComputeOrderBlocks(_atCandles, ms);
+  const fvgs  = atComputeFVG(_atCandles);
+  const liq   = atComputeLiquidity(_atCandles, ms);
+  const vrvp  = atComputeVRVP(_atCandles);
+
+  atRenderRSI(rsi);
+  atRenderStructure(ms);
+  atRenderOrderBlocks(obs, price);
+  atRenderFVG(fvgs, price);
+  atRenderLiquidity(liq, price);
+  atRenderVRVP(vrvp);
+  atRenderTags(ms, rsi, obs, fvgs, liq);
+
+  _atAnalysis = { rsi, ms, obs, fvgs, liq, vrvp, price };
+  return _atAnalysis;
+}
+
+// ── Setup Scanner ─────────────────────────────
+async function atScanSetups(){
+  if(!_atCandles.length){ showToast('Загрузи пару сначала','err'); return; }
+  const a = atRunStructureAnalysis();
+  if(!a) return;
+
+  const setups = [];
+  const { rsi, ms, obs, fvgs, liq, price } = a;
+  const dir = _atDirection;
+
+  // Find confluence setups
+  if(dir==='long'){
+    obs.filter(o=>o.type==='bull').forEach(ob=>{
+      if(price>=ob.low && price<=ob.high*1.002){
+        setups.push({ score:3, type:'OB', desc:`Цена в бычьем OB (${fmtPrice(ob.low)}–${fmtPrice(ob.high)})` });
+      } else if(price>ob.high && price<ob.high*1.015){
+        setups.push({ score:2, type:'OB_ABOVE', desc:`Цена над бычьим OB (+${((price-ob.high)/ob.high*100).toFixed(1)}%)` });
+      }
+    });
+    fvgs.filter(f=>f.type==='bull').forEach(fvg=>{
+      if(price<=fvg.high && price>=fvg.low*0.999){
+        setups.push({ score:2, type:'FVG', desc:`Цена в бычьем FVG (${fmtPrice(fvg.low)}–${fmtPrice(fvg.high)})` });
+      }
+    });
+    liq.filter(l=>l.type==='buy').forEach(l=>{
+      if(Math.abs(price-l.price)/price<0.005){
+        setups.push({ score:2, type:'LIQ', desc:`Рядом buy-side ликвидность @ ${fmtPrice(l.price)}` });
+      }
+    });
+    if(rsi!=null && rsi<=35) setups.push({ score:2, type:'RSI', desc:`RSI ${Math.round(rsi)} — перепроданность, лонг-сигнал` });
+    if(ms?.bos?.dir==='bull') setups.push({ score:2, type:'BOS', desc:'Бычий BOS — структура подтверждает лонг' });
+    if(ms?.choch?.dir==='bull') setups.push({ score:3, type:'CHOCH', desc:'CHoCH вверх — смена тренда на бычий' });
+  } else {
+    obs.filter(o=>o.type==='bear').forEach(ob=>{
+      if(price<=ob.high && price>=ob.low*0.998){
+        setups.push({ score:3, type:'OB', desc:`Цена в медвежьем OB (${fmtPrice(ob.low)}–${fmtPrice(ob.high)})` });
+      }
+    });
+    fvgs.filter(f=>f.type==='bear').forEach(fvg=>{
+      if(price>=fvg.low && price<=fvg.high*1.001){
+        setups.push({ score:2, type:'FVG', desc:`Цена в медвежьем FVG (${fmtPrice(fvg.low)}–${fmtPrice(fvg.high)})` });
+      }
+    });
+    liq.filter(l=>l.type==='sell').forEach(l=>{
+      if(Math.abs(price-l.price)/price<0.005){
+        setups.push({ score:2, type:'LIQ', desc:`Рядом sell-side ликвидность @ ${fmtPrice(l.price)}` });
+      }
+    });
+    if(rsi!=null && rsi>=65) setups.push({ score:2, type:'RSI', desc:`RSI ${Math.round(rsi)} — перекупленность, шорт-сигнал` });
+    if(ms?.bos?.dir==='bear') setups.push({ score:2, type:'BOS', desc:'Медвежий BOS — структура подтверждает шорт' });
+    if(ms?.choch?.dir==='bear') setups.push({ score:3, type:'CHOCH', desc:'CHoCH вниз — смена тренда на медвежий' });
+  }
+
+  const totalScore = setups.reduce((s,x)=>s+x.score,0);
+  const quality    = totalScore>=7?'СИЛЬНЫЙ':totalScore>=4?'УМЕРЕННЫЙ':totalScore>=2?'СЛАБЫЙ':'НЕТ СЕТАПА';
+  const qCls       = totalScore>=7?'ok':totalScore>=4?'warn':totalScore>=2?'info':'danger';
+
+  const aiArea  = document.getElementById('at-ai-area');
+  const aiCards = document.getElementById('at-ai-cards');
+  if(aiArea)  aiArea.style.display='block';
+  if(aiCards){
+    aiCards.innerHTML=`<div class="at-ai-card ${qCls}" style="animation-delay:0s;">
+      📊 Сетап: <b>${quality}</b> (Score: ${totalScore}) — ${setups.length} совпадений
+    </div>`;
+    setups.forEach((s,i)=>{
+      const d=document.createElement('div');
+      d.className=`at-ai-card ${s.score>=3?'ok':s.score>=2?'info':'warn'}`;
+      d.style.animationDelay=`${(i+1)*0.08}s`;
+      d.textContent=`${s.score>=3?'✅':s.score>=2?'💡':'⚠️'} [${s.type}] ${s.desc}`;
+      aiCards.appendChild(d);
+    });
+    if(!setups.length){
+      const d=document.createElement('div');
+      d.className='at-ai-card warn'; d.style.animationDelay='0.1s';
+      d.textContent='⚠️ Нет confluence — подожди лучшего уровня';
+      aiCards.appendChild(d);
+    }
+  }
+
+  _atAnalysis._setups = setups;
+  _atAnalysis._quality = quality;
+  _atAnalysis._score   = totalScore;
+
+  // Enable TG button if score >= 2
+  const tgBtn = document.getElementById('at-tg-btn');
+  if(tgBtn) tgBtn.disabled = totalScore<2;
+  if(totalScore>=4) showToast(`🔍 Найден сетап: ${quality} (${totalScore} pts)`, 'ok');
+}
+
+// ── Send to Telegram ──────────────────────────
+async function atSendToTg(){
+  if(!_tgProfile?.tg_linked || !_tgProfile?.tg_chat_id){
+    showToast('Telegram не подключён — настрой в профиле','err'); return;
+  }
+  if(!_atAnalysis) { showToast('Сначала запусти сканер','err'); return; }
+  const { data: { user } } = await sb.auth.getUser();
+  if(!user) return;
+
+  const pair   = document.getElementById('at-pair').value.toUpperCase();
+  const tf     = document.getElementById('at-tf').value;
+  const entry  = parseFloat(document.getElementById('at-entry').value);
+  const sl     = parseFloat(document.getElementById('at-sl').value);
+  const tp     = parseFloat(document.getElementById('at-tp').value);
+  const { rsi, ms, obs, fvgs, liq, price, _quality, _score, _setups } = _atAnalysis;
+
+  const tgBtn = document.getElementById('at-tg-btn');
+  tgBtn.disabled=true; tgBtn.textContent='📨 ОТПРАВЛЯЮ...';
+
+  // Build rich TG message
+  const dir    = _atDirection==='long'?'▲ LONG':'▼ SHORT';
+  const tCls   = ms?.trend?.includes('БЫЧ')?'🟢':ms?.trend?.includes('МЕД')?'🔴':'🟡';
+  const rsiStr = rsi!=null?`📈 RSI: <b>${Math.round(rsi)}</b>${rsi>=70?' ⚠️ OB':rsi<=30?' ⚠️ OS':''}\n`:'';
+  const obStr  = obs.length?`🔷 OB: ${obs.map(o=>`${fmtPrice(o.low)}–${fmtPrice(o.high)}`).slice(0,2).join(', ')}\n`:'';
+  const fvgStr = fvgs.length?`🟣 FVG: ${fvgs.map(f=>`${fmtPrice(f.low)}–${fmtPrice(f.high)}`).slice(0,2).join(', ')}\n`:'';
+  const setupStr = (_setups||[]).slice(0,3).map(s=>`  • [${s.type}] ${s.desc}`).join('\n');
+
+  const metrics = atCalcMetrics();
+  const rrStr   = metrics?`R/R: <b>1:${metrics.rr.toFixed(2)}</b> | Риск: <b>${metrics.riskPct.toFixed(2)}%</b>`:'';
+
+  const text =
+    `🧠 <b>ORBITUM · AI TRADE SIGNAL</b>\n` +
+    `━━━━━━━━━━━━━━━━━━━\n` +
+    `💰 ${pair}/USDT · ${tf.toUpperCase()} · <b>${dir}</b>\n\n` +
+    `💵 Цена: <b>${fmtPrice(price)}</b>\n` +
+    (entry>0?`📥 Вход: <b>${fmtPrice(entry)}</b>\n`:'') +
+    (sl>0?`🛑 Стоп: <b>${fmtPrice(sl)}</b>\n`:'') +
+    (tp>0?`🎯 Тейк: <b>${fmtPrice(tp)}</b>\n`:'') +
+    (metrics?`${rrStr}\n`:'') +
+    `━━━━━━━━━━━━━━━━━━━\n` +
+    `${tCls} Структура: <b>${ms?.trend||'—'}</b>\n` +
+    rsiStr + obStr + fvgStr +
+    `📊 Качество сетапа: <b>${_quality||'—'}</b> (${_score||0} pts)\n` +
+    (setupStr?`\n<i>${setupStr}</i>\n`:'') +
+    `\n<a href="https://orbitum-journal.vercel.app/screener.html">🔗 Orbitum</a>`;
 
   try{
-    const url = `https://api.binance.com/api/v3/klines?symbol=${pair}&interval=${tf}&limit=120`;
-    const raw = await safeFetch(url);
-    if(!Array.isArray(raw)) throw new Error('no data');
-    const candles = raw.map(k => ({
-      time: Math.floor(k[0]/1000),
-      open: parseFloat(k[1]), high: parseFloat(k[2]),
-      low:  parseFloat(k[3]), close: parseFloat(k[4]),
-    }));
-    _atCandles = candles;
-    _atSeries.setData(candles);
-    _atChart.timeScale().fitContent();
-    if(loading) loading.style.display = 'none';
-
-    // Если вход не заполнен — prefill последней ценой
-    const lastClose = candles[candles.length - 1]?.close;
-    const entryEl = document.getElementById('at-entry');
-    if(entryEl && !entryEl.value && lastClose){
-      entryEl.value = lastClose.toFixed(lastClose >= 1 ? 2 : 6);
-    }
-    atUpdateLines();
+    await fetch('/api/notify', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Notify-User':user.id},
+      body: JSON.stringify({ type:'raw', chat_id:_tgProfile.tg_chat_id, data:{ text } })
+    });
+    showToast('📨 Сигнал отправлен в Telegram!','ok');
   }catch(e){
-    if(loading){ loading.style.display = 'flex'; loading.textContent = 'Ошибка: ' + e.message; }
+    showToast('Ошибка отправки: '+e.message,'err');
+  }
+  tgBtn.disabled=false; tgBtn.textContent='📨 В TELEGRAM';
+}
+
+// ── Auto Scanner ──────────────────────────────
+function atToggleAutoScan(btn){
+  _atAutoOn = !_atAutoOn;
+  btn.classList.toggle('on', _atAutoOn);
+  if(_atAutoOn){
+    showToast('🤖 Авто-сканер запущен (15 мин)','ok');
+    atAutoScanCycle();
+    _atAutoTimer = setInterval(atAutoScanCycle, 15*60*1000);
+  } else {
+    clearInterval(_atAutoTimer);
+    showToast('Авто-сканер остановлен','ok');
   }
 }
 
+async function atAutoScanCycle(){
+  if(!_atCandles.length) await atLoadChart();
+  const a = atRunStructureAnalysis();
+  if(!a) return;
+  await atScanSetups();
+  // Auto-send to TG if strong setup found
+  if(_atAnalysis?._score>=5 && _tgProfile?.tg_linked){
+    await atSendToTg();
+  }
+}
+
+// ── TradingView Webhook copy ──────────────────
+function atCopyWebhook(el){
+  navigator.clipboard.writeText(el.textContent.trim()).then(()=>showToast('URL скопирован','ok')).catch(()=>{});
+}
+
+// ── AI Full Analysis (Claude) ─────────────────
 async function atAnalyze(){
   const entry = parseFloat(document.getElementById('at-entry').value);
   const sl    = parseFloat(document.getElementById('at-sl').value);
   const tp    = parseFloat(document.getElementById('at-tp').value);
   const pair  = document.getElementById('at-pair').value.toUpperCase();
   const tf    = document.getElementById('at-tf').value;
-
-  if(!entry || !sl || !tp){ showToast('Заполни вход, стоп и тейк','err'); return; }
+  if(!entry||!sl||!tp){ showToast('Заполни вход, стоп и тейк','err'); return; }
 
   const metrics = atCalcMetrics();
   if(!metrics) return;
 
-  // Show loading
-  const aiArea    = document.getElementById('at-ai-area');
-  const aiLoading = document.getElementById('at-ai-loading');
-  const aiCards   = document.getElementById('at-ai-cards');
-  aiArea.style.display    = 'block';
-  aiLoading.style.display = 'block';
-  aiCards.innerHTML       = '';
+  // Run structure analysis first
+  const a = atRunStructureAnalysis();
 
+  const aiArea  = document.getElementById('at-ai-area');
+  const aiLoad  = document.getElementById('at-ai-loading');
+  const aiCards = document.getElementById('at-ai-cards');
+  aiArea.style.display='block'; aiLoad.style.display='block'; aiCards.innerHTML='';
   const btn = document.getElementById('at-analyze-btn');
-  btn.disabled = true; btn.textContent = '⏳ АНАЛИЗИРУЮ...';
+  btn.disabled=true; btn.textContent='⏳ АНАЛИЗИРУЮ...';
 
-  const prompt = `Ты — профессиональный крипто-трейдер и коуч. Проанализируй сделку.
+  const msStr = a?.ms ? `Тренд: ${a.ms.trend}${a.ms.bos?', BOS '+a.ms.bos.dir:''}${a.ms.choch?', CHoCH '+a.ms.choch.dir:''}` : '';
+  const obStr = a?.obs?.length ? `Order Blocks: ${a.obs.map(o=>`${o.type} ${fmtPrice(o.low)}-${fmtPrice(o.high)}`).join('; ')}` : '';
+  const fvgStr= a?.fvgs?.length ? `FVG: ${a.fvgs.map(f=>`${f.type} ${fmtPrice(f.low)}-${fmtPrice(f.high)}`).join('; ')}` : '';
+  const liqStr= a?.liq?.length  ? `Liquidity: ${a.liq.map(l=>`${l.type} @ ${fmtPrice(l.price)}`).join('; ')}` : '';
+  const rsiStr= a?.rsi!=null    ? `RSI(14): ${Math.round(a.rsi)}${a.rsi>=70?' (OB)':a.rsi<=30?' (OS)':''}` : '';
 
-Сетап:
+  const prompt = `Ты — профессиональный ICT/SMC трейдер. Глубокий технический анализ сделки.
+
+СЕТАП:
 - Пара: ${pair} | ТФ: ${tf} | Направление: ${_atDirection.toUpperCase()}
 - Вход: ${entry} | Стоп: ${sl} | Тейк: ${tp}
-- R/R: 1:${metrics.rr.toFixed(2)} | Риск: ${metrics.riskPct.toFixed(2)}% | Потенциал: ${metrics.rewardPct.toFixed(2)}%
-- Позиция в диапазоне 30 свечей: ${metrics.rangePos}% (0%=дно, 100%=верх)
+- R/R: 1:${metrics.rr.toFixed(2)} | Риск: ${metrics.riskPct.toFixed(2)}%
 
-Верни JSON массив карточек. Каждая: {"type":"ok"|"warn"|"danger"|"info", "text":"..."}
-Правила: RR<1=danger, RR 1-1.5=warn, RR>=2=ok. Риск>3%=danger, 1.5-3%=warn.
-Long у топа диапазона (>75%)=danger. Short у дна (<25%)=danger.
-Добавь 1 info карточку с конкретным советом.
-Текст каждой карточки — по-русски, начиная с эмодзи, до 90 символов.
-Верни ТОЛЬКО валидный JSON массив без markdown.`;
+ТЕХНИЧЕСКИЙ АНАЛИЗ (рассчитано автоматически):
+${msStr}
+${rsiStr}
+${obStr}
+${fvgStr}
+${liqStr}
+
+Верни JSON массив из 5-7 карточек {"type":"ok"|"warn"|"danger"|"info", "text":"..."}.
+Анализируй: структуру рынка, качество OB/FVG как уровней входа, ликвидность, RSI confluence, R/R.
+Каждая карточка — конкретный вывод по-русски с эмодзи, до 100 символов.
+Только JSON, без markdown.`;
 
   try{
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
+        messages:[{ role:'user', content:prompt }] })
     });
     const data = await resp.json();
-    const raw = data.content?.[0]?.text || '[]';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const cards = JSON.parse(clean);
-    aiLoading.style.display = 'none';
+    const raw  = data.content?.[0]?.text||'[]';
+    const cards= JSON.parse(raw.replace(/```json|```/g,'').trim());
+    aiLoad.style.display='none';
     atRenderCards(cards, aiCards);
   }catch(e){
-    aiLoading.style.display = 'none';
-    atRenderCards(atLocalAnalysis(entry, sl, tp, metrics), aiCards);
+    aiLoad.style.display='none';
+    atRenderCards(atLocalAnalysis(entry, sl, tp, metrics, a), aiCards);
   }
-
-  btn.disabled = false; btn.textContent = '⚡ AI АНАЛИЗ СДЕЛКИ';
+  btn.disabled=false; btn.textContent='⚡ AI АНАЛИЗ СДЕЛКИ';
 }
 
 function atRenderCards(cards, container){
-  container.innerHTML = '';
-  cards.forEach((card, i) => {
-    const div = document.createElement('div');
-    div.className = `at-ai-card ${card.type || 'info'}`;
-    div.style.animationDelay = `${i * 0.1}s`;
-    div.textContent = card.text;
-    container.appendChild(div);
+  container.innerHTML='';
+  cards.forEach((card,i)=>{
+    const d=document.createElement('div');
+    d.className=`at-ai-card ${card.type||'info'}`;
+    d.style.animationDelay=`${i*0.1}s`;
+    d.textContent=card.text;
+    container.appendChild(d);
   });
 }
 
-function atLocalAnalysis(entry, sl, tp, metrics){
+function atLocalAnalysis(entry, sl, tp, metrics, analysis){
   const { rr, riskPct, rangePos } = metrics;
-  const cards = [];
-  if(rr < 1)        cards.push({ type:'danger', text:`🚫 R/R = 1:${rr.toFixed(2)} — риск превышает награду, пропусти сделку` });
-  else if(rr < 1.5) cards.push({ type:'warn',   text:`⚠️ R/R = 1:${rr.toFixed(2)} — ниже минимума 1:1.5, пересмотри TP` });
-  else              cards.push({ type:'ok',     text:`✅ R/R = 1:${rr.toFixed(2)} — хорошее соотношение риск/награда` });
-  if(riskPct > 3)        cards.push({ type:'danger', text:`🚫 Риск ${riskPct.toFixed(1)}% — критически высокий, макс 1-2% на сделку` });
-  else if(riskPct > 1.5) cards.push({ type:'warn',   text:`⚠️ Риск ${riskPct.toFixed(1)}% — допустимо, но можно тighter стоп` });
-  else                   cards.push({ type:'ok',     text:`✅ Риск ${riskPct.toFixed(1)}% — отличное управление капиталом` });
-  if(_atDirection==='long' && rangePos > 75)  cards.push({ type:'danger', text:'🚫 Лонг у вершины диапазона — гонишься за ценой' });
-  else if(_atDirection==='long' && rangePos < 30)  cards.push({ type:'ok', text:'✅ Лонг у дна диапазона — хорошая позиция для входа' });
-  if(_atDirection==='short' && rangePos < 25) cards.push({ type:'danger', text:'🚫 Шорт у дна диапазона — не лучший момент' });
-  cards.push({ type:'info', text:'💡 Подтверди вход на старшем ТФ перед открытием позиции' });
+  const cards=[];
+  if(rr<1) cards.push({type:'danger',text:`🚫 R/R = 1:${rr.toFixed(2)} — риск превышает награду`});
+  else if(rr<1.5) cards.push({type:'warn',text:`⚠️ R/R = 1:${rr.toFixed(2)} — ниже минимума 1:1.5`});
+  else cards.push({type:'ok',text:`✅ R/R = 1:${rr.toFixed(2)} — хорошее соотношение`});
+  if(riskPct>3) cards.push({type:'danger',text:`🚫 Риск ${riskPct.toFixed(1)}% — критически высокий`});
+  else if(riskPct>1.5) cards.push({type:'warn',text:`⚠️ Риск ${riskPct.toFixed(1)}% — выше нормы`});
+  else cards.push({type:'ok',text:`✅ Риск ${riskPct.toFixed(1)}% — хорошее управление`});
+  if(analysis?.ms) cards.push({type:'info',text:`📊 Структура: ${analysis.ms.trend}`});
+  if(analysis?.obs?.length) cards.push({type:'info',text:`🔷 ${analysis.obs.length} Order Block(s) найдено на графике`});
+  if(analysis?.fvgs?.length) cards.push({type:'info',text:`🟣 ${analysis.fvgs.length} FVG найдено — зоны притяжения цены`});
+  if(analysis?.rsi!=null) cards.push({type:analysis.rsi>=70?'warn':analysis.rsi<=30?'ok':'info',
+    text:`📈 RSI ${Math.round(analysis.rsi)}${analysis.rsi>=70?' — перекупленность':analysis.rsi<=30?' — перепроданность':''}`});
+  cards.push({type:'info',text:'💡 Подтверди на старшем ТФ перед входом в позицию'});
   return cards;
 }
+
+// ── Chart init ────────────────────────────────
+async function atInitChart(){
+  const LWC = await getLWC();
+  if(!LWC) return;
+  const el = document.getElementById('at-chart');
+  if(!el||_atChart) return;
+  const chart = (LWC.createChart||LWC.default?.createChart)(el, {
+    width:el.clientWidth, height:el.clientHeight||220,
+    layout:{background:{color:'#06080c'},textColor:'rgba(232,234,240,0.3)',fontFamily:"'JetBrains Mono',monospace",fontSize:9},
+    grid:{vertLines:{color:'rgba(255,255,255,0.03)'},horzLines:{color:'rgba(255,255,255,0.03)'}},
+    crosshair:{mode:1,vertLine:{color:'rgba(232,114,42,0.3)'},horzLine:{color:'rgba(232,114,42,0.3)'}},
+    rightPriceScale:{borderColor:'rgba(255,255,255,0.06)',scaleMargins:{top:0.08,bottom:0.08}},
+    timeScale:{borderColor:'rgba(255,255,255,0.06)',timeVisible:true,secondsVisible:false},
+    handleScale:{mouseWheel:true,pinch:true},
+    handleScroll:{mouseWheel:true,pressedMouseMove:true},
+  });
+  _atChart=chart;
+  _atSeries=chart.addCandlestickSeries({
+    upColor:'#2ecc71',downColor:'#e74c3c',
+    borderUpColor:'#2ecc71',borderDownColor:'#e74c3c',
+    wickUpColor:'rgba(46,204,113,0.5)',wickDownColor:'rgba(231,76,60,0.5)',
+  });
+  if(_atResizeObs) _atResizeObs.disconnect();
+  _atResizeObs = new ResizeObserver(()=>{
+    if(_atChart&&el) _atChart.applyOptions({width:el.clientWidth,height:el.clientHeight});
+  });
+  _atResizeObs.observe(el);
+  await atLoadChart();
+}
+
+async function atLoadChart(){
+  if(!_atChart||!_atSeries) return;
+  const pair = (document.getElementById('at-pair')?.value||'BTCUSDT').toUpperCase();
+  const tf   = document.getElementById('at-tf')?.value||'15m';
+  const loading = document.getElementById('at-chart-loading');
+  if(loading) loading.style.display='flex';
+  // Clear old indicator lines
+  _atObLines.forEach(l=>{try{_atSeries.removePriceLine(l);}catch(e){}});
+  _atLiqLines.forEach(l=>{try{_atSeries.removePriceLine(l);}catch(e){}});
+  _atObLines=[]; _atLiqLines=[];
+  try{
+    const url=`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=${tf}&limit=200`;
+    const raw = await safeFetch(url);
+    if(!Array.isArray(raw)) throw new Error('no data');
+    _atCandles = raw.map(k=>({
+      time:Math.floor(k[0]/1000),
+      open:parseFloat(k[1]),high:parseFloat(k[2]),
+      low:parseFloat(k[3]),close:parseFloat(k[4]),
+      volume:parseFloat(k[5]),
+    }));
+    _atSeries.setData(_atCandles);
+    _atChart.timeScale().fitContent();
+    if(loading) loading.style.display='none';
+    const lastClose = _atCandles[_atCandles.length-1]?.close;
+    const entryEl = document.getElementById('at-entry');
+    if(entryEl && !entryEl.value && lastClose)
+      entryEl.value = lastClose.toFixed(lastClose>=1?2:6);
+    atUpdateLines();
+    // Auto-run structure after load
+    atRunStructureAnalysis();
+  }catch(e){
+    if(loading){loading.style.display='flex'; loading.textContent='Ошибка: '+e.message;}
+  }
+}
+
 
 </script>
 </body>
