@@ -5470,7 +5470,15 @@ async function init(){
     return;
   }
   // ── NORMAL AUTH ────────────────────────────────────────
-  const{data:{session}}=await sb.auth.getSession();
+  // Wait for Supabase to restore session from localStorage (race condition fix)
+  let session = null;
+  for(let _try=0; _try<3; _try++){
+    const r = await sb.auth.getSession();
+    session = r.data?.session;
+    if(session) break;
+    // Give SDK time to restore session from localStorage
+    await new Promise(ok=>setTimeout(ok, 300));
+  }
   if(!session){window.location.href='/login?returnTo=/journal';return;}
   const user=session.user;
   if(!user){window.location.href='/login?returnTo=/journal';return;}
