@@ -1735,20 +1735,16 @@ async function checkSystemHealth(){
     checks.push({group:'API',name:'/api/ai · Groq',ok:r.ok,detail:'HTTP '+r.status+' · '+ms+'ms',badge:r.ok?(ms<2000?'fast':'ok'):'error',critical:!r.ok});
   }catch(e){checks.push({group:'API',name:'/api/ai · Groq',ok:false,detail:'Timeout >12s',critical:true});}
 
-  // 5-9. Cron & utility APIs — check deployment (401/405 = deployed, 404 = missing)
-  const apiChecks=[
-    ['GET','/api/alerts?secret=x','alerts · cron'],
-    ['GET','/api/daily?secret=x','daily · cron'],
-    ['GET','/api/weekly?secret=x','weekly · cron'],
-    ['GET','/api/finnhub?type=news','finnhub'],
-    ['POST','/api/report','report'],
-  ];
-  for(const[method,url,name] of apiChecks){
+  // 5-9. Cron & utility APIs — HEAD probe avoids CORS errors + auth triggers
+  // 401/405/200/304 = deployed OK; 404 = missing from vercel.json
+  const apiChecks=['/api/alerts','/api/daily','/api/weekly','/api/finnhub','/api/report'];
+  for(const url of apiChecks){
     try{
-      const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:method==='POST'?'{}':undefined,signal:AbortSignal.timeout(7000)});
+      const r=await fetch(url,{method:'HEAD',signal:AbortSignal.timeout(6000)});
       const deployed=r.status!==404;
-      checks.push({group:'API',name:'/api/'+name,ok:deployed,warn:!deployed,detail:deployed?'HTTP '+r.status:'404 — not in vercel.json'});
-    }catch(e){checks.push({group:'API',name:'/api/'+name,ok:false,detail:'Unreachable'});}
+      const statusHint=r.status===401?'deployed · auth required':r.status===405?'deployed · method ok':r.status===404?'NOT FOUND — check vercel.json':'HTTP '+r.status;
+      checks.push({group:'API',name:url,ok:deployed,warn:!deployed,detail:statusHint});
+    }catch(e){checks.push({group:'API',name:url,ok:false,detail:'Unreachable'});}
   }
 
   // 10. Pending payments
