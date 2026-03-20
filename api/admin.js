@@ -135,13 +135,75 @@ export default async function handler(req, res) {
     // ── Set features (sections) ───────────────────────────
     if (action === 'set_features') {
       if (!userId) return res.status(400).json({ error: 'Missing userId' });
-      // features = array like ['journal','dashboard','coach'] or null (journal only)
-      const features = req.body.features; // array or null
+      const features = req.body.features;
       await sbFetch(`profiles?id=eq.${userId}`, {
         method: 'PATCH',
         body: JSON.stringify({ features: features || null }),
       });
       return res.status(200).json({ ok: true });
+    }
+
+    // ── Save/upsert product (bypasses RLS — service key required) ──
+    if (action === 'save_product') {
+      const { productId, updates } = req.body;
+      if (!productId || !updates) return res.status(400).json({ error: 'Missing productId or updates' });
+      // Upsert with service key — no RLS restrictions
+      const result = await sbFetch(`products?id=eq.${productId}`, {
+        method: 'PATCH',
+        prefer: 'return=minimal',
+        body: JSON.stringify(updates),
+      });
+      // If PATCH returned no rows (product doesn't exist), INSERT it
+      if (result && result.length === 0 || !result) {
+        await sbFetch('products', {
+          method: 'POST',
+          prefer: 'return=minimal',
+          body: JSON.stringify({ id: productId, ...updates }),
+        });
+      }
+      return res.status(200).json({ ok: true });
+    }
+
+    // ── Seed default products ──────────────────────────────────────
+    if (action === 'seed_products') {
+      const defaults = [
+        {
+          id: 'monthly', sort_order: 1, is_active: true,
+          name_en: 'Monthly', name_ru: 'Месячный',
+          price: 29, price_old: null,
+          badge_en: null, badge_ru: null,
+          description_en: 'Full access for 30 days',
+          description_ru: 'Полный доступ на 30 дней',
+          features_en: '["Trading Journal","AI Coach","Crypto Screener","Analytics & Progress","Pre-market Checklist"]',
+          features_ru: '["Журнал сделок","AI Коуч и Чекер","Крипто Скринер","Аналитика и прогресс","Пре-маркет чеклист"]',
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 'lifetime', sort_order: 2, is_active: true,
+          name_en: 'Lifetime', name_ru: 'Навсегда',
+          price: 197, price_old: 297,
+          badge_en: 'Best Value', badge_ru: 'Лучший выбор',
+          description_en: 'One-time payment — access forever',
+          description_ru: 'Разовая оплата — доступ навсегда',
+          features_en: '["Everything in Monthly","Lifetime updates","Priority support","AI Advanced features","Future modules free"]',
+          features_ru: '["Всё из Месячного","Обновления навсегда","Приоритетная поддержка","AI расширенные функции","Будущие модули бесплатно"]',
+          updated_at: new Date().toISOString(),
+        },
+      ];
+      for (const p of defaults) {
+        // Try PATCH first, then POST if not exists
+        const patch = await sbFetch(`products?id=eq.${p.id}`, {
+          method: 'PATCH', prefer: 'return=representation',
+          body: JSON.stringify(p),
+        });
+        if (!Array.isArray(patch) || patch.length === 0) {
+          await sbFetch('products', {
+            method: 'POST', prefer: 'return=minimal',
+            body: JSON.stringify(p),
+          });
+        }
+      }
+      return res.status(200).json({ ok: true, seeded: defaults.length });
     }
 
     return res.status(400).json({ error: 'Unknown action' });
