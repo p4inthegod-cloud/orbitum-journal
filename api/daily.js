@@ -25,6 +25,58 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // ── ANTICIPATION HOOK (06:45) — ?action=hook ──────────────────────
+  // Fires 15 min before morning brief. "2 setups queued. Brief in 15 min."
+  // From conversion funnel template: primes users to open at 07:00
+  if (req.query.action === 'hook') {
+    try {
+      const ur = await fetch(
+        `${SB_URL}/rest/v1/profiles?tg_linked=is.true&tg_notify_daily=is.true&select=tg_chat_id`,
+        { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
+      );
+      const users = await ur.json();
+      if (!Array.isArray(users) || !users.length) {
+        return res.status(200).json({ sent: 0, action: 'hook' });
+      }
+
+      // Count real setups in queue (price_alerts not yet triggered)
+      let queueCount = 2; // default teaser number
+      try {
+        const aq = await fetch(
+          `${SB_URL}/rest/v1/price_alerts?triggered=is.false&select=id`,
+          { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'count=exact', 'Accept': 'application/json' } }
+        );
+        const countHeader = aq.headers.get('content-range');
+        const total = parseInt(countHeader?.split('/')[1] || '0');
+        if (total > 0) queueCount = Math.min(total, 9);
+      } catch(e) { /* use default */ }
+
+      const hookText =
+        `⏰ <b>Morning brief in 15 min.</b>
+
+` +
+        `${queueCount} setup${queueCount !== 1 ? 's' : ''} in the queue.
+` +
+        `<code>Signal quality check running...</code>
+
+` +
+        `<a href="${process.env.APP_URL || 'https://orbitum.trade'}/screener">Open screener →</a>`;
+
+      let sent = 0;
+      for (const user of users) {
+        if (!user.tg_chat_id) continue;
+        await tgSend(user.tg_chat_id, hookText);
+        sent++;
+        if (sent % 25 === 0) await new Promise(r => setTimeout(r, 1000));
+      }
+      console.log(`[daily:hook] sent=${sent}`);
+      return res.status(200).json({ sent, action: 'hook' });
+    } catch(e) {
+      console.error('[daily:hook]', e);
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
   try {
     // 1. Все юзеры с включённым daily брифингом
     const ur = await fetch(
