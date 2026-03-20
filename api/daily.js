@@ -67,23 +67,60 @@ export default async function handler(req, res) {
       })
       .join('\n');
 
-    // 4. Строим текст брифинга
-    const date = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' });
-    const text =
-      `🌅 <b>Утренний брифинг</b> · ${date}\n\n` +
-      `🌍 Market Cap: <b>$${mcap}</b>\n` +
-      `₿ BTC Dominance: <b>${btcDom}</b>\n` +
-      `${fgEmoji} Fear &amp; Greed: <b>${fgVal} — ${fgLabel}</b>\n` +
-      (gainersStr ? `\n🔥 Топ роста 24ч:\n${gainersStr}\n` : '') +
-      `\n💡 Торгуй по плану. Удачи! 📊`;
+    // 4. Get personal weekly stats for each user
+    // (stats injected per-user in loop below)
 
-    // 5. Шлём всем
+    const date = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    const signalQuality = gainers.length > 0 ? Math.min(10, Math.max(4, Math.round(7 + (gainers[0]?.price_change_percentage_24h || 0) / 5))) : 7;
+    const qualNote = signalQuality < 6
+      ? '\n\n<code>Low-signal morning — patience is the edge today.</code>'
+      : signalQuality >= 8
+      ? '\n\n<code>⚡ High-signal conditions — stay sharp.</code>'
+      : '';
+
+    const topGainerStr = gainers[0]
+      ? `${gainers[0].symbol.toUpperCase()} ${gainers[0].price_change_percentage_24h >= 0 ? '+' : ''}${gainers[0].price_change_percentage_24h.toFixed(1)}%`
+      : null;
+
+    // 5. Send to all users with personal weekly stats injected
     let sent = 0;
     for (const user of users) {
       if (!user.tg_chat_id) continue;
-      await tgSend(user.tg_chat_id, text);
+
+      // Personal weekly stats
+      let userWr = null, userTrades = 0;
+      try {
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        const wResp = await fetch(
+          `${SB_URL}/rest/v1/trades?user_id=eq.${user.id}&created_at=gte.${weekStart.toISOString()}&select=result`,
+          { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
+        );
+        const wTrades = await wResp.json();
+        if (Array.isArray(wTrades) && wTrades.length) {
+          userTrades = wTrades.length;
+          userWr = Math.round(wTrades.filter(t => t.result === 'win').length / wTrades.length * 100);
+        }
+      } catch(e) { /* skip personal stats on error */ }
+
+      const statsLine = (userWr !== null && userTrades > 0)
+        ? `\n📊 Your week  ·  <b>${userTrades} trades · ${userWr}% WR</b>`
+        : '';
+
+      const msgText =
+        `🌅 <b>Morning Brief</b> · ${date}\n` +
+        `━━━━━━━━━━━━━━━━━━━\n` +
+        `₿ BTC  ·  <b>$${mcap}</b>  ·  Dom ${btcDom}\n` +
+        `${fgEmoji} F&G   ·  <b>${fgVal} · ${fgLabel}</b>\n` +
+        (topGainerStr ? `\n🔥 Top 24H  ·  <b>${topGainerStr}</b>` : '') +
+        statsLine +
+        qualNote +
+        `\n━━━━━━━━━━━━━━━━━━━\n` +
+        `Signal index: <code>${signalQuality}/10</code>  ·  <a href="${process.env.APP_URL || 'https://orbitum.trade'}/screener">Open screener →</a>`;
+
+      await tgSend(user.tg_chat_id, msgText);
       sent++;
-      // Небольшая пауза чтобы не флудить Telegram API
       if (sent % 25 === 0) await new Promise(r => setTimeout(r, 1000));
     }
 
