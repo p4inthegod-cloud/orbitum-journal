@@ -7,6 +7,7 @@
 <meta name="description" content="Professional trading education. Market Structure, Wyckoff, Elliott Wave. No fluff — only what works.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -36,6 +37,8 @@ nav.scrolled{border-color:var(--line);background:rgba(8,8,8,0.9);backdrop-filter
 .nav-lang:hover,.nav-lang.active{color:var(--o);border-color:rgba(232,108,42,.3);}
 .nav-cta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:10px 22px;border:1px solid var(--o);color:var(--o);background:transparent;cursor:pointer;text-decoration:none;transition:all .3s;}
 .nav-cta:hover{background:var(--o);color:#080808;}
+.nav-btn-ghost{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:10px 22px;border:1px solid var(--line);color:var(--m);background:transparent;cursor:pointer;text-decoration:none;transition:all .3s;}
+.nav-btn-ghost:hover{border-color:var(--line2);color:var(--t);}
 
 /* HERO */
 .hero{min-height:100vh;display:grid;place-items:center;position:relative;padding:120px 48px 80px;overflow:hidden;}
@@ -246,6 +249,8 @@ html[lang="en"] [data-en]{display:revert;}
   <div class="nav-right">
     <button class="nav-lang active" id="lang-en" onclick="setLang('en')">EN</button>
     <button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
+    <a href="login" class="nav-btn-ghost" data-ru>Войти</a>
+    <a href="login" class="nav-btn-ghost" data-en>Sign In</a>
     <a href="#courses" class="nav-cta" data-ru>Выбрать курс</a>
     <a href="#courses" class="nav-cta" data-en>Get a Course</a>
   </div>
@@ -672,6 +677,34 @@ function setLang(l){
   localStorage.setItem('orb_lang',l);
 }
 (function(){const l=localStorage.getItem('orb_lang')||'en';setLang(l);})();
+
+// Auth check — swap nav buttons if logged in
+(async()=>{
+  try{
+    const sb=supabase.createClient(
+      'https://kgutmsosfyyxnlnhucaa.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q'
+    );
+    const{data:{user}}=await sb.auth.getUser();
+    if(user){
+      const{data:p}=await sb.from('profiles').select('full_name,username,role').eq('id',user.id).single();
+      const name=(p?.full_name||p?.username||user.email.split('@')[0]).split(' ')[0];
+      const dest=p?.role==='admin'?'/admin':'/cabinet';
+      const lang=document.documentElement.getAttribute('lang')||'en';
+      const nr=document.getElementById('nav-right');
+      if(nr){
+        nr.innerHTML=`
+          <button class="nav-lang active" id="lang-en" onclick="setLang('en')">EN</button>
+          <button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--m);">${name}</span>
+          <a href="${dest}" class="nav-cta">${lang==='ru'?'КАБИНЕТ →':'CABINET →'}</a>
+        `;
+        document.getElementById('lang-en').classList.toggle('active',lang==='en');
+        document.getElementById('lang-ru').classList.toggle('active',lang==='ru');
+      }
+    }
+  }catch(e){}
+})();
 
 // Nav scroll
 const nav=document.getElementById('nav');
