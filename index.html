@@ -419,7 +419,7 @@ html[lang="en"] [data-en]{display:revert;}
         <li data-ru>Premium / Discount Zones</li><li data-en>Premium / Discount Zones</li>
         <li data-ru>Построение торгового плана</li><li data-en>Building a trade plan</li>
       </ul>
-      <div class="card-price"><span class="price-currency">$</span><span class="price-amount">397</span></div>
+      <div class="card-price"><span class="price-currency">$</span><span class="price-amount" id="price-bundle_msm">397</span></div>
       <div class="card-price-note" data-ru>Lifetime доступ · Обновления бесплатно</div>
       <div class="card-price-note" data-en>Lifetime access · Free updates</div>
       <a href="#" class="card-btn orange"><span data-ru>Получить доступ</span><span data-en>Get Access</span><span class="card-btn-arrow">→</span></a>
@@ -436,7 +436,7 @@ html[lang="en"] [data-en]{display:revert;}
         <li data-ru>Composite Man</li><li data-en>Composite Man</li>
         <li data-ru>Практическое применение</li><li data-en>Practical application</li>
       </ul>
-      <div class="card-price"><span class="price-currency">$</span><span class="price-amount">297</span></div>
+      <div class="card-price"><span class="price-currency">$</span><span class="price-amount" id="price-bundle_wyk">297</span></div>
       <div class="card-price-note" data-ru>Lifetime доступ · Обновления бесплатно</div>
       <div class="card-price-note" data-en>Lifetime access · Free updates</div>
       <a href="#" class="card-btn white"><span data-ru>Получить доступ</span><span data-en>Get Access</span><span class="card-btn-arrow">→</span></a>
@@ -453,7 +453,7 @@ html[lang="en"] [data-en]{display:revert;}
         <li data-ru>Fibonacci & Ratios</li><li data-en>Fibonacci & Ratios</li>
         <li data-ru>Интеграция с другими методами</li><li data-en>Integration with other methods</li>
       </ul>
-      <div class="card-price"><span class="price-currency">$</span><span class="price-amount">297</span></div>
+      <div class="card-price"><span class="price-currency">$</span><span class="price-amount" id="price-bundle_ewt">297</span></div>
       <div class="card-price-note" data-ru>Lifetime доступ · Обновления бесплатно</div>
       <div class="card-price-note" data-en>Lifetime access · Free updates</div>
       <a href="#" class="card-btn white"><span data-ru>Получить доступ</span><span data-en>Get Access</span><span class="card-btn-arrow">→</span></a>
@@ -473,9 +473,9 @@ html[lang="en"] [data-en]{display:revert;}
       <p class="bundle-desc" data-en>Complete methodology from market structure to wave theory. All three courses in one package — the best choice for a systematic trader.</p>
     </div>
     <div class="bundle-pricing">
-      <div class="bundle-was" data-ru>$991 по отдельности</div>
-      <div class="bundle-was" data-en>$991 separately</div>
-      <span class="bundle-price">$797</span>
+      <div class="bundle-was" data-ru id="bundle-was-ru">$991 по отдельности</div>
+      <div class="bundle-was" data-en id="bundle-was-en">$991 separately</div>
+      <span class="bundle-price" id="price-bundle_full">$797</span>
       <span class="bundle-save" data-ru>↑ Экономия $194</span>
       <span class="bundle-save" data-en>↑ Save $194</span>
       <a href="#" class="btn-primary"><span data-ru>Взять Bundle →</span><span data-en>Get Bundle →</span></a>
@@ -538,12 +538,12 @@ html[lang="en"] [data-en]{display:revert;}
         <p class="jcta-sub" data-ru>Инструмент который применяет знания с курсов на практике. Находит твои паттерны убытков и помогает устранить их.</p>
         <p class="jcta-sub" data-en>The tool that puts your course knowledge into practice. Finds your loss patterns and helps you fix them.</p>
         <div class="jcta-price-row">
-          <div class="jcta-price">$29</div>
+          <div class="jcta-price" id="price-monthly">$29</div>
           <div class="jcta-period" data-ru>/месяц</div>
           <div class="jcta-period" data-en>/month</div>
         </div>
-        <div class="jcta-lifetime" data-ru>или $197 — lifetime доступ навсегда</div>
-        <div class="jcta-lifetime" data-en>or $197 — lifetime access forever</div>
+        <div class="jcta-lifetime" data-ru id="lifetime-note-ru">или $197 — lifetime доступ навсегда</div>
+        <div class="jcta-lifetime" data-en id="lifetime-note-en">or $197 — lifetime access forever</div>
         <ul class="jcta-list">
           <li data-ru>Журнал сделок + AI Coach</li><li data-en>Trade Journal + AI Coach</li>
           <li data-ru>Крипто скринер + алерты</li><li data-en>Crypto screener + alerts</li>
@@ -727,7 +727,42 @@ function toggleFaq(btn){
   if(!wasOpen)item.classList.add('open');
 }
 
-// Smooth scroll
+// Load live prices from Supabase
+(async()=>{
+  try{
+    const{data}=await sb.from('products').select('id,price,price_old,name_en,name_ru,description_en,description_ru,badge_en,badge_ru').eq('is_active',true);
+    if(!data)return;
+    const lang=document.documentElement.getAttribute('lang')||'en';
+    data.forEach(p=>{
+      // Update price display
+      const el=document.getElementById('price-'+p.id);
+      if(el)el.textContent='$'+parseFloat(p.price).toFixed(0);
+      // Bundle full special handling
+      if(p.id==='bundle_full'){
+        const bp=document.getElementById('price-bundle_full');
+        if(bp)bp.textContent='$'+parseFloat(p.price).toFixed(0);
+        if(p.price_old){
+          const wru=document.getElementById('bundle-was-ru');
+          const wen=document.getElementById('bundle-was-en');
+          if(wru)wru.textContent='$'+parseFloat(p.price_old).toFixed(0)+' по отдельности';
+          if(wen)wen.textContent='$'+parseFloat(p.price_old).toFixed(0)+' separately';
+        }
+      }
+      // Monthly journal price
+      if(p.id==='monthly'){
+        const pm=document.getElementById('price-monthly');
+        if(pm)pm.textContent='$'+parseFloat(p.price).toFixed(0);
+      }
+      // Lifetime note
+      if(p.id==='lifetime'){
+        const lru=document.getElementById('lifetime-note-ru');
+        const len=document.getElementById('lifetime-note-en');
+        if(lru)lru.textContent='или $'+parseFloat(p.price).toFixed(0)+' — lifetime доступ навсегда';
+        if(len)len.textContent='or $'+parseFloat(p.price).toFixed(0)+' — lifetime access forever';
+      }
+    });
+  }catch(e){/* prices stay hardcoded if DB unavailable */}
+})();
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
     const t=document.querySelector(a.getAttribute('href'));
