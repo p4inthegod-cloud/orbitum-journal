@@ -9,7 +9,8 @@ const CACHE_TTL = {
   market:   60,
   trending: 300,
   gl:       60,
-  screener: 45,  // refresh every 45s for screener
+  screener: 45,
+  sa_score: 120,  // Situational Awareness Score — refresh every 2 min
 };
 
 function sendJSON(res, status, data, extra = {}) {
@@ -49,6 +50,7 @@ const ENDPOINTS = {
   trending: () => `${CG}/search/trending`,
   gl:       () => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&price_change_percentage=24h&sparkline=false`,
   screener: (page=1) => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}&sparkline=true&price_change_percentage=1h,24h,7d,30d`,
+  sa_score: null, // computed, not a direct URL
 };
 
 async function handler(req, res) {
@@ -63,13 +65,42 @@ async function handler(req, res) {
   const { type } = req.query;
 
   if (!type) return sendJSON(res, 400, { error: 'type required', available: Object.keys(ENDPOINTS) });
-  if (!ENDPOINTS[type]) return sendJSON(res, 400, { error: `unknown type: "${type}"` });
+  if (!ENDPOINTS[type] && type !== 'sa_score') return sendJSON(res, 400, { error: `unknown type: "${type}"` });
 
   const now = Date.now();
   const ttl = (CACHE_TTL[type] || 60) * 1000;
 
   if (cache[type] && (now - cache[type].ts) < ttl) {
     return sendJSON(res, 200, cache[type].data, { 'X-Cache': 'HIT' });
+  }
+
+  // ── Situational Awareness Score (computed from multiple sources) ──
+  if (type === 'sa_score') {
+    try {
+      const [fngR, mktR] = await Promise.allSettled([
+        fetchWithRetry('https://api.alternative.me/fng/?limit=1'),
+        fetchWithRetry(`${CG}/global`),
+      ]);
+      const fng    = fngR.status === 'fulfilled' ? parseInt(fngR.value?.data?.[0]?.value || 50) : 50;
+      const mktData = mktR.status === 'fulfilled' ? mktR.value?.data : null;
+      const btcDom  = mktData?.market_cap_percentage?.btc || 50;
+      const mktChg  = mktData?.market_cap_change_percentage_24h_usd || 0;
+
+      const sentimentScore = Math.round(fng / 4);
+      const trendScore     = Math.min(25, Math.max(0, Math.round(12.5 + mktChg * 2.5)));
+      const domScore       = btcDom < 40 || btcDom > 65 ? 20 : Math.round(25 - Math.abs(btcDom - 52) / 2);
+      const phaseScore     = fng < 25 ? 25 : fng > 75 ? 20 : Math.round(fng / 4);
+      const total          = Math.min(100, Math.max(0, sentimentScore + trendScore + domScore + Math.round(phaseScore * 0.4)));
+
+      const label  = total >= 80 ? 'EXTREME' : total >= 65 ? 'HIGH' : total >= 45 ? 'ELEVATED' : total >= 25 ? 'MODERATE' : 'LOW';
+      const color  = total >= 80 ? '#ff4040' : total >= 65 ? '#e8722a' : total >= 45 ? '#f5c842' : '#2dce5c';
+      const raw    = { score: total, label, color, fng, btcDom: parseFloat(btcDom).toFixed(1), mktChg: parseFloat(mktChg).toFixed(2) };
+      cache[type]  = { ts: now, data: raw };
+      return sendJSON(res, 200, raw, { 'Cache-Control': `public, s-maxage=${CACHE_TTL.sa_score}` });
+    } catch(e) {
+      if (cache[type]) return sendJSON(res, 200, cache[type].data, { 'X-Cache': 'STALE' });
+      return sendJSON(res, 200, { score: 50, label: 'MODERATE', color: '#f5c842' });
+    }
   }
 
   try {
