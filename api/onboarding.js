@@ -190,9 +190,193 @@ async function getTradeCount(userId) {
 
 // ── Main handler ──────────────────────────────────────────────────
 
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const SB_URL    = process.env.SUPABASE_URL;
+const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
+const CRON_SECRET = process.env.CRON_SECRET;
+
+async function tgSend(chat_id, text) {
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true }),
+    });
+  } catch(e) { console.error('[onboarding] tg error:', e.message); }
+}
+
+// TG onboarding messages — conversion funnel template
+// Stage 1: +2h — show real setup format
+// Stage 2: +6h — show result proof
+// Stage 3: +24h — soft conversion
+function tgStageMessage(stage, name = 'trader', appUrl = 'https://orbitum.trade') {
+  const messages = {
+    1: () =>
+      `📊 <b>Your first look inside</b>
+
+` +
+      `Here's what a premium setup signal looks like:
+
+` +
+      `⚡ <b>SETUP SIGNAL</b>
+` +
+      `━━━━━━━━━━━━━━━━━━━
+` +
+      `🟢 <b>BTC/USDT · LONG</b> · 4H
+` +
+      `<code>Wyckoff Spring · Re-accumulation</code>
+` +
+      `🟢 <code>████████░░</code> <b>82%</b> confidence
+` +
+      `━━━━━━━━━━━━━━━━━━━
+` +
+      `Entry  ·  <b>$97,200</b>
+` +
+      `SL     ·  <code>$96,400</code>
+` +
+      `TP     ·  <b>$99,800</b>
+` +
+      `R:R    ·  <b>3.25:1</b>
+` +
+      `━━━━━━━━━━━━━━━━━━━
+` +
+      `🧠 <i>Spring confirmed on volume. 340 similar setups — 82% accuracy.</i>
+
+` +
+      `<i>On free tier: confidence %, entry zone, and AI insight are locked.</i>
+
+` +
+      `<a href="${appUrl}/pay">Unlock full signals →</a>`,
+
+    2: () =>
+      `✅ <b>Setup result</b>
+
+` +
+      `The BTC setup from earlier:
+
+` +
+      `<b>BTC/USDT LONG</b> · Entry $97,200
+` +
+      `Result: <b>+$2,600 · TP hit · +2.7%</b>
+
+` +
+      `That's what premium users saw first.
+
+` +
+      `This week: <b>7 signals · 5 hit target · avg +11.4%</b>
+
+` +
+      `<code>Sent to premium at 09:14. Free delay: +15 min.</code>
+
+` +
+      `<a href="${appUrl}/pay">Get real-time signals →</a>  ·  <a href="${appUrl}/journal">Open journal</a>`,
+
+    3: () =>
+      `🧠 <b>One pattern costs most traders $300–500/month.</b>
+
+` +
+      `The most common:
+` +
+      `— Trading Friday after 17:00 (low liquidity)
+` +
+      `— Entering after 2 consecutive losses (revenge)
+` +
+      `— Exiting winners early when BTC drops 0.5%
+
+` +
+      `ORBITUM's AI Coach finds <i>your</i> version — with exact numbers.
+
+` +
+      `━━━━━━━━━━━━━━━━━━━
+` +
+      `Monthly  ·  <b>$29</b> / 30 days
+` +
+      `Lifetime ·  <b>$197</b> · pay once forever
+` +
+      `━━━━━━━━━━━━━━━━━━━
+
+` +
+      `<a href="${appUrl}/pay">Get full access →</a>  ·  <a href="${appUrl}/journal">Keep using free</a>`,
+  };
+  return messages[stage]?.() || null;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://orbitum.trade');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Webhook-Secret, X-Cron-Secret');
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // ── CRON: deliver pending TG onboarding stages ────────────────────
+  // Accepts GET or POST — cron-job.org may change method after redirect
+  // Secret via x-cron-secret header OR ?secret= query param
+  const cronSecret = req.headers['x-cron-secret'] || req.query.secret;
+  const isCronCall = !CRON_SECRET || cronSecret === CRON_SECRET;
+
+  if ((req.method === 'GET' || (req.method === 'POST' && cronSecret)) && isCronCall && !req.headers['x-webhook-secret']) {
+
+    try {
+      // Find all users with pending TG onboarding (stage 0, 1, or 2 not yet completed)
+      const now = Date.now();
+      const STAGE_DELAYS = [0, 2 * 3600000, 6 * 3600000, 24 * 3600000]; // ms after start
+
+      const r = await fetch(
+        `${SB_URL}/rest/v1/profiles?tg_linked=is.true&onboarding_stage=lt.3&select=id,tg_chat_id,full_name,username,plan,onboarding_stage,onboarding_started_at`,
+        { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
+      );
+      const users = await r.json();
+      if (!Array.isArray(users) || !users.length) {
+        return res.status(200).json({ processed: 0 });
+      }
+
+      let sent = 0;
+      const appUrl = process.env.APP_URL || 'https://orbitum.trade';
+
+      for (const user of users) {
+        if (!user.tg_chat_id || !user.onboarding_started_at) continue;
+
+        // Skip paying users — don't convert who already converted
+        if (user.plan === 'lifetime' || user.plan === 'monthly') {
+          // Mark as complete
+          await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${user.id}`, {
+            method: 'PATCH',
+            headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ onboarding_stage: 3 }),
+          });
+          continue;
+        }
+
+        const startedAt = new Date(user.onboarding_started_at).getTime();
+        const elapsed   = now - startedAt;
+        const nextStage = (user.onboarding_stage || 0) + 1;
+
+        if (nextStage > 3) continue;
+        if (elapsed < STAGE_DELAYS[nextStage]) continue; // not time yet
+
+        const name = user.full_name || user.username || 'trader';
+        const msg  = tgStageMessage(nextStage, name, appUrl);
+        if (!msg) continue;
+
+        await tgSend(user.tg_chat_id, msg);
+
+        // Advance stage in DB
+        await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${user.id}`, {
+          method: 'PATCH',
+          headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ onboarding_stage: nextStage }),
+        });
+
+        sent++;
+      }
+
+      console.log(`[onboarding] TG stages sent=${sent}`);
+      return res.status(200).json({ ok: true, sent });
+    } catch(e) {
+      console.error('[onboarding] cron error:', e.message);
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
   if (req.method !== 'POST') return res.status(405).end();
 
   // Verify webhook secret to prevent abuse
