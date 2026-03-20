@@ -5,7 +5,7 @@ const BOT_TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL      = process.env.SUPABASE_URL;
 const SB_KEY      = process.env.SUPABASE_SERVICE_KEY;
 const CRON_SECRET = process.env.CRON_SECRET;
-const APP_URL     = process.env.APP_URL || 'https://orbitum.app';
+const APP_URL     = process.env.APP_URL || 'https://orbitum.trade';
 
 // ── Helpers ───────────────────────────────────────────────────────
 

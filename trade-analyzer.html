@@ -476,18 +476,23 @@ Rules for evaluation:
 - Keep each text under 80 chars
 - Return ONLY valid JSON array, no markdown, no explanation`;
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  // Route through server proxy — keeps API keys server-side
+  const resp = await fetch('/api/ai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      mode: 'trade_analyze',
+      tradeData: {
+        prompt: prompt,
+        metrics: metrics
+      },
       max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }]
+      temperature: 0.2,
     })
   });
 
   const data = await resp.json();
-  const raw = data.content?.[0]?.text || '[]';
+  const raw = data.text || '[]';
   const clean = raw.replace(/```json|```/g, '').trim();
   return JSON.parse(clean);
 }

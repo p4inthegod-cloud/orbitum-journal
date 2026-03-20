@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Журнал</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Fallback: if CDN blocked by Tracking Prevention -->
@@ -5493,11 +5496,16 @@ async function init(){
   if(jtbNm)jtbNm.textContent=displayName.split(' ')[0].toUpperCase();
   if(p.role==='admin'){const a=document.getElementById('snav-admin');if(a)a.style.display='flex';}
   
-  if(!hasAccess){
-    enablePreviewMode(p.full_name||p.username||user.email);
-  }
+  // Free tier: first 10 trades fully functional, then upgrade prompt
+  window._userPlan = p.plan;
+  window._planExpires = p.plan_expires_at;
+  window._hasFullAccess = hasAccess;
   
   await loadTrades();
+  
+  if(!hasAccess){
+    enableFreeTierMode(p.full_name||p.username||user.email);
+  }
   renderPMHistory();renderPMStreak();
 
   // ── URL-параметры от скринера (предзаполнение формы) ──
@@ -5519,73 +5527,94 @@ async function init(){
   }
 }
 
-// ── ЗАПУСК ───────────────────────────────────────────────
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+// ── ЗАПУСК — safe init with Supabase readiness check ──────────
+function waitForSupabaseAndInit(attempts = 0) {
+  if (typeof supabase !== 'undefined' || typeof createClient !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  } else if (attempts < 30) {
+    setTimeout(() => waitForSupabaseAndInit(attempts + 1), 200);
+  } else {
+    console.error('[ORBITUM] Supabase failed to load after 6s');
+  }
+}
+waitForSupabaseAndInit();
+
+function enableFreeTierMode(name){
+  // Count trades actually in allTrades to determine limit
+  const tradeCount = (window.allTrades || []).length;
+  const FREE_LIMIT = 10;
+  const remaining = Math.max(0, FREE_LIMIT - tradeCount);
+  const isAtLimit = tradeCount >= FREE_LIMIT;
+
+  // Inject persistent banner
+  const banner = document.createElement('div');
+  banner.id = 'preview-banner';
+  const pctUsed = Math.min(100, Math.round((tradeCount / FREE_LIMIT) * 100));
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:200px;">
+        <span style="font-size:16px">${isAtLimit ? '🔒' : '⚡'}</span>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:#f0f0f0;letter-spacing:1px;margin-bottom:3px;">
+            ${isAtLimit ? 'БЕСПЛАТНЫЙ ЛИМИТ ИСЧЕРПАН' : `БЕСПЛАТНЫЙ ПЛАН · ${remaining} из ${FREE_LIMIT} осталось`}
+          </div>
+          <div style="width:120px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
+            <div style="width:${pctUsed}%;height:100%;background:${isAtLimit?'var(--r)':'var(--a)'};border-radius:2px;transition:width 0.3s;"></div>
+          </div>
+        </div>
+      </div>
+      <a href="pay.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;background:var(--a);color:#000;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-decoration:none;white-space:nowrap;font-weight:600;">
+        ${isAtLimit ? '🚀 РАЗБЛОКИРОВАТЬ' : '🚀 ПОЛУЧИТЬ ПОЛНЫЙ ДОСТУП'}
+      </a>
+    </div>`;
+  banner.style.cssText = 'position:sticky;top:48px;z-index:80;background:rgba(10,8,5,0.97);border-bottom:1px solid rgba(232,114,42,0.3);backdrop-filter:blur(16px);padding:10px 24px;';
+
+  const statsRow = document.querySelector('.stats-row');
+  if(statsRow && statsRow.parentNode) statsRow.parentNode.insertBefore(banner, statsRow);
+  else { const m = document.querySelector('.main'); if(m) m.insertBefore(banner, m.firstChild); }
+
+  if(isAtLimit){
+    // Only lock ADD FORM — user can still VIEW all their trades, dashboard, coach
+    setTimeout(()=>{
+      const addBtn = document.getElementById('btn-add');
+      if(addBtn){
+        addBtn.disabled = true;
+        addBtn.textContent = '🔒 ЛИМИТ ИСЧЕРПАН';
+        addBtn.style.opacity = '0.5';
+        addBtn.title = 'Обновись до платного плана';
+      }
+      const form = document.getElementById('add-trade-form');
+      if(form){
+        form.style.filter = 'blur(4px)';
+        form.style.pointerEvents = 'none';
+        form.style.userSelect = 'none';
+        form.style.position = 'relative';
+        // Add upgrade overlay on form only
+        const ov = document.createElement('div');
+        ov.className = 'preview-lock-overlay';
+        ov.innerHTML = '<div class="plo-inner"><div class="plo-lock">🔒</div><div class="plo-label">Лимит 10 сделок исчерпан</div><a href="pay.html" class="plo-btn">Разблокировать — $29/мес</a></div>';
+        form.appendChild(ov);
+      }
+      // Lock only AI coach/brutal (paid AI features)
+      ['#page-aichat','#page-coach'].forEach(sel=>{
+        const el = document.querySelector(sel);
+        if(!el) return;
+        if(getComputedStyle(el).position==='static') el.style.position='relative';
+        const ov = document.createElement('div');
+        ov.className = 'preview-lock-overlay';
+        ov.innerHTML = '<div class="plo-inner"><div class="plo-lock">🤖</div><div class="plo-label">AI-коуч — платная функция</div><a href="pay.html" class="plo-btn">Открыть доступ</a></div>';
+        el.appendChild(ov);
+      });
+    }, 300);
+  }
 }
 
-function enablePreviewMode(name){
-  // Inject preview banner
-  const banner=document.createElement('div');
-  banner.id='preview-banner';
-  banner.innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <span style="font-size:18px">🔒</span>
-      <div style="flex:1;min-width:200px">
-        <div style="font-family:var(--font-mono);font-size:10px;color:#f0f0f0;letter-spacing:1px;margin-bottom:2px">PREVIEW РЕЖИМ — добро пожаловать, ${name}!</div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:0.5px">Ты видишь журнал, но для добавления сделок нужен доступ</div>
-      </div>
-      <a href="pay.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:linear-gradient(135deg,var(--a),#c85e18);border:none;border-radius:8px;color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 16px rgba(232,114,42,0.3);">🚀 ПОЛУЧИТЬ ДОСТУП</a>
-    </div>`;
-  banner.style.cssText='position:sticky;top:48px;z-index:80;background:rgba(10,8,5,0.96);border-bottom:1px solid rgba(232,114,42,0.25);backdrop-filter:blur(16px);padding:12px 24px;';
-  
-  // Insert preview banner at top of page content
-  const statsRow=document.querySelector('.stats-row');
-  if(statsRow&&statsRow.parentNode){
-    statsRow.parentNode.insertBefore(banner,statsRow);
-  } else {
-    const main=document.querySelector('.main');
-    if(main)main.insertBefore(banner,main.firstChild);
-  }
-  
-  // Lock interactive elements with overlay
-  const lockTargets=[
-    {sel:'.stats-row',label:'Статистика появится после первой сделки'},
-    {sel:'#page-journal .fcard',label:'Добавь первую сделку'},
-    {sel:'#page-dashboard',label:'Дашборд'},
-    {sel:'#page-progress',label:'Прогресс и аналитика'},
-    {sel:'#page-premarket',label:'Подготовка к сессии'},
-    {sel:'#page-aichat',label:'AI-коуч'},
-    {sel:'#page-coach',label:'Разбор ошибок'},
-  ];
-  
-  // Defer until DOM is populated
-  setTimeout(()=>{
-    lockTargets.forEach(({sel,label})=>{
-      const el=document.querySelector(sel);
-      if(!el)return;
-      if(getComputedStyle(el).position==='static')el.style.position='relative';
-      const ov=document.createElement('div');
-      ov.className='preview-lock-overlay';
-      ov.innerHTML=`<div class="plo-inner"><div class="plo-lock">🔒</div><div class="plo-label">${label}</div><a href="pay.html" class="plo-btn">Разблокировать</a></div>`;
-      el.appendChild(ov);
-    });
-    
-    // Disable add trade button
-    const addBtn=document.getElementById('btn-add');
-    if(addBtn){addBtn.disabled=true;addBtn.style.opacity='0.35';addBtn.title='Нужен доступ';}
-    
-    // Blur add trade form inputs
-    const form=document.getElementById('add-trade-form');
-    if(form){
-      form.style.filter='blur(3px)';
-      form.style.pointerEvents='none';
-      form.style.userSelect='none';
-    }
-  },200);
-}
+// Keep old name as alias for backwards compat
+const enablePreviewMode = enableFreeTierMode;
 async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
 
 // ─── TRADES ───────────────────────────────────────
@@ -5747,9 +5776,14 @@ function setF(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(
 
 async function addTrade(){
   if(window._isDemoMode){ await window._demoAddTrade(); return; }
-  if(document.getElementById('preview-banner')){
-    showNotif('warn','Preview режим','Получи доступ чтобы добавлять сделки',4000);
-    return;
+  // Free-tier gate: max 10 trades
+  if(!window._hasFullAccess){
+    const tradeCount = (window.allTrades || []).length;
+    const FREE_LIMIT = 10;
+    if(tradeCount >= FREE_LIMIT){
+      showNotif('warn','Лимит бесплатного плана',`${FREE_LIMIT} сделок исчерпано — <a href="pay.html" style="color:var(--a)">перейти к оплате</a>`,5000);
+      return;
+    }
   }
   const pair=(document.getElementById('f-pair').value||'').trim().toUpperCase();
   if(!pair){showNotif('warn','Укажи пару','Например BTC/USDT',3000);return;}
@@ -7448,7 +7482,7 @@ async function runAICoach(){
     var data=await res.json();
     var text=(data.text||'').replace(/```json|```/g,'').trim();
     var items=[];
-    try{ items=JSON.parse(text); }catch(e){
+    try{ var _p=JSON.parse(text); items=Array.isArray(_p)?_p:(_p.patterns||[]); }catch(e){
       items=text.split('\n').filter(l=>l.trim()).map(l=>({severity:'warning',pattern:'',evidence:l.replace(/^[^\w]*\d*[.)]\s*/,''),action:'',impact_usd:0}));
     }
 

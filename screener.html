@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
 <title>Orbitum · Screener</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
@@ -3394,8 +3394,7 @@ async function loadCalendar(force=false){
 }
 
 async function fetchEcoCalendarFinnhub(from, to){
-  const key = 'cnl7g5pr01qhcd72ga3gcnl7g5pr01qhcd72ga40'; // free public demo key
-  const url = `https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${key}`;
+  const url = `/api/finnhub?type=calendar&from=${from}&to=${to}`;
   const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
   if(!r.ok) return null;
   const d = await r.json();
@@ -3419,8 +3418,7 @@ async function loadCalendarNews(){
   if(_calNews.length && Date.now()-_calNewsLastFetch < 120000){ renderCalendar(); return; }
   try{
     // Finnhub market news
-    const key = 'cnl7g5pr01qhcd72ga3gcnl7g5pr01qhcd72ga40';
-    const r = await fetch(`https://finnhub.io/api/v1/news?category=crypto&token=${key}`, {signal:AbortSignal.timeout(8000)});
+    const r = await fetch('/api/finnhub?type=news', {signal:AbortSignal.timeout(8000)});
     if(!r.ok) throw new Error('news fetch fail');
     const items = await r.json();
     _calNews = items.slice(0,30).map(n => ({
@@ -4550,13 +4548,17 @@ ${liqStr}
 Только JSON, без markdown.`;
 
   try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('/api/ai', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
-        messages:[{ role:'user', content:prompt }] })
+      body: JSON.stringify({
+        mode: 'screener_insight',
+        tradeData: { prompt, entry, sl, tp, metrics },
+        max_tokens: 1200,
+        temperature: 0.2,
+      })
     });
     const data = await resp.json();
-    const raw  = data.content?.[0]?.text||'[]';
+    const raw  = data.text||'[]';
     const cards= JSON.parse(raw.replace(/```json|```/g,'').trim());
     aiLoad.style.display='none';
     atRenderCards(cards, aiCards);
