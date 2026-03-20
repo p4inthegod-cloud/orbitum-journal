@@ -363,6 +363,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <div class="tb-spacer"></div>
     <div class="tb-time" id="tb-time"></div>
+    <div style="display:flex;gap:4px;">
+      <button class="tb-refresh" id="lang-en-btn" onclick="setAdminLang('en')" style="min-width:36px;">EN</button>
+      <button class="tb-refresh" id="lang-ru-btn" onclick="setAdminLang('ru')" style="min-width:36px;">RU</button>
+    </div>
     <button class="tb-refresh" onclick="loadAll()">↻ Refresh</button>
   </div>
 
@@ -500,6 +504,146 @@ const FEATURES=[
   {key:'screener',label:'Screener',locked:false},
 ];
 
+// ── LANGUAGE ──────────────────────────────────────────────────
+const AL = {
+  en:{
+    overview:'OVERVIEW', overview_sub:'Platform dashboard',
+    payments:'PAYMENTS', payments_sub:'Manage transactions',
+    users:'USERS', users_sub:'Manage accounts',
+    analytics:'ANALYTICS', analytics_sub:'Platform statistics',
+    education:'EDUCATION', education_sub:'Manage learning content',
+    pending_label:'⚡ Pending Approval', all_payments:'All Payments',
+    no_pending:'✓ No pending payments', no_payments:'No payments yet',
+    search_placeholder:'Search by name, email...',
+    filter_all:'All', filter_lifetime:'Lifetime', filter_monthly:'Monthly', filter_free:'Free',
+    confirm:'✓ Confirm', reject:'✕ Reject',
+    lifetime_btn:'∞ Lifetime', monthly_btn:'Monthly', free_btn:'Free',
+    delete_btn:'Delete', tg_btn:'✈ TG',
+    save_access:'Save Access', module_access:'Module Access',
+    top_pairs:'Top Pairs', leaderboard:'User Leaderboard',
+    new_section:'New Section', sections_lessons:'Sections & Lessons',
+    add_section:'+ Add Section', refresh:'↻ Refresh',
+    new_lesson:'New Lesson', edit_lesson:'Edit Lesson',
+    lesson_title_ph:'BOS & ChoCH Explained',
+    save_lesson:'Save Lesson', cancel:'Cancel',
+    publish:'Publish', unpublish:'Unpublish', edit:'Edit',
+    no_lessons:'No lessons yet — add your first one',
+    total_users:'Total Users', active_plans:'Active Plans',
+    revenue:'Revenue $', pending:'Pending',
+    trades_logged:'Trades Logged', platform_wr:'Platform WR',
+    revenue_by_plan:'Revenue by plan', recent_payments:'Recent payments',
+    recent_users:'Recent Users', view_all:'View All →',
+    sign_out:'Sign Out', go_journal:'Go to Journal', main_site:'Main Site',
+    confirmed:'✓ Confirmed', rejected_s:'✕ Rejected',
+    user_col:'User', plan_col:'Plan', amount_col:'Amount', tx_col:'TX Hash', date_col:'Date',
+    pair_col:'Pair', trades_col:'Trades', wr_col:'Win Rate', rr_col:'Avg R:R', pnl_col:'P&L %',
+    trader_col:'Trader', best_rr:'Best R:R', pnl_usd:'P&L $',
+    section_title_ph:'Market Structure', section_desc_ph:'Learn to read the market...',
+    icon_ph:'📊', delete_confirm:'Delete this lesson?',
+    section_confirm:'Delete this section and all its lessons?',
+    plan_confirm:'Change plan to ', sure_confirm:'Are you sure? All their trades will also be deleted.',
+    delete_user_confirm:'Delete user ', irreversible:'? This is irreversible!',
+    loading:'Loading...', no_users:'No users found', no_sections:'No sections yet. Create your first one above.',
+    error_loading:'Error loading: ', error_lesson:'Enter lesson title', error_section:'Enter section title',
+    lesson_updated:'Lesson updated ✓', lesson_created:'Lesson created ✓',
+    lesson_hidden:'Lesson hidden', lesson_published:'Lesson published ✓',
+    lesson_deleted:'Lesson deleted', section_created:'Section created ✓', section_deleted:'Section deleted',
+    payment_confirmed:'Payment confirmed ✓', payment_rejected:'Payment rejected',
+    plan_updated:'Plan updated ✓', access_updated:'Access updated ✓',
+    msg_sent:'Message sent ✓', user_deleted:'User deleted',
+    no_tg:'User has no Telegram linked', msg_prompt:'Message to user:',
+    joined:'Joined ', an_total:'Total Trades', an_wr:'Avg Win Rate', an_rr:'Avg R:R', an_active:'Active Traders',
+  },
+  ru:{
+    overview:'ОБЗОР', overview_sub:'Дашборд платформы',
+    payments:'ПЛАТЕЖИ', payments_sub:'Управление транзакциями',
+    users:'ПОЛЬЗОВАТЕЛИ', users_sub:'Управление аккаунтами',
+    analytics:'АНАЛИТИКА', analytics_sub:'Статистика платформы',
+    education:'ОБУЧЕНИЕ', education_sub:'Управление контентом',
+    pending_label:'⚡ Ожидают подтверждения', all_payments:'Все платежи',
+    no_pending:'✓ Нет ожидающих платежей', no_payments:'Платежей нет',
+    search_placeholder:'Поиск по имени, email...',
+    filter_all:'Все', filter_lifetime:'Lifetime', filter_monthly:'Месячный', filter_free:'Бесплатный',
+    confirm:'✓ Подтвердить', reject:'✕ Отклонить',
+    lifetime_btn:'∞ Навсегда', monthly_btn:'Месяц', free_btn:'Бесплатный',
+    delete_btn:'Удалить', tg_btn:'✈ TG',
+    save_access:'Сохранить доступ', module_access:'Доступ к модулям',
+    top_pairs:'Топ пары', leaderboard:'Лидерборд',
+    new_section:'Новый раздел', sections_lessons:'Разделы и уроки',
+    add_section:'+ Добавить раздел', refresh:'↻ Обновить',
+    new_lesson:'Новый урок', edit_lesson:'Редактировать урок',
+    lesson_title_ph:'BOS и ChoCH',
+    save_lesson:'Сохранить урок', cancel:'Отмена',
+    publish:'Опубликовать', unpublish:'Скрыть', edit:'Редакт.',
+    no_lessons:'Уроков нет — добавь первый',
+    total_users:'Пользователей', active_plans:'Активных планов',
+    revenue:'Доход $', pending:'Ожидают',
+    trades_logged:'Сделок записано', platform_wr:'Средний WR',
+    revenue_by_plan:'Доход по планам', recent_payments:'Последние платежи',
+    recent_users:'Последние пользователи', view_all:'Все →',
+    sign_out:'Выйти', go_journal:'Журнал', main_site:'Сайт',
+    confirmed:'✓ Подтверждён', rejected_s:'✕ Отклонён',
+    user_col:'Юзер', plan_col:'План', amount_col:'Сумма', tx_col:'TX Hash', date_col:'Дата',
+    pair_col:'Пара', trades_col:'Сделок', wr_col:'Винрейт', rr_col:'Ср. R:R', pnl_col:'P&L %',
+    trader_col:'Трейдер', best_rr:'Лучший R:R', pnl_usd:'P&L $',
+    section_title_ph:'Структура рынка', section_desc_ph:'Изучи рынок...',
+    icon_ph:'📊', delete_confirm:'Удалить урок?',
+    section_confirm:'Удалить раздел и все его уроки?',
+    plan_confirm:'Изменить план на ', sure_confirm:'Точно уверен? Все сделки пользователя тоже удалятся.',
+    delete_user_confirm:'Удалить пользователя ', irreversible:'? Это необратимо!',
+    loading:'Загрузка...', no_users:'Пользователи не найдены', no_sections:'Разделов нет. Создай первый выше.',
+    error_loading:'Ошибка загрузки: ', error_lesson:'Введи название урока', error_section:'Введи название раздела',
+    lesson_updated:'Урок обновлён ✓', lesson_created:'Урок создан ✓',
+    lesson_hidden:'Урок скрыт', lesson_published:'Урок опубликован ✓',
+    lesson_deleted:'Урок удалён', section_created:'Раздел создан ✓', section_deleted:'Раздел удалён',
+    payment_confirmed:'Платёж подтверждён ✓', payment_rejected:'Платёж отклонён',
+    plan_updated:'План обновлён ✓', access_updated:'Доступ обновлён ✓',
+    msg_sent:'Сообщение отправлено ✓', user_deleted:'Пользователь удалён',
+    no_tg:'У пользователя нет Telegram', msg_prompt:'Сообщение пользователю:',
+    joined:'Рег. ', an_total:'Всего сделок', an_wr:'Ср. WR', an_rr:'Ср. R:R', an_active:'Активных трейдеров',
+  }
+};
+let adminLang = localStorage.getItem('orb_admin_lang') || 'en';
+function t(k){ return (AL[adminLang]||AL.en)[k] || k; }
+function setAdminLang(l){
+  adminLang = l;
+  localStorage.setItem('orb_admin_lang', l);
+  // Update lang buttons
+  document.getElementById('lang-en-btn').style.color = l==='en' ? 'var(--o)' : '';
+  document.getElementById('lang-en-btn').style.borderColor = l==='en' ? 'rgba(232,108,42,.4)' : '';
+  document.getElementById('lang-ru-btn').style.color = l==='ru' ? 'var(--o)' : '';
+  document.getElementById('lang-ru-btn').style.borderColor = l==='ru' ? 'rgba(232,108,42,.4)' : '';
+  // Re-render everything
+  renderKPIs(); renderOverview(); renderPayments(); renderUsers(); renderAnalytics();
+  // Update static labels
+  applyStaticLang();
+}
+function applyStaticLang(){
+  // Sidebar
+  document.querySelector('#nav-overview').childNodes[2].textContent = ' '+t('overview').charAt(0)+t('overview').slice(1).toLowerCase();
+  document.querySelector('#nav-payments').childNodes[2].textContent = ' '+t('payments').charAt(0)+t('payments').slice(1).toLowerCase();
+  document.querySelector('#nav-users').childNodes[2].textContent = ' '+t('users').charAt(0)+t('users').slice(1).toLowerCase();
+  document.querySelector('#nav-analytics').childNodes[2].textContent = ' '+t('analytics').charAt(0)+t('analytics').slice(1).toLowerCase();
+  document.querySelector('#nav-education').childNodes[2].textContent = ' '+t('education').charAt(0)+t('education').slice(1).toLowerCase();
+  // Search
+  const si = document.getElementById('user-search');
+  if(si) si.placeholder = t('search_placeholder');
+  // Filter buttons
+  document.getElementById('filter-all').textContent = t('filter_all');
+  document.getElementById('filter-lifetime').textContent = t('filter_lifetime');
+  document.getElementById('filter-monthly').textContent = t('filter_monthly');
+  document.getElementById('filter-free').textContent = t('filter_free');
+  // Education form
+  const st = document.getElementById('sec-title');
+  if(st) st.placeholder = t('section_title_ph');
+  const sd = document.getElementById('sec-desc');
+  if(sd) sd.placeholder = t('section_desc_ph');
+  const si2 = document.getElementById('sec-icon');
+  if(si2) si2.placeholder = t('icon_ph');
+  const ab = document.querySelector('button[onclick="addSection()"]');
+  if(ab) ab.textContent = t('add_section');
+}
+
 // ── INIT ──────────────────────────────────────────────────────
 async function init(){
   try{
@@ -511,6 +655,8 @@ async function init(){
     document.getElementById('sb-ava').textContent=name[0].toUpperCase();
     document.getElementById('sb-uname').textContent=name;
     await loadAll();
+    // Apply language
+    setAdminLang(adminLang);
   }catch(e){console.error(e);location.href='/login';}
   finally{
     const l=document.getElementById('loading');
@@ -574,6 +720,10 @@ function renderKPIs(){
   document.getElementById('kpi-pending').textContent=pending;
   document.getElementById('kpi-trades').textContent=allTrades.length;
   document.getElementById('kpi-wr').textContent=allTrades.length?wr+'%':'—';
+  // Update KPI labels
+  const kpis=document.querySelectorAll('.kpi-l');
+  const labels=[t('total_users'),t('active_plans'),t('revenue'),t('pending'),t('trades_logged'),t('platform_wr')];
+  kpis.forEach((el,i)=>{if(labels[i])el.textContent=labels[i];});
 }
 
 // ── OVERVIEW ─────────────────────────────────────────────────
@@ -602,22 +752,26 @@ function renderOverview(){
 // ── PAYMENTS ─────────────────────────────────────────────────
 function renderPayments(){
   const pending=allPayments.filter(p=>p.status==='pending');
-  document.getElementById('pending-list').innerHTML=pending.length?pending.map(payCardHTML).join(''):'<div class="empty">✓ No pending payments</div>';
-  document.getElementById('all-payments').innerHTML=allPayments.length?allPayments.map(payCardHTML).join(''):'<div class="empty">No payments yet</div>';
+  document.getElementById('pending-list').innerHTML=pending.length?pending.map(payCardHTML).join(''):`<div class="empty">${t('no_pending')}</div>`;
+  document.getElementById('all-payments').innerHTML=allPayments.length?allPayments.map(payCardHTML).join(''):`<div class="empty">${t('no_payments')}</div>`;
+  // Update section titles
+  const secHeads=document.querySelectorAll('#page-payments .sec-title-text');
+  if(secHeads[0])secHeads[0].textContent=t('pending_label');
+  if(secHeads[1])secHeads[1].textContent=t('all_payments');
 }
 function payCardHTML(p){
   const name=p.profiles?.full_name||p.profiles?.username||'Unknown';
   const d=new Date(p.created_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
   const actions=p.status==='pending'
-    ?`<div class="pay-actions"><button class="act-btn approve" onclick="confirmPayment('${p.id}','${p.user_id}','${p.plan}')">✓ Confirm</button><button class="act-btn reject" onclick="rejectPayment('${p.id}')">✕ Reject</button></div>`
-    :`<span class="status-badge ${p.status}">${p.status==='confirmed'?'✓ Confirmed':'✕ Rejected'}</span>`;
+    ?`<div class="pay-actions"><button class="act-btn approve" onclick="confirmPayment('${p.id}','${p.user_id}','${p.plan}')">${t('confirm')}</button><button class="act-btn reject" onclick="rejectPayment('${p.id}')">${t('reject')}</button></div>`
+    :`<span class="status-badge ${p.status}">${p.status==='confirmed'?t('confirmed'):t('rejected_s')}</span>`;
   return`<div class="pay-card ${p.status}">
     <div class="pay-info">
-      <div class="pi"><div class="pil">User</div><div class="piv">${name}</div></div>
-      <div class="pi"><div class="pil">Plan</div><div class="piv">${p.plan==='lifetime'?'∞ Lifetime':'Monthly'}</div></div>
-      <div class="pi"><div class="pil">Amount</div><div class="piv" style="color:var(--o)">${p.amount_usdt||0} USDT</div></div>
-      <div class="pi"><div class="pil">TX Hash</div><div class="piv" style="font-size:9px;max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--m2)">${p.tx_hash||'—'}</div></div>
-      <div class="pi"><div class="pil">Date</div><div class="piv" style="font-size:10px">${d}</div></div>
+      <div class="pi"><div class="pil">${t('user_col')}</div><div class="piv">${name}</div></div>
+      <div class="pi"><div class="pil">${t('plan_col')}</div><div class="piv">${p.plan==='lifetime'?t('lifetime_btn'):'Monthly'}</div></div>
+      <div class="pi"><div class="pil">${t('amount_col')}</div><div class="piv" style="color:var(--o)">${p.amount_usdt||0} USDT</div></div>
+      <div class="pi"><div class="pil">${t('tx_col')}</div><div class="piv" style="font-size:9px;max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--m2)">${p.tx_hash||'—'}</div></div>
+      <div class="pi"><div class="pil">${t('date_col')}</div><div class="piv" style="font-size:10px">${d}</div></div>
     </div>
     ${actions}
   </div>`;
@@ -648,18 +802,18 @@ function userCardHTML(u,compact){
   const name=u.full_name||u.username||'Unknown';
   const featActions=compact?'':(`
     <div class="ufeat">
-      <div class="ufeat-title">Module Access</div>
+      <div class="ufeat-title">${t('module_access')}</div>
       <div class="feat-grid" id="fg-${u.id}">${buildFeatToggles(u.id,u.features)}</div>
-      <button class="feat-save" onclick="adminSaveFeatures('${u.id}')">Save Access</button>
+      <button class="feat-save" onclick="adminSaveFeatures('${u.id}')">${t('save_access')}</button>
     </div>
   `);
   const planActions=compact?'':`
     <div class="uactions">
-      <button class="ua lifetime" onclick="adminSetPlan('${u.id}','lifetime')">∞ Lifetime</button>
-      <button class="ua monthly" onclick="adminSetPlan('${u.id}','monthly')">Monthly</button>
-      <button class="ua" onclick="adminSetPlan('${u.id}','free')">Free</button>
-      ${u.tg_chat_id?`<button class="ua" onclick="adminSendMessage('${u.id}','${u.tg_chat_id}')">✈ TG</button>`:''}
-      <button class="ua danger" onclick="adminDeleteUser('${u.id}','${name}')">Delete</button>
+      <button class="ua lifetime" onclick="adminSetPlan('${u.id}','lifetime')">${t('lifetime_btn')}</button>
+      <button class="ua monthly" onclick="adminSetPlan('${u.id}','monthly')">${t('monthly_btn')}</button>
+      <button class="ua" onclick="adminSetPlan('${u.id}','free')">${t('free_btn')}</button>
+      ${u.tg_chat_id?`<button class="ua" onclick="adminSendMessage('${u.id}','${u.tg_chat_id}')">${t('tg_btn')}</button>`:''}
+      <button class="ua danger" onclick="adminDeleteUser('${u.id}','${name}')">${t('delete_btn')}</button>
     </div>
   `;
   return`<div class="ucard">
@@ -768,8 +922,8 @@ async function loadEduAdmin(){
         <div class="edu-sec-head">
           <div class="edu-sec-title">${sec.icon||'📚'} ${sec.title}</div>
           <div class="edu-sec-actions">
-            <button class="edu-act" onclick="openLessonModal('${sec.id}','${sec.title.replace(/'/g,"\\'")}')">+ Add Lesson</button>
-            <button class="edu-act danger" style="border-color:rgba(231,76,60,.2);color:var(--r);" onclick="deleteSection('${sec.id}')">Delete</button>
+            <button class="edu-act" onclick="openLessonModal('${sec.id}','${sec.title.replace(/'/g,"\\'")}')">+ ${t('new_lesson')}</button>
+            <button class="edu-act danger" style="border-color:rgba(231,76,60,.2);color:var(--r);" onclick="deleteSection('${sec.id}')">${t('delete_btn')}</button>
           </div>
         </div>
         ${sec.lessons.length?sec.lessons.map(l=>`
@@ -778,16 +932,16 @@ async function loadEduAdmin(){
               <div class="edu-pub-dot ${l.is_published?'pub':'draft'}"></div>
               <div>
                 <div class="edu-lesson-name">${l.title}</div>
-                <div class="edu-lesson-meta">${l.duration_min?l.duration_min+'min · ':''} ${l.is_published?'Published':'Draft'}</div>
+                <div class="edu-lesson-meta">${l.duration_min?l.duration_min+'min · ':''} ${l.is_published?t('publish'):t('unpublish').replace('Скрыть','Draft').replace('Unpublish','Draft')}</div>
               </div>
             </div>
             <div class="edu-lesson-acts">
-              <button class="edu-act edit" onclick="editLesson('${l.id}')">Edit</button>
-              <button class="edu-act ${l.is_published?'unpub':'pub'}" onclick="togglePublish('${l.id}',${l.is_published})">${l.is_published?'Unpublish':'Publish'}</button>
+              <button class="edu-act edit" onclick="editLesson('${l.id}')">${t('edit')}</button>
+              <button class="edu-act ${l.is_published?'unpub':'pub'}" onclick="togglePublish('${l.id}',${l.is_published})">${l.is_published?t('unpublish'):t('publish')}</button>
               <button class="edu-act danger" style="border-color:rgba(231,76,60,.2);color:var(--r);" onclick="deleteLesson('${l.id}')">✕</button>
             </div>
           </div>
-        `).join(''):'<div style="padding:14px 18px;font-family:var(--mono);font-size:10px;color:var(--m2);">No lessons yet — add your first one</div>'}
+        `).join(''):`<div style="padding:14px 18px;font-family:var(--mono);font-size:10px;color:var(--m2);">${t('no_lessons')}</div>`}
       </div>
     `).join('');
   }catch(e){el.innerHTML='<div class="empty">Error loading: '+e.message+'</div>';}
@@ -820,45 +974,45 @@ async function saveLesson(){
   const video=document.getElementById('lesson-video').value.trim();
   const dur=parseInt(document.getElementById('lesson-dur').value)||0;
   const content=document.getElementById('lesson-content').value.trim();
-  if(!title){showToast('Enter lesson title','error');return;}
+  if(!title){showToast(t('error_lesson'),'error');return;}
   try{
     if(editLessonId){
       await sb.from('edu_lessons').update({title,video_url:video||null,duration_min:dur,content,updated_at:new Date().toISOString()}).eq('id',editLessonId);
-      showToast('Lesson updated ✓');
+      showToast(t('lesson_updated'));
     }else{
       const{data:maxOrd}=await sb.from('edu_lessons').select('order_index').eq('section_id',currentSectionId).order('order_index',{ascending:false}).limit(1).single().catch(()=>({data:null}));
       await sb.from('edu_lessons').insert({section_id:currentSectionId,title,video_url:video||null,duration_min:dur,content,order_index:(maxOrd?.order_index||0)+1,is_published:false});
-      showToast('Lesson created ✓');
+      showToast(t('lesson_created'));
     }
     closeModal();loadEduAdmin();
-  }catch(e){showToast('Error: '+e.message,'error');}
+  }catch(e){showToast(t('error_loading')+e.message,'error');}
 }
 async function togglePublish(id,current){
   await sb.from('edu_lessons').update({is_published:!current}).eq('id',id);
-  showToast(current?'Lesson hidden':'Lesson published ✓');
+  showToast(current?t('lesson_hidden'):t('lesson_published'));
   loadEduAdmin();
 }
 async function deleteLesson(id){
-  if(!confirm('Delete this lesson?'))return;
+  if(!confirm(t('delete_confirm')))return;
   await sb.from('edu_lessons').delete().eq('id',id);
-  showToast('Lesson deleted');loadEduAdmin();
+  showToast(t('lesson_deleted'));loadEduAdmin();
 }
 async function addSection(){
   const title=document.getElementById('sec-title').value.trim();
   const desc=document.getElementById('sec-desc').value.trim();
   const icon=document.getElementById('sec-icon').value.trim()||'📚';
-  if(!title){showToast('Enter section title','error');return;}
+  if(!title){showToast(t('error_section'),'error');return;}
   await sb.from('edu_sections').insert({title,description:desc||null,icon,order_index:99});
   document.getElementById('sec-title').value='';
   document.getElementById('sec-desc').value='';
   document.getElementById('sec-icon').value='';
-  showToast('Section created ✓');loadEduAdmin();
+  showToast(t('section_created'));loadEduAdmin();
 }
 async function deleteSection(id){
-  if(!confirm('Delete this section and all its lessons?'))return;
+  if(!confirm(t('section_confirm')))return;
   await sb.from('edu_lessons').delete().eq('section_id',id);
   await sb.from('edu_sections').delete().eq('id',id);
-  showToast('Section deleted');loadEduAdmin();
+  showToast(t('section_deleted'));loadEduAdmin();
 }
 
 // ── ADMIN ACTIONS ─────────────────────────────────────────────
@@ -870,37 +1024,37 @@ async function adminCall(action,params={}){
   return result;
 }
 async function confirmPayment(payId,userId,plan){
-  try{await adminCall('confirm_payment',{payId,userId,plan});showToast('Payment confirmed ✓','success');await loadAll();}
-  catch(e){showToast('Error: '+e.message,'error');}
+  try{await adminCall('confirm_payment',{payId,userId,plan});showToast(t('payment_confirmed'),'success');await loadAll();}
+  catch(e){showToast(t('error_loading')+e.message,'error');}
 }
 async function rejectPayment(payId){
-  try{await adminCall('reject_payment',{payId});showToast('Payment rejected');await loadAll();}
-  catch(e){showToast('Error: '+e.message,'error');}
+  try{await adminCall('reject_payment',{payId});showToast(t('payment_rejected'));await loadAll();}
+  catch(e){showToast(t('error_loading')+e.message,'error');}
 }
 async function adminSetPlan(userId,plan){
-  if(!confirm('Change plan to '+plan+'?'))return;
-  try{await adminCall('set_plan',{userId,plan});showToast('Plan updated ✓','success');await loadAll();}
-  catch(e){showToast('Error: '+e.message,'error');}
+  if(!confirm(t('plan_confirm')+plan+'?'))return;
+  try{await adminCall('set_plan',{userId,plan});showToast(t('plan_updated'),'success');await loadAll();}
+  catch(e){showToast(t('error_loading')+e.message,'error');}
 }
 async function adminSaveFeatures(userId){
   const grid=document.getElementById('fg-'+userId);
   if(!grid)return;
   const active=Array.from(grid.querySelectorAll('.feat-toggle.on')).map(b=>b.dataset.feat).filter(Boolean);
-  try{await adminCall('set_features',{userId,features:active});showToast('Access updated ✓','success');}
-  catch(e){showToast('Error: '+e.message,'error');}
+  try{await adminCall('set_features',{userId,features:active});showToast(t('access_updated'),'success');}
+  catch(e){showToast(t('error_loading')+e.message,'error');}
 }
 async function adminSendMessage(userId,chatId){
-  if(!chatId){showToast('User has no Telegram linked','error');return;}
-  const msg=prompt('Message to user:');
+  if(!chatId){showToast(t('no_tg'),'error');return;}
+  const msg=prompt(t('msg_prompt'));
   if(!msg)return;
-  try{await adminCall('send_tg',{userId,data:{text:'📢 <b>Message from admin:</b>\n\n'+msg}});showToast('Message sent ✓','success');}
-  catch(e){showToast('Error: '+e.message,'error');}
+  try{await adminCall('send_tg',{userId,data:{text:'📢 <b>'+t('msg_prompt').replace(':','')+':</b>\n\n'+msg}});showToast(t('msg_sent'),'success');}
+  catch(e){showToast(t('error_loading')+e.message,'error');}
 }
 async function adminDeleteUser(userId,name){
-  if(!confirm('Delete user '+name+'? This is irreversible!'))return;
-  if(!confirm('Are you sure? All their trades will also be deleted.'))return;
-  try{await adminCall('delete_user',{userId});showToast('User deleted');await loadAll();}
-  catch(e){showToast('Error: '+e.message,'error');}
+  if(!confirm(t('delete_user_confirm')+name+t('irreversible')))return;
+  if(!confirm(t('sure_confirm')))return;
+  try{await adminCall('delete_user',{userId});showToast(t('user_deleted'));await loadAll();}
+  catch(e){showToast(t('error_loading')+e.message,'error');}
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
