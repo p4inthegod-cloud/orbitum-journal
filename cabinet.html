@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600&display=swap"></noscript>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -793,7 +793,25 @@ async function doLogout(){
   window.location.href='login.html';
 }
 
-init();
+// Safe init: wait for Supabase to be available
+function safeInit(attempts) {
+  attempts = attempts || 0;
+  if (typeof supabase !== 'undefined' && typeof sb !== 'undefined') {
+    init();
+  } else if (attempts < 20) {
+    setTimeout(function(){ safeInit(attempts + 1); }, 150);
+  } else {
+    // Supabase failed to load — hide loader and redirect
+    var l = document.getElementById('loading');
+    if (l) l.classList.add('hidden');
+    window.location.href = 'login.html';
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function(){ safeInit(); });
+} else {
+  safeInit();
+}
 </script>
 </body>
 </html>
