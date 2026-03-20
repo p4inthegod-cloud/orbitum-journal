@@ -288,6 +288,39 @@ function checkAlert(alert, priceData, history) {
   }
 }
 
+
+// ── SITUATIONAL AWARENESS SCORE ───────────────────────────────────
+// Combines F&G + market change + BTC dominance → single 0-100 number
+// From cockpit UX template: "Traders become addicted to checking it"
+async function calcSAScore() {
+  try {
+    const [fngR, mktR] = await Promise.allSettled([
+      fetch('https://api.alternative.me/fng/?limit=1', { signal: AbortSignal.timeout(5000) }).then(r => r.json()),
+      fetch('https://api.coingecko.com/api/v3/global', { signal: AbortSignal.timeout(6000) }).then(r => r.json()),
+    ]);
+    const fng    = fngR.status === 'fulfilled' ? parseInt(fngR.value?.data?.[0]?.value || 50) : 50;
+    const market = mktR.status === 'fulfilled' ? mktR.value?.data : null;
+    const btcDom = market?.market_cap_percentage?.btc || 50;
+    const mktChg = market?.market_cap_change_percentage_24h_usd || 0;
+
+    // Sentiment 0-25
+    const sentimentScore = Math.round(fng / 4);
+    // Trend strength 0-25
+    const trendScore = Math.min(25, Math.max(0, Math.round(12.5 + mktChg * 2.5)));
+    // Dominance extremes = higher awareness
+    const domScore = btcDom < 40 || btcDom > 65 ? 20 : Math.round(25 - Math.abs(btcDom - 52) / 2);
+    // Phase score
+    const phaseScore = fng < 25 ? 25 : fng > 75 ? 20 : Math.round(fng / 4);
+
+    const total = Math.min(100, Math.max(0, sentimentScore + trendScore + domScore + Math.round(phaseScore * 0.4)));
+    const label = total >= 80 ? 'EXTREME' : total >= 65 ? 'HIGH' : total >= 45 ? 'ELEVATED' : total >= 25 ? 'MODERATE' : 'LOW';
+    const color = total >= 80 ? '#ff4040' : total >= 65 ? '#e8722a' : total >= 45 ? '#f5c842' : '#2dce5c';
+    return { score: total, label, color, fng, btcDom: parseFloat(btcDom).toFixed(1), mktChg: parseFloat(mktChg).toFixed(2) };
+  } catch(e) {
+    return { score: 50, label: 'MODERATE', color: '#f5c842', error: e.message };
+  }
+}
+
 // ── MAIN ──────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -297,6 +330,83 @@ export default async function handler(req, res) {
   }
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // ── SA SCORE endpoint (?action=sa_score) ───────────────────────
+  if (req.query.action === 'sa_score') {
+    const sa = await calcSAScore();
+    return res.status(200).json(sa);
+  }
+
+  // ── MISSED SIGNAL cron (?action=missed) ─────────────────────────
+  // Runs after each alert fires — tells free users what premium just got
+  // "SOL hit +11.4%. You had a 15-minute delay on the entry signal."
+  if (req.query.action === 'missed') {
+    try {
+      // Find triggered alerts from last 2 hours
+      const since = new Date(Date.now() - 2 * 3600000).toISOString();
+      const tr = await fetch(
+        `${SB_URL}/rest/v1/price_alerts?triggered=is.true&triggered_at=gte.${since}&select=symbol,alert_type,target_price,triggered_at`,
+        { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
+      );
+      const triggered = await tr.json();
+      if (!Array.isArray(triggered) || !triggered.length) {
+        return res.status(200).json({ sent: 0, reason: 'no recent triggers' });
+      }
+
+      // Get free users with TG linked
+      const ur = await fetch(
+        `${SB_URL}/rest/v1/profiles?tg_linked=is.true&tg_notify_alerts=is.true&select=id,tg_chat_id,plan`,
+        { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
+      );
+      const users = await ur.json();
+      const freeUsers = Array.isArray(users)
+        ? users.filter(u => u.plan !== 'lifetime' && u.plan !== 'monthly')
+        : [];
+
+      if (!freeUsers.length) return res.status(200).json({ sent: 0, reason: 'no free users' });
+
+      // Build missed signal message (template: loss aversion mechanic)
+      const best = triggered[0];
+      const sym  = (best.symbol || 'UNKNOWN').toUpperCase();
+      const pair = sym.includes('USDT') ? sym : `${sym}/USDT`;
+      const firedAt = new Date(best.triggered_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      const delayMin = 15;
+      const appUrl = APP_URL;
+
+      const missedMsg =
+        `📌 <b>Signal just fired — ${pair}</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `Premium alert: <b>${firedAt} UTC</b>
+` +
+        `Your alert:    <code>${firedAt} +${delayMin} min delay</code>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `15 minutes = wrong entry price.
+
+` +
+        `<i>Real-time signals are premium only.</i>
+
+` +
+        `<a href="${appUrl}/pay">Remove the delay →</a>  ·  <a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}">View chart</a>`;
+
+      let sent = 0;
+      for (const user of freeUsers) {
+        if (!user.tg_chat_id) continue;
+        await tgSend(user.tg_chat_id, missedMsg);
+        sent++;
+        if (sent % 20 === 0) await new Promise(r => setTimeout(r, 1000));
+      }
+
+      console.log(`[alerts:missed] sent=${sent} free users`);
+      return res.status(200).json({ sent, triggered: triggered.length });
+    } catch(e) {
+      console.error('[alerts:missed]', e);
+      return res.status(500).json({ error: e.message });
+    }
   }
 
   try {
