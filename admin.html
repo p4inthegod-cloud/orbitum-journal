@@ -244,6 +244,23 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* EMPTY */
 .empty{font-family:var(--mono);font-size:11px;color:var(--m2);text-align:center;padding:32px;letter-spacing:1px;}
 
+/* RICH LESSON EDITOR */
+.modal-tab{padding:8px 16px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--m2);font-family:var(--mono);font-size:10px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;margin-bottom:-1px;}
+.modal-tab:hover{color:var(--m);}
+.modal-tab.active{color:var(--o);border-bottom-color:var(--o);}
+.md-btn{padding:5px 10px;background:var(--bg3);border:1px solid var(--line);color:var(--m);font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .2s;}
+.md-btn:hover{border-color:rgba(232,108,42,.3);color:var(--o);}
+.img-drop-zone{border:1px dashed rgba(255,255,255,.15);padding:32px;text-align:center;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.img-drop-zone:hover,.img-drop-zone.drag-over{border-color:rgba(232,108,42,.4);background:var(--od);}
+.pub-toggle-btn{padding:7px 14px;background:transparent;border:1px solid var(--line);color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.pub-toggle-btn.active{border-color:rgba(46,204,113,.3);color:var(--g);background:rgba(46,204,113,.05);}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* Section drag handle */
+.drag-handle{cursor:grab;color:var(--m2);padding:0 8px;opacity:.5;transition:opacity .2s;user-select:none;}
+.drag-handle:hover{opacity:1;}
+.edu-section-card.dragging{opacity:.4;border-style:dashed;}
+.edu-section-card.drag-target{border-color:rgba(232,108,42,.5);}
+
 /* PRODUCT CARDS */
 .prod-card{background:var(--bg2);border:1px solid var(--line);margin-bottom:12px;overflow:hidden;transition:border-color .3s;}
 .prod-card:hover{border-color:rgba(232,108,42,.2);}
@@ -292,30 +309,104 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- LESSON MODAL -->
 <div class="modal-overlay" id="lesson-modal">
-  <div class="modal">
+  <div class="modal" style="width:780px;">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <div class="modal-title" id="modal-title">New Lesson</div>
-    <div class="form-grid">
-      <div class="form-group full">
+
+    <!-- TABS -->
+    <div style="display:flex;gap:2px;margin-bottom:20px;border-bottom:1px solid var(--line);">
+      <button class="modal-tab active" id="mtab-content" onclick="switchModalTab('content',this)">Content</button>
+      <button class="modal-tab" id="mtab-media" onclick="switchModalTab('media',this)">Media & Images</button>
+      <button class="modal-tab" id="mtab-settings" onclick="switchModalTab('settings',this)">Settings</button>
+    </div>
+
+    <!-- TAB: CONTENT -->
+    <div id="mpanel-content">
+      <div class="form-group full" style="margin-bottom:14px;">
         <label class="form-label">Lesson Title</label>
-        <input class="form-input" id="lesson-title" placeholder="BOS & ChoCH Explained"/>
+        <input class="form-input" id="lesson-title" placeholder="e.g. BOS & ChoCH Explained" style="font-size:14px;padding:10px 12px;"/>
       </div>
-      <div class="form-group">
-        <label class="form-label">YouTube URL (optional)</label>
+      <!-- Markdown toolbar -->
+      <div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;">
+        <button class="md-btn" onclick="mdInsert('## ','')">H2</button>
+        <button class="md-btn" onclick="mdInsert('### ','')">H3</button>
+        <button class="md-btn" onclick="mdInsert('**','**')"><b>B</b></button>
+        <button class="md-btn" onclick="mdInsert('*','*')"><i>I</i></button>
+        <button class="md-btn" onclick="mdInsert('\n- ','')">• List</button>
+        <button class="md-btn" onclick="mdInsert('\n> ','')">Quote</button>
+        <button class="md-btn" onclick="mdInsert('\n---\n','')">— Divider</button>
+        <button class="md-btn" onclick="mdInsert('\n```\n','\n```')">Code</button>
+        <div style="width:1px;background:var(--line);margin:0 4px;"></div>
+        <button class="md-btn" onclick="togglePreview()" id="preview-btn">👁 Preview</button>
+      </div>
+      <label class="form-label">Content (Markdown supported)</label>
+      <textarea class="form-textarea" id="lesson-content" rows="14"
+        placeholder="## Introduction&#10;&#10;Write your lesson here...&#10;&#10;## Key Concepts&#10;&#10;**BOS** (Break of Structure) happens when price...&#10;&#10;## Summary&#10;&#10;Key takeaways from this lesson."></textarea>
+      <div id="md-preview" style="display:none;background:var(--bg3);border:1px solid var(--line);padding:16px 20px;max-height:320px;overflow-y:auto;font-size:13px;color:var(--m);line-height:1.8;margin-top:8px;"></div>
+    </div>
+
+    <!-- TAB: MEDIA -->
+    <div id="mpanel-media" style="display:none;">
+      <div class="form-group full" style="margin-bottom:16px;">
+        <label class="form-label">YouTube / Video URL (optional)</label>
         <input class="form-input" id="lesson-video" placeholder="https://youtube.com/watch?v=..."/>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--m2);margin-top:5px;">Paste YouTube link — video will embed automatically in the lesson</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Duration (minutes)</label>
-        <input class="form-input" id="lesson-dur" type="number" placeholder="10"/>
+      <!-- Image upload -->
+      <label class="form-label">Upload Image (optional)</label>
+      <div class="img-drop-zone" id="img-drop-zone" onclick="document.getElementById('img-file-input').click()">
+        <input type="file" id="img-file-input" accept="image/*" style="display:none;" onchange="handleImageFile(this)"/>
+        <div id="img-drop-inner">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--m2);margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--m2);">Click to upload or drag & drop</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--m2);margin-top:4px;">PNG, JPG, WebP up to 5MB</div>
+        </div>
       </div>
-      <div class="form-group full">
-        <label class="form-label">Content (Markdown: ## Heading, **bold**, paragraphs)</label>
-        <textarea class="form-textarea" id="lesson-content" rows="10" placeholder="## Introduction&#10;&#10;Write your lesson content here...&#10;&#10;## Key Concepts&#10;&#10;**BOS** (Break of Structure) is..."></textarea>
+      <div id="img-preview-wrap" style="display:none;margin-top:12px;">
+        <img id="img-preview" style="max-width:100%;max-height:200px;border:1px solid var(--line);display:block;"/>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--m2);" id="img-url-display"></div>
+          <button onclick="copyImgMarkdown()" style="padding:4px 10px;background:transparent;border:1px solid var(--line);color:var(--m2);font-family:var(--mono);font-size:9px;cursor:pointer;transition:all .2s;" onmouseover="this.style.color='var(--o)'" onmouseout="this.style.color='var(--m2)'">Copy Markdown</button>
+          <button onclick="insertImgIntoContent()" style="padding:4px 10px;background:var(--od);border:1px solid rgba(232,108,42,.3);color:var(--o);font-family:var(--mono);font-size:9px;cursor:pointer;">Insert into Content</button>
+          <button onclick="clearImage()" style="padding:4px 10px;background:transparent;border:1px solid rgba(231,76,60,.2);color:var(--r);font-family:var(--mono);font-size:9px;cursor:pointer;margin-left:auto;">Remove</button>
+        </div>
+      </div>
+      <!-- Upload progress -->
+      <div id="img-uploading" style="display:none;font-family:var(--mono);font-size:10px;color:var(--o);margin-top:10px;display:none;align-items:center;gap:8px;">
+        <div style="width:12px;height:12px;border:2px solid var(--o);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;"></div>
+        Uploading...
       </div>
     </div>
-    <div class="form-actions" style="margin-top:16px;">
-      <button class="btn-primary" onclick="saveLesson()">Save Lesson</button>
+
+    <!-- TAB: SETTINGS -->
+    <div id="mpanel-settings" style="display:none;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Duration (minutes)</label>
+          <input class="form-input" id="lesson-dur" type="number" placeholder="10"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Order (within section)</label>
+          <input class="form-input" id="lesson-order" type="number" placeholder="auto"/>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Publish immediately?</label>
+          <div style="display:flex;gap:8px;margin-top:2px;">
+            <button class="pub-toggle-btn active" id="pub-yes" onclick="setPubToggle(true)">✓ Publish on Save</button>
+            <button class="pub-toggle-btn" id="pub-no" onclick="setPubToggle(false)">Save as Draft</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px;">
+      <button class="btn-primary" onclick="saveLesson()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="margin-right:6px;"><path d="M2 14V10.5L10.5 2 14 5.5 5.5 14H2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Save Lesson
+      </button>
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <div style="flex:1;"></div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--m2);" id="modal-save-status"></div>
     </div>
   </div>
 </div>
@@ -965,6 +1056,9 @@ async function loadEduAdmin(){
         <div class="edu-sec-head">
           <div class="edu-sec-title">${sec.icon||'📚'} ${sec.title}</div>
           <div class="edu-sec-actions">
+            <button class="edu-act" style="font-size:12px;padding:5px 8px;" onclick="moveSectionOrder('${sec.id}','up')" title="Move up">↑</button>
+            <button class="edu-act" style="font-size:12px;padding:5px 8px;" onclick="moveSectionOrder('${sec.id}','down')" title="Move down">↓</button>
+            <button class="edu-act" onclick="openRenameSectionModal('${sec.id}','${sec.title.replace(/'/g,"\\'")}')">✎ Rename</button>
             <button class="edu-act" onclick="openLessonModal('${sec.id}','${sec.title.replace(/'/g,"\\'")}')">+ ${t('new_lesson')}</button>
             <button class="edu-act danger" style="border-color:rgba(231,76,60,.2);color:var(--r);" onclick="deleteSection('${sec.id}')">${t('delete_btn')}</button>
           </div>
@@ -979,6 +1073,8 @@ async function loadEduAdmin(){
               </div>
             </div>
             <div class="edu-lesson-acts">
+              <button class="edu-act" style="padding:4px 7px;" onclick="moveLessonOrder('${l.id}','${sec.id}','up')" title="Move up">↑</button>
+              <button class="edu-act" style="padding:4px 7px;" onclick="moveLessonOrder('${l.id}','${sec.id}','down')" title="Move down">↓</button>
               <button class="edu-act edit" onclick="editLesson('${l.id}')">${t('edit')}</button>
               <button class="edu-act ${l.is_published?'unpub':'pub'}" onclick="togglePublish('${l.id}',${l.is_published})">${l.is_published?t('unpublish'):t('publish')}</button>
               <button class="edu-act danger" style="border-color:rgba(231,76,60,.2);color:var(--r);" onclick="deleteLesson('${l.id}')">✕</button>
@@ -990,45 +1086,86 @@ async function loadEduAdmin(){
   }catch(e){el.innerHTML='<div class="empty">Error loading: '+e.message+'</div>';}
 }
 
+function resetModal(){
+  const preview=document.getElementById('md-preview');
+  if(preview){preview.style.display='none';}
+  const ta=document.getElementById('lesson-content');
+  if(ta)ta.style.display='block';
+  const pb=document.getElementById('preview-btn');
+  if(pb)pb.textContent='👁 Preview';
+  publishOnSave=false;
+  if(document.getElementById('pub-yes'))setPubToggle(false);
+  clearImage();
+  switchModalTab('content',document.getElementById('mtab-content'));
+  const ss=document.getElementById('modal-save-status');
+  if(ss)ss.textContent='';
+}
 function openLessonModal(sectionId,sectionTitle){
   currentSectionId=sectionId;editLessonId=null;
-  document.getElementById('modal-title').textContent='New Lesson — '+sectionTitle;
+  document.getElementById('modal-title').textContent=(t('new_lesson')||'New Lesson')+' — '+sectionTitle;
   document.getElementById('lesson-title').value='';
-  document.getElementById('lesson-video').value='';
-  document.getElementById('lesson-dur').value='';
+  if(document.getElementById('lesson-video'))document.getElementById('lesson-video').value='';
+  if(document.getElementById('lesson-dur'))document.getElementById('lesson-dur').value='';
+  if(document.getElementById('lesson-order'))document.getElementById('lesson-order').value='';
   document.getElementById('lesson-content').value='';
+  resetModal();
   document.getElementById('lesson-modal').classList.add('open');
 }
 async function editLesson(lessonId){
   try{
     const{data:l}=await sb.from('edu_lessons').select('*').eq('id',lessonId).single();
     currentSectionId=l.section_id;editLessonId=lessonId;
-    document.getElementById('modal-title').textContent='Edit Lesson';
+    document.getElementById('modal-title').textContent=t('edit_lesson')||'Edit Lesson';
     document.getElementById('lesson-title').value=l.title||'';
-    document.getElementById('lesson-video').value=l.video_url||'';
-    document.getElementById('lesson-dur').value=l.duration_min||'';
+    if(document.getElementById('lesson-video'))document.getElementById('lesson-video').value=l.video_url||'';
+    if(document.getElementById('lesson-dur'))document.getElementById('lesson-dur').value=l.duration_min||'';
+    if(document.getElementById('lesson-order'))document.getElementById('lesson-order').value=l.order_index||'';
     document.getElementById('lesson-content').value=l.content||'';
+    publishOnSave=l.is_published||false;
+    resetModal();
+    if(document.getElementById('pub-yes'))setPubToggle(publishOnSave);
     document.getElementById('lesson-modal').classList.add('open');
   }catch(e){showToast('Error loading lesson','error');}
 }
 function closeModal(){document.getElementById('lesson-modal').classList.remove('open');}
 async function saveLesson(){
-  const title=document.getElementById('lesson-title').value.trim();
-  const video=document.getElementById('lesson-video').value.trim();
-  const dur=parseInt(document.getElementById('lesson-dur').value)||0;
-  const content=document.getElementById('lesson-content').value.trim();
+  const title   = document.getElementById('lesson-title').value.trim();
+  const video   = document.getElementById('lesson-video')?.value.trim() || '';
+  const dur     = parseInt(document.getElementById('lesson-dur')?.value) || 0;
+  const content = document.getElementById('lesson-content').value.trim();
+  const orderIn = parseInt(document.getElementById('lesson-order')?.value) || null;
   if(!title){showToast(t('error_lesson'),'error');return;}
+
+  const statusEl = document.getElementById('modal-save-status');
+  if(statusEl) statusEl.textContent = 'Saving...';
+
   try{
     if(editLessonId){
-      await sb.from('edu_lessons').update({title,video_url:video||null,duration_min:dur,content,updated_at:new Date().toISOString()}).eq('id',editLessonId);
+      const upd = {title, video_url:video||null, duration_min:dur, content, is_published:publishOnSave, updated_at:new Date().toISOString()};
+      if(orderIn) upd.order_index = orderIn;
+      await sb.from('edu_lessons').update(upd).eq('id', editLessonId);
       showToast(t('lesson_updated'));
     }else{
-      const{data:maxOrd}=await sb.from('edu_lessons').select('order_index').eq('section_id',currentSectionId).order('order_index',{ascending:false}).limit(1).single().catch(()=>({data:null}));
-      await sb.from('edu_lessons').insert({section_id:currentSectionId,title,video_url:video||null,duration_min:dur,content,order_index:(maxOrd?.order_index||0)+1,is_published:false});
+      let nextOrder = orderIn || 1;
+      if(!orderIn){
+        try{
+          const{data:maxOrd}=await sb.from('edu_lessons').select('order_index').eq('section_id',currentSectionId).order('order_index',{ascending:false}).limit(1).single();
+          if(maxOrd?.order_index) nextOrder = maxOrd.order_index + 1;
+        }catch(_){}
+      }
+      await sb.from('edu_lessons').insert({
+        section_id:currentSectionId, title, video_url:video||null,
+        duration_min:dur, content, order_index:nextOrder,
+        is_published:publishOnSave
+      });
       showToast(t('lesson_created'));
     }
-    closeModal();loadEduAdmin();
-  }catch(e){showToast(t('error_loading')+e.message,'error');}
+    closeModal();
+    loadEduAdmin();
+  }catch(e){
+    if(statusEl) statusEl.textContent = '';
+    showToast(t('error_loading')+e.message,'error');
+  }
 }
 async function togglePublish(id,current){
   await sb.from('edu_lessons').update({is_published:!current}).eq('id',id);
@@ -1098,6 +1235,172 @@ async function adminDeleteUser(userId,name){
   if(!confirm(t('sure_confirm')))return;
   try{await adminCall('delete_user',{userId});showToast(t('user_deleted'));await loadAll();}
   catch(e){showToast(t('error_loading')+e.message,'error');}
+}
+
+// ── MODAL FUNCTIONS ───────────────────────────────────────────
+let uploadedImgUrl = null;
+let publishOnSave = false;
+
+function switchModalTab(tab, btn){
+  ['content','media','settings'].forEach(t=>{
+    document.getElementById('mpanel-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('mtab-'+t)?.classList.toggle('active', t===tab);
+  });
+}
+
+function setPubToggle(val){
+  publishOnSave = val;
+  document.getElementById('pub-yes').classList.toggle('active', val);
+  document.getElementById('pub-no').classList.toggle('active', !val);
+}
+
+function mdInsert(before, after){
+  const ta = document.getElementById('lesson-content');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const selected = ta.value.slice(s, e);
+  const replacement = before + selected + after;
+  ta.value = ta.value.slice(0,s) + replacement + ta.value.slice(e);
+  ta.focus();
+  ta.selectionStart = s + before.length;
+  ta.selectionEnd = s + before.length + selected.length;
+}
+
+function togglePreview(){
+  const ta = document.getElementById('lesson-content');
+  const preview = document.getElementById('md-preview');
+  const btn = document.getElementById('preview-btn');
+  if(preview.style.display === 'none' || !preview.style.display){
+    preview.style.display = 'block';
+    ta.style.display = 'none';
+    btn.textContent = '✏ Edit';
+    preview.innerHTML = renderMarkdown(ta.value);
+  } else {
+    preview.style.display = 'none';
+    ta.style.display = 'block';
+    btn.textContent = '👁 Preview';
+  }
+}
+
+function renderMarkdown(text){
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^## (.+)$/gm,'<h2 style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;letter-spacing:2px;color:var(--t);margin:20px 0 8px;">$1</h2>')
+    .replace(/^### (.+)$/gm,'<h3 style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--o);margin:16px 0 6px;">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--t);">$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^- (.+)$/gm,'<div style="padding:3px 0 3px 12px;border-left:2px solid var(--o);margin:3px 0;color:var(--m);">$1</div>')
+    .replace(/^> (.+)$/gm,'<blockquote style="border-left:3px solid rgba(232,108,42,.4);padding:8px 14px;background:rgba(232,108,42,.04);margin:8px 0;color:var(--m);">$1</blockquote>')
+    .replace(/^---$/gm,'<hr style="border:none;border-top:1px solid var(--line);margin:16px 0;"/>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" style="max-width:100%;border:1px solid var(--line);margin:8px 0;display:block;"/>')
+    .replace(/\n\n/g,'</p><p style="color:var(--m);line-height:1.85;margin-bottom:10px;">')
+    .replace(/\n/g,'<br>');
+}
+
+// Image drag & drop
+const dropZone = document.getElementById('img-drop-zone');
+if(dropZone){
+  dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('drag-over');});
+  dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e=>{
+    e.preventDefault();dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if(file && file.type.startsWith('image/')) uploadImage(file);
+  });
+}
+
+async function handleImageFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  await uploadImage(file);
+}
+
+async function uploadImage(file){
+  if(file.size > 5*1024*1024){showToast('Image too large (max 5MB)','error');return;}
+  const uploading = document.getElementById('img-uploading');
+  uploading.style.display = 'flex';
+
+  try{
+    const ext = file.name.split('.').pop();
+    const path = `lessons/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { data, error } = await sb.storage.from('education').upload(path, file, {cacheControl:'3600',upsert:false});
+    if(error) throw error;
+    const { data: urlData } = sb.storage.from('education').getPublicUrl(path);
+    uploadedImgUrl = urlData.publicUrl;
+    // Show preview
+    document.getElementById('img-preview').src = uploadedImgUrl;
+    document.getElementById('img-preview-wrap').style.display = 'block';
+    document.getElementById('img-url-display').textContent = uploadedImgUrl.slice(0,60)+'...';
+    document.getElementById('img-drop-inner').style.display = 'none';
+    showToast('Image uploaded ✓','success');
+  }catch(e){
+    showToast('Upload error: '+e.message,'error');
+  }finally{
+    uploading.style.display = 'none';
+  }
+}
+
+function insertImgIntoContent(){
+  if(!uploadedImgUrl) return;
+  const ta = document.getElementById('lesson-content');
+  const cursor = ta.selectionStart;
+  const mdImg = `\n![image](${uploadedImgUrl})\n`;
+  ta.value = ta.value.slice(0,cursor) + mdImg + ta.value.slice(cursor);
+  switchModalTab('content', document.getElementById('mtab-content'));
+  showToast('Image inserted into content ✓');
+}
+
+function copyImgMarkdown(){
+  if(!uploadedImgUrl) return;
+  navigator.clipboard.writeText(`![image](${uploadedImgUrl})`);
+  showToast('Markdown copied ✓');
+}
+
+function clearImage(){
+  uploadedImgUrl = null;
+  document.getElementById('img-preview-wrap').style.display = 'none';
+  document.getElementById('img-drop-inner').style.display = 'flex';
+  document.getElementById('img-file-input').value = '';
+}
+
+// ── SECTION MANAGEMENT inline ─────────────────────────────────
+function openRenameSectionModal(sectionId, currentTitle){
+  const newTitle = prompt('Rename section:', currentTitle);
+  if(!newTitle || newTitle.trim() === currentTitle) return;
+  renameSectionInline(sectionId, newTitle.trim());
+}
+
+async function renameSectionInline(id, title){
+  try{
+    await sb.from('edu_sections').update({title, updated_at: new Date().toISOString()}).eq('id', id);
+    showToast('Section renamed ✓','success');
+    loadEduAdmin();
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function moveSectionOrder(id, direction){
+  // Get current sections
+  const{data}=await sb.from('edu_sections').select('id,order_index').order('order_index');
+  if(!data) return;
+  const idx = data.findIndex(s=>s.id===id);
+  const swapIdx = direction === 'up' ? idx-1 : idx+1;
+  if(swapIdx < 0 || swapIdx >= data.length) return;
+  // Swap order_index
+  const a = data[idx], b = data[swapIdx];
+  await sb.from('edu_sections').update({order_index: b.order_index}).eq('id', a.id);
+  await sb.from('edu_sections').update({order_index: a.order_index}).eq('id', b.id);
+  loadEduAdmin();
+}
+
+async function moveLessonOrder(id, sectionId, direction){
+  const{data}=await sb.from('edu_lessons').select('id,order_index').eq('section_id',sectionId).order('order_index');
+  if(!data) return;
+  const idx = data.findIndex(l=>l.id===id);
+  const swapIdx = direction === 'up' ? idx-1 : idx+1;
+  if(swapIdx < 0 || swapIdx >= data.length) return;
+  const a = data[idx], b = data[swapIdx];
+  await sb.from('edu_lessons').update({order_index: b.order_index}).eq('id', a.id);
+  await sb.from('edu_lessons').update({order_index: a.order_index}).eq('id', b.id);
+  loadEduAdmin();
 }
 
 // ── PRODUCTS ──────────────────────────────────────────────────
