@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap"></noscript>
 <title>Orbitum · Screener</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
@@ -69,12 +69,11 @@ img{display:block;}
   gap:8px;
 }
 .sb-logo-text{
-  font-family:'Comfortaa',cursive;font-size:16px;font-weight:700;
-  font-variant:small-caps;color:#ff6600;
-  text-shadow:1px 0px 10px rgba(255,103,0,0.9);
+  font-family:'Bebas Neue',cursive;font-size:16px;font-weight:400;
+  color:rgba(255,255,255,0.9);
   opacity:0;width:0;overflow:hidden;white-space:nowrap;
   transition:opacity .2s .1s, width .25s;
-  letter-spacing:2px;
+  letter-spacing:4px;
 }
 .sidebar.expanded .sb-logo-text{opacity:1;width:auto;}
 .sb-collapse-btn{
@@ -351,8 +350,6 @@ img{display:block;}
 }
 .cc-price.pf-up{color:var(--g);}
 .cc-price.pf-dn{color:var(--r);}
-@keyframes flash-up{0%,100%{color:var(--t);}40%{color:var(--g);}}
-@keyframes flash-dn{0%,100%{color:var(--t);}40%{color:var(--r);}}
 
 /* RSI pill */
 .cc-rsi{
@@ -384,9 +381,7 @@ img{display:block;}
 .cc-spark{height:32px;width:100%;overflow:hidden;border-radius:3px;margin-bottom:5px;flex-shrink:0;}
 .cc-spark canvas{width:100%!important;height:32px!important;display:block;}
 
-/* Volume bar */
-.cc-volbar{height:2px;background:rgba(255,255,255,0.04);border-radius:1px;overflow:hidden;margin-top:auto;}
-.cc-volfill{height:100%;background:linear-gradient(90deg,rgba(232,114,42,0.5),rgba(232,114,42,0.2));border-radius:1px;transition:width .5s;}
+/* volume bar styles in premium block below */
 
 /* ── LIST VIEW ── */
 .coins-list{display:flex;flex-direction:column;gap:2px;}
@@ -921,6 +916,245 @@ img{display:block;}
 .toast.ok{border-color:rgba(46,204,113,0.3);color:var(--g);}
 .toast.err{border-color:rgba(231,76,60,0.3);color:var(--r);}
 
+/* ══════════════════════════════════════════
+   PREMIUM UI UPGRADE — ORBITUM v2
+   Micro-animations · Depth · Glow · Motion
+   ══════════════════════════════════════════ */
+
+/* ── CARD PREMIUM DEPTH & GLOW ── */
+.coin-card{
+  box-shadow:0 1px 3px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);
+  transition:border-color .2s,background .2s,transform .15s cubic-bezier(0.16,1,0.3,1),box-shadow .2s;
+  will-change:transform;
+}
+.coin-card:hover{
+  border-color:rgba(232,114,42,0.35);
+  background:var(--bg3);
+  transform:translateY(-2px) scale(1.005);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(232,114,42,0.08),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.coin-card:hover::before{
+  background:linear-gradient(90deg,var(--a) 0%,rgba(232,114,42,0.3) 60%,transparent 100%);
+  opacity:1;
+}
+.coin-card::before{transition:background .25s,opacity .2s;}
+.coin-card:active{transform:translateY(0) scale(0.985);box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+
+/* Trending card glow — applied via JS */
+.coin-card.trending-up{
+  border-color:rgba(46,204,113,0.22);
+  box-shadow:0 0 20px rgba(46,204,113,0.06),0 4px 16px rgba(0,0,0,0.4);
+}
+.coin-card.trending-up::before{background:linear-gradient(90deg,var(--g) 0%,transparent 60%);}
+.coin-card.trending-down{
+  border-color:rgba(231,76,60,0.2);
+  box-shadow:0 0 20px rgba(231,76,60,0.05),0 4px 16px rgba(0,0,0,0.4);
+}
+.coin-card.trending-down::before{background:linear-gradient(90deg,var(--r) 0%,transparent 60%);}
+.coin-card.hot-signal{
+  border-color:rgba(232,114,42,0.4);
+  box-shadow:0 0 24px rgba(232,114,42,0.1),0 6px 24px rgba(0,0,0,0.5);
+  animation:hotPulse 3s ease-in-out infinite;
+}
+@keyframes hotPulse{
+  0%,100%{box-shadow:0 0 24px rgba(232,114,42,0.1),0 6px 24px rgba(0,0,0,0.5);}
+  50%{box-shadow:0 0 36px rgba(232,114,42,0.18),0 6px 24px rgba(0,0,0,0.5);}
+}
+
+/* ── CARD FOCUS / SELECTED STATE ── */
+.coin-card.selected{
+  border-color:rgba(232,114,42,0.5);
+  background:var(--bg3);
+  transform:translateY(-3px) scale(1.015);
+  box-shadow:0 12px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(232,114,42,0.15),inset 0 1px 0 rgba(255,255,255,0.06);
+  z-index:2;
+}
+.coin-card.selected::before{background:linear-gradient(90deg,var(--a),rgba(232,114,42,0.5) 50%,transparent);}
+
+/* ── PRICE HIERARCHY — bigger = more important ── */
+.cc-price{
+  font-size:16px;
+  transition:color .25s,font-size .2s;
+  letter-spacing:-.5px;
+}
+.coin-card.selected .cc-price{font-size:18px;}
+.coin-card.selected .cc-sym{font-size:13px;}
+.coin-card.selected .cc-chg{font-size:12px;}
+
+/* ── NEW SIGNAL FLASH ── */
+.coin-card.new-signal{animation:signalFlash .8s ease;}
+@keyframes signalFlash{
+  0%{box-shadow:0 0 0 0 rgba(232,114,42,0);}
+  30%{box-shadow:0 0 0 8px rgba(232,114,42,0.25),inset 0 0 20px rgba(232,114,42,0.05);}
+  100%{box-shadow:0 0 0 0 rgba(232,114,42,0);}
+}
+
+/* ── SORT ANIMATION ── */
+.coins-grid{transition:opacity .15s;}
+.coins-grid.sorting{opacity:.4;pointer-events:none;}
+.coin-card.sort-enter{
+  animation:cardEnter .25s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes cardEnter{
+  from{opacity:0;transform:translateY(8px) scale(0.97);}
+  to{opacity:1;transform:none;}
+}
+
+/* ── SPARKLINE ANIMATED PULSE ── */
+.cc-spark{position:relative;}
+.cc-spark::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:2px;
+  border-radius:1px;background:var(--g);opacity:0;
+  transition:opacity .3s;
+}
+.coin-card.trending-up .cc-spark::after{opacity:.7;background:var(--g);animation:sparkTick 2s ease-in-out infinite;}
+.coin-card.trending-down .cc-spark::after{opacity:.7;background:var(--r);}
+@keyframes sparkTick{0%,100%{opacity:.3;}50%{opacity:.9;}}
+
+/* ── VOLUME BAR UPGRADE ── */
+.cc-volbar{height:3px;border-radius:2px;overflow:visible;position:relative;margin-top:3px;}
+.cc-volfill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,rgba(232,114,42,0.6),rgba(232,114,42,0.2));
+  transition:width .8s cubic-bezier(0.16,1,0.3,1);
+  position:relative;
+}
+.cc-volfill.vol-high{background:linear-gradient(90deg,rgba(231,76,60,0.7),rgba(231,76,60,0.2));}
+.cc-volfill.vol-spike{background:linear-gradient(90deg,#ff6b35,rgba(255,107,53,0.2));animation:volSpike 1.5s ease-in-out infinite;}
+@keyframes volSpike{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+/* ── LIVE DOT PREMIUM ── */
+.live-ind.live .live-dot{
+  background:var(--g);
+  box-shadow:0 0 8px var(--g),0 0 16px rgba(46,204,113,0.3);
+  animation:livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse{
+  0%,100%{box-shadow:0 0 6px var(--g),0 0 12px rgba(46,204,113,0.2);}
+  50%{box-shadow:0 0 10px var(--g),0 0 20px rgba(46,204,113,0.4);}
+}
+
+/* ── SIGNAL ITEM UPGRADES ── */
+.signal-item{transition:background .15s,transform .1s;}
+.signal-item:hover{background:var(--bg3);transform:none;}
+.signal-item.fresh{animation:signalItemIn .4s cubic-bezier(0.16,1,0.3,1) both;}
+@keyframes signalItemIn{from{opacity:0;transform:translateX(-12px);}to{opacity:1;transform:none;}}
+
+/* ── TOPBAR & SIDEBAR DEPTH ── */
+.topbar{box-shadow:0 1px 0 rgba(255,255,255,0.03),0 2px 8px rgba(0,0,0,0.2);}
+.sidebar{box-shadow:1px 0 0 rgba(255,255,255,0.02),2px 0 16px rgba(0,0,0,0.3);}
+.stats-strip{box-shadow:0 1px 0 rgba(255,255,255,0.02);}
+
+/* ── DETAIL PANEL UPGRADE ── */
+.detail-panel{
+  box-shadow:-20px 0 80px rgba(0,0,0,0.7),0 0 0 1px rgba(232,114,42,0.08);
+  transition:right .35s cubic-bezier(0.16,1,0.3,1);
+}
+.detail-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,114,42,0.3),transparent);
+}
+
+/* ── BUTTON PREMIUM FEEDBACK ── */
+.cc-btn{transition:all .15s cubic-bezier(0.16,1,0.3,1);}
+.cc-btn:active{transform:scale(0.88);}
+.dp-btn{transition:all .2s cubic-bezier(0.16,1,0.3,1);}
+.dp-btn:active{transform:scale(0.96);}
+.flt-btn{transition:all .15s cubic-bezier(0.16,1,0.3,1);}
+.flt-btn:active{transform:scale(0.95);}
+.sort-btn:active{transform:scale(0.93);}
+.sb-btn{transition:all .15s cubic-bezier(0.16,1,0.3,1);}
+.sb-btn:hover{transform:translateX(1px);}
+.sidebar.expanded .sb-btn:hover{transform:translateX(2px);}
+
+/* ── LIST ROW UPGRADES ── */
+.list-row{
+  transition:border-color .15s,background .15s,transform .1s;
+}
+.list-row:hover{
+  transform:translateX(2px);
+  border-color:rgba(232,114,42,0.25);
+}
+.list-row.new-signal-row{animation:rowFlash .6s ease;}
+@keyframes rowFlash{
+  0%,100%{background:var(--bg2);}
+  40%{background:rgba(232,114,42,0.07);}
+}
+
+/* ── HEATMAP CELL UPGRADES ── */
+.hm-cell{
+  transition:filter .15s,transform .15s cubic-bezier(0.16,1,0.3,1),box-shadow .15s;
+}
+.hm-cell:hover{
+  filter:brightness(1.3);
+  transform:scale(1.04);
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  z-index:2;
+  position:relative;
+}
+
+/* ── TOAST UPGRADE ── */
+.toast{
+  box-shadow:0 8px 40px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05);
+  animation:toastIn .3s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(0.95);}to{opacity:1;transform:none;}}
+.toast.ok{box-shadow:0 8px 40px rgba(0,0,0,0.5),0 0 20px rgba(46,204,113,0.1);}
+.toast.err{box-shadow:0 8px 40px rgba(0,0,0,0.5),0 0 20px rgba(231,76,60,0.1);}
+
+/* ── MODAL UPGRADE ── */
+.modal-box{
+  box-shadow:0 32px 100px rgba(0,0,0,0.8),0 0 0 1px rgba(232,114,42,0.1),inset 0 1px 0 rgba(255,255,255,0.04);
+  animation:modalIn .3s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.94) translateY(12px);}to{opacity:1;transform:none;}}
+
+/* ── CONTENT AREA SCROLLBAR PREMIUM ── */
+.content-area::-webkit-scrollbar{width:3px;}
+.content-area::-webkit-scrollbar-thumb{background:rgba(232,114,42,0.2);border-radius:2px;transition:background .2s;}
+.content-area::-webkit-scrollbar-thumb:hover{background:rgba(232,114,42,0.4);}
+
+/* ── ALERTS PANEL SLIDE ── */
+.alerts-panel{transition:transform .3s cubic-bezier(0.16,1,0.3,1);box-shadow:4px 0 32px rgba(0,0,0,0.5);}
+.calendar-panel{transition:transform .3s cubic-bezier(0.16,1,0.3,1);box-shadow:4px 0 32px rgba(0,0,0,0.5);}
+
+/* ── SOUND VISUAL INDICATOR ── */
+.sound-btn{
+  height:26px;padding:0 8px;border-radius:5px;border:1px solid var(--bd);
+  background:transparent;color:var(--m2);font-size:11px;letter-spacing:.5px;
+  transition:all .15s;cursor:pointer;display:flex;align-items:center;gap:4px;
+}
+.sound-btn:hover{color:var(--t);}
+.sound-btn.on{color:var(--a);border-color:rgba(232,114,42,0.3);}
+.sound-wave{display:flex;align-items:center;gap:1px;height:12px;}
+.sound-wave span{width:2px;background:currentColor;border-radius:1px;animation:soundWave 1s ease-in-out infinite;}
+.sound-wave span:nth-child(1){height:4px;animation-delay:0s;}
+.sound-wave span:nth-child(2){height:8px;animation-delay:.15s;}
+.sound-wave span:nth-child(3){height:12px;animation-delay:.3s;}
+.sound-wave span:nth-child(4){height:6px;animation-delay:.45s;}
+.sound-btn:not(.on) .sound-wave span{animation:none;height:4px;opacity:.3;}
+@keyframes soundWave{0%,100%{transform:scaleY(.4);}50%{transform:scaleY(1);}}
+
+/* ── STAGGER ENTER ANIMATION ── */
+@keyframes cardStagger{
+  from{opacity:0;transform:translateY(12px);}
+  to{opacity:1;transform:none;}
+}
+.coins-grid .coin-card{
+  animation:cardStagger .3s cubic-bezier(0.16,1,0.3,1) both;
+}
+.coins-grid .coin-card:nth-child(1){animation-delay:.02s;}
+.coins-grid .coin-card:nth-child(2){animation-delay:.04s;}
+.coins-grid .coin-card:nth-child(3){animation-delay:.06s;}
+.coins-grid .coin-card:nth-child(4){animation-delay:.08s;}
+.coins-grid .coin-card:nth-child(5){animation-delay:.10s;}
+.coins-grid .coin-card:nth-child(6){animation-delay:.12s;}
+.coins-grid .coin-card:nth-child(7){animation-delay:.14s;}
+.coins-grid .coin-card:nth-child(8){animation-delay:.16s;}
+.coins-grid .coin-card:nth-child(9){animation-delay:.18s;}
+.coins-grid .coin-card:nth-child(10){animation-delay:.20s;}
+.coins-grid .coin-card:nth-child(n+11){animation-delay:.22s;}
+
 /* ── PRICE FLASH ── */
 @keyframes flash-up{0%,100%{color:var(--t);}50%{color:var(--g);}}
 @keyframes flash-dn{0%,100%{color:var(--t);}50%{color:var(--r);}}
@@ -1322,6 +1556,11 @@ select.at-input{cursor:pointer;}
 <!-- SIDEBAR -->
 <nav class="sidebar" id="main-sidebar">
   <div class="sb-header">
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none" style="flex-shrink:0;opacity:0.9;">
+      <circle cx="11" cy="11" r="3.2" fill="#e8722a"/>
+      <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="#e8722a" stroke-width="1.2" opacity="0.6" transform="rotate(-30 11 11)"/>
+      <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="rgba(255,255,255,0.2)" stroke-width="1" transform="rotate(60 11 11)"/>
+    </svg>
     <span class="sb-logo-text">ORBITUM</span>
     <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Свернуть/развернуть">
       <svg class="sb-collapse-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -1414,6 +1653,9 @@ select.at-input{cursor:pointer;}
     </div>
 
     <button class="theme-btn" onclick="toggleTheme()">◐</button>
+    <button class="sound-btn" id="sound-toggle-btn" onclick="toggleSound()" title="Sound alerts">
+      <div class="sound-wave"><span></span><span></span><span></span><span></span></div>
+    </button>
   </div>
 
   <!-- SIGNALS TICKER -->
@@ -1682,7 +1924,7 @@ select.at-input{cursor:pointer;}
       <div style="color:var(--t);margin-bottom:4px;">📡 TradingView Webhook</div>
       POST сигнал из Pine Script → автоматический AI анализ → TG<br>
       Добавь в TradingView Alert → Webhook URL:
-      <span class="at-webhook-url" onclick="atCopyWebhook(this)">https://orbitum-journal.vercel.app/api/webhook-tv</span>
+      <span class="at-webhook-url" onclick="atCopyWebhook(this)">https://orbitum.trade/api/webhook-tv</span>
       <div style="margin-top:4px;">Payload: <code style="color:var(--a);">{{strategy.order.action}} {{ticker}} {{close}}</code></div>
     </div>
 
@@ -2090,6 +2332,9 @@ function checkAlerts(cgId, price, prevPrice){
     if(a.condition === 'below' && prevPrice > target && price <= target) fired = true;
     if(!fired) return;
     _triggeredAlerts.add(a.id);
+    // Premium: sound + card flash
+    playAlertSound();
+    flashCard(cgId);
     // Show toast
     const dir = a.condition === 'above' ? '▲' : '▼';
     showToast(`🔔 ${a.symbol} ${dir} ${fmtPrice(target)}`, 'ok');
@@ -2134,7 +2379,7 @@ async function sendTgNotify(alert, currentPrice){
           rsi:           _rsiCache[alert.coingecko_id] ?? null,
           note:          alert.note || null,
           repeat_mode:   alert.repeat_mode || 'once',
-          app_url:       'https://orbitum-journal.vercel.app/screener.html',
+          app_url:       'https://orbitum.trade/screener',
         }
       })
     });
@@ -2195,8 +2440,10 @@ function setLive(on){
 
 function patchDOM(cgId, price, chg24, prevPrice){
   const isUp = price >= prevPrice;
+  const priceChanged = prevPrice && Math.abs(price - prevPrice) / prevPrice > 0.0003;
   // Card price
   const priceEl = document.getElementById('ccp-' + cgId);
+  if(priceChanged && priceEl) _premiumHandlePrice(cgId, price, prevPrice);
   if(priceEl){
     priceEl.textContent = fmtPrice(price);
     priceEl.className = 'cc-price';
@@ -2358,8 +2605,10 @@ function renderGrid(coins, container){
   container.innerHTML = `<div class="coins-grid" id="coins-grid">
     ${coins.map(c => renderCard(c, maxVol)).join('')}
   </div>`;
-  // Draw sparklines
+  window._lastCoins = coins;
+  // Draw sparklines + apply glow classifiers
   coins.forEach(c => { if(c.sparkline_in_7d?.price) drawSparkline(c); });
+  requestAnimationFrame(applyCardGlows);
 }
 
 function renderCard(c, maxVol){
@@ -2413,7 +2662,7 @@ function renderCard(c, maxVol){
       <div class="cc-m"><span class="cc-ml">ВОЛ.</span><span class="cc-mv ${vlt>10?'warn':vlt>5?'hot':''}">${vlt.toFixed(1)}%</span></div>
     </div>
     <div class="cc-spark"><canvas id="sp-${c.id.replace(/[^a-z0-9]/gi,'_')}"></canvas></div>
-    <div class="cc-volbar"><div class="cc-volfill" style="width:${volPct}%"></div></div>
+    <div class="cc-volbar"><div class="cc-volfill${volPct>80?' vol-spike':volPct>60?' vol-high':''}" style="width:${volPct}%"></div></div>
   </div>`;
 }
 
@@ -2432,24 +2681,48 @@ function drawSparkline(c){
   const range = max - min || 1;
   const isUp = prices[prices.length-1] >= prices[0];
   const col = isUp ? '#2ecc71' : '#e74c3c';
+  const colAlpha = isUp ? 'rgba(46,204,113,0.09)' : 'rgba(231,76,60,0.09)';
+
+  const getXY = (i) => ({
+    x: (i / (prices.length - 1)) * W,
+    y: H - ((prices[i] - min) / range) * (H - 4) - 2
+  });
+
+  // Fill gradient under line
   ctx.beginPath();
   prices.forEach((p, i) => {
-    const x = (i / (prices.length-1)) * W;
-    const y = H - ((p - min) / range) * (H - 4) - 2;
+    const {x, y} = getXY(i);
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
-  // Fill
+  const last = getXY(prices.length - 1);
   ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-  ctx.fillStyle = isUp ? 'rgba(46,204,113,0.08)' : 'rgba(231,76,60,0.08)';
+  ctx.fillStyle = colAlpha;
   ctx.fill();
-  // Line
+
+  // Draw line with subtle glow
   ctx.beginPath();
   prices.forEach((p, i) => {
-    const x = (i / (prices.length-1)) * W;
-    const y = H - ((p - min) / range) * (H - 4) - 2;
+    const {x, y} = getXY(i);
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
-  ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 1.4;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Glowing endpoint dot
+  const ep = getXY(prices.length - 1);
+  ctx.beginPath();
+  ctx.arc(ep.x, ep.y, 2, 0, Math.PI * 2);
+  ctx.fillStyle = col;
+  ctx.fill();
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(ep.x, ep.y, 3.5, 0, Math.PI * 2);
+  ctx.strokeStyle = isUp ? 'rgba(46,204,113,0.35)' : 'rgba(231,76,60,0.35)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
   // Compute RSI from sparkline
   const rsi = calcRSI(prices);
   if(rsi != null) _rsiCache[c.id] = rsi;
@@ -2520,6 +2793,144 @@ function renderHeatmap(coins, container){
 }
 
 // ── View / Filter / Sort ─────────────────────
+/* ═══════════════════════════════════════════════
+   ORBITUM PREMIUM UI ENGINE v2
+   Sound · Glow · Sort Animation · Card States
+   ═══════════════════════════════════════════════ */
+
+// ── SOUND SYSTEM ──
+let _soundEnabled = localStorage.getItem('orb_sound') !== '0';
+const _AudioCtx = window.AudioContext || window.webkitAudioContext;
+let _actx = null;
+
+function _getAudioCtx(){
+  if(!_actx && _AudioCtx){
+    try{ _actx = new _AudioCtx(); }catch(e){}
+  }
+  return _actx;
+}
+
+function _playTone(freq, type, duration, vol=0.08, decay=0.4){
+  if(!_soundEnabled) return;
+  const ctx = _getAudioCtx(); if(!ctx) return;
+  try{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + decay);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + decay);
+  }catch(e){}
+}
+
+function playClickSound(){ _playTone(880, 'sine', 0.06, 0.04, 0.12); }
+function playAlertSound(){ _playTone(660, 'sine', 0.2, 0.09, 0.35); setTimeout(()=>_playTone(880,'sine',0.15,0.07,0.25),120); }
+function playSignalSound(){ _playTone(528, 'triangle', 0.3, 0.07, 0.5); setTimeout(()=>_playTone(660,'triangle',0.2,0.05,0.4),180); }
+function playPriceUpSound(){ _playTone(1046, 'sine', 0.1, 0.04, 0.18); }
+function playPriceDnSound(){ _playTone(349, 'sine', 0.1, 0.04, 0.18); }
+
+function toggleSound(){
+  _soundEnabled = !_soundEnabled;
+  localStorage.setItem('orb_sound', _soundEnabled ? '1' : '0');
+  const btn = document.getElementById('sound-toggle-btn');
+  if(btn) btn.classList.toggle('on', _soundEnabled);
+  if(_soundEnabled){ _getAudioCtx(); playClickSound(); }
+}
+
+// sound button init handled in main DOMContentLoaded below
+
+// ── CARD GLOW CLASSIFIER ──
+function _classifyCard(c, card){
+  const chg24 = (c.price_change_percentage_24h||0);
+  const vlt = (() => {
+    const sp = c.sparkline_in_7d?.price;
+    if(!sp?.length) return 0;
+    const mean = sp.reduce((a,b)=>a+b,0)/sp.length;
+    const variance = sp.reduce((s,v)=>s+(v-mean)**2,0)/sp.length;
+    return mean > 0 ? (Math.sqrt(variance)/mean*100) : 0;
+  })();
+  const volRatio = c.total_volume > 0 && c.market_cap > 0 ? c.total_volume / (c.market_cap * 0.01) : 0;
+  card.classList.remove('trending-up','trending-down','hot-signal');
+  if(volRatio > 15 && Math.abs(chg24) > 3){
+    card.classList.add('hot-signal');
+  } else if(chg24 > 4){
+    card.classList.add('trending-up');
+  } else if(chg24 < -4){
+    card.classList.add('trending-down');
+  }
+}
+
+function applyCardGlows(){
+  if(!window._lastCoins) return;
+  window._lastCoins.forEach(c => {
+    const card = document.querySelector(`.coin-card[onclick*="'${c.id}'"]`);
+    if(card) _classifyCard(c, card);
+  });
+}
+
+// ── SELECTED CARD STATE ──
+let _selectedCard = null;
+function setSelectedCard(coinId){
+  if(_selectedCard) _selectedCard.classList.remove('selected');
+  const card = document.querySelector(`.coin-card[onclick*="'${coinId}'"]`);
+  if(card){
+    card.classList.add('selected');
+    _selectedCard = card;
+  }
+}
+
+// ── SORT ANIMATION ──
+function animateSortGrid(){
+  const grid = document.getElementById('coins-grid');
+  if(!grid) return;
+  grid.classList.add('sorting');
+  setTimeout(()=>{
+    grid.classList.remove('sorting');
+    grid.querySelectorAll('.coin-card').forEach((card,i) => {
+      card.style.animation = 'none';
+      card.offsetHeight;
+      card.style.animation = `cardEnter .25s cubic-bezier(0.16,1,0.3,1) ${i*0.025}s both`;
+    });
+  }, 160);
+}
+
+// ── NEW SIGNAL FLASH ──
+function flashCard(coinId){
+  const card = document.querySelector(`.coin-card[onclick*="'${coinId}'"]`);
+  if(!card) return;
+  card.classList.remove('new-signal');
+  card.offsetWidth;
+  card.classList.add('new-signal');
+  playSignalSound();
+  setTimeout(()=>card.classList.remove('new-signal'), 1000);
+}
+
+// ── PRICE UPDATE SOUND ──
+const _priceUpdateOrig = window._handlePriceUpdate;
+function _premiumHandlePrice(coinId, newPrice, oldPrice){
+  if(oldPrice && newPrice !== oldPrice){
+    if(newPrice > oldPrice) playPriceUpSound();
+    else playPriceDnSound();
+  }
+}
+
+// ── INTERCEPT SORT BUTTONS ──
+document.addEventListener('DOMContentLoaded', ()=>{
+  const btn = document.getElementById('sound-toggle-btn');
+  if(btn) btn.classList.toggle('on', _soundEnabled);
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', ()=>{ playClickSound(); setTimeout(animateSortGrid, 50); });
+  });
+  document.querySelectorAll('.flt-btn').forEach(btn => {
+    btn.addEventListener('click', ()=>{ playClickSound(); setTimeout(animateSortGrid, 50); });
+  });
+  document.querySelectorAll('.sb-btn').forEach(btn => {
+    btn.addEventListener('click', ()=> playClickSound());
+  });
+});
+
 function toggleSidebar(){
   const sb = document.getElementById('main-sidebar');
   sb.classList.toggle('expanded');
@@ -2549,6 +2960,8 @@ function setFilter(f, btn){
   _currentFilter = f;
   document.querySelectorAll('.flt-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  playClickSound();
+  animateSortGrid();
   renderCoins();
 }
 
@@ -2556,6 +2969,8 @@ function setSort(s, btn){
   _currentSort = s;
   document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  playClickSound();
+  animateSortGrid();
   renderCoins();
 }
 
@@ -2590,6 +3005,8 @@ function quickAlert(cgId){
 
 // ── Detail Panel ─────────────────────────────
 function focusCoin(cgId){
+  setSelectedCard(cgId);
+  playClickSound();
   const coin = allCoins.find(c => c.id === cgId);
   if(!coin) return;
   _detailCoin = coin;
@@ -4467,7 +4884,7 @@ async function atSendToTg(){
     rsiStr + obStr + fvgStr +
     `📊 Качество сетапа: <b>${_quality||'—'}</b> (${_score||0} pts)\n` +
     (setupStr?`\n<i>${setupStr}</i>\n`:'') +
-    `\n<a href="https://orbitum-journal.vercel.app/screener.html">🔗 Orbitum</a>`;
+    `\n<a href="https://orbitum.trade/screener">🔗 Orbitum</a>`;
 
   try{
     await fetch('/api/notify', {
@@ -4560,13 +4977,27 @@ ${liqStr}
 Только JSON, без markdown.`;
 
   try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    // Route through /api/ai proxy — never expose API key in browser
+    const resp = await fetch('/api/ai', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
-        messages:[{ role:'user', content:prompt }] })
+      body: JSON.stringify({
+        mode: 'screener_insight',
+        tradeData: {
+          pair, tf, direction: _atDirection, entry, sl, tp,
+          rr: metrics.rr, riskPct: metrics.riskPct, rangePos: metrics.rangePos,
+          structure: a?.ms?.trend || null,
+          rsi: a?.rsi ?? null,
+          obs: (a?.obs||[]).map(o=>({type:o.type,low:o.low,high:o.high})),
+          fvgs: (a?.fvgs||[]).map(f=>({type:f.type,low:f.low,high:f.high})),
+          liquidity: a?.liq || null,
+          prompt_override: prompt,
+        },
+        max_tokens: 1200,
+        temperature: 0.3,
+      })
     });
     const data = await resp.json();
-    const raw  = data.content?.[0]?.text||'[]';
+    const raw  = data.text || '[]';
     const cards= JSON.parse(raw.replace(/```json|```/g,'').trim());
     aiLoad.style.display='none';
     atRenderCards(cards, aiCards);

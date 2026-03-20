@@ -4,7 +4,7 @@
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL    = process.env.SUPABASE_URL;
 const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
-const APP_URL   = process.env.APP_URL || 'https://ai-orbitum.vercel.app';
+const APP_URL   = process.env.APP_URL || 'https://orbitum.trade';
 
 // ── Supabase REST helpers ──────────────────────────────────────────
 async function sbSelect(table, filters = {}, select = '*', order = '') {

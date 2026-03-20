@@ -208,7 +208,7 @@ export default async function handler(req, res){
       `${trendCls} Структура: <b>${ms?.trend||'—'}</b>\n` +
       rsiStr + obStr2 + fvgStr2 +
       (aiText ? `\n🧠 <i>${aiText.slice(0,400)}</i>\n` : '') +
-      `\n<a href="https://orbitum-journal.vercel.app/screener.html">🔗 Открыть Orbitum</a>`;
+      `\n<a href="${process.env.APP_URL || 'https://orbitum.trade'}/screener">🔗 Открыть Orbitum</a>`;
 
     let sent=0;
     for(const p of recipients){
