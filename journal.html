@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Журнал</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Fallback: if CDN blocked by Tracking Prevention -->
@@ -555,15 +555,16 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   text-decoration:none;cursor:pointer;
 }
 .sb-logo-text{
-  font-family:'Bebas Neue','var(--font-display)',sans-serif;
-  font-size:22px;letter-spacing:7px;
-  color:#ff6700;
+  font-family:'Comfortaa',cursive;
+  font-size:20px;letter-spacing:2px;
+  color:#ff6600;font-weight:bold;font-variant:small-caps;
   text-shadow:1px 0px 12px rgba(255,103,0,1);
+  animation:logoGlow 3s ease-in-out infinite;
   transition:all 0.3s;
 }
 .sb-logo:hover .sb-logo-text{
   text-shadow:1px 0px 20px rgba(255,103,0,1),0 0 40px rgba(255,103,0,0.6);
-  letter-spacing:8px;
+  letter-spacing:3px;
 }
 @keyframes logoGlow{
   0%,100%{text-shadow:1px 0px 10px rgba(255,103,0,0.8);}
@@ -927,14 +928,26 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
   border-bottom:var(--line);height:48px;
   align-items:center;justify-content:space-between;padding:0 14px;gap:8px;
 }
-.mob-logo{font-family:var(--font-display);font-size:17px;letter-spacing:4px;color:var(--t);text-decoration:none;flex-shrink:0;}
+.mob-logo{
+  font-family:'Comfortaa',cursive;font-size:22px;letter-spacing:2px;
+  color:#ff6600;font-weight:bold;font-variant:small-caps;
+  text-decoration:none;flex-shrink:0;
+  text-shadow:1px 0px 12px rgba(255,103,0,1);
+  animation:logoGlowMob 3s ease-in-out infinite;
+}
+@keyframes logoGlowMob{
+  0%,100%{text-shadow:1px 0px 10px rgba(255,103,0,0.8);}
+  50%{text-shadow:1px 0px 18px rgba(255,103,0,1),0 0 30px rgba(255,103,0,0.4);}
+}
 .mob-bar-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .mob-stat-pill{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:3px 9px;border-radius:6px;cursor:default;min-width:56px;
+  padding:3px 9px;border-radius:6px;cursor:pointer;min-width:56px;transition:all .2s;
 }
 .mob-stat-pill.balance{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);}
+.mob-stat-pill.balance:active{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);}
 .mob-stat-pill.goal-pill{background:rgba(232,114,42,0.07);border:1px solid rgba(232,114,42,0.18);}
+.mob-stat-pill.goal-pill:active{background:rgba(232,114,42,0.15);border-color:rgba(232,114,42,0.4);}
 .mob-pill-label{font-family:var(--font-mono);font-size:6px;letter-spacing:1.5px;color:rgba(255,255,255,0.22);text-transform:uppercase;line-height:1;margin-bottom:2px;}
 .mob-pill-val{font-family:var(--font-mono);font-size:12px;font-weight:500;line-height:1;}
 .mob-burger{display:none!important;}
@@ -3970,11 +3983,11 @@ body::after {
 <div class="mob-bar">
   <a href="index.html" class="mob-logo">ORBITUM</a>
   <div class="mob-bar-right">
-    <div class="mob-stat-pill balance">
+    <div class="mob-stat-pill balance" onclick="toggleBalancePopup()">
       <div class="mob-pill-label">Баланс</div>
       <div class="mob-pill-val" id="mob-balance-val" style="color:var(--g)">$—</div>
     </div>
-    <div class="mob-stat-pill goal-pill">
+    <div class="mob-stat-pill goal-pill" onclick="toggleGoalPopup()">
       <div class="mob-pill-label">Цель</div>
       <div class="mob-pill-val" id="mob-goal-val" style="color:var(--a)">— R</div>
     </div>
@@ -7803,7 +7816,11 @@ function updateBalanceWidget() {
       delta.style.color = 'rgba(255,255,255,0.2)';
     }
   }
-  if (icon) icon.textContent = current > balanceStart ? '📈' : current < balanceStart ? '📉' : '💰';
+  if (icon) icon.innerHTML = current > balanceStart
+    ? '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M1.5 12L5.5 7.5L8.5 10L12 5L14.5 7" stroke="#2ecc71" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 4.5H14.5V7.5" stroke="#2ecc71" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : current < balanceStart
+    ? '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M1.5 4L5.5 8.5L8.5 6L12 11L14.5 9" stroke="#e74c3c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 11.5H14.5V8.5" stroke="#e74c3c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#e8722a" stroke-width="1.4"/><path d="M8 4v8M6 5.5c0-.8.9-1.5 2-1.5s2 .7 2 1.5S9.1 7 8 7s-2 .7-2 1.5S7 10 8 10s2-.7 2-1.5" stroke="#e8722a" stroke-width="1.3" stroke-linecap="round"/></svg>';
 
   // Sync mobile pill
   const mobBal = document.getElementById('mob-balance-val');
@@ -7911,7 +7928,11 @@ function updateGoalWidget() {
 
   // Icon + glow
   const icon = document.getElementById('goal-icon');
-  if (icon) icon.textContent = achieved ? '✅' : earned > 0 ? '🔥' : '🎯';
+  if (icon) icon.innerHTML = achieved
+    ? '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2ecc71" stroke-width="1.4"/><path d="M5 8l2 2 4-4" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : earned > 0
+    ? '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#e8722a" stroke-width="1.4"/><circle cx="8" cy="8" r="3.5" stroke="#e8722a" stroke-width="1.4"/><circle cx="8" cy="8" r="1.5" fill="#e8722a"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#e8722a" stroke-width="1.4"/><circle cx="8" cy="8" r="3.5" stroke="#e8722a" stroke-width="1.4"/><circle cx="8" cy="8" r="1.5" fill="#e8722a"/></svg>';
 
   const widget = document.getElementById('jtb-goal-widget');
   if (widget) widget.classList.toggle('achieved', achieved);
