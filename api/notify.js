@@ -266,6 +266,151 @@ export default async function handler(req, res) {
       if (data?.text) await tgSend(chat_id, data.text);
     }
 
+    // ── SETUP SIGNAL (from template alert system) ──────────────────
+    if (type === 'signal_setup') {
+      const { pair, direction, entry, sl, tp, rr, confidence = 75, setup_type, insight, tf = '4H' } = data;
+      const dirEmoji = direction === 'long' ? '🟢' : '🔴';
+      const dirLabel = direction === 'long' ? 'LONG' : 'SHORT';
+      const rrStr    = rr ? parseFloat(rr).toFixed(1) + ':1' : '—';
+      const filled   = Math.round(confidence / 10);
+      const bar      = '█'.repeat(filled) + '░'.repeat(10 - filled);
+      const barDot   = confidence >= 75 ? '🟢' : confidence >= 60 ? '🟠' : '🟡';
+      const confBar  = `${barDot} <code>${bar}</code> <b>${confidence}%</b> confidence`;
+      const insightLine = insight ? `
+🧠 <i>${insight.slice(0, 120)}</i>` : '';
+      const scarcity    = confidence >= 80
+        ? '
+<code>⚡ Setup quality: A+ — rare occurrence</code>'
+        : `
+<code>✦ ${Math.floor(Math.random() * 200 + 100)} traders tracking this</code>`;
+      const appUrl = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+
+      await tgSend(chat_id,
+        `⚡ <b>SETUP SIGNAL</b> · ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `${dirEmoji} <b>${pair} · ${dirLabel}</b> · ${tf}
+` +
+        (setup_type ? `<code>${setup_type}</code>
+` : '') +
+        confBar + `
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `Entry  ·  <b>${fmtPrice(entry)}</b>
+` +
+        `SL     ·  <code>${fmtPrice(sl)}</code>
+` +
+        `TP     ·  <b>${fmtPrice(tp)}</b>
+` +
+        `R:R    ·  <b>${rrStr}</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━` +
+        insightLine + scarcity +
+        `
+
+<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}&tf=${tf}&panel=signal">📊 OPEN CHART</a>  ·  <a href="${appUrl}/journal?log=auto">📓 LOG TRADE</a>`
+      );
+    }
+
+    // ── MOMENTUM ALERT (from template) ────────────────────────────
+    if (type === 'signal_momentum') {
+      const { pair, change24h = 0, volume_ratio = 1, momentum_score = 7, price, note } = data;
+      const sign    = change24h >= 0 ? '+' : '';
+      const urgency = momentum_score >= 8 ? '🔥 HIGH' : '⚡ ACTIVE';
+      const window  = momentum_score >= 8 ? '⏱ 15–30 min window' : '⏱ Watch next 1H';
+      const noteStr = note ? `
+💡 ${note.slice(0, 100)}` : '';
+      const appUrl  = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+
+      await tgSend(chat_id,
+        `🚀 <b>MOMENTUM ALERT</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `<b>${pair}</b> · ${urgency}
+` +
+        `Price    ·  <b>${fmtPrice(price)}</b>
+` +
+        `24H      ·  <b>${sign}${parseFloat(change24h).toFixed(1)}%</b>
+` +
+        `Volume   ·  <b>${parseFloat(volume_ratio).toFixed(1)}× avg</b>
+` +
+        `Score    ·  <b>${momentum_score}/10</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        window + noteStr +
+        `
+
+<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}">📊 OPEN CHART</a>`
+      );
+    }
+
+    // ── AI INSIGHT (from template) ────────────────────────────────
+    if (type === 'signal_ai') {
+      const { pair, pattern, probability = 74, basis, recommendation, tf = '4H' } = data;
+      const filled  = Math.round(probability / 10);
+      const bar     = '█'.repeat(filled) + '░'.repeat(10 - filled);
+      const confBar = `🟣 <code>${bar}</code> <b>${probability}%</b> confidence`;
+      const recStr  = recommendation ? `
+→ <i>${recommendation.slice(0, 120)}</i>` : '';
+      const appUrl  = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+
+      await tgSend(chat_id,
+        `🤖 <b>AI INSIGHT</b> · Premium
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `<b>${pair}</b> · ${tf}
+` +
+        `Pattern  ·  <code>${pattern}</code>
+` +
+        confBar + `
+` +
+        `Based on <b>${basis || 'historical data'}</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━` +
+        recStr +
+        `
+
+<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}&tf=${tf}&panel=ai">📊 OPEN CHART</a>  ·  <a href="${appUrl}/journal?ai=1">🤖 ASK AI</a>`
+      );
+    }
+
+    // ── CRITICAL (enhanced from template) ─────────────────────────
+    if (type === 'signal_critical') {
+      const { pair, event, price, level, level_label = 'KEY LEVEL', risk_usd, directive } = data;
+      const breach   = parseFloat(price) < parseFloat(level) ? '← BREACHED' : '← APPROACHING';
+      const riskLine = risk_usd ? `Risk   ·  <b>$${fmtPrice(risk_usd)} at stake</b>
+` : '';
+      const dir      = directive || 'Review position immediately';
+      const appUrl   = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+
+      await tgSend(chat_id,
+        `🚨 <b>CRITICAL ALERT</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `🔴 <b>${pair} · ${event}</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `Price    ·  <b>${fmtPrice(price)}</b>
+` +
+        `${level_label.slice(0, 8).padEnd(8)} ·  <code>${fmtPrice(level)} ${breach}</code>
+` +
+        riskLine +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `⚡ <b>${dir}</b>
+
+` +
+        `<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}&panel=alert">📊 CHART</a>  ·  <a href="${appUrl}/journal">📓 LOG</a>  ·  <a href="${appUrl}/journal?ai=1">🤖 AI</a>`
+      );
+    }
+
     return res.status(200).json({ ok: true });
   } catch(e) {
     console.error('Notify error:', e);
