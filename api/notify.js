@@ -411,6 +411,68 @@ export default async function handler(req, res) {
       );
     }
 
+    // ── FOMO — missed opportunity (from conversion funnel template) ──
+    // type: 'fomo', data: { pair, premium_time, delay_min, result_pct, result_usd }
+    if (type === 'fomo') {
+      const { pair, premium_time, delay_min = 15, result_pct, result_usd, note } = data;
+      const appUrl = process.env.APP_URL || 'https://orbitum.trade';
+      const resultLine = result_pct
+        ? `Result:  · <b>${result_pct >= 0 ? '+' : ''}${parseFloat(result_pct).toFixed(1)}%</b>${result_usd ? ` (~$${Math.abs(result_usd).toFixed(0)})` : ''}
+`
+        : '';
+      const noteStr = note ? `
+<i>${note}</i>
+` : '';
+
+      await tgSend(chat_id,
+        `📌 <b>Signal fired — ${pair || 'setup'}</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `Premium signal: <b>${premium_time || 'real-time'}</b>
+` +
+        `Your alert:     <code>+${delay_min} min delay</code>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        resultLine +
+        `15 minutes = wrong entry price.
+` +
+        noteStr +
+        `
+<a href="${appUrl}/pay">Remove the delay →</a>`
+      );
+    }
+
+    // ── SA SCORE — broadcast situational awareness number ─────────
+    // type: 'sa_score', data: { score, label, color, fng, btcDom, mktChg }
+    if (type === 'sa_score') {
+      const { score, label, fng, btcDom, mktChg } = data;
+      const appUrl = process.env.APP_URL || 'https://orbitum.trade';
+      const bar    = Math.round(score / 10);
+      const filled = '█'.repeat(bar) + '░'.repeat(10 - bar);
+      const dot    = score >= 80 ? '🔴' : score >= 65 ? '🟠' : score >= 45 ? '🟡' : '🟢';
+
+      await tgSend(chat_id,
+        `${dot} <b>Market Awareness</b>
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `<code>${filled}</code> <b>${score}/100</b> · ${label}
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `F&G        · <b>${fng}</b>
+` +
+        `BTC Dom    · <b>${btcDom}%</b>
+` +
+        `Market 24H · <b>${parseFloat(mktChg) >= 0 ? '+' : ''}${mktChg}%</b>
+` +
+        `
+<a href="${appUrl}/screener">Open screener →</a>`
+      );
+    }
+
     return res.status(200).json({ ok: true });
   } catch(e) {
     console.error('Notify error:', e);
