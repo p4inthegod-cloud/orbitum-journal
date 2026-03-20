@@ -143,16 +143,64 @@ export default async function handler(req, res) {
 
       const weekLabel = weekStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 
+      // ── Plan-aware weekly recap with soft sell (from funnel template) ──
+      // Free users: add missed opportunity + upgrade prompt at end
+      // Paid users: clean report, no upgrade mention
+      const isPaid = profile?.plan === 'lifetime' || profile?.plan === 'monthly';
+
+      // Missed opportunity for free users — pick best signal from this week
+      // Using bestPair as proxy for "you could have caught this"
+      let missedLine = '';
+      if (!isPaid && bestPair && bestPair[1] > 5) {
+        missedLine = `
+
+📌 <i>Premium users got real-time entry on ${bestPair[0]}. Free tier had +15 min delay.</i>`;
+      }
+
+      // Soft sell — only on Sundays, always at END, never mid-message (template rule)
+      const isSunday = new Date().getUTCDay() === 0;
+      let softSell = '';
+      if (!isPaid && isSunday) {
+        const weekPnlStr = pnl >= 0
+          ? `This week: <b>${pnlSign}${pnl.toFixed(1)}%</b>.`
+          : `Tough week: <b>${pnl.toFixed(1)}%</b>.`;
+        softSell = (
+          `
+
+━━━━━━━━━━━━━━━━━━━
+` +
+          `${weekPnlStr} AI Coach shows exactly which patterns cost you.
+
+` +
+          `Monthly · <b>$29</b>  ·  Lifetime · <b>$197</b>
+` +
+          `<a href="${process.env.APP_URL || 'https://orbitum.trade'}/pay">See what you're missing →</a>`
+        );
+      }
+
       await tgSend(user.tg_chat_id,
-        `${pnlEmoji} <b>Недельный отчёт</b> · с ${weekLabel}\n\n` +
-        `📊 Сделок: <b>${trades.length}</b> (${wins}W / ${losses}L)\n` +
-        `🎯 Винрейт: <b>${wr}%</b>\n` +
-        `💰 P&L: <b>${pnlSign}${pnl.toFixed(1)}%</b> (~${pnlSign}$${pnlUsd.toFixed(0)})\n` +
-        (bestPair  ? `\n🏆 Лучшая пара: <b>${bestPair[0]}</b> (${bestPair[1] >= 0 ? '+' : ''}${bestPair[1].toFixed(1)}%)` : '') +
-        (bestSetup ? `\n🔷 Лучший сетап: <b>${bestSetup[0]}</b> (${bestSetup[1].count} сд.)` : '') +
-        (worstDay && worstDay[1] < 0 ? `\n⚠️ Худший день: <b>${worstDay[0]}</b> (${worstDay[1].toFixed(1)}%)` : '') +
+        `${pnlEmoji} <b>Weekly Report</b> · from ${weekLabel}
+` +
+        `━━━━━━━━━━━━━━━━━━━
+` +
+        `📊 Trades: <b>${trades.length}</b> (${wins}W / ${losses}L)
+` +
+        `🎯 Win Rate: <b>${wr}%</b>
+` +
+        `💰 P&L: <b>${pnlSign}${pnl.toFixed(1)}%</b> (~${pnlSign}$${pnlUsd.toFixed(0)})
+` +
+        (bestPair  ? `
+🏆 Best pair: <b>${bestPair[0]}</b> (${bestPair[1] >= 0 ? '+' : ''}${bestPair[1].toFixed(1)}%)` : '') +
+        (bestSetup ? `
+🔷 Best setup: <b>${bestSetup[0]}</b> (${bestSetup[1].count} trades)` : '') +
+        (worstDay && worstDay[1] < 0 ? `
+⚠️ Worst day: <b>${worstDay[0]}</b> (${worstDay[1].toFixed(1)}%)` : '') +
         aiInsight +
-        `\n\nХорошей недели! 💪`
+        missedLine +
+        softSell +
+        (softSell ? '' : `
+
+Good trading next week! 💪`)
       );
       sent++;
 
