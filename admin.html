@@ -27,8 +27,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* ── SIDEBAR ── */
 .sidebar{width:var(--sb);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative;z-index:10;}
 .sb-logo{height:64px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);flex-shrink:0;gap:10px;}
-.sb-logo-text{font-family:'Comfortaa',cursive;font-size:20px;font-weight:700;font-variant:small-caps;letter-spacing:3px;color:#ff6600;text-shadow:1px 0 12px rgba(255,103,0,.9);animation:logoGlow 3s ease-in-out infinite;}
-@keyframes logoGlow{0%,100%{text-shadow:1px 0 10px rgba(255,103,0,.7);}50%{text-shadow:1px 0 20px rgba(255,103,0,1),0 0 28px rgba(255,103,0,.35);}}
+.sb-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;font-weight:400;letter-spacing:4px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px;}
 .sb-admin-badge{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#080808;background:var(--o);padding:2px 7px;border-radius:3px;}
 .sb-nav{flex:1;overflow-y:auto;padding:12px 0;}
 .sb-nav::-webkit-scrollbar{width:3px;}
@@ -235,7 +234,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* LOADING */
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:16px;transition:opacity .4s;}
 .loading-screen.hidden{opacity:0;pointer-events:none;}
-.loading-logo{font-family:'Comfortaa',cursive;font-size:32px;font-weight:700;font-variant:small-caps;letter-spacing:4px;color:#ff6600;text-shadow:1px 0 16px rgba(255,103,0,1);animation:logoGlow 1.5s ease-in-out infinite;}
+.loading-logo{font-family:'Bebas Neue',sans-serif;font-size:32px;font-weight:400;letter-spacing:6px;color:rgba(255,255,255,0.9);}
 .loading-sub{font-family:var(--mono);font-size:10px;color:var(--m2);letter-spacing:2px;text-transform:uppercase;}
 
 /* TOAST */
@@ -417,7 +416,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sb-logo">
-    <span class="sb-logo-text">ORBITUM</span>
+    <span class="sb-logo-text">
+      <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style="flex-shrink:0;">
+        <circle cx="11" cy="11" r="3.2" fill="#e8722a"/>
+        <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="#e8722a" stroke-width="1.2" opacity="0.6" transform="rotate(-30 11 11)"/>
+        <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="rgba(255,255,255,0.2)" stroke-width="1" transform="rotate(60 11 11)"/>
+      </svg>
+      ORBITUM
+    </span>
     <span class="sb-admin-badge">ADMIN</span>
   </div>
   <nav class="sb-nav">
@@ -497,18 +503,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
     <!-- ── OVERVIEW ── -->
     <div class="page active" id="page-overview">
-      <div class="kpi-grid">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);">
         <div class="kpi"><div class="kpi-n" id="kpi-users">—</div><div class="kpi-l">Total Users</div></div>
-        <div class="kpi"><div class="kpi-n" id="kpi-active">—</div><div class="kpi-l">Active Plans</div></div>
-        <div class="kpi"><div class="kpi-n" id="kpi-revenue" style="color:var(--o)">—</div><div class="kpi-l">Revenue $</div></div>
-        <div class="kpi"><div class="kpi-n" id="kpi-pending" style="color:var(--y)">—</div><div class="kpi-l">Pending</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-active" style="color:var(--g)">—</div><div class="kpi-l">Active Plans</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-revenue" style="color:var(--o)">—</div><div class="kpi-l">Total Revenue</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-mrr" style="color:var(--o)">—</div><div class="kpi-l">MRR (Monthly)</div></div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:10px;">
+        <div class="kpi"><div class="kpi-n" id="kpi-pending" style="color:var(--y)">—</div><div class="kpi-l">Pending Pay.</div></div>
         <div class="kpi"><div class="kpi-n" id="kpi-trades">—</div><div class="kpi-l">Trades Logged</div></div>
         <div class="kpi"><div class="kpi-n" id="kpi-wr" style="color:var(--g)">—</div><div class="kpi-l">Platform WR</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-tg">—</div><div class="kpi-l">TG Connected</div></div>
       </div>
-      <div class="charts-row">
+      <div class="charts-row" style="margin-top:16px;">
         <div class="chart-card">
-          <div class="chart-title">Revenue by plan</div>
-          <div class="bar-chart" id="revenue-chart"></div>
+          <div class="chart-title">Revenue by month (confirmed)</div>
+          <div class="bar-chart" id="revenue-chart" style="height:100px;"></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">Recent payments</div>
@@ -520,6 +530,27 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <button class="sec-action" onclick="showPage('users',document.getElementById('nav-users'))">View All →</button>
       </div>
       <div id="overview-users"></div>
+
+      <!-- SYSTEM HEALTH + BROADCAST -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;">SYSTEM HEALTH</div>
+            <button class="sec-action" onclick="checkSystemHealth()" style="padding:5px 12px;">↻ Check</button>
+          </div>
+          <div id="health-status" style="font-family:var(--mono);font-size:10px;color:var(--m2);">Click Check to run diagnostics</div>
+        </div>
+        <div class="card">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:14px;">BROADCAST</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--m2);line-height:1.8;margin-bottom:14px;">
+            Send a Telegram message to all users or a specific plan tier.<br>
+            HTML formatting supported: &lt;b&gt;, &lt;i&gt;, &lt;a&gt;.
+          </div>
+          <button class="btn-primary" onclick="openBroadcastModal()" style="width:100%;padding:10px;">
+            📢 Send Broadcast Message
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ── PAYMENTS ── -->
@@ -579,9 +610,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--t);">Products & Pricing</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--m2);margin-top:2px;">Changes are saved to Supabase and reflect on site immediately</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--m2);margin-top:2px;">Changes are saved with upsert — rows are created automatically if missing</div>
         </div>
-        <button class="sec-action" onclick="loadProducts()" style="padding:8px 16px;">↻ Refresh</button>
+        <div style="display:flex;gap:8px;">
+          <button class="sec-action" onclick="seedProducts()" style="padding:8px 16px;border-color:rgba(46,204,113,.3);color:var(--g);">⚡ Seed Default Products</button>
+          <button class="sec-action" onclick="loadProducts()" style="padding:8px 16px;">↻ Refresh</button>
+        </div>
       </div>
       <div id="products-list"><div class="empty">Loading...</div></div>
     </div>
@@ -791,6 +825,8 @@ async function init(){
     document.getElementById('sb-ava').textContent=name[0].toUpperCase();
     document.getElementById('sb-uname').textContent=name;
     await loadAll();
+    // Run health check in background
+    setTimeout(checkSystemHealth, 1500);
     // Apply language
     setAdminLang(adminLang);
   }catch(e){console.error(e);location.href='/login';}
@@ -847,44 +883,71 @@ async function loadAll(){
 
 // ── KPIs ──────────────────────────────────────────────────────
 function renderKPIs(){
-  const active=allUsers.filter(u=>u.plan==='lifetime'||(u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)>new Date())).length;
-  const pending=allPayments.filter(p=>p.status==='pending').length;
-  const revenue=allPayments.filter(p=>p.status==='confirmed').reduce((s,p)=>s+(p.amount_usdt||0),0);
-  const wins=allTrades.filter(t=>t.result==='win').length;
-  const wr=allTrades.length?Math.round(wins/allTrades.length*100):0;
-  document.getElementById('kpi-users').textContent=allUsers.length;
-  document.getElementById('kpi-active').textContent=active;
-  document.getElementById('kpi-revenue').textContent='$'+revenue.toFixed(0);
-  document.getElementById('kpi-pending').textContent=pending;
-  document.getElementById('kpi-trades').textContent=allTrades.length;
-  document.getElementById('kpi-wr').textContent=allTrades.length?wr+'%':'—';
-  // Update KPI labels
-  const kpis=document.querySelectorAll('.kpi-l');
-  const labels=[t('total_users'),t('active_plans'),t('revenue'),t('pending'),t('trades_logged'),t('platform_wr')];
-  kpis.forEach((el,i)=>{if(labels[i])el.textContent=labels[i];});
+  const now = new Date();
+  const active = allUsers.filter(u=>u.plan==='lifetime'||(u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)>now)).length;
+  const pending = allPayments.filter(p=>p.status==='pending').length;
+  const revenue = allPayments.filter(p=>p.status==='confirmed').reduce((s,p)=>s+(p.amount_usdt||0),0);
+  const wins = allTrades.filter(t=>t.result==='win').length;
+  const wr = allTrades.length?Math.round(wins/allTrades.length*100):0;
+  const tgConnected = allUsers.filter(u=>u.tg_linked).length;
+
+  // MRR: monthly subscribers × $29 + estimated lifetime value
+  const monthlyActive = allUsers.filter(u=>u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)>now).length;
+  const mrr = monthlyActive * 29;
+
+  document.getElementById('kpi-users').textContent = allUsers.length;
+  document.getElementById('kpi-active').textContent = active;
+  document.getElementById('kpi-revenue').textContent = '$'+revenue.toFixed(0);
+  document.getElementById('kpi-mrr').textContent = '$'+mrr;
+  document.getElementById('kpi-pending').textContent = pending;
+  document.getElementById('kpi-trades').textContent = allTrades.length;
+  document.getElementById('kpi-wr').textContent = allTrades.length?wr+'%':'—';
+  document.getElementById('kpi-tg').textContent = tgConnected;
+
+  // Color pending red if > 0
+  const pendingEl = document.getElementById('kpi-pending');
+  if(pendingEl) pendingEl.style.color = pending > 0 ? 'var(--r)' : 'var(--m2)';
 }
 
 // ── OVERVIEW ─────────────────────────────────────────────────
 function renderOverview(){
-  // Revenue bar chart
-  const byPlan={lifetime:0,monthly:0};
-  allPayments.filter(p=>p.status==='confirmed').forEach(p=>{byPlan[p.plan]=(byPlan[p.plan]||0)+(p.amount_usdt||0);});
-  const maxV=Math.max(1,...Object.values(byPlan));
-  document.getElementById('revenue-chart').innerHTML=Object.entries(byPlan).map(([k,v])=>`
-    <div class="bar" style="height:${Math.round((v/maxV)*100)+'%'}" title="$${v.toFixed(0)}">
-      <span class="bar-label">${k}<br>$${v.toFixed(0)}</span>
+  // Monthly revenue chart (last 6 months)
+  const monthMap = {};
+  const now = new Date();
+  for(let i=5;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key = d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    monthMap[key] = 0;
+  }
+  allPayments.filter(p=>p.status==='confirmed').forEach(p=>{
+    const d = new Date(p.created_at);
+    const key = d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    if(monthMap[key]!==undefined) monthMap[key] += (p.amount_usdt||0);
+  });
+  const maxV = Math.max(1,...Object.values(monthMap));
+  document.getElementById('revenue-chart').innerHTML = Object.entries(monthMap).map(([k,v])=>`
+    <div class="bar" style="height:${Math.max(4,Math.round((v/maxV)*100))+'%'}" title="$${v.toFixed(0)}">
+      <span class="bar-label">${k}<br><span style="color:var(--o)">$${v>0?v.toFixed(0):'0'}</span></span>
     </div>
   `).join('');
+
   // Recent payments
-  const recent=allPayments.slice(0,5);
-  document.getElementById('recent-payments').innerHTML=recent.length?recent.map(p=>`
+  const recent = allPayments.slice(0,6);
+  document.getElementById('recent-payments').innerHTML = recent.length ? recent.map(p=>`
     <div class="recent-item">
-      <div><div class="recent-name">${p.profiles?.full_name||p.profiles?.username||'Unknown'}</div><div class="recent-meta">${p.plan} · ${new Date(p.created_at).toLocaleDateString()}</div></div>
-      <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:var(--mono);font-size:11px;color:var(--t);">$${p.amount_usdt||0}</span><span class="recent-badge ${p.status}">${p.status}</span></div>
+      <div>
+        <div class="recent-name">${p.profiles?.full_name||p.profiles?.username||'Unknown'}</div>
+        <div class="recent-meta">${p.plan} · ${new Date(p.created_at).toLocaleDateString()}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--o);">$${p.amount_usdt||0}</span>
+        <span class="recent-badge ${p.status}">${p.status}</span>
+      </div>
     </div>
-  `).join(''):'<div class="empty">No payments yet</div>';
+  `).join('') : '<div class="empty">No payments yet</div>';
+
   // Recent users (last 5)
-  document.getElementById('overview-users').innerHTML=allUsers.slice(0,5).map(u=>userCardHTML(u,true)).join('');
+  document.getElementById('overview-users').innerHTML = allUsers.slice(0,5).map(u=>userCardHTML(u,true)).join('');
 }
 
 // ── PAYMENTS ─────────────────────────────────────────────────
@@ -1414,16 +1477,37 @@ async function loadProducts(){
   const el = document.getElementById('products-list');
   el.innerHTML = '<div class="empty">Loading...</div>';
   try{
-    const { data, error } = await sb
-      .from('products')
-      .select('*')
-      .order('sort_order');
+    const { data, error } = await sb.from('products').select('*').order('sort_order');
     if(error) throw error;
     allProducts = data || [];
+    if(!allProducts.length){
+      el.innerHTML = `<div class="empty" style="padding:40px;">
+        <div style="font-size:14px;margin-bottom:12px;">No products in database yet.</div>
+        <div style="font-size:11px;color:var(--m2);margin-bottom:20px;">Click the button below to create default Monthly ($29) and Lifetime ($197) products.</div>
+        <button class="btn-primary" onclick="seedProducts()">⚡ Seed Default Products</button>
+        <div style="font-size:9px;color:var(--m2);margin-top:14px;">Or run products_schema.sql in Supabase SQL Editor if the table doesn't exist yet.</div>
+      </div>`;
+      return;
+    }
     renderProducts();
   }catch(e){
-    el.innerHTML = `<div class="empty">Error: ${e.message}<br><br>
-      <span style="font-size:9px;color:var(--m2);">Make sure you ran products_schema.sql in Supabase SQL Editor</span>
+    el.innerHTML = `<div class="empty" style="padding:40px;">
+      <div style="color:var(--r);margin-bottom:8px;">Error: ${e.message}</div>
+      <div style="font-size:9px;color:var(--m2);margin-bottom:16px;">The <code>products</code> table may not exist yet. Run this SQL in Supabase:</div>
+      <pre style="background:var(--bg3);border:1px solid var(--line);padding:12px;text-align:left;font-size:10px;color:var(--m);overflow-x:auto;border-radius:4px;">CREATE TABLE IF NOT EXISTS products (
+  id TEXT PRIMARY KEY,
+  sort_order INTEGER DEFAULT 0,
+  name_en TEXT, name_ru TEXT,
+  price NUMERIC DEFAULT 0,
+  price_old NUMERIC,
+  badge_en TEXT, badge_ru TEXT,
+  description_en TEXT, description_ru TEXT,
+  features_en JSONB DEFAULT '[]',
+  features_ru JSONB DEFAULT '[]',
+  is_active BOOLEAN DEFAULT true,
+  updated_at TIMESTAMPTZ
+);</pre>
+      <button class="btn-primary" style="margin-top:16px;" onclick="loadProducts()">↻ Retry</button>
     </div>`;
   }
 }
@@ -1431,7 +1515,7 @@ async function loadProducts(){
 function renderProducts(){
   const el = document.getElementById('products-list');
   if(!allProducts.length){
-    el.innerHTML = '<div class="empty">No products found. Run products_schema.sql first.</div>';
+    el.innerHTML = '<div class="empty">No products found. Click "Seed Default Products" above.</div>';
     return;
   }
 
@@ -1526,6 +1610,163 @@ function renderProducts(){
   }).join('');
 }
 
+// ── SEED DEFAULT PRODUCTS ─────────────────────────────────────
+async function seedProducts(){
+  if(!confirm('Create default products (monthly $29, lifetime $197) in Supabase? Existing rows will be updated.')) return;
+  const defaults = [
+    {
+      id: 'monthly', sort_order: 1, is_active: true,
+      name_en: 'Monthly', name_ru: 'Месячный',
+      price: 29, price_old: null,
+      badge_en: '', badge_ru: '',
+      description_en: 'Full access for 30 days',
+      description_ru: 'Полный доступ на 30 дней',
+      features_en: JSON.stringify(['Trading Journal','AI Coach','Crypto Screener','Analytics & Progress','Pre-market Checklist']),
+      features_ru: JSON.stringify(['Журнал сделок','AI Коуч и Чекер','Крипто Скринер','Аналитика и прогресс','Пре-маркет чеклист']),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'lifetime', sort_order: 2, is_active: true,
+      name_en: 'Lifetime', name_ru: 'Навсегда',
+      price: 197, price_old: 297,
+      badge_en: 'Best Value', badge_ru: 'Лучший выбор',
+      description_en: 'One-time payment — access forever',
+      description_ru: 'Разовая оплата — доступ навсегда',
+      features_en: JSON.stringify(['Everything in Monthly','Lifetime updates','Priority support','AI Advanced features','Future modules free']),
+      features_ru: JSON.stringify(['Всё из Месячного','Обновления навсегда','Приоритетная поддержка','AI расширенные функции','Будущие модули бесплатно']),
+      updated_at: new Date().toISOString(),
+    }
+  ];
+  try{
+    const { error } = await sb.from('products').upsert(defaults, { onConflict: 'id' });
+    if(error) throw error;
+    showToast('✓ Default products seeded!', 'success');
+    loadProducts();
+  }catch(e){
+    showToast('Error: '+e.message, 'error');
+  }
+}
+
+// ── BROADCAST TELEGRAM MESSAGE ─────────────────────────────────
+async function openBroadcastModal(){
+  const msg = prompt('📢 BROADCAST — message to ALL users with TG linked:\n(HTML allowed: <b>, <i>, <a href="...">)');
+  if(!msg?.trim()) return;
+  const plan = prompt('Send to: ALL / lifetime / monthly / free\n(leave blank = ALL)') || 'ALL';
+  if(!confirm(`Send to: ${plan.toUpperCase()}\nMessage:\n${msg}\n\nConfirm?`)) return;
+  try{
+    let query = sb.from('profiles').select('tg_chat_id,plan').eq('tg_linked', true);
+    if(plan.toLowerCase() !== 'all' && ['lifetime','monthly','free'].includes(plan.toLowerCase())){
+      query = query.eq('plan', plan.toLowerCase());
+    }
+    const { data: recipients, error } = await query;
+    if(error) throw error;
+    const chatIds = (recipients||[]).map(r=>r.tg_chat_id).filter(Boolean);
+    if(!chatIds.length){ showToast('No TG users found for this filter', 'error'); return; }
+
+    let sent = 0;
+    for(const chat_id of chatIds){
+      try{
+        await fetch('/api/notify', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','X-Notify-User': (await sb.auth.getSession()).data.session?.user?.id || ''},
+          body: JSON.stringify({ type:'raw', chat_id, data:{ text: msg } })
+        });
+        sent++;
+      }catch(e){ /* continue */ }
+    }
+    showToast(`✓ Sent to ${sent}/${chatIds.length} users`, 'success');
+  }catch(e){
+    showToast('Broadcast error: '+e.message, 'error');
+  }
+}
+
+// ── SYSTEM HEALTH CHECK ────────────────────────────────────────
+async function checkSystemHealth(){
+  const el = document.getElementById('health-status');
+  if(!el) return;
+  el.innerHTML = '<span style="color:var(--m2)">Checking...</span>';
+  const checks = [];
+
+  // Supabase
+  try{
+    const { error } = await sb.from('profiles').select('id').limit(1);
+    checks.push({name:'Supabase DB', ok: !error, detail: error?.message||'Connected'});
+  }catch(e){ checks.push({name:'Supabase DB', ok:false, detail:e.message}); }
+
+  // /api/ticker
+  try{
+    const r = await fetch('/api/ticker?type=fng', {signal: AbortSignal.timeout(5000)});
+    checks.push({name:'/api/ticker', ok: r.ok, detail: r.ok?'OK':'HTTP '+r.status});
+  }catch(e){ checks.push({name:'/api/ticker', ok:false, detail:'Timeout/Error'}); }
+
+  // /api/ai
+  try{
+    const r = await fetch('/api/ai', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:'ping',max_tokens:5}),signal:AbortSignal.timeout(8000)});
+    checks.push({name:'/api/ai', ok: r.ok, detail: r.ok?'Groq connected':'HTTP '+r.status});
+  }catch(e){ checks.push({name:'/api/ai', ok:false, detail:'Timeout/Error'}); }
+
+  // Pending payments alert
+  const pending = allPayments.filter(p=>p.status==='pending').length;
+  checks.push({name:'Pending payments', ok: pending===0, detail: pending===0?'None':pending+' need review', warn: pending>0});
+
+  // Expired monthly plans
+  const expired = allUsers.filter(u=>u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)<new Date()).length;
+  checks.push({name:'Expired monthly plans', ok: expired===0, detail: expired===0?'None':expired+' expired', warn: expired>0});
+
+  el.innerHTML = checks.map(c=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+      <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${c.ok?'var(--g)':c.warn?'var(--y)':'var(--r)'};box-shadow:0 0 6px ${c.ok?'var(--g)':c.warn?'var(--y)':'var(--r)'};"></div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--t);flex:1;">${c.name}</div>
+      <div style="font-family:var(--mono);font-size:9px;color:${c.ok?'var(--g)':c.warn?'var(--y)':'var(--r)'};">${c.detail}</div>
+    </div>
+  `).join('');
+}
+
+// ── EXPORT USERS CSV ──────────────────────────────────────────
+function exportUsersCSV(){
+  if(!allUsers.length){ showToast('No users to export','error'); return; }
+  const headers = ['ID','Name','Username','Email','Plan','TG Linked','TG Username','Trades','Created At'];
+  const rows = allUsers.map(u => {
+    const trades = allTrades.filter(t=>t.user_id===u.id).length;
+    return [
+      u.id,
+      u.full_name||'',
+      u.username||'',
+      u.email||'',
+      u.plan||'free',
+      u.tg_linked?'yes':'no',
+      u.tg_username||'',
+      trades,
+      new Date(u.created_at).toLocaleDateString('en-GB'),
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `orbitum-users-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('✓ CSV exported — '+allUsers.length+' users', 'success');
+}
+
+// ── SAVE FEATURES FOR USER ────────────────────────────────────
+async function saveFeaturesForUser(userId){
+  const toggles = document.querySelectorAll(`[data-user-feat="${userId}"]`);
+  const features = [];
+  toggles.forEach(btn => { if(btn.classList.contains('on')) features.push(btn.dataset.feat); });
+  try{
+    const { data:{session} } = await sb.auth.getSession();
+    const token = session?.access_token || '';
+    const r = await fetch('/api/admin', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({ action:'set_features', userId, features })
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    showToast(t('access_updated'), 'success');
+  }catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
 async function saveProduct(id){
   const get = (field) => document.getElementById(`${id}-${field}`)?.value?.trim() ?? '';
 
@@ -1550,7 +1791,7 @@ async function saveProduct(id){
   };
 
   try{
-    const { error } = await sb.from('products').update(updates).eq('id', id);
+    const { error } = await sb.from('products').upsert({ id, ...updates }, { onConflict: 'id' });
     if(error) throw error;
 
     // Update local cache
@@ -1580,7 +1821,7 @@ async function saveProduct(id){
 
 async function toggleProduct(id, current){
   try{
-    await sb.from('products').update({ is_active: !current }).eq('id', id);
+    await sb.from('products').upsert({ id, is_active: !current }, { onConflict: 'id' });
     const idx = allProducts.findIndex(p=>p.id===id);
     if(idx>=0) allProducts[idx].is_active = !current;
     renderProducts();
