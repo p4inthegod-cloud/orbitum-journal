@@ -552,12 +552,42 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .sb-logo{
   height:52px;display:flex;align-items:center;padding:0 16px;
   border-bottom:var(--line);flex-shrink:0;gap:8px;
+  text-decoration:none;cursor:pointer;
+}
+.sb-logo:hover .sb-logo-text{
+  background:linear-gradient(135deg,#fff 20%,var(--a) 60%,#fff 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:logoShine 1.2s linear;
+}
+@keyframes logoShine{
+  0%{background-position:100% center;}
+  100%{background-position:-100% center;}
 }
 .sb-logo-text{
-  font-family:var(--font-display);font-size:20px;letter-spacing:6px;color:var(--t);
-  text-shadow:0 0 16px rgba(255,255,255,0.08);
+  font-family:var(--font-display);font-size:20px;letter-spacing:6px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.95) 40%,var(--a));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  transition:all 0.3s;
 }
-.sb-logo-dot{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);}
+.sb-logo-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--a);
+  box-shadow:0 0 8px var(--a),0 0 16px rgba(232,114,42,0.4);
+  animation:dotPulse 2.5s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes dotPulse{
+  0%,100%{box-shadow:0 0 6px var(--a),0 0 12px rgba(232,114,42,0.3);}
+  50%{box-shadow:0 0 10px var(--a),0 0 24px rgba(232,114,42,0.6);}
+}
+/* Profile button in topbar */
+.jtb-profile-btn{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);
+  background:rgba(255,255,255,0.04);color:var(--m);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;flex-shrink:0;text-decoration:none;
+}
+.jtb-profile-btn:hover{border-color:var(--a);color:var(--a);background:rgba(232,114,42,0.08);}
 .sb-nav{padding:8px 8px;display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
 .sb-section{
   font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.2);
@@ -4147,13 +4177,13 @@ body::after {
   <div class="jtb-right">
     <!-- BALANCE WIDGET -->
     <div class="jtb-balance" id="jtb-balance-widget" onclick="toggleBalancePopup()" title="Общий баланс">
-      <div class="jtb-balance-icon" id="balance-icon">💰</div>
+      <div class="jtb-balance-icon" id="balance-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 4v8M6 5.5c0-.8.9-1.5 2-1.5s2 .7 2 1.5S9.1 7 8 7s-2 .7-2 1.5S7 10 8 10s2-.7 2-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
       <div class="jtb-balance-info" style="flex-direction:row;align-items:center;gap:6px;">
         <div class="jtb-balance-val" id="balance-display">$—</div>
         <div class="jtb-balance-delta" id="balance-delta" style="font-size:9px;"></div>
       </div>
       <div class="balance-popup" id="balance-popup" onclick="event.stopPropagation()">
-        <div class="balance-popup-head">💰 ОБЩИЙ БАЛАНС</div>
+        <div class="balance-popup-head">ОБЩИЙ БАЛАНС</div>
         <div class="balance-popup-body">
           <div class="balance-popup-row">
             <div class="balance-popup-lbl">Стартовый</div>
@@ -4181,7 +4211,7 @@ body::after {
     <div class="jtb-sep-v"></div>
     <!-- DAILY GOAL WIDGET -->
     <div class="jtb-goal" id="jtb-goal-widget" onclick="toggleGoalPopup()" title="Дневная цель в R">
-      <div class="jtb-goal-icon" id="goal-icon">🎯</div>
+      <div class="jtb-goal-icon" id="goal-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="1" fill="currentColor"/></svg></div>
       <div class="jtb-goal-info">
         <div class="jtb-goal-label">Цель / день</div>
         <div class="jtb-goal-val" id="goal-display">— R</div>
@@ -4189,7 +4219,7 @@ body::after {
       <div class="jtb-goal-progress"><div class="jtb-goal-fill" id="goal-fill" style="width:0%"></div></div>
       <!-- inline popup -->
       <div class="goal-popup" id="goal-popup" onclick="event.stopPropagation()">
-        <div class="goal-popup-head">🎯 ДНЕВНАЯ ЦЕЛЬ</div>
+        <div class="goal-popup-head">ДНЕВНАЯ ЦЕЛЬ</div>
         <div class="goal-popup-body">
           <div class="goal-popup-row">
             <div class="goal-popup-lbl">Цель</div>
@@ -4225,9 +4255,10 @@ body::after {
     <button class="jtb-action-btn profile" onclick="toggleLang()" id="lang-btn" title="Language" style="font-size:11px;min-width:32px;text-align:center;">
       RU
     </button>
-
-
-
+    <div class="jtb-sep-v"></div>
+    <a href="profile.html" class="jtb-profile-btn" title="Профиль">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13.5c0-2.5 2.7-4.5 6-4.5s6 2 6 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </a>
   </div>
 </div>
 
