@@ -1750,8 +1750,11 @@ select.at-input{cursor:pointer;}
 // ── Config ──────────────────────────────────
 const SUPABASE_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let sb;
+function _initSB(){
+  const { createClient } = supabase;
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true,autoRefreshToken:true}});
+}
 
 const BINANCE_WS_PAIRS = [
   { sym:'BTC',   pair:'btcusdt',   cgId:'bitcoin' },
@@ -1939,7 +1942,7 @@ async function fetchFNG(){
 
 // ── Alerts ───────────────────────────────────
 async function loadAlerts(){
-  const { data: { user } } = await sb.auth.getUser();
+  const { data: { session: _ss } } = await sb.auth.getSession(); const user = _ss?.user;
   if(!user) return;
   const { data } = await sb.from('price_alerts').select('*').eq('user_id', user.id).eq('triggered', false);
   userAlerts = data || [];
@@ -2033,7 +2036,7 @@ function setRepeat(r, btn){
 
 async function saveAlert(){
   if(!_alertsCoin){ showToast('Монета не выбрана','err'); return; }
-  const { data: { user } } = await sb.auth.getUser();
+  const { data: { session: _ss } } = await sb.auth.getSession(); const user = _ss?.user;
   if(!user){ showToast('Войди в аккаунт','err'); return; }
   const price = parseFloat(document.getElementById('am-price').value);
   if(!price || isNaN(price) || price <= 0){ showToast('Укажи цену','err'); return; }
@@ -2109,7 +2112,7 @@ function checkAlerts(cgId, price, prevPrice){
 }
 
 async function sendTgNotify(alert, currentPrice){
-  const { data: { user } } = await sb.auth.getUser();
+  const { data: { session: _ss } } = await sb.auth.getSession(); const user = _ss?.user;
   if(!user) return;
   const coin = allCoins.find(c => c.coingecko_id === alert.coingecko_id || c.id === alert.coingecko_id);
   const ws   = _wsCache[alert.coingecko_id] || {};
@@ -2955,7 +2958,7 @@ function stopKlineWS(){
 // ── Journal trade markers ─────────────────────
 async function loadTradesForCoin(symbol){
   try{
-    const { data: { user } } = await sb.auth.getUser();
+    const { data: { session: _ss } } = await sb.auth.getSession(); const user = _ss?.user;
     if(!user) return [];
     const sym = symbol?.toUpperCase().replace('/USDT','').replace('USDT','');
     // Match pair like BTC/USDT, BTCUSDT, BTC
@@ -3271,8 +3274,9 @@ function syncChartAlertLines(){
 
 // ── Auth & TG ────────────────────────────────
 async function initAuth(){
-  const { data: { user } } = await sb.auth.getUser();
-  if(!user){ location.href = 'login.html'; return; }
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session?.user){ location.href = '/login?returnTo=/screener'; return; }
+  const user = session.user;
   // Load TG profile
   const { data } = await sb.from('profiles').select('tg_chat_id,tg_linked,tg_notify_alerts').eq('id', user.id).single();
   _tgProfile = data || {};
@@ -3281,7 +3285,7 @@ async function initAuth(){
 
 async function doLogout(){
   await sb.auth.signOut();
-  location.href = 'login.html';
+  location.href = '/login';
 }
 
 // ── Toast ────────────────────────────────────
@@ -3867,8 +3871,14 @@ setTimeout(async ()=>{
   }catch(e){}
 }, 4000);
 
-if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-else init();
+function _waitSB(cb, n){
+  n = n || 0;
+  if(typeof supabase !== 'undefined'){ _initSB(); cb(); }
+  else if(n < 40) setTimeout(function(){ _waitSB(cb, n+1); }, 150);
+  else console.error('[ORBITUM] Supabase failed to load');
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ _waitSB(init); });
+else _waitSB(init);
 
 
 // ══════════════════════════════════════════════
@@ -4419,7 +4429,7 @@ async function atSendToTg(){
     showToast('Telegram не подключён — настрой в профиле','err'); return;
   }
   if(!_atAnalysis) { showToast('Сначала запусти сканер','err'); return; }
-  const { data: { user } } = await sb.auth.getUser();
+  const { data: { session: _ss } } = await sb.auth.getSession(); const user = _ss?.user;
   if(!user) return;
 
   const pair   = document.getElementById('at-pair').value.toUpperCase();
