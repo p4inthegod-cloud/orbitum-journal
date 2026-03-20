@@ -45,96 +45,116 @@ async function tgSend(chat_id, text) {
   } catch(e) { console.error('TG error:', e.message); }
 }
 
-// Строим богатое TG-сообщение для алерта
+// ── Confidence bar (from alert system template) ───────────────────
+function buildConfBar(pct) {
+  const filled = Math.round(pct / 10);
+  const bar    = '█'.repeat(filled) + '░'.repeat(10 - filled);
+  const dot    = pct >= 75 ? '🟢' : pct >= 60 ? '🟠' : '🟡';
+  return `${dot} <code>${bar}</code> <b>${pct}%</b> confidence`;
+}
+
+// ── Route alert to correct template format ────────────────────────
+// price/price_cross/rsi alerts → CRITICAL format (immediate action)
+// volume/pump alerts           → MOMENTUM format (time-sensitive)
+// dump                         → CRITICAL format
+// change/volatility            → MOMENTUM format
 function buildAlertMessage(alert, priceData, extraData = {}) {
-  const sym = (alert.symbol || '?').toUpperCase();
-  const type = alert.alert_type || 'price';
-  const cond = alert.condition || 'above';
-  const current = priceData.usd;
-  const change24 = priceData.usd_24h_change ?? null;
-  const vol24    = priceData.usd_24h_vol   ?? null;
+  const sym      = (alert.symbol || '?').toUpperCase();
+  const type     = alert.alert_type || 'price';
+  const cond     = alert.condition  || 'above';
+  const current  = priceData.usd;
+  const change24 = priceData.usd_24h_change ?? 0;
+  const vol24    = priceData.usd_24h_vol    ?? 0;
+  const timeStr  = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const pair     = sym.includes('USDT') ? sym : `${sym}/USDT`;
+  const deepLink = `${APP_URL}/screener?coin=${encodeURIComponent(pair)}&panel=alert`;
 
-  // ── заголовок ──────────────────────────────────────────────────
-  const HEADERS = {
-    price:       cond === 'above' ? '📈 Пробой вверх'        : '📉 Пробой вниз',
-    price_cross: '↔️ Пересечение уровня',
-    volume:      '📊 Всплеск объёма',
-    change:      parseFloat(extraData.change_pct) >= 0 ? '⚡ Резкий рост' : '⚡ Резкое падение',
-    rsi_ob:      '🔴 RSI: перекупленность',
-    rsi_os:      '🟢 RSI: перепроданность',
-    pump:        '🚀 Памп',
-    dump:        '💣 Дамп',
-    volatility:  '🌊 Высокая волатильность',
+  // ── MOMENTUM format — volume/pump/change/volatility ─────────────
+  if (['volume', 'pump', 'change', 'volatility'].includes(type)) {
+    const momentumScore = extraData.vol_ratio
+      ? Math.min(10, Math.max(5, Math.round(extraData.vol_ratio * 2.5)))
+      : Math.min(10, Math.max(5, Math.round(Math.abs(extraData.change_pct || change24) / 2)));
+    const urgency  = momentumScore >= 8 ? '🔥 HIGH' : '⚡ ACTIVE';
+    const timeWin  = momentumScore >= 8 ? '⏱ 15–30 min window' : '⏱ Watch next 1H';
+    const sign     = change24 >= 0 ? '+' : '';
+    const noteStr  = alert.note ? `
+💡 ${alert.note}` : '';
+    const extraLine = extraData.vol_ratio
+      ? `
+Volume   ·  <b>${parseFloat(extraData.vol_ratio).toFixed(1)}× avg</b>`
+      : extraData.amplitude
+      ? `
+Amplitude ·  <b>${fmtPct(extraData.amplitude)}</b>`
+      : extraData.change_pct != null
+      ? `
+Move     ·  <b>${fmtPct(extraData.change_pct)}</b>`
+      : '';
+
+    return (
+      `🚀 <b>MOMENTUM ALERT</b> · ${timeStr} UTC
+` +
+      `━━━━━━━━━━━━━━━━━━━
+` +
+      `<b>${pair}</b> · ${urgency}
+` +
+      `Price    ·  <b>${fmtPrice(current)}</b>  <i>${sign}${parseFloat(change24).toFixed(1)}% 24h</i>` +
+      extraLine + `
+` +
+      `Score    ·  <b>${momentumScore}/10</b>
+` +
+      `━━━━━━━━━━━━━━━━━━━
+` +
+      timeWin + noteStr +
+      `
+
+<a href="${deepLink}">📊 OPEN CHART</a>`
+    );
+  }
+
+  // ── CRITICAL format — price breach, stop zone, RSI extremes, dump ─
+  const CRITICAL_EVENTS = {
+    price:       cond === 'above' ? 'BREAKOUT' : 'BREAKDOWN',
+    price_cross: 'LEVEL CROSS',
+    rsi_ob:      'RSI OVERBOUGHT',
+    rsi_os:      'RSI OVERSOLD',
+    dump:        'SHARP DUMP',
   };
 
-  const DOTS = {
-    price:       cond === 'above' ? '🟢' : '🔴',
-    price_cross: '🔵',
-    volume:      '🔵',
-    change:      parseFloat(extraData.change_pct) >= 0 ? '🟢' : '🔴',
-    rsi_ob:      '🔴',
-    rsi_os:      '🟢',
-    pump:        '🟢',
-    dump:        '🔴',
-    volatility:  '🟡',
-  };
+  const event      = CRITICAL_EVENTS[type] || 'PRICE ALERT';
+  const levelLabel = alert.target_price ? 'LEVEL   ' : 'ZONE    ';
+  const levelLine  = alert.target_price
+    ? `${levelLabel}·  <code>${fmtPrice(alert.target_price)} ← TRIGGERED</code>
+`
+    : '';
+  const rsiLine    = extraData.rsi != null
+    ? `RSI     ·  <b>${Math.round(extraData.rsi)}</b>${extraData.rsi >= 70 ? ' ⚠️ extreme' : extraData.rsi <= 30 ? ' ⚠️ extreme' : ''}
+`
+    : '';
+  const repeatLabel = { once: '', every: '🔁 Repeat alert', daily: '📅 Daily' }[alert.repeat_mode] || '';
+  const noteStr    = alert.note ? `
+💬 <i>${alert.note}</i>` : '';
 
-  const header = HEADERS[type] || '🔔 Алерт';
-  const dot    = DOTS[type]    || '⚪';
-
-  const lines = [];
-  lines.push(`${dot} <b>ORBITUM · ${sym}/USDT</b>`);
-  lines.push(`<b>${header}</b>`);
-  lines.push('━━━━━━━━━━━━━━━━━━━');
-
-  // Цена
-  const chgStr = change24 != null ? `  <i>${fmtPct(change24)} 24ч</i>` : '';
-  lines.push(`💰 Цена:      <b>${fmtPrice(current)}</b>${chgStr}`);
-
-  // Целевой уровень (price/price_cross)
-  if (alert.target_price && ['price','price_cross'].includes(type)) {
-    const diff = ((current - parseFloat(alert.target_price)) / parseFloat(alert.target_price) * 100).toFixed(2);
-    lines.push(`🎯 Уровень:   <b>${fmtPrice(alert.target_price)}</b>  <i>(${diff >= 0 ? '+' : ''}${diff}%)</i>`);
-  }
-
-  // Объём
-  if (vol24 != null) {
-    const ratioStr = extraData.vol_ratio != null ? `  <i>×${parseFloat(extraData.vol_ratio).toFixed(1)} от среднего</i>` : '';
-    lines.push(`📊 Объём 24ч: <b>${fmtVol(vol24)}</b>${ratioStr}`);
-  }
-
-  // RSI
-  if (extraData.rsi != null) {
-    const rsiVal = Math.round(extraData.rsi);
-    const rsiNote = rsiVal >= 70 ? ' ⚠️ перекупл.' : rsiVal <= 30 ? ' ⚠️ перепродан' : '';
-    lines.push(`📈 RSI (14):  <b>${rsiVal}</b>${rsiNote}`);
-  }
-
-  // Изменение за период (change-алерт)
-  if (extraData.change_pct != null && type === 'change') {
-    const win = alert.change_window ? ` за ${alert.change_window} мин` : '';
-    lines.push(`⚡ Движение:  <b>${fmtPct(extraData.change_pct)}</b>${win}`);
-  }
-
-  // Амплитуда (volatility)
-  if (extraData.amplitude != null && type === 'volatility') {
-    lines.push(`🌊 Амплитуда: <b>${fmtPct(extraData.amplitude)}</b>`);
-  }
-
-  lines.push(`⏱ Время:      <b>${nowStr()}</b>`);
-
-  if (alert.note) {
-    lines.push('');
-    lines.push(`💬 <i>${alert.note}</i>`);
-  }
-
-  const repeatLabel = { once: '', every: '🔁 Повторный алерт', daily: '📅 Ежедневный' }[alert.repeat_mode] || '';
-  if (repeatLabel) lines.push(repeatLabel);
-
-  lines.push('');
-  lines.push(`<a href="${APP_URL}">🔗 Открыть в Orbitum</a>`);
-
-  return lines.join('\n');
+  return (
+    `🚨 <b>ALERT</b> · ${timeStr} UTC
+` +
+    `━━━━━━━━━━━━━━━━━━━
+` +
+    `${cond === 'below' || type === 'dump' ? '🔴' : type === 'rsi_os' ? '🟢' : '🟡'} <b>${pair} · ${event}</b>
+` +
+    `━━━━━━━━━━━━━━━━━━━
+` +
+    `Price   ·  <b>${fmtPrice(current)}</b>  <i>${change24 >= 0 ? '+' : ''}${parseFloat(change24).toFixed(1)}% 24h</i>
+` +
+    levelLine +
+    rsiLine +
+    `━━━━━━━━━━━━━━━━━━━
+` +
+    (repeatLabel ? `${repeatLabel}
+` : '') +
+    noteStr +
+    `
+<a href="${deepLink}">📊 OPEN CHART</a>  ·  <a href="${APP_URL}/journal">📓 LOG TRADE</a>`
+  );
 }
 
 // Рассчитывает RSI по массиву цен (period = 14)
