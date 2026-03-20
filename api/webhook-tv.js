@@ -10,12 +10,28 @@ const WH_SECRET = process.env.TV_WEBHOOK_SECRET || ''; // опционально
 async function fetchKlines(symbol, interval='1h', limit=200){
   symbol = symbol.replace('.P','').toLowerCase();
   const map = {
-    btcusdt: "bitcoin",
-    ethusdt: "ethereum",
-    solusdt: "solana"
+    btcusdt: "bitcoin", ethusdt: "ethereum", solusdt: "solana",
+    bnbusdt: "binancecoin", xrpusdt: "ripple", dogeusdt: "dogecoin",
+    adausdt: "cardano", avaxusdt: "avalanche-2", linkusdt: "chainlink",
+    dotusdt: "polkadot", maticusdt: "matic-network", atomusdt: "cosmos",
+    nearusdt: "near", aptusdt: "aptos", suiusdt: "sui",
+    arbusdt: "arbitrum", opusdt: "optimism", injusdt: "injective-protocol",
+    tonusdt: "the-open-network", pepeusdt: "pepe",
+    ltcusdt: "litecoin", uniusdt: "uniswap", aaveusdt: "aave",
+    filusdt: "filecoin", ftmusdt: "fantom", runeusdt: "thorchain",
   };
   const coin = map[symbol];
-  if(!coin) throw new Error("Coin not mapped");
+  if(!coin) {
+    // Fallback: try using symbol directly as CoinGecko ID (strip 'usdt')
+    const fallbackId = symbol.replace('usdt','').replace('usd','').replace('busd','');
+    const testUrl = `https://api.coingecko.com/api/v3/coins/${fallbackId}/ohlc?vs_currency=usd&days=1`;
+    const testR = await fetch(testUrl, { signal: AbortSignal.timeout(5000) });
+    if(testR.ok) {
+      const raw = await testR.json();
+      return raw.map(k => ({ time: Math.floor(k[0]/1000), open:k[1], high:k[2], low:k[3], close:k[4], volume:0 }));
+    }
+    throw new Error(`Coin not mapped: ${symbol}`);
+  }
   const url = `https://api.coingecko.com/api/v3/coins/${coin}/ohlc?vs_currency=usd&days=1`;
   const r = await fetch(url, {
     signal: AbortSignal.timeout(8000)
@@ -116,7 +132,7 @@ OB: ${obStr} | FVG: ${fvgStr}
 По-русски, конкретно, без вступлений.`;
   try{
     const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json','x-api-key':process.env.ANTHROPIC_API_KEY||'','anthropic-version':'2023-06-01'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,
         messages:[{role:'user',content:prompt}]})
     });
@@ -126,7 +142,7 @@ OB: ${obStr} | FVG: ${fvgStr}
 }
 
 export default async function handler(req, res){
-  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Origin', process.env.APP_URL || 'https://orbitum.trade');
   res.setHeader('Access-Control-Allow-Methods','POST,OPTIONS');
   if(req.method==='OPTIONS') return res.status(200).end();
   if(req.method!=='POST') return res.status(405).end();
@@ -172,7 +188,7 @@ export default async function handler(req, res){
     } else {
       // Broadcast to all users with tg_notify_alerts enabled
       const r = await fetch(
-        `${SB_URL}/rest/v1/profiles?tg_linked=eq.true&tg_notify_alerts=eq.true&select=tg_chat_id`,
+        `${SB_URL}/rest/v1/profiles?tg_linked=is.true&tg_notify_alerts=is.true&select=tg_chat_id`,
         {headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Accept':'application/json'}}
       );
       recipients = await r.json() || [];

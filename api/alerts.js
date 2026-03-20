@@ -380,16 +380,15 @@ export default async function handler(req, res) {
       }
     }
 
-    // Обновляем last_price для всех проверенных
-    for (const alert of alerts) {
-      const cur = prices[alert.coingecko_id]?.usd;
-      if (!cur) continue;
-      fetch(`${SB_URL}/rest/v1/price_alerts?id=eq.${alert.id}`, {
+    // Обновляем last_price для всех проверенных (batch, не fire-and-forget)
+    const priceUpdates = alerts
+      .filter(a => prices[a.coingecko_id]?.usd)
+      .map(a => fetch(`${SB_URL}/rest/v1/price_alerts?id=eq.${a.id}`, {
         method: 'PATCH',
         headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ last_price: cur }),
-      }).catch(() => {});
-    }
+        body: JSON.stringify({ last_price: prices[a.coingecko_id].usd }),
+      }).catch(() => {}));
+    await Promise.allSettled(priceUpdates);
 
     console.log(`[alerts] checked=${alerts.length} triggered=${triggeredIds.length}`);
     return res.status(200).json({ checked: alerts.length, triggered: triggeredIds.length });

@@ -7,13 +7,14 @@ const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
 const APP_URL   = process.env.APP_URL || 'https://ai-orbitum.vercel.app';
 
 // ── Supabase REST helpers ──────────────────────────────────────────
-async function sbSelect(table, filters = {}, select = '*') {
+async function sbSelect(table, filters = {}, select = '*', order = '') {
   let url = `${SB_URL}/rest/v1/${table}?select=${encodeURIComponent(select)}`;
   for (const [k, v] of Object.entries(filters)) {
     // FIX: boolean → is.true/is.false, строки → eq.value
     const op = typeof v === 'boolean' ? 'is' : 'eq';
     url += `&${k}=${op}.${encodeURIComponent(v)}`;
   }
+  if (order) url += `&order=${encodeURIComponent(order)}`;
   const r = await fetch(url, {
     headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' }
   });
@@ -144,7 +145,8 @@ export default async function handler(req, res) {
 
     // ── /stats ─────────────────────────────────────────────────────
     if (cmd === '/stats') {
-      const trades = await sbSelect('trades', { user_id: profile.id }, 'result,pnl_pct,pnl_usd,created_at');
+      const trades = await sbSelect('trades', { user_id: profile.id }, 'result,pnl_pct,pnl_usd,created_at', 'created_at.asc');
+      trades.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
       if (!trades.length) { await tgSend(chat_id, '📭 Сделок пока нет. Иди торгуй!'); return res.status(200).send('OK'); }
 
       const wins    = trades.filter(t => t.result === 'win').length;
@@ -186,7 +188,7 @@ export default async function handler(req, res) {
 
     // ── /alerts ────────────────────────────────────────────────────
     if (cmd === '/alerts') {
-      const alerts = await sbSelect('price_alerts', { user_id: profile.id, triggered: false }, 'symbol,condition,target_price');
+      const alerts = await sbSelect('price_alerts', { user_id: profile.id, triggered: false }, 'symbol,condition,target_price,alert_type');
       if (!alerts.length) {
         await tgSend(chat_id, `🔔 Активных алертов нет.\n\n<a href="${APP_URL}/screener">Открыть скринер →</a>`);
       } else {

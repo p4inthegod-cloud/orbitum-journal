@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
       // Сделки юзера за неделю
       const tr = await fetch(
-        `${SB_URL}/rest/v1/trades?user_id=eq.${user.id}&created_at=gte.${weekStart.toISOString()}&select=result,pnl_pct,pnl_usd,pair,setup_type,created_at`,
+        `${SB_URL}/rest/v1/trades?user_id=eq.${user.id}&created_at=gte.${weekStart.toISOString()}&order=created_at.asc&select=result,pnl_pct,pnl_usd,pair,setup_type,direction,emotion_conf,emotion_fear,emotion_greed,emotion_calm,created_at`,
         { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
       );
       const trades = await tr.json();
@@ -140,9 +140,6 @@ export default async function handler(req, res) {
           console.warn('[weekly] AI analysis failed:', e.message);
         }
       }
-
-      const weekLabel = weekStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-      const worstDay = Object.entries(dayMap).sort((a, b) => a[1] - b[1])[0];
 
       const weekLabel = weekStart.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 

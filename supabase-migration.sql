@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS price_alerts (
   symbol         TEXT NOT NULL,
   coingecko_id   TEXT NOT NULL,
   condition      TEXT NOT NULL CHECK (condition IN ('above', 'below', 'cross')),
-  target_price   NUMERIC(20, 8) NOT NULL,
-  alert_type     TEXT DEFAULT 'price' CHECK (alert_type IN ('price', 'volume', 'change', 'volatility')),
+  target_price   NUMERIC(20, 8),
+  alert_type     TEXT DEFAULT 'price' CHECK (alert_type IN ('price', 'price_cross', 'volume', 'change', 'rsi_ob', 'rsi_os', 'pump', 'dump', 'volatility')),
   repeat_mode    TEXT DEFAULT 'once' CHECK (repeat_mode IN ('once', 'every', 'daily')),
   note           TEXT,
   triggered      BOOLEAN DEFAULT FALSE,
@@ -78,6 +78,19 @@ ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS alert_type  TEXT DEFAULT 'pric
 ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS repeat_mode TEXT DEFAULT 'once';
 ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS note        TEXT;
 ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS last_price  NUMERIC(20, 8);
+-- Extended alert type fields
+ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS volume_multiplier NUMERIC(10,2);
+ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS vol_avg_7d       NUMERIC(20,2);
+ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS change_threshold NUMERIC(10,2);
+ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS change_window    INTEGER;
+ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS rsi_threshold    NUMERIC(5,1);
+ALTER TABLE price_alerts ADD COLUMN IF NOT EXISTS target_value     NUMERIC(20,8);
+
+-- FIX: Update CHECK constraints if table already existed with old constraints
+-- (Run these manually if ALTER TABLE above didn't create fresh)
+-- ALTER TABLE price_alerts DROP CONSTRAINT IF EXISTS price_alerts_alert_type_check;
+-- ALTER TABLE price_alerts ADD CONSTRAINT price_alerts_alert_type_check
+--   CHECK (alert_type IN ('price','price_cross','volume','change','rsi_ob','rsi_os','pump','dump','volatility'));
 
 ALTER TABLE price_alerts ENABLE ROW LEVEL SECURITY;
 

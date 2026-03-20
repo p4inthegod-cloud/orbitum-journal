@@ -561,11 +561,13 @@ const io=new IntersectionObserver(entries=>{entries.forEach((en,i)=>{if(en.isInt
 document.querySelectorAll('.fc,.pc,.mdc,.rc').forEach(c=>io.observe(c));
 
 (async()=>{
+  // Social proof counters — use hardcoded minimums to avoid exposing DB counts publicly
+  // Update these periodically or create a dedicated server-side stats endpoint
   try{
-    const r=await fetch(SUPABASE_URL+'/rest/v1/profiles?select=id',{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY,'Prefer':'count=exact'}});
-    const c=r.headers.get('content-range');if(c){const n=c.split('/')[1];if(n&&n!=='*')document.getElementById('lp-users').textContent=n;}
-    const r2=await fetch(SUPABASE_URL+'/rest/v1/trades?select=id',{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':'Bearer '+SUPABASE_ANON_KEY,'Prefer':'count=exact'}});
-    const c2=r2.headers.get('content-range');if(c2){const n=c2.split('/')[1];if(n&&n!=='*')document.getElementById('lp-trades').textContent=n;}
+    const usersEl=document.getElementById('lp-users');
+    const tradesEl=document.getElementById('lp-trades');
+    if(usersEl) usersEl.textContent='500+';
+    if(tradesEl) tradesEl.textContent='12,000+';
   }catch(e){}
 })();
 

@@ -40,13 +40,18 @@ export default async function handler(req, res) {
     const [marketR, fngR, cryptoR] = await Promise.allSettled([
       fetch('https://api.coingecko.com/api/v3/global', { signal: AbortSignal.timeout(7000) }).then(r => r.json()),
       fetch('https://api.alternative.me/fng/?limit=1', { signal: AbortSignal.timeout(5000) }).then(r => r.json()),
-      fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=percent_change_24h_desc&per_page=5&page=1&price_change_percentage=24h', { signal: AbortSignal.timeout(7000) }).then(r => r.json()),
+      fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&price_change_percentage=24h', { signal: AbortSignal.timeout(7000) }).then(r => r.json()),
     ]);
 
     // 3. Парсим данные
     const market   = marketR.status === 'fulfilled' ? marketR.value?.data : null;
     const fng      = fngR.status === 'fulfilled' ? fngR.value?.data?.[0] : null;
-    const gainers  = cryptoR.status === 'fulfilled' && Array.isArray(cryptoR.value) ? cryptoR.value : [];
+    const allCoins = cryptoR.status === 'fulfilled' && Array.isArray(cryptoR.value) ? cryptoR.value : [];
+
+    // Sort by 24h change to find actual top gainers
+    const gainers  = [...allCoins]
+      .filter(g => g.price_change_percentage_24h != null)
+      .sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h);
 
     const mcap     = market ? formatMcap(market.total_market_cap?.usd) : '—';
     const btcDom   = market ? market.market_cap_percentage?.btc?.toFixed(1) + '%' : '—';

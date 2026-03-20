@@ -7,14 +7,32 @@ const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', process.env.APP_URL || 'https://orbitum.trade');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
+  // FIX: Verify JWT — user can only access own report
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'No auth token' });
+
+  let authUserId;
+  try {
+    const userResp = await fetch(`${SB_URL}/auth/v1/user`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'apikey': SB_KEY },
+    });
+    if (!userResp.ok) return res.status(401).json({ error: 'Invalid token' });
+    const user = await userResp.json();
+    authUserId = user?.id;
+    if (!authUserId) return res.status(401).json({ error: 'Invalid user' });
+  } catch (e) {
+    return res.status(401).json({ error: 'Auth failed' });
+  }
+
   const { userId, period, sendTg } = req.body;
-  if (!userId) return res.status(400).json({ error: 'userId required' });
+  if (!userId || userId !== authUserId) return res.status(403).json({ error: 'Access denied' });
 
   try {
     // 1. Fetch trades
