@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600&display=swap"></noscript>
 <title>Orbitum · Screener</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
@@ -1751,7 +1751,7 @@ select.at-input{cursor:pointer;}
 const SUPABASE_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true,autoRefreshToken:true}});
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const BINANCE_WS_PAIRS = [
   { sym:'BTC',   pair:'btcusdt',   cgId:'bitcoin' },
@@ -1939,7 +1939,7 @@ async function fetchFNG(){
 
 // ── Alerts ───────────────────────────────────
 async function loadAlerts(){
-  const { data: { session: _sess } } = await sb.auth.getSession(); const user = _sess?.user;
+  const { data: { user } } = await sb.auth.getUser();
   if(!user) return;
   const { data } = await sb.from('price_alerts').select('*').eq('user_id', user.id).eq('triggered', false);
   userAlerts = data || [];
@@ -2033,7 +2033,7 @@ function setRepeat(r, btn){
 
 async function saveAlert(){
   if(!_alertsCoin){ showToast('Монета не выбрана','err'); return; }
-  const { data: { session: _sess } } = await sb.auth.getSession(); const user = _sess?.user;
+  const { data: { user } } = await sb.auth.getUser();
   if(!user){ showToast('Войди в аккаунт','err'); return; }
   const price = parseFloat(document.getElementById('am-price').value);
   if(!price || isNaN(price) || price <= 0){ showToast('Укажи цену','err'); return; }
@@ -2109,7 +2109,7 @@ function checkAlerts(cgId, price, prevPrice){
 }
 
 async function sendTgNotify(alert, currentPrice){
-  const { data: { session: _sess } } = await sb.auth.getSession(); const user = _sess?.user;
+  const { data: { user } } = await sb.auth.getUser();
   if(!user) return;
   const coin = allCoins.find(c => c.coingecko_id === alert.coingecko_id || c.id === alert.coingecko_id);
   const ws   = _wsCache[alert.coingecko_id] || {};
@@ -2955,7 +2955,7 @@ function stopKlineWS(){
 // ── Journal trade markers ─────────────────────
 async function loadTradesForCoin(symbol){
   try{
-    const { data: { session: _sess } } = await sb.auth.getSession(); const user = _sess?.user;
+    const { data: { user } } = await sb.auth.getUser();
     if(!user) return [];
     const sym = symbol?.toUpperCase().replace('/USDT','').replace('USDT','');
     // Match pair like BTC/USDT, BTCUSDT, BTC
@@ -3271,8 +3271,8 @@ function syncChartAlertLines(){
 
 // ── Auth & TG ────────────────────────────────
 async function initAuth(){
-  const { data: { session: _sess } } = await sb.auth.getSession(); const user = _sess?.user;
-  if(!user){ location.href = '/login?returnTo=/screener'; return; }
+  const { data: { user } } = await sb.auth.getUser();
+  if(!user){ location.href = 'login.html'; return; }
   // Load TG profile
   const { data } = await sb.from('profiles').select('tg_chat_id,tg_linked,tg_notify_alerts').eq('id', user.id).single();
   _tgProfile = data || {};
@@ -3281,7 +3281,7 @@ async function initAuth(){
 
 async function doLogout(){
   await sb.auth.signOut();
-  location.href = '/login?returnTo=/screener';
+  location.href = 'login.html';
 }
 
 // ── Toast ────────────────────────────────────
@@ -3394,7 +3394,8 @@ async function loadCalendar(force=false){
 }
 
 async function fetchEcoCalendarFinnhub(from, to){
-  const url = `/api/finnhub?type=calendar&from=${from}&to=${to}`;
+  const key = 'cnl7g5pr01qhcd72ga3gcnl7g5pr01qhcd72ga40'; // free public demo key
+  const url = `https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${key}`;
   const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
   if(!r.ok) return null;
   const d = await r.json();
@@ -3418,7 +3419,8 @@ async function loadCalendarNews(){
   if(_calNews.length && Date.now()-_calNewsLastFetch < 120000){ renderCalendar(); return; }
   try{
     // Finnhub market news
-    const r = await fetch('/api/finnhub?type=news', {signal:AbortSignal.timeout(8000)});
+    const key = 'cnl7g5pr01qhcd72ga3gcnl7g5pr01qhcd72ga40';
+    const r = await fetch(`https://finnhub.io/api/v1/news?category=crypto&token=${key}`, {signal:AbortSignal.timeout(8000)});
     if(!r.ok) throw new Error('news fetch fail');
     const items = await r.json();
     _calNews = items.slice(0,30).map(n => ({
@@ -4417,7 +4419,7 @@ async function atSendToTg(){
     showToast('Telegram не подключён — настрой в профиле','err'); return;
   }
   if(!_atAnalysis) { showToast('Сначала запусти сканер','err'); return; }
-  const { data: { session: _sess } } = await sb.auth.getSession(); const user = _sess?.user;
+  const { data: { user } } = await sb.auth.getUser();
   if(!user) return;
 
   const pair   = document.getElementById('at-pair').value.toUpperCase();
@@ -4548,17 +4550,13 @@ ${liqStr}
 Только JSON, без markdown.`;
 
   try{
-    const resp = await fetch('/api/ai', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        mode: 'screener_insight',
-        tradeData: { prompt, entry, sl, tp, metrics },
-        max_tokens: 1200,
-        temperature: 0.2,
-      })
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200,
+        messages:[{ role:'user', content:prompt }] })
     });
     const data = await resp.json();
-    const raw  = data.text||'[]';
+    const raw  = data.content?.[0]?.text||'[]';
     const cards= JSON.parse(raw.replace(/```json|```/g,'').trim());
     aiLoad.style.display='none';
     atRenderCards(cards, aiCards);
