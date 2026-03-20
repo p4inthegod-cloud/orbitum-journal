@@ -1622,6 +1622,13 @@ select.at-input{cursor:pointer;}
   <div class="topbar">
     <span class="tb-title">ORBITUM · SCREENER</span>
 
+    <!-- SA SCORE — Situational Awareness (from cockpit UX template) -->
+    <div id="sa-score-widget" style="display:none;align-items:center;gap:6px;padding:4px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;cursor:pointer;" title="Situational Awareness Score" onclick="_loadSAScore(true)">
+      <div id="sa-dot" style="width:6px;height:6px;border-radius:50%;background:#f5c842;box-shadow:0 0 5px #f5c842;flex-shrink:0;"></div>
+      <span style="font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:rgba(232,228,220,0.5);">SA</span>
+      <span id="sa-val" style="font-family:var(--font-mono);font-size:10px;font-weight:500;color:#f5c842;">—</span>
+    </div>
+
     <div class="filter-row">
       <button class="flt-btn active" data-filter="all" onclick="setFilter('all',this)">ALL</button>
       <button class="flt-btn" data-filter="gainers" onclick="setFilter('gainers',this)">▲ TOP</button>
@@ -3694,10 +3701,16 @@ async function initAuth(){
   const { data: { session } } = await sb.auth.getSession();
   if(!session?.user){ location.href = '/login?returnTo=/screener'; return; }
   const user = session.user;
-  // Load TG profile
-  const { data } = await sb.from('profiles').select('tg_chat_id,tg_linked,tg_notify_alerts').eq('id', user.id).single();
+  // Load profile — plan needed for free/paid gating
+  const { data } = await sb.from('profiles').select('tg_chat_id,tg_linked,tg_notify_alerts,plan,full_name').eq('id', user.id).single();
   _tgProfile = data || {};
+  window._userPlan = data?.plan || 'free';
+  window._isPaid   = (window._userPlan === 'lifetime' || window._userPlan === 'monthly');
   await loadAlerts();
+  // Boot sequence on first daily visit
+  _runBootSequence();
+  // SA Score — load after auth
+  _loadSAScore();
 }
 
 async function doLogout(){
@@ -5100,6 +5113,151 @@ async function atLoadChart(){
   }catch(e){
     if(loading){loading.style.display='flex'; loading.textContent='Ошибка: '+e.message;}
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SA SCORE — Situational Awareness (cockpit UX template)
+// GET /api/ticker?type=sa_score → { score, label, color, fng }
+// ═══════════════════════════════════════════════════════════
+var _saLastFetch = 0;
+async function _loadSAScore(force = false) {
+  if (!force && Date.now() - _saLastFetch < 120000) return; // 2 min cache
+  _saLastFetch = Date.now();
+  try {
+    const r = await fetch('/api/ticker?type=sa_score');
+    if (!r.ok) return;
+    const d = await r.json();
+    const widget = document.getElementById('sa-score-widget');
+    const dot    = document.getElementById('sa-dot');
+    const val    = document.getElementById('sa-val');
+    if (!widget || !val || !dot) return;
+
+    val.textContent  = d.score + ' · ' + d.label;
+    val.style.color  = d.color;
+    dot.style.background  = d.color;
+    dot.style.boxShadow   = `0 0 6px ${d.color}`;
+    widget.style.display  = 'flex';
+    widget.title = `Situational Awareness: ${d.score}/100 · F&G ${d.fng} · BTC Dom ${d.btcDom}% · Mkt ${d.mktChg >= 0 ? '+' : ''}${d.mktChg}%`;
+    // Refresh every 2 min while screener is open
+    setTimeout(() => _loadSAScore(true), 120000);
+  } catch(e) { /* silent fail */ }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FREE TIER LOCK — "AI ANALYSIS LOCKED" blur (cockpit template)
+// Applied to AI insight section in detail panel for free users
+// ═══════════════════════════════════════════════════════════
+function _applyFreeTierLock() {
+  if (window._isPaid) return; // paid users see everything
+
+  // Lock AI insight slot in detail panel
+  const aiSlot = document.getElementById('dp-ai-slot');
+  if (aiSlot && !aiSlot.dataset.locked) {
+    aiSlot.dataset.locked = '1';
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:absolute;inset:0;z-index:10;
+      background:rgba(5,7,10,0.72);backdrop-filter:blur(5px);
+      border-radius:10px;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:6px;
+      cursor:pointer;border:1px solid rgba(232,114,42,0.2);
+    `;
+    overlay.innerHTML = `
+      <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:2.5px;color:rgba(232,114,42,0.7);">AI ANALYSIS LOCKED</div>
+      <div style="font-family:var(--font-mono);font-size:8px;color:rgba(232,228,220,0.3);letter-spacing:1px;">Premium feature</div>
+      <div onclick="location.href='/pay'" style="margin-top:6px;padding:5px 14px;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);border-radius:4px;font-family:var(--font-mono);font-size:9px;color:rgba(232,114,42,0.9);letter-spacing:1.5px;cursor:pointer;">UNLOCK →</div>
+    `;
+    aiSlot.style.position = 'relative';
+    aiSlot.appendChild(overlay);
+  }
+
+  // Lock AT panel AI section (trade analyzer)
+  const atAiCards = document.getElementById('at-ai-cards');
+  if (atAiCards && !atAiCards.dataset.locked) {
+    atAiCards.dataset.locked = '1';
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:relative;margin-top:8px;padding:20px;
+      background:rgba(5,7,10,0.6);backdrop-filter:blur(4px);
+      border:1px solid rgba(232,114,42,0.15);border-radius:8px;
+      display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+    `;
+    overlay.innerHTML = `
+      <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:2.5px;color:rgba(232,114,42,0.7);">AI TRADE ANALYSIS · LOCKED</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(232,228,220,0.4);line-height:1.7;">
+        You can taste it.<br>Confidence %, entry zones, ICT structure.<br>All visible with premium.
+      </div>
+      <!-- Blurred placeholder cards — user can see shape but not content -->
+      <div style="filter:blur(3px);pointer-events:none;width:100%;opacity:0.4;">
+        <div style="background:rgba(52,208,88,0.08);border:1px solid rgba(52,208,88,0.15);border-radius:6px;padding:8px 12px;margin-bottom:6px;font-family:var(--font-mono);font-size:10px;color:#34d058;">✅ R:R соотношение хорошее — цель достижима</div>
+        <div style="background:rgba(232,114,42,0.08);border:1px solid rgba(232,114,42,0.15);border-radius:6px;padding:8px 12px;margin-bottom:6px;font-family:var(--font-mono);font-size:10px;color:var(--a);">⚠️ Вход выше зоны — риск увеличен на 12%</div>
+        <div style="background:rgba(255,64,64,0.06);border:1px solid rgba(255,64,64,0.15);border-radius:6px;padding:8px 12px;font-family:var(--font-mono);font-size:10px;color:#ff4040;">🚨 OB не подтверждён на текущем ТФ</div>
+      </div>
+      <div onclick="location.href='/pay'" style="padding:7px 20px;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);border-radius:4px;font-family:var(--font-mono);font-size:9px;color:rgba(232,114,42,0.9);letter-spacing:1.5px;cursor:pointer;margin-top:4px;">UNLOCK AI ANALYSIS →</div>
+    `;
+    atAiCards.parentNode.insertBefore(overlay, atAiCards);
+    atAiCards.style.display = 'none'; // hide real cards, show locked overlay
+  }
+}
+
+// Run free tier lock whenever detail panel opens
+const _origFocusCoin = typeof focusCoin === 'function' ? focusCoin : null;
+
+// Hook into detail panel open — apply lock after panel renders
+const _dpObserver = new MutationObserver(() => {
+  const panel = document.getElementById('detail-panel');
+  if (panel?.classList.contains('open')) {
+    setTimeout(_applyFreeTierLock, 100);
+  }
+});
+const _dpEl = document.getElementById('detail-panel');
+if (_dpEl) _dpObserver.observe(_dpEl, { attributes: true, attributeFilter: ['class'] });
+
+// ═══════════════════════════════════════════════════════════
+// BOOT SEQUENCE — First daily login animation (cockpit template)
+// "Powering on a control system. First impression = serious tool."
+// ═══════════════════════════════════════════════════════════
+function _runBootSequence() {
+  const today = new Date().toDateString();
+  const lastBoot = localStorage.getItem('orb_last_boot');
+  if (lastBoot === today) return; // already booted today
+  localStorage.setItem('orb_last_boot', today);
+
+  // Create boot overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'boot-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9998;background:#05070a;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:0;font-family:var(--font-mono);pointer-events:none;
+    animation:bootFadeOut 0.4s ease 3.2s forwards;
+  `;
+
+  const lines = [
+    { text: 'ORBITUM TRADING SYSTEM',    color: 'rgba(232,114,42,0.9)', size: '13px', ls: '6px', delay: 0 },
+    { text: '─────────────────────────', color: 'rgba(255,255,255,0.08)', size: '11px', ls: '2px', delay: 200 },
+    { text: '▸ CONNECTING MARKET DATA', color: 'rgba(232,228,220,0.3)', size: '9px', ls: '2px', delay: 400 },
+    { text: '▸ LOADING COIN UNIVERSE',  color: 'rgba(232,228,220,0.3)', size: '9px', ls: '2px', delay: 700 },
+    { text: '▸ INITIALIZING AI ENGINE', color: 'rgba(232,228,220,0.3)', size: '9px', ls: '2px', delay: 1000 },
+    { text: '▸ FETCHING ALERTS',        color: 'rgba(232,228,220,0.3)', size: '9px', ls: '2px', delay: 1300 },
+    { text: '─────────────────────────', color: 'rgba(255,255,255,0.08)', size: '11px', ls: '2px', delay: 1600 },
+    { text: '● SYSTEM READY',           color: '#2dce5c',                size: '10px', ls: '3px', delay: 1800 },
+  ];
+
+  lines.forEach(({ text, color, size, ls, delay }) => {
+    const el = document.createElement('div');
+    el.textContent = text;
+    el.style.cssText = `color:${color};font-size:${size};letter-spacing:${ls};margin:3px 0;opacity:0;transition:opacity 0.3s;`;
+    setTimeout(() => { el.style.opacity = '1'; }, delay);
+    overlay.appendChild(el);
+  });
+
+  // Add boot CSS
+  const style = document.createElement('style');
+  style.textContent = `@keyframes bootFadeOut{to{opacity:0;pointer-events:none;}}`;
+  document.head.appendChild(style);
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 3700);
 }
 
 
