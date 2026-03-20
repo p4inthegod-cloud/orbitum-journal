@@ -1,152 +1,106 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORBITUM — Вход</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<title>ORBITUM — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>if(typeof supabase==="undefined"){var _s=document.createElement("script");_s.src="https://unpkg.com/@supabase/supabase-js@2";document.head.appendChild(_s);}</script>
 <style>
-:root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bd:rgba(255,255,255,0.08);--t:#f0f0f0;--m:rgba(255,255,255,0.35);--r:#ff4d4d;--g:#34d058;}
-*{margin:0;padding:0;box-sizing:border-box;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--o:#e86c2a;--od:rgba(232,108,42,0.15);--og:rgba(232,108,42,0.4);--bg:#080808;--bg2:#0f0f0f;--line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.12);--t:#e8e4dc;--m:rgba(232,228,220,0.45);--m2:rgba(232,228,220,0.22);--g:#2ecc71;--r:#e74c3c;--mono:'DM Mono',monospace;}
 html,body{height:100%;}
-body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;}
-.orbs{position:fixed;inset:0;pointer-events:none;overflow:hidden;}
-.orb{position:absolute;border-radius:50%;filter:blur(90px);}
-.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(232,114,42,0.22),transparent 65%);top:-150px;left:50%;transform:translateX(-50%);animation:f1 9s ease-in-out infinite;}
-.orb2{width:300px;height:300px;background:radial-gradient(circle,rgba(232,114,42,0.12),transparent 65%);bottom:5%;right:-60px;animation:f2 11s ease-in-out infinite;}
-.orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(255,140,50,0.08),transparent 65%);bottom:15%;left:5%;animation:f1 13s ease-in-out infinite 3s;}
-@keyframes f1{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-28px);}}
-@keyframes f2{0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
-.card{width:420px;background:rgba(255,255,255,0.028);border:1px solid var(--bd);border-radius:24px;padding:48px 44px;position:relative;z-index:1;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 32px 80px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.09);animation:up 0.5s cubic-bezier(0.16,1,0.3,1) both;}
-@keyframes up{from{opacity:0;transform:translateY(18px) scale(0.98);}to{opacity:1;transform:none;}}
-.card::before{content:'';position:absolute;top:0;left:22%;right:22%;height:1px;background:linear-gradient(90deg,transparent,var(--a),transparent);}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:6px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 30%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:5px;}
-.sub{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:36px;transition:all 0.3s;}
-.tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:4px;margin-bottom:30px;gap:4px;}
-.tab{flex:1;padding:10px;border-radius:9px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.25s;}
-.tab.active{background:rgba(255,255,255,0.08);color:var(--t);box-shadow:0 2px 10px rgba(0,0,0,0.3);}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;font-weight:300;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:0;opacity:0.5;}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 20%,transparent 100%);pointer-events:none;z-index:0;}
+.bg-glow{position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(232,108,42,.07),transparent 70%);pointer-events:none;z-index:0;}
+.card{width:420px;position:relative;z-index:1;animation:fadeUp .6s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+.card-logo{text-align:center;margin-bottom:40px;}
+.logo-text{font-family:'Comfortaa',cursive;font-size:28px;font-weight:700;font-variant:small-caps;letter-spacing:4px;color:#ff6600;text-shadow:1px 0 14px rgba(255,103,0,.9);animation:logoGlow 3s ease-in-out infinite;display:inline-block;}
+@keyframes logoGlow{0%,100%{text-shadow:1px 0 10px rgba(255,103,0,.7);}50%{text-shadow:1px 0 22px rgba(255,103,0,1),0 0 32px rgba(255,103,0,.35);}}
+.card-subtitle{font-family:var(--mono);font-size:10px;color:var(--m2);letter-spacing:2px;text-transform:uppercase;margin-top:6px;}
+.tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:32px;}
+.tab{flex:1;padding:10px 0;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m2);background:transparent;border:none;cursor:pointer;transition:all .25s;position:relative;}
+.tab.active{color:var(--o);}
+.tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:var(--o);}
 .field{margin-bottom:18px;}
-.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-.field input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:all 0.2s;}
-.field input::placeholder{color:rgba(255,255,255,0.18);}
-.field input:focus{border-color:var(--a);background:rgba(232,114,42,0.05);box-shadow:0 0 0 3px rgba(232,114,42,0.1);}
-.btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--a) 0%,#c85e18 100%);border:none;border-radius:12px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all 0.25s;box-shadow:0 4px 24px rgba(232,114,42,0.38),inset 0 1px 0 rgba(255,255,255,0.14);margin-top:6px;position:relative;overflow:hidden;}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,114,42,0.5),inset 0 1px 0 rgba(255,255,255,0.14);}
-.btn:active{transform:translateY(0);}
-.btn:disabled{opacity:0.42;cursor:not-allowed;transform:none;}
-.msg{font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;margin-top:14px;padding:11px 14px;border-radius:10px;display:none;letter-spacing:0.5px;}
-.msg.err{background:rgba(255,77,77,0.07);border:1px solid rgba(255,77,77,0.2);color:var(--r);}
-.msg.ok{background:rgba(52,208,88,0.07);border:1px solid rgba(52,208,88,0.2);color:var(--g);}
-.back{display:block;text-align:center;margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);text-decoration:none;letter-spacing:1px;transition:color 0.2s;}
-.back:hover{color:var(--a);}
-.plan-sel{display:flex;gap:10px;margin-bottom:18px;}
-.plan-opt{flex:1;padding:14px 10px;border:1px solid var(--bd);border-radius:12px;background:rgba(255,255,255,0.03);color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-align:center;cursor:pointer;transition:all 0.25s;}
-.plan-opt.active{border-color:var(--a);color:var(--a);background:rgba(232,114,42,0.08);box-shadow:0 0 20px rgba(232,114,42,0.1);}
-.plan-price{font-family:'Bebas Neue',sans-serif;font-size:24px;display:block;margin-bottom:3px;letter-spacing:1px;}
-.plan-label{font-size:9px;letter-spacing:1.5px;opacity:0.7;}
+.field label{display:block;font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.field input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--line2);padding:10px 0;color:var(--t);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .25s;}
+.field input::placeholder{color:var(--m2);}
+.field input:focus{border-bottom-color:var(--o);}
+.btn-submit{width:100%;padding:14px;background:transparent;border:1px solid var(--o);color:var(--o);font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .25s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-submit:hover{background:var(--o);color:#080808;}
+.btn-submit:disabled{opacity:.35;cursor:not-allowed;}
+.divider{display:flex;align-items:center;gap:16px;margin:20px 0;font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:1px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+.btn-google{width:100%;padding:12px;background:transparent;border:1px solid var(--line2);color:var(--m);font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn-google:hover{border-color:rgba(232,108,42,.35);color:var(--o);}
+.btn-demo{width:100%;padding:10px;background:transparent;border:none;color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:color .2s;text-transform:uppercase;margin-top:8px;}
+.btn-demo:hover{color:var(--m);}
+.msg{font-family:var(--mono);font-size:10px;text-align:center;margin-top:12px;padding:10px;display:none;}
+.msg.err{color:var(--r);border:1px solid rgba(231,76,60,.2);background:rgba(231,76,60,.04);}
+.msg.ok{color:var(--g);border:1px solid rgba(46,204,113,.2);background:rgba(46,204,113,.04);}
+.back-link{display:block;text-align:center;margin-top:28px;font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:1px;text-decoration:none;transition:color .2s;}
+.back-link:hover{color:var(--m);}
+.panel{display:none;}
+.panel.active{display:block;}
 </style>
 </head>
 <body>
-<div class="orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
 <div class="card">
-  <div class="logo">ORBITUM</div>
-  <div class="sub" id="sub-text">Trading Journal</div>
+  <div class="card-logo">
+    <div class="logo-text">ORBITUM</div>
+    <div class="card-subtitle" id="card-subtitle">Welcome back</div>
+  </div>
   <div class="tabs">
-    <button class="tab active" onclick="showTab('login')">ВОЙТИ</button>
-    <button class="tab" onclick="showTab('register')">РЕГИСТРАЦИЯ</button>
+    <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+    <button class="tab" id="tab-register" onclick="switchTab('register')">Register</button>
   </div>
-  <div id="form-login">
-    <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="trader@mail.com" /></div>
-    <div class="field"><label>Пароль</label><input type="password" id="l-pass" placeholder="••••••••" /></div>
-    <button class="btn" id="btn-login" onclick="doLogin()">ВОЙТИ</button>
+  <!-- LOGIN -->
+  <div class="panel active" id="panel-login">
+    <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="you@mail.com" autocomplete="email"/></div>
+    <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"/></div>
+    <button class="btn-submit" id="btn-login" onclick="doLogin()">Sign In <span>→</span></button>
     <div class="msg" id="l-msg"></div>
-    <div style="margin-top:18px;text-align:center;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px;margin-bottom:10px;">— или —</div>
-      <button onclick="signInWithGoogle()" style="width:100%;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.75);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;" onmouseover="this.style.borderColor='rgba(232,114,42,0.4)';this.style.color='rgba(232,114,42,0.9)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.75)'">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        ВОЙТИ ЧЕРЕЗ GOOGLE
-      </button>
-      <button onclick="tryDemo()" style="width:100%;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.55);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(232,114,42,0.4)';this.style.color='rgba(232,114,42,0.9)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.55)'">🎮 ПОПРОБОВАТЬ БЕЗ РЕГИСТРАЦИИ</button>
-    </div>
-    <a href="index.html" class="back">← Вернуться на главную</a>
+    <div class="divider">or</div>
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <button class="btn-demo" onclick="tryDemo()">Try Demo without registration</button>
   </div>
-  <div id="form-register" style="display:none">
-    <div class="field"><label>Имя / никнейм</label><input type="text" id="r-name" placeholder="Your Name" /></div>
-    <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="trader@mail.com" /></div>
-    <div class="field"><label>Пароль</label><input type="password" id="r-pass" placeholder="мин. 8 символов" /></div>
-    <button class="btn" id="btn-reg" onclick="doRegister()">СОЗДАТЬ АККАУНТ</button>
+  <!-- REGISTER -->
+  <div class="panel" id="panel-register">
+    <div class="field"><label>Name / Nickname</label><input type="text" id="r-name" placeholder="Your Name" autocomplete="name"/></div>
+    <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="you@mail.com" autocomplete="email"/></div>
+    <div class="field"><label>Password <span style="color:var(--m2);font-size:8px;">min 8 chars</span></label><input type="password" id="r-pass" placeholder="••••••••" autocomplete="new-password"/></div>
+    <button class="btn-submit" id="btn-reg" onclick="doRegister()">Create Account <span>→</span></button>
     <div class="msg" id="r-msg"></div>
-    <div style="margin-top:18px;text-align:center;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px;margin-bottom:10px;">— или —</div>
-      <button onclick="signInWithGoogle()" style="width:100%;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:rgba(255,255,255,0.75);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;" onmouseover="this.style.borderColor='rgba(232,114,42,0.4)';this.style.color='rgba(232,114,42,0.9)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.75)'">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        ЗАРЕГИСТРИРОВАТЬСЯ ЧЕРЕЗ GOOGLE
-      </button>
-    </div>
-    <a href="index.html" class="back">← Вернуться на главную</a>
+    <div class="divider">or</div>
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Sign up with Google
+    </button>
   </div>
+  <a href="/" class="back-link">← Back to site</a>
 </div>
 <script>
 const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
-  auth:{
-    persistSession:true,
-    autoRefreshToken:true,
-    detectSessionInUrl:true
-  }
-});
-
-// ── AUTO REDIRECT if already logged in ──────────────────
-(async()=>{
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){
-    const {data:profile}=await sb.from('profiles').select('role').eq('id',session.user.id).single();
-    window.location.href=profile?.role==='admin'?'admin.html':'cabinet.html';
-  }
-})();
-
-const urlPlan=new URLSearchParams(window.location.search).get('plan');
-if(urlPlan){showTab('register');}
-function showTab(t){document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='register')));document.getElementById('form-login').style.display=t==='login'?'block':'none';document.getElementById('form-register').style.display=t==='register'?'block':'none';document.getElementById('sub-text').textContent=t==='login'?'Добро пожаловать назад':'Создай аккаунт';}
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+(async()=>{const{data:{session}}=await sb.auth.getSession();if(session){const{data:p}=await sb.from('profiles').select('role').eq('id',session.user.id).single();window.location.href=p?.role==='admin'?'/admin':'/cabinet';}})();
+const urlParams=new URLSearchParams(window.location.search);
+if(urlParams.get('tab')==='register')switchTab('register');
+function switchTab(t){document.getElementById('tab-login').classList.toggle('active',t==='login');document.getElementById('tab-register').classList.toggle('active',t==='register');document.getElementById('panel-login').classList.toggle('active',t==='login');document.getElementById('panel-register').classList.toggle('active',t==='register');document.getElementById('card-subtitle').textContent=t==='login'?'Welcome back':'Create your account';}
 function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='msg '+type;el.style.display='block';}
-async function doLogin(){const email=document.getElementById('l-email').value.trim();const pass=document.getElementById('l-pass').value;if(!email||!pass){showMsg('l-msg','Заполни все поля','err');return;}const btn=document.getElementById('btn-login');if(btn._busy)return;btn._busy=true;btn.disabled=true;btn.textContent='ВХОДИМ...';const{data,error}=await sb.auth.signInWithPassword({email,password:pass});if(error){showMsg('l-msg','Неверный email или пароль','err');btn.disabled=false;btn._busy=false;btn.textContent='ВОЙТИ';return;}const{data:profile}=await sb.from('profiles').select('role,plan').eq('id',data.user.id).single();if(profile?.role==='admin')window.location.href='admin.html';else window.location.href='cabinet.html';}
-async function doRegister(){const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pass=document.getElementById('r-pass').value;if(!name||!email||!pass){showMsg('r-msg','Заполни все поля','err');return;}if(pass.length<8){showMsg('r-msg','Пароль минимум 8 символов','err');return;}const btn=document.getElementById('btn-reg');btn.disabled=true;btn.textContent='СОЗДАЁМ...';const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name,username:name.toLowerCase().replace(/\s+/g,'_')}}});if(error){showMsg('r-msg',error.message,'err');btn.disabled=false;btn.textContent='СОЗДАТЬ АККАУНТ';return;}
-  // Manually upsert profile row in case DB trigger is missing
-  if(data.user){
-    await sb.from('profiles').upsert({
-      id: data.user.id,
-      email: email,
-      full_name: name,
-      username: name.toLowerCase().replace(/\s+/g,'_'),
-      role: 'user',
-      plan: 'free',
-      created_at: new Date().toISOString()
-    }, {onConflict:'id', ignoreDuplicates:true});
-  }
-  if(data.session){
-    showMsg('r-msg','Аккаунт создан! Загружаем журнал...','ok');
-    setTimeout(()=>window.location.href='cabinet.html',1200);
-  } else {
-    showMsg('r-msg','Аккаунт создан! Проверь почту для подтверждения, затем войди.','ok');
-    btn.disabled=false;btn.textContent='СОЗДАТЬ АККАУНТ';
-    setTimeout(()=>showTab('login'),3000);
-  }}
-document.addEventListener('keydown',e=>{if(e.key==='Enter'){if(document.getElementById('form-login').style.display!=='none')doLogin();else doRegister();}});
-async function signInWithGoogle(){
-  const {error} = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: 'https://orbitum.trade/cabinet.html'
-    }
-  });
-  if(error) showMsg('l-msg', error.message, 'err');
-}
-
-function tryDemo(){ localStorage.setItem('orb_demo_mode','1'); window.location.href='journal.html?demo=1'; }
+async function doLogin(){const email=document.getElementById('l-email').value.trim();const pass=document.getElementById('l-pass').value;if(!email||!pass){showMsg('l-msg','Fill in all fields','err');return;}const btn=document.getElementById('btn-login');if(btn._busy)return;btn._busy=true;btn.disabled=true;btn.textContent='Signing in...';const{data,error}=await sb.auth.signInWithPassword({email,password:pass});if(error){showMsg('l-msg','Wrong email or password','err');btn.disabled=false;btn._busy=false;btn.innerHTML='Sign In <span>→</span>';return;}const{data:p}=await sb.from('profiles').select('role').eq('id',data.user.id).single();window.location.href=p?.role==='admin'?'/admin':'/cabinet';}
+async function doRegister(){const name=document.getElementById('r-name').value.trim();const email=document.getElementById('r-email').value.trim();const pass=document.getElementById('r-pass').value;if(!name||!email||!pass){showMsg('r-msg','Fill in all fields','err');return;}if(pass.length<8){showMsg('r-msg','Password must be at least 8 characters','err');return;}const btn=document.getElementById('btn-reg');btn.disabled=true;btn.textContent='Creating...';const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name,username:name.toLowerCase().replace(/\s+/g,'_')}}});if(error){showMsg('r-msg',error.message,'err');btn.disabled=false;btn.innerHTML='Create Account <span>→</span>';return;}if(data.user){await sb.from('profiles').upsert({id:data.user.id,email,full_name:name,username:name.toLowerCase().replace(/\s+/g,'_'),role:'user',plan:'free',created_at:new Date().toISOString()},{onConflict:'id',ignoreDuplicates:true});}if(data.session){showMsg('r-msg','Account created! Redirecting...','ok');setTimeout(()=>window.location.href='/cabinet',1200);}else{showMsg('r-msg','Account created! Check your email to confirm, then sign in.','ok');btn.disabled=false;btn.innerHTML='Create Account <span>→</span>';setTimeout(()=>switchTab('login'),3000);}}
+async function signInWithGoogle(){const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://orbitum.trade/cabinet'}});if(error)showMsg('l-msg',error.message,'err');}
+function tryDemo(){localStorage.setItem('orb_demo_mode','1');window.location.href='/journal?demo=1';}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){if(document.getElementById('panel-login').classList.contains('active'))doLogin();else doRegister();}});
 </script>
 </body>
 </html>
