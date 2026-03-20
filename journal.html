@@ -4182,6 +4182,12 @@ body::after {
 <div class="jnl-topbar" id="jnl-topbar">
   <div class="jtb-dot"></div>
   <span class="jtb-badge" id="jtb-page-badge">ЖУРНАЛ СДЕЛОК</span>
+  <!-- SA SCORE widget -->
+  <div id="j-sa-widget" style="display:none;align-items:center;gap:6px;padding:3px 10px;border:1px solid rgba(255,255,255,0.07);border-radius:4px;cursor:pointer;margin-left:12px;" title="Situational Awareness Score" onclick="_jLoadSA(true)">
+    <div id="j-sa-dot" style="width:5px;height:5px;border-radius:50%;background:#f5c842;box-shadow:0 0 4px #f5c842;flex-shrink:0;"></div>
+    <span style="font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;color:rgba(232,228,220,0.4);">SA</span>
+    <span id="j-sa-val" style="font-family:var(--font-mono);font-size:9px;color:#f5c842;">—</span>
+  </div>
   <div style="flex:1;"></div>
   <div class="jtb-right">
     <!-- BALANCE WIDGET -->
@@ -5509,6 +5515,11 @@ async function init(){
   window._planExpires = p.plan_expires_at;
   window._hasFullAccess = hasAccess;
   
+  // Boot sequence (once per day)
+  _runJournalBoot();
+  // SA Score in topbar
+  _jLoadSA(false);
+  
   await loadTrades();
   
   if(!hasAccess){
@@ -5607,16 +5618,11 @@ function enableFreeTierMode(name){
         ov.innerHTML = '<div class="plo-inner"><div class="plo-lock">🔒</div><div class="plo-label">Лимит 10 сделок исчерпан</div><a href="pay.html" class="plo-btn">Разблокировать — $29/мес</a></div>';
         form.appendChild(ov);
       }
-      // Lock only AI coach/brutal (paid AI features)
-      ['#page-aichat','#page-coach'].forEach(sel=>{
-        const el = document.querySelector(sel);
-        if(!el) return;
-        if(getComputedStyle(el).position==='static') el.style.position='relative';
-        const ov = document.createElement('div');
-        ov.className = 'preview-lock-overlay';
-        ov.innerHTML = '<div class="plo-inner"><div class="plo-lock">🤖</div><div class="plo-label">AI-коуч — платная функция</div><a href="pay.html" class="plo-btn">Открыть доступ</a></div>';
-        el.appendChild(ov);
-      });
+      // Lock AI Coach + AI Chat with template-style blur overlay
+      // From cockpit UX template: "Free users can taste it. The upgrade sells itself."
+      setTimeout(() => {
+        _applyJournalAILock();
+      }, 200);
     }, 300);
   }
 }
@@ -10725,6 +10731,127 @@ document.addEventListener('keydown', e => {
     else setTimeout(applyLang, 500);
   }
 })();
+
+// ═══════════════════════════════════════════════════════════
+// SA SCORE for journal topbar
+// ═══════════════════════════════════════════════════════════
+var _jSaLast = 0;
+async function _jLoadSA(force) {
+  if (!force && Date.now() - _jSaLast < 120000) return;
+  _jSaLast = Date.now();
+  try {
+    const r = await fetch('/api/ticker?type=sa_score');
+    if (!r.ok) return;
+    const d = await r.json();
+    const w   = document.getElementById('j-sa-widget');
+    const dot = document.getElementById('j-sa-dot');
+    const val = document.getElementById('j-sa-val');
+    if (!w) return;
+    val.textContent      = d.score + ' · ' + d.label;
+    val.style.color      = d.color;
+    dot.style.background = d.color;
+    dot.style.boxShadow  = `0 0 5px ${d.color}`;
+    w.style.display      = 'flex';
+    w.title = `SA ${d.score}/100 · F&G ${d.fng} · BTC Dom ${d.btcDom}%`;
+    setTimeout(() => _jLoadSA(true), 120000);
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// AI LOCK — template-style with blurred placeholders
+// ═══════════════════════════════════════════════════════════
+function _applyJournalAILock() {
+  if (window._hasFullAccess) return;
+
+  const targets = [
+    {
+      sel: '#page-coach',
+      icon: '🤖',
+      title: 'AI COACH · LOCKED',
+      desc: 'Personal pattern analysis. Finds what costs you money every week.',
+      placeholder: `<div style="filter:blur(4px);pointer-events:none;margin-bottom:12px;opacity:0.45;width:100%;max-width:320px;">
+        <div style="background:rgba(255,68,68,0.07);border:1px solid rgba(255,68,68,0.2);border-radius:8px;padding:10px 14px;margin-bottom:6px;font-family:var(--font-mono);font-size:10px;color:#ff4444;">🚨 Revenge trading — 4 убытка после серии. Потери $340/мес</div>
+        <div style="background:rgba(244,197,66,0.06);border:1px solid rgba(244,197,66,0.2);border-radius:8px;padding:10px 14px;margin-bottom:6px;font-family:var(--font-mono);font-size:10px;color:#f5c842;">⚠️ Пятница 17:00+ — 8 из 11 убыточных. Низкий объём.</div>
+        <div style="background:rgba(52,208,88,0.06);border:1px solid rgba(52,208,88,0.2);border-radius:8px;padding:10px 14px;font-family:var(--font-mono);font-size:10px;color:#34d058;">✅ BTC Long 4H — WR 78%. Продолжай этот сетап.</div>
+      </div>`
+    },
+    {
+      sel: '#page-aichat',
+      icon: '💬',
+      title: 'AI CHAT · LOCKED',
+      desc: 'Ask anything about your trades. Real-time AI analysis.',
+      placeholder: ''
+    }
+  ];
+
+  targets.forEach(({ sel, icon, title, desc, placeholder }) => {
+    const el = document.querySelector(sel);
+    if (!el || el.querySelector('.j-ai-lock')) return;
+    if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+    const ov = document.createElement('div');
+    ov.className = 'j-ai-lock';
+    ov.style.cssText = 'position:absolute;inset:0;z-index:50;background:rgba(5,7,10,0.82);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;gap:10px;';
+    ov.innerHTML = `
+      ${placeholder}
+      <div style="font-size:28px;margin-bottom:4px;">${icon}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:3px;color:rgba(232,114,42,0.8);">${title}</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:rgba(232,228,220,0.45);max-width:280px;line-height:1.7;">${desc}</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;width:100%;max-width:240px;">
+        <a href="/pay" style="display:block;padding:10px 24px;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.35);border-radius:6px;font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:rgba(232,114,42,0.9);text-decoration:none;" onmouseover="this.style.background='rgba(232,114,42,0.2)'" onmouseout="this.style.background='rgba(232,114,42,0.12)'">UNLOCK → $29/MONTH</a>
+        <a href="/pay" style="display:block;padding:8px 24px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:rgba(232,228,220,0.35);text-decoration:none;">or $197 lifetime ∞</a>
+      </div>`;
+    el.appendChild(ov);
+  });
+
+  // Lock Brutal Analysis button
+  const brutalBtn = document.getElementById('brutal-btn');
+  if (brutalBtn && !brutalBtn.dataset.locked) {
+    brutalBtn.dataset.locked = '1';
+    brutalBtn.onclick = () => {
+      if (typeof showNotif === 'function') showNotif('warn', 'Платная функция', 'Brutal Analysis доступен с подпиской', 3000);
+      setTimeout(() => { location.href = '/pay'; }, 1200);
+    };
+    brutalBtn.style.opacity = '0.5';
+    brutalBtn.textContent   = '🔒 BRUTAL ANALYSIS · LOCKED';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// BOOT SEQUENCE — first daily login
+// ═══════════════════════════════════════════════════════════
+function _runJournalBoot() {
+  const today    = new Date().toDateString();
+  const lastBoot = localStorage.getItem('orb_journal_boot');
+  if (lastBoot === today) return;
+  localStorage.setItem('orb_journal_boot', today);
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#05070a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-family:var(--font-mono);pointer-events:none;animation:jBootOut 0.4s ease 3.0s forwards;';
+
+  const style = document.createElement('style');
+  style.textContent = '@keyframes jBootOut{to{opacity:0;}}';
+  document.head.appendChild(style);
+
+  [
+    { text: 'ORBITUM TRADING JOURNAL', color: 'rgba(232,114,42,0.9)',   size: '12px', ls: '5px', delay: 0    },
+    { text: '───────────────────────', color: 'rgba(255,255,255,0.07)', size: '11px', ls: '2px', delay: 150  },
+    { text: '▸ LOADING TRADE HISTORY',  color: 'rgba(232,228,220,0.3)', size: '9px',  ls: '2px', delay: 350  },
+    { text: '▸ BUILDING AI CONTEXT',    color: 'rgba(232,228,220,0.3)', size: '9px',  ls: '2px', delay: 650  },
+    { text: '▸ SYNCING ALERTS',         color: 'rgba(232,228,220,0.3)', size: '9px',  ls: '2px', delay: 900  },
+    { text: '───────────────────────', color: 'rgba(255,255,255,0.07)', size: '11px', ls: '2px', delay: 1150 },
+    { text: '● JOURNAL READY',          color: '#2dce5c',                size: '10px', ls: '3px', delay: 1350 },
+  ].forEach(({ text, color, size, ls, delay }) => {
+    const el = document.createElement('div');
+    el.textContent = text;
+    el.style.cssText = `color:${color};font-size:${size};letter-spacing:${ls};margin:3px 0;opacity:0;transition:opacity 0.3s;`;
+    setTimeout(() => { el.style.opacity = '1'; }, delay);
+    overlay.appendChild(el);
+  });
+
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 3500);
+}
+
 </script>
 
 </body>
