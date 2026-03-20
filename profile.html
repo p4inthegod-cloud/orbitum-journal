@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="mono">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Профиль трейдера</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>if(typeof supabase==="undefined"){var _s=document.createElement("script");_s.src="https://unpkg.com/@supabase/supabase-js@2";document.head.appendChild(_s);}</script>
 <style>
@@ -91,7 +91,7 @@ body,html{background:var(--bg)!important;color:var(--t)!important;}
 
 /* topbar */
 .jnl-topbar,.topbar{background:var(--topbar-bg)!important;border-bottom:1px solid var(--bd)!important;}
-.jtb-logo,.tb-logo,.mob-logo{color:var(--t)!important;}
+.jtb-logo,.mob-logo{color:var(--t)!important;}
 .jtb-badge,.tb-badge{color:var(--m)!important;border-color:var(--bd)!important;background:var(--bg2)!important;}
 .jtb-sep-v{background:var(--bd2)!important;}
 .jtb-action-btn{color:var(--m)!important;}
@@ -339,9 +339,15 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
   padding:0 32px;gap:12px;
 }
 .tb-logo{
-  font-family:var(--font-display);font-size:20px;letter-spacing:5px;
-  color:var(--t);text-decoration:none;
-  text-shadow:0 0 20px rgba(255,255,255,0.1);
+  font-family:'Comfortaa',cursive;font-size:20px;font-weight:700;
+  font-variant:small-caps;letter-spacing:3px;
+  color:#ff6600;text-decoration:none;
+  text-shadow:1px 0 12px rgba(255,103,0,.9);
+  animation:logoGlow 3s ease-in-out infinite;
+}
+@keyframes logoGlow{
+  0%,100%{text-shadow:1px 0 10px rgba(255,103,0,.7);}
+  50%{text-shadow:1px 0 20px rgba(255,103,0,1),0 0 30px rgba(255,103,0,.35);}
 }
 .tb-dot{width:5px;height:5px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a),0 0 16px rgba(232,114,42,0.4);}
 .tb-spacer{flex:1;}
@@ -1273,21 +1279,12 @@ h1,h2,h3,h4,h5,.title,.heading{color:var(--t)!important;}
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <a href="index.html" class="tb-logo" style="text-decoration:none">ORBITUM</a>
+  <a href="/" class="tb-logo" style="text-decoration:none;font-family:'Comfortaa',cursive;font-size:18px;font-weight:700;font-variant:small-caps;letter-spacing:3px;color:#ff6600;text-shadow:1px 0 12px rgba(255,103,0,.9);animation:logoGlow 3s ease-in-out infinite;">ORBITUM</a>
   <div class="tb-dot"></div>
-  <span class="tb-badge">ПРОФИЛЬ ТРЕЙДЕРА</span>
-  <div id="orb-theme-ctrl" style="display:flex;align-items:center;gap:2px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:3px;flex-shrink:0;">
-  <button onclick="orbSetTheme('dark')" id="orb-btn-dark" title="ORBITUM CLASSIC" style="width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:var(--m);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
-  <div style="width:1px;height:16px;background:var(--bd2);margin:0 1px;"></div>
-  <button onclick="orbSpToggle()" id="orb-btn-styles" title="Стили" style="width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:var(--m);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-  </button>
-</div>
-<div class="tb-spacer"></div>
-  
-  <a href="journal.html" class="tb-back" style="margin-left:4px">← Журнал</a>
+  <span class="tb-badge" id="tb-badge-label">TRADER PROFILE</span>
+  <div class="tb-spacer"></div>
+  <a href="/cabinet" class="tb-back" style="margin-right:8px;" id="cabinet-link" hidden>Cabinet</a>
+  <a href="/journal" class="tb-back">← Journal</a>
 </div>
 
 <div class="wrap" id="main-wrap">
@@ -1716,6 +1713,10 @@ async function init(){
 
   const {data:{session}}=await sb.auth.getSession();
   currentUser=session?.user||null;
+  if(currentUser){
+    const cl=document.getElementById('cabinet-link');
+    if(cl)cl.removeAttribute('hidden');
+  }
 
   if(!uid && currentUser) uid=currentUser.id;
   if(!uid){showNotFound('Укажи uid в URL или войди в аккаунт');return;}
@@ -1793,7 +1794,7 @@ function showLockedProfile(p){
           Этот трейдер ещё не активировал аккаунт.<br>
           Публичный профиль открывается после получения доступа.
         </div>
-        <a href="journal.html" style="
+        <a href="/journal" style="
           display:inline-flex;align-items:center;gap:6px;padding:9px 22px;
           background:linear-gradient(135deg,rgba(232,114,42,0.9),rgba(180,75,20,0.9));
           border:1px solid rgba(232,114,42,0.5);border-radius:9px;
@@ -1898,7 +1899,7 @@ function render(p, trades){
             <span class="sd-item-icon">🔗</span>
             <div class="sd-item-text">
               <span class="sd-item-label">Скопировать ссылку</span>
-              <span class="sd-item-sub">orbitum.app/profile.html?uid=...</span>
+              <span class="sd-item-sub">orbitum.trade/profile?uid=...</span>
             </div>
           </div>
           <div class="sd-item" onclick="shareToTelegram()">
@@ -2387,7 +2388,7 @@ async function toggleFollow(){
 function copyLink(){
   const url=location.href.includes('uid=')
     ?location.href
-    :(location.origin+'/profile.html?uid='+(profileUser?.id||''));
+    :(location.origin+'/profile?uid='+(profileUser?.id||''));
   if(navigator.clipboard){
     navigator.clipboard.writeText(url).then(()=>{
       const btn=document.getElementById('copy-btn');
@@ -2400,7 +2401,7 @@ function showNotFound(msg){
   document.getElementById('main-wrap').innerHTML=`<div class="not-found">
     <div class="nf-title">404</div>
     <div class="nf-sub">${msg}</div>
-    <a href="journal.html" style="display:inline-block;margin-top:20px;padding:8px 20px;background:var(--a2);border:1px solid var(--a3);border-radius:8px;color:var(--a);font-family:var(--font-mono);font-size:10px;text-decoration:none;letter-spacing:1px">← В журнал</a>
+    <a href="/journal" style="display:inline-block;margin-top:20px;padding:8px 20px;background:var(--a2);border:1px solid var(--a3);border-radius:8px;color:var(--a);font-family:var(--font-mono);font-size:10px;text-decoration:none;letter-spacing:1px">← В журнал</a>
   </div>`;
 }
 
@@ -2753,7 +2754,7 @@ init();
           <div class="tgcs"><div class="tgcs-val" id="tgcs-trades">—</div><div class="tgcs-lbl">СДЕЛОК</div></div>
         </div>
         <div class="tgc-footer">
-          <span class="tgc-link" id="tgc-link">orbitum.app/profile</span>
+          <span class="tgc-link" id="tgc-link">orbitum.trade/profile</span>
           <span class="tgc-badge" id="tgc-plan">PRO</span>
         </div>
       </div>
@@ -2786,7 +2787,7 @@ init();
 // ══════════════════════════════════════════
 
 function getProfileUrl(){
-  return window.location.origin + '/profile.html?uid=' + (profileUser?.id || '');
+  return window.location.origin + '/profile?uid=' + (profileUser?.id || '');
 }
 
 // ── Share dropdown ──
@@ -3326,7 +3327,7 @@ function drawPnlCanvas(trade){
   // URL
   ctx.font = '400 11px monospace';
   ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.fillText('orbitum.app/journal', 24, H - 18);
+  ctx.fillText('orbitum.trade/journal', 24, H - 18);
 
   // Tagline right
   ctx.textAlign = 'right';
