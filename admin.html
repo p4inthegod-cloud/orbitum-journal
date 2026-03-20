@@ -1454,7 +1454,20 @@ let allProducts = [];
 async function seedProducts(){
   if(!confirm('Create/update Monthly ($29) and Lifetime ($197) products?')) return;
   try{
-    await adminCall('seed_products',{});
+    const defaults=[
+      {id:'monthly',sort_order:1,is_active:true,name_en:'Monthly',name_ru:'Месячный',price:29,price_old:null,
+       badge_en:null,badge_ru:null,description_en:'Full access for 30 days',description_ru:'Полный доступ на 30 дней',
+       features_en:JSON.stringify(['Trading Journal','AI Coach','Crypto Screener','Analytics','Pre-market']),
+       features_ru:JSON.stringify(['Журнал сделок','AI Коуч','Крипто Скринер','Аналитика','Пре-маркет']),
+       updated_at:new Date().toISOString()},
+      {id:'lifetime',sort_order:2,is_active:true,name_en:'Lifetime',name_ru:'Навсегда',price:197,price_old:297,
+       badge_en:'Best Value',badge_ru:'Лучший выбор',description_en:'One-time payment — forever',description_ru:'Разовая оплата — навсегда',
+       features_en:JSON.stringify(['Everything in Monthly','Lifetime updates','Priority support','AI Advanced','Future modules free']),
+       features_ru:JSON.stringify(['Всё из Месячного','Обновления навсегда','Приоритет','AI расширенный','Будущие модули']),
+       updated_at:new Date().toISOString()},
+    ];
+    const{error}=await sb.from('products').upsert(defaults,{onConflict:'id'});
+    if(error) throw error;
     showToast('✓ Products seeded!','success');
     loadProducts();
   }catch(e){ showToast('Error: '+e.message,'error'); }
@@ -1594,8 +1607,23 @@ async function loadProducts(){
     allProducts = data || [];
     renderProducts();
   }catch(e){
-    el.innerHTML = `<div class="empty">Error: ${e.message}<br><br>
-      <span style="font-size:9px;color:var(--m2);">Make sure you ran products_schema.sql in Supabase SQL Editor</span>
+    el.innerHTML = `<div class="empty" style="padding:40px;">
+      <div style="color:var(--r);margin-bottom:10px;">Error: ${e.message}</div>
+      <div style="font-size:10px;color:var(--m2);margin-bottom:16px);">If the products table doesn't exist, run in Supabase SQL Editor:</div>
+      <pre style="background:var(--bg3);border:1px solid var(--line);padding:12px;text-align:left;font-size:10px;color:var(--m);overflow-x:auto;">CREATE TABLE IF NOT EXISTS products (
+  id TEXT PRIMARY KEY,
+  sort_order INTEGER DEFAULT 0,
+  name_en TEXT, name_ru TEXT,
+  price NUMERIC DEFAULT 0,
+  price_old NUMERIC,
+  badge_en TEXT, badge_ru TEXT,
+  description_en TEXT, description_ru TEXT,
+  features_en JSONB DEFAULT '[]',
+  features_ru JSONB DEFAULT '[]',
+  is_active BOOLEAN DEFAULT true,
+  updated_at TIMESTAMPTZ
+);</pre>
+      <button class="btn-primary" style="margin-top:16px;" onclick="loadProducts()">↻ Retry</button>
     </div>`;
   }
 }
@@ -1603,7 +1631,11 @@ async function loadProducts(){
 function renderProducts(){
   const el = document.getElementById('products-list');
   if(!allProducts.length){
-    el.innerHTML = '<div class="empty">No products found. Run products_schema.sql first.</div>';
+    el.innerHTML = `<div class="empty" style="padding:40px;">
+      <div style="font-size:14px;margin-bottom:12px;">Products table is empty.</div>
+      <div style="font-size:11px;color:var(--m2);margin-bottom:20px;">Click below to create Monthly ($29) and Lifetime ($197) rows.</div>
+      <button class="btn-primary" onclick="seedProducts()">⚡ Seed Default Products</button>
+    </div>`;
     return;
   }
 
@@ -1722,7 +1754,9 @@ async function saveProduct(id){
   };
 
   try{
-    await adminCall('save_product', { productId: id, updates });
+    // upsert: INSERT if not exists, UPDATE if exists (RLS disabled on products table)
+    const { error } = await sb.from('products').upsert({ id, ...updates }, { onConflict: 'id' });
+    if(error) throw error;
 
     // Update local cache
     const idx = allProducts.findIndex(p=>p.id===id);
@@ -1751,7 +1785,7 @@ async function saveProduct(id){
 
 async function toggleProduct(id, current){
   try{
-    await adminCall('save_product', { productId: id, updates: { is_active: !current } });
+    const { error: terr } = await sb.from('products').upsert({ id, is_active: !current }, { onConflict: 'id' }); if(terr) throw terr;
     const idx = allProducts.findIndex(p=>p.id===id);
     if(idx>=0) allProducts[idx].is_active = !current;
     renderProducts();
