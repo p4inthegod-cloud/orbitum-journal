@@ -211,3 +211,4 @@ function buildScreenerInsightPrompt() {
 
 Возврати ТОЛЬКО JSON массив. Без markdown. На русском. 5–7 карточек.
 Формат: [{"type":"ok"|"warn"|"danger"|"info","text":"текст с эмодзи до 100 символов"}]`;
+}

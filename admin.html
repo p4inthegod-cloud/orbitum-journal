@@ -532,23 +532,37 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div id="overview-users"></div>
 
       <!-- SYSTEM HEALTH + BROADCAST -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;">
-        <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;">SYSTEM HEALTH</div>
-            <button class="sec-action" onclick="checkSystemHealth()" style="padding:5px 12px;">↻ Check</button>
+      <!-- SYSTEM HEALTH (full width) + ACTIONS ROW -->
+      <div style="margin-top:24px;">
+        <div class="card" style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;">SYSTEM HEALTH</div>
+              <span style="font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--m2);">14 checks · auto-runs on load</span>
+            </div>
+            <button class="sec-action" onclick="checkSystemHealth()" style="padding:6px 16px;">↻ Recheck</button>
           </div>
-          <div id="health-status" style="font-family:var(--mono);font-size:10px;color:var(--m2);">Click Check to run diagnostics</div>
+          <div id="health-status" style="font-family:var(--mono);font-size:10px;color:var(--m2);">Running diagnostics...</div>
         </div>
-        <div class="card">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:14px;">BROADCAST</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--m2);line-height:1.8;margin-bottom:14px;">
-            Send a Telegram message to all users or a specific plan tier.<br>
-            HTML formatting supported: &lt;b&gt;, &lt;i&gt;, &lt;a&gt;.
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="card">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:12px;">BROADCAST TG</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--m2);line-height:1.8;margin-bottom:12px;">
+              Send Telegram message to all users or by plan tier.<br>
+              HTML: &lt;b&gt;, &lt;i&gt;, &lt;a href="..."&gt;
+            </div>
+            <button class="btn-primary" onclick="openBroadcastModal()" style="width:100%;padding:10px;">
+              📢 Send Broadcast
+            </button>
           </div>
-          <button class="btn-primary" onclick="openBroadcastModal()" style="width:100%;padding:10px;">
-            📢 Send Broadcast Message
-          </button>
+          <div class="card">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:12px;">QUICK ACTIONS</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <button class="sec-action" onclick="exportUsersCSV()" style="padding:8px 14px;text-align:left;">↓ Export Users CSV</button>
+              <button class="sec-action" onclick="showPage('products',document.getElementById('nav-products'));setTimeout(seedProducts,400)" style="padding:8px 14px;text-align:left;border-color:rgba(46,204,113,.2);color:var(--g);">⚡ Seed Default Products</button>
+              <button class="sec-action" onclick="loadAll()" style="padding:8px 14px;text-align:left;">↻ Refresh All Data</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1684,43 +1698,115 @@ async function openBroadcastModal(){
 async function checkSystemHealth(){
   const el = document.getElementById('health-status');
   if(!el) return;
-  el.innerHTML = '<span style="color:var(--m2)">Checking...</span>';
-  const checks = [];
+  el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:12px 0;font-family:var(--mono);font-size:10px;color:rgba(232,228,220,0.25);"><div style="width:10px;height:10px;border:1.5px solid var(--o);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;"></div>Running 14 diagnostics...</div>';
 
-  // Supabase
+  const checks=[], t0=Date.now();
+
+  // 1. Supabase DB
   try{
-    const { error } = await sb.from('profiles').select('id').limit(1);
-    checks.push({name:'Supabase DB', ok: !error, detail: error?.message||'Connected'});
-  }catch(e){ checks.push({name:'Supabase DB', ok:false, detail:e.message}); }
+    const t=Date.now();
+    const{error}=await sb.from('profiles').select('id',{count:'exact',head:true});
+    const ms=Date.now()-t;
+    checks.push({group:'Database',name:'Supabase DB',ok:!error,detail:error?.message||allUsers.length+' users · '+ms+'ms',badge:ms<200?'fast':ms<800?'ok':'slow'});
+  }catch(e){checks.push({group:'Database',name:'Supabase DB',ok:false,detail:e.message,critical:true});}
 
-  // /api/ticker
+  // 2. Supabase Auth
   try{
-    const r = await fetch('/api/ticker?type=fng', {signal: AbortSignal.timeout(5000)});
-    checks.push({name:'/api/ticker', ok: r.ok, detail: r.ok?'OK':'HTTP '+r.status});
-  }catch(e){ checks.push({name:'/api/ticker', ok:false, detail:'Timeout/Error'}); }
+    const t=Date.now();
+    const{data:{session},error}=await sb.auth.getSession();
+    const ms=Date.now()-t;
+    checks.push({group:'Database',name:'Supabase Auth',ok:!!session&&!error,detail:session?'Session valid · '+ms+'ms':'No session',ms});
+  }catch(e){checks.push({group:'Database',name:'Supabase Auth',ok:false,detail:e.message});}
 
-  // /api/ai
+  // 3. /api/ticker
   try{
-    const r = await fetch('/api/ai', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:'ping',max_tokens:5}),signal:AbortSignal.timeout(8000)});
-    checks.push({name:'/api/ai', ok: r.ok, detail: r.ok?'Groq connected':'HTTP '+r.status});
-  }catch(e){ checks.push({name:'/api/ai', ok:false, detail:'Timeout/Error'}); }
+    const t=Date.now();
+    const r=await fetch('/api/ticker?type=fng',{signal:AbortSignal.timeout(6000)});
+    const ms=Date.now()-t;
+    const cached=r.headers.get('X-Cache')==='HIT'||r.status===304;
+    checks.push({group:'API',name:'/api/ticker',ok:r.ok||r.status===304,detail:'HTTP '+r.status+' · '+ms+'ms',badge:cached?'cached':'live'});
+  }catch(e){checks.push({group:'API',name:'/api/ticker',ok:false,detail:'Timeout',critical:true});}
 
-  // Pending payments alert
-  const pending = allPayments.filter(p=>p.status==='pending').length;
-  checks.push({name:'Pending payments', ok: pending===0, detail: pending===0?'None':pending+' need review', warn: pending>0});
+  // 4. /api/ai — Groq
+  try{
+    const t=Date.now();
+    const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:'1',max_tokens:3}),signal:AbortSignal.timeout(12000)});
+    const ms=Date.now()-t;
+    checks.push({group:'API',name:'/api/ai · Groq',ok:r.ok,detail:'HTTP '+r.status+' · '+ms+'ms',badge:r.ok?(ms<2000?'fast':'ok'):'error',critical:!r.ok});
+  }catch(e){checks.push({group:'API',name:'/api/ai · Groq',ok:false,detail:'Timeout >12s',critical:true});}
 
-  // Expired monthly plans
-  const expired = allUsers.filter(u=>u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)<new Date()).length;
-  checks.push({name:'Expired monthly plans', ok: expired===0, detail: expired===0?'None':expired+' expired', warn: expired>0});
+  // 5-9. Cron & utility APIs — check deployment (401/405 = deployed, 404 = missing)
+  const apiChecks=[
+    ['GET','/api/alerts?secret=x','alerts · cron'],
+    ['GET','/api/daily?secret=x','daily · cron'],
+    ['GET','/api/weekly?secret=x','weekly · cron'],
+    ['GET','/api/finnhub?type=news','finnhub'],
+    ['POST','/api/report','report'],
+  ];
+  for(const[method,url,name] of apiChecks){
+    try{
+      const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:method==='POST'?'{}':undefined,signal:AbortSignal.timeout(7000)});
+      const deployed=r.status!==404;
+      checks.push({group:'API',name:'/api/'+name,ok:deployed,warn:!deployed,detail:deployed?'HTTP '+r.status:'404 — not in vercel.json'});
+    }catch(e){checks.push({group:'API',name:'/api/'+name,ok:false,detail:'Unreachable'});}
+  }
 
-  el.innerHTML = checks.map(c=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);">
-      <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${c.ok?'var(--g)':c.warn?'var(--y)':'var(--r)'};box-shadow:0 0 6px ${c.ok?'var(--g)':c.warn?'var(--y)':'var(--r)'};"></div>
-      <div style="font-family:var(--mono);font-size:10px;color:var(--t);flex:1;">${c.name}</div>
-      <div style="font-family:var(--mono);font-size:9px;color:${c.ok?'var(--g)':c.warn?'var(--y)':'var(--r)'};">${c.detail}</div>
-    </div>
-  `).join('');
+  // 10. Pending payments
+  const pending=allPayments.filter(p=>p.status==='pending').length;
+  checks.push({group:'Business',name:'Pending payments',ok:pending===0,warn:pending>0,detail:pending===0?'None':pending+' need review',action:pending>0?"showPage('payments',document.getElementById('nav-payments'))":null});
+
+  // 11. Expired monthly plans
+  const expired=allUsers.filter(u=>u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)<new Date()).length;
+  checks.push({group:'Business',name:'Expired monthly plans',ok:expired===0,warn:expired>0,detail:expired===0?'None':expired+' plans expired'});
+
+  // 12. Dormant free users (7+ days, 0 trades)
+  const now2=Date.now();
+  const dormant=allUsers.filter(u=>(now2-new Date(u.created_at).getTime())>7*86400000&&!allTrades.some(t=>t.user_id===u.id)&&(!u.plan||u.plan==='free')).length;
+  checks.push({group:'Business',name:'Dormant free users',ok:dormant===0,warn:dormant>0,detail:dormant===0?'None':dormant+' users · 0 trades · 7d+'});
+
+  // 13. Telegram adoption rate
+  const tgLinked=allUsers.filter(u=>u.tg_linked).length;
+  const tgRate=allUsers.length?Math.round(tgLinked/allUsers.length*100):0;
+  checks.push({group:'Business',name:'Telegram adoption',ok:tgRate>=40,warn:tgRate<40&&tgRate>0,detail:tgLinked+'/'+allUsers.length+' users linked ('+tgRate+'%)'});
+
+  // 14. Revenue this month
+  const monthStart=new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+  const revMonth=allPayments.filter(p=>p.status==='confirmed'&&new Date(p.created_at)>=monthStart).reduce((s,p)=>s+(p.amount_usdt||0),0);
+  checks.push({group:'Business',name:'Revenue this month',ok:true,detail:'$'+revMonth.toFixed(0)+' confirmed'});
+
+  // Render
+  const totalMs=Date.now()-t0;
+  const critFails=checks.filter(c=>!c.ok&&c.critical).length;
+  const hardFails=checks.filter(c=>!c.ok&&!c.warn).length;
+  const warns=checks.filter(c=>c.warn&&c.ok!==false).length;
+  const statusColor=critFails>0||hardFails>0?'var(--r)':warns>0?'var(--y)':'var(--g)';
+  const statusLabel=critFails>0?'CRITICAL':hardFails>0?'DEGRADED':warns>0?'WARNING':'ALL SYSTEMS GO';
+
+  const groups={};
+  checks.forEach(c=>{if(!groups[c.group])groups[c.group]=[];groups[c.group].push(c);});
+
+  let html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06);">'+
+    '<div style="display:flex;align-items:center;gap:8px;">'+
+    '<div style="width:10px;height:10px;border-radius:50%;background:'+statusColor+';box-shadow:0 0 8px '+statusColor+';"></div>'+
+    '<span style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:'+statusColor+';">'+statusLabel+'</span></div>'+
+    '<span style="font-family:var(--mono);font-size:9px;color:var(--m2);">'+totalMs+'ms · '+checks.length+' checks · '+(hardFails+critFails)+' fail · '+warns+' warn</span></div>';
+
+  for(const[group,items] of Object.entries(groups)){
+    html+='<div style="font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin:10px 0 5px;">'+group+'</div>';
+    items.forEach(c=>{
+      const isOk=c.ok&&!c.warn;
+      const isWarn=c.warn||(!c.ok&&!c.critical);
+      const dot=c.ok&&!c.warn?'var(--g)':c.warn&&c.ok!==false?'var(--y)':'var(--r)';
+      const textCol=isOk?'var(--m)':c.warn&&c.ok!==false?'var(--y)':'var(--r)';
+      const badge=c.badge?'<span style="font-size:7px;padding:1px 5px;background:rgba(255,255,255,.05);color:var(--m2);margin-left:4px;">'+c.badge+'</span>':'';
+      const action=c.action?'<button onclick="'+c.action+'" style="margin-left:6px;padding:2px 7px;font-family:var(--mono);font-size:8px;background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--m2);cursor:pointer;">view</button>':'';
+      html+='<div style="display:flex;align-items:center;gap:9px;padding:5px 8px;margin-bottom:2px;background:rgba(255,255,255,.025);border-left:2px solid '+dot+';"><div style="width:5px;height:5px;border-radius:50%;flex-shrink:0;background:'+dot+';"></div><div style="font-family:var(--mono);font-size:10px;color:var(--t);flex:1;">'+c.name+badge+'</div><div style="font-family:var(--mono);font-size:9px;color:'+textCol+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">'+c.detail+'</div>'+action+'</div>';
+    });
+  }
+
+  el.innerHTML=html;
 }
+
 
 // ── EXPORT USERS CSV ──────────────────────────────────────────
 function exportUsersCSV(){
