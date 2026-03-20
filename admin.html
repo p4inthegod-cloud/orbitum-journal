@@ -1,1243 +1,919 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ORBITUM — Админ</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBITUM — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>if(typeof supabase==="undefined"){var _s=document.createElement("script");_s.src="https://unpkg.com/@supabase/supabase-js@2";document.head.appendChild(_s);}</script>
 <style>
-
-/* ═══════════════════════════════════════════════════════════════════
-   ORBITUM THEME SYSTEM v3 — 4 themes only
-   ORBITUM CLASSIC · ORBITUM PRO · FOREST · TRADING
-   Default accent: orange everywhere
-═══════════════════════════════════════════════════════════════════ */
-
-/* ── ORBITUM CLASSIC (dark default) ────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --a:#e8722a; --a2:rgba(232,114,42,0.1); --a3:rgba(232,114,42,0.3);
-  --bg:#05070a; --bg2:rgba(255,255,255,0.025); --bg3:rgba(255,255,255,0.04);
-  --bg-card:#0c0f14; --bg-card2:#101418; --bg-input:rgba(255,255,255,0.05);
-  --bd:rgba(255,255,255,0.07); --bd2:rgba(255,255,255,0.13); --bd3:rgba(255,255,255,0.22);
-  --t:#ebebeb; --t2:#ffffff; --t3:#888888;
-  --m:rgba(235,235,235,0.42); --m2:rgba(235,235,235,0.26);
-  --g:#34d058; --r:#ff4d4d; --y:#f5a623;
-  --gd:rgba(52,208,88,0.08); --rd:rgba(255,77,77,0.08);
-  --shadow:0 4px 24px rgba(0,0,0,0.5);
-  --shadow-card:0 2px 12px rgba(0,0,0,0.3);
-  --topbar-bg:rgba(5,7,10,0.94);
-  --sidebar-bg:rgba(5,7,10,0.97);
-  --orb1:rgba(232,114,42,0.055); --orb2:rgba(232,114,42,0.03);
-  --orb3:rgba(232,114,42,0.025);
-  --sb:220px; --radius:10px;
-  --line:1px solid var(--bd);
-  --font-mono:'JetBrains Mono',monospace;
-  --font-display:'Bebas Neue',sans-serif;
-  --font-body:'Syne',sans-serif;
+  --o:#e86c2a;--od:rgba(232,108,42,0.12);--og:rgba(232,108,42,0.4);
+  --bg:#080808;--bg2:#0f0f0f;--bg3:#141414;--bg4:#1a1a1a;
+  --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.13);
+  --t:#e8e4dc;--m:rgba(232,228,220,0.5);--m2:rgba(232,228,220,0.25);
+  --g:#2ecc71;--r:#e74c3c;--y:#f5a623;
+  --mono:'DM Mono',monospace;
+  --sb:220px;
 }
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;font-weight:300;display:flex;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:9999;opacity:0.4;}
 
-/* ── ORBITUM PRO (mono B&W + orange accent) ─────────────────────── */
-html[data-theme="mono"]{
-  --bg:#070707; --bg2:rgba(255,255,255,0.03); --bg3:rgba(255,255,255,0.06);
-  --bg-card:#0e0e0e; --bg-card2:#141414; --bg-input:rgba(255,255,255,0.07);
-  --bd:rgba(255,255,255,0.09); --bd2:rgba(255,255,255,0.17); --bd3:rgba(255,255,255,0.28);
-  --t:#dedede; --t2:#ffffff; --t3:#666666;
-  --m:rgba(222,222,222,0.52); --m2:rgba(222,222,222,0.3);
-  --g:var(--a); --r:#777777; --y:var(--a);
-  --gd:rgba(232,114,42,0.08); --rd:rgba(255,255,255,0.04);
-  --shadow:0 4px 24px rgba(0,0,0,0.7);
-  --shadow-card:0 2px 12px rgba(0,0,0,0.55);
-  --topbar-bg:rgba(7,7,7,0.98);
-  --sidebar-bg:rgba(7,7,7,0.99);
-  --orb1:rgba(232,114,42,0.04); --orb2:rgba(232,114,42,0.02);
-  --orb3:rgba(232,114,42,0.015);
-}
-
-/* ── FOREST (dark minted teal + gold) ──────────────────────────── */
-html[data-theme="forest"]{
-  --a:#e8722a; --a2:rgba(232,114,42,0.1); --a3:rgba(232,114,42,0.28);
-  --bg:#071212; --bg2:rgba(100,180,140,0.03); --bg3:rgba(100,180,140,0.06);
-  --bg-card:#0c1c1a; --bg-card2:#112220; --bg-input:rgba(100,180,140,0.07);
-  --bd:rgba(100,180,140,0.14); --bd2:rgba(100,180,140,0.26); --bd3:rgba(100,180,140,0.42);
-  --t:#b8ddd0; --t2:#d8f0e4; --t3:#5a8a78;
-  --m:rgba(184,221,208,0.62); --m2:rgba(184,221,208,0.36);
-  --g:#4fc98a; --r:#e05555; --y:#e8722a;
-  --gd:rgba(79,201,138,0.09); --rd:rgba(224,85,85,0.08);
-  --shadow:0 4px 28px rgba(0,0,0,0.65);
-  --shadow-card:0 2px 14px rgba(0,0,0,0.5);
-  --topbar-bg:rgba(5,14,12,0.98);
-  --sidebar-bg:rgba(5,14,12,0.99);
-  --orb1:rgba(232,114,42,0.06); --orb2:rgba(79,201,138,0.04);
-  --orb3:rgba(232,114,42,0.03);
-}
-
-/* ── TRADING (TradingView blue) ─────────────────────────────────── */
-html[data-theme="trading"]{
-  --a:#e8722a; --a2:rgba(232,114,42,0.1); --a3:rgba(232,114,42,0.25);
-  --bg:#131722; --bg2:rgba(255,255,255,0.03); --bg3:rgba(255,255,255,0.05);
-  --bg-card:#1e222d; --bg-card2:#252a38; --bg-input:rgba(255,255,255,0.07);
-  --bd:rgba(255,255,255,0.08); --bd2:rgba(255,255,255,0.14); --bd3:rgba(255,255,255,0.24);
-  --t:#d1d4dc; --t2:#ffffff; --t3:#787b86;
-  --m:rgba(209,212,220,0.6); --m2:rgba(209,212,220,0.36);
-  --g:#26a69a; --r:#ef5350; --y:#f59f00;
-  --gd:rgba(38,166,154,0.08); --rd:rgba(239,83,80,0.08);
-  --shadow:0 4px 24px rgba(0,0,0,0.5);
-  --shadow-card:0 2px 12px rgba(0,0,0,0.4);
-  --topbar-bg:rgba(19,23,34,0.98);
-  --sidebar-bg:rgba(19,23,34,0.99);
-  --orb1:rgba(232,114,42,0.05); --orb2:rgba(232,114,42,0.025);
-  --orb3:rgba(232,114,42,0.02);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   STRUCTURAL OVERRIDES (apply to all themes)
-═══════════════════════════════════════════════════════════════════ */
-
-body,html{background:var(--bg)!important;color:var(--t)!important;}
-
-/* bg orbs — respond to theme */
-.bg-orb{
-  background:radial-gradient(circle,var(--orb1),transparent 65%)!important;
-  filter:blur(100px)!important;
-}
-.bg-orb-2{
-  background:radial-gradient(circle,var(--orb2),transparent 70%)!important;
-  filter:blur(120px)!important;
-}
-.bg-orb-3{
-  background:radial-gradient(circle,var(--orb3),transparent 70%)!important;
-  filter:blur(140px)!important;
-}
-
-/* sidebar */
-.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--bd)!important;}
-.sb-item{color:var(--m)!important;}
-.sb-item:hover{background:var(--bg3)!important;color:var(--t)!important;}
-.sb-item.active{background:var(--bg3)!important;color:var(--t)!important;border-left-color:var(--a)!important;}
-.sb-section{color:var(--m2)!important;letter-spacing:2px;}
-.sb-user-name{color:var(--t)!important;}
-.sb-user-plan{color:var(--m)!important;}
-.sb-logout{color:var(--m)!important;border-color:var(--bd)!important;}
-.sb-logout:hover{color:var(--r)!important;border-color:var(--r)!important;}
-
-/* topbar */
-.jnl-topbar,.topbar{background:var(--topbar-bg)!important;border-bottom:1px solid var(--bd)!important;}
-.jtb-logo,.tb-logo,.mob-logo{color:var(--t)!important;}
-.jtb-badge,.tb-badge{color:var(--m)!important;border-color:var(--bd)!important;background:var(--bg2)!important;}
-.jtb-sep-v{background:var(--bd2)!important;}
-.jtb-action-btn{color:var(--m)!important;}
-.jtb-action-btn:hover{color:var(--t)!important;}
-.jtb-dot{background:var(--a)!important;}
-
-/* main */
-.main{background:var(--bg)!important;}
-
-/* all cards */
-.fcard,.ds-card,.stat-card,.an-card,.pm-card,.coach-card,.lb-card,.pm-section-card,
-.pm-header-card,.pm-limits-card,.pm-mood-card,.pm-ready-bar,.pm-start-btn-wrap,
-.sim-card,.prog-card,.idea-card,.qnote-panel,.score-card,.setup-insight{
-  background:var(--bg-card)!important;
-  border-color:var(--bd)!important;
-  box-shadow:var(--shadow-card)!important;
-}
-
-/* stat row */
-.stats-row .stat-cell{background:var(--bg-card)!important;border-color:var(--bd)!important;}
-.stat-label{color:var(--m)!important;}
-.stat-value{color:var(--t)!important;}
-
-/* section titles — accent by default */
-.fcard-title,.pm-section-title,.pm-side-title,.em-title,.snb-title,
-.dh-title,.ai-title,.eq-title,.patt-title,.ij-title,.mc-title,.hm-title,
-.dash-title,.list-title,.notif-title,.qnote-title{
-  color:var(--a)!important;
-  text-shadow:0 0 16px var(--a2)!important;
-}
-
-/* page nav tabs */
-.topnav{background:var(--topbar-bg)!important;border-bottom:1px solid var(--bd)!important;}
-.tnav{color:var(--m)!important;background:transparent!important;}
-.tnav.active{color:var(--a)!important;border-bottom-color:var(--a)!important;}
-.tnav:hover{color:var(--t)!important;}
-
-/* trade rows */
-.trade-row{background:var(--bg-card)!important;border-color:var(--bd)!important;}
-.trade-row:hover{background:var(--bg-card2)!important;}
-.tr-pair{color:var(--t)!important;}
-.tr-date,.tr-setup,.trade-meta{color:var(--m)!important;}
-
-/* inputs */
-input,select,textarea{
-  background:var(--bg-input)!important;border-color:var(--bd)!important;color:var(--t)!important;
-}
-input:focus,select:focus,textarea:focus{
-  border-color:var(--a)!important;background:var(--bg-card)!important;
-  box-shadow:0 0 0 3px var(--a2)!important;outline:none!important;
-}
-input::placeholder,textarea::placeholder{color:var(--m2)!important;}
-label,.field-label,.form-label,.input-label{color:var(--m)!important;}
-select option{background:var(--bg-card)!important;color:var(--t)!important;}
-
-/* direction buttons */
-.dir-btn{background:var(--bg3)!important;border-color:var(--bd)!important;color:var(--m)!important;}
-.dir-btn:hover{border-color:var(--bd2)!important;color:var(--t)!important;}
-.dir-btn.active-long{background:var(--gd)!important;border-color:var(--g)!important;color:var(--g)!important;}
-.dir-btn.active-short{background:var(--rd)!important;border-color:var(--r)!important;color:var(--r)!important;}
-
-/* RESULT BUTTONS — no green/red highlight, just orange accent */
-.res-btn{background:var(--bg3)!important;border-color:var(--bd)!important;color:var(--m)!important;cursor:pointer!important;}
-.res-btn:hover{border-color:var(--bd2)!important;color:var(--t)!important;}
-.res-btn.active-win,.res-btn.active-loss,.res-btn.active-be{
-  background:var(--a2)!important;border-color:var(--a)!important;
-  color:var(--a)!important;box-shadow:none!important;
-}
-
-/* setup/psych buttons */
-.setup-btn,.psych-btn,.tf-btn,.sym-btn,.qnote-type-btn,.pm-mood-btn{
-  background:var(--bg3)!important;border-color:var(--bd)!important;color:var(--m)!important;
-}
-.setup-btn.active,.psych-btn.active,.tf-btn.active,.sym-btn.active,.qnote-type-btn.active,.pm-mood-btn.active{
-  background:var(--a2)!important;border-color:var(--a)!important;color:var(--a)!important;
-}
-
-/* PM mood buttons */
-.pm-mood-btn{padding:12px 8px!important;}
-.pm-mood-btn.active{background:var(--a2)!important;border-color:var(--a)!important;color:var(--a)!important;}
-
-/* premarket labels */
-.pm-headline{color:var(--a)!important;text-shadow:0 0 24px var(--a2)!important;}
-.pm-headline-sub{color:var(--m)!important;}
-.pm-section-title{color:var(--a)!important;text-shadow:0 0 10px var(--a2)!important;}
-.pm-side-title{color:var(--a)!important;}
-.pm-lim-label,.pm-lim-val,.pm-check-item{color:var(--t)!important;}
-.pm-check-item input[type="checkbox"]{accent-color:var(--a)!important;}
-.pm-ready-bar{background:var(--bg-card)!important;border-color:var(--bd)!important;}
-.pm-ready-text{color:var(--m)!important;}
-.pm-start-btn{background:var(--a)!important;color:#fff!important;}
-
-/* emotional state — bigger font, orange */
-.em-title{
-  font-size:10px!important;
-  letter-spacing:2.5px!important;
-  color:var(--a)!important;
-  text-shadow:0 0 12px var(--a2)!important;
-}
-.em-label{color:var(--m)!important;font-size:9px!important;letter-spacing:1.5px!important;}
-
-/* popups */
-.balance-popup,.goal-popup,.jnl-notif-popup,.qnote-panel{
-  background:var(--bg-card)!important;border-color:var(--bd2)!important;
-  box-shadow:0 16px 56px rgba(0,0,0,0.65)!important;
-}
-
-/* mob nav */
-.mob-bottom-nav{background:var(--sidebar-bg)!important;border-top:1px solid var(--bd)!important;}
-.mob-bar{background:var(--topbar-bg)!important;border-bottom:1px solid var(--bd)!important;}
-.mob-nav-btn{color:var(--m)!important;}
-.mob-nav-btn.active{color:var(--a)!important;}
-
-/* MONO: full grayscale except accent */
-html[data-theme="mono"] .stat-value.pos,
-html[data-theme="mono"] .pnl-pos,
-html[data-theme="mono"] .ds-val.green{color:var(--a)!important;}
-html[data-theme="mono"] .stat-value.neg,
-html[data-theme="mono"] .pnl-neg,
-html[data-theme="mono"] .ds-val.red{color:var(--t3)!important;}
-html[data-theme="mono"] .dir-btn.active-long{background:var(--a2)!important;border-color:var(--a)!important;color:var(--a)!important;}
-html[data-theme="mono"] .dir-btn.active-short{background:rgba(100,100,100,0.1)!important;border-color:#666!important;color:#999!important;}
-
-/* FOREST: teal-minted accents on borders */
-html[data-theme="forest"] .fcard{box-shadow:0 2px 20px rgba(0,0,0,0.5),0 0 1px rgba(100,180,140,0.1)!important;}
-html[data-theme="forest"] .sidebar{border-right-color:rgba(100,180,140,0.18)!important;}
-
-/* TRADING: tv palette */
-html[data-theme="trading"] .stat-value.pos,
-html[data-theme="trading"] .pnl-pos{color:#26a69a!important;}
-html[data-theme="trading"] .stat-value.neg,
-html[data-theme="trading"] .pnl-neg{color:#ef5350!important;}
-
-/* ═══════════════════════════════════════════════════════════════════
-   APPLE-STYLE BACKGROUND ORBS
-═══════════════════════════════════════════════════════════════════ */
-.bg-orbs-wrap{
-  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-}
-.bg-o{position:absolute;border-radius:50%;pointer-events:none;}
-.bg-o-1{
-  width:800px;height:800px;top:-300px;left:30%;transform:translateX(-50%);
-  background:radial-gradient(circle,rgba(232,114,42,0.07),transparent 65%);
-  filter:blur(80px);animation:orbDrift1 18s ease-in-out infinite alternate;
-}
-.bg-o-2{
-  width:600px;height:600px;bottom:-200px;right:-100px;
-  background:radial-gradient(circle,rgba(232,114,42,0.05),transparent 65%);
-  filter:blur(100px);animation:orbDrift2 22s ease-in-out infinite alternate;
-}
-.bg-o-3{
-  width:500px;height:500px;top:40%;left:-150px;
-  background:radial-gradient(circle,rgba(232,114,42,0.035),transparent 65%);
-  filter:blur(120px);animation:orbDrift3 26s ease-in-out infinite alternate;
-}
-@keyframes orbDrift1{0%{transform:translateX(-50%) translateY(0) scale(1);}100%{transform:translateX(-50%) translateY(-60px) scale(1.08);}}
-@keyframes orbDrift2{0%{transform:translateX(0) translateY(0);}100%{transform:translateX(-40px) translateY(-50px);}}
-@keyframes orbDrift3{0%{transform:translateX(0) translateY(0);}100%{transform:translateX(30px) translateY(-40px);}}
-
-html[data-theme="forest"] .bg-o-1{background:radial-gradient(circle,rgba(232,114,42,0.06),transparent 65%);}
-html[data-theme="forest"] .bg-o-2{background:radial-gradient(circle,rgba(79,201,138,0.05),transparent 65%);}
-html[data-theme="forest"] .bg-o-3{background:radial-gradient(circle,rgba(232,114,42,0.04),transparent 65%);}
-html[data-theme="trading"] .bg-o-1{background:radial-gradient(circle,rgba(232,114,42,0.06),transparent 65%);}
-html[data-theme="trading"] .bg-o-2{background:radial-gradient(circle,rgba(41,98,255,0.04),transparent 65%);}
-html[data-theme="mono"] .bg-o-1{background:radial-gradient(circle,rgba(232,114,42,0.05),transparent 65%);}
-html[data-theme="mono"] .bg-o-2{background:radial-gradient(circle,rgba(232,114,42,0.03),transparent 65%);}
-html[data-theme="mono"] .bg-o-3{background:radial-gradient(circle,rgba(232,114,42,0.02),transparent 65%);}
-
-/* ═══════════════════════════════════════════════════════════════════
-   THEME CONTROLS
-═══════════════════════════════════════════════════════════════════ */
-.orb-theme-ctrl{
-  display:flex;align-items:center;gap:2px;
-  background:var(--bg3);border:1px solid var(--bd);
-  border-radius:8px;padding:3px;flex-shrink:0;
-}
-.orb-theme-btn,.orb-style-btn{
-  width:28px;height:28px;border-radius:6px;border:none;
-  background:transparent;color:var(--m);
-  cursor:pointer;transition:all .18s;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.orb-theme-btn:hover,.orb-style-btn:hover{background:var(--bg3);color:var(--t);}
-.orb-theme-btn.on,.orb-style-btn.on{background:var(--a)!important;color:#fff!important;}
-.orb-theme-sep{width:1px;height:16px;background:var(--bd2);margin:0 1px;flex-shrink:0;}
-
-/* ═══════════════════════════════════════════════════════════════════
-   STYLE PANEL — compact, 4 themes only
-═══════════════════════════════════════════════════════════════════ */
-.orb-sp-ov{
-  position:fixed;inset:0;z-index:999;
-  display:none;align-items:flex-start;justify-content:flex-end;
-  padding-top:54px;padding-right:14px;pointer-events:none;
-}
-.orb-sp-ov.open{display:flex;pointer-events:none;}
-.orb-sp-ov.open .orb-sp{pointer-events:auto;}
-.orb-sp{
-  width:210px;background:var(--bg-card);
-  border:1px solid var(--bd2);border-radius:14px;
-  padding:14px 12px 16px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.6);
-  animation:orbSpIn .2s cubic-bezier(.16,1,.3,1) both;
-}
-@keyframes orbSpIn{from{opacity:0;transform:translateY(-7px) scale(.97);}to{opacity:1;transform:none;}}
-.orb-sp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
-.orb-sp-title{font-family:var(--font-display);font-size:14px;letter-spacing:3px;color:var(--t);}
-.orb-sp-x{width:22px;height:22px;background:var(--bg3);border:1px solid var(--bd);border-radius:50%;color:var(--m);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.orb-sp-x:hover{color:var(--t);background:var(--bd);}
-.orb-sp-lbl{font-family:var(--font-mono);font-size:7px;color:var(--m2);letter-spacing:2px;text-transform:uppercase;margin:11px 0 7px;}
-.orb-sp-themes{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;}
-.orb-sp-th{
-  display:flex;align-items:center;gap:8px;
-  background:var(--bg3);border:1px solid var(--bd);border-radius:9px;
-  padding:8px 9px;cursor:pointer;transition:all .18s;text-align:left;
-}
-.orb-sp-th:hover{border-color:var(--bd2);}
-.orb-sp-th.on{border-color:var(--a)!important;background:var(--a2)!important;}
-.orb-sp-th-info{display:flex;flex-direction:column;gap:2px;}
-.orb-sp-th-name{font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:.5px;white-space:nowrap;}
-.orb-sp-th-sub{font-family:var(--font-mono);font-size:6.5px;color:var(--m2);letter-spacing:.3px;}
-.orb-sp-th.on .orb-sp-th-name{color:var(--a)!important;}
-.orb-sp-prev{width:26px;height:36px;border-radius:5px;flex-shrink:0;}
-.prev-dark  {background:linear-gradient(160deg,#05070a 30%,#1a1f2e 100%);}
-.prev-mono  {background:linear-gradient(160deg,#070707 30%,#1c1c1c 100%);border:1px solid rgba(232,114,42,0.2);}
-.prev-forest{background:linear-gradient(160deg,#071212 30%,#0c1c1a 100%);}
-.prev-tr    {background:linear-gradient(160deg,#131722 30%,#1e222d 100%);}
-
-
-/* ── BASE ── */
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-height:100vh;}
-
-/* ─── SIDEBAR ─────────────────────────────── */
-.sidebar{
-  position:fixed;top:0;left:0;bottom:0;width:var(--sb);
-  background:rgba(5,7,10,0.97);border-right:var(--line);
-  display:none;flex-direction:column;z-index:100;
-}
-.sb-logo{
-  height:52px;display:flex;align-items:center;padding:0 16px;
-  border-bottom:var(--line);flex-shrink:0;gap:8px;
-}
-.sb-logo-text{
-  font-family:var(--font-display);font-size:20px;letter-spacing:6px;color:var(--t);
-  text-shadow:0 0 16px rgba(255,255,255,0.08);
-}
-.sb-logo-dot{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);}
-.sb-nav{flex:1;padding:8px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
-.sb-section{
-  font-family:var(--font-mono);font-size:12px;color:rgba(255,255,255,0.2);
-  letter-spacing:2px;padding:12px 10px 4px;text-transform:uppercase;
-}
-.sb-item{
-  display:flex;align-items:center;gap:8px;padding:7px 10px;
-  border-radius:6px;text-decoration:none;cursor:pointer;
-  color:var(--m);font-family:var(--font-mono);font-size:12px;
-  letter-spacing:0.5px;transition:all 0.15s;border:1px solid transparent;
-  background:none;width:100%;text-align:left;
-}
-.sb-item:hover{background:rgba(255,255,255,0.03);color:var(--m2);}
-.sb-item.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
-.sb-item-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
-.sb-divider{height:var(--line);background:var(--bd);margin:5px 4px;}
-.sb-footer{
-  padding:8px;border-top:var(--line);flex-shrink:0;
-}
-.sb-user{
-  display:flex;align-items:center;gap:8px;
-  padding:8px 10px;border-radius:6px;background:var(--bg2);
-  margin-bottom:5px;
-}
-.sb-avatar{
-  width:26px;height:26px;border-radius:50%;
-  background:var(--a2);border:1px solid var(--a3);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);font-size:12px;color:var(--a);flex-shrink:0;
-}
-.sb-user-info{flex:1;overflow:hidden;}
-.sb-user-name{font-family:var(--font-body);font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sb-user-plan{
-  font-family:var(--font-mono);font-size:12px;color:var(--a);margin-top:1px;
-  letter-spacing:1px;text-shadow:0 0 8px rgba(232,114,42,0.4);
-}
-.sb-logout{
-  width:100%;padding:6px;background:none;border:var(--line);
-  border-radius:5px;color:var(--m);font-family:var(--font-mono);
-  font-size:12px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;
-}
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sb);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative;z-index:10;}
+.sb-logo{height:64px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);flex-shrink:0;gap:10px;}
+.sb-logo-text{font-family:'Comfortaa',cursive;font-size:20px;font-weight:700;font-variant:small-caps;letter-spacing:3px;color:#ff6600;text-shadow:1px 0 12px rgba(255,103,0,.9);animation:logoGlow 3s ease-in-out infinite;}
+@keyframes logoGlow{0%,100%{text-shadow:1px 0 10px rgba(255,103,0,.7);}50%{text-shadow:1px 0 20px rgba(255,103,0,1),0 0 28px rgba(255,103,0,.35);}}
+.sb-admin-badge{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#080808;background:var(--o);padding:2px 7px;border-radius:3px;}
+.sb-nav{flex:1;overflow-y:auto;padding:12px 0;}
+.sb-nav::-webkit-scrollbar{width:3px;}
+.sb-nav::-webkit-scrollbar-thumb{background:var(--line2);}
+.sb-group{font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:2.5px;text-transform:uppercase;padding:14px 16px 6px;}
+.sb-item{width:100%;display:flex;align-items:center;gap:10px;padding:9px 14px;border:none;background:transparent;color:var(--m);font-family:var(--mono);font-size:11px;letter-spacing:.4px;cursor:pointer;transition:all .15s;border-left:2px solid transparent;text-align:left;position:relative;}
+.sb-item:hover{background:var(--bg3);color:var(--t);}
+.sb-item.active{color:var(--o);border-left-color:var(--o);background:var(--od);}
+.sb-item svg{flex-shrink:0;opacity:.65;}
+.sb-item.active svg,.sb-item:hover svg{opacity:1;}
+.sb-badge{min-width:18px;height:18px;border-radius:9px;background:var(--o);color:#080808;font-family:var(--mono);font-size:9px;display:flex;align-items:center;justify-content:center;margin-left:auto;padding:0 5px;}
+.sb-badge.pending{background:var(--r);}
+.sb-divider{height:1px;background:var(--line);margin:8px 12px;}
+.sb-bottom{flex-shrink:0;border-top:1px solid var(--line);padding:12px;}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 4px 10px;}
+.sb-ava{width:32px;height:32px;border-radius:50%;background:var(--od);border:1px solid rgba(232,108,42,.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--o);flex-shrink:0;}
+.sb-uname{font-family:var(--mono);font-size:11px;color:var(--t);}
+.sb-urole{font-family:var(--mono);font-size:9px;color:var(--o);margin-top:1px;letter-spacing:.5px;text-transform:uppercase;}
+.sb-logout{width:100%;padding:8px;border:1px solid var(--line);background:transparent;color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
 .sb-logout:hover{border-color:var(--r);color:var(--r);}
 
+/* ── MAIN ── */
+.main{flex:1;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
 
-/* ── ORBS ── */
-.bg-orbs-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+/* TOPBAR */
+.topbar{height:64px;flex-shrink:0;background:var(--bg2);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:5;}
+.tb-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--t);}
+.tb-sub{font-family:var(--mono);font-size:10px;color:var(--m2);letter-spacing:1px;}
+.tb-spacer{flex:1;}
+.tb-refresh{padding:7px 14px;background:transparent;border:1px solid var(--line);color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.tb-refresh:hover{border-color:var(--o);color:var(--o);}
+.tb-time{font-family:var(--mono);font-size:10px;color:var(--m2);letter-spacing:1px;}
 
-.bg-orb-3{
-  background:radial-gradient(circle,var(--orb3),transparent 70%)!important;
-  filter:blur(140px)!important;
-}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px 28px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:var(--line2);}
 
-/* sidebar */
-.sidebar{background:var(--sidebar-bg)!important;border-right:1px solid var(--bd)!important;}
-.sb-item{color:var(--m)!important;}
-.sb-item:hover{background:var(--bg3)!important;color:var(--t)!important;}
-.sb-item.active{background:var(--bg3)!important;color:var(--t)!important;border-left-color:var(--a)!important;}
-.sb-section{color:var(--m2)!important;letter-spacing:2px;}
-.sb-user-name{color:var(--t)!important;}
-.sb-user-plan{color:var(--m)!important;}
-.sb-logout{color:var(--m)!important;border-color:var(--bd)!important;}
-.sb-logout:hover{color:var(--r)!important;border-color:var(--r)!important;}
+/* PAGES */
+.page{display:none;}
+.page.active{display:block;}
 
-/* topbar */
-.jnl-topbar,.topbar{background:var(--topbar-bg)!important;border-bottom:1px solid var(--bd)!important;}
-.jtb-logo,.tb-logo,.mob-logo{color:var(--t)!important;}
-.jtb-badge,.tb-badge{color:var(--m)!important;border-color:var(--bd)!important;background:var(--bg2)!important;}
-.jtb-sep-v{background:var(--bd2)!important;}
-.jtb-action-btn{color:var(--m)!important;}
-.jtb-action-btn:hover{color:var(--t)!important;}
-.jtb-dot{background:var(--a)!important;}
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:24px;}
+.kpi{background:var(--bg2);border:1px solid var(--line);padding:18px 16px;position:relative;overflow:hidden;transition:border-color .3s;}
+.kpi:hover{border-color:rgba(232,108,42,.2);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--o),transparent);opacity:0;transition:opacity .3s;}
+.kpi:hover::before{opacity:1;}
+.kpi-n{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;color:var(--t);letter-spacing:1px;}
+.kpi-l{font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+.kpi-delta{font-family:var(--mono);font-size:9px;margin-top:4px;}
+.kpi-delta.up{color:var(--g);}
+.kpi-delta.dn{color:var(--r);}
 
-/* main */
-.main{background:var(--bg)!important;}
+/* CHART MINI */
+.mini-chart{height:40px;width:100%;margin-top:8px;}
 
-/* all cards */
-.fcard,.ds-card,.stat-card,.an-card,.pm-card,.coach-card,.lb-card,.pm-section-card,
-.pm-header-card,.pm-limits-card,.pm-mood-card,.pm-ready-bar,.pm-start-btn-wrap,
-.sim-card,.prog-card,.idea-card,.qnote-panel,.score-card,.setup-insight{
-  background:var(--bg-card)!important;
-  border-color:var(--bd)!important;
-  box-shadow:var(--shadow-card)!important;
-}
+/* SECTION TITLE */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--t);}
+.sec-action{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--m2);background:transparent;border:1px solid var(--line);padding:5px 12px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.sec-action:hover{border-color:var(--o);color:var(--o);}
 
-/* stat row */
-.stats-row .stat-cell{background:var(--bg-card)!important;border-color:var(--bd)!important;}
-.stat-label{color:var(--m)!important;}
-.stat-value{color:var(--t);}
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--line);padding:20px;margin-bottom:10px;transition:border-color .3s;}
+.card:hover{border-color:rgba(232,108,42,.15);}
 
-/* section titles — accent by default */
-.fcard-title,.pm-section-title,.pm-side-title,.em-title,.snb-title,
-.dh-title,.ai-title,.eq-title,.patt-title,.ij-title,.mc-title,.hm-title,
-.dash-title,.list-title,.notif-title,.qnote-title{
-  color:var(--a)!important;
-  text-shadow:0 0 16px var(--a2)!important;
-}
-
-/* page nav tabs */
-.topnav{background:var(--topbar-bg)!important;border-bottom:1px solid var(--bd)!important;}
-.tnav{color:var(--m)!important;background:transparent!important;}
-.tnav.active{color:var(--a)!important;border-bottom-color:var(--a)!important;}
-.tnav:hover{color:var(--t)!important;}
-
-/* trade rows */
-.trade-row{background:var(--bg-card)!important;border-color:var(--bd)!important;}
-.trade-row:hover{background:var(--bg-card2)!important;}
-.tr-pair{color:var(--t)!important;}
-.tr-date,.tr-setup,.trade-meta{color:var(--m)!important;}
-
-/* inputs */
-input,select,textarea{
-  background:var(--bg-input)!important;border-color:var(--bd)!important;color:var(--t)!important;
-}
-input:focus,select:focus,textarea:focus{
-  border-color:var(--a)!important;background:var(--bg-card)!important;
-  box-shadow:0 0 0 3px var(--a2)!important;outline:none!important;
-}
-input::placeholder,textarea::placeholder{color:var(--m2)!important;}
-label,.field-label,.form-label,.input-label{color:var(--m)!important;}
-select option{background:var(--bg-card)!important;color:var(--t)!important;}
-
-/* direction buttons */
-.dir-btn{background:var(--bg3)!important;border-color:var(--bd)!important;color:var(--m)!important;}
-.dir-btn:hover{border-color:var(--bd2)!important;color:var(--t)!important;}
-.dir-btn.active-long{background:var(--gd)!important;border-color:var(--g)!important;color:var(--g)!important;}
-.dir-btn.active-short{background:var(--rd)!important;border-color:var(--r)!important;color:var(--r)!important;}
-
-/* RESULT BUTTONS — no green/red highlight, just orange accent */
-.res-btn{background:var(--bg3)!important;border-color:var(--bd)!important;color:var(--m)!important;cursor:pointer!important;}
-.res-btn:hover{border-color:var(--bd2)!important;color:var(--t)!important;}
-.res-btn.active-win,.res-btn.active-loss,.res-btn.active-be{
-  background:var(--a2)!important;border-color:var(--a)!important;
-  color:var(--a)!important;box-shadow:none!important;
-}
-
-/* setup/psych buttons */
-.setup-btn,.psych-btn,.tf-btn,.sym-btn,.qnote-type-btn,.pm-mood-btn{
-  background:var(--bg3)!important;border-color:var(--bd)!important;color:var(--m)!important;
-}
-.setup-btn.active,.psych-btn.active,.tf-btn.active,.sym-btn.active,.qnote-type-btn.active,.pm-mood-btn.active{
-  background:var(--a2)!important;border-color:var(--a)!important;color:var(--a)!important;
-}
-
-/* PM mood buttons */
-.pm-mood-btn{padding:12px 8px!important;}
-.pm-mood-btn.active{background:var(--a2)!important;border-color:var(--a)!important;color:var(--a)!important;}
-
-/* premarket labels */
-.pm-headline{color:var(--a)!important;text-shadow:0 0 24px var(--a2)!important;}
-.pm-headline-sub{color:var(--m)!important;}
-.pm-section-title{color:var(--a)!important;text-shadow:0 0 10px var(--a2)!important;}
-.pm-side-title{font-family:var(--font-mono);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--a);text-shadow:0 0 10px var(--a2);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.pm-lim-label,.pm-lim-val,.pm-check-item{color:var(--t)!important;}
-.pm-check-item input[type="checkbox"]{accent-color:var(--a)!important;}
-.pm-ready-bar{background:var(--bg-card)!important;border-color:var(--bd)!important;}
-.pm-ready-text{color:var(--m)!important;}
-.pm-start-btn{background:var(--a)!important;color:#fff!important;}
-
-/* emotional state — bigger font, orange */
-.em-title{font-family:var(--font-display);font-size:14px;color:var(--a);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;text-shadow:0 0 16px var(--a2);}
-.em-label{color:var(--m)!important;font-size:10px!important;letter-spacing:2px!important;font-family:var(--font-mono)!important;}
-
-/* popups */
-.balance-popup,.goal-popup,.jnl-notif-popup,.qnote-panel{
-  background:var(--bg-card)!important;border-color:var(--bd2)!important;
-  box-shadow:0 16px 56px rgba(0,0,0,0.65)!important;
-}
-
-/* mob nav */
-.mob-bottom-nav{background:var(--sidebar-bg)!important;border-top:1px solid var(--bd)!important;}
-.mob-bar{background:var(--topbar-bg)!important;border-bottom:1px solid var(--bd)!important;}
-.mob-nav-btn{color:var(--m)!important;}
-.mob-nav-btn.active{color:var(--a)!important;}
-
-/* MONO: keep same text highlight colors as Classic */
-html[data-theme="mono"] .sv-g{color:#34d058!important;text-shadow:0 0 14px rgba(52,208,88,0.5),0 0 28px rgba(52,208,88,0.2)!important;animation:greenPulse 3s ease-in-out infinite;}
-html[data-theme="mono"] .sv-r{color:#ff4d4d!important;text-shadow:0 0 14px rgba(255,77,77,0.35)!important;}
-html[data-theme="mono"] .pnl-pos,.pnl-pos{color:#34d058!important;}
-html[data-theme="mono"] .pnl-neg,.pnl-neg{color:#ff4d4d!important;}
-html[data-theme="mono"] .tr-pnl-pos{color:#34d058!important;}
-html[data-theme="mono"] .tr-pnl-neg{color:#ff4d4d!important;}
-html[data-theme="mono"] .dir-btn.active-long{background:rgba(52,208,88,0.1)!important;border-color:rgba(52,208,88,0.5)!important;color:#34d058!important;}
-html[data-theme="mono"] .dir-btn.active-short{background:rgba(255,77,77,0.1)!important;border-color:rgba(255,77,77,0.5)!important;color:#ff4d4d!important;}
-html[data-theme="mono"] .res-btn.active-win{background:rgba(52,208,88,0.1)!important;border-color:rgba(52,208,88,0.5)!important;color:#34d058!important;}
-html[data-theme="mono"] .res-btn.active-loss{background:rgba(255,77,77,0.1)!important;border-color:rgba(255,77,77,0.5)!important;color:#ff4d4d!important;}
-
-/* FOREST: teal-minted accents on borders */
-html[data-theme="forest"] .fcard{box-shadow:0 2px 20px rgba(0,0,0,0.5),0 0 1px rgba(100,180,140,0.1)!important;}
-html[data-theme="forest"] .sidebar{border-right-color:rgba(100,180,140,0.18)!important;}
-
-/* TRADING: tv palette */
-html[data-theme="trading"] .stat-value.pos,
-html[data-theme="trading"] .pnl-pos{color:#26a69a!important;}
-html[data-theme="trading"] .stat-value.neg,
-html[data-theme="trading"] .pnl-neg{color:#ef5350!important;}
-
-/* ═══════════════════════════════════════════════════════════════════
-   APPLE-STYLE BACKGROUND ORBS
-═══════════════════════════════════════════════════════════════════ */
-.bg-orbs-wrap{
-  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-}
-.bg-o{position:absolute;border-radius:50%;pointer-events:none;}
-.bg-o-1{
-  width:800px;height:800px;top:-300px;left:30%;transform:translateX(-50%);
-  background:radial-gradient(circle,rgba(232,114,42,0.07),transparent 65%);
-  filter:blur(80px);animation:orbDrift1 18s ease-in-out infinite alternate;
-}
-.bg-o-2{
-  width:600px;height:600px;bottom:-200px;right:-100px;
-  background:radial-gradient(circle,rgba(232,114,42,0.05),transparent 65%);
-  filter:blur(100px);animation:orbDrift2 22s ease-in-out infinite alternate;
-}
-.bg-o-3{
-  width:500px;height:500px;top:40%;left:-150px;
-  background:radial-gradient(circle,rgba(232,114,42,0.035),transparent 65%);
-  filter:blur(120px);animation:orbDrift3 26s ease-in-out infinite alternate;
-}
-@keyframes orbDrift1{0%{transform:translateX(-50%) translateY(0) scale(1);}100%{transform:translateX(-50%) translateY(-60px) scale(1.08);}}
-@keyframes orbDrift2{0%{transform:translateX(0) translateY(0);}100%{transform:translateX(-40px) translateY(-50px);}}
-@keyframes orbDrift3{0%{transform:translateX(0) translateY(0);}100%{transform:translateX(30px) translateY(-40px);}}
-
-html[data-theme="forest"] .bg-o-1{background:radial-gradient(circle,rgba(232,114,42,0.06),transparent 65%);}
-html[data-theme="forest"] .bg-o-2{background:radial-gradient(circle,rgba(79,201,138,0.05),transparent 65%);}
-html[data-theme="forest"] .bg-o-3{background:radial-gradient(circle,rgba(232,114,42,0.04),transparent 65%);}
-html[data-theme="trading"] .bg-o-1{background:radial-gradient(circle,rgba(232,114,42,0.06),transparent 65%);}
-html[data-theme="trading"] .bg-o-2{background:radial-gradient(circle,rgba(41,98,255,0.04),transparent 65%);}
-html[data-theme="mono"] .bg-o-1{background:radial-gradient(circle,rgba(232,114,42,0.05),transparent 65%);}
-html[data-theme="mono"] .bg-o-2{background:radial-gradient(circle,rgba(232,114,42,0.03),transparent 65%);}
-html[data-theme="mono"] .bg-o-3{background:radial-gradient(circle,rgba(232,114,42,0.02),transparent 65%);}
-
-/* ── LAYOUT ── */
-.main{
-  margin-left:220px;
-  min-height:100vh;
-  position:relative;
-  z-index:1;
-  padding:0;
-}
-
-/* ── TOPNAV BAR (breadcrumb, like journal) ── */
-.admin-topbar{
-  display:flex;align-items:center;gap:8px;
-  background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--bd);
-  padding:0 28px;height:52px;
-  position:sticky;top:0;z-index:50;
-}
-.atb-crumb{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--m);letter-spacing:1px;}
-.atb-crumb a{color:var(--m);text-decoration:none;transition:color .15s;}
-.atb-crumb a:hover{color:var(--a);}
-.atb-sep{color:var(--bd2);margin:0 2px;}
-.atb-current{color:var(--a);font-family:var(--font-mono);font-size:12px;letter-spacing:2px;}
-.atb-spacer{flex:1;}
-.atb-theme-ctrl{display:flex;align-items:center;gap:2px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:3px;flex-shrink:0;}
-.atb-theme-ctrl button{width:28px;height:28px;border-radius:6px;border:none;background:transparent;color:var(--m);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.atb-theme-ctrl button:hover{color:var(--a);background:var(--bg3);}
-.atb-sep-v{width:1px;height:16px;background:var(--bd2);margin:0 1px;}
-
-/* ── MAIN INNER ── */
-.main-inner{padding:24px 28px 60px;}
-
-/* ── ORIGINAL ADMIN CSS ── */
-
-/* ======== SHARED SIDEBAR ======== */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(3,4,7,0.98);border-right:1px solid var(--bd);backdrop-filter:blur(24px);display:flex;flex-direction:column;z-index:100;}
-.sidebar-logo{padding:0 16px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--bd);flex-shrink:0;position:relative;overflow:hidden;}
-.slogo-canvas{position:absolute;inset:0;pointer-events:none;}
-.slogo-inner{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.slogo-img{width:34px;height:34px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6)) drop-shadow(0 0 20px rgba(255,255,255,0.25)) drop-shadow(0 0 40px rgba(200,200,255,0.15));}
-.slogo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#f2f2f2;text-shadow:0 0 20px rgba(255,255,255,0.15);}
-.sidenav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
-.snav-sec{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:2px;padding:10px 10px 4px;text-transform:uppercase;}
-.snav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;text-decoration:none;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;transition:all 0.18s;border:1px solid transparent;width:100%;text-align:left;background:none;cursor:pointer;}
-.snav-item:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.06);}
-.snav-item.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.22);color:var(--a);}
-.snav-item.admin-link{color:rgba(245,166,35,0.75);}
-.snav-item.admin-link:hover,.snav-item.admin-link.active{background:rgba(245,166,35,0.1);border-color:rgba(245,166,35,0.3);color:#f5a623;}
-.snav-icon{font-size:15px;flex-shrink:0;width:18px;text-align:center;}
-.snav-div{height:1px;background:var(--bd);margin:5px 4px;}
-.sidebar-footer{padding:10px 8px;border-top:1px solid var(--bd);flex-shrink:0;}
-.sf-user{display:flex;align-items:center;gap:9px;margin-bottom:7px;padding:8px 10px;background:rgba(255,255,255,0.025);border-radius:8px;}
-.sf-avatar{width:30px;height:30px;border-radius:50%;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--a);flex-shrink:0;}
-.sf-info{overflow:hidden;flex:1;}
-.sf-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t);}
-.sf-plan{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;margin-top:1px;}
-.sf-logout{width:100%;padding:7px;background:none;border:1px solid var(--bd);border-radius:7px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
-.sf-logout:hover{border-color:var(--r);color:var(--r);}
-/* mobile */
-.mob-topbar{display:none;position:sticky;top:0;z-index:90;background:rgba(3,4,7,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);height:54px;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
-.mob-logo-wrap{display:flex;align-items:center;gap:8px;}
-.mob-logo-img{width:26px;height:26px;object-fit:cover;border-radius:50%;mix-blend-mode:screen;filter:drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 16px rgba(255,255,255,0.2));}
-.mob-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;color:#f2f2f2;}
-.mob-right{display:flex;align-items:center;gap:8px;}
-.mob-burger{background:none;border:1px solid var(--bd);border-radius:7px;padding:5px 9px;color:var(--m);font-size:15px;cursor:pointer;}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99;}
-
-/* ── DESKTOP ALWAYS-SHOW SIDEBAR ── */
-@media(min-width:901px){
-  .sidebar{display:flex!important;transform:none!important;}
-  .mob-topbar{display:none!important;}
-}
-@media(max-width:900px){
-  .sidebar{transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
-  .sidebar.open{transform:translateX(0);}
-  .sidebar-overlay.open{display:block;}
-  .mob-topbar{display:flex;}
-}
-
-/* ── TOP BREADCRUMB NAV ── */
-.topnav-bar{
-  position:sticky;top:0;z-index:80;
-  background:rgba(5,7,10,0.9);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  height:48px;display:flex;align-items:center;
-  padding:0 24px;gap:8px;
-}
-.tnb-back{
-  display:flex;align-items:center;gap:6px;
-  padding:5px 12px;border-radius:7px;border:1px solid rgba(255,255,255,0.08);
-  background:rgba(255,255,255,0.03);color:var(--m);
-  font-family:'JetBrains Mono',monospace;font-size:9px;
-  letter-spacing:1px;cursor:pointer;transition:all 0.15s;
-  text-decoration:none;
-}
-.tnb-back:hover{border-color:rgba(232,114,42,0.3);color:var(--a);background:rgba(232,114,42,0.05);}
-.tnb-sep{color:rgba(255,255,255,0.15);font-size:11px;}
-.tnb-current{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);letter-spacing:1.5px;text-transform:uppercase;}
-.tnb-spacer{flex:1;}
-.tnb-links{display:flex;gap:4px;}
-.tnb-link{
-  padding:5px 12px;border-radius:7px;border:1px solid transparent;
-  color:var(--m);font-family:'JetBrains Mono',monospace;font-size:9px;
-  letter-spacing:1px;cursor:pointer;transition:all 0.15s;
-  text-decoration:none;
-}
-.tnb-link:hover{background:rgba(255,255,255,0.04);color:var(--t);border-color:rgba(255,255,255,0.07);}
-.tnb-link.active{background:rgba(232,114,42,0.1);border-color:rgba(232,114,42,0.25);color:var(--a);}
-
-:root{--a:#e8722a;--a2:rgba(232,114,42,0.15);--a3:rgba(232,114,42,0.4);--bg:#05070a;--bg2:rgba(255,255,255,0.025);--bg3:rgba(255,255,255,0.04);--bd:rgba(255,255,255,0.07);--t:#f0f0f0;--m:rgba(255,255,255,0.35);--g:#34d058;--r:#ff4d4d;--gd:rgba(52,208,88,0.1);--rd:rgba(255,77,77,0.1);--y:#f5a623;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;min-height:100vh;}
-.bg-orb{position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(232,114,42,0.1),transparent 65%);filter:blur(100px);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:0;}
-.topbar{position:sticky;top:0;z-index:50;background:rgba(5,7,10,0.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;}
-.tlogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;background:linear-gradient(135deg,rgba(255,255,255,0.95) 40%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
-.abadge{background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);border-radius:6px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);letter-spacing:2px;text-transform:uppercase;}
-.logout{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 14px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
-.logout:hover{border-color:var(--r);color:var(--r);}
-.main{max-width:1100px;margin:0 auto;padding:32px 24px 80px;position:relative;z-index:1;}
-.tabs{display:flex;gap:4px;background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:12px;padding:4px;margin-bottom:28px;width:fit-content;}
-.tab{padding:9px 20px;border-radius:9px;border:none;background:transparent;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
-.tab.active{background:rgba(255,255,255,0.07);color:var(--t);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
-.gstats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:28px;}
-.stat{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:16px;backdrop-filter:blur(10px);}
-.sl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
-.sv{font-family:'JetBrains Mono',monospace;font-size:20px;}
-.sv.g{color:var(--g);}
-.sv.r{color:var(--r);}
-.sv.a{color:var(--a);}
-.sv.y{color:var(--y);}
-.stitle{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--m);margin-bottom:14px;}
-.pay-card{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;backdrop-filter:blur(10px);transition:border-color 0.2s;}
+/* PAYMENT CARD */
+.pay-card{background:var(--bg2);border:1px solid var(--line);padding:18px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;transition:border-color .3s;}
 .pay-card.pending{border-left:2px solid var(--y);}
 .pay-card.confirmed{border-left:2px solid var(--g);}
-.pay-card.rejected{border-left:2px solid var(--r);}
-.pay-info{display:flex;gap:20px;flex-wrap:wrap;}
-.pi{display:flex;flex-direction:column;gap:2px;}
-.pil{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
-.piv{font-family:'JetBrains Mono',monospace;font-size:12px;}
-.pay-actions{display:flex;gap:8px;}
-.act-btn{padding:8px 16px;border-radius:8px;border:none;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-.act-btn.approve{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
-.act-btn.approve:hover{background:var(--g);color:#fff;}
-.act-btn.reject{background:var(--rd);border:1px solid rgba(255,77,77,0.3);color:var(--r);}
-.act-btn.reject:hover{background:var(--r);color:#fff;}
-.status-badge{padding:4px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
-.status-badge.pending{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);color:var(--y);}
-.status-badge.confirmed{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
-.status-badge.rejected{background:var(--rd);border:1px solid rgba(255,77,77,0.3);color:var(--r);}
-.ucard{background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:10px;backdrop-filter:blur(10px);transition:border-color 0.2s;}
-.ucard:hover{border-color:rgba(232,114,42,0.2);}
-.uhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.uinfo{display:flex;align-items:center;gap:12px;}
-.uavatar{width:38px;height:38px;border-radius:50%;background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--a);box-shadow:0 0 16px rgba(232,114,42,0.1);}
-.uname{font-family:'Syne',sans-serif;font-size:14px;font-weight:500;}
-.uemail{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);}
-.plan-badge2{padding:4px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
-.plan-badge2.lifetime{background:var(--a2);border:1px solid rgba(232,114,42,0.3);color:var(--a);}
-.plan-badge2.monthly{background:var(--gd);border:1px solid rgba(52,208,88,0.3);color:var(--g);}
-.plan-badge2.none{background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--m);}
-.feat-panel{margin-top:10px;padding:10px 12px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:10px;}
-.feat-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.35);margin-bottom:8px;text-transform:uppercase;}
-.feat-grid{display:flex;flex-wrap:wrap;gap:6px;}
-.feat-toggle{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);cursor:pointer;transition:all .15s;}
-.feat-toggle.on{border-color:rgba(232,114,42,0.5);background:rgba(232,114,42,0.1);color:var(--a);}
-.feat-toggle.locked{opacity:0.4;cursor:not-allowed;}
-.feat-save{margin-top:8px;padding:5px 14px;border-radius:6px;border:1px solid rgba(232,114,42,0.4);background:rgba(232,114,42,0.08);color:var(--a);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .15s;}
-.feat-save:hover{background:rgba(232,114,42,0.18);}
-.utrades{display:flex;gap:20px;flex-wrap:wrap;}
-.ut{display:flex;flex-direction:column;gap:2px;}
-.utl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--m);letter-spacing:1px;text-transform:uppercase;}
-.utv{font-family:'JetBrains Mono',monospace;font-size:12px;}
-.grant-row{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);}
-.grant-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--m);letter-spacing:1px;}
-.grant-select{background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color 0.2s;}
-.grant-select:focus{border-color:var(--a);}
-.grant-btn{padding:8px 16px;border-radius:8px;background:rgba(232,114,42,0.1);border:1px solid rgba(232,114,42,0.3);color:var(--a);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-.grant-btn:hover{background:var(--a);color:#fff;box-shadow:0 4px 16px rgba(232,114,42,0.3);}
-.empty{text-align:center;padding:40px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;}
-.loading{text-align:center;padding:30px;color:var(--m);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;}
-@media(max-width:768px){.gstats{grid-template-columns:repeat(3,1fr);}.topbar{padding:0 16px;}}
-/* Mobile topbar toggle */
+.pay-card.rejected{border-left:2px solid var(--r);opacity:.6;}
+.pay-info{display:flex;flex-wrap:wrap;gap:16px;flex:1;}
+.pi{min-width:80px;}
+.pil{font-family:var(--mono);font-size:8px;color:var(--m2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.piv{font-family:var(--mono);font-size:11px;color:var(--t);}
+.pay-actions{display:flex;gap:8px;flex-shrink:0;}
+.act-btn{padding:7px 14px;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.act-btn.approve{background:var(--g);color:#080808;}
+.act-btn.approve:hover{box-shadow:0 4px 16px rgba(46,204,113,.3);}
+.act-btn.reject{background:transparent;border:1px solid rgba(231,76,60,.3);color:var(--r);}
+.act-btn.reject:hover{background:rgba(231,76,60,.08);}
+.status-badge{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border:1px solid;border-radius:2px;}
+.status-badge.confirmed{color:var(--g);border-color:rgba(46,204,113,.3);}
+.status-badge.rejected{color:var(--r);border-color:rgba(231,76,60,.3);}
 
-@media(max-width:768px){
-  
-  
-  
-  
-  .main-content{margin-left:0!important;padding-top:0!important;}
-}
+/* USER CARD */
+.ucard{background:var(--bg2);border:1px solid var(--line);margin-bottom:10px;overflow:hidden;transition:border-color .3s;}
+.ucard:hover{border-color:rgba(232,108,42,.18);}
+.uhead{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;gap:12px;border-bottom:1px solid var(--line);}
+.uinfo{display:flex;align-items:center;gap:12px;flex:1;}
+.uava{width:36px;height:36px;border-radius:50%;background:var(--od);border:1px solid rgba(232,108,42,.25);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--o);flex-shrink:0;}
+.uname-text{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--t);}
+.uemail{font-family:var(--mono);font-size:9px;color:var(--m2);margin-top:2px;}
+.plan-pill{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:2px;border:1px solid;flex-shrink:0;}
+.plan-pill.lifetime{color:var(--g);border-color:rgba(46,204,113,.3);background:rgba(46,204,113,.06);}
+.plan-pill.monthly{color:var(--o);border-color:rgba(232,108,42,.3);background:var(--od);}
+.plan-pill.none,.plan-pill.free{color:var(--m2);border-color:var(--line);}
+.ustats{display:flex;gap:0;border-bottom:1px solid var(--line);}
+.ustat{flex:1;padding:12px 16px;border-right:1px solid var(--line);}
+.ustat:last-child{border-right:none;}
+.ustat-l{font-family:var(--mono);font-size:8px;color:var(--m2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.ustat-v{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;}
+.uactions{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line);}
+.ua{padding:6px 12px;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--m);transition:all .2s;}
+.ua:hover{border-color:var(--line2);color:var(--t);}
+.ua.lifetime{border-color:rgba(46,204,113,.3);color:var(--g);}
+.ua.lifetime:hover{background:rgba(46,204,113,.08);}
+.ua.monthly{border-color:rgba(232,108,42,.3);color:var(--o);}
+.ua.monthly:hover{background:var(--od);}
+.ua.danger{border-color:rgba(231,76,60,.2);color:var(--r);}
+.ua.danger:hover{background:rgba(231,76,60,.06);}
+.ufeat{padding:14px 16px;}
+.ufeat-title{font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.feat-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.feat-toggle{padding:5px 10px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;cursor:pointer;background:var(--bg3);border:1px solid var(--line);color:var(--m2);transition:all .2s;}
+.feat-toggle.on{background:var(--od);border-color:rgba(232,108,42,.3);color:var(--o);}
+.feat-toggle.locked{opacity:.5;cursor:default;}
+.feat-save{padding:6px 14px;background:var(--o);color:#080808;border:none;font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.feat-save:hover{box-shadow:0 4px 16px var(--og);}
 
-/* mobile */
+/* SEARCH */
+.search-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.search-input{flex:1;background:var(--bg2);border:1px solid var(--line);padding:9px 14px;color:var(--t);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .2s;}
+.search-input::placeholder{color:var(--m2);}
+.search-input:focus{border-color:rgba(232,108,42,.35);}
+.filter-btn{padding:9px 14px;background:transparent;border:1px solid var(--line);color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.filter-btn.active{border-color:rgba(232,108,42,.35);color:var(--o);background:var(--od);}
+.filter-btn:hover{border-color:var(--line2);color:var(--m);}
 
+/* STATS TABLE */
+.stats-table{background:var(--bg2);border:1px solid var(--line);overflow:hidden;}
+.stats-table-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg3);}
+.sth{font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:1.5px;text-transform:uppercase;}
+.stats-table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s;}
+.stats-table-row:hover{background:var(--bg3);}
+.std{font-family:var(--mono);font-size:11px;color:var(--m);}
+.std.name{color:var(--t);font-size:13px;}
+
+/* EDUCATION ADMIN */
+.edu-section-card{background:var(--bg2);border:1px solid var(--line);margin-bottom:10px;overflow:hidden;transition:border-color .3s;}
+.edu-section-card:hover{border-color:rgba(232,108,42,.18);}
+.edu-sec-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--bg3);}
+.edu-sec-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--t);}
+.edu-sec-actions{display:flex;gap:6px;}
+.edu-lesson-row{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,.03);gap:12px;}
+.edu-lesson-row:last-child{border-bottom:none;}
+.edu-lesson-info{display:flex;align-items:center;gap:10px;flex:1;}
+.edu-pub-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.edu-pub-dot.pub{background:var(--g);box-shadow:0 0 6px var(--g);}
+.edu-pub-dot.draft{background:var(--m2);}
+.edu-lesson-name{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--t);}
+.edu-lesson-meta{font-family:var(--mono);font-size:9px;color:var(--m2);}
+.edu-lesson-acts{display:flex;gap:6px;}
+.edu-act{padding:4px 10px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--m2);transition:all .2s;}
+.edu-act:hover{border-color:var(--line2);color:var(--m);}
+.edu-act.pub{border-color:rgba(46,204,113,.25);color:var(--g);}
+.edu-act.pub:hover{background:rgba(46,204,113,.06);}
+.edu-act.unpub{border-color:rgba(231,76,60,.25);color:var(--r);}
+.edu-act.edit{border-color:rgba(232,108,42,.25);color:var(--o);}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:span 2;}
+.form-label{font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:1.5px;text-transform:uppercase;}
+.form-input{background:var(--bg3);border:1px solid var(--line);padding:9px 12px;color:var(--t);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .2s;width:100%;}
+.form-input:focus{border-color:rgba(232,108,42,.4);}
+.form-input::placeholder{color:var(--m2);}
+.form-textarea{background:var(--bg3);border:1px solid var(--line);padding:10px 12px;color:var(--t);font-family:var(--mono);font-size:11px;outline:none;transition:border-color .2s;width:100%;resize:vertical;line-height:1.7;min-height:140px;}
+.form-textarea:focus{border-color:rgba(232,108,42,.4);}
+.form-actions{display:flex;gap:10px;margin-top:4px;}
+.btn-primary{padding:10px 22px;background:var(--o);color:#080808;border:none;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;transition:all .25s;}
+.btn-primary:hover{box-shadow:0 4px 20px var(--og);}
+.btn-secondary{padding:10px 18px;background:transparent;border:1px solid var(--line);color:var(--m2);font-family:var(--mono);font-size:10px;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--line2);color:var(--m);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--line);padding:32px;width:680px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--o),transparent);}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:24px;color:var(--t);}
+.modal-close{position:absolute;top:16px;right:16px;width:28px;height:28px;background:var(--bg3);border:1px solid var(--line);color:var(--m);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.modal-close:hover{border-color:var(--r);color:var(--r);}
+
+/* OVERVIEW CHARTS */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.chart-card{background:var(--bg2);border:1px solid var(--line);padding:20px;}
+.chart-title{font-family:var(--mono);font-size:10px;color:var(--m2);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.bar{flex:1;background:var(--od);border-top:1px solid rgba(232,108,42,.5);transition:background .2s;position:relative;}
+.bar:hover{background:rgba(232,108,42,.2);}
+.bar-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:7px;color:var(--m2);white-space:nowrap;}
+.recent-list{display:flex;flex-direction:column;gap:6px;}
+.recent-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.recent-item:last-child{border-bottom:none;}
+.recent-name{font-family:var(--mono);font-size:10px;color:var(--t);}
+.recent-meta{font-family:var(--mono);font-size:9px;color:var(--m2);}
+.recent-badge{font-family:var(--mono);font-size:8px;letter-spacing:.5px;padding:2px 7px;border:1px solid;border-radius:2px;}
+.recent-badge.confirmed{color:var(--g);border-color:rgba(46,204,113,.25);}
+.recent-badge.pending{color:var(--y);border-color:rgba(245,166,35,.25);}
+
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:16px;transition:opacity .4s;}
+.loading-screen.hidden{opacity:0;pointer-events:none;}
+.loading-logo{font-family:'Comfortaa',cursive;font-size:32px;font-weight:700;font-variant:small-caps;letter-spacing:4px;color:#ff6600;text-shadow:1px 0 16px rgba(255,103,0,1);animation:logoGlow 1.5s ease-in-out infinite;}
+.loading-sub{font-family:var(--mono);font-size:10px;color:var(--m2);letter-spacing:2px;text-transform:uppercase;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid rgba(232,108,42,.4);color:var(--o);font-family:var(--mono);font-size:11px;padding:12px 20px;z-index:99999;transition:all .3s;opacity:0;transform:translateY(8px);}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{border-color:rgba(46,204,113,.4);color:var(--g);}
+.toast.error{border-color:rgba(231,76,60,.4);color:var(--r);}
+
+/* EMPTY */
+.empty{font-family:var(--mono);font-size:11px;color:var(--m2);text-align:center;padding:32px;letter-spacing:1px;}
+
+/* MOBILE */
 @media(max-width:900px){
-  
-  
-  
-  
+  .sidebar{position:fixed;left:-100%;transition:left .25s;z-index:100;}
+  .sidebar.open{left:0;}
+  .kpi-grid{grid-template-columns:repeat(3,1fr);}
+  .charts-row{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}.form-group.full{grid-column:span 1;}
+  .content{padding:16px;}
 }
-
-.main{margin-left:220px;padding:0 28px 80px;position:relative;z-index:1;}
-@media(max-width:900px){.main{margin-left:0;padding:0 14px 60px;}}
-.main-inner{padding-top:24px;}
-
-/* ── MOB SIDEBAR ── */
-.sidebar-overlay{display:none;position:fixed;inset:0;z-index:88;background:rgba(0,0,0,0.6);}
-.sidebar-overlay.open{display:block;}
-@media(max-width:900px){
-  .main{margin-left:0;}
-  .sidebar{transform:translateX(-100%);transition:transform .25s;}
-  .sidebar.open{transform:translateX(0);}
-}
-
-/* ── MONO THEME override for admin ── */
-html[data-theme="mono"] .tnav.active{color:var(--a)!important;border-bottom-color:var(--a)!important;}
-html[data-theme="mono"] .tab.active{color:var(--a)!important;}
-
-
-.uactions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);}
-.ua-btn{font-family:var(--font-mono,monospace);font-size:9px;letter-spacing:.5px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);cursor:pointer;transition:all .15s;}
-.ua-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
-.ua-plan{border-color:rgba(52,208,88,0.3);color:#34d058;}
-.ua-plan:hover{background:rgba(52,208,88,0.1);}
-.ua-rev{border-color:rgba(255,77,77,0.3)!important;color:#ff4d4d!important;}
-.ua-rev:hover{background:rgba(255,77,77,0.1)!important;}
-.ua-view{border-color:rgba(232,114,42,0.3);color:#e8722a;}
-.ua-msg{border-color:rgba(100,160,255,0.3);color:#64a0ff;}
-.ua-del{border-color:rgba(255,77,77,0.2);color:rgba(255,100,100,0.6);}
-.ua-del:hover{background:rgba(255,77,77,0.1);color:#ff4d4d;}
+.mob-menu{display:none;width:36px;height:36px;border:1px solid var(--line);background:transparent;color:var(--m);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+@media(max-width:900px){.mob-menu{display:flex;}}
 </style>
 </head>
 <body>
 
-<!-- ORBS -->
-<div class="bg-orbs-wrap" aria-hidden="true">
-  <div class="bg-o bg-o-1"></div>
-  <div class="bg-o bg-o-2"></div>
-  <div class="bg-o bg-o-3"></div>
+<!-- LOADING -->
+<div class="loading-screen" id="loading">
+  <div class="loading-logo">ORBITUM</div>
+  <div class="loading-sub">Loading admin panel...</div>
 </div>
 
-<!-- SIDEBAR (journal-style) -->
-<div class="sidebar" id="sidebar">
-  <a href="index.html" class="sb-logo" style="text-decoration:none;" title="На главную">
-    <div class="sb-logo-dot"></div>
-    <span class="sb-logo-text">ORBITUM</span>
-  </a>
-  <nav class="sb-nav">
-    <div class="sb-section">КАБИНЕТ</div>
-    <a href="journal.html" class="sb-item" style="text-decoration:none;">
-      <span class="sb-item-icon">📋</span><span class="sb-item-label">Журнал сделок</span>
-    </a>
-    <a href="profile.html" class="sb-item" style="text-decoration:none;" target="_blank">
-      <span class="sb-item-icon">🧠</span><span class="sb-item-label">Мой профиль ↗</span>
-    </a>
-    <div class="sb-section" style="margin-top:10px;">АДМИНИСТРИРОВАНИЕ</div>
-    <a href="admin.html" class="sb-item active" style="text-decoration:none;">
-      <span class="sb-item-icon">⚙️</span><span class="sb-item-label">Панель админа</span>
-    </a>
-  </nav>
-  <div class="sb-footer">
-    <div class="sb-user">
-      <div class="sb-avatar" id="sf-avatar">?</div>
-      <div class="sb-uinfo">
-        <div class="sb-user-name" id="sf-name">...</div>
-        <div class="sb-user-plan" id="sf-plan">—</div>
+<!-- LESSON MODAL -->
+<div class="modal-overlay" id="lesson-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modal-title">New Lesson</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Lesson Title</label>
+        <input class="form-input" id="lesson-title" placeholder="BOS & ChoCH Explained"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">YouTube URL (optional)</label>
+        <input class="form-input" id="lesson-video" placeholder="https://youtube.com/watch?v=..."/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration (minutes)</label>
+        <input class="form-input" id="lesson-dur" type="number" placeholder="10"/>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Content (Markdown: ## Heading, **bold**, paragraphs)</label>
+        <textarea class="form-textarea" id="lesson-content" rows="10" placeholder="## Introduction&#10;&#10;Write your lesson content here...&#10;&#10;## Key Concepts&#10;&#10;**BOS** (Break of Structure) is..."></textarea>
       </div>
     </div>
-    <button class="sb-logout" onclick="doLogout()">ВЫЙТИ</button>
+    <div class="form-actions" style="margin-top:16px;">
+      <button class="btn-primary" onclick="saveLesson()">Save Lesson</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
   </div>
 </div>
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <span class="sb-logo-text">ORBITUM</span>
+    <span class="sb-admin-badge">ADMIN</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-group">Dashboard</div>
+    <button class="sb-item active" id="nav-overview" onclick="showPage('overview',this)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor"/><rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"/></svg>
+      Overview
+    </button>
+    <div class="sb-group">Finance</div>
+    <button class="sb-item" id="nav-payments" onclick="showPage('payments',this)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6.5h13" stroke="currentColor" stroke-width="1.3"/><circle cx="4.5" cy="9.5" r="1" fill="currentColor"/></svg>
+      Payments
+      <span class="sb-badge pending" id="sb-pending-count">0</span>
+    </button>
+    <div class="sb-group">Users</div>
+    <button class="sb-item" id="nav-users" onclick="showPage('users',this)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 13c0-2.5 2.2-4 5-4s5 1.5 5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="12" cy="5.5" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M14 12.5c0-1.5-1-2.5-2-2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Users
+      <span class="sb-badge" id="sb-users-count">0</span>
+    </button>
+    <div class="sb-group">Analytics</div>
+    <button class="sb-item" id="nav-analytics" onclick="showPage('analytics',this)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="8" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="6.5" y="5" width="3" height="9.5" rx="1" fill="currentColor"/><rect x="11.5" y="1.5" width="3" height="13" rx="1" fill="currentColor"/></svg>
+      Analytics
+    </button>
+    <div class="sb-group">Content</div>
+    <button class="sb-item" id="nav-education" onclick="showPage('education',this)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L1.5 5l6.5 3.5L14.5 5 8 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 6.8v3.7l3.5 2 3.5-2V6.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Education
+    </button>
+    <div class="sb-divider"></div>
+    <a class="sb-item" href="/journal" style="text-decoration:none;">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Go to Journal
+    </a>
+    <a class="sb-item" href="/" style="text-decoration:none;">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8.5L8 2l6 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 7v6.5h3v-4h2v4h3V7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Main Site
+    </a>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-ava" id="sb-ava">A</div>
+      <div>
+        <div class="sb-uname" id="sb-uname">Admin</div>
+        <div class="sb-urole">Administrator</div>
+      </div>
+    </div>
+    <button class="sb-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+</aside>
 
 <!-- MAIN -->
 <div class="main">
-
-  <!-- TOPBAR -->
-  <div class="admin-topbar">
-    <div class="atb-crumb">
-      <a href="index.html">← ГЛАВНАЯ</a>
-      <span class="atb-sep">/</span>
-      <a href="journal.html">ЖУРНАЛ</a>
-      <span class="atb-sep">/</span>
-      <span class="atb-current">⚙️ АДМИН</span>
+  <div class="topbar">
+    <button class="mob-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"/><rect x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"/></svg>
+    </button>
+    <div>
+      <div class="tb-title" id="tb-title">OVERVIEW</div>
+      <div class="tb-sub" id="tb-sub">Platform dashboard</div>
     </div>
-    <div class="atb-spacer"></div>
-    <div class="atb-theme-ctrl">
-      <button onclick="orbSetTheme('dark')" title="Classic">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-      <div class="atb-sep-v"></div>
-      <button onclick="orbSpToggle()" title="Стиль">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      </button>
-    </div>
+    <div class="tb-spacer"></div>
+    <div class="tb-time" id="tb-time"></div>
+    <button class="tb-refresh" onclick="loadAll()">↻ Refresh</button>
   </div>
 
-  <div class="main-inner">
+  <div class="content">
 
-    <!-- KPI STATS -->
-    <div class="gstats">
-      <div class="stat"><div class="stat-label">Юзеров</div><div class="stat-val" id="gs-users">—</div></div>
-      <div class="stat"><div class="stat-label">Активных</div><div class="stat-val" id="gs-active" style="color:var(--g)">—</div></div>
-      <div class="stat"><div class="stat-label">Ожид. оплат</div><div class="stat-val" id="gs-pending" style="color:var(--y)">—</div></div>
-      <div class="stat"><div class="stat-label">Всего сделок</div><div class="stat-val" id="gs-trades">—</div></div>
-      <div class="stat"><div class="stat-label">Доход USDT</div><div class="stat-val" id="gs-revenue" style="color:var(--g)">—</div></div>
-      <div class="stat"><div class="stat-label">Ср. винрейт</div><div class="stat-val" id="gs-wr" style="color:var(--y)">—</div></div>
+    <!-- ── OVERVIEW ── -->
+    <div class="page active" id="page-overview">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-n" id="kpi-users">—</div><div class="kpi-l">Total Users</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-active">—</div><div class="kpi-l">Active Plans</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-revenue" style="color:var(--o)">—</div><div class="kpi-l">Revenue $</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-pending" style="color:var(--y)">—</div><div class="kpi-l">Pending</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-trades">—</div><div class="kpi-l">Trades Logged</div></div>
+        <div class="kpi"><div class="kpi-n" id="kpi-wr" style="color:var(--g)">—</div><div class="kpi-l">Platform WR</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">Revenue by plan</div>
+          <div class="bar-chart" id="revenue-chart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Recent payments</div>
+          <div class="recent-list" id="recent-payments"></div>
+        </div>
+      </div>
+      <div class="sec-head">
+        <div class="sec-title-text">Recent Users</div>
+        <button class="sec-action" onclick="showPage('users',document.getElementById('nav-users'))">View All →</button>
+      </div>
+      <div id="overview-users"></div>
     </div>
 
-    <!-- TABS -->
-    <div class="tabs">
-      <button class="tab active" onclick="showTab('payments')">💳 Оплаты</button>
-      <button class="tab" onclick="showTab('users')">👥 Пользователи</button>
-      <button class="tab" onclick="showTab('stats')">📊 Статистика</button>
+    <!-- ── PAYMENTS ── -->
+    <div class="page" id="page-payments">
+      <div class="sec-head"><div class="sec-title-text">⚡ Pending Approval</div></div>
+      <div id="pending-list"><div class="empty">No pending payments</div></div>
+      <div class="sec-head" style="margin-top:24px;"><div class="sec-title-text">All Payments</div></div>
+      <div id="all-payments"><div class="empty">No payments yet</div></div>
     </div>
 
-    <!-- PAYMENTS TAB -->
-    <div id="tab-payments">
-      <div class="section-title">Ожидают подтверждения</div>
-      <div id="pending-list"><div class="empty">Нет ожидающих платежей ✓</div></div>
-      <div class="section-title" style="margin-top:24px;">Все платежи</div>
-      <div id="all-payments"><div class="empty">Загрузка...</div></div>
+    <!-- ── USERS ── -->
+    <div class="page" id="page-users">
+      <div class="search-bar">
+        <input class="search-input" id="user-search" placeholder="Search by name, email..." oninput="filterUsers()"/>
+        <button class="filter-btn active" id="filter-all" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" id="filter-lifetime" onclick="setFilter('lifetime',this)">Lifetime</button>
+        <button class="filter-btn" id="filter-monthly" onclick="setFilter('monthly',this)">Monthly</button>
+        <button class="filter-btn" id="filter-free" onclick="setFilter('free',this)">Free</button>
+      </div>
+      <div id="users-list"></div>
     </div>
 
-    <!-- USERS TAB -->
-    <div id="tab-users" style="display:none;">
-      <div class="section-title">Все пользователи</div>
-      <div id="users-list"><div class="empty">Загрузка...</div></div>
+    <!-- ── ANALYTICS ── -->
+    <div class="page" id="page-analytics">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="kpi"><div class="kpi-n" id="an-total-trades">—</div><div class="kpi-l">Total Trades</div></div>
+        <div class="kpi"><div class="kpi-n" id="an-wr" style="color:var(--g)">—</div><div class="kpi-l">Avg Win Rate</div></div>
+        <div class="kpi"><div class="kpi-n" id="an-avg-rr" style="color:var(--o)">—</div><div class="kpi-l">Avg R:R</div></div>
+        <div class="kpi"><div class="kpi-n" id="an-active-traders">—</div><div class="kpi-l">Active Traders</div></div>
+      </div>
+      <div class="sec-head"><div class="sec-title-text">Top Pairs</div></div>
+      <div class="stats-table">
+        <div class="stats-table-head">
+          <div class="sth">Pair</div>
+          <div class="sth">Trades</div>
+          <div class="sth">Win Rate</div>
+          <div class="sth">Avg R:R</div>
+          <div class="sth">P&L %</div>
+        </div>
+        <div id="pairs-table"></div>
+      </div>
+      <div class="sec-head" style="margin-top:24px;"><div class="sec-title-text">User Leaderboard</div></div>
+      <div class="stats-table">
+        <div class="stats-table-head">
+          <div class="sth">Trader</div>
+          <div class="sth">Trades</div>
+          <div class="sth">Win Rate</div>
+          <div class="sth">Best R:R</div>
+          <div class="sth">P&L $</div>
+        </div>
+        <div id="leaderboard-table"></div>
+      </div>
     </div>
 
-    <!-- STATS TAB -->
-    <div id="tab-stats" style="display:none;">
-      <div class="section-title">Статистика по парам</div>
-      <div id="team-stats"><div class="empty">Загрузка...</div></div>
-    </div>
-
-  </div><!-- /main-inner -->
-</div><!-- /main -->
-
-<!-- THEME PANEL -->
-<!-- ORB STYLE PANEL v3 — 4 themes, no accent picker -->
-<div class="orb-sp-ov" id="orb-sp-ov">
-  <div class="orb-sp" id="orb-sp">
-    <div class="orb-sp-head">
-      <span class="orb-sp-title">СТИЛЬ</span>
-      <button class="orb-sp-x" onclick="orbSpClose()">×</button>
-    </div>
-    <div class="orb-sp-lbl">ТЕМА</div>
-    <div class="orb-sp-themes">
-      <button class="orb-sp-th on" data-theme="dark" onclick="orbSetTheme('dark')">
-        <div class="orb-sp-prev prev-dark"></div>
-        <div class="orb-sp-th-info"><div class="orb-sp-th-name">CLASSIC</div><div class="orb-sp-th-sub">тёмная</div></div>
-      </button>
-      <button class="orb-sp-th" data-theme="mono" onclick="orbSetTheme('mono')">
-        <div class="orb-sp-prev prev-mono"></div>
-        <div class="orb-sp-th-info"><div class="orb-sp-th-name">PRO</div><div class="orb-sp-th-sub">моно ЧБ</div></div>
-      </button>
-      <button class="orb-sp-th" data-theme="forest" onclick="orbSetTheme('forest')">
-        <div class="orb-sp-prev prev-forest"></div>
-        <div class="orb-sp-th-info"><div class="orb-sp-th-name">FOREST</div><div class="orb-sp-th-sub">мятный</div></div>
-      </button>
-      <button class="orb-sp-th" data-theme="trading" onclick="orbSetTheme('trading')">
-        <div class="orb-sp-prev prev-tr"></div>
-        <div class="orb-sp-th-info"><div class="orb-sp-th-name">TRADING</div><div class="orb-sp-th-sub">синий TV</div></div>
-      </button>
-    </div>
-  </div>
-</div>
-
-
-<script>
-
-const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const {createClient}=supabase;const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let currentAdmin=null,allUsers=[],allPayments=[],allTrades=[];
-async function init(){const{data:{user}}=await sb.auth.getUser();if(!user){window.location.href='login.html';return;}const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();if(!p||p.role!=='admin'){window.location.href='journal.html';return;}currentAdmin={...user,...p};
-fillSidebar(p.full_name||p.username||user.email,(p.full_name||p.username||'A')[0].toUpperCase(),p.plan,true);await loadAll();}
-async function loadAll(){const[ur,pr,tr]=await Promise.all([sb.from('profiles').select('*').order('created_at',{ascending:false}),sb.from('payments').select('*, profiles(full_name, username)').order('created_at',{ascending:false}),sb.from('trades').select('*, profiles(full_name, username)').order('created_at',{ascending:false})]);allUsers=ur.data||[];allPayments=pr.data||[];allTrades=tr.data||[];renderGlobalStats();renderPayments();renderUsers();renderTeamStats();}
-function renderGlobalStats(){const active=allUsers.filter(u=>u.plan==='lifetime'||(u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)>new Date())).length;const pending=allPayments.filter(p=>p.status==='pending').length;const revenue=allPayments.filter(p=>p.status==='confirmed').reduce((s,p)=>s+(p.amount_usdt||0),0);const wins=allTrades.filter(t=>t.result==='win').length;const wr=allTrades.length?Math.round(wins/allTrades.length*100):0;document.getElementById('gs-users').textContent=allUsers.length;document.getElementById('gs-active').textContent=active;document.getElementById('gs-pending').textContent=pending;document.getElementById('gs-trades').textContent=allTrades.length;document.getElementById('gs-revenue').textContent='$'+revenue.toFixed(0);document.getElementById('gs-wr').textContent=allTrades.length?wr+'%':'—';}
-function renderPayments(){const pending=allPayments.filter(p=>p.status==='pending');document.getElementById('pending-list').innerHTML=pending.length?pending.map(p=>payCard(p)).join(''):'<div class="empty">Нет ожидающих платежей ✓</div>';document.getElementById('all-payments').innerHTML=allPayments.length?allPayments.map(p=>payCard(p)).join(''):'<div class="empty">Платежей нет</div>';}
-function payCard(p){const name=p.profiles?.full_name||p.profiles?.username||'Unknown';const d=new Date(p.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});const actions=p.status==='pending'?`<div class="pay-actions"><button class="act-btn approve" onclick="confirmPayment('${p.id}','${p.user_id}','${p.plan}')">ПОДТВЕРДИТЬ</button><button class="act-btn reject" onclick="rejectPayment('${p.id}')">ОТКЛОНИТЬ</button></div>`:`<div class="status-badge ${p.status}">${p.status==='confirmed'?'✓ ПОДТВЕРЖДЁН':'✗ ОТКЛОНЁН'}</div>`;return`<div class="pay-card ${p.status}"><div class="pay-info"><div class="pi"><div class="pil">Юзер</div><div class="piv">${name}</div></div><div class="pi"><div class="pil">План</div><div class="piv">${p.plan==='lifetime'?'Навсегда':'Месяц'}</div></div><div class="pi"><div class="pil">Сумма</div><div class="piv">${p.amount_usdt} USDT</div></div><div class="pi"><div class="pil">TX Hash</div><div class="piv" style="font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis">${p.tx_hash||'—'}</div></div><div class="pi"><div class="pil">Дата</div><div class="piv">${d}</div></div></div>${actions}</div>`;}
-async function confirmPayment(payId,userId,plan){await adminCall('confirm_payment',{payId,userId,plan});await loadAll();}
-async function rejectPayment(payId){await adminCall('reject_payment',{payId});await loadAll();}
-async function grantAccess(userId,plan){await adminCall('set_plan',{userId,plan});await loadAll();}
-function renderUsers(){
-  const el=document.getElementById('users-list');
-  if(!allUsers.length){el.innerHTML='<div class="empty">Пользователей нет</div>';return;}
-  el.innerHTML=allUsers.map(u=>{
-    const userTrades=allTrades.filter(t=>t.user_id===u.id);
-    const wins=userTrades.filter(t=>t.result==='win').length;
-    const pnlPct=userTrades.reduce((s,t)=>s+(t.pnl_pct||0),0);
-    const pnlUsd=userTrades.reduce((s,t)=>s+(t.pnl_usd||0),0);
-    const wr=userTrades.length?Math.round(wins/userTrades.length*100):0;
-    const d=new Date(u.created_at).toLocaleDateString('ru-RU');
-    const planCls=u.plan||'none';
-    // Last activity — last trade
-    const lastTrade=userTrades.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
-    const lastActive=lastTrade?new Date(lastTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'не торговал';
-    // Days since last active
-    const daysSince=lastTrade?Math.floor((Date.now()-new Date(lastTrade.created_at))/(1000*86400)):999;
-    const actColor=daysSince<=1?'#34d058':daysSince<=7?'#e8722a':'rgba(255,255,255,0.25)';
-    const tgStatus=u.tg_linked?'✈️':'—';
-    return`<div class="ucard">
-      <div class="uhead">
-        <div class="uinfo">
-          <div class="uavatar">${(u.full_name||u.username||'?')[0].toUpperCase()}</div>
-          <div>
-            <div class="uname">${u.full_name||u.username||'—'} <span style="font-size:9px;color:rgba(255,255,255,0.3)">#${u.id.slice(0,8)}</span></div>
-            <div class="uemail">${u.email||'—'}</div>
-            <div class="uemail" style="margin-top:2px">📅 Рег: ${d} · ⏱ Активен: <span style="color:${actColor}">${lastActive}</span> · TG: ${tgStatus}</div>
+    <!-- ── EDUCATION ── -->
+    <div class="page" id="page-education">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="sec-title-text" style="margin-bottom:16px;">New Section</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Section Title</label>
+            <input class="form-input" id="sec-title" placeholder="Market Structure"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description (optional)</label>
+            <input class="form-input" id="sec-desc" placeholder="Learn to read the market..."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Icon (emoji)</label>
+            <input class="form-input" id="sec-icon" placeholder="📊" style="width:80px;"/>
           </div>
         </div>
-        <div class="plan-badge2 ${planCls}">${planCls==='lifetime'?'∞ НАВСЕГДА':planCls==='monthly'?'📅 МЕСЯЧНЫЙ':'— НЕТ'}</div>
-      </div>
-      <div class="utrades">
-        <div class="ut"><div class="utl">Сделок</div><div class="utv">${userTrades.length}</div></div>
-        <div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${userTrades.length?wr+'%':'—'}</div></div>
-        <div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${pnlPct>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlPct>=0?'+':'')+pnlPct.toFixed(1)+'%':'—'}</div></div>
-        <div class="ut"><div class="utl">P&L $</div><div class="utv" style="color:${pnlUsd>=0?'var(--g)':'var(--r)'}">${userTrades.length?(pnlUsd>=0?'+$':'$-')+Math.abs(pnlUsd).toFixed(0):'—'}</div></div>
-        <div class="ut"><div class="utl">Последняя</div><div class="utv" style="font-size:9px">${lastActive}</div></div>
-      </div>
-      <div class="uactions">
-        <button class="ua-btn ua-plan" onclick="adminSetPlan('${u.id}','lifetime')">∞ НАВСЕГДА</button>
-        <button class="ua-btn ua-plan" onclick="adminSetPlan('${u.id}','monthly')">📅 МЕСЯЦ</button>
-        <button class="ua-btn ua-plan ua-rev" onclick="adminSetPlan('${u.id}','none')">🚫 УБРАТЬ</button>
-        <button class="ua-btn ua-view" onclick="window.open('/profile?id=${u.id}','_blank')">👤 ПРОФИЛЬ</button>
-        <button class="ua-btn ua-msg" onclick="adminSendMessage('${u.id}','${u.tg_chat_id||''}')">✈️ НАПИСАТЬ</button>
-        <button class="ua-btn ua-del" onclick="adminDeleteUser('${u.id}','${u.full_name||u.username||'?'}')">🗑 УДАЛИТЬ</button>
-      </div>
-      <div class="feat-panel">
-        <div class="feat-title">🔓 ДОСТУП К СЕКЦИЯМ</div>
-        <div class="feat-grid" id="feat-grid-${u.id}">
-          ${buildFeatToggles(u.id, u.features)}
+        <div class="form-actions" style="margin-top:12px;">
+          <button class="btn-primary" onclick="addSection()">+ Add Section</button>
         </div>
-        <button class="feat-save" onclick="adminSaveFeatures('${u.id}')">💾 СОХРАНИТЬ ДОСТУП</button>
       </div>
-    </div>`;
-  }).join('');
-}
+      <div class="sec-head">
+        <div class="sec-title-text">Sections & Lessons</div>
+        <button class="sec-action" onclick="loadEduAdmin()">↻ Refresh</button>
+      </div>
+      <div id="edu-sections-admin"><div class="empty">Loading...</div></div>
+    </div>
 
-function renderTeamStats(){const el=document.getElementById('team-stats');if(!allTrades.length){el.innerHTML='<div class="empty">Сделок нет</div>';return;}const pairs={};allTrades.forEach(t=>{if(!pairs[t.pair])pairs[t.pair]={total:0,wins:0,pnl:0};pairs[t.pair].total++;if(t.result==='win')pairs[t.pair].wins++;pairs[t.pair].pnl+=t.pnl_pct||0;});const rows=Object.entries(pairs).sort((a,b)=>b[1].total-a[1].total).map(([pair,d])=>{const wr=Math.round(d.wins/d.total*100);return`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px">${pair}</div><div style="display:flex;gap:20px"><div class="ut"><div class="utl">Сделок</div><div class="utv">${d.total}</div></div><div class="ut"><div class="utl">Винрейт</div><div class="utv" style="color:var(--g)">${wr}%</div></div><div class="ut"><div class="utl">P&L %</div><div class="utv" style="color:${d.pnl>=0?'var(--g)':'var(--r)'}">${(d.pnl>=0?'+':'')+d.pnl.toFixed(1)}%</div></div></div></div>`;}).join('');el.innerHTML=`<div style="background:rgba(255,255,255,0.025);border:1px solid var(--bd);border-radius:12px;padding:20px">${rows}</div>`;}
-function showTab(t){['payments','users','stats'].forEach(id=>{document.getElementById('tab-'+id).style.display=id===t?'block':'none';});document.querySelectorAll('.tab').forEach((btn,i)=>{btn.classList.toggle('active',['payments','users','stats'][i]===t);});}
-async function doLogout(){await sb.auth.signOut();window.location.href='login.html';}
+  </div><!-- /content -->
+</div><!-- /main -->
 
-function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('open');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open');}
-function initLogoParticles(){
-  const canvas=document.getElementById('logo-canvas');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  canvas.width=220;canvas.height=64;
-  const pts=Array.from({length:22},()=>({
-    x:Math.random()*220,y:Math.random()*64,
-    r:Math.random()*1.2+0.2,
-    vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.25,
-    phase:Math.random()*Math.PI*2
-  }));
-  let t=0;
-  function draw(){
-    ctx.clearRect(0,0,220,64);
-    t+=0.018;
-    pts.forEach(p=>{
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0||p.x>220)p.vx*=-1;
-      if(p.y<0||p.y>64)p.vy*=-1;
-      const a=0.25+0.2*Math.sin(t+p.phase);
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-}
-function fillSidebar(displayName,initials,plan,isAdmin){
-  document.getElementById('sf-avatar').textContent=initials;
-  document.getElementById('sf-name').textContent=displayName;
-  document.getElementById('sf-plan').textContent=plan==='lifetime'?'∞ НАВСЕГДА':plan==='monthly'?'МЕСЯЧНЫЙ':'—';
-}
+<div class="toast" id="toast"></div>
 
-init();
-initLogoParticles();
-
-</script>
 <script>
+const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 
+let allUsers=[],allPayments=[],allTrades=[];
+let currentFilter='all', currentSectionId=null, editLessonId=null;
 
-// ═══════════════════════════════════════════════════════════
-// ORBITUM THEME SYSTEM v3
-// 4 themes: dark (classic) · mono (pro) · forest · trading
-// Orange accent fixed everywhere
-// ═══════════════════════════════════════════════════════════
-(function(){
-  function applyTheme(theme, save){
-    document.documentElement.setAttribute('data-theme', theme);
-    if(save) localStorage.setItem('orb_theme', theme);
-    // Sync panel buttons
-    document.querySelectorAll('.orb-sp-th').forEach(function(b){
-      b.classList.toggle('on', b.getAttribute('data-theme') === theme);
-    });
-    // Sync topbar dark/light buttons
-    var bl = document.getElementById('orb-btn-light');
-    var bd = document.getElementById('orb-btn-dark');
-    if(bl) bl.classList.toggle('on', theme === 'light');
-    if(bd) bd.classList.toggle('on', theme === 'dark');
-  }
-
-  window.orbSetTheme = function(t){ applyTheme(t, true); };
-
-  window.orbSpToggle = function(){
-    var ov = document.getElementById('orb-sp-ov');
-    if(!ov) return;
-    ov.classList.toggle('open');
-    var btn = document.getElementById('orb-btn-styles');
-    if(btn) btn.classList.toggle('on', ov.classList.contains('open'));
-  };
-  window.orbSpClose = function(){
-    var ov = document.getElementById('orb-sp-ov');
-    if(ov) ov.classList.remove('open');
-    var btn = document.getElementById('orb-btn-styles');
-    if(btn) btn.classList.remove('on');
-  };
-
-  // Init
-  function init(){
-    var theme = localStorage.getItem('orb_theme') || 'dark';
-    applyTheme(theme, false);
-    // Close on outside click
-    document.addEventListener('click', function(e){
-      var ov = document.getElementById('orb-sp-ov');
-      var sp = document.getElementById('orb-sp');
-      var styleBtn = document.getElementById('orb-btn-styles');
-      if(!ov || !ov.classList.contains('open')) return;
-      if(sp && sp.contains(e.target)) return;
-      if(styleBtn && styleBtn.contains(e.target)) return;
-      orbSpClose();
-    });
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')orbSpClose();});
-  }
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
-  else init();
-})();
-
-
-
-// ── Admin API helper ─────────────────────────────────────────
-async function adminCall(action, params={}){
-  const {data:{session}} = await sb.auth.getSession();
-  const r = await fetch('/api/admin', {
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+(session?.access_token||'')},
-    body: JSON.stringify({action, ...params})
-  });
-  const result = await r.json();
-  if(!r.ok) throw new Error(result.error || 'Admin API error');
-  return result;
-}
-
-// ── Admin actions ─────────────────────────────────────────────
-// ── FEATURES CONFIG ──────────────────────────────────────────
-const FEATURES = [
-  { key:'journal',    label:'📋 Журнал',    locked:true  },
-  { key:'dashboard',  label:'📊 Аналитика', locked:false },
-  { key:'progress',   label:'📈 Прогресс',  locked:false },
-  { key:'digest',     label:'📅 Дайджест',  locked:false },
-  { key:'premarket',  label:'☀️ Сессия',    locked:false },
-  { key:'coach',      label:'🤖 AI Coach',  locked:false },
-  { key:'aichat',     label:'💬 AI Чат',    locked:false },
-  { key:'screener',   label:'🔍 Скринер',   locked:false },
+const FEATURES=[
+  {key:'journal',label:'Journal',locked:true},
+  {key:'dashboard',label:'Analytics',locked:false},
+  {key:'progress',label:'Progress',locked:false},
+  {key:'digest',label:'Digest',locked:false},
+  {key:'premarket',label:'Pre-market',locked:false},
+  {key:'coach',label:'AI Coach',locked:false},
+  {key:'aichat',label:'AI Chat',locked:false},
+  {key:'screener',label:'Screener',locked:false},
 ];
 
-function buildFeatToggles(userId, currentFeatures){
-  const active = Array.isArray(currentFeatures) ? currentFeatures : ['journal'];
-  return FEATURES.map(f => {
-    const isOn = f.locked || active.includes(f.key);
-    const cls = f.locked ? 'feat-toggle on locked' : (isOn ? 'feat-toggle on' : 'feat-toggle');
-    const onclick = f.locked ? '' : `onclick="toggleFeat('${userId}','${f.key}',this)"`;
-    return `<button class="${cls}" data-feat="${f.key}" ${onclick}>${f.label}</button>`;
+// ── INIT ──────────────────────────────────────────────────────
+async function init(){
+  try{
+    const{data:{user}}=await sb.auth.getUser();
+    if(!user){location.href='/login';return;}
+    const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
+    if(!p||p.role!=='admin'){location.href='/cabinet';return;}
+    const name=p.full_name||p.username||user.email.split('@')[0];
+    document.getElementById('sb-ava').textContent=name[0].toUpperCase();
+    document.getElementById('sb-uname').textContent=name;
+    await loadAll();
+  }catch(e){console.error(e);location.href='/login';}
+  finally{
+    const l=document.getElementById('loading');
+    l.classList.add('hidden');
+    setTimeout(()=>l.remove(),500);
+  }
+}
+
+// ── CLOCK ─────────────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  document.getElementById('tb-time').textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock,1000);updateClock();
+
+// ── NAV ───────────────────────────────────────────────────────
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  if(btn)btn.classList.add('active');
+  const titles={
+    overview:{t:'OVERVIEW',s:'Platform dashboard'},
+    payments:{t:'PAYMENTS',s:'Manage transactions'},
+    users:{t:'USERS',s:'Manage accounts'},
+    analytics:{t:'ANALYTICS',s:'Platform statistics'},
+    education:{t:'EDUCATION',s:'Manage learning content'},
+  };
+  document.getElementById('tb-title').textContent=titles[name]?.t||name.toUpperCase();
+  document.getElementById('tb-sub').textContent=titles[name]?.s||'';
+  document.getElementById('sidebar').classList.remove('open');
+  if(name==='education')loadEduAdmin();
+  if(name==='analytics')renderAnalytics();
+}
+
+// ── DATA ──────────────────────────────────────────────────────
+async function loadAll(){
+  try{
+    const[ur,pr,tr]=await Promise.all([
+      sb.from('profiles').select('*').order('created_at',{ascending:false}),
+      sb.from('payments').select('*,profiles(full_name,username)').order('created_at',{ascending:false}),
+      sb.from('trades').select('*,profiles(full_name,username)').order('created_at',{ascending:false})
+    ]);
+    allUsers=ur.data||[];allPayments=pr.data||[];allTrades=tr.data||[];
+    renderKPIs();renderOverview();renderPayments();renderUsers();
+    document.getElementById('sb-pending-count').textContent=allPayments.filter(p=>p.status==='pending').length;
+    document.getElementById('sb-users-count').textContent=allUsers.length;
+  }catch(e){showToast('Load error: '+e.message,'error');}
+}
+
+// ── KPIs ──────────────────────────────────────────────────────
+function renderKPIs(){
+  const active=allUsers.filter(u=>u.plan==='lifetime'||(u.plan==='monthly'&&u.plan_expires_at&&new Date(u.plan_expires_at)>new Date())).length;
+  const pending=allPayments.filter(p=>p.status==='pending').length;
+  const revenue=allPayments.filter(p=>p.status==='confirmed').reduce((s,p)=>s+(p.amount_usdt||0),0);
+  const wins=allTrades.filter(t=>t.result==='win').length;
+  const wr=allTrades.length?Math.round(wins/allTrades.length*100):0;
+  document.getElementById('kpi-users').textContent=allUsers.length;
+  document.getElementById('kpi-active').textContent=active;
+  document.getElementById('kpi-revenue').textContent='$'+revenue.toFixed(0);
+  document.getElementById('kpi-pending').textContent=pending;
+  document.getElementById('kpi-trades').textContent=allTrades.length;
+  document.getElementById('kpi-wr').textContent=allTrades.length?wr+'%':'—';
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────
+function renderOverview(){
+  // Revenue bar chart
+  const byPlan={lifetime:0,monthly:0};
+  allPayments.filter(p=>p.status==='confirmed').forEach(p=>{byPlan[p.plan]=(byPlan[p.plan]||0)+(p.amount_usdt||0);});
+  const maxV=Math.max(1,...Object.values(byPlan));
+  document.getElementById('revenue-chart').innerHTML=Object.entries(byPlan).map(([k,v])=>`
+    <div class="bar" style="height:${Math.round((v/maxV)*100)+'%'}" title="$${v.toFixed(0)}">
+      <span class="bar-label">${k}<br>$${v.toFixed(0)}</span>
+    </div>
+  `).join('');
+  // Recent payments
+  const recent=allPayments.slice(0,5);
+  document.getElementById('recent-payments').innerHTML=recent.length?recent.map(p=>`
+    <div class="recent-item">
+      <div><div class="recent-name">${p.profiles?.full_name||p.profiles?.username||'Unknown'}</div><div class="recent-meta">${p.plan} · ${new Date(p.created_at).toLocaleDateString()}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:var(--mono);font-size:11px;color:var(--t);">$${p.amount_usdt||0}</span><span class="recent-badge ${p.status}">${p.status}</span></div>
+    </div>
+  `).join(''):'<div class="empty">No payments yet</div>';
+  // Recent users (last 5)
+  document.getElementById('overview-users').innerHTML=allUsers.slice(0,5).map(u=>userCardHTML(u,true)).join('');
+}
+
+// ── PAYMENTS ─────────────────────────────────────────────────
+function renderPayments(){
+  const pending=allPayments.filter(p=>p.status==='pending');
+  document.getElementById('pending-list').innerHTML=pending.length?pending.map(payCardHTML).join(''):'<div class="empty">✓ No pending payments</div>';
+  document.getElementById('all-payments').innerHTML=allPayments.length?allPayments.map(payCardHTML).join(''):'<div class="empty">No payments yet</div>';
+}
+function payCardHTML(p){
+  const name=p.profiles?.full_name||p.profiles?.username||'Unknown';
+  const d=new Date(p.created_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const actions=p.status==='pending'
+    ?`<div class="pay-actions"><button class="act-btn approve" onclick="confirmPayment('${p.id}','${p.user_id}','${p.plan}')">✓ Confirm</button><button class="act-btn reject" onclick="rejectPayment('${p.id}')">✕ Reject</button></div>`
+    :`<span class="status-badge ${p.status}">${p.status==='confirmed'?'✓ Confirmed':'✕ Rejected'}</span>`;
+  return`<div class="pay-card ${p.status}">
+    <div class="pay-info">
+      <div class="pi"><div class="pil">User</div><div class="piv">${name}</div></div>
+      <div class="pi"><div class="pil">Plan</div><div class="piv">${p.plan==='lifetime'?'∞ Lifetime':'Monthly'}</div></div>
+      <div class="pi"><div class="pil">Amount</div><div class="piv" style="color:var(--o)">${p.amount_usdt||0} USDT</div></div>
+      <div class="pi"><div class="pil">TX Hash</div><div class="piv" style="font-size:9px;max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--m2)">${p.tx_hash||'—'}</div></div>
+      <div class="pi"><div class="pil">Date</div><div class="piv" style="font-size:10px">${d}</div></div>
+    </div>
+    ${actions}
+  </div>`;
+}
+
+// ── USERS ─────────────────────────────────────────────────────
+let userFilter='all';
+function setFilter(f,btn){
+  userFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderUsers();
+}
+function filterUsers(){renderUsers();}
+function renderUsers(){
+  const q=document.getElementById('user-search')?.value.toLowerCase()||'';
+  let users=allUsers;
+  if(userFilter!=='all')users=users.filter(u=>(u.plan||'free')===userFilter);
+  if(q)users=users.filter(u=>(u.full_name||'').toLowerCase().includes(q)||(u.username||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));
+  document.getElementById('users-list').innerHTML=users.length?users.map(u=>userCardHTML(u,false)).join(''):'<div class="empty">No users found</div>';
+}
+function userCardHTML(u,compact){
+  const trades=allTrades.filter(t=>t.user_id===u.id);
+  const wins=trades.filter(t=>t.result==='win').length;
+  const wr=trades.length?Math.round(wins/trades.length*100):0;
+  const pnlUsd=trades.reduce((s,t)=>s+(t.pnl_usd||0),0);
+  const plan=u.plan||'free';
+  const name=u.full_name||u.username||'Unknown';
+  const featActions=compact?'':(`
+    <div class="ufeat">
+      <div class="ufeat-title">Module Access</div>
+      <div class="feat-grid" id="fg-${u.id}">${buildFeatToggles(u.id,u.features)}</div>
+      <button class="feat-save" onclick="adminSaveFeatures('${u.id}')">Save Access</button>
+    </div>
+  `);
+  const planActions=compact?'':`
+    <div class="uactions">
+      <button class="ua lifetime" onclick="adminSetPlan('${u.id}','lifetime')">∞ Lifetime</button>
+      <button class="ua monthly" onclick="adminSetPlan('${u.id}','monthly')">Monthly</button>
+      <button class="ua" onclick="adminSetPlan('${u.id}','free')">Free</button>
+      ${u.tg_chat_id?`<button class="ua" onclick="adminSendMessage('${u.id}','${u.tg_chat_id}')">✈ TG</button>`:''}
+      <button class="ua danger" onclick="adminDeleteUser('${u.id}','${name}')">Delete</button>
+    </div>
+  `;
+  return`<div class="ucard">
+    <div class="uhead">
+      <div class="uinfo">
+        <div class="uava">${name[0].toUpperCase()}</div>
+        <div>
+          <div class="uname-text">${name} <span style="font-family:var(--mono);font-size:9px;color:var(--m2)">#${u.id.slice(0,8)}</span></div>
+          <div class="uemail">${u.email||'—'}</div>
+          <div class="uemail" style="margin-top:2px;color:var(--m2)">Joined ${new Date(u.created_at).toLocaleDateString('en-GB')}</div>
+        </div>
+      </div>
+      <span class="plan-pill ${plan}">${plan==='lifetime'?'∞ Lifetime':plan==='monthly'?'Monthly':'Free'}</span>
+    </div>
+    <div class="ustats">
+      <div class="ustat"><div class="ustat-l">Trades</div><div class="ustat-v">${trades.length}</div></div>
+      <div class="ustat"><div class="ustat-l">Win Rate</div><div class="ustat-v" style="color:var(--g)">${trades.length?wr+'%':'—'}</div></div>
+      <div class="ustat"><div class="ustat-l">P&L $</div><div class="ustat-v" style="color:${pnlUsd>=0?'var(--g)':'var(--r)'}">${trades.length?(pnlUsd>=0?'+$':'−$')+Math.abs(pnlUsd).toFixed(0):'—'}</div></div>
+      <div class="ustat"><div class="ustat-l">TG</div><div class="ustat-v" style="font-size:14px">${u.tg_linked?'✓':'—'}</div></div>
+    </div>
+    ${planActions}${featActions}
+  </div>`;
+}
+function buildFeatToggles(userId,currentFeatures){
+  const active=Array.isArray(currentFeatures)?currentFeatures:['journal'];
+  return FEATURES.map(f=>{
+    const isOn=f.locked||active.includes(f.key);
+    const cls=f.locked?'feat-toggle on locked':(isOn?'feat-toggle on':'feat-toggle');
+    const onclick=f.locked?'':`onclick="toggleFeat('${userId}','${f.key}',this)"`;
+    return`<button class="${cls}" data-feat="${f.key}" ${onclick}>${f.label}</button>`;
   }).join('');
 }
+function toggleFeat(userId,featKey,btn){btn.classList.toggle('on');}
 
-function toggleFeat(userId, featKey, btn){
-  btn.classList.toggle('on');
+// ── ANALYTICS ─────────────────────────────────────────────────
+function renderAnalytics(){
+  const wins=allTrades.filter(t=>t.result==='win').length;
+  const wr=allTrades.length?Math.round(wins/allTrades.length*100):0;
+  const rrs=allTrades.filter(t=>t.rr).map(t=>parseFloat(t.rr)).filter(n=>!isNaN(n));
+  const avgRR=rrs.length?(rrs.reduce((a,b)=>a+b,0)/rrs.length).toFixed(1):'—';
+  const activeTraders=new Set(allTrades.filter(t=>{const d=new Date(t.created_at);return(Date.now()-d.getTime())<30*86400*1000;}).map(t=>t.user_id)).size;
+  document.getElementById('an-total-trades').textContent=allTrades.length;
+  document.getElementById('an-wr').textContent=allTrades.length?wr+'%':'—';
+  document.getElementById('an-avg-rr').textContent=avgRR;
+  document.getElementById('an-active-traders').textContent=activeTraders;
+
+  // Pairs table
+  const pairs={};
+  allTrades.forEach(t=>{
+    if(!pairs[t.pair])pairs[t.pair]={total:0,wins:0,pnl:0,rrs:[]};
+    pairs[t.pair].total++;
+    if(t.result==='win')pairs[t.pair].wins++;
+    pairs[t.pair].pnl+=t.pnl_pct||0;
+    if(t.rr)pairs[t.pair].rrs.push(parseFloat(t.rr));
+  });
+  const pairsHTML=Object.entries(pairs).sort((a,b)=>b[1].total-a[1].total).slice(0,10).map(([pair,d])=>{
+    const wr=Math.round(d.wins/d.total*100);
+    const avgRR=d.rrs.length?(d.rrs.reduce((a,b)=>a+b,0)/d.rrs.length).toFixed(1):'—';
+    return`<div class="stats-table-row">
+      <div class="std name">${pair}</div>
+      <div class="std">${d.total}</div>
+      <div class="std" style="color:${wr>=50?'var(--g)':'var(--r)'}">${wr}%</div>
+      <div class="std" style="color:var(--o)">${avgRR}</div>
+      <div class="std" style="color:${d.pnl>=0?'var(--g)':'var(--r)'}">${(d.pnl>=0?'+':'')+d.pnl.toFixed(1)}%</div>
+    </div>`;
+  }).join('');
+  document.getElementById('pairs-table').innerHTML=pairsHTML||'<div class="empty">No trades data</div>';
+
+  // Leaderboard
+  const byUser={};
+  allTrades.forEach(t=>{
+    if(!byUser[t.user_id])byUser[t.user_id]={name:t.profiles?.full_name||t.profiles?.username||'Unknown',trades:0,wins:0,pnlUsd:0,maxRR:0};
+    byUser[t.user_id].trades++;
+    if(t.result==='win')byUser[t.user_id].wins++;
+    byUser[t.user_id].pnlUsd+=t.pnl_usd||0;
+    if(t.rr)byUser[t.user_id].maxRR=Math.max(byUser[t.user_id].maxRR,parseFloat(t.rr)||0);
+  });
+  const lbHTML=Object.values(byUser).sort((a,b)=>b.pnlUsd-a.pnlUsd).slice(0,10).map(u=>{
+    const wr=Math.round(u.wins/u.trades*100);
+    return`<div class="stats-table-row">
+      <div class="std name">${u.name}</div>
+      <div class="std">${u.trades}</div>
+      <div class="std" style="color:${wr>=50?'var(--g)':'var(--r)'}">${wr}%</div>
+      <div class="std" style="color:var(--o)">${u.maxRR.toFixed(1)}</div>
+      <div class="std" style="color:${u.pnlUsd>=0?'var(--g)':'var(--r)'}">${(u.pnlUsd>=0?'+$':'−$')+Math.abs(u.pnlUsd).toFixed(0)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('leaderboard-table').innerHTML=lbHTML||'<div class="empty">No data</div>';
 }
 
+// ── EDUCATION ─────────────────────────────────────────────────
+async function loadEduAdmin(){
+  const el=document.getElementById('edu-sections-admin');
+  el.innerHTML='<div class="empty">Loading...</div>';
+  try{
+    const[secR,lesR]=await Promise.all([
+      sb.from('edu_sections').select('*').order('order_index'),
+      sb.from('edu_lessons').select('*').order('order_index')
+    ]);
+    const sections=secR.data||[];
+    const lessons=lesR.data||[];
+    sections.forEach(s=>s.lessons=lessons.filter(l=>l.section_id===s.id));
+    if(!sections.length){el.innerHTML='<div class="empty">No sections yet. Create your first one above.</div>';return;}
+    el.innerHTML=sections.map(sec=>`
+      <div class="edu-section-card">
+        <div class="edu-sec-head">
+          <div class="edu-sec-title">${sec.icon||'📚'} ${sec.title}</div>
+          <div class="edu-sec-actions">
+            <button class="edu-act" onclick="openLessonModal('${sec.id}','${sec.title.replace(/'/g,"\\'")}')">+ Add Lesson</button>
+            <button class="edu-act danger" style="border-color:rgba(231,76,60,.2);color:var(--r);" onclick="deleteSection('${sec.id}')">Delete</button>
+          </div>
+        </div>
+        ${sec.lessons.length?sec.lessons.map(l=>`
+          <div class="edu-lesson-row">
+            <div class="edu-lesson-info">
+              <div class="edu-pub-dot ${l.is_published?'pub':'draft'}"></div>
+              <div>
+                <div class="edu-lesson-name">${l.title}</div>
+                <div class="edu-lesson-meta">${l.duration_min?l.duration_min+'min · ':''} ${l.is_published?'Published':'Draft'}</div>
+              </div>
+            </div>
+            <div class="edu-lesson-acts">
+              <button class="edu-act edit" onclick="editLesson('${l.id}')">Edit</button>
+              <button class="edu-act ${l.is_published?'unpub':'pub'}" onclick="togglePublish('${l.id}',${l.is_published})">${l.is_published?'Unpublish':'Publish'}</button>
+              <button class="edu-act danger" style="border-color:rgba(231,76,60,.2);color:var(--r);" onclick="deleteLesson('${l.id}')">✕</button>
+            </div>
+          </div>
+        `).join(''):'<div style="padding:14px 18px;font-family:var(--mono);font-size:10px;color:var(--m2);">No lessons yet — add your first one</div>'}
+      </div>
+    `).join('');
+  }catch(e){el.innerHTML='<div class="empty">Error loading: '+e.message+'</div>';}
+}
+
+function openLessonModal(sectionId,sectionTitle){
+  currentSectionId=sectionId;editLessonId=null;
+  document.getElementById('modal-title').textContent='New Lesson — '+sectionTitle;
+  document.getElementById('lesson-title').value='';
+  document.getElementById('lesson-video').value='';
+  document.getElementById('lesson-dur').value='';
+  document.getElementById('lesson-content').value='';
+  document.getElementById('lesson-modal').classList.add('open');
+}
+async function editLesson(lessonId){
+  try{
+    const{data:l}=await sb.from('edu_lessons').select('*').eq('id',lessonId).single();
+    currentSectionId=l.section_id;editLessonId=lessonId;
+    document.getElementById('modal-title').textContent='Edit Lesson';
+    document.getElementById('lesson-title').value=l.title||'';
+    document.getElementById('lesson-video').value=l.video_url||'';
+    document.getElementById('lesson-dur').value=l.duration_min||'';
+    document.getElementById('lesson-content').value=l.content||'';
+    document.getElementById('lesson-modal').classList.add('open');
+  }catch(e){showToast('Error loading lesson','error');}
+}
+function closeModal(){document.getElementById('lesson-modal').classList.remove('open');}
+async function saveLesson(){
+  const title=document.getElementById('lesson-title').value.trim();
+  const video=document.getElementById('lesson-video').value.trim();
+  const dur=parseInt(document.getElementById('lesson-dur').value)||0;
+  const content=document.getElementById('lesson-content').value.trim();
+  if(!title){showToast('Enter lesson title','error');return;}
+  try{
+    if(editLessonId){
+      await sb.from('edu_lessons').update({title,video_url:video||null,duration_min:dur,content,updated_at:new Date().toISOString()}).eq('id',editLessonId);
+      showToast('Lesson updated ✓');
+    }else{
+      const{data:maxOrd}=await sb.from('edu_lessons').select('order_index').eq('section_id',currentSectionId).order('order_index',{ascending:false}).limit(1).single().catch(()=>({data:null}));
+      await sb.from('edu_lessons').insert({section_id:currentSectionId,title,video_url:video||null,duration_min:dur,content,order_index:(maxOrd?.order_index||0)+1,is_published:false});
+      showToast('Lesson created ✓');
+    }
+    closeModal();loadEduAdmin();
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+async function togglePublish(id,current){
+  await sb.from('edu_lessons').update({is_published:!current}).eq('id',id);
+  showToast(current?'Lesson hidden':'Lesson published ✓');
+  loadEduAdmin();
+}
+async function deleteLesson(id){
+  if(!confirm('Delete this lesson?'))return;
+  await sb.from('edu_lessons').delete().eq('id',id);
+  showToast('Lesson deleted');loadEduAdmin();
+}
+async function addSection(){
+  const title=document.getElementById('sec-title').value.trim();
+  const desc=document.getElementById('sec-desc').value.trim();
+  const icon=document.getElementById('sec-icon').value.trim()||'📚';
+  if(!title){showToast('Enter section title','error');return;}
+  await sb.from('edu_sections').insert({title,description:desc||null,icon,order_index:99});
+  document.getElementById('sec-title').value='';
+  document.getElementById('sec-desc').value='';
+  document.getElementById('sec-icon').value='';
+  showToast('Section created ✓');loadEduAdmin();
+}
+async function deleteSection(id){
+  if(!confirm('Delete this section and all its lessons?'))return;
+  await sb.from('edu_lessons').delete().eq('section_id',id);
+  await sb.from('edu_sections').delete().eq('id',id);
+  showToast('Section deleted');loadEduAdmin();
+}
+
+// ── ADMIN ACTIONS ─────────────────────────────────────────────
+async function adminCall(action,params={}){
+  const{data:{session}}=await sb.auth.getSession();
+  const r=await fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(session?.access_token||'')},body:JSON.stringify({action,...params})});
+  const result=await r.json();
+  if(!r.ok)throw new Error(result.error||'Admin API error');
+  return result;
+}
+async function confirmPayment(payId,userId,plan){
+  try{await adminCall('confirm_payment',{payId,userId,plan});showToast('Payment confirmed ✓','success');await loadAll();}
+  catch(e){showToast('Error: '+e.message,'error');}
+}
+async function rejectPayment(payId){
+  try{await adminCall('reject_payment',{payId});showToast('Payment rejected');await loadAll();}
+  catch(e){showToast('Error: '+e.message,'error');}
+}
+async function adminSetPlan(userId,plan){
+  if(!confirm('Change plan to '+plan+'?'))return;
+  try{await adminCall('set_plan',{userId,plan});showToast('Plan updated ✓','success');await loadAll();}
+  catch(e){showToast('Error: '+e.message,'error');}
+}
 async function adminSaveFeatures(userId){
-  const grid = document.getElementById('feat-grid-' + userId);
-  if(!grid) return;
-  const active = Array.from(grid.querySelectorAll('.feat-toggle.on'))
-    .map(b => b.dataset.feat)
-    .filter(Boolean);
-  try{
-    await adminCall('set_features', { userId, features: active });
-    showToast('✅ Доступ обновлён');
-    await loadAll();
-  }catch(e){ alert('Ошибка: ' + e.message); }
+  const grid=document.getElementById('fg-'+userId);
+  if(!grid)return;
+  const active=Array.from(grid.querySelectorAll('.feat-toggle.on')).map(b=>b.dataset.feat).filter(Boolean);
+  try{await adminCall('set_features',{userId,features:active});showToast('Access updated ✓','success');}
+  catch(e){showToast('Error: '+e.message,'error');}
+}
+async function adminSendMessage(userId,chatId){
+  if(!chatId){showToast('User has no Telegram linked','error');return;}
+  const msg=prompt('Message to user:');
+  if(!msg)return;
+  try{await adminCall('send_tg',{userId,data:{text:'📢 <b>Message from admin:</b>\n\n'+msg}});showToast('Message sent ✓','success');}
+  catch(e){showToast('Error: '+e.message,'error');}
+}
+async function adminDeleteUser(userId,name){
+  if(!confirm('Delete user '+name+'? This is irreversible!'))return;
+  if(!confirm('Are you sure? All their trades will also be deleted.'))return;
+  try{await adminCall('delete_user',{userId});showToast('User deleted');await loadAll();}
+  catch(e){showToast('Error: '+e.message,'error');}
 }
 
-async function adminSetPlan(userId, plan){
-  if(!confirm('Изменить план на ' + plan + '?')) return;
-  try{
-    await adminCall('set_plan', {userId, plan});
-    showToast('✅ План обновлён');
-    await loadAll();
-  }catch(e){ alert('Ошибка: ' + e.message); }
+// ── UTILS ─────────────────────────────────────────────────────
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+(type||'');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',3000);
 }
+async function doLogout(){await sb.auth.signOut();location.href='/login';}
+document.getElementById('lesson-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-async function adminSendMessage(userId, chatId){
-  if(!chatId){ alert('У пользователя не привязан Telegram'); return; }
-  const msg = prompt('Сообщение пользователю:');
-  if(!msg) return;
-  try{
-    await adminCall('send_tg', {userId, data:{text: '📢 <b>Сообщение от администратора:</b>\n\n' + msg}});
-    showToast('✅ Сообщение отправлено');
-  }catch(e){ alert('Ошибка: ' + e.message); }
-}
-
-async function adminDeleteUser(userId, name){
-  if(!confirm('Удалить пользователя ' + name + '? Это действие необратимо!')) return;
-  if(!confirm('Вы уверены? Все сделки пользователя тоже будут удалены.')) return;
-  try{
-    await adminCall('delete_user', {userId});
-    showToast('🗑 Пользователь удалён');
-    await loadAll();
-  }catch(e){ alert('Ошибка: ' + e.message); }
-}
-
-function showToast(msg){
-  let t = document.getElementById('admin-toast');
-  if(!t){ t=document.createElement('div'); t.id='admin-toast';
-    t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1a1f2e;border:1px solid rgba(232,114,42,0.4);color:#e8722a;font-family:monospace;font-size:12px;padding:12px 20px;border-radius:8px;z-index:99999;transition:opacity .3s';
-    document.body.appendChild(t); }
-  t.textContent=msg; t.style.opacity='1';
-  clearTimeout(t._t); t._t=setTimeout(()=>t.style.opacity='0', 3000);
-}
+init();
 </script>
-
 </body>
 </html>
