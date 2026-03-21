@@ -870,7 +870,22 @@ function fmtPShort(v) {
 // ── SUPABASE + AUTH ──────────────────────────────────────
 async function initAuth() {
   sb = supabase.createClient(SB_URL, SB_KEY);
-  const { data: { session } } = await sb.auth.getSession();
+
+  // Wait for Supabase to restore session from storage (handles PKCE + cookie flow)
+  const session = await new Promise(resolve => {
+    // First try getSession — may already be ready
+    sb.auth.getSession().then(({ data }) => {
+      if (data?.session) { resolve(data.session); return; }
+      // Not ready yet — wait for onAuthStateChange (fires once on init)
+      const { data: { subscription } } = sb.auth.onAuthStateChange((event, s) => {
+        subscription.unsubscribe();
+        resolve(s); // null if truly not logged in
+      });
+      // Safety timeout — 4s max wait, then resolve null
+      setTimeout(() => { subscription.unsubscribe(); resolve(null); }, 4000);
+    });
+  });
+
   if (!session?.user) { location.href = '/login?returnTo=/screener'; return false; }
   _session = session;
   const user = session.user;
@@ -878,7 +893,6 @@ async function initAuth() {
   _tgProfile = profile || {};
   _userPlan = profile?.plan || 'free';
   _isPaid = (_userPlan === 'lifetime' || _userPlan === 'monthly');
-  // Update UI
   const initials = (profile?.full_name || user.email || 'U').slice(0, 1).toUpperCase();
   document.getElementById('tb-user').textContent = initials;
   return true;
