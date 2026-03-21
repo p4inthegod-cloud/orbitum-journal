@@ -5,7 +5,7 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL    = process.env.SUPABASE_URL;
 const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
 
-async function tgSend(verified_chat_id, text, extra = {}) {
+async function tgSend(chat_id, text, extra = {}) {
   const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -284,8 +284,7 @@ export default async function handler(req, res) {
       const insightLine = insight ? `
 🧠 <i>${insight.slice(0, 120)}</i>` : '';
       const scarcity    = confidence >= 80
-        ? '
-<code>⚡ Setup quality: A+ — rare occurrence</code>'
+        ? '\n<code>⚡ Setup quality: A+ — rare occurrence</code>'
         : `
 <code>✦ ${Math.floor(Math.random() * 200 + 100)} traders tracking this</code>`;
       const appUrl = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
