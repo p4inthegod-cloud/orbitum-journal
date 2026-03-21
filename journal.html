@@ -3039,6 +3039,12 @@ body::after {
 .tpair { font-size: 20px !important; letter-spacing: 3px !important; }
 .tpnl.p { color: #2ecc71 !important; filter: drop-shadow(0 0 8px rgba(46,204,113,0.6)); }
 .tpnl.n { color: #e74c3c !important; filter: drop-shadow(0 0 8px rgba(231,76,60,0.6)); }
+/* Trade card left side — allow wrapping for setup badge */
+.tl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0; }
+/* Trade card right side — stack cleanly */
+.tr { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+/* Trade header — top row */
+.th { display: flex; align-items: flex-start; gap: 10px; justify-content: space-between; }
 
 /* ── DASH CARDS — bento blocks ── */
 .dash-card {
@@ -3970,8 +3976,13 @@ body::after {
 
 <!-- MOBILE BAR -->
 <div class="mob-bar">
-  <a href="index.html" class="mob-logo" style="display:flex;align-items:center;text-decoration:none;">
-    <img src="/logo.png" alt="ORBITUM" style="height:28px;width:auto;object-fit:contain;max-width:130px;">
+  <a href="index.html" class="mob-logo" style="display:flex;align-items:center;gap:7px;text-decoration:none;">
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="3.2" fill="#e8722a"/>
+      <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="#e8722a" stroke-width="1.2" opacity="0.6" transform="rotate(-30 11 11)"/>
+      <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="rgba(255,255,255,0.25)" stroke-width="1" transform="rotate(60 11 11)"/>
+    </svg>
+    ORBITUM
   </a>
   <div class="mob-bar-right">
     <div class="mob-stat-pill balance" onclick="toggleBalancePopup()">
@@ -3989,7 +4000,12 @@ body::after {
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
   <a href="index.html" class="sb-logo" style="text-decoration:none;cursor:pointer;" title="На главную">
-    <img src="/logo.png" alt="ORBITUM" style="height:36px;width:auto;object-fit:contain;max-width:160px;">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="flex-shrink:0;">
+      <circle cx="11" cy="11" r="3.2" fill="#e8722a"/>
+      <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="#e8722a" stroke-width="1.2" opacity="0.6" transform="rotate(-30 11 11)"/>
+      <ellipse cx="11" cy="11" rx="9" ry="4.5" stroke="rgba(255,255,255,0.2)" stroke-width="1" transform="rotate(60 11 11)"/>
+    </svg>
+    <span class="sb-logo-text">ORBITUM</span>
   </a>
   <div class="sb-scroll-body">
   <nav class="sb-nav">
@@ -4014,6 +4030,9 @@ body::after {
     <button class="sb-item" onclick="showPage('coach',this)" data-page="coach">
       <span class="sb-item-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2" width="13" height="9" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 14h6M8 11v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5 6h2M9 6h2M5.5 8.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>AI Coach
     </button>
+    <a href="/ai-journal" class="sb-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <span class="sb-item-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>AI Разбор сделок<span style="font-size:9px;opacity:0.4;margin-left:auto;padding-left:6px;color:var(--a)">⚡</span>
+    </a>
     
     
         
@@ -4654,6 +4673,28 @@ body::after {
       <div class="agh-text" id="analytics-hint-text">
         Введи минимум <strong>10 сделок</strong> чтобы начать отслеживать своё психологическое состояние · <strong>5 сделок</strong> для эмоционального профиля · <strong>3 на сетап</strong> для статистики по типам входов
       </div>
+    </div>
+
+    <!-- WEEKLY RECAP -->
+    <div class="dash-card" id="weekly-recap-card" style="margin-top:14px;border:1px solid rgba(232,114,42,0.15);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(232,114,42,0.6),transparent);"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="dash-title" style="margin-bottom:0;">Итог недели</div>
+        <button onclick="loadWeeklyRecap(true)" style="font-family:var(--font-mono);font-size:8px;padding:3px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;background:transparent;color:var(--m);cursor:pointer;letter-spacing:1px;transition:all .15s;" onmouseover="this.style.borderColor='rgba(232,114,42,0.3)';this.style.color='var(--a)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--m)'">↻ Обновить</button>
+      </div>
+      <div id="weekly-recap-body">
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);text-align:center;padding:16px;">Загрузка итогов недели...</div>
+      </div>
+    </div>
+
+    <!-- AI JOURNAL PROMO -->
+    <div style="margin-top:14px;background:linear-gradient(135deg,rgba(232,114,42,0.06),rgba(232,114,42,0.02));border:1px solid rgba(232,114,42,0.18);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.25);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⚡</div>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--a);margin-bottom:4px;">AI РАЗБОР СДЕЛОК</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6;">Детальный AI-анализ каждой сделки: что сработало, ошибки, план улучшений, эмоциональный профиль.</div>
+      </div>
+      <a href="/ai-journal" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(232,114,42,0.12);border:1px solid rgba(232,114,42,0.3);border-radius:7px;color:var(--a);font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-decoration:none;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='rgba(232,114,42,0.2)'" onmouseout="this.style.background='rgba(232,114,42,0.12)'">ОТКРЫТЬ →</a>
     </div>
 
   </div>
@@ -5392,7 +5433,7 @@ function showPage(p,btn){
   if(badge)badge.textContent=pageNames[p]||p.toUpperCase();
   closeToolsDD();
   updateMobNav(p);
-  if(p==='dashboard')renderDashboard();
+  if(p==='dashboard'){renderDashboard();loadWeeklyRecap();}
   if(p==='progress')renderProgress();
   if(p==='digest')renderDigest();
   if(p==='ideas')initIdeasPage();
@@ -5639,6 +5680,7 @@ async function loadTrades(){
   allTrades=data||[];
   hideStatSkeletons();
   updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);restoreFormDefaults();
+  loadWeeklyRecap();
   orbColorUserByRank(allTrades);
   // First-run onboarding check
   onbCheck(allTrades.length);
@@ -5922,12 +5964,33 @@ function render(){
     const cls=t.result==='win'?'win':t.result==='loss'?'loss':'be';
     const pnlCls=t.result==='win'?'p':t.result==='loss'?'n':'';
     const date=new Date(t.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+    // RR badge
+    let rrBadge='';
+    if(t.entry_price&&t.stop_loss&&t.exit_price){
+      const riskD=Math.abs(t.entry_price-t.stop_loss);
+      const rewD=Math.abs(t.exit_price-t.entry_price);
+      if(riskD>0){const rr=(rewD/riskD).toFixed(1);const rrColor=parseFloat(rr)>=2?'var(--g)':parseFloat(rr)>=1?'var(--a)':'var(--r)';rrBadge=`<span style="font-family:var(--font-mono);font-size:8px;padding:1px 6px;border-radius:3px;background:${rrColor}18;border:1px solid ${rrColor}30;color:${rrColor}">1:${rr}</span>`;}
+    }
+    // Emotion summary
+    const hasEm=(t.emotion_conf||t.emotion_fear||t.emotion_greed||t.emotion_calm);
+    const emConf=t.emotion_conf||5;const emFear=t.emotion_fear||3;const emGreed=t.emotion_greed||3;const emCalm=t.emotion_calm||7;
+    const emScore=hasEm?Math.round(((10-emFear)/10*25)+((10-emGreed)/10*25)+(emConf/10*25)+(emCalm/10*25)):null;
+    const emColor=emScore!=null?(emScore>=70?'var(--g)':emScore>=45?'var(--a)':'var(--r)'):'';
+    const emBadge=emScore!=null?`<span style="font-family:var(--font-mono);font-size:8px;padding:1px 6px;border-radius:3px;background:${emColor}18;border:1px solid ${emColor}30;color:${emColor}" title="Эмоц. состояние">🧠 ${emScore}</span>`:'';
     return`<div class="tcard ${cls}">
       <div class="th">
-        <div class="tl"><div class="tpair">${t.pair||'?'}</div><div class="tdir ${t.direction||'long'}">${(t.direction||'').toUpperCase()}</div></div>
+        <div class="tl">
+          <div class="tpair">${t.pair||'?'}</div>
+          <div class="tdir ${t.direction||'long'}">${(t.direction||'long').toUpperCase()}</div>
+          ${t.setup_type?`<span style="font-family:var(--font-mono);font-size:8px;color:var(--a);background:var(--a2);border:1px solid rgba(232,114,42,0.2);padding:1px 6px;border-radius:3px;letter-spacing:0.5px">${escHtml(t.setup_type)}</span>`:''}
+        </div>
         <div class="tr">
           <div class="tpnl ${pnlCls}">${pnl}${usd?` <span style="font-size:9px;opacity:0.55">${usd}</span>`:''}</div>
+          <div style="display:flex;gap:4px;align-items:center;margin-top:2px;flex-wrap:wrap;justify-content:flex-end;">
+            ${rrBadge}${emBadge}
+          </div>
           <div class="tdate">${date}</div>
+          <a href="/ai-journal?trade=${t.id}" title="AI Разбор" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:5px;border:1px solid rgba(232,114,42,0.25);background:rgba(232,114,42,0.06);color:var(--a);font-size:10px;cursor:pointer;text-decoration:none;transition:all .15s;" onmouseover="this.style.background='rgba(232,114,42,0.14)'" onmouseout="this.style.background='rgba(232,114,42,0.06)'">⚡</a>
           <button class="editbtn" onclick="openEditModal(this.getAttribute('data-id'))" data-id="${t.id}" title="Редактировать">✏️</button>
           <button class="delbtn" onclick="deleteTrade('${t.id}')">✕</button>
         </div>
@@ -5936,6 +5999,100 @@ function render(){
       ${t.screenshot_url?`<div class="tcard-screenshot" onclick="openLightbox('${t.screenshot_url}')"><img src="${t.screenshot_url}" alt="chart" loading="lazy"></div>`:''}
     </div>`;
   }).join('');
+}
+
+// ─── WEEKLY RECAP ─────────────────────────────────
+function loadWeeklyRecap(force) {
+  const body = document.getElementById('weekly-recap-body');
+  if (!body) return;
+  const trades = allTrades;
+  if (!trades.length) {
+    body.innerHTML = '<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);text-align:center;padding:16px;">Нет сделок для анализа</div>';
+    return;
+  }
+
+  // This week
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  weekStart.setHours(0,0,0,0);
+
+  const thisWeek = trades.filter(t => new Date(t.created_at) >= weekStart);
+  const lastWeekStart = new Date(weekStart); lastWeekStart.setDate(weekStart.getDate() - 7);
+  const lastWeek = trades.filter(t => { const d = new Date(t.created_at); return d >= lastWeekStart && d < weekStart; });
+
+  const calc = (arr) => {
+    if (!arr.length) return null;
+    const wins = arr.filter(t => t.result === 'win').length;
+    const pnl  = arr.reduce((s,t) => s + (t.pnl_pct||0), 0);
+    const usd  = arr.reduce((s,t) => s + (t.pnl_usd||0), 0);
+    return { n: arr.length, wr: Math.round(wins/arr.length*100), pnl, usd };
+  };
+
+  const tw = calc(thisWeek);
+  const lw = calc(lastWeek);
+
+  // Best setup this week
+  const setupMap = {};
+  thisWeek.forEach(t => {
+    if (!t.setup_type) return;
+    if (!setupMap[t.setup_type]) setupMap[t.setup_type] = {n:0,w:0,pnl:0};
+    setupMap[t.setup_type].n++;
+    if (t.result==='win') setupMap[t.setup_type].w++;
+    setupMap[t.setup_type].pnl += (t.pnl_pct||0);
+  });
+  const setups = Object.entries(setupMap).sort((a,b)=>b[1].pnl-a[1].pnl);
+  const bestSetup = setups[0];
+
+  // Day of week performance this week
+  const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const byDay = {};
+  thisWeek.forEach(t => {
+    const d = dayNames[new Date(t.created_at).getDay()];
+    if (!byDay[d]) byDay[d] = {n:0,w:0,pnl:0};
+    byDay[d].n++; if(t.result==='win') byDay[d].w++; byDay[d].pnl+=(t.pnl_pct||0);
+  });
+
+  const pnlColor = (v) => v>=0 ? 'var(--g)' : 'var(--r)';
+  const fmtPnl = (v) => v>=0 ? '+'+v.toFixed(1)+'%' : v.toFixed(1)+'%';
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;">
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:9px 10px;">
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1.5px;margin-bottom:4px;">СДЕЛОК</div>
+        <div style="font-family:var(--font-display);font-size:20px;">${tw ? tw.n : 0}</div>
+        ${lw ? `<div style="font-size:8px;color:${tw&&tw.n>=lw.n?'var(--g)':'var(--r)'};">${tw&&tw.n>=lw.n?'▲':'▼'} vs ${lw.n} пр.нед.</div>` : ''}
+      </div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:9px 10px;">
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1.5px;margin-bottom:4px;">ВИНРЕЙТ</div>
+        <div style="font-family:var(--font-display);font-size:20px;color:${tw&&tw.wr>=50?'var(--g)':'var(--r)'};">${tw ? tw.wr+'%' : '—'}</div>
+        ${lw ? `<div style="font-size:8px;color:${tw&&tw.wr>=lw.wr?'var(--g)':'var(--r)'};">${tw&&tw.wr>=lw.wr?'▲':'▼'} vs ${lw.wr}%</div>` : ''}
+      </div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:9px 10px;">
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1.5px;margin-bottom:4px;">P&L %</div>
+        <div style="font-family:var(--font-display);font-size:20px;color:${tw?pnlColor(tw.pnl):'var(--m)'};">${tw ? fmtPnl(tw.pnl) : '—'}</div>
+        ${lw ? `<div style="font-size:8px;color:${tw&&tw.pnl>=lw.pnl?'var(--g)':'var(--r)'};">${tw&&tw.pnl>=lw.pnl?'▲':'▼'} vs ${fmtPnl(lw.pnl)}</div>` : ''}
+      </div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:9px 10px;">
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--m);letter-spacing:1.5px;margin-bottom:4px;">ЛУЧШИЙ СЕТАП</div>
+        <div style="font-family:var(--font-display);font-size:14px;color:var(--a);">${bestSetup ? bestSetup[0] : '—'}</div>
+        ${bestSetup ? `<div style="font-size:8px;color:var(--m);">${fmtPnl(bestSetup[1].pnl)} · ${Math.round(bestSetup[1].w/bestSetup[1].n*100)}% WR</div>` : ''}
+      </div>
+    </div>
+    ${Object.keys(byDay).length ? `
+    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+      ${Object.entries(byDay).map(([d,v]) => {
+        const wr=Math.round(v.w/v.n*100);
+        const c=wr>=60?'var(--g)':wr>=45?'var(--a)':'var(--r)';
+        return `<div style="flex:1;min-width:50px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:6px 8px;text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:8px;color:var(--m2);">${d}</div>
+          <div style="font-family:var(--font-display);font-size:14px;color:${c};">${wr}%</div>
+          <div style="font-family:var(--font-mono);font-size:7px;color:var(--m2);">${v.n} сд.</div>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+    ${!tw || !tw.n ? '<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);text-align:center;margin-top:8px;">На этой неделе сделок нет</div>' : ''}
+  `;
 }
 
 // ─── LEVEL SYSTEM ─────────────────────────────────
