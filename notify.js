@@ -1,486 +1,518 @@
-// api/notify.js — Отправка уведомлений в Telegram
-// v2 — Rich formatting, expanded alert types
+// api/notify.js v4 — Redesigned alerts with RU/EN localization + custom TG emoji
+// Custom emoji render as animated stickers for Premium TG users, plain fallback for others
+
+// ── Custom emoji (tg-emoji tags) ─────────────────────────────────
+// Premium TG users see animated stickers, others see fallback Unicode
+const E = {
+  signal:   '<tg-emoji emoji-id="5226928895189598791">⚡</tg-emoji>',
+  long:     '<tg-emoji emoji-id="5463274047771000031">🟢</tg-emoji>',
+  short:    '<tg-emoji emoji-id="5463054218459884779">🔴</tg-emoji>',
+  ai:       '<tg-emoji emoji-id="5463122435425448565">🧠</tg-emoji>',
+  diamond:  '<tg-emoji emoji-id="5375099322666859339">💎</tg-emoji>',
+  fire:     '<tg-emoji emoji-id="5256047523620995497">🔥</tg-emoji>',
+  warn:     '⚠️',
+  ok:       '✅',
+  chart:    '📊',
+  journal:  '📝',
+  tilt:     '🚨',
+  critical: '🚨',
+  momentum: '🚀',
+  sa:       '📡',
+  morning:  '🌅',
+  coach:    '🤖',
+  fomo:     '⏱',
+  lock:     '🔒',
+};
+
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL    = process.env.SUPABASE_URL;
 const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
+const APP_URL   = process.env.APP_URL || 'https://orbitum.trade';
+
+const CRITICAL_TYPES = new Set(['signal_critical', 'tilt', 'raw']);
+function isSilent() { const h = new Date().getUTCHours(); return h >= 23 || h < 6; }
+
+const NOTIFY_GATE = {
+  alert:             'tg_notify_alerts',
+  signal_setup:      'tg_notify_alerts',
+  signal_momentum:   'tg_notify_alerts',
+  signal_ai:         'tg_notify_alerts',
+  signal_critical:   null,
+  fomo:              'tg_notify_alerts',
+  sa_score:          'tg_notify_alerts',
+  trade:             'tg_notify_trades',
+  tilt:              'tg_notify_tilt',
+  daily:             'tg_notify_daily',
+  ai_coach_feedback: 'tg_notify_trades',
+  raw:               null,
+};
 
 async function tgSend(chat_id, text, extra = {}) {
-  const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true, ...extra })
-  });
-  if (!r.ok) console.error('tgSend error:', await r.text());
-  return r.ok;
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true, ...extra }),
+    });
+    if (!r.ok) {
+      const e = await r.json().catch(() => ({}));
+      if (e?.error_code === 403) return false;
+      console.warn('[notify] tgSend', chat_id, e?.description);
+    }
+    return true;
+  } catch(e) { console.error('[notify] tgSend', e.message); return false; }
 }
 
-function fmtPrice(p) {
+function fmtP(p) {
   const n = parseFloat(p);
-  if (isNaN(n)) return '—';
-  if (n >= 1000) return '$' + n.toLocaleString('en', { maximumFractionDigits: 2 });
-  if (n >= 1)    return '$' + n.toFixed(4);
+  if (isNaN(n) || !n) return '--';
+  if (n >= 10000) return '$' + n.toLocaleString('en', { maximumFractionDigits: 0 });
+  if (n >= 1000)  return '$' + n.toLocaleString('en', { maximumFractionDigits: 2 });
+  if (n >= 1)     return '$' + n.toFixed(4);
   return '$' + n.toFixed(6);
 }
 
-function fmtPct(p, showPlus = true) {
+function fmtPct(p, plus = true) {
   const n = parseFloat(p);
-  if (isNaN(n)) return '—';
-  const sign = n >= 0 && showPlus ? '+' : '';
-  return `${sign}${n.toFixed(2)}%`;
+  if (isNaN(n)) return '--';
+  return `${n >= 0 && plus ? '+' : ''}${n.toFixed(2)}%`;
 }
 
 function fmtVol(v) {
   const n = parseFloat(v);
-  if (isNaN(n)) return '—';
-  if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  if (isNaN(n)) return '--';
+  if (n >= 1e9) return `$${(n/1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `$${(n/1e6).toFixed(1)}M`;
   return `$${n.toFixed(0)}`;
 }
 
-function now() {
-  return new Date().toLocaleString('ru-RU', {
-    hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'
-  });
+function timeUTC() {
+  return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ' UTC';
+}
+
+function confBar(pct) {
+  const f = Math.round(pct / 10);
+  const dot = pct >= 75 ? E.long : pct >= 60 ? '🟡' : E.short;
+  return `${dot} <code>${'█'.repeat(f)}${'░'.repeat(10-f)}</code> <b>${pct}%</b>`;
+}
+
+// ── i18n helpers ──────────────────────────────────────────────────
+const i18n = {
+  en: {
+    // Alert types
+    alert_price_above:  'Breakout Up',
+    alert_price_below:  'Breakdown',
+    alert_price_cross:  'Level Cross',
+    alert_volume:       'Volume Spike',
+    alert_change_up:    'Sharp Rise',
+    alert_change_down:  'Sharp Drop',
+    alert_rsi_ob:       'RSI Overbought',
+    alert_rsi_os:       'RSI Oversold',
+    alert_volatility:   'High Volatility',
+    alert_pump:         'Pump',
+    alert_dump:         'Dump',
+    // Fields
+    price:    'Price',
+    level:    'Level',
+    volume:   'Volume',
+    move:     'Move',
+    setup:    'Setup',
+    entry:    'Entry',
+    sl:       'SL',
+    tp:       'TP',
+    rr:       'R:R',
+    result:   'Result',
+    pair:     'Pair',
+    grade:    'Grade',
+    // Trade results
+    profit:   'PROFIT',
+    loss:     'LOSS',
+    be:       'BREAKEVEN',
+    // Tilt
+    tilt_title: '🚨 TILT WARNING',
+    tilt_body:  (n, pct) => `${n} ${E.warn} losses in a row · Total <b>${pct}</b>\n\n<b>Close the terminal. Step away.\nThe market will still be here tomorrow.</b>`,
+    // Sections
+    signal_header:    '⚡ SETUP SIGNAL',
+    momentum_header:  '🚀 MOMENTUM',
+    ai_header:        '🧠 AI INSIGHT  [PREMIUM]',
+    critical_header:  '🚨 CRITICAL',
+    coach_header:     '🤖 AI Coach',
+    fomo_header:      E.fomo + ' MISSED SIGNAL',
+    sa_header:        '📡 Market Awareness',
+    daily_header:     '🌅 Morning Brief',
+    // Misc
+    scanned:      (n, p) => `${n} scanned  ·  ${p} passed threshold`,
+    your_week:    'Your week',
+    open_chart:   '📊 Open Chart',
+    log_trade:    '📝 Log Trade',
+    ask_ai:       '🤖 Ask AI',
+    upgrade:      E.diamond + ' Unlock Premium',
+    locked_entry: (t) => `${t} → [unlock]`,
+    window:       (n) => `⏱ ${n} min window`,
+    overbought:   '⚠️ OB',
+    oversold:     '💚 OS',
+    rare:         () => E.signal + ' Grade A+ — rare occurrence',
+    grade_label:  (g) => `Grade: <b>${g}</b>`,
+    confluence:   'Confluence',
+  },
+  ru: {
+    alert_price_above:  'Пробой вверх',
+    alert_price_below:  'Пробой вниз',
+    alert_price_cross:  'Пересечение уровня',
+    alert_volume:       'Всплеск объёма',
+    alert_change_up:    'Резкий рост',
+    alert_change_down:  'Резкое падение',
+    alert_rsi_ob:       'RSI: перекупленность',
+    alert_rsi_os:       'RSI: перепроданность',
+    alert_volatility:   'Высокая волатильность',
+    alert_pump:         'Памп',
+    alert_dump:         'Дамп',
+    price:    'Цена',
+    level:    'Уровень',
+    volume:   'Объём',
+    move:     'Движение',
+    setup:    'Сетап',
+    entry:    'Вход',
+    sl:       'Стоп',
+    tp:       'Тейк',
+    rr:       'R:R',
+    result:   'Результат',
+    pair:     'Пара',
+    grade:    'Оценка',
+    profit:   'ПРОФИТ',
+    loss:     'УБЫТОК',
+    be:       'БЕЗУБЫТОК',
+    tilt_title: '🚨 ТИЛЬТ — СТОП',
+    tilt_body:  (n, pct) => `${n} ${E.warn} убытков подряд · Итого <b>${pct}</b>\n\n<b>Закрой терминал. Выйди подышать.\nРынок будет и завтра.</b>`,
+    signal_header:    '⚡ СИГНАЛ',
+    momentum_header:  '🚀 МОМЕНТУМ',
+    ai_header:        '🧠 AI АНАЛИЗ  [PREMIUM]',
+    critical_header:  '🚨 КРИТИЧЕСКИЙ',
+    coach_header:     '🤖 AI Коуч',
+    fomo_header:      E.fomo + ' ПРОПУЩЕННЫЙ СИГНАЛ',
+    sa_header:        '📡 Осведомлённость о рынке',
+    daily_header:     '🌅 Утренний брифинг',
+    scanned:      (n, p) => `${n} просканировано  ·  ${p} прошло фильтр`,
+    your_week:    'Твоя неделя',
+    open_chart:   '📊 Открыть график',
+    log_trade:    '📝 Записать',
+    ask_ai:       '🤖 AI Разбор',
+    upgrade:      E.diamond + ' Разблокировать Premium',
+    locked_entry: (t) => `${t} → [разблокировать]`,
+    window:       (n) => `⏱ окно ${n} мин`,
+    overbought:   '⚠️ ПК',
+    oversold:     '💚 ПП',
+    rare:         () => E.signal + ' Оценка A+ — редкое появление',
+    grade_label:  (g) => `Оценка: <b>${g}</b>`,
+    confluence:   'Конфлюенс',
+  },
+};
+
+function L(lang, key, ...args) {
+  const v = (i18n[lang] ?? i18n.en)[key] ?? i18n.en[key] ?? key;
+  return typeof v === 'function' ? v(...args) : v;
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.APP_URL || 'https://orbitum.trade');
+  res.setHeader('Access-Control-Allow-Origin', APP_URL);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Notify-User');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'POST')   return res.status(405).end();
 
   const userId = req.headers['x-notify-user'];
-  if (!userId || !/^[0-9a-f-]{36}$/.test(userId)) {
+  if (!userId || !/^[0-9a-f-]{36}$/.test(userId))
     return res.status(401).json({ error: 'Unauthorized' });
-  }
 
-  const { type, chat_id, data } = req.body;
-  if (!chat_id || !type) return res.status(400).json({ error: 'Missing params' });
+  const { type, data } = req.body;
+  if (!type) return res.status(400).json({ error: 'Missing type' });
 
-  // Verify user owns this TG chat — check by userId only, then use the stored chat_id
-  // (chat_id in body may differ in type from DB — use DB value to be safe)
-  const checkR = await fetch(
-    `${SB_URL}/rest/v1/profiles?id=eq.${userId}&select=id,tg_linked,tg_chat_id`,
-    { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
+  // Load profile
+  const profileR = await fetch(
+    `${SB_URL}/rest/v1/profiles?id=eq.${userId}&select=id,tg_linked,tg_chat_id,plan,lang,tg_notify_trades,tg_notify_alerts,tg_notify_daily,tg_notify_tilt`,
+    { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, Accept: 'application/json' } }
   );
-  const profiles = await checkR.json();
-  const profile = profiles?.[0];
-  if (!profile?.tg_linked || !profile?.tg_chat_id) {
-    return res.status(403).json({ error: 'TG not linked for this user' });
-  }
-  // Always use the chat_id stored in DB — never trust client-supplied value
-  const verified_chat_id = profile.tg_chat_id;
+  const profiles = await profileR.json();
+  const profile  = profiles?.[0];
+  if (!profile?.tg_linked || !profile?.tg_chat_id)
+    return res.status(403).json({ error: 'TG not linked' });
+
+  const chat_id = profile.tg_chat_id;
+  const isPaid  = profile.plan === 'lifetime' || profile.plan === 'monthly';
+  const lang    = profile.lang === 'ru' ? 'ru' : 'en';
+
+  // Check gate
+  const gate = NOTIFY_GATE[type];
+  if (gate && profile[gate] === false)
+    return res.status(200).json({ ok: true, skipped: true, reason: 'preference' });
+  if (isSilent() && !CRITICAL_TYPES.has(type))
+    return res.status(200).json({ ok: true, skipped: true, reason: 'silent hours' });
+
+  const div = '──────────────────';
 
   try {
 
-    // ── ALERT (ценовые и сигнальные уведомления) ──────────────────
+    // ══ PRICE / VOLUME / RSI ALERT ═══════════════════════════════
     if (type === 'alert') {
       const {
-        coin, symbol, condition, alert_type,
-        target_price, current_price,
-        change_24h, volume_24h, volume_ratio,
-        rsi, rsi_period,
-        change_pct, change_window,
-        note,
-        repeat_mode,
-        app_url,
+        symbol, condition, alert_type = 'price',
+        target_price, current_price, change_24h,
+        volume_24h, volume_ratio, rsi, rsi_period,
+        change_pct, change_window, note, repeat_mode, app_url,
       } = data;
+      const sym = (symbol || '?').toUpperCase();
 
-      const sym = symbol || coin || '?';
+      const typeKey = {
+        price:       condition === 'above' ? 'alert_price_above' : 'alert_price_below',
+        price_cross: 'alert_price_cross',
+        volume:      'alert_volume',
+        change:      parseFloat(change_pct) >= 0 ? 'alert_change_up' : 'alert_change_down',
+        rsi_ob:      'alert_rsi_ob',
+        rsi_os:      'alert_rsi_os',
+        volatility:  'alert_volatility',
+        pump:        'alert_pump',
+        dump:        'alert_dump',
+      }[alert_type] || 'alert_price_above';
 
-      // Заголовок по типу алерта
-      const HEADERS = {
-        price:        condition === 'above' ? '📈 Пробой вверх'    : '📉 Пробой вниз',
-        price_cross:  '↔️ Пересечение уровня',
-        volume:       '📊 Всплеск объёма',
-        change:       parseFloat(change_pct) >= 0 ? '⚡ Резкий рост' : '⚡ Резкое падение',
-        rsi_ob:       '🔴 RSI: перекупленность',
-        rsi_os:       '🟢 RSI: перепроданность',
-        volatility:   '🌊 Высокая волатильность',
-        pump:         '🚀 Памп',
-        dump:         '💣 Дамп',
-      };
+      const dirDot = ['alert_price_above','alert_rsi_os','alert_pump','alert_change_up'].includes(typeKey) ? E.long :
+                     ['alert_volatility'].includes(typeKey) ? '🟡' : E.short;
 
-      const EMOJIS = {
-        price: condition === 'above' ? '🟢' : '🔴',
-        price_cross: '🔵',
-        volume: '🔵',
-        change: parseFloat(change_pct) >= 0 ? '🟢' : '🔴',
-        rsi_ob: '🔴',
-        rsi_os: '🟢',
-        volatility: '🟡',
-        pump: '🟢',
-        dump: '🔴',
-      };
+      const lines = [
+        `${dirDot} <b>ORBITUM · ${sym}/USDT</b>`,
+        `<b>${L(lang, typeKey)}</b>`,
+        div,
+      ];
 
-      const header = HEADERS[alert_type] || '🔔 Алерт';
-      const dot    = EMOJIS[alert_type]  || '⚪';
-
-      const lines = [];
-      lines.push(`${dot} <b>ORBITUM · ${sym}/USDT</b>`);
-      lines.push(`<b>${header}</b>`);
-      lines.push('━━━━━━━━━━━━━━━━━━━');
-
-      // Текущая цена
       if (current_price != null) {
-        const chgStr = change_24h != null ? `  <i>${fmtPct(change_24h)} 24ч</i>` : '';
-        lines.push(`💰 Цена:       <b>${fmtPrice(current_price)}</b>${chgStr}`);
+        const chg = change_24h != null ? `  <i>${fmtPct(change_24h)} 24h</i>` : '';
+        lines.push(`${L(lang, 'price').padEnd(8)} <b>${fmtP(current_price)}</b>${chg}`);
       }
-
-      // Целевой уровень (для ценовых алертов)
       if (target_price != null && ['price','price_cross'].includes(alert_type)) {
-        const diffPct = ((parseFloat(current_price) - parseFloat(target_price)) / parseFloat(target_price) * 100).toFixed(2);
-        const diffStr = parseFloat(diffPct) >= 0 ? `+${diffPct}%` : `${diffPct}%`;
-        lines.push(`🎯 Уровень:    <b>${fmtPrice(target_price)}</b>  <i>(${diffStr})</i>`);
+        const diff = ((parseFloat(current_price) - parseFloat(target_price)) / parseFloat(target_price) * 100).toFixed(2);
+        lines.push(`${L(lang, 'level').padEnd(8)} <b>${fmtP(target_price)}</b>  <i>(${parseFloat(diff) >= 0 ? '+' : ''}${diff}%)</i>`);
       }
+      if (volume_24h != null)
+        lines.push(`${L(lang, 'volume').padEnd(8)} <b>${fmtVol(volume_24h)}</b>${volume_ratio ? `  ×${parseFloat(volume_ratio).toFixed(1)} avg` : ''}`);
+      if (rsi != null)
+        lines.push(`RSI (${rsi_period||14})  <b>${Math.round(rsi)}</b>${rsi >= 70 ? ' ' + L(lang,'overbought') : rsi <= 30 ? ' ' + L(lang,'oversold') : ''}`);
+      if (change_pct != null && alert_type === 'change')
+        lines.push(`${L(lang, 'move').padEnd(8)} <b>${fmtPct(change_pct)}</b>${change_window ? ` ${lang === 'ru' ? 'за' : 'in'} ${change_window}min` : ''}`);
 
-      // Объём
-      if (volume_24h != null) {
-        const ratioStr = volume_ratio != null ? `  <i>×${parseFloat(volume_ratio).toFixed(1)} от среднего</i>` : '';
-        lines.push(`📊 Объём 24ч:  <b>${fmtVol(volume_24h)}</b>${ratioStr}`);
-      }
+      if (note) lines.push('', `<i>${note}</i>`);
+      if (repeat_mode && repeat_mode !== 'once')
+        lines.push(repeat_mode === 'daily' ? (lang === 'ru' ? '📅 Ежедневный' : '📅 Daily') : (lang === 'ru' ? '🔁 Повторный' : '🔁 Repeat'));
 
-      // RSI
-      if (rsi != null) {
-        const p = rsi_period || 14;
-        const level = rsi >= 70 ? ' ⚠️ перекупл.' : rsi <= 30 ? ' ⚠️ перепродан' : '';
-        lines.push(`📈 RSI (${p}):   <b>${Math.round(rsi)}</b>${level}`);
-      }
-
-      // Изменение за период (для change-алертов)
-      if (change_pct != null && alert_type === 'change') {
-        const win = change_window ? ` за ${change_window} мин` : '';
-        lines.push(`⚡ Движение:   <b>${fmtPct(change_pct)}</b>${win}`);
-      }
-
-      lines.push(`⏱ Время:       <b>${now()}</b>`);
-
-      // Заметка
-      if (note) {
-        lines.push('');
-        lines.push(`💬 <i>${note}</i>`);
-      }
-
-      // Повтор
-      const repeatLabel = { once: '', every: '🔁 Повторный алерт', daily: '📅 Ежедневный' }[repeat_mode] || '';
-      if (repeatLabel) lines.push(repeatLabel);
-
-      // Ссылка на приложение
-      if (app_url) {
-        lines.push('');
-        lines.push(`<a href="${app_url}">🔗 Открыть ${sym} в Orbitum</a>`);
-      }
-
-      await tgSend(verified_chat_id, lines.join('\n'));
+      lines.push('', `<a href="${(app_url || APP_URL) + '/screener?coin=' + encodeURIComponent(sym+'/USDT')}">${L(lang,'open_chart')}</a>`);
+      await tgSend(chat_id, lines.filter(l => l !== undefined).join('\n'));
     }
 
-    // ── TRADE ──────────────────────────────────────────────────────
+    // ══ TRADE LOGGED ══════════════════════════════════════════════
     if (type === 'trade') {
-      const { pair, direction, result, pnl_pct, pnl_usd, setup_type, entry_price, exit_price, rr, duration } = data;
-      const isWin    = result === 'win';
-      const isLoss   = result === 'loss';
-      const dot      = isWin ? '🟢' : isLoss ? '🔴' : '🟡';
+      const { pair, direction, result, pnl_pct, pnl_usd, setup_type, entry_price, exit_price, rr } = data;
+      const isWin   = result === 'win';
+      const isLoss  = result === 'loss';
+      const resEmoji = isWin ? '💚' : isLoss ? '🔴' : '🟡';
       const dirLabel = direction === 'long' ? '▲ LONG' : '▼ SHORT';
-      const pnlEmoji = parseFloat(pnl_pct) >= 0 ? '📈' : '📉';
-      const resultStr = isWin ? 'ПРОФИТ' : isLoss ? 'УБЫТОК' : 'БЕЗУБЫТОК';
-      const usdStr   = pnl_usd != null ? ` (${parseFloat(pnl_usd) >= 0 ? '+' : ''}$${Math.abs(parseFloat(pnl_usd)).toFixed(0)})` : '';
+      const resLabel = isWin ? L(lang, 'profit') : isLoss ? L(lang, 'loss') : L(lang, 'be');
+      const pnlSign  = parseFloat(pnl_pct) >= 0 ? '+' : '';
+      const usd      = pnl_usd != null ? `  (~${pnl_usd >= 0 ? '+$' : '-$'}${Math.abs(pnl_usd).toFixed(0)})` : '';
 
-      const lines = [];
-      lines.push(`${dot} <b>${pair} · ${dirLabel}</b>`);
-      lines.push(`${pnlEmoji} <b>${resultStr}: ${fmtPct(pnl_pct)}${usdStr}</b>`);
-      lines.push('━━━━━━━━━━━━━━━━━━━');
-      if (entry_price) lines.push(`📥 Вход:    <b>${fmtPrice(entry_price)}</b>`);
-      if (exit_price)  lines.push(`📤 Выход:   <b>${fmtPrice(exit_price)}</b>`);
-      if (rr)          lines.push(`⚖️ R:R:     <b>1:${parseFloat(rr).toFixed(1)}</b>`);
-      if (setup_type)  lines.push(`🔷 Сетап:   <b>${setup_type}</b>`);
-      if (duration)    lines.push(`⏱ Время:    <b>${duration}</b>`);
-      else             lines.push(`⏱ Закрыта: <b>${now()}</b>`);
+      const lines = [
+        `${resEmoji} <b>${pair}  ${dirLabel}</b>`,
+        `<b>${resLabel}: ${fmtPct(pnl_pct)}${usd}</b>`,
+        div,
+      ];
+      if (entry_price) lines.push(`${L(lang,'entry').padEnd(6)} <b>${fmtP(entry_price)}</b>`);
+      if (exit_price)  lines.push(`${lang === 'ru' ? 'Выход' : 'Exit'} <b>${fmtP(exit_price)}</b>`);
+      if (rr)          lines.push(`${L(lang,'rr').padEnd(6)} <b>1:${parseFloat(rr).toFixed(1)}</b>`);
+      if (setup_type)  lines.push(`${L(lang,'setup').padEnd(6)} <b>${setup_type}</b>`);
 
-      await tgSend(verified_chat_id, lines.join('\n'));
+      lines.push('', `<a href="${APP_URL}/journal">${L(lang,'log_trade')}</a>  ·  <a href="${APP_URL}/ai-journal">${L(lang,'ask_ai')}</a>`);
+      await tgSend(chat_id, lines.join('\n'));
     }
 
-    // ── TILT ───────────────────────────────────────────────────────
+    // ══ AI COACH FEEDBACK ══════════════════════════════════════════
+    if (type === 'ai_coach_feedback') {
+      const { pair, direction, insight, pattern_note, consistency_score } = data;
+      if (!insight) return res.status(200).json({ ok: true, skipped: true });
+
+      const dir = direction === 'long' ? '▲ LONG' : '▼ SHORT';
+      const scoreStr = consistency_score != null
+        ? `\n${lang === 'ru' ? 'Оценка паттерна' : 'Pattern score'}: <b>${consistency_score > 0 ? '+' : ''}${consistency_score}</b>`
+        : '';
+
+      await tgSend(chat_id,
+        `${E.coach + ' <b>' + (lang === 'ru' ? 'AI Коуч' : 'AI Coach') + '</b>'}  <b>${pair}  ${dir}</b>\n${div}\n` +
+        `<i>${insight.slice(0, 280)}</i>` +
+        (pattern_note ? `\n\n<b>${lang === 'ru' ? 'Паттерн' : 'Pattern'}:</b> ${pattern_note.slice(0, 120)}` : '') +
+        scoreStr +
+        `\n\n<a href="${APP_URL}/ai-journal">${L(lang,'ask_ai')}</a>`
+      );
+    }
+
+    // ══ TILT ══════════════════════════════════════════════════════
     if (type === 'tilt') {
       const { losses_count, total_loss_pct, last_pairs } = data;
-      const pairsStr = last_pairs?.length ? `\nПоследние: ${last_pairs.join(', ')}` : '';
-      await tgSend(verified_chat_id,
-        `🚨 <b>ТИЛЬТ — СТОП ТОРГОВЛЯ</b>\n` +
-        `━━━━━━━━━━━━━━━━━━━\n` +
-        `📉 ${losses_count} убытка подряд\n` +
-        `💸 Суммарно: <b>${fmtPct(total_loss_pct)}</b>${pairsStr}\n\n` +
-        `🛑 <b>Закрой терминал. Выйди подышать.\nРынок будет и завтра.</b>`
+      const pairsStr = last_pairs?.length ? `\n${lang === 'ru' ? 'Последние' : 'Last trades'}: ${last_pairs.join(', ')}` : '';
+      await tgSend(chat_id,
+        `${E.tilt + ' <b>' + (lang === 'ru' ? 'ТИЛЬТ — СТОП' : 'TILT WARNING') + '</b>'}\n${div}\n` +
+        L(lang, 'tilt_body', losses_count, fmtPct(total_loss_pct)) +
+        pairsStr
       );
     }
 
-    // ── DAILY BRIEFING ─────────────────────────────────────────────
-    if (type === 'daily') {
-      const { market_cap, btc_dom, fear_greed, fg_label, top_gainers, top_losers, events_today } = data;
-      const fgEmoji = fear_greed >= 75 ? '🤑' : fear_greed >= 55 ? '😊' : fear_greed >= 45 ? '😐' : fear_greed >= 25 ? '😨' : '😱';
-
-      const gainers = (top_gainers || []).slice(0, 3)
-        .map(g => `  • <b>${g.symbol}</b> ${fmtPct(g.change)}`).join('\n');
-      const losers = (top_losers || []).slice(0, 3)
-        .map(g => `  • <b>${g.symbol}</b> ${fmtPct(g.change)}`).join('\n');
-      const eventsStr = (events_today || []).slice(0, 2)
-        .map(e => `  📌 ${e}`).join('\n');
-
-      const lines = [
-        `🌅 <b>Утренний брифинг · ${new Date().toLocaleDateString('ru-RU', {day:'2-digit',month:'long'})}</b>`,
-        '━━━━━━━━━━━━━━━━━━━',
-        `🌍 Market Cap:  <b>$${market_cap}</b>`,
-        `₿ BTC Dom:     <b>${parseFloat(btc_dom)?.toFixed(1)}%</b>`,
-        `${fgEmoji} Страх/Жадность: <b>${fear_greed} — ${fg_label}</b>`,
-      ];
-      if (gainers) { lines.push(''); lines.push('🔥 <b>Лидеры роста:</b>'); lines.push(gainers); }
-      if (losers)  { lines.push(''); lines.push('❄️ <b>Лидеры падения:</b>'); lines.push(losers); }
-      if (eventsStr) { lines.push(''); lines.push('📅 <b>События сегодня:</b>'); lines.push(eventsStr); }
-      lines.push(''); lines.push('Удачной торговли! 📊');
-
-      await tgSend(verified_chat_id, lines.join('\n'));
-    }
-
-    // ── WEEKLY REPORT ──────────────────────────────────────────────
-    if (type === 'weekly') {
-      const { trades_count, wr, pnl_pct, pnl_usd, best_setup, worst_day, best_pair, avg_rr, max_streak_win, max_streak_loss } = data;
-      const pnlEmoji = parseFloat(pnl_pct) >= 0 ? '📈' : '📉';
-      const usdStr   = pnl_usd != null ? ` (~${parseFloat(pnl_usd) >= 0 ? '+' : ''}$${Math.abs(parseFloat(pnl_usd)).toFixed(0)})` : '';
-
-      const lines = [
-        `${pnlEmoji} <b>Недельный отчёт</b>`,
-        `<i>${new Date().toLocaleDateString('ru-RU', { day:'2-digit', month:'long', year:'numeric' })}</i>`,
-        '━━━━━━━━━━━━━━━━━━━',
-        `📊 Сделок:     <b>${trades_count}</b>`,
-        `🎯 Винрейт:    <b>${wr}%</b>`,
-        `💰 P&L:        <b>${fmtPct(pnl_pct)}${usdStr}</b>`,
-      ];
-      if (avg_rr)          lines.push(`⚖️ Avg R:R:    <b>1:${parseFloat(avg_rr).toFixed(2)}</b>`);
-      if (max_streak_win)  lines.push(`🔥 Серия побед: <b>${max_streak_win}</b>`);
-      if (max_streak_loss) lines.push(`❄️ Серия убытков: <b>${max_streak_loss}</b>`);
-      lines.push('');
-      if (best_pair)  lines.push(`🏆 Лучшая пара:  <b>${best_pair}</b>`);
-      if (best_setup) lines.push(`🔷 Лучший сетап: <b>${best_setup}</b>`);
-      if (worst_day)  lines.push(`⚠️ Худший день:  <b>${worst_day}</b>`);
-
-      await tgSend(verified_chat_id, lines.join('\n'));
-    }
-
-    // ── RAW ────────────────────────────────────────────────────────
-    if (type === 'raw') {
-      if (data?.text) await tgSend(verified_chat_id, data.text);
-    }
-
-    // ── SETUP SIGNAL (from template alert system) ──────────────────
+    // ══ SETUP SIGNAL ══════════════════════════════════════════════
     if (type === 'signal_setup') {
       const { pair, direction, entry, sl, tp, rr, confidence = 75, setup_type, insight, tf = '4H' } = data;
-      const dirEmoji = direction === 'long' ? '🟢' : '🔴';
-      const dirLabel = direction === 'long' ? 'LONG' : 'SHORT';
-      const rrStr    = rr ? parseFloat(rr).toFixed(1) + ':1' : '—';
-      const filled   = Math.round(confidence / 10);
-      const bar      = '█'.repeat(filled) + '░'.repeat(10 - filled);
-      const barDot   = confidence >= 75 ? '🟢' : confidence >= 60 ? '🟠' : '🟡';
-      const confBar  = `${barDot} <code>${bar}</code> <b>${confidence}%</b> confidence`;
-      const insightLine = insight ? `
-🧠 <i>${insight.slice(0, 120)}</i>` : '';
-      const scarcity    = confidence >= 80
-        ? '
-<code>⚡ Setup quality: A+ — rare occurrence</code>'
-        : `
-<code>✦ ${Math.floor(Math.random() * 200 + 100)} traders tracking this</code>`;
-      const appUrl = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+      const dir    = direction === 'long' ? E.long + ' LONG' : E.short + ' SHORT';
+      const rrStr  = rr ? `1:${parseFloat(rr).toFixed(1)}` : '--';
+      const grade  = confidence >= 80 ? 'A+' : confidence >= 70 ? 'A' : confidence >= 60 ? 'B+' : 'B';
+      const scarcity = confidence >= 80
+        ? `\n<code>${(typeof (i18n[lang] ?? i18n.en).rare === 'function' ? (i18n[lang] ?? i18n.en).rare() : (i18n[lang] ?? i18n.en).rare)}</code>`
+        : `\n${L(lang, 'grade_label', grade)}`;
+      const insightLine = insight ? `\n\n🧠 <i>${insight.slice(0, 200)}</i>` : '';
 
-      await tgSend(verified_chat_id,
-        `⚡ <b>SETUP SIGNAL</b> · ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `${dirEmoji} <b>${pair} · ${dirLabel}</b> · ${tf}
-` +
-        (setup_type ? `<code>${setup_type}</code>
-` : '') +
-        confBar + `
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `Entry  ·  <b>${fmtPrice(entry)}</b>
-` +
-        `SL     ·  <code>${fmtPrice(sl)}</code>
-` +
-        `TP     ·  <b>${fmtPrice(tp)}</b>
-` +
-        `R:R    ·  <b>${rrStr}</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━` +
+      await tgSend(chat_id,
+        `${E.signal + ' <b>' + (lang === 'ru' ? 'СИГНАЛ' : 'SETUP SIGNAL') + '</b>'}  ${timeUTC()}\n${div}\n` +
+        `${dir}  <b>${pair}</b>  ${tf.toUpperCase()}\n` +
+        (setup_type ? `<code>${setup_type}</code>\n` : '') +
+        confBar(confidence) + `\n${div}\n` +
+        `${L(lang,'entry').padEnd(6)} <b>${fmtP(entry)}</b>\n` +
+        `${L(lang,'sl').padEnd(6)} <code>${fmtP(sl)}</code>\n` +
+        `${L(lang,'tp').padEnd(6)} <b>${fmtP(tp)}</b>\n` +
+        `${L(lang,'rr').padEnd(6)} <b>${rrStr}</b>\n` +
+        div +
         insightLine + scarcity +
-        `
-
-<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}&tf=${tf}&panel=signal">📊 OPEN CHART</a>  ·  <a href="${appUrl}/journal?log=auto">📓 LOG TRADE</a>`
+        `\n\n<a href="${APP_URL}/screener?coin=${encodeURIComponent(pair)}&tf=${tf.toLowerCase()}&panel=signal">${L(lang,'open_chart')}</a>  ·  <a href="${APP_URL}/journal">${L(lang,'log_trade')}</a>`
       );
     }
 
-    // ── MOMENTUM ALERT (from template) ────────────────────────────
+    // ══ MOMENTUM ══════════════════════════════════════════════════
     if (type === 'signal_momentum') {
       const { pair, change24h = 0, volume_ratio = 1, momentum_score = 7, price, note } = data;
-      const sign    = change24h >= 0 ? '+' : '';
-      const urgency = momentum_score >= 8 ? '🔥 HIGH' : '⚡ ACTIVE';
-      const window  = momentum_score >= 8 ? '⏱ 15–30 min window' : '⏱ Watch next 1H';
-      const noteStr = note ? `
-💡 ${note.slice(0, 100)}` : '';
-      const appUrl  = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+      const isHigh  = momentum_score >= 8;
+      const urgency = isHigh ? (lang === 'ru' ? E.fire + ' ВЫСОКИЙ' : E.fire + ' HIGH') : (lang === 'ru' ? '⚡ АКТИВНЫЙ' : '⚡ ACTIVE');
+      const window  = isHigh
+        ? L(lang, 'window', lang === 'ru' ? '15–30' : '15-30')
+        : (lang === 'ru' ? '⏱ Следить следующий 1H' : '⏱ Watch next 1H');
 
-      await tgSend(verified_chat_id,
-        `🚀 <b>MOMENTUM ALERT</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `<b>${pair}</b> · ${urgency}
-` +
-        `Price    ·  <b>${fmtPrice(price)}</b>
-` +
-        `24H      ·  <b>${sign}${parseFloat(change24h).toFixed(1)}%</b>
-` +
-        `Volume   ·  <b>${parseFloat(volume_ratio).toFixed(1)}× avg</b>
-` +
-        `Score    ·  <b>${momentum_score}/10</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        window + noteStr +
-        `
-
-<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}">📊 OPEN CHART</a>`
+      await tgSend(chat_id,
+        `${E.momentum + ' <b>' + (lang === 'ru' ? 'МОМЕНТУМ' : 'MOMENTUM') + '</b>'}  ${timeUTC()}\n${div}\n` +
+        `<b>${pair}</b>  ${urgency}\n${div}\n` +
+        `${L(lang,'price').padEnd(8)} <b>${fmtP(price)}</b>\n` +
+        `24H      <b>${change24h >= 0 ? '+' : ''}${parseFloat(change24h).toFixed(1)}%</b>\n` +
+        `${L(lang,'volume').padEnd(8)} <b>${parseFloat(volume_ratio).toFixed(1)}× avg</b>\n` +
+        `Score    <b>${momentum_score}/10</b>\n${div}\n` +
+        window + (note ? `\n<i>${note.slice(0,100)}</i>` : '') +
+        `\n\n<a href="${APP_URL}/screener?coin=${encodeURIComponent(pair)}">${L(lang,'open_chart')}</a>`
       );
     }
 
-    // ── AI INSIGHT (from template) ────────────────────────────────
+    // ══ AI INSIGHT (premium) ══════════════════════════════════════
     if (type === 'signal_ai') {
       const { pair, pattern, probability = 74, basis, recommendation, tf = '4H' } = data;
-      const filled  = Math.round(probability / 10);
-      const bar     = '█'.repeat(filled) + '░'.repeat(10 - filled);
-      const confBar = `🟣 <code>${bar}</code> <b>${probability}%</b> confidence`;
-      const recStr  = recommendation ? `
-→ <i>${recommendation.slice(0, 120)}</i>` : '';
-      const appUrl  = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+      const recLine = recommendation ? `\n\n→ <i>${recommendation.slice(0, 200)}</i>` : '';
 
-      await tgSend(verified_chat_id,
-        `🤖 <b>AI INSIGHT</b> · Premium
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `<b>${pair}</b> · ${tf}
-` +
-        `Pattern  ·  <code>${pattern}</code>
-` +
-        confBar + `
-` +
-        `Based on <b>${basis || 'historical data'}</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━` +
-        recStr +
-        `
-
-<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}&tf=${tf}&panel=ai">📊 OPEN CHART</a>  ·  <a href="${appUrl}/journal?ai=1">🤖 ASK AI</a>`
+      await tgSend(chat_id,
+        `${E.ai + ' <b>' + (lang === 'ru' ? 'AI АНАЛИЗ  [PREMIUM]' : 'AI INSIGHT  [PREMIUM]') + '</b>'}\n${div}\n` +
+        `<b>${pair}</b>  ${tf.toUpperCase()}\n` +
+        `${lang === 'ru' ? 'Паттерн' : 'Pattern'}  <code>${pattern}</code>\n` +
+        confBar(probability) + `\n` +
+        `${lang === 'ru' ? 'Основано на' : 'Based on'} <b>${basis || (lang === 'ru' ? 'исторических данных' : 'historical data')}</b>\n` +
+        div + recLine +
+        `\n\n<a href="${APP_URL}/screener?coin=${encodeURIComponent(pair)}&tf=${tf.toLowerCase()}&panel=ai">${L(lang,'open_chart')}</a>`
       );
     }
 
-    // ── CRITICAL (enhanced from template) ─────────────────────────
+    // ══ CRITICAL ══════════════════════════════════════════════════
     if (type === 'signal_critical') {
       const { pair, event, price, level, level_label = 'KEY LEVEL', risk_usd, directive } = data;
-      const breach   = parseFloat(price) < parseFloat(level) ? '← BREACHED' : '← APPROACHING';
-      const riskLine = risk_usd ? `Risk   ·  <b>$${fmtPrice(risk_usd)} at stake</b>
-` : '';
-      const dir      = directive || 'Review position immediately';
-      const appUrl   = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
+      const breach  = parseFloat(price) < parseFloat(level)
+        ? (lang === 'ru' ? '← ПРОБИТ' : '← BREACHED')
+        : (lang === 'ru' ? '← ПРИБЛИЖАЕТСЯ' : '← APPROACHING');
+      const riskLine = risk_usd ? `${lang === 'ru' ? 'Риск' : 'Risk'}   <b>$${Math.abs(parseFloat(risk_usd)).toFixed(0)} ${lang === 'ru' ? 'под угрозой' : 'at stake'}</b>\n` : '';
+      const dir = directive || (lang === 'ru' ? 'Немедленно проверь позицию' : 'Review position immediately');
 
-      await tgSend(verified_chat_id,
-        `🚨 <b>CRITICAL ALERT</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `🔴 <b>${pair} · ${event}</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `Price    ·  <b>${fmtPrice(price)}</b>
-` +
-        `${level_label.slice(0, 8).padEnd(8)} ·  <code>${fmtPrice(level)} ${breach}</code>
-` +
-        riskLine +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `⚡ <b>${dir}</b>
-
-` +
-        `<a href="${appUrl}/screener?coin=${encodeURIComponent(pair)}&panel=alert">📊 CHART</a>  ·  <a href="${appUrl}/journal">📓 LOG</a>  ·  <a href="${appUrl}/journal?ai=1">🤖 AI</a>`
+      await tgSend(chat_id,
+        `${E.critical + ' <b>' + (lang === 'ru' ? 'КРИТИЧЕСКИЙ' : 'CRITICAL') + '</b>'}\n${div}\n` +
+        `🔴 <b>${pair}  ${event}</b>\n${div}\n` +
+        `${L(lang,'price').padEnd(8)} <b>${fmtP(price)}</b>\n` +
+        `${level_label.slice(0,8).padEnd(8)} <code>${fmtP(level)} ${breach}</code>\n` +
+        riskLine + div + '\n' +
+        `⚡ <b>${dir}</b>\n\n` +
+        `<a href="${APP_URL}/screener?coin=${encodeURIComponent(pair)}&panel=alert">${L(lang,'open_chart')}</a>  ·  <a href="${APP_URL}/journal">${L(lang,'log_trade')}</a>`
       );
     }
 
-    // ── FOMO — missed opportunity (from conversion funnel template) ──
-    // type: 'fomo', data: { pair, premium_time, delay_min, result_pct, result_usd }
+    // ══ FOMO / MISSED OPPORTUNITY ══════════════════════════════════
     if (type === 'fomo') {
-      const { pair, premium_time, delay_min = 15, result_pct, result_usd, note } = data;
-      const appUrl = process.env.APP_URL || 'https://orbitum.trade';
-      const resultLine = result_pct
-        ? `Result:  · <b>${result_pct >= 0 ? '+' : ''}${parseFloat(result_pct).toFixed(1)}%</b>${result_usd ? ` (~$${Math.abs(result_usd).toFixed(0)})` : ''}
-`
+      const { pair, premium_time, delay_min = 15, result_pct, premium_entry, free_entry } = data;
+      const youAlmost = lang === 'ru' ? E.fomo + ' ТЫ ПОЧТИ УСПЕЛ' : E.fomo + ' YOU ALMOST HAD IT';
+      const resultLine = result_pct != null
+        ? `${lang === 'ru' ? 'Результат' : 'Result'}:  <b>${result_pct >= 0 ? '+' : ''}${parseFloat(result_pct).toFixed(1)}%</b>\n`
         : '';
-      const noteStr = note ? `
-<i>${note}</i>
-` : '';
+      const priceComp = premium_entry && free_entry
+        ? `${lang === 'ru' ? 'Вход Premium' : 'Premium entry'}: <b>${fmtP(premium_entry)}</b>\n${lang === 'ru' ? 'Твой вход' : 'Your entry'}:    <code>${fmtP(free_entry)} ${lang === 'ru' ? '(уже двинулось)' : '(already moved)'}</code>\n`
+        : '';
 
-      await tgSend(verified_chat_id,
-        `📌 <b>Signal fired — ${pair || 'setup'}</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `Premium signal: <b>${premium_time || 'real-time'}</b>
-` +
-        `Your alert:     <code>+${delay_min} min delay</code>
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        resultLine +
-        `15 minutes = wrong entry price.
-` +
-        noteStr +
-        `
-<a href="${appUrl}/pay">Remove the delay →</a>`
+      await tgSend(chat_id,
+        `${E.fomo + ' <b>' + (lang === 'ru' ? 'ТЫ ПОЧТИ УСПЕЛ' : 'YOU ALMOST HAD IT') + '</b>'}\n${div}\n` +
+        `${pair || (lang === 'ru' ? 'Сетап' : 'Setup')} ${lang === 'ru' ? 'отправлен' : 'sent'}: <b>${premium_time || (lang === 'ru' ? 'реальное время' : 'real-time')}</b>\n` +
+        `${lang === 'ru' ? 'Твой алерт' : 'Your alert'}:   <code>+${delay_min} min ${lang === 'ru' ? 'задержка' : 'delay'}</code>\n${div}\n` +
+        priceComp + resultLine +
+        `${lang === 'ru' ? '15 минут стоили тебе входа.' : '15 minutes cost you the entry.'}\n` +
+        `<b>Premium = ${lang === 'ru' ? 'реальное время. Всегда.' : 'real-time. Always.'}</b>\n\n` +
+        `<a href="${APP_URL}/pay">${lang === 'ru' ? E.diamond + ' Убрать задержку' : E.diamond + ' Remove the delay'}</a>`
       );
     }
 
-    // ── SA SCORE — broadcast situational awareness number ─────────
-    // type: 'sa_score', data: { score, label, color, fng, btcDom, mktChg }
+    // ══ SA SCORE ══════════════════════════════════════════════════
     if (type === 'sa_score') {
       const { score, label, fng, btcDom, mktChg } = data;
-      const appUrl = process.env.APP_URL || 'https://orbitum.trade';
-      const bar    = Math.round(score / 10);
-      const filled = '█'.repeat(bar) + '░'.repeat(10 - bar);
-      const dot    = score >= 80 ? '🔴' : score >= 65 ? '🟠' : score >= 45 ? '🟡' : '🟢';
+      const bar   = '█'.repeat(Math.round(score/10)) + '░'.repeat(10 - Math.round(score/10));
+      const dot   = score >= 75 ? '🔴' : score >= 55 ? '🟡' : '🟢';
 
-      await tgSend(verified_chat_id,
-        `${dot} <b>Market Awareness</b>
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `<code>${filled}</code> <b>${score}/100</b> · ${label}
-` +
-        `━━━━━━━━━━━━━━━━━━━
-` +
-        `F&G        · <b>${fng}</b>
-` +
-        `BTC Dom    · <b>${btcDom}%</b>
-` +
-        `Market 24H · <b>${parseFloat(mktChg) >= 0 ? '+' : ''}${mktChg}%</b>
-` +
-        `
-<a href="${appUrl}/screener">Open screener →</a>`
+      await tgSend(chat_id,
+        `${dot} ${E.sa + ' <b>' + (lang === 'ru' ? 'Осведомлённость о рынке' : 'Market Awareness') + '</b>'}\n${div}\n` +
+        `<code>${bar}</code> <b>${score}/100</b>  ${label}\n${div}\n` +
+        `F&G        <b>${fng}</b>\n` +
+        `BTC Dom    <b>${btcDom}%</b>\n` +
+        `${lang === 'ru' ? 'Рынок 24H' : 'Market 24H'} <b>${parseFloat(mktChg) >= 0 ? '+' : ''}${mktChg}%</b>\n\n` +
+        `<a href="${APP_URL}/screener">${L(lang,'open_chart')}</a>`
       );
+    }
+
+    // ══ DAILY BRIEF (manual trigger) ══════════════════════════════
+    if (type === 'daily') {
+      const { date, fng_val, fng_label, market_cap, btc_dom, signal_quality, top_gainer, user_wr, user_trades, scanned, passed } = data;
+      const statsLine = user_wr != null
+        ? `\n${L(lang,'your_week')}  <b>${user_trades} ${lang === 'ru' ? 'сделок' : 'trades'}  ${user_wr}% WR</b>`
+        : '';
+      const filterLine = scanned > 0
+        ? `\n<code>${L(lang, 'scanned', scanned, passed)}</code>`
+        : '';
+
+      await tgSend(chat_id,
+        `${E.morning + ' <b>' + (lang === 'ru' ? 'Утренний брифинг' : 'Morning Brief') + '</b>'}  ${date || new Date().toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-GB', { weekday:'short', day:'numeric', month:'short' })}\n${div}\n` +
+        (market_cap ? `BTC  $${market_cap}  Dom ${btc_dom}%\n` : '') +
+        (fng_val    ? `F&G  ${fng_val}  ${fng_label}\n` : '') +
+        (top_gainer ? `${lang === 'ru' ? 'Топ 24H' : 'Top 24H'}  ${top_gainer}\n` : '') +
+        statsLine + `\n${div}\n` +
+        `${lang === 'ru' ? 'Сигнал-индекс' : 'Signal index'}: <b>${signal_quality}/10</b>` +
+        filterLine + `\n\n` +
+        `<a href="${APP_URL}/screener">${L(lang,'open_chart')} →</a>`
+      );
+    }
+
+    // ══ RAW ═══════════════════════════════════════════════════════
+    if (type === 'raw') {
+      if (data?.text) await tgSend(chat_id, data.text);
     }
 
     return res.status(200).json({ ok: true });
   } catch(e) {
-    console.error('Notify error:', e);
+    console.error('[notify]', type, e.message);
     return res.status(500).json({ error: e.message });
   }
 }
