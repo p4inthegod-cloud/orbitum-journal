@@ -5,7 +5,7 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL    = process.env.SUPABASE_URL;
 const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
 
-async function tgSend(chat_id, text, extra = {}) {
+async function tgSend(verified_chat_id, text, extra = {}) {
   const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -59,14 +59,19 @@ export default async function handler(req, res) {
   const { type, chat_id, data } = req.body;
   if (!chat_id || !type) return res.status(400).json({ error: 'Missing params' });
 
+  // Verify user owns this TG chat — check by userId only, then use the stored chat_id
+  // (chat_id in body may differ in type from DB — use DB value to be safe)
   const checkR = await fetch(
-    `${SB_URL}/rest/v1/profiles?id=eq.${userId}&tg_chat_id=eq.${chat_id}&select=id,tg_linked`,
+    `${SB_URL}/rest/v1/profiles?id=eq.${userId}&select=id,tg_linked,tg_chat_id`,
     { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' } }
   );
   const profiles = await checkR.json();
-  if (!profiles?.[0]?.tg_linked) {
+  const profile = profiles?.[0];
+  if (!profile?.tg_linked || !profile?.tg_chat_id) {
     return res.status(403).json({ error: 'TG not linked for this user' });
   }
+  // Always use the chat_id stored in DB — never trust client-supplied value
+  const verified_chat_id = profile.tg_chat_id;
 
   try {
 
@@ -168,7 +173,7 @@ export default async function handler(req, res) {
         lines.push(`<a href="${app_url}">🔗 Открыть ${sym} в Orbitum</a>`);
       }
 
-      await tgSend(chat_id, lines.join('\n'));
+      await tgSend(verified_chat_id, lines.join('\n'));
     }
 
     // ── TRADE ──────────────────────────────────────────────────────
@@ -193,14 +198,14 @@ export default async function handler(req, res) {
       if (duration)    lines.push(`⏱ Время:    <b>${duration}</b>`);
       else             lines.push(`⏱ Закрыта: <b>${now()}</b>`);
 
-      await tgSend(chat_id, lines.join('\n'));
+      await tgSend(verified_chat_id, lines.join('\n'));
     }
 
     // ── TILT ───────────────────────────────────────────────────────
     if (type === 'tilt') {
       const { losses_count, total_loss_pct, last_pairs } = data;
       const pairsStr = last_pairs?.length ? `\nПоследние: ${last_pairs.join(', ')}` : '';
-      await tgSend(chat_id,
+      await tgSend(verified_chat_id,
         `🚨 <b>ТИЛЬТ — СТОП ТОРГОВЛЯ</b>\n` +
         `━━━━━━━━━━━━━━━━━━━\n` +
         `📉 ${losses_count} убытка подряд\n` +
@@ -233,7 +238,7 @@ export default async function handler(req, res) {
       if (eventsStr) { lines.push(''); lines.push('📅 <b>События сегодня:</b>'); lines.push(eventsStr); }
       lines.push(''); lines.push('Удачной торговли! 📊');
 
-      await tgSend(chat_id, lines.join('\n'));
+      await tgSend(verified_chat_id, lines.join('\n'));
     }
 
     // ── WEEKLY REPORT ──────────────────────────────────────────────
@@ -258,12 +263,12 @@ export default async function handler(req, res) {
       if (best_setup) lines.push(`🔷 Лучший сетап: <b>${best_setup}</b>`);
       if (worst_day)  lines.push(`⚠️ Худший день:  <b>${worst_day}</b>`);
 
-      await tgSend(chat_id, lines.join('\n'));
+      await tgSend(verified_chat_id, lines.join('\n'));
     }
 
     // ── RAW ────────────────────────────────────────────────────────
     if (type === 'raw') {
-      if (data?.text) await tgSend(chat_id, data.text);
+      if (data?.text) await tgSend(verified_chat_id, data.text);
     }
 
     // ── SETUP SIGNAL (from template alert system) ──────────────────
@@ -285,7 +290,7 @@ export default async function handler(req, res) {
 <code>✦ ${Math.floor(Math.random() * 200 + 100)} traders tracking this</code>`;
       const appUrl = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
 
-      await tgSend(chat_id,
+      await tgSend(verified_chat_id,
         `⚡ <b>SETUP SIGNAL</b> · ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC
 ` +
         `━━━━━━━━━━━━━━━━━━━
@@ -324,7 +329,7 @@ export default async function handler(req, res) {
 💡 ${note.slice(0, 100)}` : '';
       const appUrl  = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
 
-      await tgSend(chat_id,
+      await tgSend(verified_chat_id,
         `🚀 <b>MOMENTUM ALERT</b>
 ` +
         `━━━━━━━━━━━━━━━━━━━
@@ -358,7 +363,7 @@ export default async function handler(req, res) {
 → <i>${recommendation.slice(0, 120)}</i>` : '';
       const appUrl  = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
 
-      await tgSend(chat_id,
+      await tgSend(verified_chat_id,
         `🤖 <b>AI INSIGHT</b> · Premium
 ` +
         `━━━━━━━━━━━━━━━━━━━
@@ -388,7 +393,7 @@ export default async function handler(req, res) {
       const dir      = directive || 'Review position immediately';
       const appUrl   = data.app_url || (process.env.APP_URL || 'https://orbitum.trade');
 
-      await tgSend(chat_id,
+      await tgSend(verified_chat_id,
         `🚨 <b>CRITICAL ALERT</b>
 ` +
         `━━━━━━━━━━━━━━━━━━━
@@ -424,7 +429,7 @@ export default async function handler(req, res) {
 <i>${note}</i>
 ` : '';
 
-      await tgSend(chat_id,
+      await tgSend(verified_chat_id,
         `📌 <b>Signal fired — ${pair || 'setup'}</b>
 ` +
         `━━━━━━━━━━━━━━━━━━━
@@ -453,7 +458,7 @@ export default async function handler(req, res) {
       const filled = '█'.repeat(bar) + '░'.repeat(10 - bar);
       const dot    = score >= 80 ? '🔴' : score >= 65 ? '🟠' : score >= 45 ? '🟡' : '🟢';
 
-      await tgSend(chat_id,
+      await tgSend(verified_chat_id,
         `${dot} <b>Market Awareness</b>
 ` +
         `━━━━━━━━━━━━━━━━━━━
