@@ -720,8 +720,8 @@ body::after {
 ══════════════════════════════════════════════════════════ */
 
 // ── CONFIG ──────────────────────────────────────────────
-const SB_URL = 'https://dywjbprrcycmhhxfmpwk.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5d2picHJyY3ljbWhoeGZtcHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxNjQ4NDksImV4cCI6MjA2Mjc0MDg0OX0.rHzNm1OQYY2GBqSQBbm8UriCajVAHMKoU8eJNbUOmFs';
+const SB_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 
 // ── STATE ────────────────────────────────────────────────
 let sb, _session, _userPlan = 'free', _isPaid = false, _tgProfile = {};
@@ -869,19 +869,17 @@ function fmtPShort(v) {
 
 // ── SUPABASE + AUTH ──────────────────────────────────────
 async function initAuth() {
-  sb = supabase.createClient(SB_URL, SB_KEY);
+  const { createClient } = supabase;
+  sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
 
   // Wait for Supabase to restore session from storage (handles PKCE + cookie flow)
   const session = await new Promise(resolve => {
-    // First try getSession — may already be ready
     sb.auth.getSession().then(({ data }) => {
       if (data?.session) { resolve(data.session); return; }
-      // Not ready yet — wait for onAuthStateChange (fires once on init)
       const { data: { subscription } } = sb.auth.onAuthStateChange((event, s) => {
         subscription.unsubscribe();
-        resolve(s); // null if truly not logged in
+        resolve(s);
       });
-      // Safety timeout — 4s max wait, then resolve null
       setTimeout(() => { subscription.unsubscribe(); resolve(null); }, 4000);
     });
   });
