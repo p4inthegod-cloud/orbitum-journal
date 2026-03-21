@@ -902,11 +902,12 @@ async function initAuth() {
   if (!session?.user) { location.href = '/login?returnTo=/screener'; return false; }
   _session = session;
   const user = session.user;
-  const { data: profile } = await sb.from('profiles').select('tg_chat_id,tg_linked,tg_notify_alerts,plan,full_name,avatar_url').eq('id', user.id).single();
+  const { data: profile } = await sb.from('profiles').select('tg_chat_id,tg_linked,tg_username,plan,full_name,role').eq('id', user.id).single();
   _tgProfile = profile || {};
   _userPlan = profile?.plan || 'free';
-  _isPaid = (_userPlan === 'lifetime' || _userPlan === 'monthly' || _userPlan === 'admin' || _userPlan === 'owner');
-  const initials = (profile?.full_name || user.email || 'U').slice(0, 1).toUpperCase();
+  const hasAccess = profile?.plan === 'lifetime' || (profile?.plan === 'monthly') || profile?.role === 'admin';
+  _isPaid = hasAccess;
+  const initials = (profile?.full_name || profile?.username || user.email || 'U').slice(0, 1).toUpperCase();
   document.getElementById('tb-user').textContent = initials;
   return true;
 }
@@ -1365,9 +1366,15 @@ async function loadAIInsight(c) {
 
 // ── TELEGRAM SIGNAL ───────────────────────────────────────
 async function sendSignalTG() {
-  if (!_tgProfile.tg_linked || !_tgProfile.tg_chat_id) {
+  // Re-fetch tg_chat_id fresh (same pattern as journal)
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) return;
+
+  const { data: p } = await sb.from('profiles').select('tg_chat_id,tg_linked').eq('id', session.user.id).single();
+  if (!p?.tg_linked || !p?.tg_chat_id) {
     showToast('Telegram не подключён — настрой в профиле', 'err'); return;
   }
+
   const c = allCoins.find(x => x.id === _selectedSym);
   if (!c) return;
 
@@ -1375,25 +1382,25 @@ async function sendSignalTG() {
   if (btn) { btn.disabled = true; btn.textContent = 'Отправляю...'; }
 
   const s = c._signal;
-  const dir = s==='long'?'▲ LONG':'▼ SHORT';
+  const dir = s === 'long' ? '▲ LONG' : '▼ SHORT';
   const lvl = computeKeyLevels(c);
   const sc = c._score;
-  const chg24 = (c.price_change_percentage_24h||0).toFixed(2);
+  const chg24 = (c.price_change_percentage_24h || 0).toFixed(2);
   const rsi = c._rsi;
   const setup = c._setup.join(', ') || '—';
-  const scoreBar = '█'.repeat(Math.round(sc/10)) + '░'.repeat(10-Math.round(sc/10));
+  const scoreBar = '█'.repeat(Math.round(sc / 10)) + '░'.repeat(10 - Math.round(sc / 10));
 
   const text =
     `🧠 <b>ORBITUM · AI СИГНАЛ</b>\n` +
     `━━━━━━━━━━━━━━━━━━\n` +
     `💰 <b>${(c.symbol||'').toUpperCase()}/USDT · ${dir}</b>\n\n` +
-    `💵 Цена: <b>${fmtP(c.current_price)}</b> (${chg24>=0?'+':''}${chg24}% 24ч)\n` +
+    `💵 Цена: <b>${fmtP(c.current_price)}</b> (${chg24 >= 0 ? '+' : ''}${chg24}% 24ч)\n` +
     `📥 Вход: <b>${fmtPShort(lvl.entry)}</b>\n` +
     `🛑 Стоп: <b>${fmtPShort(lvl.sl)}</b>\n` +
     `🎯 Тейк 1: <b>${fmtPShort(lvl.tp1)}</b>\n` +
     `🎯 Тейк 2: <b>${fmtPShort(lvl.tp2)}</b>\n` +
     `━━━━━━━━━━━━━━━━━━\n` +
-    `📊 RSI: <b>${rsi}${rsi>=70?' ⚠️OB':rsi<=30?' ⚠️OS':''}</b>\n` +
+    `📊 RSI: <b>${rsi}${rsi >= 70 ? ' ⚠️OB' : rsi <= 30 ? ' ⚠️OS' : ''}</b>\n` +
     `🔍 Сетап: <i>${setup}</i>\n` +
     `━━━━━━━━━━━━━━━━━━\n` +
     `🤖 AI Score: <b>${sc}/100</b>\n` +
@@ -1401,22 +1408,25 @@ async function sendSignalTG() {
     `<i>orbitum.trade · Signal Screener</i>`;
 
   try {
-    const { data: { session } } = await sb.auth.getSession();
     const r = await fetch('/api/notify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Notify-User': session?.user?.id || '' },
-      body: JSON.stringify({ chat_id: _tgProfile.tg_chat_id, text, parse_mode: 'HTML' })
+      headers: { 'Content-Type': 'application/json', 'X-Notify-User': session.user.id },
+      body: JSON.stringify({ chat_id: p.tg_chat_id, text, parse_mode: 'HTML' })
     });
     if (r.ok) {
       showToast('✓ Сигнал отправлен в Telegram', 'ok');
       playSignal();
     } else {
-      showToast('Ошибка отправки', 'err');
+      const err = await r.text();
+      showToast('Ошибка: ' + err.slice(0, 60), 'err');
     }
   } catch(e) {
     showToast('Ошибка: ' + e.message, 'err');
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Отправить сигнал в Telegram'; }
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Отправить сигнал в Telegram';
+    }
   }
 }
 
