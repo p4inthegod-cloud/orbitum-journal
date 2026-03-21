@@ -1100,13 +1100,15 @@ function getAISetupName() {
 
 async function recordOutcome(result) {
   if (!_simSignal) return;
+  // Save signal BEFORE closeSim nulls it
+  const sig = _simSignal;
   closeSim();
 
   // Update local stats
   _stats.total++;
   if (result === 'win') _stats.win++;
   else _stats.loss++;
-  const setup = _simSignal.setup;
+  const setup = sig.setup;
   if (!_stats.setups[setup]) _stats.setups[setup] = {win:0,loss:0};
   _stats.setups[setup][result]++;
   localStorage.setItem('orb_sig_stats', JSON.stringify(_stats));
@@ -1117,8 +1119,8 @@ async function recordOutcome(result) {
   const posUsd = +document.getElementById('pos-usd').value || 100;
   const posVal = posUsd * _lev;
   const pnlUsd = (posVal * (result==='win'
-    ? Math.abs(_simSignal.tp - _simSignal.entry)
-    : Math.abs(_simSignal.sl - _simSignal.entry)) / _simSignal.entry).toFixed(2);
+    ? Math.abs(sig.tp - sig.entry)
+    : Math.abs(sig.sl - sig.entry)) / sig.entry).toFixed(2);
 
   showToast(`${emoji} Signal ${result === 'win' ? 'TP hit' : 'SL hit'} — ${pnlSign}$${pnlUsd} recorded`, result === 'win' ? 'ok' : 'err');
 
@@ -1126,8 +1128,8 @@ async function recordOutcome(result) {
   if (_userId && _tgLinked) {
     const wr = _stats.total > 0 ? Math.round(_stats.win/_stats.total*100) : 0;
     const msg = result === 'win'
-      ? `✅ <b>SIGNAL HIT TARGET</b>\n${_simSignal.sym.replace('USDT','/USDT')} ${_simSignal.dir.toUpperCase()} +$${pnlUsd}\nR:R was 1:${_simSignal.rr} · Entry ${fmtP(_simSignal.entry)}\n\nSignal stats: <b>${_stats.win}/${_stats.total} (${wr}% WR)</b>`
-      : `❌ <b>SIGNAL STOPPED OUT</b>\n${_simSignal.sym.replace('USDT','/USDT')} ${_simSignal.dir.toUpperCase()} -$${pnlUsd}\nR:R was 1:${_simSignal.rr} · Entry ${fmtP(_simSignal.entry)}\n\nSignal stats: <b>${_stats.win}/${_stats.total} (${wr}% WR)</b>`;
+      ? `✅ <b>SIGNAL HIT TARGET</b>\n${sig.sym.replace('USDT','/USDT')} ${sig.dir.toUpperCase()} +$${pnlUsd}\nR:R was 1:${sig.rr} · Entry ${fmtP(sig.entry)}\n\nSignal stats: <b>${_stats.win}/${_stats.total} (${wr}% WR)</b>`
+      : `❌ <b>SIGNAL STOPPED OUT</b>\n${sig.sym.replace('USDT','/USDT')} ${sig.dir.toUpperCase()} -$${pnlUsd}\nR:R was 1:${sig.rr} · Entry ${fmtP(sig.entry)}\n\nSignal stats: <b>${_stats.win}/${_stats.total} (${wr}% WR)</b>`;
     try {
       await fetch('/api/notify', {
         method:'POST',
