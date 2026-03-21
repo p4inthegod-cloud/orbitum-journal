@@ -1408,10 +1408,33 @@ async function sendSignalTG() {
     `<i>orbitum.trade · Signal Screener</i>`;
 
   try {
+    const lvl = computeKeyLevels(c);
+    const rr  = lvl.sl > 0 ? Math.abs((lvl.tp1 - lvl.entry) / (lvl.entry - lvl.sl)).toFixed(1) : '2.0';
+
+    // Fetch AI insight text from cache if available
+    const sym = (c.symbol || '').toUpperCase();
+    const insight = _aiCache[sym]?.text?.replace(/<[^>]+>/g, '').slice(0, 120) || '';
+
     const r = await fetch('/api/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Notify-User': session.user.id },
-      body: JSON.stringify({ chat_id: p.tg_chat_id, text, parse_mode: 'HTML' })
+      body: JSON.stringify({
+        type: 'signal_setup',
+        chat_id: p.tg_chat_id,
+        data: {
+          pair:       sym + '/USDT',
+          direction:  s === 'long' ? 'long' : 'short',
+          entry:      lvl.entry,
+          sl:         lvl.sl,
+          tp:         lvl.tp1,
+          rr:         rr,
+          confidence: sc,
+          setup_type: c._setup.join(' · ') || 'AI Signal',
+          insight:    insight,
+          tf:         '4H',
+          app_url:    'https://orbitum.trade',
+        }
+      })
     });
     if (r.ok) {
       showToast('✓ Сигнал отправлен в Telegram', 'ok');
