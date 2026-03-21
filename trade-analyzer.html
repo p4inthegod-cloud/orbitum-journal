@@ -357,7 +357,7 @@ button{cursor:pointer;font-family:var(--mono);}
 <script>
 /* ══════════════════════════════════════════
    ORBITUM TRADE ANALYZER v2
-   Real Binance candles · Drag lines · RSI/Volume · TG
+   Real candles via /api/ticker proxy · Drag lines · RSI/Volume · TG
 ══════════════════════════════════════════ */
 
 const SB_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
@@ -540,27 +540,21 @@ function setupDrag() {
   mainEl.addEventListener('mouseleave', stopDrag);
 }
 
-// ── Fetch real candles from Binance ───────────────────────────────
+// ── Fetch candles via /api/ticker proxy (avoids Binance CORS) ────
 async function fetchCandles(symbol, tf) {
-  const sym = symbol.replace('/', '').toUpperCase();
-  const ivMap = { '15m':'15m', '1h':'1h', '4h':'4h', '1d':'1d' };
+  const sym      = symbol.replace('/', '').toUpperCase();
+  const ivMap    = { '15m':'15m', '1h':'1h', '4h':'4h', '1d':'1d' };
   const interval = ivMap[tf] || '4h';
-  const url = `https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${interval}&limit=150`;
+  const url      = `/api/ticker?type=klines&symbol=${sym}&interval=${interval}&limit=150`;
+
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-    if (!r.ok) throw new Error('Binance HTTP ' + r.status);
-    const raw = await r.json();
-    return raw.map(k => ({
-      time:   Math.floor(k[0] / 1000),
-      open:   parseFloat(k[1]),
-      high:   parseFloat(k[2]),
-      low:    parseFloat(k[3]),
-      close:  parseFloat(k[4]),
-      volume: parseFloat(k[5]),
-    }));
+    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) throw new Error('ticker HTTP ' + r.status);
+    const candles = await r.json();
+    if (!Array.isArray(candles) || !candles.length) throw new Error('empty');
+    return candles; // already shaped {time,open,high,low,close,volume}
   } catch(e) {
-    // Fallback: generate synthetic candles
-    console.warn('Binance unavailable, using synthetic candles');
+    console.warn('Klines proxy failed, using synthetic candles:', e.message);
     return generateSynth(parseFloat(document.getElementById('entry').value) || 84200);
   }
 }
