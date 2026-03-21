@@ -890,7 +890,7 @@ async function initAuth() {
   const { data: profile } = await sb.from('profiles').select('tg_chat_id,tg_linked,tg_notify_alerts,plan,full_name,avatar_url').eq('id', user.id).single();
   _tgProfile = profile || {};
   _userPlan = profile?.plan || 'free';
-  _isPaid = (_userPlan === 'lifetime' || _userPlan === 'monthly');
+  _isPaid = (_userPlan === 'lifetime' || _userPlan === 'monthly' || _userPlan === 'admin' || _userPlan === 'owner');
   const initials = (profile?.full_name || user.email || 'U').slice(0, 1).toUpperCase();
   document.getElementById('tb-user').textContent = initials;
   return true;
@@ -1255,10 +1255,7 @@ function focusCoin(id) {
         <span class="det-ai-score-num" style="color:${scoreColor}">SCORE ${sc}/100</span>
       </div>
       <div class="det-ai-bar"><div class="det-ai-bar-fill" style="width:${sc}%;background:${scoreColor}"></div></div>
-      <div id="dp-ai-content">${_isPaid
-        ? `<div class="ai-loading"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div>`
-        : renderAILocked()
-      }</div>
+      <div id="dp-ai-content"><div class="ai-loading"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div></div>
       <div class="det-ai-setup">Сетап: ${c._setup.join(' · ') || '—'}</div>
     </div>
 
@@ -1295,8 +1292,8 @@ function focusCoin(id) {
     </button>
   `;
 
-  // Load AI insight async (paid only)
-  if (_isPaid) loadAIInsight(c);
+  // Load AI insight always
+  loadAIInsight(c);
 }
 
 function renderAILocked() {
