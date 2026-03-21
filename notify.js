@@ -1,15 +1,14 @@
 // api/notify.js v4 — Redesigned alerts with RU/EN localization + custom TG emoji
 // Custom emoji render as animated stickers for Premium TG users, plain fallback for others
 
-// ── Custom emoji (tg-emoji tags) ─────────────────────────────────
-// Premium TG users see animated stickers, others see fallback Unicode
+// ── Emoji constants ──────────────────────────────────────────────
 const E = {
-  signal:   '<tg-emoji emoji-id="5226928895189598791">⚡</tg-emoji>',
-  long:     '<tg-emoji emoji-id="5463274047771000031">🟢</tg-emoji>',
-  short:    '<tg-emoji emoji-id="5463054218459884779">🔴</tg-emoji>',
-  ai:       '<tg-emoji emoji-id="5463122435425448565">🧠</tg-emoji>',
-  diamond:  '<tg-emoji emoji-id="5375099322666859339">💎</tg-emoji>',
-  fire:     '<tg-emoji emoji-id="5256047523620995497">🔥</tg-emoji>',
+  signal:   '⚡',
+  long:     '🟢',
+  short:    '🔴',
+  ai:       '🤖',
+  diamond:  '💎',
+  fire:     '🔥',
   warn:     '⚠️',
   ok:       '✅',
   chart:    '📊',
@@ -19,16 +18,10 @@ const E = {
   momentum: '🚀',
   sa:       '📡',
   morning:  '🌅',
-  coach:    '🤖',
+  coach:    '🧠',
   fomo:     '⏱',
   lock:     '🔒',
 };
-
-
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const SB_URL    = process.env.SUPABASE_URL;
-const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
-const APP_URL   = process.env.APP_URL || 'https://orbitum.trade';
 
 const CRITICAL_TYPES = new Set(['signal_critical', 'tilt', 'raw']);
 function isSilent() { const h = new Date().getUTCHours(); return h >= 23 || h < 6; }
@@ -152,7 +145,7 @@ const i18n = {
     window:       (n) => `⏱ ${n} min window`,
     overbought:   '⚠️ OB',
     oversold:     '💚 OS',
-    rare:         () => E.signal + ' Grade A+ — rare occurrence',
+    rare:         E.signal + ' Grade A+ — rare occurrence',
     grade_label:  (g) => `Grade: <b>${g}</b>`,
     confluence:   'Confluence',
   },
@@ -203,7 +196,7 @@ const i18n = {
     window:       (n) => `⏱ окно ${n} мин`,
     overbought:   '⚠️ ПК',
     oversold:     '💚 ПП',
-    rare:         () => E.signal + ' Оценка A+ — редкое появление',
+    rare:         E.signal + ' Оценка A+ — редкое появление',
     grade_label:  (g) => `Оценка: <b>${g}</b>`,
     confluence:   'Конфлюенс',
   },
@@ -369,7 +362,7 @@ export default async function handler(req, res) {
       const rrStr  = rr ? `1:${parseFloat(rr).toFixed(1)}` : '--';
       const grade  = confidence >= 80 ? 'A+' : confidence >= 70 ? 'A' : confidence >= 60 ? 'B+' : 'B';
       const scarcity = confidence >= 80
-        ? `\n<code>${(typeof (i18n[lang] ?? i18n.en).rare === 'function' ? (i18n[lang] ?? i18n.en).rare() : (i18n[lang] ?? i18n.en).rare)}</code>`
+        ? `\n<code>${L(lang, 'rare')}</code>`
         : `\n${L(lang, 'grade_label', grade)}`;
       const insightLine = insight ? `\n\n🧠 <i>${insight.slice(0, 200)}</i>` : '';
 
