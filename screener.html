@@ -177,8 +177,8 @@ body::after {
 .tk-up { color: var(--g); }
 .tk-dn { color: var(--r); }
 
-/* ══ BODY: 3-panel layout ══ */
-.screener-body { flex: 1; display: grid; grid-template-columns: 268px 1fr 308px; overflow: hidden; }
+/* ══ BODY: 2-panel layout + overlay detail ══ */
+.screener-body { flex: 1; display: grid; grid-template-columns: 268px 1fr; overflow: hidden; position: relative; }
 
 /* ══ LEFT: Signal Feed ══ */
 .panel-left {
@@ -383,13 +383,24 @@ body::after {
 @keyframes spin { to { transform: rotate(360deg); } }
 .state-text { font-size: 10px; color: var(--m2); letter-spacing: 2px; }
 
-/* ══ RIGHT: Detail Panel ══ */
+/* ══ RIGHT: Detail Panel — sliding overlay ══ */
 .panel-right {
-  border-left: 1px solid var(--bd); background: var(--bg2);
+  position: fixed; top: 0; right: -340px; width: 320px; height: 100vh;
+  background: var(--bg2); border-left: 1px solid rgba(232,114,42,.15);
+  z-index: 500; transition: right .28s cubic-bezier(.4,0,.2,1);
   display: flex; flex-direction: column; overflow-y: auto;
+  box-shadow: -12px 0 40px rgba(0,0,0,.5);
 }
+.panel-right.open { right: 0; }
 .panel-right::-webkit-scrollbar { width: 3px; }
 .panel-right::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
+
+/* Overlay backdrop */
+.detail-overlay {
+  display: none; position: fixed; inset: 0; z-index: 499;
+  background: rgba(0,0,6,.45); backdrop-filter: blur(2px);
+}
+.detail-overlay.open { display: block; }
 
 /* Empty state */
 .detail-empty {
@@ -460,9 +471,9 @@ body::after {
 /* Key levels grid */
 .det-levels { padding: 12px 16px; border-bottom: 1px solid var(--bd); flex-shrink: 0; }
 .levels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.level-item { background: var(--bg3); border: 1px solid var(--bd); border-radius: 6px; padding: 7px 9px; }
-.level-lbl { font-size: 7px; letter-spacing: 1.5px; color: var(--m2); text-transform: uppercase; margin-bottom: 3px; }
-.level-val { font-family: var(--disp); font-size: 13px; letter-spacing: .5px; }
+.level-item { background: var(--bg3); border: 1px solid var(--bd); border-radius: 6px; padding: 8px 10px; }
+.level-lbl { font-size: 7px; letter-spacing: 1.5px; color: var(--m2); text-transform: uppercase; margin-bottom: 4px; }
+.level-val { font-family: var(--disp); font-size: 15px; letter-spacing: .5px; }
 
 /* Indicators */
 .det-inds { padding: 12px 16px; border-bottom: 1px solid var(--bd); flex-shrink: 0; }
@@ -470,31 +481,33 @@ body::after {
 .ind-row {
   display: flex; justify-content: space-between; align-items: center;
   background: var(--bg3); border: 1px solid var(--bd); border-radius: 5px;
-  padding: 6px 9px;
+  padding: 7px 9px; min-height: 32px;
 }
-.ind-name { font-size: 8px; color: var(--m2); letter-spacing: .5px; }
-.ind-val { font-size: 9px; }
+.ind-name { font-size: 8px; color: var(--m2); letter-spacing: .3px; white-space: nowrap; }
+.ind-val { font-size: 10px; font-weight: 500; white-space: nowrap; }
 .ind-bull { color: var(--g) !important; }
 .ind-bear { color: var(--r) !important; }
 .ind-neut { color: var(--y) !important; }
 
 /* Telegram button */
 .det-tg-btn {
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  margin: 10px 16px; padding: 11px; background: var(--a2); border: 1px solid var(--a3);
-  border-radius: 6px; color: var(--a); font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; transition: all .18s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 12px 16px 6px; padding: 12px 10px;
+  background: var(--a2); border: 1px solid var(--a3); border-radius: 6px;
+  color: var(--a); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: all .18s; width: calc(100% - 32px);
 }
 .det-tg-btn:hover { background: var(--a3); color: var(--t); }
 .det-tg-btn:disabled { opacity: .35; cursor: not-allowed; }
-.det-tg-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.det-tg-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
 /* Journal link */
 .det-jnl-btn {
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  margin: 0 16px 14px; padding: 9px; background: transparent; border: 1px solid var(--bd);
-  border-radius: 6px; color: var(--m); font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 0 16px 16px; padding: 10px;
+  background: transparent; border: 1px solid var(--bd); border-radius: 6px;
+  color: var(--m); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: all .15s; width: calc(100% - 32px);
 }
 .det-jnl-btn:hover { border-color: var(--bd2); color: var(--t); }
 
@@ -523,13 +536,12 @@ body::after {
 .view-panel.active { display: flex; flex: 1; flex-direction: column; overflow: hidden; }
 
 /* ══ RESPONSIVE ══ */
-@media (max-width: 1100px) {
-  .screener-body { grid-template-columns: 220px 1fr 260px; }
-}
-@media (max-width: 800px) {
+@media (max-width: 900px) {
+  .screener-body { grid-template-columns: 1fr; }
   .panel-left { display: none; }
-  .screener-body { grid-template-columns: 1fr 0; }
-  .panel-right { display: none; }
+}
+@media (max-width: 600px) {
+  .panel-right { width: 100%; right: -100%; }
 }
 </style>
 </head>
@@ -690,6 +702,9 @@ body::after {
         </div>
 
       </div>
+
+      <!-- DETAIL OVERLAY BACKDROP -->
+      <div class="detail-overlay" id="detail-overlay" onclick="closeDetail()"></div>
 
       <!-- ══ RIGHT: Detail Panel ══ -->
       <div class="panel-right" id="detail-panel">
@@ -1210,6 +1225,10 @@ function focusCoin(id) {
   const content = document.getElementById('detail-content');
   content.style.display = 'flex';
 
+  // Open panel
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('detail-overlay').classList.add('open');
+
   const isUp = (c.price_change_percentage_24h || 0) >= 0;
   const s = c._signal;
   const sc = c._score;
@@ -1228,7 +1247,10 @@ function focusCoin(id) {
           <div class="det-sym">${(c.symbol||'').toUpperCase()}</div>
           <div class="det-full">${c.name||''}</div>
         </div>
-        <span class="sig-pill ${pillCls}" style="padding:3px 9px;font-size:8px;">${pillTxt}</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="sig-pill ${pillCls}" style="padding:3px 9px;font-size:8px;">${pillTxt}</span>
+          <button onclick="closeDetail()" style="width:24px;height:24px;border-radius:5px;border:1px solid var(--bd);background:transparent;color:var(--m);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;flex-shrink:0;" onmouseover="this.style.color='var(--r)'" onmouseout="this.style.color='var(--m)'">✕</button>
+        </div>
       </div>
       <div class="det-price-row">
         <div class="det-price" id="dp-live-price">${fmtP(c.current_price)}</div>
@@ -1262,10 +1284,10 @@ function focusCoin(id) {
     <div class="det-levels">
       <div class="ps-label" style="margin-bottom:9px;">Ключевые уровни</div>
       <div class="levels-grid">
-        <div class="level-item"><div class="level-lbl">Вход</div><div class="level-val" style="color:var(--a)">${fmtPShort(lvl.entry)}</div></div>
-        <div class="level-item"><div class="level-lbl">Стоп-лосс</div><div class="level-val" style="color:var(--r)">${fmtPShort(lvl.sl)}</div></div>
-        <div class="level-item"><div class="level-lbl">Тейк 1</div><div class="level-val" style="color:var(--g)">${fmtPShort(lvl.tp1)}</div></div>
-        <div class="level-item"><div class="level-lbl">Тейк 2</div><div class="level-val" style="color:var(--g)">${fmtPShort(lvl.tp2)}</div></div>
+        <div class="level-item" style="border-left:2px solid var(--a)"><div class="level-lbl">Вход</div><div class="level-val" style="color:var(--a)">${fmtPShort(lvl.entry)}</div></div>
+        <div class="level-item" style="border-left:2px solid var(--r)"><div class="level-lbl">Стоп-лосс</div><div class="level-val" style="color:var(--r)">${fmtPShort(lvl.sl)}</div></div>
+        <div class="level-item" style="border-left:2px solid var(--g)"><div class="level-lbl">Тейк 1</div><div class="level-val" style="color:var(--g)">${fmtPShort(lvl.tp1)}</div></div>
+        <div class="level-item" style="border-left:2px solid rgba(46,204,113,.5)"><div class="level-lbl">Тейк 2</div><div class="level-val" style="color:var(--g)">${fmtPShort(lvl.tp2)}</div></div>
       </div>
     </div>
 
@@ -1281,7 +1303,7 @@ function focusCoin(id) {
       </div>
     </div>
 
-    <button class="det-tg-btn" onclick="sendSignalTG()" id="det-tg-btn" ${_tgProfile.tg_linked?'':'disabled title="Telegram не подключён"'}>
+    <button class="det-tg-btn" onclick="sendSignalTG()" id="det-tg-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
       Отправить сигнал в Telegram
     </button>
@@ -1571,8 +1593,16 @@ function runBoot() {
   setTimeout(() => ov.remove(), 3500);
 }
 
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('detail-overlay').classList.remove('open');
+  _selectedSym = null;
+  renderTable();
+}
+
 // ── KEYBOARD ──────────────────────────────────────────────
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetail();
   if ((e.key === 'f' || e.key === 'а') && !e.ctrlKey && !e.metaKey) {
     const inp = document.getElementById('search-inp');
     if (document.activeElement !== inp) { e.preventDefault(); inp?.focus(); }
