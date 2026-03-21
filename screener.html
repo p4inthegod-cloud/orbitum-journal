@@ -2369,7 +2369,7 @@ async function sendTgNotify(alert, currentPrice){
   const coin = allCoins.find(c => c.coingecko_id === alert.coingecko_id || c.id === alert.coingecko_id);
   const ws   = _wsCache[alert.coingecko_id] || {};
   try{
-    await fetch('/api/notify', {
+    const r = await fetch('/api/notify', {
       method: 'POST',
       headers: {'Content-Type':'application/json','X-Notify-User': user.id},
       body: JSON.stringify({
@@ -2390,7 +2390,8 @@ async function sendTgNotify(alert, currentPrice){
         }
       })
     });
-  }catch(e){}
+    if(!r.ok){ const e=await r.json().catch(()=>({})); console.error('[notify] alert failed:', r.status, e); }
+  }catch(e){ console.error('[notify] sendTgNotify error:', e.message); }
 }
 
 // ── Binance WebSocket ─────────────────────────
@@ -4900,16 +4901,23 @@ async function atSendToTg(){
     `\n<a href="https://orbitum.trade/screener">🔗 Orbitum</a>`;
 
   try{
-    await fetch('/api/notify', {
+    const notifyResp = await fetch('/api/notify', {
       method:'POST',
       headers:{'Content-Type':'application/json','X-Notify-User':user.id},
       body: JSON.stringify({ type:'raw', chat_id:_tgProfile.tg_chat_id, data:{ text } })
     });
-    showToast('📨 Сигнал отправлен в Telegram!','ok');
+    if(!notifyResp.ok){
+      const errData = await notifyResp.json().catch(()=>({}));
+      console.error('[notify] HTTP', notifyResp.status, errData);
+      showToast('Ошибка TG: '+notifyResp.status+' '+(errData.error||''), 'err');
+    } else {
+      showToast('📨 Сигнал отправлен в Telegram!','ok');
+    }
   }catch(e){
+    console.error('[notify] TG send error:', e.message);
     showToast('Ошибка отправки: '+e.message,'err');
   }
-  tgBtn.disabled=false; tgBtn.textContent='📨 В TELEGRAM';
+  if(tgBtn){ tgBtn.disabled=false; tgBtn.textContent='📨 В TELEGRAM'; }
 }
 
 // ── Auto Scanner ──────────────────────────────
@@ -4932,7 +4940,8 @@ async function atAutoScanCycle(){
   if(!a) return;
   await atScanSetups();
   // Auto-send to TG if strong setup found
-  if(_atAnalysis?._score>=5 && _tgProfile?.tg_linked){
+  // Auto-send if strong setup (score>=4) AND TG configured
+  if(_atAnalysis?._score>=4 && _tgProfile?.tg_linked && _tgProfile?.tg_notify_alerts && _tgProfile?.tg_chat_id){
     await atSendToTg();
   }
 }
