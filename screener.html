@@ -1309,10 +1309,16 @@ function focusCoin(id) {
       Отправить сигнал в Telegram
     </button>
 
-    <button class="det-jnl-btn" onclick="openJournal()">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      Записать в журнал
-    </button>
+    <div style="display:flex;gap:6px;margin-top:6px;">
+      <button class="det-jnl-btn" onclick="openJournal()" style="flex:1;">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Журнал
+      </button>
+      <button class="det-jnl-btn" onclick="openAnalyzer()" style="flex:1;border-color:rgba(167,139,250,0.3);color:#a78bfa;">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 4-5 3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Analyzer
+      </button>
+    </div>
   `;
 
   // Load AI insight always
@@ -1381,40 +1387,21 @@ async function sendSignalTG() {
   const btn = document.getElementById('det-tg-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Отправляю...'; }
 
-  const s = c._signal;
-  const dir = s === 'long' ? '▲ LONG' : '▼ SHORT';
-  const lvl = computeKeyLevels(c);
-  const sc = c._score;
-  const chg24 = (c.price_change_percentage_24h || 0).toFixed(2);
-  const rsi = c._rsi;
-  const setup = c._setup.join(', ') || '—';
-  const scoreBar = '█'.repeat(Math.round(sc / 10)) + '░'.repeat(10 - Math.round(sc / 10));
-
-  const text =
-    `🧠 <b>ORBITUM · AI СИГНАЛ</b>\n` +
-    `━━━━━━━━━━━━━━━━━━\n` +
-    `💰 <b>${(c.symbol||'').toUpperCase()}/USDT · ${dir}</b>\n\n` +
-    `💵 Цена: <b>${fmtP(c.current_price)}</b> (${chg24 >= 0 ? '+' : ''}${chg24}% 24ч)\n` +
-    `📥 Вход: <b>${fmtPShort(lvl.entry)}</b>\n` +
-    `🛑 Стоп: <b>${fmtPShort(lvl.sl)}</b>\n` +
-    `🎯 Тейк 1: <b>${fmtPShort(lvl.tp1)}</b>\n` +
-    `🎯 Тейк 2: <b>${fmtPShort(lvl.tp2)}</b>\n` +
-    `━━━━━━━━━━━━━━━━━━\n` +
-    `📊 RSI: <b>${rsi}${rsi >= 70 ? ' ⚠️OB' : rsi <= 30 ? ' ⚠️OS' : ''}</b>\n` +
-    `🔍 Сетап: <i>${setup}</i>\n` +
-    `━━━━━━━━━━━━━━━━━━\n` +
-    `🤖 AI Score: <b>${sc}/100</b>\n` +
-    `<code>${scoreBar}</code>\n\n` +
-    `<i>orbitum.trade · Signal Screener</i>`;
+  const s    = c._signal;
+  const lvl2 = computeKeyLevels(c);
+  const sc   = c._score;
+  const rsi  = c._rsi;
+  const sym  = (c.symbol || '').toUpperCase();
+  const rr   = lvl2.sl > 0 ? Math.abs((lvl2.tp1 - lvl2.entry) / (lvl2.entry - lvl2.sl)).toFixed(1) : '2.0';
+  const grade = sc >= 80 ? 'A+' : sc >= 70 ? 'A' : sc >= 60 ? 'B+' : 'B';
+  const setupTags = (c._setup || []).slice(0, 3);
+  const confluence = [
+    ...setupTags,
+    rsi >= 65 ? 'RSI OB' : rsi <= 35 ? 'RSI OS' : null,
+  ].filter(Boolean).join(' + ') || 'AI Score';
+  const insight = _aiCache[sym]?.text?.replace(/<[^>]+>/g, '').slice(0, 180) || '';
 
   try {
-    const lvl = computeKeyLevels(c);
-    const rr  = lvl.sl > 0 ? Math.abs((lvl.tp1 - lvl.entry) / (lvl.entry - lvl.sl)).toFixed(1) : '2.0';
-
-    // Fetch AI insight text from cache if available
-    const sym = (c.symbol || '').toUpperCase();
-    const insight = _aiCache[sym]?.text?.replace(/<[^>]+>/g, '').slice(0, 120) || '';
-
     const r = await fetch('/api/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Notify-User': session.user.id },
@@ -1424,13 +1411,13 @@ async function sendSignalTG() {
         data: {
           pair:       sym + '/USDT',
           direction:  s === 'long' ? 'long' : 'short',
-          entry:      lvl.entry,
-          sl:         lvl.sl,
-          tp:         lvl.tp1,
-          rr:         rr,
+          entry:      lvl2.entry,
+          sl:         lvl2.sl,
+          tp:         lvl2.tp1,
+          rr,
           confidence: sc,
-          setup_type: c._setup.join(' · ') || 'AI Signal',
-          insight:    insight,
+          setup_type: confluence,
+          insight:    insight || `Grade: ${grade}  RSI: ${rsi}  Confluence: ${confluence}`,
           tf:         '4H',
           app_url:    'https://orbitum.trade',
         }
@@ -1458,6 +1445,22 @@ function openJournal() {
   if (!c) return;
   const p = new URLSearchParams({ symbol: (c.symbol||'').toUpperCase(), price: c.current_price });
   location.href = '/journal?' + p;
+}
+
+function openAnalyzer() {
+  const c = allCoins.find(x => x.id === _selectedSym);
+  if (!c) return;
+  const lvl = computeKeyLevels(c);
+  const sym = (c.symbol||'').toUpperCase();
+  const p = new URLSearchParams({
+    pair:  sym + 'USDT',
+    dir:   c._signal === 'short' ? 'short' : 'long',
+    entry: lvl.entry?.toFixed(6) || '',
+    sl:    lvl.sl?.toFixed(6)    || '',
+    tp:    lvl.tp1?.toFixed(6)   || '',
+    tf:    '4h',
+  });
+  location.href = '/trade-analyzer?' + p;
 }
 
 // ── MARKET METRICS ────────────────────────────────────────
