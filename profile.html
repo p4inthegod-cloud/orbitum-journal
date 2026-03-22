@@ -442,18 +442,18 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 /* Analytics content */
 .an-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
 .an-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;}
-.an-card-title{font-family:var(--font-mono);font-size:12px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.an-card-title{font-family:var(--font-mono);font-size:13px;color:var(--m);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
 .an-stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .an-stat-row:last-child{border-bottom:none;}
 .an-stat-label{font-family:var(--font-mono);font-size:13px;color:var(--m2);}
 .an-stat-val{font-family:var(--font-mono);font-size:15px;font-weight:600;}
 .an-bar-row{margin-bottom:8px;}
 .an-bar-head{display:flex;justify-content:space-between;margin-bottom:3px;}
-.an-bar-label{font-family:var(--font-mono);font-size:14px;color:var(--m2);}
-.an-bar-meta{font-family:var(--font-mono);font-size:14px;color:var(--m);}
+.an-bar-label{font-family:var(--font-mono);font-size:15px;color:var(--m2);}
+.an-bar-meta{font-family:var(--font-mono);font-size:15px;color:var(--m);}
 .an-bar-track{height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;}
 .an-bar-fill{height:100%;border-radius:3px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
-.an-empty{text-align:center;padding:30px;font-family:var(--font-mono);font-size:13px;color:var(--m);}
+.an-empty{text-align:center;padding:30px;font-family:var(--font-mono);font-size:14px;color:var(--m);}
 
 /* ── IDEAS / РАЗБОРЫ ── */
 .ideas-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
@@ -1455,7 +1455,7 @@ function renderAnalyticsTab(trades, tab){
         ${[
           {l:'Макс. серия побед',v:maxWin+' подряд',c:'var(--g)'},
           {l:'Макс. серия убытков',v:maxLoss+' подряд',c:'var(--r)'},
-          {l:'Текущая серия',v:currentStreak+(currentType==='win'?' 🔥':currentType==='loss'?' 💀':''),c:currentType==='win'?'var(--g)':currentType==='loss'?'var(--r)':'var(--m)'},
+          {l:'Текущая серия',v:currentStreak+(currentType==='win'?` <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF3923" stroke="none"><path d="M12 2C9 7 5 9 5 14a7 7 0 0 0 14 0c0-5-4-7-7-12zm0 17a3 3 0 0 1-3-3c0-2 1-3 3-5 2 2 3 3 3 5a3 3 0 0 1-3 3z"/></svg>`:currentType==='loss'?` <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><circle cx="12" cy="11" r="7"/><path d="M9 11v2M15 11v2M9 17h6M12 8v1"/></svg>`:''),c:currentType==='win'?'var(--g)':currentType==='loss'?'var(--r)':'var(--m)'},
           {l:'Ср. серия побед',v:avgWinStreak,c:'var(--g)'},
           {l:'Ср. серия убытков',v:avgLossStreak,c:'var(--r)'},
         ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
@@ -1465,10 +1465,10 @@ function renderAnalyticsTab(trades, tab){
         ${[
           {l:'Сделок после убытка',v:afterLoss.length,c:'var(--m)'},
           {l:'WR после убытка',v:recoveryWR!==null?recoveryWR+'%':'—',c:recoveryWR>=50?'var(--g)':'var(--r)'},
-          {l:'Риск реванша',v:recoveryWR!==null&&recoveryWR<45?'⚠️ Высокий':'✅ Норма',c:recoveryWR!==null&&recoveryWR<45?'var(--r)':'var(--g)'},
+          {l:'Риск реванша',v:recoveryWR!==null&&recoveryWR<45?'▲ Высокий':'✓ Норма',c:recoveryWR!==null&&recoveryWR<45?'var(--r)':'var(--g)'},
         ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
         <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">
-          ${recoveryWR!==null&&recoveryWR<45?'⚠️ После убытка WR падает — возможна торговля из мести. Сделай паузу перед следующей сделкой.':recoveryWR!==null&&recoveryWR>=55?'✅ После убытка ты торгуешь стабильно — хороший психологический контроль.':'Недостаточно данных для анализа паттернов мести.'}
+          ${recoveryWR!==null&&recoveryWR<45?'▲ После убытка WR падает — возможна торговля из мести. Сделай паузу перед следующей сделкой.':recoveryWR!==null&&recoveryWR>=55?'✓ После убытка ты торгуешь стабильно — хороший психологический контроль.':'Недостаточно данных для анализа паттернов мести.'}
         </div>
       </div>
       <div class="an-card">
@@ -2004,7 +2004,7 @@ function render(p, trades){
   <div class="two-col">
     <!-- Discipline -->
     <div class="section-card">
-      <div class="sc-title"><div class="sc-title-dot"></div>DISCIPLINE SCORE</div>
+      <div class="sc-title"><div class="sc-title-dot"></div>СЧЁТ ДИСЦИПЛИНЫ</div>
       <div class="disc-wrap">
         <svg class="disc-ring-svg" width="72" height="72" viewBox="0 0 72 72">
           <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="7"/>
@@ -2020,7 +2020,7 @@ function render(p, trades){
           <div class="disc-desc">${
             disciplineScore>=90?'Системная торговля без эмоций':
             disciplineScore>=70?'Хорошее следование плану':
-            disciplineScore>=40?'Эмоции влияют на результат':
+            disciplineScore>=40?'Эмоции влияют на результат' :
             'Торговля без системы'
           }</div>
         </div>
@@ -2028,9 +2028,9 @@ function render(p, trades){
       <div class="disc-bars" style="margin-top:14px">
         ${[
           {l:'Риск-менеджмент',v:slScore,c:'#FF3923'},
-          {l:'Эмоции',v:emotionScore,c:'#9b59b6'},
+          {l:'Эмоции',v:emotionScore,c:'#FF3923'},
           {l:'Сетапы',v:setupScore,c:'#FF3923'},
-          {l:'Консистентность',v:consistScore,c:'#3498db'},
+          {l:'Консистентность',v:consistScore,c:'#FF3923'},
         ].map(b=>`<div class="db-row">
           <div class="db-head"><span class="db-label">${b.l}</span><span class="db-val">${b.v}/100</span></div>
           <div class="db-track"><div class="db-fill" style="width:${b.v}%;background:${b.c}"></div></div>
@@ -2045,7 +2045,7 @@ function render(p, trades){
         ${[
           {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,label:'Уверенность',key:'emotion_conf',col:'#FF3923'},
           {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><path d="M16 5h2"/></svg>`,label:'Страх',key:'emotion_fear',col:'#ff4d4d'},
-          {icon:'💰',label:'Жадность',key:'emotion_greed',col:'#f5a623'},
+          {icon:`<svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"#FF3923\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"><polyline points=\\"23 6 13.5 15.5 8.5 10.5 1 18\\"/><polyline points=\\"17 6 23 6 23 12\\"/></svg>`,label:'Жадность',key:'emotion_greed',col:'#f5a623'},
           {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,label:'Фокус',key:'emotion_calm',col:'rgba(255,255,255,0.7)'},
         ].map(e=>{
           const filled=trades.filter(t=>t[e.key]!=null&&t[e.key]!==0);
@@ -2165,7 +2165,7 @@ function render(p, trades){
       ${isOwnProfile?'<button class="idea-new-btn" onclick="openIdeaModal()">+ НОВАЯ ИДЕЯ</button>':''}
     </div>
     <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:14px;">
-      ${isOwnProfile?'Публикуй разборы рынка, прогнозы по монетам — другие трейдеры смогут подписаться':'Публичные разборы и прогнозы трейдера'}
+      ${isOwnProfile?'Публикуй разборы рынка, прогнозы по монетам — другие трейдеры смогут подписаться':'Публичные разборы и прогнозы трейдера'}</span>
     </div>
     <div id="ideas-feed"><div class="feed-empty">Загрузка идей...</div></div>
   </div>
@@ -2218,7 +2218,7 @@ function calcBadges(trades,roi,wr,disc,avgW,avgL){
   if(roi>20||(wr>=60&&trades.length>=50))badges.push({icon:'👑',name:'Top Trader',cls:'hbadge-gold'});
   if(disc>=80&&trades.length>=20)badges.push({icon:'🎖',name:'Discipline Master',cls:'hbadge-blue'});
   if(wr>=50&&trades.length>=15&&avgL>0&&avgW/avgL>2.5)badges.push({icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,name:'Sniper',cls:'hbadge-green'});
-  if(calcStreak(trades)>=7)badges.push({icon:'🔥',name:'Hot Streak',cls:'hbadge-orange'});
+  if(calcStreak(trades)>=7)badges.push({icon:'',name:'Hot Streak',cls:'hbadge-orange'});
   if(trades.length>=100)badges.push({icon:'📋',name:'Veteran',cls:'hbadge-blue'});
   return badges;
 }
