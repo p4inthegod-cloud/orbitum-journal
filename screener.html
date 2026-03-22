@@ -5,15 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#06080c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500;600&display=swap"></noscript>
+<noscript></noscript>
 <title>ORBITUM · Signal Screener</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script>window.addEventListener('DOMContentLoaded',function(){if(typeof supabase==='undefined'){var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';document.head.appendChild(s);}});</script>
 
 <style>
+
+  4%  {opacity:0.75;}
+  92% {opacity:0.75;}
+  100%{left:-8%; opacity:0;}
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+
 /* ══════════════════════════════════════════
    ORBITUM SIGNAL SCREENER v2.0
    Design: cockpit · orange accent · mono
@@ -29,17 +35,17 @@
   --m:     rgba(232,228,220,0.50);
   --m2:    rgba(232,228,220,0.24);
   --m3:    rgba(232,228,220,0.10);
-  --a:     #e8722a;
-  --a2:    rgba(232,114,42,0.10);
-  --a3:    rgba(232,114,42,0.28);
+  --a:     #FF3923;
+  --a2:    rgba(255,57,35,0.10);
+  --a3:    rgba(255,57,35,0.28);
   --g:     #2ecc71;
   --g2:    rgba(46,204,113,0.10);
   --r:     #e74c3c;
   --r2:    rgba(231,76,60,0.10);
   --y:     #f0c040;
   --y2:    rgba(240,192,64,0.10);
-  --mono:  'JetBrains Mono', monospace;
-  --disp:  'Bebas Neue', sans-serif;
+  --mono:  'Plus Jakarta Sans', sans-serif;
+  --disp:'Plus Jakarta Sans',sans-serif;
   --radius: 8px;
 }
 [data-theme="light"] {
@@ -78,7 +84,7 @@ body::after {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 8px; border-bottom: 1px solid var(--bd); gap: 8px;
 }
-.sb-logo { font-family: var(--disp); font-size: 15px; letter-spacing: 4px; color: var(--a); opacity: 0; width: 0; overflow: hidden; white-space: nowrap; transition: opacity .18s .1s, width .22s; }
+.sb-logo { font-family: var(--disp); font-size: 15px; letter-spacing:2px; color: var(--a); opacity: 0; width: 0; overflow: hidden; white-space: nowrap; transition: opacity .18s .1s, width .22s; }
 .sidebar.expanded .sb-logo { opacity: 1; width: auto; }
 .sb-toggle {
   width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--bd);
@@ -200,7 +206,7 @@ body::after {
   width: 5px; height: 5px; border-radius: 50%; background: var(--a);
   animation: pulsA 1.8s ease-in-out infinite; flex-shrink: 0;
 }
-@keyframes pulsA { 0%,100%{box-shadow:0 0 0 0 rgba(232,114,42,.7)} 50%{box-shadow:0 0 0 5px rgba(232,114,42,0)} }
+@keyframes pulsA { 0%,100%{box-shadow:0 0 0 0 rgba(255,57,35,.7)} 50%{box-shadow:0 0 0 5px rgba(255,57,35,0)} }
 
 /* Signal card */
 .sig-card {
@@ -306,9 +312,9 @@ body::after {
 .sort-ic { margin-left: 3px; font-size: 7px; }
 .sc-table tbody tr { border-bottom: 1px solid var(--bd); transition: background .1s; cursor: pointer; }
 .sc-table tbody tr:hover { background: var(--bg2); }
-.sc-table tbody tr.row-selected { background: rgba(232,114,42,0.05); border-color: rgba(232,114,42,.15); }
+.sc-table tbody tr.row-selected { background: rgba(255,57,35,0.05); border-color: rgba(255,57,35,.15); }
 .sc-table tbody tr.row-new { animation: rowFlash .8s ease; }
-@keyframes rowFlash { 0%{background:rgba(232,114,42,.1)} 100%{background:transparent} }
+@keyframes rowFlash { 0%{background:rgba(255,57,35,.1)} 100%{background:transparent} }
 .sc-table td { padding: 8px 12px; vertical-align: middle; white-space: nowrap; }
 
 /* Symbol cell */
@@ -386,7 +392,7 @@ body::after {
 /* ══ RIGHT: Detail Panel — sliding overlay ══ */
 .panel-right {
   position: fixed; top: 0; right: -340px; width: 320px; height: 100vh;
-  background: var(--bg2); border-left: 1px solid rgba(232,114,42,.15);
+  background: var(--bg2); border-left: 1px solid rgba(255,57,35,.15);
   z-index: 500; transition: right .28s cubic-bezier(.4,0,.2,1);
   display: flex; flex-direction: column; overflow-y: auto;
   box-shadow: -12px 0 40px rgba(0,0,0,.5);
@@ -406,7 +412,7 @@ body::after {
 .detail-empty {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px;
 }
-.de-icon { font-family: var(--disp); font-size: 44px; color: var(--bd2); letter-spacing: 4px; }
+.de-icon { font-family: var(--disp); font-size: 44px; color: var(--bd2); letter-spacing:2px; }
 .de-txt { font-size: 8px; letter-spacing: 2.5px; color: var(--m2); text-align: center; line-height: 1.8; }
 
 /* Detail header */
@@ -455,10 +461,10 @@ body::after {
 
 /* Free tier lock */
 .ai-locked {
-  background: var(--bg3); border: 1px solid rgba(232,114,42,.15); border-radius: 6px;
+  background: var(--bg3); border: 1px solid rgba(255,57,35,.15); border-radius: 6px;
   padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
 }
-.ai-locked-title { font-size: 8px; letter-spacing: 2.5px; color: rgba(232,114,42,.7); }
+.ai-locked-title { font-size: 8px; letter-spacing: 2.5px; color: rgba(255,57,35,.7); }
 .ai-locked-sub { font-size: 9px; color: var(--m2); line-height: 1.6; }
 .ai-locked-blur { filter: blur(3px); pointer-events: none; opacity: .4; width: 100%; font-size: 9px; color: var(--m); line-height: 1.7; }
 .ai-locked-btn {
@@ -543,6 +549,10 @@ body::after {
 @media (max-width: 600px) {
   .panel-right { width: 100%; right: -100%; }
 }
+@keyframes btnBreathe{
+  0%,100%{box-shadow:0 0 14px rgba(255,57,35,0.18),inset 0 1px 0 rgba(255,255,255,0.07);}
+  50%{box-shadow:0 0 28px rgba(255,57,35,0.42),inset 0 1px 0 rgba(255,255,255,0.1);}
+}
 </style>
 </head>
 <body>
@@ -591,6 +601,7 @@ body::after {
 
     <!-- TOPBAR -->
     <div class="topbar">
+</div></div></div>
       <span class="tb-page">Signal Screener</span>
       <div class="tb-sep"></div>
       <div class="sa-widget" id="sa-widget">
@@ -1609,7 +1620,7 @@ function runBoot() {
   document.head.appendChild(style);
 
   [
-    { t:'ORBITUM SIGNAL SCREENER',    c:'rgba(232,114,42,.9)', s:'13px', ls:'5px', d:0 },
+    { t:'ORBITUM SIGNAL SCREENER',    c:'rgba(255,57,35,.9)', s:'13px', ls:'5px', d:0 },
     { t:'──────────────────────────', c:'rgba(255,255,255,.07)', s:'10px', ls:'1px', d:200 },
     { t:'▸ CONNECTING MARKET DATA',   c:'rgba(232,228,220,.3)', s:'9px', ls:'2px', d:400 },
     { t:'▸ LOADING AI SIGNAL ENGINE', c:'rgba(232,228,220,.3)', s:'9px', ls:'2px', d:700 },
