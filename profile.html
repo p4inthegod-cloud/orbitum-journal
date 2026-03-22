@@ -1752,6 +1752,17 @@ async function init(){
   // Load ideas
   loadIdeas(uid);
 
+
+async function loadFollowStats(userId){
+  try {
+    const { data: followers } = await sb.from('follows').select('id', {count:'exact'}).eq('following_id', userId);
+    const { data: following } = await sb.from('follows').select('id', {count:'exact'}).eq('follower_id', userId);
+    const fc = document.getElementById('follow-count');
+    const foc = document.getElementById('following-count');
+    if(fc) fc.textContent = followers?.length || 0;
+    if(foc) foc.textContent = following?.length || 0;
+  } catch(e) {}
+}
   // Загружаем статистику подписок (видна всем)
   loadFollowStats(uid);
 
@@ -2617,7 +2628,7 @@ init();
 // Orange accent fixed everywhere
 // ═══════════════════════════════════════════════════════════
 (function(){
-  function applyTheme(theme, save){
+  function applyTheme(theme, save){ if(theme==='light') theme='mono'; 
     document.documentElement.setAttribute('data-theme', theme);
     if(save) localStorage.setItem('orb_theme', theme);
     // Sync panel buttons
@@ -2649,7 +2660,7 @@ init();
 
   // Init
   function init(){
-    var theme = localStorage.getItem('orb_theme') || 'mono';
+    var theme = localStorage.getItem('orb_theme') || 'mono'; if(theme==='light') theme='mono';
     applyTheme(theme, false);
     // Close on outside click
     document.addEventListener('click', function(e){
