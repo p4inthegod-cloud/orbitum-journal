@@ -1,132 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en" style="background:#1a1a1a;">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ORBITUM · Login</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#161616;--bg2:#1c1c1c;--bg3:#222222;--bg4:#282828;
-  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);
-  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
-  --fire:#FF3923;--fire2:rgba(255,57,35,0.12);--fire3:rgba(255,57,35,0.28);
+  --bg:#1a1a1a;--bg2:#202020;--bg3:#262626;--bg4:#2e2e2e;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
+  --t:#fff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
+  --a:#FF3923;--a2:rgba(255,57,35,0.12);--a3:rgba(255,57,35,0.32);
   --font:'Plus Jakarta Sans',sans-serif;
 }
-html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
+html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
 
-/* Ghost topbar */
-.topbar{height:48px;background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 24px;position:relative;overflow:hidden;}
-.logo{font-weight:800;font-size:15px;letter-spacing:4px;color:var(--fire);text-transform:uppercase;position:relative;z-index:2;}
+/* ── TOPBAR ── */
+.topbar{
+  height:52px;background:var(--bg2);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;padding:0 28px;gap:16px;
+}
+.logo{font-weight:800;font-size:15px;letter-spacing:4px;color:#FF3923;text-transform:uppercase;user-select:none;}
+.tb-sp{flex:1;}
 
+/* ── LANG TOGGLE ── */
+.orb-lang{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px;gap:2px;}
+.orb-lb{height:22px;padding:0 9px;border-radius:4px;border:none;background:transparent;color:rgba(255,255,255,0.35);font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;}
+.orb-lb.on{background:#FF3923;color:#fff;}
+[data-lang="en"] [data-ru]{display:none!important;}
+[data-lang="ru"] [data-en]{display:none!important;}
 
-
-
-
-4%{opacity:.75;}92%{opacity:.75;}100%{left:-8%;opacity:0;}}
-
-/* Page */
-.page{min-height:calc(100vh - 48px);display:flex;align-items:center;justify-content:center;padding:24px;}
-
+/* ── PAGE ── */
+.page{
+  min-height:calc(100vh - 52px);display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(255,57,35,0.07) 0%,transparent 70%);
+}
 .card{
-  width:100%;max-width:380px;
-  background:var(--bg2);
-  border:1px solid var(--bd2);
-  border-radius:16px;
-  padding:36px 32px;
-  box-shadow:0 24px 64px rgba(0,0,0,.5);
+  width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--bd2);
+  border-radius:18px;padding:40px 36px;
+  box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,0.03),inset 0 1px 0 rgba(255,255,255,0.04);
 }
+.card-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(255,57,35,0.65);text-transform:uppercase;margin-bottom:8px;}
+.card-title{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
+.card-sub{font-size:13px;color:var(--m2);margin-bottom:32px;line-height:1.6;}
 
-.card-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--t);margin-bottom:4px;}
-.card-sub{font-size:12px;color:var(--m2);margin-bottom:28px;font-weight:400;}
-
-.field{margin-bottom:14px;}
-.field label{display:block;font-size:11px;font-weight:600;color:var(--m);letter-spacing:0.5px;margin-bottom:6px;}
+/* ── FIELDS ── */
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
 .field input{
-  width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;
-  color:var(--t);font-family:var(--font);font-size:13px;font-weight:500;
-  padding:11px 14px;outline:none;transition:border-color .15s;
+  width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;
+  color:var(--t);font-family:var(--font);font-size:14px;font-weight:500;
+  padding:13px 16px;outline:none;transition:all .15s;
 }
-.field input:focus{border-color:var(--fire3);}
+.field input:focus{border-color:var(--a3);box-shadow:0 0 0 3px rgba(255,57,35,0.09);}
 .field input::placeholder{color:var(--m2);}
 
-.btn-primary{
-  width:100%;height:44px;margin-top:4px;border-radius:8px;
-  border:1px solid rgba(255,57,35,0.5);
-  background:linear-gradient(135deg,rgba(255,57,35,0.18) 0%,rgba(255,57,35,0.08) 100%);
-  backdrop-filter:blur(8px);
-  color:var(--fire);font-family:var(--font);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-  box-shadow:0 0 20px rgba(255,57,35,0.2),inset 0 1px 0 rgba(255,255,255,0.07);
-  transition:all .2s;cursor:pointer;position:relative;overflow:hidden;
-animation:btnBreathe 2.4s ease-in-out infinite;}
+/* ── BUTTONS ── */
+.btn-fire{
+  width:100%;height:48px;margin-top:6px;border-radius:10px;
+  border:1px solid rgba(255,57,35,0.55);
+  background:linear-gradient(135deg,rgba(255,57,35,0.22) 0%,rgba(255,57,35,0.1) 100%);
+  color:#FF3923;font-family:var(--font);font-size:12px;font-weight:800;
+  letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;animation:breathe 2.4s ease-in-out infinite;
+}
+.btn-fire:hover{
+  background:linear-gradient(135deg,rgba(255,57,35,0.35) 0%,rgba(255,57,35,0.18) 100%);
+  box-shadow:0 0 36px rgba(255,57,35,0.45);color:#ff6b5b;
+  border-color:rgba(255,57,35,.9);transform:translateY(-1px);
+}
+.btn-fire:active{transform:translateY(0);}
+.btn-fire:disabled{opacity:.35;cursor:not-allowed;transform:none;animation:none;}
 
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 14px rgba(255,57,35,0.18);}
+  50%{box-shadow:0 0 30px rgba(255,57,35,0.42);}
+}
 
-.btn-primary:hover{background:linear-gradient(135deg,rgba(255,57,35,0.3) 0%,rgba(255,57,35,0.15) 100%);box-shadow:0 0 30px rgba(255,57,35,0.4);color:#ff6b5b;border-color:rgba(255,57,35,.9);}
-.btn-primary:disabled{opacity:.35;cursor:not-allowed;}
-
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.divider{display:flex;align-items:center;gap:14px;margin:24px 0;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bd);}
-.divider span{font-size:10px;color:var(--m2);letter-spacing:1px;}
+.divider-txt{font-size:10px;color:var(--m2);letter-spacing:1.5px;font-weight:600;}
 
 .btn-ghost{
-  width:100%;height:40px;border-radius:8px;border:1px solid var(--bd2);
-  background:transparent;color:var(--m);font-family:var(--font);font-size:11px;
+  width:100%;height:44px;border-radius:10px;border:1px solid var(--bd2);
+  background:transparent;color:var(--m);font-family:var(--font);font-size:12px;
   font-weight:600;letter-spacing:0.5px;transition:all .15s;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:8px;
+  display:flex;align-items:center;justify-content:center;gap:9px;
 }
-.btn-ghost:hover{border-color:var(--bd3);color:var(--t);}
-.btn-ghost svg{flex-shrink:0;}
+.btn-ghost:hover{border-color:var(--a3);color:#FF3923;}
 
-.footer-link{text-align:center;margin-top:20px;font-size:11px;color:var(--m2);}
-.footer-link a{color:var(--fire);text-decoration:none;font-weight:600;}
+.footer-link{text-align:center;margin-top:24px;font-size:12px;color:var(--m2);}
+.footer-link a{color:#FF3923;text-decoration:none;font-weight:700;}
 .footer-link a:hover{text-decoration:underline;}
 
-.error-msg{background:rgba(255,57,35,0.1);border:1px solid rgba(255,57,35,0.25);border-radius:6px;padding:9px 12px;font-size:11px;color:#ff8070;margin-bottom:14px;display:none;}
-.success-msg{background:rgba(255,255,255,0.06);border:1px solid var(--bd2);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--m);margin-bottom:14px;display:none;}
-@keyframes btnBreathe{
-  0%,100%{box-shadow:0 0 14px rgba(255,57,35,0.18),inset 0 1px 0 rgba(255,255,255,0.07);}
-  50%{box-shadow:0 0 28px rgba(255,57,35,0.42),inset 0 1px 0 rgba(255,255,255,0.1);}
-}
+/* ── MESSAGES ── */
+.msg{border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px;display:none;line-height:1.5;}
+.msg-err{background:rgba(255,57,35,0.1);border:1px solid rgba(255,57,35,0.28);color:#ff8070;}
+.msg-ok {background:rgba(255,255,255,0.05);border:1px solid var(--bd2);color:var(--m);}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  </div>
-  </div>
   <div class="logo">ORBITUM</div>
+  <div class="tb-sp"></div>
+  <div class="orb-lang">
+    <button class="orb-lb on" id="olb-en" onclick="orbLang('en')">EN</button>
+    <button class="orb-lb"    id="olb-ru" onclick="orbLang('ru')">RU</button>
+  </div>
 </div>
 
 <div class="page">
   <div class="card">
-    <div class="card-title">Welcome back</div>
-    <div class="card-sub">Sign in to your account</div>
+    <div class="card-eyebrow">
+      <span data-en>Trading Intelligence</span>
+      <span data-ru>Торговая аналитика</span>
+    </div>
+    <div class="card-title">
+      <span data-en>Welcome back</span>
+      <span data-ru>Добро пожаловать</span>
+    </div>
+    <div class="card-sub">
+      <span data-en>Sign in to your account to continue.</span>
+      <span data-ru>Войди в аккаунт чтобы продолжить.</span>
+    </div>
 
-    <div class="error-msg" id="err-msg"></div>
-    <div class="success-msg" id="ok-msg"></div>
+    <div id="msg-err" class="msg msg-err"></div>
+    <div id="msg-ok"  class="msg msg-ok"></div>
 
     <div id="form-login">
       <div class="field">
-        <label>Email</label>
+        <label><span data-en>Email</span><span data-ru>Email</span></label>
         <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="field">
-        <label>Password</label>
+        <label><span data-en>Password</span><span data-ru>Пароль</span></label>
         <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button class="btn-primary" id="btn-login" onclick="doLogin()">Sign In</button>
+      <button class="btn-fire" id="btn-login" onclick="doLogin()">
+        <span data-en>Sign In</span><span data-ru>Войти</span>
+      </button>
 
-      <div class="divider"><span>or</span></div>
+      <div class="divider">
+        <span class="divider-txt"><span data-en>or</span><span data-ru>или</span></span>
+      </div>
 
       <button class="btn-ghost" onclick="doMagicLink()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
-        Continue with magic link
+        <span data-en>Continue with magic link</span>
+        <span data-ru>Войти по magic link</span>
       </button>
 
       <div class="footer-link">
-        No account? <a href="/register">Create one free</a>
+        <span data-en>No account?</span><span data-ru>Нет аккаунта?</span>
+        <a href="/register"><span data-en>Create one free</span><span data-ru>Создать бесплатно</span></a>
       </div>
     </div>
 
@@ -135,9 +164,15 @@ animation:btnBreathe 2.4s ease-in-out infinite;}
         <label>Email</label>
         <input type="email" id="magic-email" placeholder="you@example.com">
       </div>
-      <button class="btn-primary" onclick="sendMagic()">Send magic link</button>
-      <div class="footer-link" style="margin-top:16px;">
-        <a href="#" onclick="showLogin()">← Back to login</a>
+      <button class="btn-fire" onclick="sendMagic()">
+        <span data-en>Send magic link</span>
+        <span data-ru>Отправить magic link</span>
+      </button>
+      <div class="footer-link" style="margin-top:18px;">
+        <a href="#" onclick="showLogin()">
+          <span data-en>← Back to login</span>
+          <span data-ru>← Назад</span>
+        </a>
       </div>
     </div>
   </div>
@@ -148,35 +183,51 @@ const SB_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 let sb;
 
+// ── LANG ─────────────────────────────────────────────
+var _L = localStorage.getItem('orb_lang') || 'en';
+function orbLang(l) {
+  _L = l;
+  localStorage.setItem('orb_lang', l);
+  document.documentElement.setAttribute('data-lang', l);
+  document.getElementById('olb-en').classList.toggle('on', l==='en');
+  document.getElementById('olb-ru').classList.toggle('on', l==='ru');
+}
+orbLang(_L);
+
+// ── SUPABASE ─────────────────────────────────────────
 function initSB() {
-  if (typeof supabase === 'undefined') { setTimeout(initSB, 100); return; }
+  if (typeof supabase === 'undefined') { setTimeout(initSB, 80); return; }
   sb = supabase.createClient(SB_URL, SB_KEY);
-  // Check existing session
   sb.auth.getSession().then(({ data: { session } }) => {
     if (session) location.href = '/journal';
   });
 }
 initSB();
 
+// ── MESSAGES ─────────────────────────────────────────
 function showErr(msg) {
-  const el = document.getElementById('err-msg');
+  var el = document.getElementById('msg-err');
   el.textContent = msg; el.style.display = 'block';
-  document.getElementById('ok-msg').style.display = 'none';
+  document.getElementById('msg-ok').style.display = 'none';
 }
 function showOk(msg) {
-  const el = document.getElementById('ok-msg');
+  var el = document.getElementById('msg-ok');
   el.textContent = msg; el.style.display = 'block';
-  document.getElementById('err-msg').style.display = 'none';
+  document.getElementById('msg-err').style.display = 'none';
 }
 
+// ── LOGIN ─────────────────────────────────────────────
 async function doLogin() {
-  const email = document.getElementById('email').value.trim();
-  const pass  = document.getElementById('password').value;
-  if (!email || !pass) { showErr('Fill in email and password'); return; }
-  const btn = document.getElementById('btn-login');
-  btn.disabled = true; btn.textContent = 'Signing in...';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) { showErr(error.message); btn.disabled = false; btn.textContent = 'Sign In'; }
+  var email = document.getElementById('email').value.trim();
+  var pass  = document.getElementById('password').value;
+  if (!email || !pass) {
+    showErr(_L==='ru' ? 'Введи email и пароль' : 'Fill in email and password');
+    return;
+  }
+  var btn = document.getElementById('btn-login');
+  btn.disabled = true;
+  var { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { showErr(error.message); btn.disabled = false; }
   else location.href = '/journal';
 }
 
@@ -189,21 +240,18 @@ function showLogin() {
   document.getElementById('form-magic').style.display = 'none';
   document.getElementById('form-login').style.display = 'block';
 }
-
 async function sendMagic() {
-  const email = document.getElementById('magic-email').value.trim();
-  if (!email) { showErr('Enter your email'); return; }
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + '/journal' } });
+  var email = document.getElementById('magic-email').value.trim();
+  if (!email) { showErr(_L==='ru' ? 'Введи email' : 'Enter your email'); return; }
+  var { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + '/journal' } });
   if (error) showErr(error.message);
-  else showOk('Magic link sent — check your inbox.');
+  else showOk(_L==='ru' ? 'Ссылка отправлена — проверь почту.' : 'Magic link sent — check your inbox.');
 }
 
-// Enter key
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('form-login').style.display !== 'none') doLogin();
-    else sendMagic();
-  }
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('form-login').style.display !== 'none') doLogin();
+  else sendMagic();
 });
 </script>
 </body>
