@@ -586,10 +586,10 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
 }
 .er-icon{font-size:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:20px;}
 .er-body{flex:1;}
-.er-label{font-size:11px;letter-spacing:1.5px;font-family:var(--font-mono);font-size:12px;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.er-label{font-size:12px;letter-spacing:1.5px;color:var(--m);text-transform:uppercase;}
 .er-bar-track{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:3px;}
 .er-bar-fill{height:100%;border-radius:2px;}
-.er-val{font-family:var(--font-display);font-size:14px;}
+.er-val{font-family:var(--disp);font-size:20px;font-weight:700;color:var(--t);}
 
 /* ── PSYCH INSIGHTS (fear/confidence correlations) ── */
 .insight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
@@ -597,7 +597,7 @@ html,body{background:var(--bg);color:var(--t);font-family:var(--font-body);min-h
   background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
   border-radius:10px;padding:14px;
 }
-.ic-cond{font-family:var(--font-mono);font-size:12px;color:var(--m);letter-spacing:1px;margin-bottom:6px;}
+.ic-cond{font-family:var(--font-mono);font-size:13px;color:var(--m);letter-spacing:0.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
 .ic-result{font-family:var(--font-display);font-size:26px;letter-spacing:1px;}
 .ic-result.pos{color:#FF3923;text-shadow:0 0 16px rgba(255,57,35,0.45);}
 .ic-result.neg{color:var(--r);text-shadow:0 0 16px rgba(255,77,77,0.3);}
@@ -1465,10 +1465,10 @@ function renderAnalyticsTab(trades, tab){
         ${[
           {l:'Сделок после убытка',v:afterLoss.length,c:'var(--m)'},
           {l:'WR после убытка',v:recoveryWR!==null?recoveryWR+'%':'—',c:recoveryWR>=50?'var(--g)':'var(--r)'},
-          {l:'Риск реванша',v:recoveryWR!==null&&recoveryWR<45?'▲ Высокий':'✓ Норма',c:recoveryWR!==null&&recoveryWR<45?'var(--r)':'var(--g)'},
+          {l:'Риск реванша',v:recoveryWR!==null&&recoveryWR<45?'▲ Высокий':'<span style="color:#FF3923">✓</span> Норма',c:recoveryWR!==null&&recoveryWR<45?'var(--r)':'var(--g)'},
         ].map(r=>`<div class="an-stat-row"><span class="an-stat-label">${r.l}</span><span class="an-stat-val" style="color:${r.c}">${r.v}</span></div>`).join('')}
-        <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:6px;font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">
-          ${recoveryWR!==null&&recoveryWR<45?'▲ После убытка WR падает — возможна торговля из мести. Сделай паузу перед следующей сделкой.':recoveryWR!==null&&recoveryWR>=55?'✓ После убытка ты торгуешь стабильно — хороший психологический контроль.':'Недостаточно данных для анализа паттернов мести.'}
+        <div style="margin-top:12px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:6px;font-family:var(--font-mono);font-size:13px;color:var(--m);line-height:1.7">
+          ${recoveryWR!==null&&recoveryWR<45?'▲ После убытка WR падает — возможна торговля из мести. Сделай паузу перед следующей сделкой.':recoveryWR!==null&&recoveryWR>=55?'<span style="color:#FF3923;font-weight:700;">✓</span> После убытка ты торгуешь стабильно — хороший психологический контроль.':'Недостаточно данных для анализа паттернов мести.'}
         </div>
       </div>
       <div class="an-card">
@@ -1529,10 +1529,10 @@ function renderAnalyticsTab(trades, tab){
         <div class="an-card-title">Ключевые инсайты</div>
         ${bestState.length?bestState.map(r=>{
           const isPositive=r.diff>0;
-          return `<div style="padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;margin-bottom:6px;font-family:var(--font-mono);font-size:9px;line-height:1.6;color:var(--m2)">
-            ${r.icon} <strong style="color:var(--t)">${r.label}</strong> ${isPositive?'выше при победах':'выше при убытках'} на <span style="color:${isPositive?'var(--g)':'var(--r)'}">${Math.abs(r.diff).toFixed(1)}</span> пункта
+          return `<div style="padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:6px;margin-bottom:6px;font-family:var(--font-mono);font-size:13px;line-height:1.6;color:var(--m);">
+            ${r.icon} <strong style="color:var(--t)">${r.label}</strong> ${isPositive?'выше при победах':'выше при убытках'} на <span style="color:${isPositive?'#FF3923':'rgba(255,255,255,0.45)'}">${Math.abs(r.diff).toFixed(1)}</span> пункта
           </div>`;
-        }).join(''):`<div style="font-family:var(--font-mono);font-size:9px;color:var(--m);line-height:1.6">Нужно больше сделок с заполненными эмоциями</div>`}
+        }).join(''):`<div style="font-family:var(--font-mono);font-size:13px;color:var(--m2);line-height:1.6">Нужно больше сделок с заполненными эмоциями</div>`}
       </div>
     </div>`;
   }
@@ -2043,10 +2043,10 @@ function render(p, trades){
       <div class="sc-title"><div class="sc-title-dot"></div>ЭМОЦИОНАЛЬНЫЙ ПРОФИЛЬ</div>
       <div class="emo-radar">
         ${[
-          {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,label:'Уверенность',key:'emotion_conf',col:'#FF3923'},
-          {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><path d="M16 5h2"/></svg>`,label:'Страх',key:'emotion_fear',col:'#ff4d4d'},
-          {icon:`<svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"#FF3923\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"><polyline points=\\"23 6 13.5 15.5 8.5 10.5 1 18\\"/><polyline points=\\"17 6 23 6 23 12\\"/></svg>`,label:'Жадность',key:'emotion_greed',col:'#f5a623'},
-          {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,label:'Фокус',key:'emotion_calm',col:'rgba(255,255,255,0.7)'},
+          {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,label:'Уверенность',key:'emotion_conf',col:'#FF3923'},
+          {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,label:'Страх',key:'emotion_fear',col:'#FF3923'},
+          {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,label:'Жадность',key:'emotion_greed',col:'#FF3923'},
+          {icon:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3923" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>`,label:'Фокус',key:'emotion_calm',col:'rgba(255,255,255,0.7)'},
         ].map(e=>{
           const filled=trades.filter(t=>t[e.key]!=null&&t[e.key]!==0);
           const hasData=filled.length>=3;
@@ -2164,7 +2164,7 @@ function render(p, trades){
       <div class="sc-title"><div class="sc-title-dot"></div>ИДЕИ И РАЗБОРЫ</div>
       ${isOwnProfile?'<button class="idea-new-btn" onclick="openIdeaModal()">+ НОВАЯ ИДЕЯ</button>':''}
     </div>
-    <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;margin-bottom:14px;">
+    <div style="font-family:var(--font-mono);font-size:13px;color:var(--m);letter-spacing:0px;margin-bottom:14px;">
       ${isOwnProfile?'Публикуй разборы рынка, прогнозы по монетам — другие трейдеры смогут подписаться':'Публичные разборы и прогнозы трейдера'}</span>
     </div>
     <div id="ideas-feed"><div class="feed-empty">Загрузка идей...</div></div>
