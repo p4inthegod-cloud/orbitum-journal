@@ -1,161 +1,148 @@
 <!DOCTYPE html>
-<html lang="en" data-lang="en" style="background:#1a1a1a;">
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ORBITUM · Login</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#1a1a1a;--bg2:#202020;--bg3:#262626;--bg4:#2e2e2e;
-  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
-  --t:#fff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
-  --a:#FF3923;--a2:rgba(255,57,35,0.12);--a3:rgba(255,57,35,0.32);
-  --font:'Plus Jakarta Sans',sans-serif;
+  --bg:#262626;--bg2:#2e2e2e;--bg3:#333333;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);
+  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
+  --fire:#fc3503;--fire2:rgba(252,53,3,0.12);--fire3:rgba(252,53,3,0.28);
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'Fira Code',monospace;
 }
-html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
 
-/* ── TOPBAR ── */
+/* Subtle ambient bg */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(252,53,3,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 85% 80%, rgba(252,53,3,0.04) 0%, transparent 60%);
+}
+
+/* Topbar — original simple style */
 .topbar{
-  height:52px;background:var(--bg2);border-bottom:1px solid var(--bd);
-  display:flex;align-items:center;padding:0 28px;gap:16px;
+  height:48px;background:#2e2e2e;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;padding:0 24px;
+  position:relative;z-index:10;
 }
-.logo{font-weight:800;font-size:15px;letter-spacing:4px;color:#FF3923;text-transform:uppercase;user-select:none;}
-.tb-sp{flex:1;}
+.logo{
+  font-weight:800;font-size:15px;letter-spacing:4px;
+  color:var(--fire);text-transform:uppercase;
+}
 
-/* ── LANG TOGGLE ── */
-.orb-lang{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px;gap:2px;}
-.orb-lb{height:22px;padding:0 9px;border-radius:4px;border:none;background:transparent;color:rgba(255,255,255,0.35);font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;}
-.orb-lb.on{background:#FF3923;color:#fff;}
-[data-lang="en"] [data-ru]{display:none!important;}
-[data-lang="ru"] [data-en]{display:none!important;}
-
-/* ── PAGE ── */
+/* Page */
 .page{
-  min-height:calc(100vh - 52px);display:flex;align-items:center;justify-content:center;padding:24px;
-  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(255,57,35,0.07) 0%,transparent 70%);
+  min-height:calc(100vh - 48px);display:flex;align-items:center;justify-content:center;
+  padding:24px;position:relative;z-index:1;
 }
-.card{
-  width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--bd2);
-  border-radius:18px;padding:40px 36px;
-  box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,0.03),inset 0 1px 0 rgba(255,255,255,0.04);
-}
-.card-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(255,57,35,0.65);text-transform:uppercase;margin-bottom:8px;}
-.card-title{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
-.card-sub{font-size:13px;color:var(--m2);margin-bottom:32px;line-height:1.6;}
 
-/* ── FIELDS ── */
-.field{margin-bottom:16px;}
-.field label{display:block;font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;}
-.field input{
-  width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;
-  color:var(--t);font-family:var(--font);font-size:14px;font-weight:500;
-  padding:13px 16px;outline:none;transition:all .15s;
+/* Card */
+.card{
+  width:100%;max-width:390px;
+  background:#2e2e2e;
+  border:1px solid var(--bd2);border-radius:16px;
+  padding:38px 34px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.5),0 0 0 1px rgba(252,53,3,0.06),inset 0 1px 0 rgba(255,255,255,0.05);
+  position:relative;overflow:hidden;
 }
-.field input:focus{border-color:var(--a3);box-shadow:0 0 0 3px rgba(255,57,35,0.09);}
+.card::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(252,53,3,0.55),transparent);
+}
+
+.card-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--t);margin-bottom:4px;}
+.card-sub{font-size:12px;color:var(--m2);margin-bottom:28px;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--m);letter-spacing:0.5px;margin-bottom:6px;}
+.field input{
+  width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--bd);border-radius:8px;
+  color:var(--t);font-family:var(--font);font-size:13px;font-weight:500;
+  padding:11px 14px;outline:none;transition:all .18s;
+}
+.field input:focus{border-color:rgba(252,53,3,0.5);background:rgba(252,53,3,0.06);box-shadow:0 0 0 3px rgba(252,53,3,0.1);}
 .field input::placeholder{color:var(--m2);}
 
-/* ── BUTTONS ── */
-.btn-fire{
-  width:100%;height:48px;margin-top:6px;border-radius:10px;
-  border:1px solid rgba(255,57,35,0.55);
-  background:linear-gradient(135deg,rgba(255,57,35,0.22) 0%,rgba(255,57,35,0.1) 100%);
-  color:#FF3923;font-family:var(--font);font-size:12px;font-weight:800;
-  letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;
-  transition:all .2s;animation:breathe 2.4s ease-in-out infinite;
+.btn-primary{
+  width:100%;height:44px;margin-top:4px;border-radius:8px;
+  border:1px solid rgba(252,53,3,0.5);
+  background:linear-gradient(135deg,rgba(252,53,3,0.18) 0%,rgba(252,53,3,0.08) 100%);
+  color:var(--fire);font-family:var(--font);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  box-shadow:0 0 20px rgba(252,53,3,0.2),inset 0 1px 0 rgba(255,255,255,0.07);
+  transition:all .2s;cursor:pointer;position:relative;overflow:hidden;
+  animation:btnBreathe 2.4s ease-in-out infinite;
 }
-.btn-fire:hover{
-  background:linear-gradient(135deg,rgba(255,57,35,0.35) 0%,rgba(255,57,35,0.18) 100%);
-  box-shadow:0 0 36px rgba(255,57,35,0.45);color:#ff6b5b;
-  border-color:rgba(255,57,35,.9);transform:translateY(-1px);
+.btn-primary:hover{
+  background:linear-gradient(135deg,rgba(252,53,3,0.3) 0%,rgba(252,53,3,0.15) 100%);
+  box-shadow:0 0 30px rgba(252,53,3,0.4);color:#ff6b5b;border-color:rgba(252,53,3,.9);
 }
-.btn-fire:active{transform:translateY(0);}
-.btn-fire:disabled{opacity:.35;cursor:not-allowed;transform:none;animation:none;}
-
-@keyframes breathe{
-  0%,100%{box-shadow:0 0 14px rgba(255,57,35,0.18);}
-  50%{box-shadow:0 0 30px rgba(255,57,35,0.42);}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;}
+@keyframes btnBreathe{
+  0%,100%{box-shadow:0 0 12px rgba(252,53,3,0.15),inset 0 1px 0 rgba(255,255,255,0.07);}
+  50%{box-shadow:0 0 28px rgba(252,53,3,0.42),inset 0 1px 0 rgba(255,255,255,0.1);}
 }
 
-.divider{display:flex;align-items:center;gap:14px;margin:24px 0;}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bd);}
-.divider-txt{font-size:10px;color:var(--m2);letter-spacing:1.5px;font-weight:600;}
+.divider span{font-size:10px;color:var(--m2);letter-spacing:1px;}
 
 .btn-ghost{
-  width:100%;height:44px;border-radius:10px;border:1px solid var(--bd2);
-  background:transparent;color:var(--m);font-family:var(--font);font-size:12px;
+  width:100%;height:40px;border-radius:8px;border:1px solid var(--bd2);
+  background:rgba(255,255,255,0.03);color:var(--m);font-family:var(--font);font-size:11px;
   font-weight:600;letter-spacing:0.5px;transition:all .15s;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:9px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
 }
-.btn-ghost:hover{border-color:var(--a3);color:#FF3923;}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.2);color:var(--t);background:rgba(255,255,255,0.05);}
 
-.footer-link{text-align:center;margin-top:24px;font-size:12px;color:var(--m2);}
-.footer-link a{color:#FF3923;text-decoration:none;font-weight:700;}
+.footer-link{text-align:center;margin-top:20px;font-size:11px;color:var(--m2);}
+.footer-link a{color:var(--fire);text-decoration:none;font-weight:600;}
 .footer-link a:hover{text-decoration:underline;}
 
-/* ── MESSAGES ── */
-.msg{border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px;display:none;line-height:1.5;}
-.msg-err{background:rgba(255,57,35,0.1);border:1px solid rgba(255,57,35,0.28);color:#ff8070;}
-.msg-ok {background:rgba(255,255,255,0.05);border:1px solid var(--bd2);color:var(--m);}
+.error-msg{background:rgba(252,53,3,0.1);border:1px solid rgba(252,53,3,0.25);border-radius:6px;padding:9px 12px;font-size:11px;color:#ff8070;margin-bottom:14px;display:none;}
+.success-msg{background:rgba(255,255,255,0.06);border:1px solid var(--bd2);border-radius:6px;padding:9px 12px;font-size:11px;color:var(--m);margin-bottom:14px;display:none;}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div class="logo">ORBITUM</div>
-  <div class="tb-sp"></div>
-  <div class="orb-lang">
-    <button class="orb-lb on" id="olb-en" onclick="orbLang('en')">EN</button>
-    <button class="orb-lb"    id="olb-ru" onclick="orbLang('ru')">RU</button>
-  </div>
 </div>
 
 <div class="page">
   <div class="card">
-    <div class="card-eyebrow">
-      <span data-en>Trading Intelligence</span>
-      <span data-ru>Торговая аналитика</span>
-    </div>
-    <div class="card-title">
-      <span data-en>Welcome back</span>
-      <span data-ru>Добро пожаловать</span>
-    </div>
-    <div class="card-sub">
-      <span data-en>Sign in to your account to continue.</span>
-      <span data-ru>Войди в аккаунт чтобы продолжить.</span>
-    </div>
+    <div class="card-title">Welcome back</div>
+    <div class="card-sub">Sign in to your account</div>
 
-    <div id="msg-err" class="msg msg-err"></div>
-    <div id="msg-ok"  class="msg msg-ok"></div>
+    <div class="error-msg" id="err-msg"></div>
+    <div class="success-msg" id="ok-msg"></div>
 
     <div id="form-login">
       <div class="field">
-        <label><span data-en>Email</span><span data-ru>Email</span></label>
+        <label>Email</label>
         <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="field">
-        <label><span data-en>Password</span><span data-ru>Пароль</span></label>
+        <label>Password</label>
         <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button class="btn-fire" id="btn-login" onclick="doLogin()">
-        <span data-en>Sign In</span><span data-ru>Войти</span>
-      </button>
+      <button class="btn-primary" id="btn-login" onclick="doLogin()">Sign In</button>
 
-      <div class="divider">
-        <span class="divider-txt"><span data-en>or</span><span data-ru>или</span></span>
-      </div>
+      <div class="divider"><span>or</span></div>
 
       <button class="btn-ghost" onclick="doMagicLink()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
-        <span data-en>Continue with magic link</span>
-        <span data-ru>Войти по magic link</span>
+        Continue with magic link
       </button>
 
       <div class="footer-link">
-        <span data-en>No account?</span><span data-ru>Нет аккаунта?</span>
-        <a href="/register"><span data-en>Create one free</span><span data-ru>Создать бесплатно</span></a>
+        No account? <a href="/register">Create one free</a>
       </div>
     </div>
 
@@ -164,15 +151,9 @@ html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--
         <label>Email</label>
         <input type="email" id="magic-email" placeholder="you@example.com">
       </div>
-      <button class="btn-fire" onclick="sendMagic()">
-        <span data-en>Send magic link</span>
-        <span data-ru>Отправить magic link</span>
-      </button>
-      <div class="footer-link" style="margin-top:18px;">
-        <a href="#" onclick="showLogin()">
-          <span data-en>← Back to login</span>
-          <span data-ru>← Назад</span>
-        </a>
+      <button class="btn-primary" onclick="sendMagic()">Send magic link</button>
+      <div class="footer-link" style="margin-top:16px;">
+        <a href="#" onclick="showLogin()">← Back to login</a>
       </div>
     </div>
   </div>
@@ -182,76 +163,45 @@ html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--
 const SB_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
 let sb;
-
-// ── LANG ─────────────────────────────────────────────
-var _L = localStorage.getItem('orb_lang') || 'en';
-function orbLang(l) {
-  _L = l;
-  localStorage.setItem('orb_lang', l);
-  document.documentElement.setAttribute('data-lang', l);
-  document.getElementById('olb-en').classList.toggle('on', l==='en');
-  document.getElementById('olb-ru').classList.toggle('on', l==='ru');
-}
-orbLang(_L);
-
-// ── SUPABASE ─────────────────────────────────────────
-function initSB() {
-  if (typeof supabase === 'undefined') { setTimeout(initSB, 80); return; }
-  sb = supabase.createClient(SB_URL, SB_KEY);
-  sb.auth.getSession().then(({ data: { session } }) => {
-    if (session) location.href = '/journal';
-  });
+function initSB(){
+  if(typeof supabase==='undefined'){setTimeout(initSB,100);return;}
+  sb=supabase.createClient(SB_URL,SB_KEY);
+  sb.auth.getSession().then(({data:{session}})=>{if(session)location.href='/journal';});
 }
 initSB();
-
-// ── MESSAGES ─────────────────────────────────────────
-function showErr(msg) {
-  var el = document.getElementById('msg-err');
-  el.textContent = msg; el.style.display = 'block';
-  document.getElementById('msg-ok').style.display = 'none';
+function showErr(msg){const el=document.getElementById('err-msg');el.textContent=msg;el.style.display='block';document.getElementById('ok-msg').style.display='none';}
+function showOk(msg){const el=document.getElementById('ok-msg');el.textContent=msg;el.style.display='block';document.getElementById('err-msg').style.display='none';}
+async function doLogin(){
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('password').value;
+  if(!email||!pass){showErr('Fill in email and password');return;}
+  const btn=document.getElementById('btn-login');
+  btn.disabled=true;btn.textContent='Signing in...';
+  const{error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){showErr(error.message);btn.disabled=false;btn.textContent='Sign In';}
+  else location.href='/journal';
 }
-function showOk(msg) {
-  var el = document.getElementById('msg-ok');
-  el.textContent = msg; el.style.display = 'block';
-  document.getElementById('msg-err').style.display = 'none';
+function doMagicLink(){
+  document.getElementById('form-login').style.display='none';
+  document.getElementById('form-magic').style.display='block';
+  document.getElementById('magic-email').value=document.getElementById('email').value;
 }
-
-// ── LOGIN ─────────────────────────────────────────────
-async function doLogin() {
-  var email = document.getElementById('email').value.trim();
-  var pass  = document.getElementById('password').value;
-  if (!email || !pass) {
-    showErr(_L==='ru' ? 'Введи email и пароль' : 'Fill in email and password');
-    return;
+function showLogin(){
+  document.getElementById('form-magic').style.display='none';
+  document.getElementById('form-login').style.display='block';
+}
+async function sendMagic(){
+  const email=document.getElementById('magic-email').value.trim();
+  if(!email){showErr('Enter your email');return;}
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/journal'}});
+  if(error)showErr(error.message);
+  else showOk('Magic link sent — check your inbox.');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(document.getElementById('form-login').style.display!=='none')doLogin();
+    else sendMagic();
   }
-  var btn = document.getElementById('btn-login');
-  btn.disabled = true;
-  var { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) { showErr(error.message); btn.disabled = false; }
-  else location.href = '/journal';
-}
-
-function doMagicLink() {
-  document.getElementById('form-login').style.display = 'none';
-  document.getElementById('form-magic').style.display = 'block';
-  document.getElementById('magic-email').value = document.getElementById('email').value;
-}
-function showLogin() {
-  document.getElementById('form-magic').style.display = 'none';
-  document.getElementById('form-login').style.display = 'block';
-}
-async function sendMagic() {
-  var email = document.getElementById('magic-email').value.trim();
-  if (!email) { showErr(_L==='ru' ? 'Введи email' : 'Enter your email'); return; }
-  var { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + '/journal' } });
-  if (error) showErr(error.message);
-  else showOk(_L==='ru' ? 'Ссылка отправлена — проверь почту.' : 'Magic link sent — check your inbox.');
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key !== 'Enter') return;
-  if (document.getElementById('form-login').style.display !== 'none') doLogin();
-  else sendMagic();
 });
 </script>
 </body>
