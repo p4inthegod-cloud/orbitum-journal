@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#06080c">
+<meta name="theme-color" content="#1a1a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +42,7 @@
   --disp:  'Plus Jakarta Sans', sans-serif;
   --radius: 8px;
 }
-[data-theme="light"] {
+[data-theme="dark"] {
   --bg:#f0f1f4; --bg2:#ffffff; --bg3:#e8eaef; --bg4:#dde0e8;
   --bd:rgba(0,0,0,0.07); --bd2:rgba(0,0,0,0.13);
   --t:#141820; --m:rgba(20,24,32,0.6); --m2:rgba(20,24,32,0.3); --m3:rgba(20,24,32,0.08);
@@ -78,8 +78,8 @@ body::after {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 8px; border-bottom: 1px solid var(--bd); gap: 8px;
 }
-.sb-logo { font-family: var(--disp); font-size: 15px; letter-spacing: 4px; color: var(--a); opacity: 0; width: 0; overflow: hidden; white-space: nowrap; transition: opacity .18s .1s, width .22s; }
-.sidebar.expanded .sb-logo { opacity: 1; width: auto; }
+.sb-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;letter-spacing:4px;color:#FF3923;text-transform:uppercase;text-decoration:none;}
+.sidebar.expanded .sb-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;letter-spacing:4px;color:#FF3923;text-transform:uppercase;text-decoration:none;}
 .sb-toggle {
   width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--bd);
   background: transparent; color: var(--m); display: flex; align-items: center; justify-content: center;
@@ -548,6 +548,26 @@ body::after {
   0%,100%{box-shadow:0 0 12px rgba(255,57,35,0.15),inset 0 1px 0 rgba(255,255,255,0.07);}
   50%{box-shadow:0 0 28px rgba(255,57,35,0.4),inset 0 1px 0 rgba(255,255,255,0.1);}
 }
+
+/* ── LANG TOGGLE ── */
+.orb-lang{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px;gap:2px;flex-shrink:0;}
+.orb-lb{height:22px;padding:0 9px;border-radius:4px;border:none;background:transparent;color:rgba(255,255,255,0.35);font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;}
+.orb-lb.on{background:#FF3923;color:#fff;}
+[data-lang="en"] [data-ru]{display:none!important;}
+[data-lang="ru"] [data-en]{display:none!important;}
+
+/* ── 30-MIN TYPEWRITER ── */
+.orb-tw{position:fixed;inset:0;background:#1a1a1a;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;pointer-events:none;}
+.orb-tw.show{display:flex;}
+.orb-tw-line{font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;overflow:hidden;width:0;border-right:2px solid #FF3923;}
+.orb-tw-l1{font-size:13px;font-weight:500;color:rgba(255,255,255,0.4);letter-spacing:0.5px;animation:twT1 1.6s steps(36,end) .2s forwards,twBlink .5s step-end .2s 4;}
+.orb-tw-l2{font-size:30px;font-weight:800;color:#FF3923;letter-spacing:-1px;opacity:0;text-shadow:0 0 30px rgba(255,57,35,0.5);animation:twT2 1.8s steps(20,end) 2.2s forwards,twBlink .5s step-end 2.2s 5;}
+.orb-tw-l3{font-size:12px;font-weight:400;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;opacity:0;animation:twT3 1s steps(32,end) 4.6s forwards;}
+@keyframes twT1{from{width:0}to{width:420px}}
+@keyframes twT2{0%{width:0;opacity:1}100%{width:340px;opacity:1}}
+@keyframes twT3{0%{width:0;opacity:1}100%{width:380px;opacity:1}}
+@keyframes twBlink{50%{border-color:transparent}}
+
 </style>
 </head>
 <body>
@@ -1605,7 +1625,7 @@ function runBoot() {
   localStorage.setItem('orb_scr_boot', today);
 
   const ov = document.createElement('div');
-  ov.style.cssText = 'position:fixed;inset:0;z-index:9997;background:#06080c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-family:var(--mono);pointer-events:none;animation:bootFadeOut .4s ease 3s forwards;';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:9997;background:#1a1a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-family:var(--mono);pointer-events:none;animation:bootFadeOut .4s ease 3s forwards;';
   const style = document.createElement('style');
   style.textContent = '@keyframes bootFadeOut{to{opacity:0;pointer-events:none;}}';
   document.head.appendChild(style);
@@ -1681,6 +1701,35 @@ function waitAndInit() {
   setTimeout(() => { clearInterval(t); if (typeof supabase === 'undefined') { document.getElementById('table-wrap').innerHTML = '<div class="state-wrap"><div class="state-text" style="color:var(--r)">Supabase не загружен. Проверь блокировщик рекламы.</div></div>'; } }, 8000);
 }
 document.addEventListener('DOMContentLoaded', waitAndInit);
+</script>
+<script>
+(function(){
+  var L=localStorage.getItem('orb_lang')||'en';
+  window.orbLang=function(l){
+    L=l;localStorage.setItem('orb_lang',l);
+    document.documentElement.setAttribute('data-lang',l);
+    var en=document.getElementById('olb-en'),ru=document.getElementById('olb-ru');
+    if(en)en.classList.toggle('on',l==='en');
+    if(ru)ru.classList.toggle('on',l==='ru');
+  };
+  document.addEventListener('DOMContentLoaded',function(){window.orbLang(L);});
+})();
+</script>
+<script>
+(function(){
+  try{
+    var K='orb_tw_ts',now=Date.now(),last=+localStorage.getItem(K)||0;
+    if(now-last<30*60*1000)return;
+    localStorage.setItem(K,String(now));
+    var el=document.getElementById('orb-tw');
+    if(!el)return;
+    el.classList.add('show');
+    setTimeout(function(){
+      el.style.transition='opacity .5s';el.style.opacity='0';
+      setTimeout(function(){el.classList.remove('show');el.style.opacity='';el.style.transition='';},520);
+    },8000);
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
