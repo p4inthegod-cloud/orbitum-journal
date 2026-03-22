@@ -2981,7 +2981,7 @@ document.addEventListener('keydown', e => {
 <div class="tg-widget-modal" id="pnl-card-modal" onclick="closePnlModal()">
   <div class="tgw-box" style="max-width:520px" onclick="event.stopPropagation()">
     <div class="tgw-head">
-      <span class="tgw-title">PNL SHARE КАРТОЧКА</span>
+      <span class="tgw-title" style="color:#FF3923;letter-spacing:2px;font-size:11px;">PNL SHARE КАРТОЧКА</span>
       <button class="tgw-close" onclick="closePnlModal()">✕</button>
     </div>
     <div class="tgw-body" style="padding:14px 18px">
@@ -2998,9 +2998,9 @@ document.addEventListener('keydown', e => {
       </div>
       <!-- Style selector -->
       <div style="display:flex;gap:6px;margin-bottom:12px;">
-        <button class="pnl-style-btn active" data-style="dark" onclick="setPnlStyle('dark',this)">🌑 DARK</button>
-        <button class="pnl-style-btn" data-style="neon" onclick="setPnlStyle('neon',this)">⚡ NEON</button>
-        <button class="pnl-style-btn" data-style="minimal" onclick="setPnlStyle('minimal',this)">◻ CLEAN</button>
+        <button class="pnl-style-btn active" data-style="dark" onclick="setPnlStyle('dark',this)">ORBITUM</button>
+        <button class="pnl-style-btn" data-style="neon" onclick="setPnlStyle('neon',this)">FIRE</button>
+        <button class="pnl-style-btn" data-style="minimal" onclick="setPnlStyle('minimal',this)">MONO</button>
       </div>
       <!-- Actions -->
       <div class="tgw-actions">
@@ -3014,13 +3014,18 @@ document.addEventListener('keydown', e => {
 
 <style>
 .pnl-style-btn{
-  flex:1;height:30px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);
-  background:transparent;color:rgba(255,255,255,0.4);
-  font-family:var(--font-mono);font-size:9px;letter-spacing:.5px;cursor:pointer;
-  transition:all .12s;
+  flex:1;height:32px;border-radius:7px;border:1px solid rgba(255,255,255,0.08);
+  background:transparent;color:rgba(255,255,255,0.35);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:1.5px;cursor:pointer;transition:all .15s;text-transform:uppercase;
 }
-.pnl-style-btn:hover{color:var(--t);border-color:rgba(255,255,255,0.2);}
-.pnl-style-btn.active{color:var(--a);border-color:rgba(255,57,35,0.4);background:rgba(255,57,35,0.08);}
+.pnl-style-btn:hover{color:#fff;border-color:rgba(255,57,35,0.3);}
+.pnl-style-btn.active{
+  color:#FF3923;border-color:rgba(255,57,35,0.5);
+  background:rgba(255,57,35,0.1);
+  box-shadow:0 0 12px rgba(255,57,35,0.15);
+  animation:btnBreathe 2.4s ease-in-out infinite;
+}
 </style>
 
 <script>
@@ -3040,32 +3045,38 @@ let _pnlLogo = null;
 })();
 
 const PNL_STYLES = {
+  // ORBITUM — #FF3923 fire on #161616 midnight
   dark: {
-    bg1: '#060910', bg2: '#0d1017', bg3: '#111520',
-    accent: '#e8721a', accentGlow: 'rgba(255,57,35,0.25)',
-    green: '#2ecc71', greenGlow: 'rgba(46,204,113,0.25)',
-    red: '#e74c3c', redGlow: 'rgba(231,76,60,0.25)',
-    text: '#ffffff', textMuted: 'rgba(255,255,255,0.45)',
-    border: 'rgba(255,255,255,0.07)',
-    brand: '#e8721a', grid: 'rgba(255,255,255,0.04)',
+    bg1: '#0e0e0e', bg2: '#161616', bg3: '#1c1c1c',
+    accent: '#FF3923', accentGlow: 'rgba(255,57,35,0.3)',
+    green: '#FF3923', greenGlow: 'rgba(255,57,35,0.28)',
+    red:   '#FF3923', redGlow:   'rgba(255,57,35,0.28)',
+    text: '#ffffff', textMuted: 'rgba(255,255,255,0.42)',
+    border: 'rgba(255,57,35,0.14)',
+    brand: '#FF3923', grid: 'rgba(255,255,255,0.03)',
+    winColor: '#ffffff', lossColor: 'rgba(255,255,255,0.55)',
   },
+  // FIRE — full orange glow
   neon: {
-    bg1: '#020612', bg2: '#060d1e', bg3: '#0a1228',
-    accent: '#00d4ff', accentGlow: 'rgba(0,212,255,0.3)',
-    green: '#00ff88', greenGlow: 'rgba(0,255,136,0.3)',
-    red: '#ff4466', redGlow: 'rgba(255,68,102,0.3)',
-    text: '#e0f0ff', textMuted: 'rgba(160,210,255,0.5)',
-    border: 'rgba(0,212,255,0.12)',
-    brand: '#00d4ff', grid: 'rgba(0,212,255,0.05)',
+    bg1: '#0a0400', bg2: '#120800', bg3: '#1a0c00',
+    accent: '#FF3923', accentGlow: 'rgba(255,57,35,0.45)',
+    green: '#FF7040', greenGlow: 'rgba(255,112,64,0.4)',
+    red:   '#FF1A00', redGlow:   'rgba(255,26,0,0.4)',
+    text: '#ffe8e0', textMuted: 'rgba(255,200,180,0.5)',
+    border: 'rgba(255,57,35,0.2)',
+    brand: '#FF3923', grid: 'rgba(255,57,35,0.04)',
+    winColor: '#FF7040', lossColor: '#FF1A00',
   },
+  // MONO — pure black/white, accent only on PNL
   minimal: {
-    bg1: '#0a0a0a', bg2: '#111111', bg3: '#161616',
-    accent: '#ffffff', accentGlow: 'rgba(255,255,255,0.1)',
-    green: '#4ade80', greenGlow: 'rgba(74,222,128,0.2)',
-    red: '#f87171', redGlow: 'rgba(248,113,113,0.2)',
-    text: '#ffffff', textMuted: 'rgba(255,255,255,0.4)',
-    border: 'rgba(255,255,255,0.08)',
-    brand: '#ffffff', grid: 'rgba(255,255,255,0.03)',
+    bg1: '#111111', bg2: '#161616', bg3: '#1c1c1c',
+    accent: '#FF3923', accentGlow: 'rgba(255,57,35,0.18)',
+    green: '#ffffff', greenGlow: 'rgba(255,255,255,0.12)',
+    red:   'rgba(255,255,255,0.5)', redGlow: 'rgba(255,255,255,0.08)',
+    text: '#ffffff', textMuted: 'rgba(255,255,255,0.35)',
+    border: 'rgba(255,255,255,0.07)',
+    brand: '#FF3923', grid: 'rgba(255,255,255,0.025)',
+    winColor: '#FF3923', lossColor: 'rgba(255,255,255,0.5)',
   }
 };
 
@@ -3117,7 +3128,7 @@ function drawPnlCanvas(trade){
   const W = 600, H = 380;
   const S = PNL_STYLES[_pnlStyle];
   const isWin = trade ? (trade.result === 'win' || (trade.pnl_pct || 0) >= 0) : true;
-  const pnlColor = isWin ? S.green : S.red;
+  const pnlColor = isWin ? (S.winColor || S.green) : (S.lossColor || S.red);
   const pnlGlow  = isWin ? S.greenGlow : S.redGlow;
   const pnl    = trade?.pnl_pct ?? null;
   const pnlUsd = trade?.pnl_usd ?? null;
