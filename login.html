@@ -123,11 +123,8 @@ body::before{
 
 <div class="page">
   <div class="card">
-    <div style="display:flex;gap:0;margin-bottom:24px;border:1px solid var(--bd);border-radius:8px;overflow:hidden;">
-      <button id="tab-login" onclick="switchTab('login')" style="flex:1;padding:10px;background:rgba(255,57,35,0.1);border:none;color:var(--fire);font-family:var(--font);font-size:11px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .15s;border-right:1px solid var(--bd);">SIGN IN</button>
-      <button id="tab-register" onclick="switchTab('register')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--m);font-family:var(--font);font-size:11px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .15s;">SIGN UP</button>
-    </div>
-    <div class="card-sub" id="card-subtitle">Sign in to continue to your journal</div>
+    <div class="card-title">Welcome back</div>
+    <div class="card-sub">Sign in to continue to your journal</div>
 
     <div class="error-msg" id="err-msg"></div>
     <div class="success-msg" id="ok-msg"></div>
@@ -150,7 +147,9 @@ body::before{
         Continue with magic link
       </button>
 
-      
+      <div class="footer-link">
+        No account? <a href="/register">Create one free</a>
+      </div>
     </div>
 
     <div id="form-magic" style="display:none;">
@@ -160,21 +159,7 @@ body::before{
       </div>
       <button class="btn-primary" onclick="sendMagic()">Send magic link</button>
       <div class="footer-link" style="margin-top:16px;">
-        <a href="#" onclick="switchTab('login')">← Back to sign in</a>
-      </div>
-    </div>
-    <div id="form-register" style="display:none;">
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="reg-password" placeholder="Min 8 characters" autocomplete="new-password">
-      </div>
-      <button class="btn-primary" id="btn-register" onclick="doRegister()">Create account</button>
-      <div class="footer-link" style="margin-top:16px;font-size:11px;color:var(--m2);">
-        By signing up you agree to our terms of service.
+        <a href="#" onclick="showLogin()">← Back to login</a>
       </div>
     </div>
   </div>
@@ -211,40 +196,6 @@ function showLogin(){
   document.getElementById('form-magic').style.display='none';
   document.getElementById('form-login').style.display='block';
 }
-function switchTab(tab){
-  const tabs = ['login','register','magic'];
-  tabs.forEach(function(t){
-    var form = document.getElementById('form-'+t);
-    if(form) form.style.display = t===tab ? 'block' : 'none';
-  });
-  var subtitle = document.getElementById('card-subtitle');
-  if(subtitle) subtitle.textContent = tab==='register' ? 'Create your free account' : 'Sign in to continue to your journal';
-  var tl = document.getElementById('tab-login');
-  var tr = document.getElementById('tab-register');
-  if(tl && tr){
-    tl.style.background = tab==='login' ? 'rgba(255,57,35,0.1)' : 'transparent';
-    tl.style.color = tab==='login' ? 'var(--fire)' : 'var(--m)';
-    tr.style.background = tab==='register' ? 'rgba(255,57,35,0.1)' : 'transparent';
-    tr.style.color = tab==='register' ? 'var(--fire)' : 'var(--m)';
-  }
-}
-async function doRegister(){
-  var email = document.getElementById('reg-email').value.trim();
-  var pass = document.getElementById('reg-password').value;
-  if(!email||!pass){showErr('Fill in all fields');return;}
-  if(pass.length<8){showErr('Password must be at least 8 characters');return;}
-  var btn = document.getElementById('btn-register');
-  btn.disabled=true; btn.textContent='Creating account...';
-  var {error} = await sb.auth.signUp({email, password:pass});
-  if(error){showErr(error.message);btn.disabled=false;btn.textContent='Create account';}
-  else showOk('Account created! Check your email to confirm, then sign in.');
-}
-document.addEventListener('keydown',function(e){
-  if(e.key==='Enter'){
-    var vis = document.getElementById('form-register');
-    if(vis && vis.style.display==='block') doRegister();
-  }
-});
 async function sendMagic(){
   const email=document.getElementById('magic-email').value.trim();
   if(!email){showErr('Enter your email');return;}
