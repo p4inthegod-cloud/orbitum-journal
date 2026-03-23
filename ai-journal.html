@@ -1,580 +1,868 @@
 <!DOCTYPE html>
-<html lang="ru" data-lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORBITUM — Trading Journal & AI Analytics</title>
-<meta name="description" content="Professional trading journal with AI analysis. Find patterns that drain your account.">
+<title>ORBITUM · AI Разбор</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script>window.addEventListener('DOMContentLoaded',function(){if(typeof supabase==='undefined'){var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';document.head.appendChild(s);}});</script>
 <style>
-:root{
-  --a:#e8722a;--a2:rgba(232,114,42,0.1);--a3:rgba(232,114,42,0.25);
-  --bg:#0b0d12;--bg2:#13161e;--bg3:#1a1e28;
-  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);
-  --t:#eef0f6;--t2:rgba(238,240,246,0.6);--t3:rgba(238,240,246,0.28);
-  --g:#2ecc71;--r:#e74c3c;
-  --grad:linear-gradient(135deg,#ff8040 0%,#e05010 100%);
+:root {
+  --bg:   #0d0d0d;
+  --bg2:  #0c0f15;
+  --bg3:  #111520;
+  --bg4:  #161b28;
+  --bd:   rgba(255,255,255,0.06);
+  --bd2:  rgba(255,255,255,0.11);
+  --t:    #e8e4dc;
+  --m:    rgba(232,228,220,0.50);
+  --m2:   rgba(232,228,220,0.24);
+  --m3:   rgba(232,228,220,0.10);
+  --a: #FF3923;
+  --a2:   rgba(255,57,35,0.10);
+  --a3:   rgba(255,57,35,0.28);
+  --g:    #2ecc71;
+  --g2:   rgba(46,204,113,0.10);
+  --r:    #e74c3c;
+  --r2:   rgba(231,76,60,0.10);
+  --y:    #f0c040;
+  --mono: 'DM Mono', 'JetBrains Mono', monospace;
+  --disp: 'Bebas Neue', sans-serif;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--t);font-family:'Syne',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
-a{text-decoration:none;color:inherit;}
+[data-theme="light"] {
+  --bg:#f0f1f4;--bg2:#fff;--bg3:#e8eaef;--bg4:#dde0e8;
+  --bd:rgba(0,0,0,.07);--bd2:rgba(0,0,0,.13);
+  --t:#141820;--m:rgba(20,24,32,.6);--m2:rgba(20,24,32,.3);--m3:rgba(20,24,32,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--t);font-family:var(--mono);min-height:100vh;}
+button{cursor:pointer;font-family:var(--mono);}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:900;height:60px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(11,13,18,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);transition:background .3s;}
-.nav-logo{font-family:'Comfortaa',cursive;font-size:20px;font-weight:700;font-variant:small-caps;letter-spacing:3px;color:#ff6600;text-shadow:1px 0px 12px rgba(255,103,0,0.9);animation:logoGlow 3s ease-in-out infinite;}
-@keyframes logoGlow{0%,100%{text-shadow:1px 0 10px rgba(255,103,0,.7);}50%{text-shadow:1px 0 20px rgba(255,103,0,1),0 0 30px rgba(255,103,0,.35);}}
-.nav-links{display:flex;gap:32px;}
-.nav-links a{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;transition:color .2s;}
-.nav-links a:hover{color:var(--t);}
-.nav-right{display:flex;align-items:center;gap:10px;}
-.nav-lang{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--t3);background:transparent;border:1px solid var(--bd);border-radius:6px;padding:5px 10px;cursor:pointer;transition:all .2s;}
-.nav-lang:hover,.nav-lang.active{color:var(--a);border-color:var(--a3);}
-.nbtn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;padding:8px 20px;border-radius:30px;cursor:pointer;transition:all .25s;border:none;}
-.nbtn.out{background:transparent;border:1px solid var(--bd2);color:var(--t2);}
-.nbtn.out:hover{border-color:rgba(255,255,255,.2);color:var(--t);}
-.nbtn.fill{background:var(--grad);color:#fff;box-shadow:0 2px 16px rgba(232,114,42,.35);}
-.nbtn.fill:hover{transform:translateY(-1px);box-shadow:0 4px 28px rgba(232,114,42,.55);}
-
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 80px;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 500px at 50% 20%,rgba(232,114,42,.07),transparent 70%),radial-gradient(ellipse 400px 400px at 80% 80%,rgba(46,204,113,.03),transparent 70%);pointer-events:none;}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 20px;margin-bottom:26px;background:rgba(232,114,42,.07);border:1px solid rgba(232,114,42,.2);border-radius:40px;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,150,80,.9);letter-spacing:2px;text-transform:uppercase;animation:fup .6s both;}
-.bdot{width:5px;height:5px;border-radius:50%;background:var(--a);animation:bpulse 2s ease infinite;}
-@keyframes bpulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-.hero-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,12vw,140px);letter-spacing:2px;line-height:.88;margin-bottom:30px;animation:fup .6s .08s both;}
-.h1d{color:rgba(238,240,246,.13);}
-.h1f{background:linear-gradient(135deg,#ffaa60 0%,#e8722a 50%,#c84a00 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:clamp(14px,1.5vw,17px);color:var(--t2);max-width:540px;line-height:1.9;margin-bottom:48px;animation:fup .6s .16s both;}
-.hero-sub strong{color:var(--t);font-weight:700;}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:80px;animation:fup .6s .24s both;}
-.btn-p{padding:16px 48px;background:var(--grad);border:none;border-radius:50px;color:#fff;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:inline-block;box-shadow:0 6px 40px rgba(232,114,42,.45);transition:all .3s;}
-.btn-p:hover{transform:translateY(-2px);box-shadow:0 12px 56px rgba(232,114,42,.6);}
-.btn-g{padding:16px 48px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:50px;color:var(--t2);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:inline-block;transition:all .3s;}
-.btn-g:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:var(--t);}
-.stats-row{display:flex;align-items:center;justify-content:center;animation:fup .6s .32s both;}
-.sbox{text-align:center;padding:0 40px;}
-.sbox+.sbox{border-left:1px solid var(--bd);}
-.sn{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:1px;line-height:1;background:linear-gradient(135deg,var(--a),#ffaa60);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.sl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
-@keyframes fup{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
-
-/* SECTIONS */
-section{position:relative;z-index:1;}
-.wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--a);letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.eyebrow::before{content:'';width:24px;height:1px;background:var(--a);}
-.stitle{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5.5vw,64px);letter-spacing:1px;line-height:.92;margin-bottom:14px;}
-.ssub{font-size:15px;color:var(--t2);line-height:1.8;max-width:500px;}
-.acc{color:var(--a);}
-
-/* FEATURES */
-.feat-sec{padding:120px 0;}
-.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:60px;}
-.fc{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:28px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s;opacity:0;transform:translateY(20px);}
-.fc.vis{opacity:1;transform:translateY(0);transition:opacity .5s,transform .5s,border-color .3s;}
-.fc:hover{transform:translateY(-4px);border-color:rgba(232,114,42,.22);}
-.fc::before{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,rgba(232,114,42,.3),transparent);}
-.fc.w2{grid-column:span 2;}
-.fi{width:40px;height:40px;border-radius:10px;background:rgba(232,114,42,.1);border:1px solid rgba(232,114,42,.2);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
-.fn{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px;}
-.fd{font-size:13px;color:var(--t2);line-height:1.75;}
-.ftag{display:inline-flex;align-items:center;gap:5px;margin-top:14px;padding:4px 12px;border-radius:20px;background:rgba(46,204,113,.06);border:1px solid rgba(46,204,113,.15);font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(80,210,120,.9);letter-spacing:.8px;}
-
-/* SCREENER */
-.sc-sec{padding:80px 0 120px;border-top:1px solid var(--bd);}
-.sc-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center;margin-top:60px;}
-.sc-feats{display:flex;flex-direction:column;gap:14px;}
-.scf{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid var(--bd);transition:all .25s;}
-.scf:hover{border-color:rgba(232,114,42,.2);background:rgba(232,114,42,.03);}
-.scfi{width:34px;height:34px;border-radius:8px;flex-shrink:0;background:rgba(232,114,42,.08);border:1px solid rgba(232,114,42,.15);display:flex;align-items:center;justify-content:center;}
-.scfn{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px;}
-.scfd{font-size:12px;color:var(--t2);line-height:1.6;}
-.sc-mock{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;overflow:hidden;}
-.mtb{height:36px;background:var(--bg3);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 12px;gap:6px;}
-.md{width:8px;height:8px;border-radius:50%;}
-.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);}
-.mc{background:var(--bg2);padding:12px 8px;text-align:center;font-family:'JetBrains Mono',monospace;}
-.mcs{font-weight:600;font-size:10px;margin-bottom:3px;}
-.mcp{font-size:9px;}
-.up{color:var(--g);}.dn{color:var(--r);}
-.bup{background:rgba(46,204,113,.12);}.bdn{background:rgba(231,76,60,.12);}
-.mup{background:rgba(46,204,113,.06);}.mdn{background:rgba(231,76,60,.06);}
-
-/* PRICING */
-.pr-sec{padding:100px 0 120px;border-top:1px solid var(--bd);}
-.pr-intro{text-align:center;margin-bottom:60px;}
-.pr-intro .eyebrow{justify-content:center;}
-.pr-intro .eyebrow::before{display:none;}
-.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:980px;margin:0 auto;}
-.pc{background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:32px 28px;position:relative;overflow:hidden;transition:transform .3s;opacity:0;transform:translateY(20px);}
-.pc.vis{opacity:1;transform:translateY(0);}
-.pc:hover{transform:translateY(-4px);}
-.pc.hot{border-color:rgba(232,114,42,.35);background:linear-gradient(160deg,var(--bg2),rgba(232,114,42,.04));}
-.pc.hot::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--a),transparent);}
-.plbl{display:inline-block;padding:4px 12px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;}
-.plbl.basic{background:rgba(255,255,255,.06);color:var(--t3);border:1px solid var(--bd);}
-.plbl.pro{background:rgba(232,114,42,.1);color:var(--a);border:1px solid rgba(232,114,42,.25);}
-.plbl.free{background:rgba(46,204,113,.07);color:var(--g);border:1px solid rgba(46,204,113,.2);}
-.pamt{font-family:'Bebas Neue',sans-serif;font-size:64px;letter-spacing:1px;line-height:1;margin-bottom:4px;}
-.pamt.fire{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.pper{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1px;margin-bottom:28px;}
-.pdiv{height:1px;background:var(--bd);margin-bottom:22px;}
-.plist{list-style:none;margin-bottom:28px;display:flex;flex-direction:column;gap:10px;}
-.plist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--t2);line-height:1.5;}
-.ck{width:16px;height:16px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;}
-.ck.y{background:rgba(46,204,113,.12);color:var(--g);}
-.ck.n{background:rgba(255,255,255,.04);color:var(--t3);}
-.plist li.dim{color:var(--t3);}
-.pcta{width:100%;padding:14px;border-radius:50px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:block;text-align:center;transition:all .25s;border:none;}
-.pcta.fill{background:var(--grad);color:#fff;box-shadow:0 4px 24px rgba(232,114,42,.4);}
-.pcta.fill:hover{transform:translateY(-1px);box-shadow:0 8px 36px rgba(232,114,42,.55);}
-.pcta.soft{background:rgba(255,255,255,.05);color:var(--t2);border:1px solid var(--bd2);}
-.pcta.soft:hover{background:rgba(255,255,255,.09);color:var(--t);}
-.pnote{text-align:center;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);}
-.ppop{position:absolute;top:16px;right:16px;padding:3px 10px;border-radius:10px;background:rgba(232,114,42,.15);border:1px solid rgba(232,114,42,.3);font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--a);letter-spacing:1px;}
-
-/* MODULES */
-.mod-sec{padding:80px 0 100px;}
-.mgr{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:50px;}
-.mdc{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:24px;display:flex;gap:18px;align-items:flex-start;transition:all .3s;opacity:0;transform:translateY(16px);}
-.mdc.vis{opacity:1;transform:translateY(0);}
-.mdc:hover{border-color:rgba(232,114,42,.18);}
-.mdic{width:44px;height:44px;border-radius:12px;flex-shrink:0;background:rgba(232,114,42,.1);border:1px solid rgba(232,114,42,.2);display:flex;align-items:center;justify-content:center;}
-.mdin{flex:1;}
-.mdnm{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:5px;}
-.mdds{font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:10px;}
-.mdpr{display:flex;align-items:center;justify-content:space-between;}
-.mdprice{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--a);}
-.mdpsub{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;}
-.mdinc{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;padding:3px 10px;border-radius:10px;background:rgba(46,204,113,.08);color:var(--g);border:1px solid rgba(46,204,113,.18);}
-.mdpaid{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;padding:3px 10px;border-radius:10px;background:rgba(232,114,42,.08);color:var(--a);border:1px solid rgba(232,114,42,.2);}
-
-/* REVIEWS */
-.rev-sec{padding:80px 0 100px;border-top:1px solid var(--bd);}
-.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:50px;}
-.rc{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:24px;transition:all .3s;opacity:0;transform:translateY(16px);}
-.rc.vis{opacity:1;transform:translateY(0);}
-.rc:hover{border-color:rgba(232,114,42,.2);transform:translateY(-2px);}
-.rstars{display:flex;gap:2px;margin-bottom:12px;}
-.rstars span{color:var(--a);font-size:12px;}
-.rtxt{font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:16px;font-style:italic;}
-.rauth{display:flex;align-items:center;gap:10px;}
-.rava{width:32px;height:32px;border-radius:50%;background:rgba(232,114,42,.12);border:1px solid rgba(232,114,42,.25);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--a);flex-shrink:0;}
-.rname{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;}
-.rrole{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-top:2px;}
-.rres{margin-top:10px;padding:7px 12px;border-radius:8px;background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.15);font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--g);}
-
-/* CTA */
-.cta-sec{padding:0 24px 120px;text-align:center;}
-.cta-card{max-width:700px;margin:0 auto;background:rgba(232,114,42,.04);border:1px solid rgba(232,114,42,.18);border-radius:28px;padding:72px 48px;position:relative;overflow:hidden;}
-.cta-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,114,42,.1),transparent 60%);pointer-events:none;}
-.cta-card::after{content:'';position:absolute;top:0;left:20%;right:20%;height:1px;background:linear-gradient(90deg,transparent,var(--a),transparent);}
-.cta-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,72px);letter-spacing:2px;line-height:.9;margin-bottom:16px;}
-.cta-title span{color:var(--a);}
-.cta-sub{font-size:15px;color:var(--t2);line-height:1.8;margin-bottom:36px;max-width:420px;margin-left:auto;margin-right:auto;}
-
-/* FOOTER */
-footer{border-top:1px solid var(--bd);padding:40px 24px;}
-.fi2{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
-.flogo{font-family:'Comfortaa',cursive;font-size:16px;font-weight:700;font-variant:small-caps;color:#ff6600;text-shadow:1px 0 8px rgba(255,103,0,.7);letter-spacing:2px;}
-.flinks{display:flex;gap:24px;}
-.flinks a{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1px;transition:color .2s;}
-.flinks a:hover{color:var(--t);}
-.fcopy{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1px;}
-
-/* LIVE */
-.lpop{position:fixed;bottom:24px;left:24px;z-index:800;background:rgba(13,16,22,.97);border:1px solid rgba(46,204,113,.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.6);transform:translateX(-130%);transition:transform .55s cubic-bezier(.16,1,.3,1);}
-.lpop.show{transform:translateX(0);}
-.ldot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);flex-shrink:0;animation:lpls 1.5s ease infinite;}
-@keyframes lpls{0%,100%{opacity:1;}50%{opacity:.3;}}
-.ltxt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);line-height:1.5;}
-
-/* i18n */
-[data-ru],[data-en]{display:none;}
-html[data-lang="ru"] [data-ru]{display:revert;}
-html[data-lang="en"] [data-en]{display:revert;}
-
-/* MOBILE */
-@media(max-width:768px){
-  nav{padding:0 16px;}.nav-links{display:none;}
-  .fgrid,.pgrid{grid-template-columns:1fr;}.fc.w2{grid-column:span 1;}
-  .sc-layout{grid-template-columns:1fr;}.sc-mock{display:none;}
-  .mgr,.rgrid{grid-template-columns:1fr;}
-  .stats-row{flex-wrap:wrap;}.sbox{padding:16px 24px;}
-  .cta-card{padding:48px 24px;}
-  .fi2{flex-direction:column;text-align:center;}.flinks{justify-content:center;}
+/* ── TOPBAR ── */
+.topbar{
+  height:48px;background:var(--bg2);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:12px;padding:0 20px;position:sticky;top:0;z-index:100;
+}
+.tb-back{
+  display:flex;align-items:center;gap:6px;
+  color:var(--m);font-size:10px;letter-spacing:1px;text-decoration:none;
+  padding:5px 10px;border:1px solid var(--bd);border-radius:5px;
+  transition:all .15s;
+}
+.tb-back:hover{color:var(--t);border-color:var(--bd2);}
+.tb-logo{font-family:var(--disp);font-size:16px;letter-spacing:4px;color:var(--a);}
+.tb-title{font-size:9px;letter-spacing:3px;color:var(--m2);text-transform:uppercase;}
+.tb-spacer{flex:1;}
+.tb-trade-sel{
+  height:28px;padding:0 10px;background:var(--bg3);border:1px solid var(--bd);
+  border-radius:5px;color:var(--t);font-size:10px;font-family:var(--mono);
+  outline:none;cursor:pointer;
 }
 
-/* SVG icon helper */
-.ico{display:flex;align-items:center;justify-content:center;}
+/* ── LAYOUT ── */
+.layout{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  min-height:calc(100vh - 48px);
+}
+
+/* ── LEFT: Trade Selector ── */
+.trades-panel{
+  border-right:1px solid var(--bd);background:var(--bg2);
+  display:flex;flex-direction:column;overflow:hidden;
+  position:sticky;top:48px;height:calc(100vh - 48px);
+}
+.tp-header{
+  padding:14px 16px;border-bottom:1px solid var(--bd);flex-shrink:0;
+}
+.tp-label{font-size:8px;letter-spacing:2.5px;color:var(--m2);text-transform:uppercase;margin-bottom:10px;}
+.tp-search{
+  width:100%;height:28px;background:var(--bg3);border:1px solid var(--bd);
+  border-radius:5px;color:var(--t);font-size:10px;padding:0 9px;
+  outline:none;font-family:var(--mono);transition:border-color .15s;
+}
+.tp-search:focus{border-color:var(--a3);}
+.tp-search::placeholder{color:var(--m2);}
+.tp-filters{display:flex;gap:4px;margin-top:8px;}
+.tp-flt{
+  flex:1;height:22px;border:1px solid var(--bd);border-radius:4px;
+  background:transparent;color:var(--m2);font-size:8px;letter-spacing:.5px;
+  text-transform:uppercase;transition:all .12s;
+}
+.tp-flt:hover{color:var(--m);}
+.tp-flt.active{background:var(--a2);border-color:var(--a3);color:var(--a);}
+
+.trades-list{flex:1;overflow-y:auto;padding:8px;}
+.trades-list::-webkit-scrollbar{width:3px;}
+.trades-list::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+
+/* Trade card in list */
+.tc{
+  background:var(--bg3);border:1px solid var(--bd);border-radius:7px;
+  padding:10px 12px;margin-bottom:5px;cursor:pointer;
+  transition:all .13s;position:relative;overflow:hidden;
+}
+.tc::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+}
+.tc.win::before{background:var(--g);}
+.tc.loss::before{background:var(--r);}
+.tc.be::before{background:var(--y);}
+.tc:hover{border-color:var(--bd2);transform:translateX(2px);}
+.tc.selected{background:var(--a2);border-color:var(--a3);}
+.tc-top{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.tc-pair{font-family:var(--disp);font-size:14px;letter-spacing:.5px;flex:1;}
+.tc-dir{font-size:7px;letter-spacing:1.5px;padding:2px 6px;border-radius:3px;font-weight:600;}
+.dir-long{background:var(--g2);color:var(--g);}
+.dir-short{background:var(--r2);color:var(--r);}
+.tc-pnl{font-size:11px;font-weight:600;}
+.tc-meta{display:flex;justify-content:space-between;align-items:center;}
+.tc-setup{font-size:8px;color:var(--m2);letter-spacing:.5px;}
+.tc-date{font-size:7px;color:var(--m3);}
+.tc-has-ai{
+  position:absolute;top:8px;right:8px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--a2);border:1px solid var(--a3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;
+}
+
+/* Empty state */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:10px;height:200px;
+  color:var(--m2);font-size:9px;letter-spacing:2px;text-align:center;
+}
+
+/* ── RIGHT: AI Analysis ── */
+.analysis-panel{padding:24px;overflow-y:auto;}
+.analysis-panel::-webkit-scrollbar{width:4px;}
+.analysis-panel::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+
+/* Empty analysis */
+.analysis-empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;height:60vh;gap:14px;
+}
+.ae-icon{font-family:var(--disp);font-size:52px;color:var(--bd2);letter-spacing:4px;}
+.ae-txt{font-size:9px;letter-spacing:2px;color:var(--m2);text-align:center;line-height:2;}
+
+/* Trade summary header */
+.trade-header{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:10px;
+  padding:16px 20px;margin-bottom:16px;
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
+}
+.th-left{}
+.th-pair{font-family:var(--disp);font-size:28px;letter-spacing:2px;}
+.th-sub{font-size:8px;color:var(--m2);letter-spacing:1.5px;margin-top:3px;}
+.th-metrics{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;}
+.th-m{display:flex;flex-direction:column;gap:2px;}
+.th-m-lbl{font-size:7px;letter-spacing:1.5px;color:var(--m2);text-transform:uppercase;}
+.th-m-val{font-size:13px;font-weight:500;}
+.th-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.th-result{
+  font-family:var(--disp);font-size:24px;letter-spacing:1px;
+}
+.th-pnl{font-size:13px;}
+.th-date{font-size:8px;color:var(--m2);}
+
+/* ── AI SECTION ── */
+.ai-section{margin-bottom:16px;}
+.sec-head{
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;
+}
+.sec-icon{
+  width:20px;height:20px;border-radius:5px;
+  background:var(--a2);border:1px solid var(--a3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;flex-shrink:0;
+}
+.sec-title{font-size:8px;letter-spacing:2.5px;color:var(--a);text-transform:uppercase;}
+.sec-badge{
+  margin-left:auto;font-size:7px;letter-spacing:1px;
+  padding:2px 7px;border-radius:3px;border:1px solid var(--bd);color:var(--m2);
+}
+
+/* Cards grid */
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cards-grid.single{grid-template-columns:1fr;}
+.cards-grid.triple{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:1100px){.cards-grid.triple{grid-template-columns:1fr 1fr;}}
+
+.acard{
+  border-radius:8px;padding:12px 14px;
+  border-left:2px solid transparent;
+  transition:all .15s;
+}
+.acard.ok    {background:rgba(46,204,113,.06); border-left-color:var(--g);}
+.acard.warn  {background:rgba(240,192,64,.06);  border-left-color:var(--y);}
+.acard.danger{background:rgba(231,76,60,.06);   border-left-color:var(--r);}
+.acard.info  {background:rgba(232,114,42,.06);  border-left-color:var(--a);}
+.acard.neutral{background:var(--bg3);           border-left-color:var(--bd2);}
+.acard:hover{transform:translateX(2px);}
+
+.acard-icon{font-size:14px;margin-bottom:6px;display:block;}
+.acard-text{font-size:10px;color:var(--m);line-height:1.7;}
+.acard-text strong{color:var(--t);font-weight:500;}
+
+/* Verdict block */
+.verdict-block{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:10px;
+  padding:16px 20px;margin-bottom:8px;
+  display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;
+}
+.verdict-score{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  min-width:80px;
+}
+.vs-num{font-family:var(--disp);font-size:48px;letter-spacing:1px;line-height:1;}
+.vs-label{font-size:7px;letter-spacing:2px;color:var(--m2);text-transform:uppercase;}
+.vs-bar{width:80px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:4px;}
+.vs-bar-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+.verdict-text{font-size:11px;color:var(--m);line-height:1.8;}
+.verdict-text strong{color:var(--t);font-weight:500;display:block;margin-bottom:4px;font-size:12px;}
+
+/* Pattern recognition */
+.pattern-block{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:10px;
+  padding:16px 20px;margin-bottom:8px;
+}
+.pb-title{font-size:9px;letter-spacing:2px;color:var(--a);margin-bottom:12px;text-transform:uppercase;}
+.pb-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.pb-tag{
+  font-size:8px;letter-spacing:1px;padding:3px 9px;border-radius:3px;
+  text-transform:uppercase;
+}
+.tag-ok    {background:var(--g2);color:var(--g);border:1px solid rgba(46,204,113,.2);}
+.tag-warn  {background:var(--y2, rgba(240,192,64,.1));color:var(--y);border:1px solid rgba(240,192,64,.2);}
+.tag-err   {background:var(--r2);color:var(--r);border:1px solid rgba(231,76,60,.2);}
+.tag-neutral{background:var(--m3);color:var(--m2);border:1px solid var(--bd);}
+.pb-rows{}
+.pb-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--bd);
+}
+.pb-row:last-child{border-bottom:none;}
+.pb-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;
+}
+.pb-content{flex:1;}
+.pb-pattern{font-size:10px;color:var(--t);margin-bottom:2px;}
+.pb-evidence{font-size:9px;color:var(--m2);line-height:1.5;}
+.pb-action{
+  font-size:8px;letter-spacing:.5px;color:var(--a);margin-top:4px;
+  padding:3px 8px;border:1px solid var(--a3);border-radius:3px;
+  display:inline-block;background:var(--a2);
+}
+.pb-impact{font-size:8px;color:var(--m2);flex-shrink:0;margin-top:4px;}
+
+/* Improvement plan */
+.improve-block{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:10px;
+  padding:16px 20px;margin-bottom:8px;
+}
+.improve-steps{counter-reset:steps;}
+.improve-step{
+  display:flex;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--bd);align-items:flex-start;
+}
+.improve-step:last-child{border-bottom:none;}
+.step-num{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--a2);border:1px solid var(--a3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--a);flex-shrink:0;font-weight:600;
+}
+.step-content{}
+.step-title{font-size:10px;color:var(--t);margin-bottom:3px;font-weight:500;}
+.step-desc{font-size:9px;color:var(--m);line-height:1.6;}
+
+/* Comparison block */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.compare-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;
+}
+.cc-title{font-size:8px;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:10px;}
+.cc-stat{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bd);}
+.cc-stat:last-child{border-bottom:none;}
+.cc-stat-name{font-size:9px;color:var(--m2);}
+.cc-stat-val{font-size:10px;color:var(--t);font-weight:500;}
+
+/* Emotion analysis */
+.emotion-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.em-card{
+  flex:1;min-width:140px;background:var(--bg2);border:1px solid var(--bd);
+  border-radius:8px;padding:12px 14px;
+}
+.em-label{font-size:7px;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:7px;}
+.em-bar-wrap{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:5px;}
+.em-bar-fill{height:100%;border-radius:2px;transition:width .5s ease;}
+.em-val-row{display:flex;justify-content:space-between;align-items:center;}
+.em-score{font-family:var(--disp);font-size:18px;letter-spacing:.5px;}
+.em-status{font-size:8px;color:var(--m2);}
+
+/* Loading skeleton */
+.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);background-size:200% 100%;animation:sk 1.4s infinite;border-radius:5px;}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-line{height:12px;margin-bottom:8px;}
+.sk-line.sm{height:9px;width:60%;}
+.sk-line.lg{height:16px;width:40%;}
+.sk-card{height:80px;border-radius:8px;margin-bottom:8px;}
+
+/* AI loading dots */
+.ai-thinking{
+  display:flex;align-items:center;gap:8px;padding:16px;
+  background:var(--bg3);border:1px solid var(--bd);border-radius:8px;
+  font-size:9px;color:var(--m2);letter-spacing:1.5px;
+}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:var(--a);animation:aiD 1.2s ease-in-out infinite;}
+.ai-dot:nth-child(2){animation-delay:.2s;}
+.ai-dot:nth-child(3){animation-delay:.4s;}
+@keyframes aiD{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+/* Analyze button */
+.btn-analyze{
+  width:100%;padding:14px;margin-bottom:16px;
+  background:var(--a2);border:1px solid var(--a3);border-radius:8px;
+  color:var(--a);font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  transition:all .18s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-analyze:hover{background:var(--a3);color:var(--t);}
+.btn-analyze:disabled{opacity:.35;cursor:not-allowed;}
+
+/* Re-analyze */
+.btn-reanalyze{
+  padding:6px 14px;background:transparent;border:1px solid var(--bd);
+  border-radius:5px;color:var(--m2);font-size:8px;letter-spacing:1.5px;
+  text-transform:uppercase;transition:all .15s;margin-left:auto;
+}
+.btn-reanalyze:hover{border-color:var(--a3);color:var(--a);}
+
+/* Section separator */
+.sep{height:1px;background:var(--bd);margin:16px 0;}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:20px;right:20px;z-index:1000;
+  background:var(--bg3);border:1px solid var(--a3);border-radius:8px;
+  padding:10px 14px;font-size:10px;color:var(--t);
+  transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* Stats strip at top of analysis */
+.stats-strip{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px;
+}
+.ss-item{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:7px;padding:10px 12px;
+}
+.ss-lbl{font-size:7px;letter-spacing:1.5px;color:var(--m2);text-transform:uppercase;margin-bottom:4px;}
+.ss-val{font-family:var(--disp);font-size:18px;letter-spacing:.5px;}
+
+/* up/dn */
+.up{color:var(--g);}.dn{color:var(--r);}.neu{color:var(--y);}
 </style>
 </head>
 <body>
 
-<div class="lpop" id="lpop">
-  <div class="ldot"></div>
-  <div class="ltxt" id="ltxt">Алексей обнаружил: теряет $340 каждую пятницу</div>
+<div class="topbar">
+  <a href="/journal" class="tb-back">
+    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2L4 6l4 4"/></svg>
+    Журнал
+  </a>
+  <div class="tb-logo">ORBITUM</div>
+  <div class="tb-title">AI Разбор сделок</div>
+  <div class="tb-spacer"></div>
+  <div id="tb-stats" style="font-size:9px;color:var(--m2);letter-spacing:1px;"></div>
 </div>
 
-<nav id="main-nav">
-  <a href="index.html" class="nav-logo">ORBITUM</a>
-  <div class="nav-links">
-    <a href="#features" data-ru>Возможности</a><a href="#features" data-en>Features</a>
-    <a href="#screener" data-ru>Скринер</a><a href="#screener" data-en>Screener</a>
-    <a href="#pricing" data-ru>Цены</a><a href="#pricing" data-en>Pricing</a>
-  </div>
-  <div class="nav-right" id="nav-right">
-    <button class="nav-lang active" id="lang-ru" onclick="setLang('ru')">RU</button>
-    <button class="nav-lang" id="lang-en" onclick="setLang('en')">EN</button>
-    <a href="login.html" class="nbtn out" data-ru>Войти</a><a href="login.html" class="nbtn out" data-en>Sign In</a>
-    <a href="login.html" class="nbtn fill" data-ru>Начать →</a><a href="login.html" class="nbtn fill" data-en>Get Started →</a>
-  </div>
-</nav>
+<div class="layout">
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-badge"><div class="bdot"></div><span data-ru>Торговый журнал · AI-аналитика · Скринер</span><span data-en>Trading Journal · AI Analytics · Screener</span></div>
-  <h1 class="hero-h1">
-    <span class="h1d" data-ru>ТЫ ЗНАЕШЬ</span><span class="h1d" data-en>YOU KNOW</span><br>
-    <span class="h1f" data-ru>ЧТО СЛИВ</span><span class="h1f" data-en>THE LOSS</span><br>
-    <span class="h1d" data-ru>НЕ СЛУЧАЕН</span><span class="h1d" data-en>IS NOT RANDOM</span>
-  </h1>
-  <p class="hero-sub">
-    <span data-ru><strong>9 из 10 убытков объяснимы психологически.</strong> ORBITUM находит твои паттерны — в какое время теряешь, в каком состоянии входишь. Найди их — и устрани.</span>
-    <span data-en><strong>9 out of 10 losses have a psychological root.</strong> ORBITUM finds your patterns — when you lose, what state triggers bad entries. Find them — and fix them.</span>
-  </p>
-  <div class="hero-btns">
-    <a href="login.html" class="btn-p" id="hero-cta"><span data-ru>Начать прямо сейчас</span><span data-en>Start Right Now</span></a>
-    <a href="#features" class="btn-g"><span data-ru>Как это работает</span><span data-en>How it works</span></a>
-  </div>
-  <div class="stats-row">
-    <div class="sbox"><div class="sn" id="lp-users">—</div><div class="sl" data-ru>Трейдеров</div><div class="sl" data-en>Traders</div></div>
-    <div class="sbox"><div class="sn" id="lp-trades">—</div><div class="sl" data-ru>Сделок записано</div><div class="sl" data-en>Trades logged</div></div>
-    <div class="sbox"><div class="sn">∞</div><div class="sl" data-ru>Бесплатный demo</div><div class="sl" data-en>Free demo</div></div>
-    <div class="sbox"><div class="sn">AI</div><div class="sl" data-ru>Coach & Checker</div><div class="sl" data-en>Coach & Checker</div></div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="feat-sec" id="features">
-  <div class="wrap">
-    <div class="eyebrow" data-ru>Возможности</div><div class="eyebrow" data-en>Features</div>
-    <h2 class="stitle"><span data-ru>ИНСТРУМЕНТЫ<br><span class="acc">КОТОРЫЕ РАСТЯТ</span></span><span data-en>TOOLS THAT<br><span class="acc">GROW YOU</span></span></h2>
-    <p class="ssub"><span data-ru>Каждый модуль создан под одну задачу — находить и устранять то, что мешает зарабатывать.</span><span data-en>Each module is built for one purpose — find and fix what prevents you from profiting.</span></p>
-    <div class="fgrid">
-      <div class="fc w2">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke="#e8722a" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <div class="fn"><span data-ru>Журнал сделок — 30 секунд на запись</span><span data-en>Trade Journal — 30 seconds to log</span></div>
-        <div class="fd"><span data-ru>Депозит, плечо, % риска, вход/стоп/выход. R:R, риск $, цель $ и размер позиции считаются автоматически. Полная история с фильтрами и экспортом.</span><span data-en>Deposit, leverage, risk %, entry/stop/exit. R:R, risk $, target $ and position size calculated automatically. Full history with filters and export.</span></div>
-        <div class="ftag"><span data-ru>↑ Больше времени на торговлю</span><span data-en>↑ More time for actual trading</span></div>
+  <!-- ── LEFT: Trade List ── -->
+  <div class="trades-panel">
+    <div class="tp-header">
+      <div class="tp-label">Сделки</div>
+      <input class="tp-search" type="text" placeholder="Поиск по паре..." id="tp-search" oninput="filterTrades(this.value)">
+      <div class="tp-filters">
+        <button class="tp-flt active" onclick="setTpFilter('all',this)">Все</button>
+        <button class="tp-flt" onclick="setTpFilter('win',this)" style="color:var(--g)">Профит</button>
+        <button class="tp-flt" onclick="setTpFilter('loss',this)" style="color:var(--r)">Убыток</button>
+        <button class="tp-flt" onclick="setTpFilter('no-ai',this)">Без AI</button>
       </div>
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#e8722a" stroke-width="1.4"/><path d="M5.5 8.5c.5 1 1.2 1.5 2.5 1.5s2-.5 2.5-1.5" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/><circle cx="5.5" cy="6.5" r="1" fill="#e8722a"/><circle cx="10.5" cy="6.5" r="1" fill="#e8722a"/></svg></div>
-        <div class="fn">AI Coach</div>
-        <div class="fd"><span data-ru>Анализирует последние сделки. 3 уровня: критично / важно / хорошо. Конкретные действия, а не «торгуй лучше».</span><span data-en>Analyzes recent trades. 3 priority levels: critical / important / good. Actionable advice, not just "trade better".</span></div>
-        <div class="ftag"><span data-ru>↑ WR растёт на 23% в первый месяц</span><span data-en>↑ WR grows 23% in first month</span></div>
-      </div>
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#e8722a" stroke-width="1.4"/><circle cx="8" cy="8" r="3.5" stroke="#e8722a" stroke-width="1.4"/><circle cx="8" cy="8" r="1.5" fill="#e8722a"/></svg></div>
-        <div class="fn">AI Setup Checker</div>
-        <div class="fd"><span data-ru>5 вопросов по SMC/ICT перед входом. Вердикт GO / WAIT / STOP. Останавливает импульсные входы.</span><span data-en>5 SMC/ICT questions before entry. Verdict: GO / WAIT / STOP. Stops impulse entries.</span></div>
-        <div class="ftag"><span data-ru>↓ FOMO-входы на 60%</span><span data-en>↓ FOMO entries by 60%</span></div>
-      </div>
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="8" width="3" height="6.5" rx="1" fill="#e8722a"/><rect x="6.5" y="5" width="3" height="9.5" rx="1" fill="#e8722a"/><rect x="11.5" y="1.5" width="3" height="13" rx="1" fill="#e8722a"/></svg></div>
-        <div class="fn"><span data-ru>Аналитика и прогресс</span><span data-en>Analytics & Progress</span></div>
-        <div class="fd"><span data-ru>Кривая капитала, тепловая карта по времени, WR по дням и сессиям. Видишь где теряешь.</span><span data-en>Equity curve, heatmap by time, WR by day and session. See exactly where you lose.</span></div>
-        <div class="ftag"><span data-ru>↑ Скрытые паттерны</span><span data-en>↑ Hidden patterns revealed</span></div>
-      </div>
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="#e8722a" stroke-width="1.4"/><path d="M2 13.5c0-2.5 2.7-4.5 6-4.5s6 2 6 4.5" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <div class="fn"><span data-ru>Психологический журнал</span><span data-en>Psychology Journal</span></div>
-        <div class="fd"><span data-ru>Уверенность, страх/жадность, фокус. Система находит в каком состоянии ты сливаешь.</span><span data-en>Confidence, fear/greed, focus. System finds what state causes your losses.</span></div>
-        <div class="ftag"><span data-ru>↑ Связь эмоций и убытков</span><span data-en>↑ Maps emotions to losses</span></div>
-      </div>
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="11.5" rx="2" stroke="#e8722a" stroke-width="1.4"/><path d="M1.5 6.5h13" stroke="#e8722a" stroke-width="1.4"/><path d="M5 1.5v3M11 1.5v3" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <div class="fn"><span data-ru>Пре-маркет чеклист</span><span data-en>Pre-market Checklist</span></div>
-        <div class="fd"><span data-ru>Ежедневная подготовка к сессии. Экономический календарь, ключевые уровни, настрой.</span><span data-en>Daily session preparation. Economic calendar, key levels, mindset check.</span></div>
-        <div class="ftag"><span data-ru>↑ Системная подготовка</span><span data-en>↑ Systematic preparation</span></div>
+    </div>
+    <div class="trades-list" id="trades-list">
+      <div class="empty-state">
+        <div class="skeleton" style="width:120px;height:10px;"></div>
+        <div class="skeleton" style="width:80px;height:8px;"></div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- SCREENER -->
-<section class="sc-sec" id="screener">
-  <div class="wrap">
-    <div class="eyebrow" data-ru>Скринер + AI Анализ</div><div class="eyebrow" data-en>Screener + AI Analysis</div>
-    <h2 class="stitle"><span data-ru>РЫНОК И AI<br><span class="acc">В ОДНОМ ОКНЕ</span></span><span data-en>MARKET & AI<br><span class="acc">IN ONE WINDOW</span></span></h2>
-    <p class="ssub" style="margin-bottom:50px;"><span data-ru>Скринер — это не просто таблица котировок. Это инструмент принятия решений с AI-анализом, алертами и экономическим календарём.</span><span data-en>The screener is not just a price table. It's a decision-making tool with AI analysis, alerts and economic calendar.</span></p>
-
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-
-      <!-- Card 1: AI Setup -->
-      <div class="fc" style="grid-column:span 2;">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#e8722a" stroke-width="1.4"/><path d="M5.5 8.5c.5 1 1.2 1.5 2.5 1.5s2-.5 2.5-1.5" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/><circle cx="5.5" cy="6.5" r="1" fill="#e8722a"/><circle cx="10.5" cy="6.5" r="1" fill="#e8722a"/></svg></div>
-        <div class="fn"><span data-ru>AI-анализ сетапа прямо из скринера</span><span data-en>AI Setup Analysis right from screener</span></div>
-        <div class="fd"><span data-ru>Кликни на монету — AI проверит структуру рынка, FVG, ликвидность, RSI и объёмы. Вердикт GO / WAIT / STOP за 3 секунды. Отправка сигнала в Telegram одной кнопкой.</span><span data-en>Click a coin — AI checks market structure, FVG, liquidity, RSI and volume. Verdict GO / WAIT / STOP in 3 seconds. Send signal to Telegram with one button.</span></div>
-        <!-- Mini mock -->
-        <div style="margin-top:18px;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);font-weight:600;">BTC/USDT · 15m</span>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">AI TRADE ANALYZER</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:5px;">
-            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:rgba(46,204,113,.06);border:1px solid rgba(46,204,113,.15);"><span style="color:var(--g);font-size:10px;">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);" data-ru>Структура рынка подтверждена (BOS)</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);" data-en>Market structure confirmed (BOS)</span></div>
-            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:rgba(46,204,113,.06);border:1px solid rgba(46,204,113,.15);"><span style="color:var(--g);font-size:10px;">✓</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);" data-ru>FVG на LTF совпадает с HTF bias</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);" data-en>FVG on LTF aligns with HTF bias</span></div>
-            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.2);"><span style="color:#ffa520;font-size:10px;">?</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);" data-ru>Ликвидность выше не убрана</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t2);" data-en>Liquidity above not swept yet</span></div>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);">
-            <div style="display:flex;align-items:center;gap:8px;"><span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--g);" data-ru>GO — ВХОДИ</span><span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--g);" data-en>GO — ENTER</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);" data-ru>4/5 критериев</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);" data-en>4/5 criteria</span></div>
-            <button style="padding:5px 14px;border-radius:6px;background:rgba(232,114,42,.15);border:1px solid rgba(232,114,42,.3);color:var(--a);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;display:flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M14 8.5l-5 5-1.5-1.5 3-3H2V7h8.5l-3-3L9 2.5l5 5z" fill="currentColor"/></svg><span data-ru>В TELEGRAM</span><span data-en>TO TELEGRAM</span></button>
-          </div>
-        </div>
-        <div class="ftag"><span data-ru>↑ Сигналы в Telegram одним кликом</span><span data-en>↑ Send signals to Telegram in one click</span></div>
-      </div>
-
-      <!-- Card 2: Economic Calendar + AI -->
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="11.5" rx="2" stroke="#e8722a" stroke-width="1.4"/><path d="M1.5 6.5h13" stroke="#e8722a" stroke-width="1.4"/><path d="M5 1.5v3M11 1.5v3" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/><rect x="4" y="9" width="2" height="2" rx=".5" fill="#e8722a"/><rect x="7" y="9" width="2" height="2" rx=".5" fill="#e8722a"/><rect x="10" y="9" width="2" height="2" rx=".5" fill="#e8722a"/></svg></div>
-        <div class="fn"><span data-ru>Экономический календарь + AI</span><span data-en>Economic Calendar + AI</span></div>
-        <div class="fd"><span data-ru>Все события с AI-прогнозом влияния на BTC, ETH и крипторынок. Уведомления за 30 мин до события.</span><span data-en>All events with AI forecast of impact on BTC, ETH and crypto market. Alerts 30 min before events.</span></div>
-        <!-- Mini calendar mock -->
-        <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px;">
-          <div style="padding:8px 10px;border-radius:7px;background:rgba(255,77,77,.05);border:1px solid rgba(255,77,77,.15);display:flex;align-items:flex-start;gap:8px;">
-            <span style="width:6px;height:6px;border-radius:50%;background:#ff4d4d;flex-shrink:0;margin-top:4px;"></span>
-            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t);font-weight:600;">US CPI · 15:30</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px;" data-ru>AI: высокая волатильность BTC ±2%</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px;" data-en>AI: high BTC volatility ±2%</div></div>
-          </div>
-          <div style="padding:8px 10px;border-radius:7px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.15);display:flex;align-items:flex-start;gap:8px;">
-            <span style="width:6px;height:6px;border-radius:50%;background:#f5a623;flex-shrink:0;margin-top:4px;"></span>
-            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t);font-weight:600;">FOMC Minutes · 21:00</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px;" data-ru>AI: риск разворота тренда</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px;" data-en>AI: trend reversal risk</div></div>
-          </div>
-          <div style="padding:8px 10px;border-radius:7px;background:rgba(46,204,113,.04);border:1px solid rgba(46,204,113,.12);display:flex;align-items:flex-start;gap:8px;">
-            <span style="width:6px;height:6px;border-radius:50%;background:var(--g);flex-shrink:0;margin-top:4px;"></span>
-            <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t);font-weight:600;">NFP · 15:30</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px;" data-ru>AI: умеренное влияние на рынок</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);margin-top:2px;" data-en>AI: moderate market impact</div></div>
-          </div>
-        </div>
-        <div class="ftag"><span data-ru>↑ Знаешь риски до входа</span><span data-en>↑ Know risks before entry</span></div>
-      </div>
-
-      <!-- Card 3: Alerts -->
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2.5L2 10h12l-1.5-1.5V6A4.5 4.5 0 008 1.5z" stroke="#e8722a" stroke-width="1.4" stroke-linejoin="round"/><path d="M6.5 10.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5" stroke="#e8722a" stroke-width="1.4"/></svg></div>
-        <div class="fn"><span data-ru>Ценовые алерты</span><span data-en>Price Alerts</span></div>
-        <div class="fd"><span data-ru>Установи уровень на любой монете — получишь уведомление когда цена его достигнет. Прямо в браузере или в Telegram.</span><span data-en>Set a level on any coin — get notified when price reaches it. Right in browser or in Telegram.</span></div>
-        <div class="ftag" style="margin-top:12px;"><span data-ru>↑ Не пропустишь вход</span><span data-en>↑ Never miss an entry</span></div>
-      </div>
-
-      <!-- Card 4: Screener views -->
-      <div class="fc">
-        <div class="fi ico"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#e8722a"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#e8722a"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#e8722a"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#e8722a"/></svg></div>
-        <div class="fn"><span data-ru>200+ монет · Сетка / Список / Тепловая карта</span><span data-en>200+ coins · Grid / List / Heatmap</span></div>
-        <div class="fd"><span data-ru>Сортировка по MCAP, объёму, изменению, ATH. Быстрый фильтр TOP / BOT / VOL. Спарклайны за 24ч и Fear & Greed индекс.</span><span data-en>Sort by MCAP, volume, change, ATH. Quick filter TOP / BOT / VOL. 24h sparklines and Fear & Greed index.</span></div>
-        <div class="ftag" style="margin-top:12px;"><span data-ru>↑ Рынок одним взглядом</span><span data-en>↑ Market at a glance</span></div>
-      </div>
-
+  <!-- ── RIGHT: Analysis ── -->
+  <div class="analysis-panel" id="analysis-panel">
+    <div class="analysis-empty" id="analysis-empty">
+      <div class="ae-icon">⊙</div>
+      <div class="ae-txt">Выбери сделку<br>для AI-разбора</div>
     </div>
+    <div id="analysis-content" style="display:none;"></div>
   </div>
-</section>
 
-<!-- PRICING -->
-<section class="pr-sec" id="pricing">
-  <div class="wrap">
-    <div class="pr-intro">
-      <div class="eyebrow" data-ru>Цены</div><div class="eyebrow" data-en>Pricing</div>
-      <h2 class="stitle"><span data-ru>ПРОСТО<br><span class="acc">И ЧЕСТНО</span></span><span data-en>SIMPLE<br><span class="acc">AND CLEAR</span></span></h2>
-      <p class="ssub" style="margin:0 auto;"><span data-ru>Три варианта. Выбери свой.</span><span data-en>Three tiers. Choose yours.</span></p>
-    </div>
-    <div class="pgrid">
-      <!-- MONTHLY -->
-      <div class="pc">
-        <div class="plbl basic" data-ru>Ежемесячно</div><div class="plbl basic" data-en>Monthly</div>
-        <div class="pamt">$29</div>
-        <div class="pper" data-ru>/ МЕСЯЦ · USDT</div><div class="pper" data-en>/ MONTH · USDT</div>
-        <div class="pdiv"></div>
-        <ul class="plist">
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Журнал сделок</span><span data-en>Trade journal</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>AI Coach и AI Чекер</span><span data-en>AI Coach & Checker</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Аналитика и прогресс</span><span data-en>Analytics & progress</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Скринер криптовалют</span><span data-en>Crypto screener</span></li>
-          <li class="dim"><span class="ck n">—</span><span data-ru>Все будущие обновления</span><span data-en>All future updates</span></li>
-        </ul>
-        <a href="login.html?plan=monthly" class="pcta soft" data-ru>Начать →</a>
-        <a href="login.html?plan=monthly" class="pcta soft" data-en>Get Started →</a>
-        <div class="pnote" data-ru>Оплата USDT TRC20 / ERC20</div>
-        <div class="pnote" data-en>Payment via USDT TRC20 / ERC20</div>
-      </div>
-      <!-- LIFETIME -->
-      <div class="pc hot">
-        <div class="ppop" data-ru>Лучший выбор</div><div class="ppop" data-en>Best Value</div>
-        <div class="plbl pro" data-ru>Lifetime · Навсегда</div><div class="plbl pro" data-en>Lifetime Access</div>
-        <div class="pamt fire">$197</div>
-        <div class="pper" data-ru>РАЗОВЫЙ ПЛАТЁЖ</div><div class="pper" data-en>ONE-TIME PAYMENT</div>
-        <div class="pdiv"></div>
-        <ul class="plist">
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Всё из месячного плана</span><span data-en>Everything in monthly</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Доступ навсегда</span><span data-en>Lifetime access</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Все будущие обновления</span><span data-en>All future updates</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Приоритетная поддержка</span><span data-en>Priority support</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Экономия $150+ в год</span><span data-en>Save $150+ per year</span></li>
-        </ul>
-        <a href="login.html?plan=lifetime" class="pcta fill" data-ru>Взять навсегда →</a>
-        <a href="login.html?plan=lifetime" class="pcta fill" data-en>Get Lifetime →</a>
-        <div class="pnote" style="color:rgba(232,114,42,.7);" data-ru>≈ $16.4/мес при разовой оплате</div>
-        <div class="pnote" style="color:rgba(232,114,42,.7);" data-en>≈ $16.4/mo equivalent</div>
-      </div>
-      <!-- FREE -->
-      <div class="pc">
-        <div class="plbl free" data-ru>Demo · Бесплатно</div><div class="plbl free" data-en>Demo · Free</div>
-        <div class="pamt">$0</div>
-        <div class="pper" data-ru>НАВСЕГДА · БЕЗ КАРТЫ</div><div class="pper" data-en>FOREVER · NO CARD</div>
-        <div class="pdiv"></div>
-        <ul class="plist">
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>Журнал до 10 сделок</span><span data-en>Journal up to 10 trades</span></li>
-          <li class="dim"><span class="ck n">—</span><span data-ru>Скринер (требует план)</span><span data-en>Screener (plan required)</span></li>
-          <li><span class="ck y ico"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span data-ru>AI Чекер сетапа</span><span data-en>AI Setup Checker</span></li>
-          <li class="dim"><span class="ck n">—</span><span data-ru>AI Coach</span><span data-en>AI Coach</span></li>
-          <li class="dim"><span class="ck n">—</span><span data-ru>Полная аналитика</span><span data-en>Full analytics</span></li>
-        </ul>
-        <a href="login.html" class="pcta soft" data-ru>Попробовать бесплатно</a>
-        <a href="login.html" class="pcta soft" data-en>Try for Free</a>
-        <div class="pnote" data-ru>Регистрация за 30 секунд</div>
-        <div class="pnote" data-en>Register in 30 seconds</div>
-      </div>
-    </div>
-  </div>
-</section>
+</div>
 
-<!-- MODULES -->
-<section class="mod-sec">
-  <div class="wrap">
-    <div class="eyebrow" data-ru>Модули и доступ</div><div class="eyebrow" data-en>Modules & Access</div>
-    <h2 class="stitle"><span data-ru>ЧТО ВХОДИТ<br><span class="acc">В КАЖДЫЙ ПЛАН</span></span><span data-en>WHAT'S IN<br><span class="acc">EACH PLAN</span></span></h2>
-    <p class="ssub"><span data-ru>Доступ к модулям настраивается через административную панель</span><span data-en>Module access is managed through the admin panel</span></p>
-    <div class="mgr">
-      <div class="mdc">
-        <div class="mdic ico"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke="#e8722a" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <div class="mdin">
-          <div class="mdnm"><span data-ru>Торговый журнал</span><span data-en>Trade Journal</span></div>
-          <div class="mdds"><span data-ru>Полная запись сделок с автоматическим R:R, риском и размером позиции. Фильтры, теги, история.</span><span data-en>Full trade logging with automatic R:R, risk and position size. Filters, tags, history.</span></div>
-          <div class="mdpr"><div><div class="mdprice">$29<span style="font-size:14px">/mo</span></div><div class="mdpsub" data-ru>или $197 lifetime</div><div class="mdpsub" data-en>or $197 lifetime</div></div><span class="mdinc" data-ru>Все планы</span><span class="mdinc" data-en>All plans</span></div>
-        </div>
-      </div>
-      <div class="mdc">
-        <div class="mdic ico"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#e8722a" stroke-width="1.4"/><path d="M5.5 8.5c.5 1 1.2 1.5 2.5 1.5s2-.5 2.5-1.5" stroke="#e8722a" stroke-width="1.4" stroke-linecap="round"/><circle cx="5.5" cy="6.5" r="1" fill="#e8722a"/><circle cx="10.5" cy="6.5" r="1" fill="#e8722a"/></svg></div>
-        <div class="mdin">
-          <div class="mdnm">AI Coach</div>
-          <div class="mdds"><span data-ru>Персональный анализ последних 20 сделок с конкретными рекомендациями. 3 уровня приоритетов.</span><span data-en>Personal analysis of last 20 trades with specific recommendations. 3 priority levels.</span></div>
-          <div class="mdpr"><div><div class="mdprice" data-ru>Только paid</div><div class="mdprice" data-en>Paid only</div><div class="mdpsub" data-ru>monthly / lifetime</div><div class="mdpsub" data-en>monthly / lifetime</div></div><span class="mdpaid" data-ru>Платный</span><span class="mdpaid" data-en>Paid</span></div>
-        </div>
-      </div>
-      <div class="mdc">
-        <div class="mdic ico"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#e8722a"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#e8722a"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#e8722a"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#e8722a"/></svg></div>
-        <div class="mdin">
-          <div class="mdnm"><span data-ru>Скринер + AI Анализ</span><span data-en>Screener + AI Analysis</span></div>
-          <div class="mdds"><span data-ru>200+ монет в реальном времени. Тепловая карта, алерты, AI-анализ сетапа, экономический календарь с AI-прогнозом влияния на крипту.</span><span data-en>200+ coins real-time. Heatmap, alerts, AI setup analysis, economic calendar with AI impact forecast for crypto.</span></div>
-          <div class="mdpr"><div><div class="mdprice">$29<span style="font-size:14px">/mo</span></div><div class="mdpsub" data-ru>или $197 lifetime</div><div class="mdpsub" data-en>or $197 lifetime</div></div><span class="mdpaid" data-ru>Платный</span><span class="mdpaid" data-en>Paid</span></div>
-        </div>
-      </div>
-      <div class="mdc">
-        <div class="mdic ico"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="8" width="3" height="6.5" rx="1" fill="#e8722a"/><rect x="6.5" y="5" width="3" height="9.5" rx="1" fill="#e8722a"/><rect x="11.5" y="1.5" width="3" height="13" rx="1" fill="#e8722a"/></svg></div>
-        <div class="mdin">
-          <div class="mdnm"><span data-ru>Аналитика</span><span data-en>Analytics</span></div>
-          <div class="mdds"><span data-ru>Кривая капитала, тепловая карта убытков, WR по дням и сессиям, система достижений.</span><span data-en>Equity curve, loss heatmap, WR by day and session, achievement system.</span></div>
-          <div class="mdpr"><div><div class="mdprice">$29<span style="font-size:14px">/mo</span></div><div class="mdpsub" data-ru>monthly / lifetime</div><div class="mdpsub" data-en>monthly / lifetime</div></div><span class="mdpaid" data-ru>Платный</span><span class="mdpaid" data-en>Paid</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- REVIEWS -->
-<section class="rev-sec">
-  <div class="wrap">
-    <div class="eyebrow" data-ru>Результаты</div><div class="eyebrow" data-en>Results</div>
-    <h2 class="stitle"><span data-ru>ЧТО <span class="acc">МЕНЯЕТСЯ</span></span><span data-en>WHAT <span class="acc">CHANGES</span></span></h2>
-    <div class="rgrid">
-      <div class="rc"><div class="rstars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div><p class="rtxt" data-ru>"За первый месяц понял что сливаю каждую пятницу после 17:00. Просто перестал — результаты выросли."</p><p class="rtxt" data-en>"In the first month I found I was losing every Friday after 5pm. Just stopped — results improved."</p><div class="rauth"><div class="rava">A</div><div><div class="rname">Алексей М.</div><div class="rrole" data-ru>Фьючерсы · 1 год опыта</div><div class="rrole" data-en>Futures · 1 year exp.</div></div></div><div class="rres">↑ WR: 41% → 58% <span data-ru>за 6 недель</span><span data-en>in 6 weeks</span></div></div>
-      <div class="rc"><div class="rstars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div><p class="rtxt" data-ru>"AI чекер остановил меня от плохого входа. Сетап не прошёл — цена пошла против. Подписка уже окупилась."</p><p class="rtxt" data-en>"AI checker stopped me from a bad entry. Setup failed — price went against. Subscription paid itself back."</p><div class="rauth"><div class="rava">D</div><div><div class="rname">Дмитрий К.</div><div class="rrole" data-ru>SMC · 2 года</div><div class="rrole" data-en>SMC · 2 years</div></div></div><div class="rres">–60% <span data-ru>импульсных входов</span><span data-en>impulse entries</span></div></div>
-      <div class="rc"><div class="rstars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div><p class="rtxt" data-ru>"Купил lifetime — лучшая инвестиция в трейдинг. Видишь себя со стороны. Это меняет всё."</p><p class="rtxt" data-en>"Bought lifetime — best trading investment. You see yourself from outside. It changes everything."</p><div class="rauth"><div class="rava">M</div><div><div class="rname">Михаил В.</div><div class="rrole" data-ru>Свинг · 3 года</div><div class="rrole" data-en>Swing · 3 years</div></div></div><div class="rres"><span data-ru>R:R: 1.2 → 2.8 за 2 месяца</span><span data-en>R:R: 1.2 → 2.8 in 2 months</span></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-sec">
-  <div class="cta-card">
-    <div class="cta-title"><span data-ru>СТАНЬ<br><span>ЛУЧШЕ</span></span><span data-en>BECOME<br><span>BETTER</span></span></div>
-    <p class="cta-sub"><span data-ru>Начни вести осознанный журнал. Найди паттерны. Устрани причины убытков.</span><span data-en>Start keeping a conscious journal. Find patterns. Eliminate causes of losses.</span></p>
-    <a href="login.html" class="btn-p" style="font-size:15px;padding:18px 56px;" id="cta-bottom"><span data-ru>Начать прямо сейчас →</span><span data-en>Start Right Now →</span></a>
-  </div>
-</section>
-
-<footer>
-  <div class="fi2">
-    <a href="index.html" class="flogo">ORBITUM</a>
-    <div class="flinks">
-      <a href="login.html" data-ru>Войти</a><a href="login.html" data-en>Sign In</a>
-      <a href="#pricing" data-ru>Тарифы</a><a href="#pricing" data-en>Pricing</a>
-      <a href="journal.html" data-ru>Журнал</a><a href="journal.html" data-en>Journal</a>
-      <a href="screener.html" data-ru>Скринер</a><a href="screener.html" data-en>Screener</a>
-    </div>
-    <div class="fcopy">© 2026 ORBITUM.</div>
-  </div>
-</footer>
+<div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL='https://kgutmsosfyyxnlnhucaa.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+/* ══════════════════════════════════════════════════
+   ORBITUM AI JOURNAL — Trade Analysis Engine
+   API: /api/ai (mode: coach), Supabase trades table
+══════════════════════════════════════════════════ */
 
-function setLang(l){
-  document.documentElement.setAttribute('data-lang',l);
-  document.getElementById('lang-ru').classList.toggle('active',l==='ru');
-  document.getElementById('lang-en').classList.toggle('active',l==='en');
-  localStorage.setItem('orb_lang',l);
+const SB_URL = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+
+let sb, allTrades = [], filteredTrades = [], selectedTrade = null;
+let _aiCache = {}, _tpFilter = 'all', _search = '';
+
+// ── INIT ────────────────────────────────────────
+async function init() {
+  const { createClient } = supabase;
+  sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+
+  const session = await new Promise(resolve => {
+    sb.auth.getSession().then(({ data }) => {
+      if (data?.session) { resolve(data.session); return; }
+      const { data: { subscription } } = sb.auth.onAuthStateChange((_, s) => {
+        subscription.unsubscribe(); resolve(s);
+      });
+      setTimeout(() => { subscription.unsubscribe(); resolve(null); }, 4000);
+    });
+  });
+
+  if (!session?.user) { location.href = '/login?returnTo=/ai-journal'; return; }
+
+  await loadTrades(session.user.id);
+
+  // Auto-select trade from URL param
+  const params = new URLSearchParams(location.search);
+  const tradeId = params.get('trade');
+  if (tradeId) {
+    const t = allTrades.find(x => x.id === tradeId);
+    if (t) selectTrade(t);
+  }
 }
-(function(){const l=localStorage.getItem('orb_lang')||'en';setLang(l);})();
 
-async function checkSession(){
-  try{
-    const{data:{user}}=await sb.auth.getUser();
-    if(!user)return;
-    const{data:p}=await sb.from('profiles').select('role,full_name,username').eq('id',user.id).single();
-    const name=(p?.full_name||p?.username||user.email.split('@')[0]).split(' ')[0];
-    const dest=(p?.role==='admin')?'admin.html':'journal.html';
-    const lang=document.documentElement.getAttribute('data-lang');
-    const nr=document.getElementById('nav-right');
-    if(nr){nr.innerHTML=`<button class="nav-lang active" id="lang-ru" onclick="setLang('ru')">RU</button><button class="nav-lang" id="lang-en" onclick="setLang('en')">EN</button><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">${name}</span><a href="${dest}" class="nbtn fill">${lang==='ru'?'МОЙ ЖУРНАЛ →':'MY JOURNAL →'}</a>`;document.getElementById('lang-ru').classList.toggle('active',lang==='ru');document.getElementById('lang-en').classList.toggle('active',lang==='en');}
-  }catch(e){}
+// ── LOAD TRADES ─────────────────────────────────
+async function loadTrades(userId) {
+  const { data, error } = await sb
+    .from('trades')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if (error || !data) { showToast('Ошибка загрузки сделок'); return; }
+  allTrades = data;
+
+  // Stats
+  const wins = data.filter(t => t.result === 'win').length;
+  const wr = data.length ? Math.round(wins / data.length * 100) : 0;
+  const pnl = data.reduce((s, t) => s + (t.pnl_pct || 0), 0);
+  const aiDone = data.filter(t => _aiCache[t.id]).length;
+  document.getElementById('tb-stats').textContent =
+    `${data.length} сделок · WR ${wr}% · P&L ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%`;
+
+  renderTradeList();
 }
-checkSession();
 
-window.addEventListener('scroll',()=>{document.getElementById('main-nav').style.background=scrollY>40?'rgba(11,13,18,.97)':'rgba(11,13,18,.88)';});
-document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+// ── RENDER TRADE LIST ────────────────────────────
+function renderTradeList() {
+  const q = _search.toLowerCase();
+  filteredTrades = allTrades.filter(t => {
+    if (q && !(t.pair || '').toLowerCase().includes(q)) return false;
+    if (_tpFilter === 'win')   return t.result === 'win';
+    if (_tpFilter === 'loss')  return t.result === 'loss';
+    if (_tpFilter === 'no-ai') return !_aiCache[t.id];
+    return true;
+  });
 
-const io=new IntersectionObserver(entries=>{entries.forEach((en,i)=>{if(en.isIntersecting){setTimeout(()=>en.target.classList.add('vis'),i*60);io.unobserve(en.target);}});},{threshold:.05});
-document.querySelectorAll('.fc,.pc,.mdc,.rc').forEach(c=>io.observe(c));
+  const list = document.getElementById('trades-list');
+  if (!filteredTrades.length) {
+    list.innerHTML = '<div class="empty-state"><div>Нет сделок</div></div>';
+    return;
+  }
 
-(async()=>{
-  // Social proof counters — use hardcoded minimums to avoid exposing DB counts publicly
-  // Update these periodically or create a dedicated server-side stats endpoint
-  try{
-    const usersEl=document.getElementById('lp-users');
-    const tradesEl=document.getElementById('lp-trades');
-    if(usersEl) usersEl.textContent='500+';
-    if(tradesEl) tradesEl.textContent='12,000+';
-  }catch(e){}
-})();
+  list.innerHTML = filteredTrades.map(t => {
+    const isWin = t.result === 'win';
+    const isLoss = t.result === 'loss';
+    const pnl = t.pnl_pct != null ? (t.pnl_pct >= 0 ? '+' : '') + t.pnl_pct.toFixed(1) + '%' : '—';
+    const pnlColor = isWin ? 'var(--g)' : isLoss ? 'var(--r)' : 'var(--y)';
+    const date = new Date(t.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+    const hasAI = !!_aiCache[t.id];
+    const isSelected = selectedTrade?.id === t.id;
+    return `<div class="tc ${t.result||'be'} ${isSelected ? 'selected' : ''}" onclick="selectTrade(${JSON.stringify(t).replace(/"/g, '&quot;')})">
+      ${hasAI ? '<div class="tc-has-ai">⚡</div>' : ''}
+      <div class="tc-top">
+        <div class="tc-pair">${t.pair || '—'}</div>
+        <span class="tc-dir ${t.direction === 'long' ? 'dir-long' : 'dir-short'}">${(t.direction || 'long').toUpperCase()}</span>
+        <span class="tc-pnl" style="color:${pnlColor}">${pnl}</span>
+      </div>
+      <div class="tc-meta">
+        <span class="tc-setup">${t.setup_type || '—'}</span>
+        <span class="tc-date">${date}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-const msgs={ru:['Алексей обнаружил: теряет $340 каждую пятницу','Дмитрий поднялся на уровень МАСТЕР','AI Чекер остановил плохой SHORT на BTC','Новый трейдер зарегистрировался только что'],en:['Alex discovered: losing $340 every Friday','Dmitry reached MASTER level','AI Checker stopped a bad BTC SHORT','New trader just signed up']};
-let pi=0;
-function showPop(){const p=document.getElementById('lpop');const l=document.documentElement.getAttribute('data-lang');p.classList.remove('show');setTimeout(()=>{document.getElementById('ltxt').textContent=msgs[l][pi%msgs[l].length];pi++;p.classList.add('show');setTimeout(()=>p.classList.remove('show'),5000);},400);}
-setTimeout(()=>{showPop();setInterval(showPop,14000);},2500);
+// ── SELECT TRADE ─────────────────────────────────
+function selectTrade(t) {
+  if (typeof t === 'string') t = JSON.parse(t);
+  selectedTrade = t;
+  renderTradeList(); // update selected state
+  showTradeAnalysis(t);
+}
+
+// ── SHOW TRADE ANALYSIS ──────────────────────────
+function showTradeAnalysis(t) {
+  document.getElementById('analysis-empty').style.display = 'none';
+  const content = document.getElementById('analysis-content');
+  content.style.display = 'block';
+
+  const isWin  = t.result === 'win';
+  const isLoss = t.result === 'loss';
+  const pnlColor = isWin ? 'var(--g)' : isLoss ? 'var(--r)' : 'var(--y)';
+  const pnl = t.pnl_pct != null ? (t.pnl_pct >= 0 ? '+' : '') + t.pnl_pct.toFixed(1) + '%' : '—';
+  const pnlUsd = t.pnl_usd != null ? (t.pnl_usd >= 0 ? '+$' : '-$') + Math.abs(t.pnl_usd).toFixed(0) : '—';
+  const rr = t.entry_price && t.stop_price && t.exit_price
+    ? Math.abs((t.exit_price - t.entry_price) / (t.entry_price - t.stop_price)).toFixed(2)
+    : '—';
+  const date = new Date(t.created_at).toLocaleString('ru-RU', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit' });
+
+  // Emotion scores
+  const conf  = t.emotion_conf  || 5;
+  const fear  = t.emotion_fear  || 3;
+  const greed = t.emotion_greed || 3;
+  const calm  = t.emotion_calm  || 7;
+
+  const cached = _aiCache[t.id];
+
+  content.innerHTML = `
+    <!-- TRADE HEADER -->
+    <div class="trade-header">
+      <div class="th-left">
+        <div class="th-pair">${t.pair || '—'}</div>
+        <div class="th-sub">${(t.direction || 'LONG').toUpperCase()} · ${t.setup_type || 'Без сетапа'} · ${date}</div>
+        <div class="th-metrics">
+          ${t.entry_price ? `<div class="th-m"><div class="th-m-lbl">Вход</div><div class="th-m-val">$${t.entry_price}</div></div>` : ''}
+          ${t.stop_price  ? `<div class="th-m"><div class="th-m-lbl">Стоп</div><div class="th-m-val" style="color:var(--r)">$${t.stop_price}</div></div>` : ''}
+          ${t.exit_price  ? `<div class="th-m"><div class="th-m-lbl">Выход</div><div class="th-m-val">$${t.exit_price}</div></div>` : ''}
+          ${rr !== '—'   ? `<div class="th-m"><div class="th-m-lbl">R:R</div><div class="th-m-val" style="color:var(--a)">1:${rr}</div></div>` : ''}
+          ${t.pnl_usd != null ? `<div class="th-m"><div class="th-m-lbl">P&L $</div><div class="th-m-val" style="color:${pnlColor}">${pnlUsd}</div></div>` : ''}
+        </div>
+      </div>
+      <div class="th-right">
+        <div class="th-result" style="color:${pnlColor}">${isWin ? 'ПРОФИТ' : isLoss ? 'УБЫТОК' : 'BE'}</div>
+        <div class="th-pnl" style="color:${pnlColor}">${pnl}</div>
+        <div class="th-date">${date}</div>
+      </div>
+    </div>
+
+    <!-- EMOTION ANALYSIS -->
+    <div class="ai-section">
+      <div class="sec-head">
+        <div class="sec-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6c0 1 .4 2 1 2.7V14h6V8.7c.6-.7 1-1.7 1-2.7 0-2.2-1.8-4-4-4z" stroke="currentColor" stroke-width="1.3" fill="rgba(255,57,35,0.08)"/><path d="M6 6c0-.5.3-1 .8-1.2M8 2v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+        <div class="sec-title">Эмоциональный профиль</div>
+      </div>
+      <div class="emotion-row">
+        ${buildEmCard('Уверенность', conf, 10, conf>=7?'var(--g)':conf>=4?'var(--y)':'var(--r)', conf>=7?'Высокая':conf>=4?'Норма':'Низкая')}
+        ${buildEmCard('Страх', fear, 10, fear>=7?'var(--r)':fear>=4?'var(--y)':'var(--g)', fear>=7?'Высокий':fear>=4?'Умеренный':'Спокойно')}
+        ${buildEmCard('Жадность', greed, 10, greed>=7?'var(--r)':greed>=4?'var(--y)':'var(--g)', greed>=7?'Высокая':greed>=4?'Умеренная':'Под контролем')}
+        ${buildEmCard('Фокус', calm, 10, calm>=7?'var(--g)':calm>=4?'var(--y)':'var(--r)', calm>=7?'В потоке':calm>=4?'Норма':'Рассеян')}
+      </div>
+    </div>
+
+    <!-- AI ANALYSIS -->
+    <div class="ai-section">
+      <div class="sec-head">
+        <div class="sec-icon">⚡</div>
+        <div class="sec-title">AI Разбор сделки</div>
+        ${cached ? `<button class="btn-reanalyze" onclick="runAnalysis(true)">↻ Пересчитать</button>` : ''}
+      </div>
+      <div id="ai-content">
+        ${cached ? renderCachedAnalysis(cached, t) : renderAnalysisPrompt(t)}
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    ${(t.note_why || t.note_feel || t.note_lesson) ? `
+    <div class="ai-section">
+      <div class="sec-head"><div class="sec-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div><div class="sec-title">Заметки</div></div>
+      <div class="cards-grid">
+        ${t.note_why    ? `<div class="acard neutral"><div class="acard-text"><strong>Почему вошёл</strong>${escHtml(t.note_why)}</div></div>` : ''}
+        ${t.note_feel   ? `<div class="acard neutral"><div class="acard-text"><strong>Эмоции / ошибки</strong>${escHtml(t.note_feel)}</div></div>` : ''}
+        ${t.note_lesson ? `<div class="acard info"><div class="acard-text"><strong>Урок</strong>${escHtml(t.note_lesson)}</div></div>` : ''}
+      </div>
+    </div>` : ''}
+  `;
+}
+
+function buildEmCard(label, val, max, color, status) {
+  const pct = Math.round(val / max * 100);
+  return `<div class="em-card">
+    <div class="em-label">${label}</div>
+    <div class="em-bar-wrap"><div class="em-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    <div class="em-val-row">
+      <div class="em-score" style="color:${color}">${val}</div>
+      <div class="em-status">${status}</div>
+    </div>
+  </div>`;
+}
+
+function renderAnalysisPrompt(t) {
+  return `<button class="btn-analyze" onclick="runAnalysis(false)" id="btn-analyze">
+    <span>⚡</span> Запустить AI-разбор этой сделки
+  </button>
+  <div style="font-size:9px;color:var(--m2);text-align:center;letter-spacing:1px;margin-top:-8px;">
+    Анализ паттернов · Ошибки · Рекомендации · План улучшений
+  </div>`;
+}
+
+function renderCachedAnalysis(cached, t) {
+  return renderFullAnalysis(cached, t);
+}
+
+// ── RUN AI ANALYSIS ──────────────────────────────
+async function runAnalysis(force = false) {
+  if (!selectedTrade) return;
+  const t = selectedTrade;
+
+  if (!force && _aiCache[t.id]) {
+    const slot = document.getElementById('ai-content');
+    if (slot) slot.innerHTML = renderFullAnalysis(_aiCache[t.id], t);
+    return;
+  }
+
+  const slot = document.getElementById('ai-content');
+  if (!slot) return;
+
+  slot.innerHTML = `<div class="ai-thinking">
+    <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+    <span>AI анализирует сделку...</span>
+  </div>`;
+
+  // Get context: last 20 trades for pattern comparison
+  const recentTrades = allTrades.slice(0, 20);
+  const pairTrades   = allTrades.filter(x => x.pair === t.pair).slice(0, 10);
+
+  // Build context string
+  const ctx = {
+    trade: {
+      pair:        t.pair,
+      direction:   t.direction,
+      result:      t.result,
+      pnl_pct:     t.pnl_pct,
+      pnl_usd:     t.pnl_usd,
+      entry_price: t.entry_price,
+      stop_price:  t.stop_price,
+      exit_price:  t.exit_price,
+      setup_type:  t.setup_type,
+      emotion_conf:  t.emotion_conf,
+      emotion_fear:  t.emotion_fear,
+      emotion_greed: t.emotion_greed,
+      emotion_calm:  t.emotion_calm,
+      note_why:    t.note_why,
+      note_feel:   t.note_feel,
+      note_lesson: t.note_lesson,
+    },
+    pair_stats: pairTrades.length > 1 ? {
+      total: pairTrades.length,
+      wr: Math.round(pairTrades.filter(x => x.result === 'win').length / pairTrades.length * 100),
+      avg_pnl: (pairTrades.reduce((s, x) => s + (x.pnl_pct || 0), 0) / pairTrades.length).toFixed(1),
+    } : null,
+    overall_stats: {
+      total:    recentTrades.length,
+      wr:       Math.round(recentTrades.filter(x => x.result === 'win').length / recentTrades.length * 100),
+      avg_pnl:  (recentTrades.reduce((s, x) => s + (x.pnl_pct || 0), 0) / recentTrades.length).toFixed(1),
+    }
+  };
+
+  const prompt = `Ты — опытный AI-коуч трейдера ICT/SMC. Проведи детальный разбор конкретной сделки.
+
+СДЕЛКА:
+${JSON.stringify(ctx.trade, null, 2)}
+
+СТАТИСТИКА ПО ПАРЕ ${t.pair || ''}:
+${ctx.pair_stats ? JSON.stringify(ctx.pair_stats) : 'недостаточно данных'}
+
+ОБЩАЯ СТАТИСТИКА (последние ${ctx.overall_stats.total} сделок):
+WR: ${ctx.overall_stats.wr}% | Средний P&L: ${ctx.overall_stats.avg_pnl}%
+
+ВЕРНИ ТОЛЬКО валидный JSON объект (без markdown) со следующими полями:
+
+{
+  "score": число 0-100 (общая оценка качества сделки),
+  "verdict": "2-3 предложения — итоговый вердикт по сделке с конкретными числами",
+  "what_worked": ["до 3 пунктов — что было сделано правильно"],
+  "what_failed": ["до 3 пунктов — конкретные ошибки с доказательствами"],
+  "emotion_verdict": "1 предложение — оценка эмоционального состояния",
+  "pattern": "название паттерна или 'нет паттерна'",
+  "risk_assessment": "оценка управления риском",
+  "next_steps": [
+    {"step": "название шага", "desc": "конкретное действие"},
+    {"step": "название шага", "desc": "конкретное действие"},
+    {"step": "название шага", "desc": "конкретное действие"}
+  ],
+  "tags": [{"text": "тег до 15 символов", "type": "ok|warn|err|neutral"}]
+}
+
+Требования: конкретные числа из данных, на русском, профессионально.`;
+
+  try {
+    const r = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, max_tokens: 1000, temperature: 0.2 })
+    });
+    const d = await r.json();
+    let raw = d.text || '';
+
+    // Strip markdown fences if present
+    raw = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+    let analysis;
+    try {
+      analysis = JSON.parse(raw);
+    } catch(e) {
+      // Try to extract JSON from response
+      const match = raw.match(/\{[\s\S]+\}/);
+      if (match) analysis = JSON.parse(match[0]);
+      else throw new Error('Bad JSON');
+    }
+
+    _aiCache[t.id] = analysis;
+    renderTradeList(); // update AI badge
+
+    if (slot) slot.innerHTML = renderFullAnalysis(analysis, t);
+    showToast('✓ AI-разбор готов');
+
+  } catch(e) {
+    if (slot) slot.innerHTML = `
+      <div class="acard danger">
+        <div class="acard-text">Ошибка AI-анализа: ${escHtml(e.message)}. Попробуй ещё раз.</div>
+      </div>
+      ${renderAnalysisPrompt(t)}
+    `;
+  }
+}
+
+// ── RENDER FULL ANALYSIS ─────────────────────────
+function renderFullAnalysis(a, t) {
+  const score = a.score || 50;
+  const scoreColor = score >= 75 ? 'var(--g)' : score >= 50 ? 'var(--y)' : 'var(--r)';
+
+  // Verdict block
+  const verdictHtml = `
+    <div class="verdict-block">
+      <div class="verdict-score">
+        <div class="vs-num" style="color:${scoreColor}">${score}</div>
+        <div class="vs-label">Оценка</div>
+        <div class="vs-bar"><div class="vs-bar-fill" style="width:${score}%;background:${scoreColor}"></div></div>
+      </div>
+      <div class="verdict-text">
+        <strong>Вердикт</strong>
+        ${escHtml(a.verdict || '—')}
+        ${a.emotion_verdict ? `<br><br><em style="color:var(--m2);font-size:9px;">${escHtml(a.emotion_verdict)}</em>` : ''}
+      </div>
+    </div>`;
+
+  // Tags
+  const tagsHtml = a.tags?.length ? `
+    <div class="pattern-block">
+      <div class="pb-title">Теги сделки</div>
+      <div class="pb-tags">
+        ${a.tags.map(tg => `<span class="pb-tag tag-${tg.type || 'neutral'}">${escHtml(tg.text)}</span>`).join('')}
+      </div>
+      ${a.pattern ? `<div style="font-size:9px;color:var(--m2);margin-top:4px;">Паттерн: <span style="color:var(--t)">${escHtml(a.pattern)}</span></div>` : ''}
+      ${a.risk_assessment ? `<div style="font-size:9px;color:var(--m2);margin-top:4px;">Риск: <span style="color:var(--t)">${escHtml(a.risk_assessment)}</span></div>` : ''}
+    </div>` : '';
+
+  // What worked / failed
+  const workedHtml = (a.what_worked?.length || a.what_failed?.length) ? `
+    <div class="compare-grid">
+      ${a.what_worked?.length ? `
+      <div class="compare-card">
+        <div class="cc-title" style="color:var(--g)">✓ Что сработало</div>
+        ${a.what_worked.map(w => `<div class="cc-stat"><span class="cc-stat-name" style="font-size:10px;color:var(--m)">${escHtml(w)}</span></div>`).join('')}
+      </div>` : ''}
+      ${a.what_failed?.length ? `
+      <div class="compare-card">
+        <div class="cc-title" style="color:var(--r)">✗ Ошибки</div>
+        ${a.what_failed.map(w => `<div class="cc-stat"><span class="cc-stat-name" style="font-size:10px;color:var(--m)">${escHtml(w)}</span></div>`).join('')}
+      </div>` : ''}
+    </div>` : '';
+
+  // Next steps
+  const stepsHtml = a.next_steps?.length ? `
+    <div class="improve-block">
+      <div class="pb-title">План улучшений</div>
+      <div class="improve-steps">
+        ${a.next_steps.map((s, i) => `
+          <div class="improve-step">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-content">
+              <div class="step-title">${escHtml(s.step || '')}</div>
+              <div class="step-desc">${escHtml(s.desc || '')}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  return verdictHtml + tagsHtml + workedHtml + stepsHtml +
+    `<button class="btn-analyze" onclick="runAnalysis(true)" style="margin-top:8px;opacity:.6;">
+      ↻ Пересчитать анализ
+    </button>`;
+}
+
+// ── FILTERS ──────────────────────────────────────
+function setTpFilter(f, btn) {
+  _tpFilter = f;
+  document.querySelectorAll('.tp-flt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTradeList();
+}
+
+function filterTrades(q) {
+  _search = q;
+  renderTradeList();
+}
+
+// ── HELPERS ──────────────────────────────────────
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let _toastT;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── WAIT FOR SUPABASE ────────────────────────────
+function waitAndInit() {
+  if (typeof supabase !== 'undefined') { init(); return; }
+  const t = setInterval(() => { if (typeof supabase !== 'undefined') { clearInterval(t); init(); } }, 100);
+  setTimeout(() => clearInterval(t), 8000);
+}
+document.addEventListener('DOMContentLoaded', waitAndInit);
 </script>
 </body>
 </html>
