@@ -1665,11 +1665,11 @@ const OWNER_ID = '474c000f-79d3-4b8f-b9af-e3c581bbffbc'; // ← твой Supabas
 function getRank(trades, wr, roi){
   const n = trades.length;
   if(n === 0) return null;
-  if(n >= 200 && wr >= 65 && roi >= 50)  return {key:'master',  label:'MASTER',  icon:'👑', cls:'master'};
-  if(n >= 100 && wr >= 60 && roi >= 25)  return {key:'diamond', label:'DIAMOND', icon:'💎', cls:'diamond'};
-  if(n >= 50  && wr >= 55 && roi >= 10)  return {key:'gold',    label:'GOLD',    icon:'🥇', cls:'gold'};
-  if(n >= 20  && wr >= 50)               return {key:'silver',  label:'SILVER',  icon:'🥈', cls:'silver'};
-  if(n >= 5)                             return {key:'bronze',  label:'BRONZE',  icon:'🥉', cls:'bronze'};
+  if(n >= 200 && wr >= 65 && roi >= 50)  return {key:'master',  label:'MASTER',  icon:'<svg width=\'12\' height=\'12\' viewBox=\'0 0 12 12\' fill=\'none\'><path d=\'M1 9V4l2 3 3-5 3 5 2-3v5H1z\' fill=\'#d946ef\'/></svg>', cls:'master'};
+  if(n >= 100 && wr >= 60 && roi >= 25)  return {key:'diamond', label:'DIAMOND', icon:'<svg width=\'12\' height=\'12\' viewBox=\'0 0 12 12\' fill=\'none\'><path d=\'M6 1L1.5 5.5 6 11 10.5 5.5z\' fill=\'#63b3ed\'/></svg>', cls:'diamond'};
+  if(n >= 50  && wr >= 55 && roi >= 10)  return {key:'gold',    label:'GOLD',    icon:'<svg width=\'12\' height=\'12\' viewBox=\'0 0 12 12\' fill=\'none\'><path d=\'M6 1l1.2 3.2H10L7.5 6l.9 3.2L6 7.5l-2.4 1.7.9-3.2L2.1 4.2h2.8z\' fill=\'#f5a623\'/></svg>', cls:'gold'};
+  if(n >= 20  && wr >= 50)               return {key:'silver',  label:'SILVER',  icon:'<svg width=\'12\' height=\'12\' viewBox=\'0 0 12 12\' fill=\'none\'><path d=\'M6 1l1.2 3.2H10L7.5 6l.9 3.2L6 7.5l-2.4 1.7.9-3.2L2.1 4.2h2.8z\' fill=\'#9ba3af\'/></svg>', cls:'silver'};
+  if(n >= 5)                             return {key:'bronze',  label:'BRONZE',  icon:'<svg width=\'12\' height=\'12\' viewBox=\'0 0 12 12\' fill=\'none\'><path d=\'M6 1l1.2 3.2H10L7.5 6l.9 3.2L6 7.5l-2.4 1.7.9-3.2L2.1 4.2h2.8z\' fill=\'#cd7f32\'/></svg>', cls:'bronze'};
   return null;
 }
 
@@ -1914,7 +1914,7 @@ function render(p, trades){
         <div class="share-dropdown" id="share-dropdown">
           <div class="sd-header">ПОДЕЛИТЬСЯ ПРОФИЛЕМ</div>
           <div class="sd-item" onclick="copyProfileLink()">
-            <span class="sd-item-icon">🔗</span>
+            <span class="sd-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5.5 8.5l3-3M4 7L3 8a2.5 2.5 0 003.5 3.5l1-1M10 7l1-1a2.5 2.5 0 00-3.5-3.5l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
             <div class="sd-item-text">
               <span class="sd-item-label">Скопировать ссылку</span>
               <span class="sd-item-sub">orbitum.trade/profile?uid=...</span>
@@ -1943,7 +1943,7 @@ function render(p, trades){
             </div>
           </div>
           <div class="sd-item" onclick="openPnlModal()">
-            <span class="sd-item-icon">📊</span>
+            <span class="sd-item-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="2.5" height="5.5" rx="0.7" fill="currentColor" opacity="0.5"/><rect x="5" y="4.5" width="2.5" height="8" rx="0.7" fill="currentColor" opacity="0.7"/><rect x="9" y="1.5" width="2.5" height="11" rx="0.7" fill="currentColor"/></svg></span>
             <div class="sd-item-text">
               <span class="sd-item-label">PNL карточка</span>
               <span class="sd-item-sub">Как на бирже — скачать PNG</span>
@@ -2089,13 +2089,13 @@ function render(p, trades){
       <div class="sc-title"><div class="sc-title-dot"></div>ЛУЧШАЯ / ХУДШАЯ СДЕЛКА</div>
       <div class="trade-showcase">
         <div class="ts-card best">
-          <div class="ts-label">🏆 Лучшая</div>
+          <div class="ts-label"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="vertical-align:middle;margin-right:3px"><path d="M5.5 1l1.2 3.2H10L7.2 6.3l1 3.2-2.7-2-2.7 2 1-3.2L.9 4.2h3.3z" fill="var(--a)" stroke="var(--a)" stroke-width="0.3" stroke-linejoin="round"/></svg>Лучшая</div>
           <div class="ts-pair">${bestTrade?bestTrade.pair:'—'}</div>
           <div class="ts-pnl">${bestTrade?'+'+(bestTrade.pnl_pct||0).toFixed(1)+'%':'—'}</div>
           <div class="ts-meta">${bestTrade?new Date(bestTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}):'нет данных'}</div>
         </div>
         <div class="ts-card worst">
-          <div class="ts-label">💀 Худшая</div>
+          <div class="ts-label"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="vertical-align:middle;margin-right:3px"><circle cx="5.5" cy="4.5" r="3" stroke="var(--r)" stroke-width="1.2" fill="rgba(255,77,77,0.08)"/><path d="M4 4.2a.6.6 0 100 1.2.6.6 0 000-1.2zM7 4.2a.6.6 0 100 1.2.6.6 0 000-1.2z" fill="var(--r)"/><path d="M3.5 7.5h4v-1H3.5z" stroke="var(--r)" stroke-width="0.8" fill="none"/></svg>Худшая</div>
           <div class="ts-pair">${worstTrade?worstTrade.pair:'—'}</div>
           <div class="ts-pnl">${worstTrade?(worstTrade.pnl_pct||0).toFixed(1)+'%':'—'}</div>
           <div class="ts-meta">${worstTrade?new Date(worstTrade.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}):'нет данных'}</div>
@@ -2562,7 +2562,7 @@ init();
     el.innerHTML=`
       <div class="orb-theme-ui">
         <div class="orb-mode-toggle">
-          <button class="orb-mode-btn" data-mode="dark"  onclick="window._T.mode('dark')"  title="Тёмная">🌙</button>
+          <button class="orb-mode-btn" data-mode="dark"  onclick="window._T.mode('dark')"  title="Тёмная"><svg width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M10 7.5A5 5 0 015 2.5a5 5 0 100 9 5 5 0 005-4z' fill='currentColor'/></svg></button>
           <button class="orb-mode-btn" data-mode="light" onclick="window._T.mode('light')" title="Светлая">☀️</button>
         </div>
         <div class="orb-theme-wrap">
@@ -2686,7 +2686,7 @@ init();
 <div class="idea-modal" id="idea-modal">
   <div class="idea-box">
     <button class="idea-box-close" onclick="closeIdeaModal()">×</button>
-    <div class="idea-box-title">📝 НОВАЯ ИДЕЯ</div>
+    <div class="idea-box-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:middle;margin-right:6px"><rect x="2" y="1.5" width="10" height="11" rx="1.5" stroke="var(--a)" stroke-width="1.3" fill="none"/><path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="var(--a)" stroke-width="1.2" stroke-linecap="round"/></svg>НОВАЯ ИДЕЯ</div>
     <div class="idea-field">
       <label>Пара</label>
       <input id="idea-pair-input" placeholder="BTC/USDT, ETH/USDT...">
@@ -2721,7 +2721,7 @@ init();
       <label>Stop Loss $</label>
       <input id="idea-sl-input" placeholder="40500">
     </div>
-    <button class="idea-submit" onclick="submitIdea()">🚀 ОПУБЛИКОВАТЬ ИДЕЮ</button>
+    <button class="idea-submit" onclick="submitIdea()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M6 1l1.2 3.2H10L7.5 6l.9 3.2L6 7.3l-2.4 1.9.9-3.2L2 4.2h2.8z" fill="currentColor" stroke="currentColor" stroke-width="0.3" stroke-linejoin="round"/></svg>ОПУБЛИКОВАТЬ ИДЕЮ</button>
   </div>
 </div>
 
