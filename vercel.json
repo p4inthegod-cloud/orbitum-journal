@@ -52,6 +52,10 @@
   },
   "rewrites": [
     {
+      "source": "/embed/profile",
+      "destination": "/profile.html"
+    },
+    {
       "source": "/screener",
       "destination": "/screener.html"
     },
@@ -90,23 +94,6 @@
   ],
   "headers": [
     {
-      "source": "/api/ai",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "POST, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type"
-        }
-      ]
-    },
-    {
       "source": "/api/admin",
       "headers": [
         {
@@ -137,6 +124,19 @@
         {
           "key": "Access-Control-Allow-Headers",
           "value": "Content-Type, X-Notify-User, X-Cron-Secret"
+        }
+      ]
+    },
+    {
+      "source": "/embed/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors https://notion.so https://*.notion.site https://linktr.ee https://orbitum.trade"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "ALLOWALL"
         }
       ]
     },
