@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ORBITUM · Plans</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0d0d;--bg2:#111111;--bg3:#161616;--bg4:#1c1c1c;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.2);
+  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
+  --fire:#FF3923;--fire2:rgba(255,57,35,0.1);--fire3:rgba(255,57,35,0.28);
+  --font:'Plus Jakarta Sans',sans-serif;--rad:10px;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
+button{cursor:pointer;font-family:var(--font);border:none;}
+a{text-decoration:none;}
+
+.topbar{height:48px;background:rgba(7,7,7,0.98);border-bottom:1px solid rgba(255,57,35,0.1);display:flex;align-items:center;padding:0 24px;gap:16px;}
+.logo{font-weight:800;font-size:15px;letter-spacing:4px;color:var(--fire);text-transform:uppercase;}
+.tb-sp{flex:1;}
+.tb-btn{height:26px;padding:0 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--m);font-size:10px;font-weight:600;letter-spacing:0.5px;display:flex;align-items:center;transition:all .15s;}
+.tb-btn:hover{color:var(--t);border-color:var(--bd2);}
+
+.page{max-width:1020px;margin:0 auto;padding:52px 24px 80px;}
+
+.hero{text-align:center;margin-bottom:44px;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--fire);text-transform:uppercase;margin-bottom:14px;}
+.hero-title{font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px;}
+.hero-title em{color:var(--fire);font-style:normal;text-shadow:0 0 32px rgba(255,57,35,0.35);}
+.hero-sub{font-size:14px;color:var(--m);max-width:440px;margin:0 auto;line-height:1.7;}
+
+/* BILLING TOGGLE */
+.billing-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:36px;}
+.billing-toggle{display:flex;background:var(--bg2);border:1px solid var(--bd2);border-radius:10px;padding:4px;}
+.billing-btn{height:30px;padding:0 18px;border-radius:7px;font-size:11px;font-weight:700;letter-spacing:0.5px;transition:all .18s;color:var(--m);background:transparent;}
+.billing-btn.on{background:var(--fire);color:#fff;box-shadow:0 0 12px rgba(255,57,35,0.4);}
+.billing-save{font-size:9px;font-weight:700;color:var(--fire);background:var(--fire2);border:1px solid var(--fire3);border-radius:20px;padding:3px 10px;}
+
+/* PLANS */
+.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:52px;}
+@media(max-width:880px){.plans{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.plans{grid-template-columns:1fr;}}
+
+.plan{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:16px;
+  padding:24px 20px;position:relative;display:flex;flex-direction:column;
+  transition:border-color .2s,transform .2s;
+}
+.plan:hover{border-color:var(--bd2);transform:translateY(-2px);}
+.plan.popular{border-color:rgba(255,57,35,0.4);background:linear-gradient(160deg,var(--bg2) 60%,rgba(255,57,35,0.05) 100%);box-shadow:0 0 30px rgba(255,57,35,0.08);}
+.plan.ultimate{border-color:rgba(255,57,35,0.55);background:linear-gradient(150deg,var(--bg2) 40%,rgba(255,57,35,0.07) 100%);box-shadow:0 0 44px rgba(255,57,35,0.13);}
+
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--fire);color:#fff;font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap;}
+
+.plan-tier{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;}
+.plan-name{font-size:18px;font-weight:800;color:var(--t);margin-bottom:4px;}
+.plan-tagline{font-size:11px;color:var(--m2);line-height:1.5;margin-bottom:16px;min-height:32px;}
+
+.plan-price-main{display:flex;align-items:baseline;gap:3px;margin-bottom:2px;}
+.plan-price-num{font-size:34px;font-weight:800;letter-spacing:-1px;color:var(--t);}
+.plan-price-num.fire{color:var(--fire);text-shadow:0 0 18px rgba(255,57,35,0.3);}
+.plan-price-per{font-size:11px;color:var(--m2);}
+.plan-price-lt{font-size:11px;color:var(--m2);margin-bottom:14px;}
+.plan-price-lt b{color:var(--fire);}
+
+.plan-sep{height:1px;background:var(--bd);margin:12px 0;}
+
+.plan-features{display:flex;flex-direction:column;gap:7px;flex:1;margin-bottom:18px;}
+.pf{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--m);line-height:1.45;}
+.pf-mark{flex-shrink:0;width:14px;height:14px;border-radius:50%;background:var(--fire2);border:1px solid var(--fire3);display:flex;align-items:center;justify-content:center;margin-top:0px;font-size:8px;color:var(--fire);font-weight:800;}
+.pf.dim .pf-mark{background:var(--bd);border-color:var(--bd2);color:var(--m2);}
+.pf.dim{color:var(--m2);}
+.pf strong{color:var(--t);font-weight:600;}
+
+.btn-plan{
+  width:100%;height:40px;border-radius:var(--rad);
+  border:1px solid rgba(255,57,35,0.4);
+  background:linear-gradient(135deg,rgba(255,57,35,0.13) 0%,rgba(255,57,35,0.06) 100%);
+  color:var(--fire);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  transition:all .2s;
+  animation:btnBreathe 2.4s ease-in-out infinite;
+}
+.btn-plan:hover{background:linear-gradient(135deg,rgba(255,57,35,0.27) 0%,rgba(255,57,35,0.13) 100%);box-shadow:0 0 26px rgba(255,57,35,0.38);color:#ff6b5b;border-color:rgba(255,57,35,.85);transform:translateY(-1px);}
+.btn-plan.solid{background:var(--fire);color:#fff;border-color:var(--fire);box-shadow:0 0 20px rgba(255,57,35,0.4);}
+.btn-plan.solid:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);}
+
+@keyframes btnBreathe{
+  0%,100%{box-shadow:0 0 12px rgba(255,57,35,0.12);}
+  50%{box-shadow:0 0 24px rgba(255,57,35,0.34);}
+}
+
+/* COMPARE */
+.section-title{font-size:17px;font-weight:700;margin-bottom:16px;}
+.compare-scroll{overflow-x:auto;margin-bottom:52px;}
+.compare-table{width:100%;border-collapse:collapse;min-width:640px;}
+.compare-table th{text-align:left;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--bd);}
+.compare-table th:not(:first-child){text-align:center;}
+.compare-table td{padding:9px 14px;font-size:12px;color:var(--m);border-bottom:1px solid var(--bd);}
+.compare-table td:not(:first-child){text-align:center;}
+.compare-table tr:last-child td{border-bottom:none;}
+.ct-yes{color:var(--fire);font-size:14px;font-weight:800;}
+.ct-no{color:var(--bd3);font-size:14px;}
+.ct-feat{color:var(--t);font-weight:600;display:block;}
+.ct-sub{color:var(--m2);font-size:10px;margin-top:1px;display:block;}
+
+/* FAQ */
+.faq-wrap{max-width:640px;}
+.faq-item{border-top:1px solid var(--bd);padding:14px 0;cursor:pointer;}
+.faq-q{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.faq-icon{color:var(--fire);font-size:18px;flex-shrink:0;transition:transform .2s;line-height:1;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.faq-a{font-size:12px;color:var(--m);line-height:1.75;margin-top:10px;display:none;}
+.faq-item.open .faq-a{display:block;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-bg.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--bd2);border-radius:16px;padding:28px 24px;width:400px;max-width:95vw;}
+.modal-header{margin-bottom:16px;}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:2px;}
+.modal-sub{font-size:11px;color:var(--m2);}
+.modal-pill{display:inline-flex;align-items:center;gap:8px;background:var(--fire2);border:1px solid var(--fire3);border-radius:8px;padding:8px 14px;margin-bottom:14px;}
+.modal-pill-name{font-size:13px;font-weight:700;color:var(--t);}
+.modal-pill-sep{color:var(--bd3);}
+.modal-pill-price{font-size:13px;font-weight:700;color:var(--fire);}
+.modal-note{font-size:11px;color:var(--m2);line-height:1.65;padding:10px 12px;background:var(--bg3);border-radius:7px;border-left:2px solid var(--fire3);margin-bottom:14px;}
+.mf{margin-bottom:11px;}
+.mf label{display:block;font-size:10px;font-weight:700;color:var(--m);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;}
+.mf input,.mf textarea{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:7px;color:var(--t);font-family:var(--font);font-size:12px;font-weight:500;padding:9px 12px;outline:none;transition:border-color .15s;resize:none;}
+.mf input:focus,.mf textarea:focus{border-color:var(--fire3);}
+.mf input::placeholder,.mf textarea::placeholder{color:var(--m2);}
+.modal-btns{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+.btn-submit{height:42px;border-radius:var(--rad);border:1px solid rgba(255,57,35,0.5);background:linear-gradient(135deg,rgba(255,57,35,0.16) 0%,rgba(255,57,35,0.07) 100%);color:var(--fire);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .2s;animation:btnBreathe 2.4s ease-in-out infinite;}
+.btn-submit:hover{background:linear-gradient(135deg,rgba(255,57,35,0.28) 0%,rgba(255,57,35,0.14) 100%);box-shadow:0 0 26px rgba(255,57,35,0.38);color:#ff6b5b;}
+.btn-submit:disabled{opacity:.35;cursor:not-allowed;}
+.btn-cancel{height:36px;border-radius:var(--rad);border:1px solid var(--bd);background:transparent;color:var(--m);font-size:11px;font-weight:600;transition:all .15s;}
+.btn-cancel:hover{color:var(--t);border-color:var(--bd2);}
+</style>
+
+<link rel="stylesheet" href="/assets/premium-ui.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">ORBITUM</div>
+  <div class="tb-sp"></div>
+  <a href="/journal" class="tb-btn">Journal</a>
+  <a href="/screener" class="tb-btn">Screener</a>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Pricing</div>
+    <h1 class="hero-title">Choose your <em>edge.</em></h1>
+    <p class="hero-sub">Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
+  </div>
+
+  <div class="billing-row">
+    <div class="billing-toggle">
+      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
+      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')">Annual</button>
+    </div>
+    <span class="billing-save" id="save-tag">Save 30% annually</span>
+  </div>
+
+  <div class="plans" id="plans-grid"></div>
+
+  <div class="section-title">Full comparison</div>
+  <div class="compare-scroll">
+    <table class="compare-table" id="compare-table"></table>
+  </div>
+
+  <div class="faq-wrap">
+    <div class="section-title">Questions</div>
+    <div id="faq"></div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Get Access</div>
+      <div class="modal-sub">Submit request — we activate within 1-2 hours</div>
+    </div>
+    <div class="modal-pill">
+      <span class="modal-pill-name" id="modal-plan-name">—</span>
+      <span class="modal-pill-sep">|</span>
+      <span class="modal-pill-price" id="modal-plan-price">—</span>
+    </div>
+    <div class="modal-note">After submitting, we send payment details to your email or Telegram. We accept USDT, BTC, and bank transfer.</div>
+    <div class="mf"><label>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
+    <div class="mf"><label>Telegram (optional)</label><input type="text" id="m-tg" placeholder="@username"></div>
+    <div class="mf"><label>Comment</label><textarea id="m-note" rows="2" placeholder="Questions or anything else..."></textarea></div>
+    <div class="modal-btns">
+      <button class="btn-submit" id="btn-submit" onclick="submitPayment()">Submit Request</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLANS = [
+  {
+    id: 'journal',
+    tier: 'Tier 1',
+    name: 'Journal',
+    tagline: 'Track every trade. Spot your patterns.',
+    monthly: 21,
+    annual: 15,
+    lifetime: 97,
+    features: [
+      { text: '<strong>Unlimited trade logging</strong> — pair, direction, result, emotion tags, screenshots' },
+      { text: '<strong>Performance dashboard</strong> — win rate, P&L curve, equity chart, streaks' },
+      { text: '<strong>Setup analytics</strong> — which setups actually work for you with % breakdown' },
+      { text: '<strong>Weekly PDF report</strong> — auto-generated Sunday summary with key stats' },
+      { text: 'Day-of-week and time-of-day heatmaps' },
+      { text: 'Journal export to CSV' },
+      { dim: true, text: 'AI Coach — not included' },
+      { dim: true, text: 'Signals — not included' },
+    ],
+  },
+  {
+    id: 'analytics',
+    tier: 'Tier 2',
+    name: 'Journal + AI',
+    tagline: 'Your journal. With an AI that knows your habits.',
+    monthly: 71,
+    annual: 50,
+    lifetime: 297,
+    badge: 'Popular',
+    popular: true,
+    features: [
+      { text: 'Everything in Journal' },
+      { text: '<strong>AI Coach after every trade</strong> — within 60 seconds of closing, explains what pattern you just repeated' },
+      { text: '<strong>Behavior fingerprint</strong> — after 10 trades, AI identifies your specific losing habit with exact numbers and times' },
+      { text: '<strong>Brutal Analysis mode</strong> — no softening, just the raw data on what is costing you money each week' },
+      { text: '<strong>AI Weekly breakdown</strong> — top pattern of the week, one concrete fix, measured impact' },
+      { text: '<strong>Trade Analyzer</strong> — TradingView chart, SL/TP simulation, AI quality score before entry' },
+      { dim: true, text: 'Live signals — not included' },
+    ],
+  },
+  {
+    id: 'signals',
+    tier: 'Tier 3',
+    name: 'Signals',
+    tagline: 'Real-time ICT/SMC setups. No noise.',
+    monthly: 149,
+    annual: 104,
+    lifetime: 497,
+    features: [
+      { text: '<strong>Real-time setup signals</strong> — top 80 coins scanned every 30 minutes, only A/A+ grade fires' },
+      { text: '<strong>Entry, SL, TP</strong> — exact price levels, not zones. Computed from swing structure + ATR' },
+      { text: '<strong>Confidence score 0-100</strong> — based on structure alignment, OB/FVG confluence, RSI zone, volume' },
+      { text: '<strong>Morning brief 07:00 UTC</strong> — market state, top setup of the day, your weekly stats' },
+      { text: '<strong>Momentum alerts</strong> — volume spike detection, breakout candles in real time' },
+      { text: '<strong>Evening result</strong> — 19:00 UTC, honest outcome of today\'s signals (win or loss)' },
+      { text: 'Basic journal included' },
+    ],
+  },
+  {
+    id: 'full',
+    tier: 'Full Access',
+    name: 'Everything',
+    tagline: 'The complete system. Zero compromises.',
+    monthly: 289,
+    annual: 202,
+    lifetime: 777,
+    badge: 'Best Value',
+    ultimate: true,
+    features: [
+      { text: '<strong>Full Journal + AI Analytics</strong> — every feature from Tiers 1 and 2' },
+      { text: '<strong>All signals in real-time</strong> — setup, momentum, AI insight, critical alerts to Telegram' },
+      { text: '<strong>Screener cockpit</strong> — live signal feed, heatmap, SA Score, OB/FVG zones on 80 coins' },
+      { text: '<strong>Trade Analyzer</strong> — full access, simulation mode, signal stats tracking' },
+      { text: '<strong>Priority delivery</strong> — your signals fire before free-tier delay' },
+      { text: '<strong>AI Forward Insight 20:30 UTC</strong> — one forward-looking call for tomorrow, paid only' },
+      { text: '<strong>All future features</strong> included — Lifetime never pays again' },
+    ],
+  },
+];
+
+const COMPARE = [
+  { feat: 'Trade logging', sub: 'unlimited', v: [1,1,0,1] },
+  { feat: 'Performance dashboard', sub: 'WR, P&L, equity curve', v: [1,1,0,1] },
+  { feat: 'Setup analytics', sub: 'best/worst setups', v: [1,1,0,1] },
+  { feat: 'Weekly PDF report', sub: 'auto Sunday', v: [1,1,0,1] },
+  { feat: 'AI Coach post-trade', sub: 'within 60 seconds', v: [0,1,0,1] },
+  { feat: 'Behavior fingerprint', sub: 'your losing pattern', v: [0,1,0,1] },
+  { feat: 'Brutal Analysis', sub: 'no-filter weekly', v: [0,1,0,1] },
+  { feat: 'Trade Analyzer', sub: 'TradingView + AI', v: [0,1,0,1] },
+  { feat: 'Real-time signals', sub: 'ICT/SMC, 80 coins', v: [0,0,1,1] },
+  { feat: 'Entry / SL / TP', sub: 'exact levels', v: [0,0,1,1] },
+  { feat: 'Morning brief', sub: '07:00 UTC daily', v: [0,0,1,1] },
+  { feat: 'Momentum alerts', sub: 'volume + breakout', v: [0,0,1,1] },
+  { feat: 'Evening result', sub: 'honest outcome', v: [0,0,1,1] },
+  { feat: 'Signal Screener cockpit', sub: 'live heatmap', v: [0,0,1,1] },
+  { feat: 'AI Forward Insight', sub: '20:30 UTC', v: [0,0,0,1] },
+  { feat: 'Future features', sub: 'Lifetime only', v: [0,0,0,1] },
+];
+
+const FAQ = [
+  { q: 'How does payment work?', a: 'After submitting the form, we contact you via email or Telegram with payment details. We accept USDT (TRC20/ERC20), BTC, and bank transfer. Access is activated within 1-2 hours of payment confirmation.' },
+  { q: 'Is there a free plan?', a: 'Yes. Free users get: up to 20 trade logs, delayed signals (+15 min), daily market brief, and basic dashboard. Enough to understand the platform before committing.' },
+  { q: 'What does Lifetime mean exactly?', a: 'One payment, permanent access to your chosen tier — including all future features we add. For the Everything tier at $777, that\'s every feature we will ever build. No subscription, no renewal.' },
+  { q: 'Can I start on Journal and upgrade later?', a: 'Yes. You pay the price difference for the current billing period. Just reach out and we sort it within a few hours.' },
+  { q: 'What is the AI Coach actually doing?', a: 'It analyzes your last N trades and looks for behavioral patterns — specific pairs you lose on, times of day, sequences (e.g. revenge trading after 2 losses). It gives you the exact numbers, not generic advice.' },
+  { q: 'Are the signals tradeable?', a: 'Signals show methodology: structure, OB/FVG confluence, RSI zone, volume. They include entry, SL, and TP. They are not financial advice — they are analytical outputs. Your decision, your risk management.' },
+];
+
+let _billing = 'monthly';
+let _selectedPlan = null;
+let _sb = null, _session = null;
+
+function setBilling(m) {
+  _billing = m;
+  document.getElementById('btn-monthly').className = 'billing-btn' + (m === 'monthly' ? ' on' : '');
+  document.getElementById('btn-annual').className  = 'billing-btn' + (m === 'annual'  ? ' on' : '');
+  document.getElementById('save-tag').style.display = m === 'annual' ? 'inline' : 'none';
+  renderPlans();
+}
+
+function renderPlans() {
+  document.getElementById('plans-grid').innerHTML = PLANS.map(p => {
+    const price = _billing === 'annual' ? p.annual : p.monthly;
+    const per   = _billing === 'annual' ? '/mo, billed annually' : '/month';
+    return `<div class="plan${p.popular ? ' popular' : ''}${p.ultimate ? ' ultimate' : ''}">
+      ${p.badge ? `<div class="plan-badge">${p.badge}</div>` : ''}
+      <div class="plan-tier">${p.tier}</div>
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-tagline">${p.tagline}</div>
+      <div class="plan-price-main">
+        <div class="plan-price-num${p.ultimate ? ' fire' : ''}">$${price}</div>
+        <div class="plan-price-per">${per}</div>
+      </div>
+      <div class="plan-price-lt">or <b>$${p.lifetime}</b> lifetime</div>
+      <div class="plan-sep"></div>
+      <div class="plan-features">
+        ${p.features.map(f => `<div class="pf${f.dim ? ' dim' : ''}">
+          <div class="pf-mark">${f.dim ? '—' : '+'}</div>
+          <span>${f.text}</span>
+        </div>`).join('')}
+      </div>
+      <button class="btn-plan${p.ultimate ? ' solid' : ''}"
+        onclick="openModal('${p.id}','${p.name}',${price},'${per}')">
+        Get ${p.name}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function renderCompare() {
+  const heads = PLANS.map(p => `<th>${p.name}</th>`).join('');
+  const rows  = COMPARE.map(r => {
+    const cells = r.v.map(v =>
+      v ? `<td><span class="ct-yes">+</span></td>`
+        : `<td><span class="ct-no">—</span></td>`
+    ).join('');
+    return `<tr><td><span class="ct-feat">${r.feat}</span><span class="ct-sub">${r.sub}</span></td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('compare-table').innerHTML =
+    `<thead><tr><th>Feature</th>${heads}</tr></thead><tbody>${rows}</tbody>`;
+}
+
+function renderFAQ() {
+  document.getElementById('faq').innerHTML = FAQ.map(item =>
+    `<div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">${item.q}<span class="faq-icon">+</span></div>
+      <div class="faq-a">${item.a}</div>
+    </div>`
+  ).join('');
+}
+
+function openModal(id, name, price, per) {
+  _selectedPlan = { id, name, price, per };
+  document.getElementById('modal-title').textContent      = `Get ${name}`;
+  document.getElementById('modal-plan-name').textContent  = name;
+  document.getElementById('modal-plan-price').textContent = `$${price} ${per}`;
+  if (_session) document.getElementById('m-email').value  = _session.user.email || '';
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+async function submitPayment() {
+  const email = document.getElementById('m-email').value.trim();
+  if (!email) { alert('Enter your email'); return; }
+  const tg   = document.getElementById('m-tg').value.trim();
+  const note = document.getElementById('m-note').value.trim();
+  const btn  = document.getElementById('btn-submit');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    if (_sb && _session) {
+      await fetch('https://kgutmsosfyyxnlnhucaa.supabase.co/rest/v1/payments', {
+        method: 'POST',
+        headers: {
+          apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q',
+          Authorization: `Bearer ${_session.access_token}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({ user_id: _session.user.id, plan: _selectedPlan.id, status: 'pending', notes: `email:${email} tg:${tg} price:$${_selectedPlan.price} note:${note}` }),
+      });
+    }
+    closeModal();
+    alert(`Request submitted for ${_selectedPlan.name} ($${_selectedPlan.price}).\n\nWe will contact you at ${email} within 1-2 hours.`);
+  } catch(e) { alert('Error: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Submit Request'; }
+}
+
+function initSB() {
+  if (typeof supabase === 'undefined') { setTimeout(initSB, 100); return; }
+  _sb = supabase.createClient('https://kgutmsosfyyxnlnhucaa.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q');
+  _sb.auth.getSession().then(({ data: { session } }) => { _session = session; });
+}
+
+// Init
+document.getElementById('save-tag').style.display = 'none';
+renderPlans();
+renderCompare();
+renderFAQ();
+initSB();
+</script>
+
+<script src="/assets/premium-ui.js" defer></script>
+</body>
+</html>
