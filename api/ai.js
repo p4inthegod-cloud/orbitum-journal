@@ -87,23 +87,6 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content || '';
-
-    // For structured JSON modes: parse on server and return object, not raw string.
-    // This prevents try/catch hell on the client side.
-    if (forceJson) {
-      // Strip possible markdown fences that some models still emit despite response_format
-      const cleaned = text.replace(/^```(?:json)?
-?/i, '').replace(/
-?```$/i, '').trim();
-      try {
-        const parsed = JSON.parse(cleaned);
-        return res.status(200).json({ data: parsed });
-      } catch (_) {
-        console.error('AI JSON parse failed, raw:', cleaned.slice(0, 300));
-        return res.status(502).json({ error: 'Bad AI JSON', raw: cleaned.slice(0, 300) });
-      }
-    }
-
     res.status(200).json({ text });
 
   } catch (err) {

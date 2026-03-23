@@ -5,42 +5,7 @@
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL    = process.env.SUPABASE_URL;
 const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
-const WH_SECRET = process.env.TV_WEBHOOK_SECRET || ''; // обязателен (см. проверку ниже)
-
-
-// ── In-memory rate limit + deduplication ──────────────────────────
-// Rate limit: max 10 requests per IP per minute
-const _rlStore  = new Map(); // ip → { count, resetAt }
-const _dedupStore = new Map(); // dedup key → timestamp
-
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const entry = _rlStore.get(ip);
-  if (!entry || now > entry.resetAt) {
-    _rlStore.set(ip, { count: 1, resetAt: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 10) return false;
-  entry.count++;
-  return true;
-}
-
-function checkDedup(ticker, interval, direction, price) {
-  // Bucket price to nearest 0.5% to catch near-identical signals
-  const bucket = Math.round(price / (price * 0.005)) * Math.round(price * 0.005);
-  const key = `${ticker}:${interval}:${direction}:${bucket}`;
-  const now = Date.now();
-  const last = _dedupStore.get(key);
-  if (last && now - last < 3 * 60_000) return false; // duplicate within 3 min
-  _dedupStore.set(key, now);
-  // Cleanup old entries to avoid memory leak
-  if (_dedupStore.size > 500) {
-    for (const [k, t] of _dedupStore) {
-      if (now - t > 10 * 60_000) _dedupStore.delete(k);
-    }
-  }
-  return true;
-}
+const WH_SECRET = process.env.TV_WEBHOOK_SECRET || ''; // опционально
 
 async function fetchKlines(symbol, interval='1h', limit=200){
   symbol = symbol.replace('.P','').toLowerCase();
@@ -182,14 +147,9 @@ export default async function handler(req, res){
   if(req.method==='OPTIONS') return res.status(200).end();
   if(req.method!=='POST') return res.status(405).end();
 
-  // Secret is MANDATORY — reject all requests if env var is not set
-  if (!WH_SECRET) {
-    console.error('[webhook-tv] TV_WEBHOOK_SECRET is not set — refusing all requests');
-    return res.status(500).json({ error: 'Webhook not configured' });
-  }
-  // Secret must be sent in the X-TV-Secret header (not query — query logs expose it)
-  if (req.headers['x-tv-secret'] !== WH_SECRET)
-    return res.status(401).json({ error: 'Unauthorized' });
+  // Optional secret check
+  if(WH_SECRET && req.query.secret !== WH_SECRET)
+    return res.status(401).json({error:'Unauthorized'});
 
   const body = req.body;
   // TradingView sends: action, ticker, close (and optionally interval, user_id)
@@ -202,20 +162,6 @@ export default async function handler(req, res){
 
   if(!action||!ticker||!price)
     return res.status(400).json({error:'Missing action/ticker/close'});
-
-  // Rate limit by IP
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-  if (!checkRateLimit(ip)) {
-    console.warn(`[webhook-tv] rate limit hit for IP ${ip}`);
-    return res.status(429).json({ error: 'Too many requests' });
-  }
-
-  // Deduplication: reject identical signal within 3 minutes
-  const direction_early = action.includes('buy')||action.includes('long') ? 'long' : 'short';
-  if (!checkDedup(ticker, interval, direction_early, price)) {
-    console.log(`[webhook-tv] duplicate signal ignored: ${ticker} ${direction_early} ${price}`);
-    return res.status(200).json({ ok: true, skipped: 'duplicate' });
-  }
 
   const direction = action.includes('buy')||action.includes('long') ? 'long' : 'short';
 
