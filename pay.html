@@ -3,227 +3,496 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ORBITUM · Plans</title>
+<title>ORBITUM — Choose Your Plan</title>
+<meta name="description" content="Choose the ORBITUM plan that fits your trading workflow — Journal, AI, Signals, or Full Access.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+*{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0d0d;--bg2:#111111;--bg3:#161616;--bg4:#1c1c1c;
-  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.2);
-  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
-  --fire:#FF3923;--fire2:rgba(255,57,35,0.1);--fire3:rgba(255,57,35,0.28);
-  --font:'Plus Jakarta Sans',sans-serif;--rad:10px;
+  --bg:#060708;
+  --bg-soft:#0b0d10;
+  --panel:rgba(255,255,255,.04);
+  --panel-2:rgba(255,255,255,.025);
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.15);
+  --text:#f3f3f1;
+  --muted:rgba(243,243,241,.62);
+  --muted-2:rgba(243,243,241,.4);
+  --accent:#ff5d1f;
+  --accent-2:#ff7a2f;
+  --accent-soft:rgba(255,93,31,.12);
+  --accent-line:rgba(255,93,31,.28);
+  --radius:30px;
+  --shadow:0 24px 90px rgba(0,0,0,.56);
+  --mono:'DM Mono',monospace;
+  --sans:'Plus Jakarta Sans',sans-serif;
 }
-html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
-button{cursor:pointer;font-family:var(--font);border:none;}
-a{text-decoration:none;}
-
-.topbar{height:48px;background:rgba(7,7,7,0.98);border-bottom:1px solid rgba(255,57,35,0.1);display:flex;align-items:center;padding:0 24px;gap:16px;}
-.logo{font-weight:800;font-size:15px;letter-spacing:4px;color:var(--fire);text-transform:uppercase;}
-.tb-sp{flex:1;}
-.tb-btn{height:26px;padding:0 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--m);font-size:10px;font-weight:600;letter-spacing:0.5px;display:flex;align-items:center;transition:all .15s;}
-.tb-btn:hover{color:var(--t);border-color:var(--bd2);}
-
-.page{max-width:1020px;margin:0 auto;padding:52px 24px 80px;}
-
-.hero{text-align:center;margin-bottom:44px;}
-.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--fire);text-transform:uppercase;margin-bottom:14px;}
-.hero-title{font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px;}
-.hero-title em{color:var(--fire);font-style:normal;text-shadow:0 0 32px rgba(255,57,35,0.35);}
-.hero-sub{font-size:14px;color:var(--m);max-width:440px;margin:0 auto;line-height:1.7;}
-
-/* BILLING TOGGLE */
-.billing-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:36px;}
-.billing-toggle{display:flex;background:var(--bg2);border:1px solid var(--bd2);border-radius:10px;padding:4px;}
-.billing-btn{height:30px;padding:0 18px;border-radius:7px;font-size:11px;font-weight:700;letter-spacing:0.5px;transition:all .18s;color:var(--m);background:transparent;}
-.billing-btn.on{background:var(--fire);color:#fff;box-shadow:0 0 12px rgba(255,57,35,0.4);}
-.billing-save{font-size:9px;font-weight:700;color:var(--fire);background:var(--fire2);border:1px solid var(--fire3);border-radius:20px;padding:3px 10px;}
-
-/* PLANS */
-.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:52px;}
-@media(max-width:880px){.plans{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px){.plans{grid-template-columns:1fr;}}
-
-.plan{
-  background:var(--bg2);border:1px solid var(--bd);border-radius:16px;
-  padding:24px 20px;position:relative;display:flex;flex-direction:column;
-  transition:border-color .2s,transform .2s;
+html{scroll-behavior:smooth}
+body{
+  min-height:100%;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,93,31,.18), transparent 24%),
+    radial-gradient(circle at 20% 85%, rgba(255,93,31,.08), transparent 30%),
+    linear-gradient(180deg,#070809 0%, #050607 100%);
+  color:var(--text);
+  font-family:var(--sans);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-.plan:hover{border-color:var(--bd2);transform:translateY(-2px);}
-.plan.popular{border-color:rgba(255,57,35,0.4);background:linear-gradient(160deg,var(--bg2) 60%,rgba(255,57,35,0.05) 100%);box-shadow:0 0 30px rgba(255,57,35,0.08);}
-.plan.ultimate{border-color:rgba(255,57,35,0.55);background:linear-gradient(150deg,var(--bg2) 40%,rgba(255,57,35,0.07) 100%);box-shadow:0 0 44px rgba(255,57,35,0.13);}
-
-.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--fire);color:#fff;font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap;}
-
-.plan-tier{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;}
-.plan-name{font-size:18px;font-weight:800;color:var(--t);margin-bottom:4px;}
-.plan-tagline{font-size:11px;color:var(--m2);line-height:1.5;margin-bottom:16px;min-height:32px;}
-
-.plan-price-main{display:flex;align-items:baseline;gap:3px;margin-bottom:2px;}
-.plan-price-num{font-size:34px;font-weight:800;letter-spacing:-1px;color:var(--t);}
-.plan-price-num.fire{color:var(--fire);text-shadow:0 0 18px rgba(255,57,35,0.3);}
-.plan-price-per{font-size:11px;color:var(--m2);}
-.plan-price-lt{font-size:11px;color:var(--m2);margin-bottom:14px;}
-.plan-price-lt b{color:var(--fire);}
-
-.plan-sep{height:1px;background:var(--bd);margin:12px 0;}
-
-.plan-features{display:flex;flex-direction:column;gap:7px;flex:1;margin-bottom:18px;}
-.pf{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--m);line-height:1.45;}
-.pf-mark{flex-shrink:0;width:14px;height:14px;border-radius:50%;background:var(--fire2);border:1px solid var(--fire3);display:flex;align-items:center;justify-content:center;margin-top:0px;font-size:8px;color:var(--fire);font-weight:800;}
-.pf.dim .pf-mark{background:var(--bd);border-color:var(--bd2);color:var(--m2);}
-.pf.dim{color:var(--m2);}
-.pf strong{color:var(--t);font-weight:600;}
-
-.btn-plan{
-  width:100%;height:44px;border-radius:var(--rad);
-  background:var(--fire);color:#fff;border:1px solid var(--fire);
-  font-family:var(--font);font-size:12px;font-weight:700;
-  letter-spacing:0;text-transform:uppercase;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 20px rgba(255,57,35,0.4);
-  transition:all .2s;line-height:1;
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(rgba(255,255,255,.05) .6px, transparent .6px);
+  background-size:26px 26px;opacity:.16;
+  mask-image:radial-gradient(circle at center, black 45%, transparent 100%);
 }
-.btn-plan:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);transform:translateY(-1px);}
-.btn-plan.solid{background:var(--fire);color:#fff;border-color:var(--fire);}
+a{text-decoration:none;color:inherit}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+[data-en],[data-ru]{display:none}
+html[lang="en"] [data-en]{display:inherit}
+html[lang="ru"] [data-ru]{display:inherit}
+html[lang="en"] [data-en].inline-flex,html[lang="ru"] [data-ru].inline-flex{display:inline-flex}
+html[lang="en"] [data-en].grid,html[lang="ru"] [data-ru].grid{display:grid}
 
-@keyframes btnBreathe{
-  0%,100%{box-shadow:0 0 12px rgba(255,57,35,0.12);}
-  50%{box-shadow:0 0 24px rgba(255,57,35,0.34);}
+.container{width:min(1240px,calc(100% - 40px));margin:0 auto;position:relative;z-index:1}
+
+.topbar{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:40;
+  width:min(1220px,calc(100% - 24px));
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(8,10,12,.72);backdrop-filter:blur(24px);box-shadow:0 18px 60px rgba(0,0,0,.3);
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.22em;font-size:12px;text-transform:uppercase}
+.logo-mark{width:24px;height:24px;border-radius:999px;position:relative;background:linear-gradient(180deg,#181a1d,#0a0b0d);border:1px solid rgba(255,255,255,.08);box-shadow:0 0 0 1px rgba(255,93,31,.12),0 0 30px rgba(255,93,31,.22)}
+.logo-mark::before{content:'';position:absolute;inset:4px;border-radius:999px;border:1.5px solid var(--accent);box-shadow:0 0 18px rgba(255,93,31,.65)}
+.logo-mark::after{content:'';position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:10px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 20px rgba(255,93,31,.9)}
+.nav-center{display:flex;align-items:center;gap:10px;padding:5px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.nav-center a{padding:10px 16px;border-radius:999px;font-size:11px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);transition:.2s}
+.nav-center a:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-lang,.nav-btn,.nav-btn-main{
+  border-radius:999px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;transition:.22s ease
+}
+.nav-lang{width:42px;height:38px;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);font:500 10px var(--mono);letter-spacing:.12em;color:var(--muted-2);text-transform:uppercase}
+.nav-lang.active,.nav-lang:hover{color:var(--text);border-color:var(--accent-line);box-shadow:0 0 0 1px rgba(255,93,31,.15) inset}
+.nav-btn{height:40px;padding:0 18px;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);font:500 11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.nav-btn:hover{border-color:rgba(255,255,255,.18);color:var(--text)}
+.nav-btn-main{height:42px;padding:0 22px;background:linear-gradient(180deg,#ffffff,#e8e8e8);color:#050505;font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;box-shadow:0 10px 30px rgba(255,255,255,.08),0 0 30px rgba(255,93,31,.14)}
+.nav-btn-main:hover{transform:translateY(-1px);box-shadow:0 18px 42px rgba(0,0,0,.4),0 0 40px rgba(255,93,31,.22)}
+.mobile-toggle{display:none;width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--text)}
+.mobile-drawer{display:none;position:fixed;inset:76px 12px auto 12px;z-index:39;background:rgba(8,10,12,.92);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:14px;box-shadow:var(--shadow)}
+.mobile-drawer.open{display:block}
+.mobile-drawer a,.mobile-drawer button{display:block;width:100%;text-align:left;padding:14px 16px;border:none;background:none;border-radius:16px;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.mobile-drawer a:hover,.mobile-drawer button:hover{background:rgba(255,255,255,.04);color:var(--text)}
+
+.page{padding:136px 0 64px}
+.hero{position:relative;padding:10px 0 30px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:center;min-height:calc(100vh - 220px)}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font:500 10px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.eyebrow::before{content:'';width:8px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 14px rgba(255,93,31,.9)}
+.hero h1{margin-top:22px;font-size:clamp(52px,7vw,98px);line-height:.92;letter-spacing:-.06em;max-width:760px}
+.hero h1 span{display:block;color:rgba(255,255,255,.35)}
+.hero p{max-width:600px;margin-top:22px;font-size:17px;line-height:1.85;color:var(--muted)}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn-main,.btn-alt,.btn-plan,.btn-submit,.btn-cancel,.toggle-btn,.ghost-chip{
+  border-radius:999px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;transition:.22s ease
+}
+.btn-main,.btn-plan,.btn-submit{height:52px;padding:0 26px;background:linear-gradient(180deg,#ffffff,#e8e8e8);color:#050505;font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;box-shadow:0 10px 30px rgba(255,255,255,.08),0 0 30px rgba(255,93,31,.14)}
+.btn-main:hover,.btn-plan:hover,.btn-submit:hover{transform:translateY(-1px);box-shadow:0 18px 42px rgba(0,0,0,.4),0 0 40px rgba(255,93,31,.22)}
+.btn-alt,.btn-cancel{height:52px;padding:0 24px;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);color:var(--text);font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.btn-alt:hover,.btn-cancel:hover{border-color:rgba(255,255,255,.18);color:var(--text)}
+
+.hero-visual{position:relative;min-height:650px;display:flex;align-items:center;justify-content:center}
+.orbit-shell{position:relative;width:350px;height:520px;display:grid;place-items:center}
+.orbit-glow{position:absolute;inset:12% 20%;background:radial-gradient(circle,rgba(255,93,31,.42),transparent 58%);filter:blur(58px)}
+.orbit-core{position:absolute;width:190px;height:420px;border-radius:100px;background:linear-gradient(180deg,#121416 0%,#0a0c0e 55%,#08090a 100%);border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 0 0 1px rgba(255,93,31,.18),0 0 36px rgba(255,93,31,.22)}
+.orbit-core::before{content:'';position:absolute;inset:-2px;border-radius:100px;border:1.5px solid rgba(255,93,31,.9);box-shadow:0 0 18px rgba(255,93,31,.7),0 0 48px rgba(255,93,31,.32)}
+.orbit-core::after{content:'';position:absolute;left:0;right:0;top:47%;height:1px;background:rgba(255,255,255,.07)}
+.float-card{position:absolute;padding:22px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);box-shadow:var(--shadow);overflow:hidden}
+.float-card::before{content:'';position:absolute;inset:-35% auto auto -20%;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,93,31,.16),transparent 64%);pointer-events:none}
+.float-eyebrow{position:relative;font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+.float-title{position:relative;margin-top:12px;font-size:32px;line-height:1;letter-spacing:-.05em}
+.float-copy{position:relative;margin-top:10px;font-size:14px;line-height:1.7;color:var(--muted);max-width:260px}
+.signal-card{top:20px;right:10px;width:305px}
+.signal-card .bar{margin-top:16px;padding:6px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.signal-card .bar div{height:14px;width:78%;border-radius:999px;background:linear-gradient(90deg,#ffd4aa 0%,#ff8e3d 42%,#ff5d1f 100%);box-shadow:0 0 20px rgba(255,93,31,.55)}
+.signal-meta{display:flex;justify-content:space-between;margin-top:10px;font:500 10px var(--mono);letter-spacing:.12em;color:var(--muted-2);text-transform:uppercase}
+.stack-card{left:-12px;bottom:84px;width:292px}
+.stack-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.stack-chip{height:44px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:grid;place-items:center;font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+.stack-chip.active{background:rgba(255,93,31,.12);border-color:rgba(255,93,31,.35);color:#ffd3b7;box-shadow:0 0 20px rgba(255,93,31,.2)}
+.price-card{right:38px;bottom:8px;width:246px}
+.price-track{height:14px;margin-top:18px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.price-fill{height:100%;width:68%;border-radius:999px;background:linear-gradient(90deg,#ffcf9c,#ff8b37,#ff5d1f);box-shadow:0 0 18px rgba(255,93,31,.45)}
+.price-meta{display:flex;justify-content:space-between;margin-top:8px;font:500 10px var(--mono);letter-spacing:.12em;color:var(--muted-2);text-transform:uppercase}
+
+section{padding-top:22px}
+.section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:22px}
+.section-kicker{display:inline-flex;align-items:center;gap:10px;font:500 10px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.section-kicker::before{content:'';width:18px;height:1px;background:var(--accent)}
+.section-title{margin-top:14px;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.05em;max-width:740px}
+.section-sub{max-width:520px;color:var(--muted);line-height:1.8;font-size:15px}
+
+.pricing-top{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.billing-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.billing-toggle{display:inline-flex;align-items:center;gap:8px;padding:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:999px}
+.toggle-btn{height:38px;padding:0 18px;background:transparent;border-color:transparent;font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+.toggle-btn.on{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.08);color:var(--text)}
+.billing-save{display:inline-flex;padding:10px 14px;border-radius:999px;background:rgba(255,93,31,.1);border:1px solid rgba(255,93,31,.24);font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.plan{padding:26px;border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.09);position:relative;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.plan::before{content:'';position:absolute;inset:auto -30% -35% auto;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,93,31,.16),transparent 65%)}
+.plan:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.16)}
+.plan.featured{border-color:rgba(255,93,31,.28);box-shadow:0 0 0 1px rgba(255,93,31,.1) inset,0 24px 90px rgba(0,0,0,.6),0 0 80px rgba(255,93,31,.18)}
+.plan-badge{position:absolute;top:16px;right:16px;padding:8px 12px;border-radius:999px;background:rgba(255,93,31,.1);border:1px solid rgba(255,93,31,.22);font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.plan-tier{position:relative;font:500 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2)}
+.plan-name{position:relative;margin-top:16px;font-size:30px;letter-spacing:-.05em}
+.plan-tagline{position:relative;margin-top:10px;color:var(--muted);line-height:1.75;font-size:14px;min-height:72px}
+.price-row{position:relative;display:flex;align-items:end;gap:8px;margin-top:22px}
+.price-row strong{font-size:48px;line-height:.95;letter-spacing:-.06em}
+.price-row span{padding-bottom:8px;color:var(--muted-2);font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.plan-lifetime{position:relative;margin-top:8px;font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+.plan-lifetime b{color:var(--accent)}
+.plan-sep{position:relative;height:1px;background:rgba(255,255,255,.08);margin:20px 0}
+.plan-features{position:relative;display:grid;gap:14px;margin-bottom:24px;flex:1}
+.plan-features li{list-style:none;display:flex;align-items:flex-start;gap:10px;color:var(--muted);line-height:1.7;font-size:14px}
+.plan-features li::before{content:'✓';width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--text);font-size:12px;flex-shrink:0}
+.plan-features li.dim{color:var(--muted-2)}
+.plan-features li.dim::before{content:'—';color:var(--muted-2)}
+.plan-note{position:relative;margin-top:12px;font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+
+.compare-card,.faq-card{padding:28px;border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);overflow:hidden}
+.compare-scroll{overflow-x:auto}
+.compare-table{width:100%;border-collapse:collapse;min-width:760px}
+.compare-table th{padding:16px 16px;border-bottom:1px solid rgba(255,255,255,.08);font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);text-align:left}
+.compare-table th:not(:first-child),.compare-table td:not(:first-child){text-align:center}
+.compare-table td{padding:16px;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px;color:var(--muted)}
+.compare-table tbody tr:last-child td{border-bottom:none}
+.ct-feat{display:block;color:var(--text);font-weight:600}
+.ct-sub{display:block;margin-top:4px;font-size:11px;color:var(--muted-2);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.ct-yes{color:var(--accent);font-size:18px;font-weight:700;text-shadow:0 0 18px rgba(255,93,31,.4)}
+.ct-no{color:rgba(255,255,255,.22);font-size:18px}
+
+.faq-grid{display:grid;gap:14px}
+.faq-item{border-radius:26px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+.faq-q{width:100%;background:none;border:none;color:var(--text);padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left}
+.faq-q span{font-size:16px;line-height:1.5}
+.faq-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);font-size:18px;color:var(--muted);flex-shrink:0;transition:.2s}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .28s ease;padding:0 24px}
+.faq-a p{padding:0 0 22px;color:var(--muted);line-height:1.85;font-size:14px;max-width:760px}
+.faq-item.open .faq-a{max-height:260px}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--accent);border-color:rgba(255,93,31,.26)}
+
+.footer{padding:28px 0 60px}
+.footer-card{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px 26px;border-radius:28px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+.footer-card p{color:var(--muted);font-size:14px;line-height:1.8;max-width:560px}
+.footer-links{display:flex;gap:10px;flex-wrap:wrap}
+.footer-links a{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.footer-links a:hover{color:var(--text);border-color:var(--line-2)}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:80;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px}
+.modal-bg.show{display:flex}
+.modal{width:min(560px,100%);padding:30px;border-radius:32px;background:linear-gradient(180deg,rgba(16,18,22,.95),rgba(8,10,12,.94));border:1px solid rgba(255,255,255,.1);box-shadow:0 28px 100px rgba(0,0,0,.65);position:relative;overflow:hidden}
+.modal::before{content:'';position:absolute;inset:-30% auto auto -20%;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,93,31,.16),transparent 62%);pointer-events:none}
+.modal-header,.modal-pill,.modal-note,.mf,.modal-btns{position:relative}
+.modal-title{font-size:30px;letter-spacing:-.05em}
+.modal-sub{margin-top:8px;font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+.modal-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,93,31,.1);border:1px solid rgba(255,93,31,.24);border-radius:999px;padding:10px 16px;margin:16px 0 14px}
+.modal-pill-name{font-size:13px;font-weight:700;color:var(--text)}
+.modal-pill-sep{color:rgba(255,255,255,.25)}
+.modal-pill-price{font-size:13px;font-weight:700;color:var(--accent)}
+.modal-note{font-size:13px;color:var(--muted);line-height:1.75;padding:14px 16px;background:rgba(255,255,255,.04);border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-bottom:16px}
+.mf{margin-bottom:12px}
+.mf label{display:block;font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin-bottom:8px}
+.mf input,.mf textarea{width:100%;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:18px;color:var(--text);padding:14px 16px;outline:none;transition:.2s;resize:none}
+.mf input:focus,.mf textarea:focus{border-color:rgba(255,93,31,.34);box-shadow:0 0 0 4px rgba(255,93,31,.12)}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed}
+
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible,[tabindex]:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid var(--accent)!important;
+  outline-offset:2px!important;
+  box-shadow:0 0 0 4px var(--accent-soft)!important;
 }
 
-/* COMPARE */
-.section-title{font-size:17px;font-weight:700;margin-bottom:16px;}
-.compare-scroll{overflow-x:auto;margin-bottom:52px;}
-.compare-table{width:100%;border-collapse:collapse;min-width:640px;}
-.compare-table th{text-align:left;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--bd);}
-.compare-table th:not(:first-child){text-align:center;}
-.compare-table td{padding:9px 14px;font-size:12px;color:var(--m);border-bottom:1px solid var(--bd);}
-.compare-table td:not(:first-child){text-align:center;}
-.compare-table tr:last-child td{border-bottom:none;}
-.ct-yes{color:var(--fire);font-size:14px;font-weight:800;}
-.ct-no{color:var(--bd3);font-size:14px;}
-.ct-feat{color:var(--t);font-weight:600;display:block;}
-.ct-sub{color:var(--m2);font-size:10px;margin-top:1px;display:block;}
-
-/* FAQ */
-.faq-wrap{max-width:640px;}
-.faq-item{border-top:1px solid var(--bd);padding:14px 0;cursor:pointer;}
-.faq-q{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:12px;}
-.faq-icon{color:var(--fire);font-size:18px;flex-shrink:0;transition:transform .2s;line-height:1;}
-.faq-item.open .faq-icon{transform:rotate(45deg);}
-.faq-a{font-size:12px;color:var(--m);line-height:1.75;margin-top:10px;display:none;}
-.faq-item.open .faq-a{display:block;}
-
-/* ── i18n ── */
-[data-ru],[data-en]{display:none;}
-html[lang="ru"] [data-ru]{display:revert;}
-html[lang="en"] [data-en]{display:revert;}
-
-/* lang toggle buttons */
-.nav-lang{
-  height:26px;padding:0 10px;border-radius:6px;
-  border:1px solid var(--bd);background:transparent;
-  color:var(--m2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;
-  cursor:pointer;transition:all .15s;
+@media (max-width: 1180px){
+  .pricing-grid{grid-template-columns:repeat(2,1fr)}
 }
-.nav-lang:hover,.nav-lang.active{color:var(--fire);border-color:var(--fire3);}
-
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
-.modal-bg.show{display:flex;}
-.modal{background:var(--bg2);border:1px solid var(--bd2);border-radius:16px;padding:28px 24px;width:400px;max-width:95vw;}
-.modal-header{margin-bottom:16px;}
-.modal-title{font-size:18px;font-weight:800;margin-bottom:2px;}
-.modal-sub{font-size:11px;color:var(--m2);}
-.modal-pill{display:inline-flex;align-items:center;gap:8px;background:var(--fire2);border:1px solid var(--fire3);border-radius:8px;padding:8px 14px;margin-bottom:14px;}
-.modal-pill-name{font-size:13px;font-weight:700;color:var(--t);}
-.modal-pill-sep{color:var(--bd3);}
-.modal-pill-price{font-size:13px;font-weight:700;color:var(--fire);}
-.modal-note{font-size:11px;color:var(--m2);line-height:1.65;padding:10px 12px;background:var(--bg3);border-radius:7px;border-left:2px solid var(--fire3);margin-bottom:14px;}
-.mf{margin-bottom:11px;}
-.mf label{display:block;font-size:10px;font-weight:700;color:var(--m);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;}
-.mf input,.mf textarea{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:7px;color:var(--t);font-family:var(--font);font-size:12px;font-weight:500;padding:9px 12px;outline:none;transition:border-color .15s;resize:none;}
-.mf input:focus,.mf textarea:focus{border-color:var(--fire3);}
-.mf input::placeholder,.mf textarea::placeholder{color:var(--m2);}
-.modal-btns{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
-.btn-submit{height:42px;border-radius:var(--rad);border:1px solid rgba(255,57,35,0.5);background:linear-gradient(135deg,rgba(255,57,35,0.16) 0%,rgba(255,57,35,0.07) 100%);color:var(--fire);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .2s;animation:btnBreathe 2.4s ease-in-out infinite;}
-.btn-submit:hover{background:linear-gradient(135deg,rgba(255,57,35,0.28) 0%,rgba(255,57,35,0.14) 100%);box-shadow:0 0 26px rgba(255,57,35,0.38);color:#ff6b5b;}
-.btn-submit:disabled{opacity:.35;cursor:not-allowed;}
-.btn-cancel{height:36px;border-radius:var(--rad);border:1px solid var(--bd);background:transparent;color:var(--m);font-size:11px;font-weight:600;transition:all .15s;}
-.btn-cancel:hover{color:var(--t);border-color:var(--bd2);}
+@media (max-width: 1024px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-visual{min-height:560px}
+  .signal-card{right:0}
+  .stack-card{left:0}
+}
+@media (max-width: 860px){
+  .topbar{top:10px;padding:10px 12px;width:calc(100% - 16px)}
+  .nav-center,.nav-right .nav-btn,.nav-right .nav-btn-main,.nav-right .nav-lang{display:none}
+  .mobile-toggle{display:inline-flex;align-items:center;justify-content:center}
+  .page{padding-top:108px}
+  .pricing-grid{grid-template-columns:1fr}
+  .pricing-top,.section-head,.footer-card{flex-direction:column;align-items:flex-start}
+  .hero{padding-bottom:10px}
+  .hero-visual{min-height:500px;margin-top:4px}
+  .orbit-shell{width:300px;height:470px}
+  .orbit-core{width:170px;height:370px}
+  .signal-card,.stack-card,.price-card{width:min(100%,250px)}
+  .price-card{right:8px}
+}
+@media (max-width: 560px){
+  .container{width:min(100% - 22px,1240px)}
+  .hero h1{font-size:44px}
+  .hero p{font-size:15px}
+  .hero-actions,.billing-wrap,.modal-btns{width:100%}
+  .hero-actions .btn-main,.hero-actions .btn-alt,.modal-btns > *{width:100%}
+  .compare-card,.faq-card,.plan,.modal{padding:22px}
+  .price-row strong{font-size:42px}
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="/" class="logo" style="text-decoration:none;color:var(--fire);position:relative;">ORBITUM<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FF3923;box-shadow:0 0 6px rgba(255,57,35,0.8);margin-left:3px;vertical-align:super;font-size:6px;"></span></a>
-  <div class="tb-sp"></div>
-  <a href="/journal" class="tb-btn" data-ru>Журнал</a>
-  <a href="/journal" class="tb-btn" data-en>Journal</a>
-  <a href="/screener" class="tb-btn" data-ru>Скринер</a>
-  <a href="/screener" class="tb-btn" data-en>Screener</a>
-  <button class="nav-lang" id="lang-en" onclick="setLang('en')">EN</button>
-  <button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
+<nav class="topbar">
+  <a class="logo" href="/">
+    <span class="logo-mark"></span>
+    <span>ORBITUM</span>
+  </a>
+  <div class="nav-center">
+    <a href="/">Home</a>
+    <a href="/journal">Journal</a>
+    <a href="/screener">Screener</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-lang active" id="lang-en">EN</button>
+    <button class="nav-lang" id="lang-ru">RU</button>
+    <a class="nav-btn" href="/login">Login</a>
+    <a class="nav-btn-main" href="#plans">Choose plan</a>
+    <button class="mobile-toggle" id="mobile-toggle" aria-label="Open menu">☰</button>
+  </div>
+</nav>
+
+<div class="mobile-drawer" id="mobile-drawer">
+  <a href="/">Home</a>
+  <a href="/journal">Journal</a>
+  <a href="/screener">Screener</a>
+  <a href="#plans">Pricing</a>
+  <a href="#faq">FAQ</a>
+  <a href="/login">Login</a>
+  <button id="mobile-lang">Switch language</button>
 </div>
 
 <div class="page">
+  <div class="container">
 
-  <div class="hero">
-    <div class="hero-eyebrow" data-ru>Тарифы</div>
-    <div class="hero-eyebrow" data-en>Pricing</div>
-    <h1 class="hero-title" data-ru>Выбери свой <em>уровень.</em></h1>
-    <h1 class="hero-title" data-en>Choose your <em>edge.</em></h1>
-    <p class="hero-sub" data-ru>Начни с того, что нужно. Апгрейд в любой момент. Никаких скрытых платежей.</p>
-    <p class="hero-sub" data-en>Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">
+            <span data-en>Pricing architecture</span>
+            <span data-ru>Архитектура тарифов</span>
+          </div>
+          <h1>
+            <span data-en>Choose the layer</span>
+            <span data-ru>Выбери тот уровень,</span>
+            <span data-en>that becomes your edge.</span>
+            <span data-ru>который станет твоим преимуществом.</span>
+          </h1>
+          <p>
+            <span data-en>Start with clean execution tracking. Add AI when you want behavioral clarity. Add signals when you want speed. Or unlock the whole ORBITUM system at once.</span>
+            <span data-ru>Начни с чистого контроля исполнения. Добавь AI, когда нужна ясность по поведению. Добавь сигналы, когда нужна скорость. Или открой всю систему ORBITUM сразу.</span>
+          </p>
+          <div class="hero-actions">
+            <a class="btn-main" href="#plans">
+              <span data-en>View plans</span>
+              <span data-ru>Смотреть планы</span>
+            </a>
+            <a class="btn-alt" href="/journal">
+              <span data-en>Open product</span>
+              <span data-ru>Открыть продукт</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="orbit-shell">
+            <div class="orbit-glow"></div>
+            <div class="orbit-core"></div>
+
+            <div class="float-card signal-card">
+              <div class="float-eyebrow">AI layer</div>
+              <div class="float-title">
+                <span data-en>$777 lifetime</span>
+                <span data-ru>$777 навсегда</span>
+              </div>
+              <div class="float-copy">
+                <span data-en>All tools, all future features, zero compromises.</span>
+                <span data-ru>Все инструменты, все будущие функции, без компромиссов.</span>
+              </div>
+              <div class="bar"><div></div></div>
+              <div class="signal-meta">
+                <span>Everything</span>
+                <span>Full access</span>
+              </div>
+            </div>
+
+            <div class="float-card stack-card">
+              <div class="float-eyebrow">Stack</div>
+              <div class="float-title">
+                <span data-en>Journal + AI + Signals</span>
+                <span data-ru>Журнал + AI + Сигналы</span>
+              </div>
+              <div class="stack-row">
+                <div class="stack-chip active">Journal</div>
+                <div class="stack-chip active">AI</div>
+                <div class="stack-chip active">Signals</div>
+              </div>
+            </div>
+
+            <div class="float-card price-card">
+              <div class="float-eyebrow">Best value</div>
+              <div class="float-title">
+                <span data-en>Upgrade path</span>
+                <span data-ru>Путь апгрейда</span>
+              </div>
+              <div class="price-track"><div class="price-fill"></div></div>
+              <div class="price-meta">
+                <span data-en>Start small</span>
+                <span data-ru>Начни с малого</span>
+                <span data-en>Scale later</span>
+                <span data-ru>Усиль позже</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="plans">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">
+            <span data-en>Plans</span>
+            <span data-ru>Тарифы</span>
+          </div>
+          <h2 class="section-title">
+            <span data-en>Built as product layers, not fake bundles.</span>
+            <span data-ru>Собрано как уровни продукта, а не фейковые наборы.</span>
+          </h2>
+        </div>
+        <div class="section-sub">
+          <span data-en>Each plan unlocks a clear function. Journal is discipline. AI is pattern recognition. Signals are timing. Full Access is the complete operating system.</span>
+          <span data-ru>Каждый план открывает понятную функцию. Журнал — дисциплина. AI — распознавание паттернов. Сигналы — тайминг. Full Access — полноценная операционная система.</span>
+        </div>
+      </div>
+
+      <div class="pricing-top">
+        <div class="billing-wrap">
+          <div class="billing-toggle">
+            <button class="toggle-btn on" id="btn-monthly" onclick="setBilling('monthly')">
+              <span data-en>Monthly</span>
+              <span data-ru>Месяц</span>
+            </button>
+            <button class="toggle-btn" id="btn-annual" onclick="setBilling('annual')">
+              <span data-en>Annual</span>
+              <span data-ru>Год</span>
+            </button>
+          </div>
+          <span class="billing-save" id="save-tag">
+            <span data-en>Save 30% annually</span>
+            <span data-ru>Экономия 30% при оплате за год</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="pricing-grid" id="plans-grid"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">
+            <span data-en>Compare</span>
+            <span data-ru>Сравнение</span>
+          </div>
+          <h2 class="section-title">
+            <span data-en>See what each layer actually unlocks.</span>
+            <span data-ru>Посмотри, что именно открывает каждый уровень.</span>
+          </h2>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-scroll">
+          <table class="compare-table" id="compare-table"></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">FAQ</div>
+          <h2 class="section-title">
+            <span data-en>Questions before you commit.</span>
+            <span data-ru>Вопросы перед тем, как войти.</span>
+          </h2>
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-grid" id="faq-list"></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-card">
+        <div>
+          <p>
+            <span data-en>ORBITUM is built for traders who want structure, not noise. Choose your layer now and expand later without friction.</span>
+            <span data-ru>ORBITUM создан для трейдеров, которым нужна структура, а не шум. Выбери свой уровень сейчас и усиливайся позже без трения.</span>
+          </p>
+        </div>
+        <div class="footer-links">
+          <a href="/">Home</a>
+          <a href="/journal">Journal</a>
+          <a href="/screener">Screener</a>
+          <a href="/login">Login</a>
+        </div>
+      </div>
+    </footer>
+
   </div>
-
-  <div class="billing-row">
-    <div class="billing-toggle">
-      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')" data-ru>Ежемесячно</button>
-      <button class="billing-btn on" id="btn-monthly-en" onclick="setBilling('monthly')" data-en>Monthly</button>
-      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')" data-ru>Ежегодно</button>
-      <button class="billing-btn" id="btn-annual-en" onclick="setBilling('annual')" data-en>Annual</button>
-    </div>
-    <span class="billing-save" id="save-tag" data-ru>Экономия 30% ежегодно</span>
-    <span class="billing-save" id="save-tag-en" style="display:none" data-en>Save 30% annually</span>
-  </div>
-
-  <div class="plans" id="plans-grid"></div>
-
-  <div class="section-title" data-ru>Полное сравнение</div>
-  <div class="section-title" data-en>Full comparison</div>
-  <div class="compare-scroll">
-    <table class="compare-table" id="compare-table"></table>
-  </div>
-
-  <div class="faq-wrap">
-    <div class="section-title" data-ru>Вопросы</div>
-    <div class="section-title" data-en>Questions</div>
-    <div id="faq"></div>
-  </div>
-
 </div>
 
-<!-- Modal -->
 <div class="modal-bg" id="modal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="modal-title">Get Access</div>
-
+      <div class="modal-sub" id="modal-sub">Submit request — we activate within 1–2 hours</div>
     </div>
     <div class="modal-pill">
       <span class="modal-pill-name" id="modal-plan-name">—</span>
       <span class="modal-pill-sep">|</span>
       <span class="modal-pill-price" id="modal-plan-price">—</span>
     </div>
-
-    <div class="mf"><label data-ru>Email</label><label data-en>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
-    <div class="mf"><label data-ru>Telegram (опционально)</label><label data-en>Telegram (optional)</label><input type="text" id="m-tg" placeholder="@username"></div>
-    <div class="mf"><label data-ru>Комментарий</label><label data-en>Comment</label><textarea id="m-note" rows="2" placeholder="Questions or anything else..."></textarea></div>
+    <div class="modal-note" id="modal-note">After submitting, we send payment details to your email or Telegram. We accept USDT, BTC, and bank transfer.</div>
+    <div class="mf">
+      <label id="label-email">Email</label>
+      <input type="email" id="m-email" placeholder="you@example.com">
+    </div>
+    <div class="mf">
+      <label id="label-tg">Telegram (optional)</label>
+      <input type="text" id="m-tg" placeholder="@username">
+    </div>
+    <div class="mf">
+      <label id="label-note">Comment</label>
+      <textarea id="m-note" rows="3" placeholder="Questions or anything else..."></textarea>
+    </div>
     <div class="modal-btns">
       <button class="btn-submit" id="btn-submit" onclick="submitPayment()">Submit Request</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -232,292 +501,299 @@ html[lang="en"] [data-en]{display:revert;}
 </div>
 
 <script>
-// ── Admin Telegram notification ──
-// Set these to your bot token and your personal chat_id
-// Get your chat_id by messaging @userinfobot in Telegram
-const ADMIN_BOT_TOKEN = '8617238441:AAGTNIUfHwXu-7L2aiFPCB4nKeUTi2HoyEE'; // e.g. '123456:ABCdef...' — same bot as TELEGRAM_BOT_TOKEN in .env
-const ADMIN_CHAT_ID   = '6746369295'; // e.g. '123456789' — your personal Telegram chat_id
-
 const PLANS = [
   {
-    id: 'journal',
-    tier: 'Tier 1',
-    name: 'Journal only',
-    tagline: 'Trade journal + analytics. No AI, no signals.',
-    monthly: 21,
-    annual: 15,
-    lifetime: 97,
-    features: [
-      { text: '<strong>Unlimited trade logging</strong> — pair, direction, result, emotion tags, screenshots' },
-      { text: '<strong>Analytics dashboard</strong> — win rate, P&L curve, equity chart, streaks' },
-      { text: '<strong>Setup analytics</strong> — which setups work for you with % breakdown' },
-      { text: '<strong>Weekly PDF report</strong> — auto-generated Sunday summary with key stats' },
-      { text: 'Day-of-week and time-of-day heatmaps' },
-      { text: 'Journal export to CSV' },
-      { dim: true, text: 'AI Coach — not included' },
-      { dim: true, text: 'Screener / Signals — not included' },
-    ],
+    id:'journal', tier:'Tier 1', name:'Journal', nameRu:'Журнал',
+    tagline:'Track every trade. Spot your patterns.',
+    taglineRu:'Записывай каждую сделку. Видь свои паттерны.',
+    monthly:21, annual:15, lifetime:97,
+    note:'Best for traders who need clean execution discipline first.',
+    noteRu:'Для трейдеров, которым сначала нужна чистая дисциплина исполнения.',
+    features:[
+      { en:'<strong>Unlimited trade logging</strong> — pair, direction, result, emotion tags, screenshots', ru:'<strong>Безлимитный журнал сделок</strong> — пара, направление, результат, эмоции, скриншоты' },
+      { en:'<strong>Performance dashboard</strong> — win rate, P&L curve, equity chart, streaks', ru:'<strong>Панель результатов</strong> — win rate, кривая P&L, equity chart, streak-и' },
+      { en:'<strong>Setup analytics</strong> — which setups actually work for you', ru:'<strong>Аналитика сетапов</strong> — какие сетапы реально работают у тебя' },
+      { en:'<strong>Weekly PDF report</strong> — auto-generated Sunday summary', ru:'<strong>Недельный PDF-отчёт</strong> — автосводка по воскресеньям' },
+      { en:'Day-of-week and time-of-day heatmaps', ru:'Тепловые карты по дням и времени' },
+      { en:'Journal export to CSV', ru:'Экспорт журнала в CSV' },
+      { en:'AI Coach — not included', ru:'AI Coach — не входит', dim:true },
+      { en:'Signals — not included', ru:'Сигналы — не входят', dim:true }
+    ]
   },
   {
-    id: 'analytics',
-    tier: 'Tier 2',
-    name: 'Journal + Analytics',
-    tagline: 'Full analytics and AI Coach after every trade.',
-    monthly: 71,
-    annual: 50,
-    lifetime: 297,
-    badge: 'Popular',
-    popular: true,
-    features: [
-      { text: 'Everything in Tier 1' },
-      { text: '<strong>AI Coach after every trade</strong> — within 60 seconds, explains what pattern you repeated' },
-      { text: '<strong>Behavior fingerprint</strong> — identifies your specific losing habit with exact numbers' },
-      { text: '<strong>Brutal Analysis mode</strong> — raw data on what is costing you money each week' },
-      { text: '<strong>AI Weekly breakdown</strong> — top pattern of the week, one concrete fix' },
-      { text: '<strong>Trade Analyzer</strong> — TradingView chart, SL/TP simulation, AI quality score' },
-      { dim: true, text: 'Screener / Signals — not included' },
-    ],
+    id:'analytics', tier:'Tier 2', name:'Journal + AI', nameRu:'Журнал + AI',
+    tagline:'Your journal. With an AI that knows your habits.',
+    taglineRu:'Твой журнал. С AI, который знает твои привычки.',
+    monthly:71, annual:50, lifetime:297, badge:'Popular', featured:true,
+    note:'Best for traders who want hard behavioral clarity.',
+    noteRu:'Для трейдеров, которым нужна жёсткая ясность по поведению.',
+    features:[
+      { en:'Everything in Journal', ru:'Всё из Journal' },
+      { en:'<strong>AI Coach after every trade</strong> — within 60 seconds of closing', ru:'<strong>AI Coach после каждой сделки</strong> — в течение 60 секунд после закрытия' },
+      { en:'<strong>Behavior fingerprint</strong> — after 10 trades, AI finds your specific losing habit', ru:'<strong>Behavior fingerprint</strong> — после 10 сделок AI находит твою конкретную убыточную привычку' },
+      { en:'<strong>Brutal Analysis mode</strong> — no softening, only raw numbers', ru:'<strong>Brutal Analysis mode</strong> — без смягчения, только сырые цифры' },
+      { en:'<strong>AI Weekly breakdown</strong> — top pattern of the week + one fix', ru:'<strong>Недельный AI-разбор</strong> — главный паттерн недели + одно исправление' },
+      { en:'<strong>Trade Analyzer</strong> — chart, simulation, AI score before entry', ru:'<strong>Trade Analyzer</strong> — график, симуляция, AI-оценка до входа' },
+      { en:'Live signals — not included', ru:'Живые сигналы — не входят', dim:true }
+    ]
   },
   {
-    id: 'signals',
-    tier: 'Tier 3',
-    name: 'Journal + Screener + Signals',
-    tagline: 'Analytics, AI Coach and real-time ICT/SMC signals.',
-    monthly: 149,
-    annual: 104,
-    lifetime: 497,
-    features: [
-      { text: 'Everything in Tier 2' },
-      { text: '<strong>Crypto screener</strong> — 200+ coins real-time, filters by volume, RSI, ATH%' },
-      { text: '<strong>Real-time setup signals</strong> — top 80 coins scanned every 30 min, A/A+ only' },
-      { text: '<strong>Entry, SL, TP</strong> — exact price levels from swing structure + ATR' },
-      { text: '<strong>Morning brief 07:00 UTC</strong> — market state, top setup of the day' },
-      { text: '<strong>Momentum alerts</strong> — volume spike detection, breakout candles in real time' },
-      { text: 'Telegram alerts included' },
-      { dim: true, text: 'Terminal AI — not included' },
-    ],
+    id:'signals', tier:'Tier 3', name:'Signals', nameRu:'Сигналы',
+    tagline:'Real-time ICT/SMC setups. No noise.',
+    taglineRu:'ICT/SMC сигналы в реальном времени. Без шума.',
+    monthly:149, annual:104, lifetime:497,
+    note:'Best for traders who want speed and timing.',
+    noteRu:'Для трейдеров, которым нужна скорость и тайминг.',
+    features:[
+      { en:'<strong>Real-time setup signals</strong> — top 80 coins scanned every 30 minutes', ru:'<strong>Сигналы в реальном времени</strong> — топ-80 монет сканируются каждые 30 минут' },
+      { en:'<strong>Entry, SL, TP</strong> — exact price levels, not zones', ru:'<strong>Entry, SL, TP</strong> — точные уровни, а не зоны' },
+      { en:'<strong>Confidence score 0–100</strong> — structure, OB/FVG, RSI, volume', ru:'<strong>Confidence score 0–100</strong> — структура, OB/FVG, RSI, объём' },
+      { en:'<strong>Morning brief 07:00 UTC</strong> — market state + top setup', ru:'<strong>Утренний бриф 07:00 UTC</strong> — состояние рынка + лучший сетап' },
+      { en:'<strong>Momentum alerts</strong> — volume spikes and breakout candles', ru:'<strong>Momentum alerts</strong> — всплески объёма и breakout candles' },
+      { en:'<strong>Evening result</strong> — honest outcome of the day', ru:'<strong>Вечерний итог</strong> — честный результат дня' },
+      { en:'Basic journal included', ru:'Базовый журнал включён' }
+    ]
   },
   {
-    id: 'full',
-    tier: 'Full Access',
-    name: '+ Terminal AI',
-    tagline: 'The complete system. Journal, analytics, signals and AI terminal.',
-    monthly: 289,
-    annual: 202,
-    lifetime: 777,
-    badge: 'All-in',
-    ultimate: true,
-    features: [
-      { text: 'Everything in Tier 3' },
-      { text: '<strong>Terminal AI</strong> — setup analysis before entry, probability forecast' },
-      { text: '<strong>All signals in real-time</strong> — setup, momentum, AI insight, critical alerts' },
-      { text: '<strong>Screener cockpit</strong> — live signal feed, heatmap, SA Score, OB/FVG zones' },
-      { text: '<strong>AI Forward Insight 20:30 UTC</strong> — one forward-looking call for tomorrow' },
-      { text: '<strong>Priority delivery</strong> — your signals fire before free-tier delay' },
-      { text: '<strong>All future features</strong> included — Lifetime never pays again' },
-    ],
-  },
+    id:'full', tier:'Full Access', name:'Everything', nameRu:'Everything',
+    tagline:'The complete system. Zero compromises.',
+    taglineRu:'Полная система. Ноль компромиссов.',
+    monthly:289, annual:202, lifetime:777, badge:'Best Value', featured:true,
+    note:'For traders who want the full ORBITUM operating system.',
+    noteRu:'Для трейдеров, которым нужна полная операционная система ORBITUM.',
+    features:[
+      { en:'<strong>Full Journal + AI Analytics</strong> — every feature from Tiers 1 and 2', ru:'<strong>Полный Journal + AI Analytics</strong> — все функции уровней 1 и 2' },
+      { en:'<strong>All signals in real-time</strong> — setup, momentum, AI insight, critical alerts', ru:'<strong>Все сигналы в реальном времени</strong> — setup, momentum, AI insight, critical alerts' },
+      { en:'<strong>Screener cockpit</strong> — live signal feed, heatmap, SA Score, OB/FVG zones', ru:'<strong>Screener cockpit</strong> — живой поток сигналов, heatmap, SA Score, OB/FVG зоны' },
+      { en:'<strong>Trade Analyzer</strong> — full access, simulation mode, signal stats', ru:'<strong>Trade Analyzer</strong> — полный доступ, симуляция, статистика сигналов' },
+      { en:'<strong>Priority delivery</strong> — your signals fire before free-tier delay', ru:'<strong>Приоритетная доставка</strong> — сигналы приходят раньше free-tier задержки' },
+      { en:'<strong>AI Forward Insight 20:30 UTC</strong> — paid-only forward call', ru:'<strong>AI Forward Insight 20:30 UTC</strong> — прогноз только для платных' },
+      { en:'<strong>All future features</strong> included — Lifetime never pays again', ru:'<strong>Все будущие функции</strong> включены — Lifetime больше не платит' }
+    ]
+  }
 ];
 
 const COMPARE = [
-  { feat: 'Trade logging', sub: 'unlimited', v: [1,1,0,1] },
-  { feat: 'Performance dashboard', sub: 'WR, P&L, equity curve', v: [1,1,0,1] },
-  { feat: 'Setup analytics', sub: 'best/worst setups', v: [1,1,0,1] },
-  { feat: 'Weekly PDF report', sub: 'auto Sunday', v: [1,1,0,1] },
-  { feat: 'AI Coach post-trade', sub: 'within 60 seconds', v: [0,1,0,1] },
-  { feat: 'Behavior fingerprint', sub: 'your losing pattern', v: [0,1,0,1] },
-  { feat: 'Brutal Analysis', sub: 'no-filter weekly', v: [0,1,0,1] },
-  { feat: 'Trade Analyzer', sub: 'TradingView + AI', v: [0,1,0,1] },
-  { feat: 'Real-time signals', sub: 'ICT/SMC, 80 coins', v: [0,0,1,1] },
-  { feat: 'Entry / SL / TP', sub: 'exact levels', v: [0,0,1,1] },
-  { feat: 'Morning brief', sub: '07:00 UTC daily', v: [0,0,1,1] },
-  { feat: 'Momentum alerts', sub: 'volume + breakout', v: [0,0,1,1] },
-  { feat: 'Evening result', sub: 'honest outcome', v: [0,0,1,1] },
-  { feat: 'Signal Screener cockpit', sub: 'live heatmap', v: [0,0,1,1] },
-  { feat: 'AI Forward Insight', sub: '20:30 UTC', v: [0,0,0,1] },
-  { feat: 'Future features', sub: 'Lifetime only', v: [0,0,0,1] },
+  { featEn:'Trade logging', featRu:'Журнал сделок', subEn:'unlimited', subRu:'безлимитно', v:[1,1,0,1] },
+  { featEn:'Performance dashboard', featRu:'Панель результатов', subEn:'WR, P&L, equity curve', subRu:'WR, P&L, equity curve', v:[1,1,0,1] },
+  { featEn:'Setup analytics', featRu:'Аналитика сетапов', subEn:'best/worst setups', subRu:'лучшие/худшие сетапы', v:[1,1,0,1] },
+  { featEn:'Weekly PDF report', featRu:'Недельный PDF-отчёт', subEn:'auto Sunday', subRu:'авто по воскресеньям', v:[1,1,0,1] },
+  { featEn:'AI Coach post-trade', featRu:'AI Coach после сделки', subEn:'within 60 seconds', subRu:'в течение 60 секунд', v:[0,1,0,1] },
+  { featEn:'Behavior fingerprint', featRu:'Behavior fingerprint', subEn:'your losing pattern', subRu:'твой убыточный паттерн', v:[0,1,0,1] },
+  { featEn:'Brutal Analysis', featRu:'Brutal Analysis', subEn:'no-filter weekly', subRu:'жёсткий недельный разбор', v:[0,1,0,1] },
+  { featEn:'Trade Analyzer', featRu:'Trade Analyzer', subEn:'chart + AI', subRu:'график + AI', v:[0,1,0,1] },
+  { featEn:'Real-time signals', featRu:'Сигналы в реальном времени', subEn:'ICT/SMC, 80 coins', subRu:'ICT/SMC, 80 монет', v:[0,0,1,1] },
+  { featEn:'Entry / SL / TP', featRu:'Entry / SL / TP', subEn:'exact levels', subRu:'точные уровни', v:[0,0,1,1] },
+  { featEn:'Morning brief', featRu:'Утренний бриф', subEn:'07:00 UTC daily', subRu:'ежедневно в 07:00 UTC', v:[0,0,1,1] },
+  { featEn:'Momentum alerts', featRu:'Momentum alerts', subEn:'volume + breakout', subRu:'объём + breakout', v:[0,0,1,1] },
+  { featEn:'Evening result', featRu:'Вечерний итог', subEn:'honest outcome', subRu:'честный результат', v:[0,0,1,1] },
+  { featEn:'Signal Screener cockpit', featRu:'Signal Screener cockpit', subEn:'live heatmap', subRu:'живой heatmap', v:[0,0,1,1] },
+  { featEn:'AI Forward Insight', featRu:'AI Forward Insight', subEn:'20:30 UTC', subRu:'20:30 UTC', v:[0,0,0,1] },
+  { featEn:'Future features', featRu:'Будущие функции', subEn:'Lifetime only', subRu:'только Lifetime', v:[0,0,0,1] }
 ];
 
 const FAQ = [
-  { q: 'How does payment work?', a: 'After submitting the form, we contact you via email or Telegram with payment details. We accept USDT (TRC20/ERC20), BTC, and bank transfer. Access is activated within 1-2 hours of payment confirmation.' },
-  { q: 'Is there a free plan?', a: 'Yes. Free users get: up to 20 trade logs, delayed signals (+15 min), daily market brief, and basic dashboard. Enough to understand the platform before committing.' },
-  { q: 'What does Lifetime mean exactly?', a: 'One payment, permanent access to your chosen tier — including all future features we add. For the Everything tier at $777, that\'s every feature we will ever build. No subscription, no renewal.' },
-  { q: 'Can I start on Journal and upgrade later?', a: 'Yes. You pay the price difference for the current billing period. Just reach out and we sort it within a few hours.' },
-  { q: 'What is the AI Coach actually doing?', a: 'It analyzes your last N trades and looks for behavioral patterns — specific pairs you lose on, times of day, sequences (e.g. revenge trading after 2 losses). It gives you the exact numbers, not generic advice.' },
-  { q: 'Are the signals tradeable?', a: 'Signals show methodology: structure, OB/FVG confluence, RSI zone, volume. They include entry, SL, and TP. They are not financial advice — they are analytical outputs. Your decision, your risk management.' },
+  {
+    qEn:'How does payment work?', qRu:'Как проходит оплата?',
+    aEn:'After submitting the form, we contact you via email or Telegram with payment details. We accept USDT, BTC, and bank transfer. Access is activated within 1–2 hours after confirmation.',
+    aRu:'После отправки формы мы связываемся с тобой по email или Telegram и отправляем реквизиты. Принимаем USDT, BTC и банковский перевод. Доступ активируется в течение 1–2 часов после подтверждения.'
+  },
+  {
+    qEn:'Is there a free plan?', qRu:'Есть ли бесплатный план?',
+    aEn:'Yes. Free users get limited trade logging, delayed signals, daily market brief, and a basic dashboard. It is enough to understand the platform before upgrading.',
+    aRu:'Да. Бесплатные пользователи получают ограниченный журнал сделок, сигналы с задержкой, ежедневный market brief и базовую панель. Этого достаточно, чтобы понять платформу до апгрейда.'
+  },
+  {
+    qEn:'What does Lifetime mean exactly?', qRu:'Что именно значит Lifetime?',
+    aEn:'One payment, permanent access to the selected tier — including future features added inside that tier. No subscription, no renewal, no monthly drag.',
+    aRu:'Один платёж, постоянный доступ к выбранному уровню — включая будущие функции внутри этого уровня. Без подписки, без продления, без ежемесячной нагрузки.'
+  },
+  {
+    qEn:'Can I start on Journal and upgrade later?', qRu:'Можно начать с Journal и апгрейднуть позже?',
+    aEn:'Yes. You can upgrade later and pay the difference for the current billing structure. We handle it manually and quickly.',
+    aRu:'Да. Можно апгрейднуть позже и доплатить разницу по текущей структуре тарифа. Мы делаем это вручную и быстро.'
+  },
+  {
+    qEn:'What is the AI Coach actually doing?', qRu:'Что реально делает AI Coach?',
+    aEn:'It analyzes your trade history and looks for behavior patterns: pairs you lose on, time windows, revenge sequences, emotional bias. It gives numbers, not motivation quotes.',
+    aRu:'Он анализирует твою историю сделок и ищет поведенческие паттерны: пары, на которых ты теряешь, временные окна, revenge-последовательности, эмоциональные перекосы. Даёт цифры, а не мотивационные цитаты.'
+  },
+  {
+    qEn:'Are the signals tradeable?', qRu:'Сигналы реально торгуемые?',
+    aEn:'Signals show methodology: structure, OB/FVG confluence, RSI zone, volume. They include entry, SL, and TP. They are analytical outputs — your execution and risk remain your responsibility.',
+    aRu:'Сигналы показывают методологию: структуру, confluence OB/FVG, RSI-зону и объём. В них есть entry, SL и TP. Это аналитический вывод — исполнение и риск остаются твоей ответственностью.'
+  }
 ];
 
-let _billing = 'monthly';
-let _selectedPlan = null;
-let _sb = null, _session = null;
+const I18N = {
+  en:{
+    htmlLang:'en',
+    modalSub:'Submit request — we activate within 1–2 hours',
+    modalNote:'After submitting, we send payment details to your email or Telegram. We accept USDT, BTC, and bank transfer.',
+    email:'Email', tg:'Telegram (optional)', note:'Comment',
+    submit:'Submit Request', submitting:'Submitting...', cancel:'Cancel',
+    enterEmail:'Enter your email',
+    requestSubmitted:(name,price,email)=>`Request submitted for ${name} ($${price}).\n\nWe will contact you at ${email} within 1–2 hours.`
+  },
+  ru:{
+    htmlLang:'ru',
+    modalSub:'Оставь заявку — активируем доступ в течение 1–2 часов',
+    modalNote:'После отправки заявки мы пришлём реквизиты на email или в Telegram. Принимаем USDT, BTC и банковский перевод.',
+    email:'Email', tg:'Telegram (необязательно)', note:'Комментарий',
+    submit:'Отправить заявку', submitting:'Отправка...', cancel:'Отмена',
+    enterEmail:'Введите email',
+    requestSubmitted:(name,price,email)=>`Заявка отправлена на ${name} ($${price}).\n\nМы свяжемся с тобой по ${email} в течение 1–2 часов.`
+  }
+};
 
-function setBilling(m) {
-  _billing = m;
-  document.getElementById('btn-monthly').className = 'billing-btn' + (m === 'monthly' ? ' on' : '');
-  document.getElementById('btn-annual').className  = 'billing-btn' + (m === 'annual'  ? ' on' : '');
-  document.getElementById('save-tag').style.display = m === 'annual' ? 'inline' : 'none';
+let _billing='monthly';
+let _selectedPlan=null;
+let _sb=null,_session=null;
+let _lang='en';
+
+function currentText(en,ru){ return _lang === 'ru' ? (ru || en) : en; }
+
+function setLang(lang){
+  _lang = lang;
+  document.documentElement.lang = I18N[lang].htmlLang;
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-ru').classList.toggle('active', lang === 'ru');
+  document.getElementById('modal-sub').textContent = I18N[lang].modalSub;
+  document.getElementById('modal-note').textContent = I18N[lang].modalNote;
+  document.getElementById('label-email').textContent = I18N[lang].email;
+  document.getElementById('label-tg').textContent = I18N[lang].tg;
+  document.getElementById('label-note').textContent = I18N[lang].note;
+  document.getElementById('btn-submit').textContent = I18N[lang].submit;
+  document.querySelector('.btn-cancel').textContent = I18N[lang].cancel;
+  renderPlans();
+  renderCompare();
+  renderFAQ();
+  if (_selectedPlan) openModal(_selectedPlan.id, _selectedPlan.name, _selectedPlan.price, _selectedPlan.per, true);
+}
+
+function setBilling(mode){
+  _billing = mode;
+  document.getElementById('btn-monthly').classList.toggle('on', mode === 'monthly');
+  document.getElementById('btn-annual').classList.toggle('on', mode === 'annual');
+  document.getElementById('save-tag').style.display = mode === 'annual' ? 'inline-flex' : 'none';
   renderPlans();
 }
 
-function renderPlans() {
-  const l = document.documentElement.lang || 'en';
-  const isRu = l === 'ru';
-  const perMonthly = isRu ? '/мес' : '/month';
-  const perAnnual  = isRu ? '/мес, ежегодно' : '/mo, billed annually';
-  const orWord     = isRu ? 'или' : 'or';
-  const ltWord     = isRu ? 'lifetime' : 'lifetime';
+function renderPlans(){
   document.getElementById('plans-grid').innerHTML = PLANS.map(p => {
     const price = _billing === 'annual' ? p.annual : p.monthly;
-    const per   = _billing === 'annual' ? perAnnual : perMonthly;
-    const lbl   = getPlanLabel(p);
-    return `<div class="plan${p.popular ? ' popular' : ''}${p.ultimate ? ' ultimate' : ''}">
-      ${lbl.badge ? `<div class="plan-badge">${lbl.badge}</div>` : ''}
-      <div class="plan-tier">${lbl.tier}</div>
-      <div class="plan-name">${lbl.name}</div>
-      <div class="plan-tagline">${lbl.tagline}</div>
-      <div class="plan-price-main">
-        <div class="plan-price-num${p.ultimate ? ' fire' : ''}">$${price}</div>
-        <div class="plan-price-per">${per}</div>
+    const per = _billing === 'annual' ? currentText('/mo billed yearly','/мес при оплате за год') : currentText('/month','/месяц');
+    const planName = currentText(p.name,p.nameRu);
+    const tagline = currentText(p.tagline,p.taglineRu);
+    const note = currentText(p.note,p.noteRu);
+    return `
+      <div class="plan${p.featured ? ' featured' : ''}">
+        ${p.badge ? `<div class="plan-badge">${p.badge}</div>` : ''}
+        <div class="plan-tier">${p.tier}</div>
+        <div class="plan-name">${planName}</div>
+        <div class="plan-tagline">${tagline}</div>
+        <div class="price-row">
+          <strong>$${price}</strong>
+          <span>${per}</span>
+        </div>
+        <div class="plan-lifetime">${currentText('or','или')} <b>$${p.lifetime}</b> lifetime</div>
+        <div class="plan-sep"></div>
+        <ul class="plan-features">
+          ${p.features.map(f=>`<li class="${f.dim ? 'dim' : ''}">${currentText(f.en,f.ru)}</li>`).join('')}
+        </ul>
+        <button class="btn-plan" onclick="openModal('${p.id}','${planName}',${price},'${per}')">${currentText('Get access','Получить доступ')}</button>
+        <div class="plan-note">${note}</div>
       </div>
-      <div class="plan-price-lt">${orWord} <b>$${p.lifetime}</b> ${ltWord}</div>
-      <div class="plan-sep"></div>
-      <div class="plan-features">
-        ${p.features.map(f => `<div class="pf${f.dim ? ' dim' : ''}">
-          <div class="pf-mark">${f.dim ? '—' : '+'}</div>
-          <span>${f.text}</span>
-        </div>`).join('')}
-      </div>
-      <button class="btn-plan"
-        onclick="openModal('${p.id}','${lbl.name}',${price},'${per}')">
-        ${lbl.btnText}
+    `;
+  }).join('');
+}
+
+function renderCompare(){
+  const heads = PLANS.map(p => `<th>${currentText(p.name,p.nameRu)}</th>`).join('');
+  const rows = COMPARE.map(r => {
+    const cells = r.v.map(v => v ? `<td><span class="ct-yes">+</span></td>` : `<td><span class="ct-no">—</span></td>`).join('');
+    return `<tr><td><span class="ct-feat">${currentText(r.featEn,r.featRu)}</span><span class="ct-sub">${currentText(r.subEn,r.subRu)}</span></td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('compare-table').innerHTML = `<thead><tr><th>${currentText('Feature','Функция')}</th>${heads}</tr></thead><tbody>${rows}</tbody>`;
+}
+
+function renderFAQ(){
+  document.getElementById('faq-list').innerHTML = FAQ.map(item => `
+    <div class="faq-item">
+      <button class="faq-q" type="button">
+        <span>${currentText(item.qEn,item.qRu)}</span>
+        <span class="faq-icon">+</span>
       </button>
-    </div>`;
-  }).join('');
+      <div class="faq-a"><p>${currentText(item.aEn,item.aRu)}</p></div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => item.classList.toggle('open'));
+  });
 }
 
-function renderCompare() {
-  const heads = PLANS.map(p => `<th>${p.name}</th>`).join('');
-  const rows  = COMPARE.map(r => {
-    const cells = r.v.map(v =>
-      v ? `<td><span class="ct-yes">+</span></td>`
-        : `<td><span class="ct-no">—</span></td>`
-    ).join('');
-    return `<tr><td><span class="ct-feat">${r.feat}</span><span class="ct-sub">${r.sub}</span></td>${cells}</tr>`;
-  }).join('');
-  document.getElementById('compare-table').innerHTML =
-    `<thead><tr><th>Feature</th>${heads}</tr></thead><tbody>${rows}</tbody>`;
-}
-
-function renderFAQ() {
-  document.getElementById('faq').innerHTML = FAQ.map(item =>
-    `<div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">${item.q}<span class="faq-icon">+</span></div>
-      <div class="faq-a">${item.a}</div>
-    </div>`
-  ).join('');
-}
-
-function openModal(id, name, price, per) {
+function openModal(id,name,price,per,silent=false){
   _selectedPlan = { id, name, price, per };
-  document.getElementById('modal-title').textContent      = `Get ${name}`;
-  document.getElementById('modal-plan-name').textContent  = name;
+  document.getElementById('modal-title').textContent = currentText(`Get ${name}`, `Доступ: ${name}`);
+  document.getElementById('modal-plan-name').textContent = name;
   document.getElementById('modal-plan-price').textContent = `$${price} ${per}`;
-  if (_session) document.getElementById('m-email').value  = _session.user.email || '';
-  document.getElementById('modal').classList.add('show');
+  if (_session) document.getElementById('m-email').value = _session.user.email || '';
+  if (!silent) document.getElementById('modal').classList.add('show');
 }
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
 
-async function submitPayment() {
+async function submitPayment(){
   const email = document.getElementById('m-email').value.trim();
-  if (!email) { alert('Enter your email'); return; }
-  const tg   = document.getElementById('m-tg').value.trim();
+  if (!email) { alert(I18N[_lang].enterEmail); return; }
+  const tg = document.getElementById('m-tg').value.trim();
   const note = document.getElementById('m-note').value.trim();
-  const btn  = document.getElementById('btn-submit');
-  btn.disabled = true; btn.textContent = 'Submitting...';
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true; btn.textContent = I18N[_lang].submitting;
   try {
     if (_sb && _session) {
       await fetch('https://kgutmsosfyyxnlnhucaa.supabase.co/rest/v1/payments', {
-        method: 'POST',
-        headers: {
-          apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q',
-          Authorization: `Bearer ${_session.access_token}`,
-          'Content-Type': 'application/json',
-          Prefer: 'return=minimal',
+        method:'POST',
+        headers:{
+          apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q',
+          Authorization:`Bearer ${_session.access_token}`,
+          'Content-Type':'application/json',
+          Prefer:'return=minimal'
         },
-        body: JSON.stringify({ user_id: _session.user.id, plan: _selectedPlan.id, status: 'pending', notes: `email:${email} tg:${tg} price:$${_selectedPlan.price} note:${note}` }),
+        body:JSON.stringify({ user_id:_session.user.id, plan:_selectedPlan.id, status:'pending', notes:`email:${email} tg:${tg} price:$${_selectedPlan.price} note:${note}` })
       });
     }
-    // Notify admin via Telegram bot
-    try {
-      const tgMsg = `🔔 <b>Новая заявка на тариф</b>\n\n` +
-        `📦 Тариф: <b>${_selectedPlan.name}</b>\n` +
-        `💰 Цена: <b>$${_selectedPlan.price} ${_selectedPlan.per}</b>\n` +
-        `📧 Email: <code>${email}</code>\n` +
-        (tg ? `💬 Telegram: ${tg}\n` : '') +
-        (note ? `📝 Комментарий: ${note}\n` : '') +
-        `\n⏰ ${new Date().toLocaleString('ru-RU', {timeZone:'UTC'})} UTC`;
-      await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: tgMsg, parse_mode: 'HTML' })
-      });
-    } catch(tgErr) { console.warn('TG notify failed', tgErr); }
-
     closeModal();
-    alert(`Заявка отправлена!\n\nМы свяжемся с вами на ${email} в течение 1-2 часов.`);
-  } catch(e) { alert('Error: ' + e.message); }
-  finally { btn.disabled = false; btn.textContent = 'Submit Request'; }
+    alert(I18N[_lang].requestSubmitted(_selectedPlan.name,_selectedPlan.price,email));
+  } catch(e){
+    alert('Error: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = I18N[_lang].submit;
+  }
 }
 
-function initSB() {
+function initSB(){
   if (typeof supabase === 'undefined') { setTimeout(initSB, 100); return; }
   _sb = supabase.createClient('https://kgutmsosfyyxnlnhucaa.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q');
-  _sb.auth.getSession().then(({ data: { session } }) => { _session = session; });
+  _sb.auth.getSession().then(({ data:{ session } }) => { _session = session; });
 }
 
-// ── i18n ──
-function setLang(l) {
-  document.documentElement.setAttribute('lang', l);
-  document.getElementById('lang-en').classList.toggle('active', l === 'en');
-  document.getElementById('lang-ru').classList.toggle('active', l === 'ru');
-  localStorage.setItem('orb_lang', l);
-  // sync billing btn display for the active billing mode
-  const isMon = document.getElementById('btn-monthly').classList.contains('on');
-  renderPlans();
-}
-(function() {
-  const l = localStorage.getItem('orb_lang') || 'en';
-  document.documentElement.setAttribute('lang', l);
-  document.getElementById('lang-en').classList.toggle('active', l === 'en');
-  document.getElementById('lang-ru').classList.toggle('active', l === 'ru');
-})();
-
-// Update PLANS data for Russian
-const PLANS_RU = {
-  journal:   { tier:'Уровень 1', name:'Только журнал',        tagline:'Журнал сделок + аналитика. Никакого AI и сигналов.', badge:null },
-  analytics: { tier:'Уровень 2', name:'Журнал + аналитика',   tagline:'Полная аналитика и AI Coach после каждой сделки.', badge:'Популярный' },
-  signals:   { tier:'Уровень 3', name:'Журнал + скринер + сигналы', tagline:'Аналитика, AI Coach и ICT/SMC сигналы в Telegram.', badge:null },
-  full:      { tier:'Полный доступ', name:'+ Terminal AI',    tagline:'Полная система: журнал, аналитика, сигналы и AI-терминал.', badge:'Всё включено' },
-};
-
-function getPlanLabel(p) {
-  const l = document.documentElement.lang;
-  if (l === 'ru') {
-    const ru = PLANS_RU[p.id];
-    return { tier: ru.tier, name: ru.name, tagline: ru.tagline,
-             badge: ru.badge || p.badge,
-             btnText: 'Получить' };
-  }
-  return { tier: p.tier, name: p.name, tagline: p.tagline,
-           badge: p.badge,
-           btnText: 'Get started' };
+function initUI(){
+  const mobileToggle = document.getElementById('mobile-toggle');
+  const mobileDrawer = document.getElementById('mobile-drawer');
+  if (mobileToggle) mobileToggle.addEventListener('click', ()=> mobileDrawer.classList.toggle('open'));
+  document.getElementById('lang-en').addEventListener('click', ()=> setLang('en'));
+  document.getElementById('lang-ru').addEventListener('click', ()=> setLang('ru'));
+  document.getElementById('mobile-lang').addEventListener('click', ()=> setLang(_lang === 'en' ? 'ru' : 'en'));
+  document.getElementById('save-tag').style.display = 'none';
+  document.getElementById('modal').addEventListener('click', (e)=> { if (e.target.id === 'modal') closeModal(); });
 }
 
-// Init
-document.getElementById('save-tag').style.display = 'none';
+initUI();
 renderPlans();
 renderCompare();
 renderFAQ();
+setLang('en');
 initSB();
 </script>
 </body>
