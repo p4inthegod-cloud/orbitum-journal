@@ -5,17 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ORBITUM · Login</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <!-- Global design tokens and premium styles -->
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="orbitum-premium.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0d0d0d;--bg2:#111111;--bg3:#161616;
-  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);
-  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
-  --fire:#FF3923;--fire2:rgba(255,57,35,0.12);--fire3:rgba(255,57,35,0.28);
+  --bg:var(--bg-main);--bg2:var(--bg-card);--bg3:rgba(255,255,255,0.05);
+  --bd:rgba(255,255,255,0.09);--bd2:rgba(255,255,255,0.15);
+  --t:var(--t);--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
+  --fire:var(--accent);--fire2:rgba(255,106,0,0.12);--fire3:rgba(255,106,0,0.28);
   --font:'Plus Jakarta Sans',sans-serif;--mono:'Fira Code',monospace;
+  --radius: var(--radius);
 }
 html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
 
@@ -82,15 +86,16 @@ a:focus-visible,
 
 .btn-primary{
   width:100%;height:46px;margin-top:4px;border-radius:8px;
-  border:1px solid rgba(255,57,35,0.8);
-  background:linear-gradient(135deg,#FF3923,#cc2a18);
+  /* unify primary button style with global .btn */
+  border:1px solid rgba(255,106,0,0.8);
+  background:linear-gradient(135deg,var(--accent), color-mix(in srgb, var(--accent) 70%, #000 30%));
   color:#fff;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;
-  box-shadow:0 4px 20px rgba(255,57,35,0.35);
+  box-shadow:0 4px 20px rgba(255,106,0,0.35);
   transition:all .2s;cursor:pointer;position:relative;overflow:hidden;
 }
 .btn-primary:hover{
-  background:linear-gradient(135deg,#ff4d38,#d62d1a);
-  box-shadow:0 6px 28px rgba(255,57,35,0.55);transform:translateY(-1px);
+  background:linear-gradient(135deg,color-mix(in srgb, var(--accent) 80%, #fff 20%), color-mix(in srgb, var(--accent) 60%, #000 40%));
+  box-shadow:0 6px 28px rgba(255,106,0,0.55);transform:translateY(-1px);
 }
 .btn-primary:disabled{opacity:.35;cursor:not-allowed;}
 @keyframes btnBreathe{
