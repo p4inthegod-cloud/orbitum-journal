@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="orbitum-premium.css">
+<style>
+/* trade-analyzer bridge — maps its custom var names to design system */
+:root {
+  --bg: var(--bg-main);
+  --s1: var(--bg-surface);
+  --s2: var(--bg-elevated);
+  --text: var(--text-main);
+  --text-dim: var(--text-secondary);
+  --border: var(--border-mid);
+  --green: var(--green);
+  --green-dim: var(--green-dim);
+  --red: var(--red);
+  --red-dim: var(--red-dim);
+  --yellow: var(--yellow);
+  --yellow-dim: var(--yellow-dim);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.08);
+}
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Orbitum · Trade Analyzer</title>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Unbounded:wght@700;900&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px}
+
+body{display:grid;grid-template-columns:320px 1fr;grid-template-rows:56px 1fr;min-height:100vh;overflow:hidden}
+
+/* NAV */
+nav{
+  grid-column:1/-1;
+  display:flex;align-items:center;gap:12px;
+  padding:0 24px;
+  background:var(--s1);
+  border-bottom:1px solid var(--border);
+  position:relative;
+  z-index:10;
+}
+.logo{font-family:'Unbounded',sans-serif;font-size:.9rem;font-weight:900;letter-spacing:-.02em;color:var(--text)}
+.logo span{color:var(--accent)}
+.nav-pill{
+  margin-left:auto;
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;
+  background:var(--green-dim);color:var(--green);
+  border:1px solid rgba(0,214,143,.2);
+}
+
+/* LEFT PANEL */
+.panel{
+  background:var(--s1);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border2) transparent;
+}
+
+.section{padding:20px;border-bottom:1px solid var(--border)}
+.section-label{
+  font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:14px;
+}
+
+.field{margin-bottom:12px}
+.field label{
+  display:block;
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px;
+}
+.field input,.field select{
+  width:100%;background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:7px;padding:9px 12px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.8rem;
+  outline:none;transition:border-color .2s;
+}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.btn-analyze{
+  width:100%;margin-top:4px;
+  padding:12px;border-radius:8px;border:none;cursor:pointer;
+  background:var(--accent);box-shadow:0 0 20px rgba(255,57,35,0.4);
+  color:var(--bg-main);font-family:'JetBrains Mono',monospace;
+  font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;
+  transition:opacity .2s,transform .1s;
+}
+.btn-analyze:hover{opacity:.9}
+.btn-analyze:active{transform:scale(.98)}
+.btn-analyze:disabled{opacity:.4;cursor:not-allowed}
+
+/* METRICS */
+.metrics{display:flex;flex-direction:column;gap:8px}
+.metric-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;border-radius:7px;background:var(--s2);
+  border:1px solid var(--border);
+}
+.metric-label{font-size:.65rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.metric-value{font-size:.8rem;font-weight:600}
+.metric-value.green{color:var(--green)}
+.metric-value.red{color:var(--red)}
+.metric-value.yellow{color:var(--yellow)}
+.metric-value.neutral{color:var(--text)}
+
+/* AI FEEDBACK */
+.ai-panel{flex:1;padding:20px;display:flex;flex-direction:column;gap:0}
+.ai-header{
+  font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.ai-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 1.8s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.ai-placeholder{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;color:var(--muted2);text-align:center;
+}
+.ai-placeholder svg{opacity:.3}
+.ai-placeholder p{font-size:.7rem;letter-spacing:.04em;max-width:200px;line-height:1.7}
+
+#ai-results{display:none;flex-direction:column;gap:8px}
+
+.ai-card{
+  padding:11px 14px;border-radius:8px;
+  font-size:.75rem;line-height:1.6;
+  border-left:3px solid;
+  animation:slideIn .3s ease forwards;
+  opacity:0;
+}
+@keyframes slideIn{
+  from{transform:translateX(-8px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+.ai-card.warn{background:var(--yellow-dim);border-color:var(--yellow);color:#f6d860}
+.ai-card.danger{background:var(--red-dim);border-color:var(--red);color:#ff8fa3}
+.ai-card.ok{background:var(--green-dim);border-color:var(--green);color:#6ee7b7}
+.ai-card.info{background:var(--blue-dim);border-color:var(--blue);color:#93c5fd}
+
+.ai-loading{
+  display:none;flex-direction:column;gap:8px;
+}
+.skeleton{
+  height:52px;border-radius:8px;
+  background:linear-gradient(90deg,var(--s2) 25%,var(--border2) 50%,var(--s2) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* CHART AREA */
+.chart-area{
+  display:flex;flex-direction:column;
+  background:var(--bg);
+  overflow:hidden;
+}
+.chart-topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 18px;
+  background:var(--s1);
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+  flex-shrink:0;
+}
+.chart-pair{font-family:'Unbounded',sans-serif;font-size:.85rem;font-weight:700}
+.chart-tf{
+  font-size:.65rem;color:var(--muted);padding:3px 8px;
+  border-radius:5px;background:var(--s2);border:1px solid var(--border2);
+}
+.chart-badges{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.cbadge{
+  display:flex;align-items:center;gap:5px;
+  font-size:.65rem;font-weight:600;letter-spacing:.06em;
+  padding:4px 10px;border-radius:20px;text-transform:uppercase;
+}
+.cbadge-g{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,214,143,.25)}
+.cbadge-r{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,.25)}
+.cbadge-b{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(79,156,249,.25)}
+.cbadge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+#chart{flex:1;min-height:0;width:100%}
+
+/* ZONE OVERLAY LABEL (absolute positioned) */
+.zone-label-container{position:relative}
+</style>
+<link rel="stylesheet" href="/redesign.css">
+</head>
+<body class="page-analyzer redesign">
+
+<nav>
+  <div class="logo">ORBIT<span>UM</span></div>
+  <div style="font-size:.65rem;color:var(--muted);margin-left:4px">Trade Analyzer</div>
+  <div class="nav-pill">AI-Powered</div>
+</nav>
+
+<!-- LEFT PANEL -->
+<div class="panel">
+  <div class="section">
+    <div class="section-label">Setup</div>
+    <div class="field">
+      <label>Pair</label>
+      <input id="pair" value="BTCUSDT" placeholder="BTCUSDT"/>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Timeframe</label>
+        <select id="tf">
+          <option value="15m">15m</option>
+          <option value="1h">1h</option>
+          <option value="4h" selected>4h</option>
+          <option value="1d">1D</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Direction</label>
+        <select id="direction">
+          <option value="long">Long ↑</option>
+          <option value="short">Short ↓</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Entry Price</label>
+      <input id="entry" type="number" value="84200" placeholder="84200"/>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Stop Loss</label>
+        <input id="sl" type="number" value="82500" placeholder="82500"/>
+      </div>
+      <div class="field">
+        <label>Take Profit</label>
+        <input id="tp" type="number" value="87800" placeholder="87800"/>
+      </div>
+    </div>
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">
+      ⚡ Analyze Trade
+    </button>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Metrics</div>
+    <div class="metrics" id="metrics">
+      <div class="metric-row"><span class="metric-label">Risk/Reward</span><span class="metric-value neutral" id="m-rr">—</span></div>
+      <div class="metric-row"><span class="metric-label">Risk %</span><span class="metric-value neutral" id="m-risk">—</span></div>
+      <div class="metric-row"><span class="metric-label">Reward %</span><span class="metric-value neutral" id="m-reward">—</span></div>
+      <div class="metric-row"><span class="metric-label">Range pos.</span><span class="metric-value neutral" id="m-range">—</span></div>
+    </div>
+  </div>
+
+  <div class="ai-panel">
+    <div class="ai-header">
+      <div class="ai-dot"></div>
+      AI Coach
+    </div>
+
+    <div class="ai-loading" id="ai-loading">
+      <div class="skeleton" style="animation-delay:.0s"></div>
+      <div class="skeleton" style="animation-delay:.15s"></div>
+      <div class="skeleton" style="animation-delay:.3s"></div>
+    </div>
+
+    <div id="ai-results"></div>
+
+    <div class="ai-placeholder" id="ai-placeholder">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+      </svg>
+      <p>Enter your trade setup and click Analyze to get AI feedback</p>
+    </div>
+  </div>
+</div>
+
+<!-- CHART -->
+<div class="chart-area">
+  <div class="chart-topbar">
+    <div class="chart-pair" id="chart-pair">BTC/USDT</div>
+    <div class="chart-tf" id="chart-tf-label">4H</div>
+    <div class="chart-badges" id="chart-badges" style="display:none">
+      <div class="cbadge cbadge-g" id="badge-entry">Entry —</div>
+      <div class="cbadge cbadge-r" id="badge-sl">SL —</div>
+      <div class="cbadge cbadge-b" id="badge-tp">TP —</div>
+    </div>
+  </div>
+  <div id="chart"></div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let chart, candleSeries;
+let entryLine, slLine, tpLine;
+let currentCandles = [];
+
+// ─── Chart init ──────────────────────────────────────────────────────────────
+function initChart() {
+  const el = document.getElementById('chart');
+  chart = LightweightCharts.createChart(el, {
+    width: el.clientWidth,
+    height: el.clientHeight,
+    layout: {
+      background: { type: 'solid', color: '#0b0b0f' },
+      textColor: 'rgba(255,255,255,0.4)',
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: 11,
+    },
+    grid: {
+      vertLines: { color: 'rgba(255,255,255,0.05)' },
+      horzLines:  { color: 'rgba(255,255,255,0.05)' },
+    },
+    crosshair: {
+      mode: LightweightCharts.CrosshairMode.Normal,
+      vertLine: { color: 'rgba(255,255,255,0.12)', width: 1, style: 2 },
+      horzLine:  { color: 'rgba(255,255,255,0.12)', width: 1, style: 2 },
+    },
+    rightPriceScale: { borderColor: '#1a1f2e' },
+    timeScale: { borderColor: '#1a1f2e', timeVisible: true, secondsVisible: false },
+  });
+
+  candleSeries = chart.addCandlestickSeries({
+    upColor: '#00d68f', downColor: '#ff4d6d',
+    borderUpColor: '#00d68f', borderDownColor: '#ff4d6d',
+    wickUpColor: '#00d68f', wickDownColor: '#ff4d6d',
+  });
+
+  new ResizeObserver(() => {
+    chart.applyOptions({ width: el.clientWidth, height: el.clientHeight });
+  }).observe(el);
+}
+
+// ─── Candle generation ───────────────────────────────────────────────────────
+function generateCandles(n, startPrice, tfSeconds) {
+  const candles = [];
+  let price = startPrice;
+  const now = Math.floor(Date.now() / 1000);
+  let t = now - n * tfSeconds;
+  t = t - (t % tfSeconds); // align
+
+  for (let i = 0; i < n; i++) {
+    const drift = (Math.random() - 0.49) * price * 0.008;
+    const open  = +price.toFixed(2);
+    const close = +(price + drift).toFixed(2);
+    const spread = Math.abs(drift);
+    const high  = +(Math.max(open, close) + Math.random() * spread * 1.5).toFixed(2);
+    const low   = +(Math.min(open, close) - Math.random() * spread * 1.5).toFixed(2);
+    candles.push({ time: t, open, high, low, close });
+    price = close;
+    t += tfSeconds;
+  }
+  return candles;
+}
+
+const TF_SECONDS = { '15m': 900, '1h': 3600, '4h': 14400, '1d': 86400 };
+
+function loadCandles(entry) {
+  const tf = document.getElementById('tf').value;
+  const secs = TF_SECONDS[tf] || 14400;
+  const candles = generateCandles(100, entry * 0.975, secs);
+  currentCandles = candles;
+  candleSeries.setData(candles);
+
+  // Remove old price lines
+  if (entryLine) { try { candleSeries.removePriceLine(entryLine); } catch(e){} }
+  if (slLine)    { try { candleSeries.removePriceLine(slLine); }    catch(e){} }
+  if (tpLine)    { try { candleSeries.removePriceLine(tpLine); }    catch(e){} }
+
+  const entryVal = +document.getElementById('entry').value;
+  const slVal    = +document.getElementById('sl').value;
+  const tpVal    = +document.getElementById('tp').value;
+
+  entryLine = candleSeries.createPriceLine({ price: entryVal, color: '#00d68f', lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Solid, axisLabelVisible: true, title: '⬤ Entry' });
+  slLine    = candleSeries.createPriceLine({ price: slVal,    color: '#ff4d6d', lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: '✕ Stop' });
+  tpLine    = candleSeries.createPriceLine({ price: tpVal,    color: '#4f9cf9', lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: '◎ Target' });
+
+  chart.timeScale().fitContent();
+}
+
+// ─── Metrics ─────────────────────────────────────────────────────────────────
+function calcMetrics(entry, sl, tp, direction) {
+  const risk   = Math.abs(entry - sl);
+  const reward = Math.abs(tp - entry);
+  const rr     = reward / risk;
+  const riskPct   = (risk   / entry * 100).toFixed(2);
+  const rewardPct = (reward / entry * 100).toFixed(2);
+
+  const candles = currentCandles;
+  const recentHigh = Math.max(...candles.slice(-30).map(c => c.high));
+  const recentLow  = Math.min(...candles.slice(-30).map(c => c.low));
+  const rangePos   = ((entry - recentLow) / (recentHigh - recentLow) * 100).toFixed(0);
+
+  const rrEl = document.getElementById('m-rr');
+  rrEl.textContent = `1 : ${rr.toFixed(2)}`;
+  rrEl.className = `metric-value ${rr >= 2 ? 'green' : rr >= 1 ? 'yellow' : 'red'}`;
+
+  const riskEl = document.getElementById('m-risk');
+  riskEl.textContent = `−${riskPct}%`;
+  riskEl.className = `metric-value ${riskPct <= 1 ? 'green' : riskPct <= 2 ? 'yellow' : 'red'}`;
+
+  document.getElementById('m-reward').textContent = `+${rewardPct}%`;
+  document.getElementById('m-reward').className = 'metric-value green';
+
+  const rangeEl = document.getElementById('m-range');
+  rangeEl.textContent = `${rangePos}%`;
+  rangeEl.className = `metric-value ${rangePos > 30 && rangePos < 70 ? 'yellow' : 'green'}`;
+
+  return { rr, riskPct: +riskPct, rewardPct: +rewardPct, rangePos: +rangePos };
+}
+
+// ─── Chart labels ─────────────────────────────────────────────────────────────
+function updateTopbar() {
+  const pair = document.getElementById('pair').value.toUpperCase();
+  const tf   = document.getElementById('tf').value;
+  const entry = +document.getElementById('entry').value;
+  const sl    = +document.getElementById('sl').value;
+  const tp    = +document.getElementById('tp').value;
+
+  document.getElementById('chart-pair').textContent = pair.replace('USDT', '/USDT');
+  document.getElementById('chart-tf-label').textContent = tf.toUpperCase();
+  document.getElementById('chart-badges').style.display = 'flex';
+  document.getElementById('badge-entry').textContent = `Entry ${entry.toLocaleString()}`;
+  document.getElementById('badge-sl').textContent    = `SL ${sl.toLocaleString()}`;
+  document.getElementById('badge-tp').textContent    = `TP ${tp.toLocaleString()}`;
+
+  // Re-add dot before
+  ['badge-entry','badge-sl','badge-tp'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.setProperty('--dot','');
+  });
+}
+
+// ─── AI Analysis via Claude ───────────────────────────────────────────────────
+async function callClaude(entry, sl, tp, direction, tf, pair, metrics) {
+  const prompt = `You are a professional crypto trading coach analyzing a trade setup.
+
+Trade Setup:
+- Pair: ${pair}
+- Timeframe: ${tf}
+- Direction: ${direction.toUpperCase()}
+- Entry: ${entry}
+- Stop Loss: ${sl}
+- Take Profit: ${tp}
+
+Calculated Metrics:
+- Risk/Reward: 1:${metrics.rr.toFixed(2)}
+- Risk: ${metrics.riskPct}%
+- Reward: ${metrics.rewardPct}%
+- Entry position in recent 30-candle range: ${metrics.rangePos}% (0%=low, 100%=high)
+
+Analyze this trade and return a JSON array of feedback cards. Each card has:
+- "type": one of "danger", "warn", "ok", "info"
+- "text": concise feedback message starting with an emoji (⚠️ for warn, 🚫 for danger, ✅ for ok, 💡 for info)
+
+Rules for evaluation:
+- RR < 1: danger
+- RR 1–1.5: warn
+- RR >= 2: ok
+- Long entry above 70% of range: warn (mid-top of range)
+- Long entry above 85%: danger (chasing)
+- Short entry below 30%: danger
+- Risk > 3%: danger
+- Risk 1.5–3%: warn
+- Check if direction makes sense (long at bottom of range is ok, short at top is ok)
+- Add 1 constructive improvement tip as "info"
+- Keep each text under 80 chars
+- Return ONLY valid JSON array, no markdown, no explanation`;
+
+  // Route through server proxy — keeps API keys server-side
+  const resp = await fetch('/api/ai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      mode: 'trade_analyze',
+      tradeData: {
+        prompt: prompt,
+        metrics: metrics
+      },
+      max_tokens: 1000,
+      temperature: 0.2,
+    })
+  });
+
+  const data = await resp.json();
+  const raw = data.text || '[]';
+  const clean = raw.replace(/```json|```/g, '').trim();
+  return JSON.parse(clean);
+}
+
+// ─── Render AI cards ──────────────────────────────────────────────────────────
+function renderCards(cards) {
+  const container = document.getElementById('ai-results');
+  container.innerHTML = '';
+  container.style.display = 'flex';
+
+  cards.forEach((card, i) => {
+    const div = document.createElement('div');
+    div.className = `ai-card ${card.type}`;
+    div.style.animationDelay = `${i * 0.12}s`;
+    div.textContent = card.text;
+    container.appendChild(div);
+  });
+}
+
+// ─── Main analyze ─────────────────────────────────────────────────────────────
+async function analyze() {
+  const entry     = +document.getElementById('entry').value;
+  const sl        = +document.getElementById('sl').value;
+  const tp        = +document.getElementById('tp').value;
+  const direction = document.getElementById('direction').value;
+  const tf        = document.getElementById('tf').value;
+  const pair      = document.getElementById('pair').value.toUpperCase();
+
+  if (!entry || !sl || !tp) return;
+
+  // Render chart
+  loadCandles(entry);
+  updateTopbar();
+  const metrics = calcMetrics(entry, sl, tp, direction);
+
+  // Show loading
+  document.getElementById('ai-placeholder').style.display = 'none';
+  document.getElementById('ai-results').style.display = 'none';
+  document.getElementById('ai-loading').style.display = 'flex';
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analyzing…';
+
+  try {
+    const cards = await callClaude(entry, sl, tp, direction, tf, pair, metrics);
+    document.getElementById('ai-loading').style.display = 'none';
+    renderCards(cards);
+  } catch (e) {
+    document.getElementById('ai-loading').style.display = 'none';
+    // Fallback: local heuristic cards if API unavailable
+    const fallback = localAnalysis(entry, sl, tp, direction, metrics);
+    renderCards(fallback);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '⚡ Analyze Trade';
+}
+
+// ─── Local fallback ───────────────────────────────────────────────────────────
+function localAnalysis(entry, sl, tp, direction, metrics) {
+  const cards = [];
+  const { rr, riskPct, rangePos } = metrics;
+
+  if (rr < 1)       cards.push({ type: 'danger', text: `🚫 RR is ${rr.toFixed(2)} — risk exceeds reward, skip this trade` });
+  else if (rr < 1.5) cards.push({ type: 'warn',   text: `⚠️ RR is only 1:${rr.toFixed(2)} — below the 1:1.5 minimum` });
+  else if (rr >= 2)  cards.push({ type: 'ok',     text: `✅ RR 1:${rr.toFixed(2)} — solid risk/reward ratio` });
+
+  if (riskPct > 3) cards.push({ type: 'danger', text: `🚫 Risk ${riskPct}% per trade — extremely high, max 1–2%` });
+  else if (riskPct > 1.5) cards.push({ type: 'warn', text: `⚠️ Risk at ${riskPct}% — consider tightening stop loss` });
+
+  if (direction === 'long' && rangePos > 80)  cards.push({ type: 'danger', text: '🚫 Long entry near range top — chasing price' });
+  else if (direction === 'long' && rangePos > 60) cards.push({ type: 'warn', text: '⚠️ Entry in mid-to-upper range — less favorable for long' });
+  else if (direction === 'long' && rangePos < 35)  cards.push({ type: 'ok', text: '✅ Entry near range low — good position for long' });
+
+  if (direction === 'short' && rangePos < 20) cards.push({ type: 'danger', text: '🚫 Short entry near range bottom — chasing price' });
+
+  cards.push({ type: 'info', text: '💡 Confirm with higher timeframe structure before entering' });
+  return cards;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+initChart();
+
+// Load default chart on page open
+window.addEventListener('load', () => {
+  const entry = +document.getElementById('entry').value;
+  loadCandles(entry);
+  updateTopbar();
+  calcMetrics(entry, +document.getElementById('sl').value, +document.getElementById('tp').value, 'long');
+});
+</script>
+</body>
+</html>
