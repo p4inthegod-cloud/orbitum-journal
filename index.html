@@ -20,7 +20,7 @@
 :root{
   --bg:#0d0d0d;--bg2:#111111;--bg3:#161616;--bg4:#1c1c1c;
   --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.2);
-  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
+  --t:#d0d0d0;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
   --fire:#FF3923;--fire2:rgba(255,57,35,0.1);--fire3:rgba(255,57,35,0.28);
   --g:#2ecc71;--r:#ff4d4d;--y:#f5a623;
   --font:'Plus Jakarta Sans',sans-serif;
@@ -29,23 +29,31 @@
 }
 html{scroll-behavior:smooth;scroll-padding-top:60px;}
 body{background:var(--bg);color:var(--t);font-family:var(--font);font-weight:400;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:9999;opacity:0.4;}
 
 /* NOISE */
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:9999;opacity:0.45;}
+
+/* AMBIENT GLOW */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 55% 55% at 35% 110%, rgba(255,57,35,0.18) 0%,transparent 65%),
+    radial-gradient(ellipse 55% 55% at 65% 110%, rgba(255,57,35,0.14) 0%,transparent 65%),
+    radial-gradient(ellipse 80% 30% at 50% 100%, rgba(255,57,35,0.08) 0%,transparent 70%);
+}
 
 /* ── NAV ── */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:200;
   height:52px;display:flex;align-items:center;
   padding:0 32px;
-  background:rgba(7,7,7,0.96);
+  background:rgba(22,22,26,0.92);
   border-bottom:1px solid rgba(255,57,35,0.08);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
 }
 nav.scrolled{
-  background:rgba(7,7,7,0.99);
+  background:rgba(22,22,26,0.97);
   border-bottom-color:rgba(255,57,35,0.15);
 }
 .logo{
@@ -122,7 +130,7 @@ nav.scrolled{
 /* MOBILE DRAWER */
 .mob-nav-drawer{
   display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
-  background:rgba(7,7,7,0.99);backdrop-filter:blur(24px);
+  background:rgba(22,22,26,0.97);backdrop-filter:blur(24px);
   -webkit-backdrop-filter:blur(24px);
   flex-direction:column;align-items:center;justify-content:center;gap:4px;
 }
@@ -168,13 +176,138 @@ nav.scrolled{
   min-height:100vh;display:grid;place-items:center;
   position:relative;padding:100px 48px 80px;overflow:hidden;
 }
-.hero-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);
-  background-size:80px 80px;
-  mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,black 30%,transparent 100%);
+.hero-bg{
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;
 }
+/* LEFT PANEL — trade form + recent trades */
+.hero-ghost-left{
+  position:absolute;
+  top:50%;left:-20px;
+  transform:translateY(-50%);
+  width:280px;
+  opacity:0.12;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  user-select:none;
+  mask-image:linear-gradient(to right, transparent 0%, black 20%, black 75%, transparent 100%),
+             linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image:linear-gradient(to right, transparent 0%, black 20%, black 75%, transparent 100%),
+                     linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  mask-composite:intersect;
+  -webkit-mask-composite:source-in;
+}
+/* RIGHT PANEL — stats + analytics */
+.hero-ghost-right{
+  position:absolute;
+  top:50%;right:-20px;
+  transform:translateY(-50%);
+  width:300px;
+  opacity:0.12;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  user-select:none;
+  mask-image:linear-gradient(to left, transparent 0%, black 20%, black 75%, transparent 100%),
+             linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image:linear-gradient(to left, transparent 0%, black 20%, black 75%, transparent 100%),
+                     linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  mask-composite:intersect;
+  -webkit-mask-composite:source-in;
+}
+
+/* shared ghost components */
+.hg-panel{display:flex;flex-direction:column;gap:3px;}
+.hg-topbar{
+  height:36px;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);border-radius:8px 8px 0 0;
+  display:flex;align-items:center;padding:0 12px;gap:8px;
+}
+.hg-dot{width:5px;height:5px;border-radius:50%;background:#FF3923;box-shadow:0 0 4px #FF3923;}
+.hg-badge{
+  background:rgba(255,57,35,0.15);border:1px solid rgba(255,57,35,0.35);
+  border-radius:4px;padding:2px 7px;
+  font-size:8px;letter-spacing:2px;color:#FF3923;
+}
+.hg-spacer{flex:1;}
+.hg-pill{
+  height:18px;padding:0 8px;border-radius:20px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  font-size:8px;color:rgba(255,255,255,0.5);display:flex;align-items:center;
+}
+/* stats row */
+.hg-stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.hg-stats-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;}
+.hg-stat{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  padding:8px 10px;
+}
+.hg-stat-lbl{font-size:7px;color:rgba(255,255,255,0.35);margin-bottom:4px;letter-spacing:1.5px;text-transform:uppercase;}
+.hg-stat-val{font-size:16px;font-weight:800;color:#fff;line-height:1;}
+.hg-stat-val.pos{color:#FF3923;}
+.hg-stat-val.acc{color:#FF3923;}
+.hg-stat-val.neg{color:#ff4d4d;}
+/* form */
+.hg-form{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  padding:12px;
+}
+.hg-form-title{font-size:9px;letter-spacing:2px;color:#FF3923;margin-bottom:10px;text-transform:uppercase;}
+.hg-field{
+  height:26px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:5px;margin-bottom:5px;display:flex;align-items:center;padding:0 8px;
+  font-size:9px;color:rgba(255,255,255,0.3);
+}
+.hg-field.accent{border-color:rgba(255,57,35,0.3);background:rgba(255,57,35,0.05);}
+.hg-row{display:flex;gap:4px;margin-bottom:5px;}
+.hg-mini{
+  flex:1;height:24px;border-radius:4px;
+  border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);
+  font-size:8px;color:rgba(255,255,255,0.25);
+  display:flex;align-items:center;justify-content:center;
+}
+.hg-mini.red{background:rgba(255,57,35,0.12);border-color:rgba(255,57,35,0.3);color:#FF3923;}
+.hg-mini.grn{background:rgba(255,57,35,0.1);border-color:rgba(255,57,35,0.25);color:#FF3923;}
+/* trades */
+.hg-trades{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  padding:10px 12px;border-radius:0 0 8px 8px;
+}
+.hg-trade{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:8px;color:rgba(255,255,255,0.4);
+}
+.hg-trade:last-child{border-bottom:none;}
+.hg-trade-pair{font-weight:700;color:rgba(255,255,255,0.8);font-size:10px;flex:1;}
+.hg-tag{padding:1px 5px;border-radius:3px;font-size:7px;font-weight:600;}
+.hg-tag.l{background:rgba(255,57,35,0.12);color:#FF3923;}
+.hg-tag.s{background:rgba(255,77,77,0.15);color:#ff4d4d;}
+.hg-pnl-pos{color:#FF3923;font-weight:700;font-size:9px;}
+.hg-pnl-neg{color:#ff4d4d;font-weight:700;font-size:9px;}
+/* chart bars */
+.hg-chart{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  padding:10px 12px;
+}
+.hg-chart-title{font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.hg-bars{display:flex;align-items:flex-end;gap:3px;height:48px;}
+.hg-bar{flex:1;border-radius:2px 2px 0 0;min-width:6px;}
+.hg-bar.pos{background:linear-gradient(to top,rgba(255,57,35,0.3),rgba(255,57,35,0.6));}
+.hg-bar.neg{background:linear-gradient(to top,rgba(255,77,77,0.3),rgba(255,77,77,0.5));}
+/* equity line */
+.hg-equity{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  padding:10px 12px;
+}
+.hg-eq-val{font-size:18px;font-weight:800;color:#FF3923;margin-bottom:4px;}
+.hg-eq-sub{font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;}
+/* coach card */
+.hg-coach{
+  background:rgba(255,57,35,0.05);border:1px solid rgba(255,57,35,0.2);
+  padding:10px 12px;border-radius:0 0 8px 8px;
+}
+.hg-coach-lbl{font-size:7px;letter-spacing:2px;color:#FF3923;text-transform:uppercase;margin-bottom:5px;}
+.hg-coach-text{font-size:8px;color:rgba(255,255,255,0.4);line-height:1.5;}
+.hg-coach-text b{color:rgba(255,255,255,0.7);}
+
+/* glow */
 .hero-glow{
   position:absolute;top:15%;left:50%;transform:translateX(-50%);
   width:700px;height:450px;
@@ -211,7 +344,7 @@ nav.scrolled{
 
 /* BUTTONS */
 .btn-primary{
-  height:48px;padding:0 48px;border-radius:var(--rad);
+  height:46px;padding:0 32px;border-radius:var(--rad);
   background:var(--fire);color:#fff;border:1px solid var(--fire);
   font-family:var(--font);font-size:13px;font-weight:700;
   letter-spacing:0;text-transform:uppercase;
@@ -222,7 +355,7 @@ nav.scrolled{
 }
 .btn-primary:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);}
 .btn-ghost{
-  height:48px;padding:0 48px;border-radius:var(--rad);
+  height:46px;padding:0 32px;border-radius:var(--rad);
   background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);
   border:1px solid rgba(255,255,255,0.12);
   font-family:var(--font);font-size:13px;font-weight:600;
@@ -762,8 +895,127 @@ html[lang="en"] a.nav-cta[data-en]{display:inline-flex!important;}
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
+  <div class="hero-bg">
+    <div class="hero-glow"></div>
+
+    <!-- LEFT: journal form + trades -->
+    <div class="hero-ghost-left">
+      <div class="hg-panel">
+        <div class="hg-topbar">
+          <div class="hg-dot"></div>
+          <div class="hg-badge">TRADE JOURNAL</div>
+          <div class="hg-spacer"></div>
+          <div class="hg-pill">$3,240</div>
+        </div>
+        <div class="hg-stats">
+          <div class="hg-stat"><div class="hg-stat-lbl">Trades</div><div class="hg-stat-val">47</div></div>
+          <div class="hg-stat"><div class="hg-stat-lbl">Win Rate</div><div class="hg-stat-val pos">68%</div></div>
+          <div class="hg-stat"><div class="hg-stat-lbl">P&amp;L $</div><div class="hg-stat-val pos">+$1,204</div></div>
+          <div class="hg-stat"><div class="hg-stat-lbl">Streak</div><div class="hg-stat-val acc">5 ↑</div></div>
+        </div>
+        <div class="hg-form">
+          <div class="hg-form-title">+ New Trade</div>
+          <div class="hg-field accent">BTC/USDT</div>
+          <div class="hg-row">
+            <div class="hg-field" style="flex:1;margin-bottom:0">SL: 41,200</div>
+            <div class="hg-field" style="flex:1;margin-bottom:0">TP: 44,800</div>
+          </div>
+          <div class="hg-row" style="margin-top:5px">
+            <div class="hg-mini red">↑ LONG</div>
+            <div class="hg-mini">SHORT</div>
+            <div class="hg-mini grn">Win</div>
+          </div>
+        </div>
+        <div class="hg-trades">
+          <div class="hg-trade">
+            <div class="hg-trade-pair">BTC/USDT</div>
+            <div class="hg-tag l">LONG</div>
+            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">Order Block</div>
+            <div class="hg-pnl-pos">+3.2R</div>
+          </div>
+          <div class="hg-trade">
+            <div class="hg-trade-pair">ETH/USDT</div>
+            <div class="hg-tag l">LONG</div>
+            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">BOS Retest</div>
+            <div class="hg-pnl-pos">+2.1R</div>
+          </div>
+          <div class="hg-trade">
+            <div class="hg-trade-pair">SOL/USDT</div>
+            <div class="hg-tag s">SHORT</div>
+            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">FVG Fill</div>
+            <div class="hg-pnl-neg">-1.0R</div>
+          </div>
+          <div class="hg-trade">
+            <div class="hg-trade-pair">BTC/USDT</div>
+            <div class="hg-tag l">LONG</div>
+            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">Liquidity Sweep</div>
+            <div class="hg-pnl-pos">+4.5R</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: analytics + AI coach -->
+    <div class="hero-ghost-right">
+      <div class="hg-panel">
+        <div class="hg-topbar">
+          <div class="hg-dot"></div>
+          <div class="hg-badge">AI ANALYTICS</div>
+          <div class="hg-spacer"></div>
+          <div class="hg-pill">+84.2% ROI</div>
+        </div>
+        <!-- Discipline Score -->
+        <div class="hg-equity" style="border:1px solid rgba(255,255,255,0.08);padding:12px;">
+          <div class="hg-coach-lbl" style="margin-bottom:8px">Discipline Score</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="5"/>
+              <circle cx="28" cy="28" r="22" fill="none" stroke="#FF3923" stroke-width="5"
+                stroke-dasharray="110 138" stroke-linecap="round"
+                transform="rotate(-90 28 28)" opacity="0.8"/>
+              <text x="28" y="33" text-anchor="middle" fill="#fff" font-size="13" font-weight="800" font-family="Plus Jakarta Sans">72</text>
+            </svg>
+            <div>
+              <div style="font-size:16px;font-weight:800;color:#FF3923;line-height:1">UNSTABLE</div>
+              <div style="font-size:8px;color:rgba(255,255,255,0.35);margin-top:3px;letter-spacing:1px">EMOTIONS AFFECTING RESULTS</div>
+              <div style="display:flex;gap:4px;margin-top:6px">
+                <div style="height:3px;flex:3;background:#FF3923;border-radius:2px;opacity:0.8"></div>
+                <div style="height:3px;flex:1;background:rgba(255,255,255,0.1);border-radius:2px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Brutal Analysis -->
+        <div class="hg-coach" style="border-radius:0;">
+          <div class="hg-coach-lbl">Brutal Analysis · This Week</div>
+          <div class="hg-coach-text"><b>You lost $340 on Friday sessions.</b> 4 revenge trades after 2 consecutive losses — avg size 2.3× your normal risk. Stop trading after 2 red trades.</div>
+        </div>
+        <!-- Stats row -->
+        <div class="hg-stats-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;">
+          <div class="hg-stat"><div class="hg-stat-lbl">Avg Win</div><div class="hg-stat-val pos" style="font-size:13px;color:#FF3923">+$68</div></div>
+          <div class="hg-stat"><div class="hg-stat-lbl">Avg Loss</div><div class="hg-stat-val neg" style="font-size:13px">-$32</div></div>
+          <div class="hg-stat"><div class="hg-stat-lbl">R:R avg</div><div class="hg-stat-val" style="font-size:13px">2.1</div></div>
+        </div>
+        <!-- P&L bars -->
+        <div class="hg-chart" style="border-radius:0 0 8px 8px;">
+          <div class="hg-chart-title">P&amp;L by day</div>
+          <div class="hg-bars">
+            <div class="hg-bar pos" style="height:60%"></div>
+            <div class="hg-bar pos" style="height:40%"></div>
+            <div class="hg-bar neg" style="height:30%"></div>
+            <div class="hg-bar pos" style="height:75%"></div>
+            <div class="hg-bar pos" style="height:55%"></div>
+            <div class="hg-bar neg" style="height:20%"></div>
+            <div class="hg-bar pos" style="height:90%"></div>
+            <div class="hg-bar pos" style="height:65%"></div>
+            <div class="hg-bar neg" style="height:35%"></div>
+            <div class="hg-bar pos" style="height:80%"></div>
+            <div class="hg-bar pos" style="height:100%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="hero-inner">
     
     <div class="hero-eyebrow">
