@@ -78,16 +78,17 @@ a{text-decoration:none;}
 .pf strong{color:var(--t);font-weight:600;}
 
 .btn-plan{
-  width:100%;height:40px;border-radius:var(--rad);
-  border:1px solid rgba(255,57,35,0.4);
-  background:linear-gradient(135deg,rgba(255,57,35,0.13) 0%,rgba(255,57,35,0.06) 100%);
-  color:var(--fire);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  transition:all .2s;
-  animation:btnBreathe 2.4s ease-in-out infinite;
+  width:100%;height:44px;border-radius:var(--rad);
+  background:var(--fire);color:#fff;border:1px solid var(--fire);
+  font-family:var(--font);font-size:12px;font-weight:700;
+  letter-spacing:0;text-transform:uppercase;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 20px rgba(255,57,35,0.4);
+  transition:all .2s;line-height:1;
 }
-.btn-plan:hover{background:linear-gradient(135deg,rgba(255,57,35,0.27) 0%,rgba(255,57,35,0.13) 100%);box-shadow:0 0 26px rgba(255,57,35,0.38);color:#ff6b5b;border-color:rgba(255,57,35,.85);transform:translateY(-1px);}
-.btn-plan.solid{background:var(--fire);color:#fff;border-color:var(--fire);box-shadow:0 0 20px rgba(255,57,35,0.4);}
-.btn-plan.solid:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);}
+.btn-plan:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);transform:translateY(-1px);}
+.btn-plan.solid{background:var(--fire);color:#fff;border-color:var(--fire);}
 
 @keyframes btnBreathe{
   0%,100%{box-shadow:0 0 12px rgba(255,57,35,0.12);}
@@ -117,6 +118,20 @@ a{text-decoration:none;}
 .faq-a{font-size:12px;color:var(--m);line-height:1.75;margin-top:10px;display:none;}
 .faq-item.open .faq-a{display:block;}
 
+/* ── i18n ── */
+[data-ru],[data-en]{display:none;}
+html[lang="ru"] [data-ru]{display:revert;}
+html[lang="en"] [data-en]{display:revert;}
+
+/* lang toggle buttons */
+.nav-lang{
+  height:26px;padding:0 10px;border-radius:6px;
+  border:1px solid var(--bd);background:transparent;
+  color:var(--m2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;
+  cursor:pointer;transition:all .15s;
+}
+.nav-lang:hover,.nav-lang.active{color:var(--fire);border-color:var(--fire3);}
+
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
 .modal-bg.show{display:flex;}
@@ -145,37 +160,49 @@ a{text-decoration:none;}
 <body>
 
 <div class="topbar">
-  <div class="logo">ORBITUM</div>
+  <a href="/" class="logo" style="text-decoration:none;color:var(--fire);position:relative;">ORBITUM<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FF3923;box-shadow:0 0 6px rgba(255,57,35,0.8);margin-left:3px;vertical-align:super;font-size:6px;"></span></a>
   <div class="tb-sp"></div>
-  <a href="/journal" class="tb-btn">Journal</a>
-  <a href="/screener" class="tb-btn">Screener</a>
+  <a href="/journal" class="tb-btn" data-ru>Журнал</a>
+  <a href="/journal" class="tb-btn" data-en>Journal</a>
+  <a href="/screener" class="tb-btn" data-ru>Скринер</a>
+  <a href="/screener" class="tb-btn" data-en>Screener</a>
+  <button class="nav-lang" id="lang-en" onclick="setLang('en')">EN</button>
+  <button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
 </div>
 
 <div class="page">
 
   <div class="hero">
-    <div class="hero-eyebrow">Pricing</div>
-    <h1 class="hero-title">Choose your <em>edge.</em></h1>
-    <p class="hero-sub">Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
+    <div class="hero-eyebrow" data-ru>Тарифы</div>
+    <div class="hero-eyebrow" data-en>Pricing</div>
+    <h1 class="hero-title" data-ru>Выбери свой <em>уровень.</em></h1>
+    <h1 class="hero-title" data-en>Choose your <em>edge.</em></h1>
+    <p class="hero-sub" data-ru>Начни с того, что нужно. Апгрейд в любой момент. Никаких скрытых платежей.</p>
+    <p class="hero-sub" data-en>Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
   </div>
 
   <div class="billing-row">
     <div class="billing-toggle">
-      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
-      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')">Annual</button>
+      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')" data-ru>Ежемесячно</button>
+      <button class="billing-btn on" id="btn-monthly-en" onclick="setBilling('monthly')" data-en>Monthly</button>
+      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')" data-ru>Ежегодно</button>
+      <button class="billing-btn" id="btn-annual-en" onclick="setBilling('annual')" data-en>Annual</button>
     </div>
-    <span class="billing-save" id="save-tag">Save 30% annually</span>
+    <span class="billing-save" id="save-tag" data-ru>Экономия 30% ежегодно</span>
+    <span class="billing-save" id="save-tag-en" style="display:none" data-en>Save 30% annually</span>
   </div>
 
   <div class="plans" id="plans-grid"></div>
 
-  <div class="section-title">Full comparison</div>
+  <div class="section-title" data-ru>Полное сравнение</div>
+  <div class="section-title" data-en>Full comparison</div>
   <div class="compare-scroll">
     <table class="compare-table" id="compare-table"></table>
   </div>
 
   <div class="faq-wrap">
-    <div class="section-title">Questions</div>
+    <div class="section-title" data-ru>Вопросы</div>
+    <div class="section-title" data-en>Questions</div>
     <div id="faq"></div>
   </div>
 
@@ -186,17 +213,17 @@ a{text-decoration:none;}
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="modal-title">Get Access</div>
-      <div class="modal-sub">Submit request — we activate within 1-2 hours</div>
+
     </div>
     <div class="modal-pill">
       <span class="modal-pill-name" id="modal-plan-name">—</span>
       <span class="modal-pill-sep">|</span>
       <span class="modal-pill-price" id="modal-plan-price">—</span>
     </div>
-    <div class="modal-note">After submitting, we send payment details to your email or Telegram. We accept USDT, BTC, and bank transfer.</div>
-    <div class="mf"><label>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
-    <div class="mf"><label>Telegram (optional)</label><input type="text" id="m-tg" placeholder="@username"></div>
-    <div class="mf"><label>Comment</label><textarea id="m-note" rows="2" placeholder="Questions or anything else..."></textarea></div>
+
+    <div class="mf"><label data-ru>Email</label><label data-en>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
+    <div class="mf"><label data-ru>Telegram (опционально)</label><label data-en>Telegram (optional)</label><input type="text" id="m-tg" placeholder="@username"></div>
+    <div class="mf"><label data-ru>Комментарий</label><label data-en>Comment</label><textarea id="m-note" rows="2" placeholder="Questions or anything else..."></textarea></div>
     <div class="modal-btns">
       <button class="btn-submit" id="btn-submit" onclick="submitPayment()">Submit Request</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -205,6 +232,12 @@ a{text-decoration:none;}
 </div>
 
 <script>
+// ── Admin Telegram notification ──
+// Set these to your bot token and your personal chat_id
+// Get your chat_id by messaging @userinfobot in Telegram
+const ADMIN_BOT_TOKEN = '8617238441:AAGTNIUfHwXu-7L2aiFPCB4nKeUTi2HoyEE'; // e.g. '123456:ABCdef...' — same bot as TELEGRAM_BOT_TOKEN in .env
+const ADMIN_CHAT_ID   = '6746369295'; // e.g. '123456789' — your personal Telegram chat_id
+
 const PLANS = [
   {
     id: 'journal',
@@ -327,19 +360,26 @@ function setBilling(m) {
 }
 
 function renderPlans() {
+  const l = document.documentElement.lang || 'en';
+  const isRu = l === 'ru';
+  const perMonthly = isRu ? '/мес' : '/month';
+  const perAnnual  = isRu ? '/мес, ежегодно' : '/mo, billed annually';
+  const orWord     = isRu ? 'или' : 'or';
+  const ltWord     = isRu ? 'lifetime' : 'lifetime';
   document.getElementById('plans-grid').innerHTML = PLANS.map(p => {
     const price = _billing === 'annual' ? p.annual : p.monthly;
-    const per   = _billing === 'annual' ? '/mo, billed annually' : '/month';
+    const per   = _billing === 'annual' ? perAnnual : perMonthly;
+    const lbl   = getPlanLabel(p);
     return `<div class="plan${p.popular ? ' popular' : ''}${p.ultimate ? ' ultimate' : ''}">
-      ${p.badge ? `<div class="plan-badge">${p.badge}</div>` : ''}
-      <div class="plan-tier">${p.tier}</div>
-      <div class="plan-name">${p.name}</div>
-      <div class="plan-tagline">${p.tagline}</div>
+      ${lbl.badge ? `<div class="plan-badge">${lbl.badge}</div>` : ''}
+      <div class="plan-tier">${lbl.tier}</div>
+      <div class="plan-name">${lbl.name}</div>
+      <div class="plan-tagline">${lbl.tagline}</div>
       <div class="plan-price-main">
         <div class="plan-price-num${p.ultimate ? ' fire' : ''}">$${price}</div>
         <div class="plan-price-per">${per}</div>
       </div>
-      <div class="plan-price-lt">or <b>$${p.lifetime}</b> lifetime</div>
+      <div class="plan-price-lt">${orWord} <b>$${p.lifetime}</b> ${ltWord}</div>
       <div class="plan-sep"></div>
       <div class="plan-features">
         ${p.features.map(f => `<div class="pf${f.dim ? ' dim' : ''}">
@@ -347,9 +387,9 @@ function renderPlans() {
           <span>${f.text}</span>
         </div>`).join('')}
       </div>
-      <button class="btn-plan${p.ultimate ? ' solid' : ''}"
-        onclick="openModal('${p.id}','${p.name}',${price},'${per}')">
-        Get ${p.name}
+      <button class="btn-plan"
+        onclick="openModal('${p.id}','${lbl.name}',${price},'${per}')">
+        ${lbl.btnText}
       </button>
     </div>`;
   }).join('');
@@ -407,8 +447,24 @@ async function submitPayment() {
         body: JSON.stringify({ user_id: _session.user.id, plan: _selectedPlan.id, status: 'pending', notes: `email:${email} tg:${tg} price:$${_selectedPlan.price} note:${note}` }),
       });
     }
+    // Notify admin via Telegram bot
+    try {
+      const tgMsg = `🔔 <b>Новая заявка на тариф</b>\n\n` +
+        `📦 Тариф: <b>${_selectedPlan.name}</b>\n` +
+        `💰 Цена: <b>$${_selectedPlan.price} ${_selectedPlan.per}</b>\n` +
+        `📧 Email: <code>${email}</code>\n` +
+        (tg ? `💬 Telegram: ${tg}\n` : '') +
+        (note ? `📝 Комментарий: ${note}\n` : '') +
+        `\n⏰ ${new Date().toLocaleString('ru-RU', {timeZone:'UTC'})} UTC`;
+      await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: tgMsg, parse_mode: 'HTML' })
+      });
+    } catch(tgErr) { console.warn('TG notify failed', tgErr); }
+
     closeModal();
-    alert(`Request submitted for ${_selectedPlan.name} ($${_selectedPlan.price}).\n\nWe will contact you at ${email} within 1-2 hours.`);
+    alert(`Заявка отправлена!\n\nМы свяжемся с вами на ${email} в течение 1-2 часов.`);
   } catch(e) { alert('Error: ' + e.message); }
   finally { btn.disabled = false; btn.textContent = 'Submit Request'; }
 }
@@ -417,6 +473,44 @@ function initSB() {
   if (typeof supabase === 'undefined') { setTimeout(initSB, 100); return; }
   _sb = supabase.createClient('https://kgutmsosfyyxnlnhucaa.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q');
   _sb.auth.getSession().then(({ data: { session } }) => { _session = session; });
+}
+
+// ── i18n ──
+function setLang(l) {
+  document.documentElement.setAttribute('lang', l);
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-ru').classList.toggle('active', l === 'ru');
+  localStorage.setItem('orb_lang', l);
+  // sync billing btn display for the active billing mode
+  const isMon = document.getElementById('btn-monthly').classList.contains('on');
+  renderPlans();
+}
+(function() {
+  const l = localStorage.getItem('orb_lang') || 'en';
+  document.documentElement.setAttribute('lang', l);
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-ru').classList.toggle('active', l === 'ru');
+})();
+
+// Update PLANS data for Russian
+const PLANS_RU = {
+  journal:   { tier:'Уровень 1', name:'Только журнал',        tagline:'Журнал сделок + аналитика. Никакого AI и сигналов.', badge:null },
+  analytics: { tier:'Уровень 2', name:'Журнал + аналитика',   tagline:'Полная аналитика и AI Coach после каждой сделки.', badge:'Популярный' },
+  signals:   { tier:'Уровень 3', name:'Журнал + скринер + сигналы', tagline:'Аналитика, AI Coach и ICT/SMC сигналы в Telegram.', badge:null },
+  full:      { tier:'Полный доступ', name:'+ Terminal AI',    tagline:'Полная система: журнал, аналитика, сигналы и AI-терминал.', badge:'Всё включено' },
+};
+
+function getPlanLabel(p) {
+  const l = document.documentElement.lang;
+  if (l === 'ru') {
+    const ru = PLANS_RU[p.id];
+    return { tier: ru.tier, name: ru.name, tagline: ru.tagline,
+             badge: ru.badge || p.badge,
+             btnText: 'Получить' };
+  }
+  return { tier: p.tier, name: p.name, tagline: p.tagline,
+           badge: p.badge,
+           btnText: 'Get started' };
 }
 
 // Init
