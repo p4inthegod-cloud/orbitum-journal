@@ -975,7 +975,7 @@ html, body {
 /* ── STAGE 3: STAT CARDS ── */
 .stats-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: var(--sp-3);
   margin-bottom: var(--sp-5);
   margin-top: var(--sp-6);
@@ -1019,12 +1019,15 @@ html, body {
   text-shadow: none;
   line-height: 1;
 }
-/* P&L card — hero size since it gets 2fr */
-.stat-cell:nth-child(3) .stat-value {
+/* P&L card — hero size since it gets 2fr and is first */
+.stat-cell:first-child .stat-value,
+.stat-cell-pnl .stat-value {
   font-size: var(--t-hero);   /* 32px audit: hero level */
   font-weight: 700;
+  letter-spacing: -1px;
 }
-.stat-cell:nth-child(3) .stat-label {
+.stat-cell:first-child .stat-label,
+.stat-cell-pnl .stat-label {
   font-size: var(--t-label);  /* 12px */
   margin-bottom: var(--sp-3);
 }
@@ -1539,11 +1542,27 @@ html, body {
   padding: var(--sp-4) var(--sp-4);
   margin-bottom: var(--sp-2);
   transition: background 0.15s, border-color 0.15s;
+  cursor: pointer;
 }
 .tcard:hover { background: var(--bg-card2); border-color: var(--bd2); }
-.tcard.win  { border-left: 2px solid var(--g); }
-.tcard.loss { border-left: 2px solid var(--r); }
+.tcard.win  { border-left: 3px solid var(--g); }
+.tcard.loss { border-left: 3px solid var(--r); }
 .tcard.be   { border-left: 2px solid var(--bd2); }
+
+/* Audit Fix 5: best/worst trade markers */
+.tcard.is-best  { border-left: 3px solid var(--g); }
+.tcard.is-worst { border-left: 3px solid var(--r); }
+
+/* Audit Fix 5: trade details hidden by default, shown on expand */
+.trade-details {
+  display: none;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--bd);
+  margin-top: var(--sp-3);
+}
+.tcard.expanded .trade-details {
+  display: block;
+}
 .th { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2); }
 .tl { display: flex; align-items: center; gap: var(--sp-2); }
 /* Stage 2+5: tpair — no glow */
