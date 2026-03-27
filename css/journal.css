@@ -401,7 +401,6 @@ html, body {
 }
 .sb-market-collapsed.open {
   display: block;
-}
   border-top: 1px solid var(--bd);
   padding: var(--sp-1) var(--sp-2) 0;
 }
@@ -975,7 +974,7 @@ html, body {
 /* ── STAGE 3: STAT CARDS ── */
 .stats-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 2fr;
   gap: var(--sp-3);
   margin-bottom: var(--sp-5);
   margin-top: var(--sp-6);
@@ -1019,15 +1018,12 @@ html, body {
   text-shadow: none;
   line-height: 1;
 }
-/* P&L card — hero size since it gets 2fr and is first */
-.stat-cell:first-child .stat-value,
-.stat-cell-pnl .stat-value {
+/* P&L card — hero size since it gets 2fr */
+.stat-cell:nth-child(3) .stat-value {
   font-size: var(--t-hero);   /* 32px audit: hero level */
   font-weight: 700;
-  letter-spacing: -1px;
 }
-.stat-cell:first-child .stat-label,
-.stat-cell-pnl .stat-label {
+.stat-cell:nth-child(3) .stat-label {
   font-size: var(--t-label);  /* 12px */
   margin-bottom: var(--sp-3);
 }
@@ -1542,27 +1538,11 @@ html, body {
   padding: var(--sp-4) var(--sp-4);
   margin-bottom: var(--sp-2);
   transition: background 0.15s, border-color 0.15s;
-  cursor: pointer;
 }
 .tcard:hover { background: var(--bg-card2); border-color: var(--bd2); }
-.tcard.win  { border-left: 3px solid var(--g); }
-.tcard.loss { border-left: 3px solid var(--r); }
+.tcard.win  { border-left: 2px solid var(--g); }
+.tcard.loss { border-left: 2px solid var(--r); }
 .tcard.be   { border-left: 2px solid var(--bd2); }
-
-/* Audit Fix 5: best/worst trade markers */
-.tcard.is-best  { border-left: 3px solid var(--g); }
-.tcard.is-worst { border-left: 3px solid var(--r); }
-
-/* Audit Fix 5: trade details hidden by default, shown on expand */
-.trade-details {
-  display: none;
-  padding-top: var(--sp-3);
-  border-top: 1px solid var(--bd);
-  margin-top: var(--sp-3);
-}
-.tcard.expanded .trade-details {
-  display: block;
-}
 .th { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2); }
 .tl { display: flex; align-items: center; gap: var(--sp-2); }
 /* Stage 2+5: tpair — no glow */
@@ -2868,3 +2848,202 @@ html, body {
   padding: 0;
 }
 body { overflow-x: hidden; }
+
+
+/* ══════════════════════════════════════════════════
+   FINAL POLISH PASS — clutter reduction / hierarchy
+   ══════════════════════════════════════════════════ */
+:root {
+  --radius-xl: 16px;
+}
+.bg-o-1, .bg-o-2, .bg-o-3 { opacity: 0.28; }
+.sbw-dot-live, .chat-status-dot { animation-duration: 2.4s; }
+.ticker-track { animation-duration: 150s; }
+.stat-cell, .dash-card, .equity-card, .hm-card, .digest-header, .mc-card, .fcard, .settings-card, .coach-card {
+  box-shadow: none;
+}
+.fcard, .dash-card, .equity-card, .hm-card, .digest-header, .mc-card, .settings-card, .coach-card, .pm-header-card, .pm-section-card, .pm-limits-card, .pm-moods-card {
+  border-radius: var(--radius-xl);
+}
+.sb-section, .dash-title, .dg-label, .mc-title, .hm-title, .pm-section-title, .pkpi-label, .stat-label, .field label, .em-label, .list-title, .lb-sub, .dg-label, .di-label {
+  letter-spacing: 1.2px;
+}
+.sb-item, .tnav, .jtb-nav, .mob-nav-label, .fbtn, .setup-btn, .res-btn, .dbtn, .gl-tab, .sb-market-toggle-label, .sb-section, .dash-title, .pm-section-title, .pkpi-label, .dg-label, .mc-title {
+  text-transform: none;
+}
+.sb-item, .tnav, .jtb-nav, .mob-nav-label, .fbtn, .setup-btn, .res-btn, .dbtn, .gl-tab {
+  letter-spacing: 0.3px;
+}
+.field label, .em-label, .stat-label, .pkpi-label, .dg-label, .mc-title, .hm-title, .dash-title, .pm-section-title, .list-title {
+  color: rgba(255,255,255,0.52);
+}
+.stat-value, .pkpi-val, .dg-val, .speedo-val, .fng-num, .ds-level, .tpair {
+  letter-spacing: -0.02em;
+}
+.field-hint { opacity: 0.75; }
+.field-hint:hover { opacity: 1; }
+.sbw, .dg-card, .pkpi, .pair-card, .psych-card, .setup-card, .coach-rec, .pm-side-card, .tilt-banner, .smart-notif-bar, .mistake-card {
+  background: rgba(255,255,255,0.02);
+}
+.sbw-title, .sb-section-label {
+  color: rgba(255,255,255,0.4);
+}
+.sbw-metric-label, .sbw-lp-sym, .trend-rank, .trend-pos, .gl-sym, .gl-pct {
+  letter-spacing: 0.3px;
+}
+.chat-sc-text, .di-text, .coach-rec-text, .dh-sub, .notif-msg, .qnote-item-text, .pm-item-text, .agh-text {
+  color: rgba(255,255,255,0.6);
+}
+.notif, .goal-popup, .balance-popup, .qnote-popup, .ai-box, .edit-box {
+  border-radius: var(--radius-xl);
+}
+.btn-add, .pm-save-btn, .settings-btn-primary, .edit-save {
+  min-height: 48px;
+  border-radius: 12px;
+}
+.btn-ai, .coach-run-btn, .sim-run-btn, .settings-btn-secondary, .settings-btn-danger, .pm-start-btn {
+  min-height: 44px;
+  border-radius: 12px;
+}
+#page-journal .fcard { margin-bottom: 20px; }
+#page-journal #trades-list .tcard { margin-bottom: 10px; }
+@media (min-width: 861px) {
+  .main { max-width: 1600px !important; }
+  .stats-row { margin-top: 18px; margin-bottom: 24px; }
+  .fcard { padding: 24px 28px; }
+  .dash-card, .equity-card, .hm-card, .digest-header, .mc-card, .coach-card, .settings-card { padding: 22px; }
+}
+@media (max-width: 860px) {
+  .bg-o-1, .bg-o-2, .bg-o-3 { opacity: 0.18; }
+  .fcard, .dash-card, .equity-card, .hm-card, .digest-header, .mc-card, .coach-card, .settings-card { border-radius: 14px; }
+}
+
+
+/* ══════════════════════════════════════════════════
+   HTML CLEANUP PASS
+   ══════════════════════════════════════════════════ */
+.mob-logo-link { display:flex; align-items:center; gap:7px; text-decoration:none; }
+.mob-pill-val-profit { color: var(--g); }
+.mob-pill-val-accent { color: var(--a); }
+.sb-logo-link { text-decoration:none; cursor:pointer; }
+.sb-item-external { display:flex; justify-content:space-between; align-items:center; }
+.external-arrow { font-size:11px; opacity:0.4; margin-left:auto; padding-left:6px; }
+.is-hidden { display:none !important; }
+.fng-num-loss { color:#e74c3c; }
+.widget-loading-text { font-family:var(--font-body); font-size:11px; color:rgba(255,255,255,0.15); text-align:center; padding:4px; }
+.flex-fill { flex:1; }
+.lang-btn { font-size:11px; min-width:32px; text-align:center; }
+.mb-12 { margin-bottom:12px; }
+.mb-10 { margin-bottom:10px; }
+.mb-6 { margin-bottom:6px; }
+.mb-4 { margin-bottom:4px; }
+.trade-metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:10px; }
+.trade-metric-card { display:flex; align-items:center; justify-content:space-between; gap:4px; padding:6px 10px; border-radius:7px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); }
+.trade-metric-label { font-family:var(--font-mono); font-size:11px; color:var(--m); letter-spacing:1px; }
+.trade-metric-value { font-family:var(--font-mono); font-size:14px; }
+.value-loss { color:var(--r); }
+.value-profit { color:var(--g); }
+.value-accent { color:var(--a); }
+.section-microtitle { font-family:var(--font-mono); font-size:11px; color:var(--m); letter-spacing:2px; text-transform:uppercase; margin-bottom:7px; }
+.icon-inline { vertical-align:middle; margin-right:5px; }
+.inline-actions { display:flex; align-items:center; gap:8px; }
+.ghost-danger-btn { padding:4px 10px; border-radius:14px; border:1px solid rgba(255,77,77,0.25); background:transparent; color:rgba(255,77,77,0.55); font-family:var(--font-mono); font-size:11px; letter-spacing:1px; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.w-50 { width:50%; }
+.w-80 { width:80%; }
+.inline-baseline-gap { display:flex; align-items:baseline; gap:5px; }
+.level-roi-value { font-family:var(--font-display); font-size:16px; color:var(--a); }
+.micro-meta { font-family:var(--font-mono); font-size:11px; color:var(--m); letter-spacing:1px; }
+.level-fill-accent { width:0%; background:linear-gradient(90deg,var(--a),#ff9a5c); }
+.lb-reward-inline { border-top:1px solid rgba(255,255,255,0.05); padding-top:8px; margin-top:2px; }
+.muted-mini { font-size:11px; opacity:0.5; }
+.preset-color-btc { color:#f7931a; }
+.preset-color-eth { color:#627eea; }
+.preset-color-sol { color:#9945ff; }
+.preset-color-bnb { color:#f3ba2f; }
+.preset-color-xrp { color:#00aae4; }
+.preset-color-doge { color:#c2a633; }
+
+/* stronger visual cleanup */
+.sbw {
+  background: rgba(255,255,255,0.012);
+  border-color: rgba(255,255,255,0.055);
+}
+.sbw-title,
+.sb-section,
+.sb-section-label,
+.list-title,
+.dash-title,
+.hm-title,
+.mc-title,
+.pm-section-title,
+.pm-side-title,
+.dg-label {
+  letter-spacing: 1.3px;
+}
+.stat-cell,
+.dash-card,
+.fcard,
+.equity-card,
+.hm-card,
+.coach-card,
+.digest-header,
+.settings-card,
+.pm-section-card,
+.pm-limits-card,
+.pm-moods-card,
+.mc-card {
+  border-color: rgba(255,255,255,0.06);
+}
+.stat-cell,
+.dash-card,
+.fcard,
+.equity-card,
+.hm-card,
+.coach-card,
+.digest-header,
+.settings-card,
+.pm-section-card,
+.pm-limits-card,
+.pm-moods-card,
+.mc-card,
+.tcard {
+  box-shadow: none;
+}
+.field-hint,
+.sbw-dot-live,
+.chat-status-dot {
+  animation: none !important;
+}
+.fcard,
+.dash-card,
+.tcard,
+.hm-card,
+.equity-card,
+.coach-card,
+.settings-card,
+.pm-section-card,
+.pm-limits-card,
+.pm-moods-card,
+.mc-card {
+  border-radius: 16px;
+}
+.btn-add,
+.pm-save-btn,
+.settings-btn-primary,
+.edit-save,
+.qnote-save {
+  border-radius: 12px;
+}
+.stat-value,
+.dg-val,
+.pkpi-val,
+.setup-wr,
+.pm-streak-num,
+.speedo-val {
+  letter-spacing: -0.03em;
+}
+@media (max-width: 860px) {
+  .trade-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

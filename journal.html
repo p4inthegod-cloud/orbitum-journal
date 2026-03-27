@@ -8,14 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'"></noscript>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Fallback: if CDN blocked by Tracking Prevention -->
 
 <link rel="stylesheet" href="/css/journal.css">
 </head>
-<body>
+<body class="journal-premium-refined">
 
 <!-- Boot overlay removed per UI simplification -->
 
@@ -24,15 +24,15 @@
 
 <!-- MOBILE BAR -->
 <div class="mob-bar">
-  <a href="/" class="mob-logo" style="display:flex;align-items:center;gap:7px;text-decoration:none;"> ORBITUM </a>
+  <a href="/" class="mob-logo mob-logo-link"> ORBITUM </a>
   <div class="mob-bar-right">
     <div class="mob-stat-pill balance" onclick="toggleBalancePopup()">
       <div class="mob-pill-label">Balance</div>
-      <div class="mob-pill-val" id="mob-balance-val" style="color:var(--g)">$—</div>
+      <div class="mob-pill-val mob-pill-val-profit" id="mob-balance-val">$—</div>
     </div>
     <div class="mob-stat-pill goal-pill" onclick="toggleGoalPopup()">
       <div class="mob-pill-label">Goal</div>
-      <div class="mob-pill-val" id="mob-goal-val" style="color:var(--a)">— R</div>
+      <div class="mob-pill-val mob-pill-val-accent" id="mob-goal-val">— R</div>
     </div>
     <a href="profile.html" class="mob-profile-btn" title="Профиль"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13.5c0-2.5 2.7-4.5 6-4.5s6 2 6 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></a>
   </div>
@@ -40,7 +40,7 @@
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <a href="/" class="sb-logo" style="text-decoration:none;cursor:pointer;" title="На главную"> <span class="sb-logo-text">ORBITUM</span> </a>
+  <a href="/" class="sb-logo sb-logo-link" title="На главную"> <span class="sb-logo-text">ORBITUM</span> </a>
   <div class="sb-scroll-body">
   <nav class="sb-nav">
     <div class="sb-section">Main</div>
@@ -68,8 +68,8 @@
     
         
     <div class="sb-divider"></div>
-    <a href="screener.html" class="sb-item" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;align-items:center;">
-      <span class="sb-item-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>Screener<span style="font-size:11px;opacity:0.4;margin-left:auto;padding-left:6px">↗</span>
+    <a href="screener.html" class="sb-item sb-item-external" target="_blank" rel="noopener">
+      <span class="sb-item-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>Screener<span class="external-arrow">↗</span>
     </a>
     <a href="profile.html" class="sb-item" target="_blank" rel="noopener">
       <span class="sb-item-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13.5c0-2.5 2.7-4.5 6-4.5s6 2 6 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>My Profile ↗
@@ -77,7 +77,7 @@
     <button class="sb-item" onclick="showPage('settings',this)" data-page="settings">
       <span class="sb-item-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>Settings
     </button>
-    <a href="admin.html" class="sb-item" id="snav-admin" style="display:none" target="_blank">
+    <a href="admin.html" class="sb-item" id="snav-admin" class="is-hidden" target="_blank">
       <span class="sb-item-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>Admin
     </a>
   </nav>
@@ -101,7 +101,7 @@
           </svg>
         </div>
         <div>
-          <div class="fng-num" id="fng-num" style="color:#e74c3c">--</div>
+          <div class="fng-num fng-num-loss" id="fng-num">--</div>
           <div class="fng-label" id="fng-label">ЗАГРУЗКА</div>
         </div>
       </div>
@@ -128,7 +128,7 @@
           <div class="sbw-metric-val accent" id="mkt-dom">---</div>
         </div>
         <div class="mkt-btc-dom">
-          <div class="mkt-btc-fill" id="mkt-dom-bar" style="width:0%"></div>
+          <div class="mkt-btc-fill" id="mkt-dom-bar"></div>
         </div>
       </div>
     </div>
@@ -182,7 +182,7 @@
     <div class="sbw" id="sbw-trend">
       <div class="sbw-title"><span>ТРЕНДЫ</span><div class="sbw-dot"></div></div>
       <div class="sbw-trend" id="trend-list">
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.15);text-align:center;padding:4px">загрузка...</div>
+        <div class="widget-loading-text">загрузка...</div>
       </div>
     </div>
 
@@ -194,7 +194,7 @@
         <button class="gl-tab lose" id="gl-tab-lose" onclick="glSwitch('lose')">▼ ПАДЕНИЕ</button>
       </div>
       <div class="sbw-gl" id="gl-list">
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.15);text-align:center;padding:4px">загрузка...</div>
+        <div class="widget-loading-text">загрузка...</div>
       </div>
     </div>
 
@@ -221,13 +221,13 @@
   <div class="jtb-dot"></div>
   <span class="jtb-badge" id="jtb-page-badge">Journal</span>
   <!-- Simplified topbar: only language and profile remain -->
-  <div style="flex:1;"></div>
+  <div class="flex-fill"></div>
   <div class="jtb-right">
-    <button class="jtb-action-btn profile" onclick="toggleLang()" id="lang-btn" title="Language" style="font-size:11px;min-width:32px;text-align:center;">
+    <button class="jtb-action-btn profile" onclick="toggleLang()" id="lang-btn" title="Language" class="lang-btn">
       EN
     </button>
     <a href="profile.html" class="jtb-profile-btn" title="Profile">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13.5c0-2.5 2.7-4.5 6-4.5s6 2 6 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="#ff3923" stroke-width="1.4"/><path d="M2 13.5c0-2.5 2.7-4.5 6-4.5s6 2 6 4.5" stroke="#ff3923" stroke-width="1.4" stroke-linecap="round"/></svg>
     </a>
   </div>
 </div>
@@ -242,12 +242,8 @@
   <div class="bg-o bg-o-3"></div>
 </div>
 
-  <!-- STATS ROW — P&L first (2fr), then Total Trades, Win Rate (1fr each) -->
+  <!-- STATS ROW -->
   <div class="stats-row">
-    <div class="stat-cell stat-cell-pnl">
-      <div class="stat-label">Net P&L</div>
-      <div class="stat-value" id="s-pnl"><span class="sk sk-stat-value" id="s-pnl-sk"></span></div>
-    </div>
     <div class="stat-cell">
       <div class="stat-label">Total Trades</div>
       <div class="stat-value" id="s-total"><span class="sk sk-stat-value" id="s-total-sk"></span></div>
@@ -255,6 +251,10 @@
     <div class="stat-cell">
       <div class="stat-label">Win Rate</div>
       <div class="stat-value sv-g" id="s-wr"><span class="sk sk-stat-value" id="s-wr-sk"></span></div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">Net P&L</div>
+      <div class="stat-value" id="s-pnl"><span class="sk sk-stat-value" id="s-pnl-sk"></span></div>
     </div>
   </div>
 
@@ -265,7 +265,7 @@
       <div class="fcard-title">+ New Trade</div>
 
       <!-- ROW 1: Pair + Direction + Result -->
-      <div class="fg3" style="margin-bottom:12px">
+      <div class="fg3" class="mb-12">
         <div class="field field-key">
           <label for="f-pair">Pair</label>
           <div class="pair-autocomplete-wrap">
@@ -274,15 +274,15 @@
               onkeydown="pairKeyNav(event)"
               onfocus="filterPairs(this.value)"
               onblur="setTimeout(hidePairList,150)">
-            <div class="pair-suggestions" id="pair-suggestions" style="display:none"></div>
+            <div class="pair-suggestions" id="pair-suggestions" class="is-hidden"></div>
           </div>
           <div class="pair-presets">
-            <button onclick="setPair('BTC/USDT')" style="color:#f7931a" data-sym="BTC">BTC</button>
-            <button onclick="setPair('ETH/USDT')" style="color:#627eea" data-sym="ETH">ETH</button>
-            <button onclick="setPair('SOL/USDT')" style="color:#9945ff" data-sym="SOL">SOL</button>
-            <button onclick="setPair('BNB/USDT')" style="color:#f3ba2f" data-sym="BNB">BNB</button>
-            <button onclick="setPair('XRP/USDT')" style="color:#00aae4" data-sym="XRP">XRP</button>
-            <button onclick="setPair('DOGE/USDT')" style="color:#c2a633" data-sym="DOGE">DOGE</button>
+            <button onclick="setPair('BTC/USDT')" class="preset-color-btc" data-sym="BTC">BTC</button>
+            <button onclick="setPair('ETH/USDT')" class="preset-color-eth" data-sym="ETH">ETH</button>
+            <button onclick="setPair('SOL/USDT')" class="preset-color-sol" data-sym="SOL">SOL</button>
+            <button onclick="setPair('BNB/USDT')" class="preset-color-bnb" data-sym="BNB">BNB</button>
+            <button onclick="setPair('XRP/USDT')" class="preset-color-xrp" data-sym="XRP">XRP</button>
+            <button onclick="setPair('DOGE/USDT')" class="preset-color-doge" data-sym="DOGE">DOGE</button>
           </div>
         </div>
         <div class="field">
@@ -303,7 +303,7 @@
       </div>
 
       <!-- ROW 2: Deposit + Leverage | Risk% + PnL% -->
-      <div class="fg2" style="margin-bottom:6px">
+      <div class="fg2" class="mb-6">
         <div class="field">
           <label for="f-dep">Position Size $</label>
           <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
@@ -320,7 +320,7 @@
           <input id="f-lev" type="hidden" value="10">
         </div>
       </div>
-      <div class="fg2" style="margin-bottom:10px">
+      <div class="fg2" class="mb-10">
         <div class="field field-key">
           <label for="f-risk">Risk %</label>
           <input id="f-risk" type="number" placeholder="1" step="0.1" min="0.1" max="100" oninput="calcRR()">
@@ -332,7 +332,7 @@
       </div>
 
       <!-- ROW 3: Entry + Stop | Take + P&L $ -->
-      <div class="fg2" style="margin-bottom:6px">
+      <div class="fg2" class="mb-6">
         <div class="field">
           <label for="f-entry">Entry Price $</label>
           <input id="f-entry" type="number" placeholder="42000" oninput="calcRR()">
@@ -342,7 +342,7 @@
           <input id="f-sl" type="number" placeholder="41000" oninput="calcRR()">
         </div>
       </div>
-      <div class="fg2" style="margin-bottom:10px">
+      <div class="fg2" class="mb-10">
         <div class="field">
           <label for="f-exit">Take Profit $</label>
           <input id="f-exit" type="number" placeholder="43500" oninput="calcRR()">
@@ -354,28 +354,28 @@
       </div>
 
       <!-- RR + Risk $ display bar -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">R:R</span>
-          <div class="rr-display" id="rr-val" style="font-size:14px;">—</div>
+      <div class="trade-metrics-grid">
+        <div class="trade-metric-card">
+          <span class="trade-metric-label">R:R</span>
+          <div class="rr-display" id="rr-val" class="trade-metric-value">—</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">RISK $</span>
-          <div style="font-family:var(--font-mono);font-size:14px;color:var(--r);" id="risk-usd-val">—</div>
+        <div class="trade-metric-card">
+          <span class="trade-metric-label">RISK $</span>
+          <div class="trade-metric-value value-loss" id="risk-usd-val">—</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">TARGET $</span>
-          <div style="font-family:var(--font-mono);font-size:14px;color:var(--g);" id="tp-usd-val">—</div>
+        <div class="trade-metric-card">
+          <span class="trade-metric-label">TARGET $</span>
+          <div class="trade-metric-value value-profit" id="tp-usd-val">—</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">POSITION $</span>
-          <div style="font-family:var(--font-mono);font-size:14px;color:var(--a);" id="pos-size-val">—</div>
+        <div class="trade-metric-card">
+          <span class="trade-metric-label">POSITION $</span>
+          <div class="trade-metric-value value-accent" id="pos-size-val">—</div>
         </div>
       </div>
 
       <!-- Setup type buttons -->
-      <div style="margin-bottom:4px">
-        <div style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">Setup Type</div>
+      <div class="mb-4">
+        <div class="section-microtitle">Setup Type</div>
         <div class="setup-btns" id="setup-btns">
           <button class="setup-btn sb-fvg" onclick="setSetup('FVG',this)">FVG</button>
           <button class="setup-btn sb-ob" onclick="setSetup('OB',this)">Order Block</button>
@@ -419,14 +419,14 @@
       </div>
 
       <!-- Notes -->
-      <div class="fg3" style="margin-bottom:10px">
+      <div class="fg3" class="mb-10">
         <div class="field"><label for="f-why">Setup / Why Entered</label><textarea id="f-why" placeholder="What did you see on the chart..."></textarea></div>
         <div class="field"><label for="f-feel">Emotions / Mistakes</label><textarea id="f-feel" placeholder="How did you feel? Did you break the plan?..."></textarea></div>
         <div class="field"><label aria-label="field">Lesson Learned</label><textarea id="f-lesson" placeholder="Key takeaways..."></textarea></div>
       </div>
 
       <!-- SCREENSHOT -->
-      <div class="field" style="margin-bottom:10px;">
+      <div class="field" class="mb-10">
         <label for="scr-zone">Trade Screenshot</label>
         <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
           <div class="scr-placeholder" id="scr-placeholder">
@@ -436,18 +436,18 @@
           <div class="scr-preview" id="scr-preview">
             <img id="scr-img" src="" alt="screenshot">
             <div class="scr-remove" onclick="scrRemove(event)" title="Удалить">✕</div>
-            <div class="scr-uploading" id="scr-uploading" style="display:none">ЗАГРУЖАЕМ...</div>
+            <div class="scr-uploading" id="scr-uploading" class="is-hidden">ЗАГРУЖАЕМ...</div>
           </div>
         </div>
         <input type="file" class="scr-input" id="scr-file-input" accept="image/*" onchange="scrFileSelected(event)">
       </div>
 
-      <button class="btn-ai" onclick="openAI()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="vertical-align:middle;margin-right:5px"><rect x="1" y="4" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="4" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="7" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><path d="M4.5 10h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M6.5 4V2M4.5 2h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6.5" cy="1.5" r="0.8" fill="currentColor"/></svg>AI Review</button>
+      <button class="btn-ai" onclick="openAI()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="icon-inline"><rect x="1" y="4" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="4" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="7" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><path d="M4.5 10h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M6.5 4V2M4.5 2h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6.5" cy="1.5" r="0.8" fill="currentColor"/></svg>AI Review</button>
       <button class="btn-add" id="btn-add" onclick="addTrade()">Add Trade</button>
     </div>
     <div class="list-head">
       <div class="list-title">History</div>
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="inline-actions">
         <div class="filters">
           <button class="fbtn active" onclick="setF('all',this)">All</button>
           <button class="fbtn" onclick="setF('win',this)">Profit</button>
@@ -455,7 +455,7 @@
           <button class="fbtn" onclick="setF('long',this)">Long</button>
           <button class="fbtn" onclick="setF('short',this)">Short</button>
         </div>
-        <button onclick="clearAllTrades()" style="padding:4px 10px;border-radius:14px;border:1px solid rgba(255,77,77,0.25);background:transparent;color:rgba(255,77,77,0.55);font-family:var(--font-mono);font-size:11px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.borderColor='rgba(255,77,77,0.5)';this.style.color='var(--r)'" onmouseout="this.style.borderColor='rgba(255,77,77,0.25)';this.style.color='rgba(255,77,77,0.55)'">🗑 CLEAR ALL</button>
+        <button onclick="clearAllTrades()" class="ghost-danger-btn" onmouseover="this.style.borderColor='rgba(255,77,77,0.5)';this.style.color='var(--r)'" onmouseout="this.style.borderColor='rgba(255,77,77,0.25)';this.style.color='rgba(255,77,77,0.55)'">🗑 CLEAR ALL</button>
       </div>
     </div>
     <div id="trades-list"><div id="trades-skeleton">
@@ -468,14 +468,14 @@
   </div>
   <div class="sk-tcard">
     <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
-    <div class="sk sk-note" style="width:50%"></div>
+    <div class="sk sk-note" class="w-50"></div>
   </div>
   <div class="sk-tcard">
     <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
   </div>
   <div class="sk-tcard">
     <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
-    <div class="sk sk-note" style="width:80%"></div>
+    <div class="sk sk-note" class="w-80"></div>
   </div>
 </div></div>
   </div>
@@ -497,29 +497,28 @@
       <div class="lb-right">
         <div class="streak-pill">
           <span><svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1c0 3.5-4 4-4 7a4 4 0 008 0c0-3-4-3.5-4-7z" stroke="var(--a)" stroke-width="1.3" fill="rgba(255,57,35,0.1)" stroke-linecap="round"/><path d="M7.5 9c0 1.5-1.5 1.5-1.5 3a1.5 1.5 0 003 0c0-1.5-1.5-1.5-1.5-3z" fill="var(--a)" opacity="0.7"/></svg></span>
-          <div style="display:flex;align-items:baseline;gap:5px;">
+          <div class="inline-baseline-gap">
             <div class="streak-num" id="streak-num">0</div>
             <div class="streak-lbl">DAYS IN A ROW</div>
           </div>
         </div>
         <div>
-          <div style="font-family:var(--font-display);font-size:16px;color:var(--a)" id="level-pnl">0%</div>
-          <div style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px">ROI</div>
+          <div class="level-roi-value" id="level-pnl">0%</div>
+          <div class="micro-meta">ROI</div>
         </div>
       </div>
     </div>
-    <div class="lb-track"><div class="lb-fill" id="level-fill" style="width:0%;background:linear-gradient(90deg,var(--a),#ff9a5c)"></div></div>
+    <div class="lb-track"><div class="lb-fill" id="level-fill" class="lb-fill level-fill-accent"></div></div>
     <div class="lb-labels">
       <span class="lb-lbl" id="level-cur-label">Score: 0/100</span>
       <span class="lb-lbl" id="level-next-label">Цель: 40 pts</span>
     </div>
-    <div class="lb-reward" style="border-top:1px solid rgba(255,255,255,0.05);padding-top:8px;margin-top:2px;">
-      <span style="font-size:11px;opacity:0.5">💡</span>
+    <div class="lb-reward" class="lb-reward lb-reward-inline">
+      <span class="muted-mini">💡</span>
       <span class="lb-reward-text" id="reward-text">Заполняй каждую сделку — чем больше данных, тем точнее анализ</span>
     </div>
   </div>
 
-  <!
 
     <!-- TILT BANNER -->
     <div class="tilt-banner" id="tilt-banner">
@@ -581,11 +580,11 @@
     <div class="dash-card" style="margin-bottom:14px">
       <div class="dash-title">
         Статистика по сетапам
-        <span id="best-setup-badge" class="best-setup-badge" style="display:none">★ Best</span>
-      <span id="worst-setup-badge" class="worst-setup-badge" style="display:none"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="vertical-align:middle;margin-right:3px"><circle cx="5.5" cy="4.5" r="3.5" stroke="currentColor" stroke-width="1.2" fill="rgba(255,77,77,0.1)"/><path d="M3.5 4a.8.8 0 100 1.6.8.8 0 000-1.6zM7.5 4a.8.8 0 100 1.6.8.8 0 000-1.6z" fill="currentColor"/><path d="M3.5 8h4v-1H3.5z" stroke="currentColor" stroke-width="0.8" fill="none"/></svg>Worst</span>
+        <span id="best-setup-badge" class="best-setup-badge" class="is-hidden">★ Best</span>
+      <span id="worst-setup-badge" class="worst-setup-badge" class="is-hidden"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="vertical-align:middle;margin-right:3px"><circle cx="5.5" cy="4.5" r="3.5" stroke="currentColor" stroke-width="1.2" fill="rgba(255,77,77,0.1)"/><path d="M3.5 4a.8.8 0 100 1.6.8.8 0 000-1.6zM7.5 4a.8.8 0 100 1.6.8.8 0 000-1.6z" fill="currentColor"/><path d="M3.5 8h4v-1H3.5z" stroke="currentColor" stroke-width="0.8" fill="none"/></svg>Worst</span>
       </div>
       <div id="setup-empty" style="font-family:var(--font-mono);font-size:10px;color:var(--m);padding:14px 0;">Add the "Setup Type" field when recording trades</div>
-      <div class="setup-grid" id="setup-grid" style="display:none"></div>
+      <div class="setup-grid" id="setup-grid" class="is-hidden"></div>
     </div>
 
     <!-- ROW 3: Psychology Insights -->
@@ -613,7 +612,7 @@
     <div class="dash-card" style="margin-top:14px">
       <div class="dash-title">Trade Audit <span class="field-hint" data-tip="AI reviews your trading style and provides an honest audit of strengths and weaknesses.&#10;Requires 10+ trades">?</span></div>
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--m);margin-bottom:12px;">AI gives an honest breakdown of your trading without filters.</div>
-      <button class="brutal-btn" id="brutal-btn" onclick="runBrutalAnalysis()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="vertical-align:middle;margin-right:5px"><circle cx="6.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3" fill="rgba(255,77,77,0.1)"/><path d="M4.5 5a1 1 0 100 2 1 1 0 000-2zM8.5 5a1 1 0 100 2 1 1 0 000-2z" fill="currentColor"/><path d="M4.5 9.5h4v-1.5h-4z" stroke="currentColor" stroke-width="1" stroke-linejoin="round" fill="none"/><path d="M5.5 9.5v1M7.5 9.5v1" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Run Trade Audit</button>
+      <button class="brutal-btn" id="brutal-btn" onclick="runBrutalAnalysis()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="icon-inline"><circle cx="6.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3" fill="rgba(255,77,77,0.1)"/><path d="M4.5 5a1 1 0 100 2 1 1 0 000-2zM8.5 5a1 1 0 100 2 1 1 0 000-2z" fill="currentColor"/><path d="M4.5 9.5h4v-1.5h-4z" stroke="currentColor" stroke-width="1" stroke-linejoin="round" fill="none"/><path d="M5.5 9.5v1M7.5 9.5v1" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Run Trade Audit</button>
       <div class="brutal-result" id="brutal-result"></div>
     </div>
 
@@ -636,7 +635,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="imp-btn" onclick="document.getElementById('csv-input').click()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align:middle;margin-right:4px"><path d="M6 1v7M3 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 9v1.5h10V9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>Import CSV / XLSX</button>
         <button class="share-btn" onclick="exportPDF('week')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="vertical-align:middle;margin-right:4px"><rect x="2" y="1" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M4 4h4M4 6h4M4 8h2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>Export PDF</button>
-        <input type="file" id="csv-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="importCSV(this)">
+        <input type="file" id="csv-input" accept=".csv,.xlsx,.xls" class="is-hidden" onchange="importCSV(this)">
       </div>
     </div>
     <div class="progress-kpis">
@@ -693,7 +692,7 @@
     <!-- ТЕПЛОВАЯ КАРТА ПО ЧАСАМ -->
     <div class="hm-card" id="hourly-heatmap-card" style="margin-top:12px">
       <div class="hm-header">
-        <div class="hm-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:middle;margin-right:5px"><circle cx="7" cy="7" r="5.5" stroke="var(--a)" stroke-width="1.2" fill="rgba(255,57,35,0.06)"/><path d="M7 4v3l2 2" stroke="var(--a)" stroke-width="1.2" stroke-linecap="round"/></svg>Hourly Activity <span class="field-hint" data-tip="Shows what hours you trade.&#10;High green – profitable hour.&#10;High red – losing hour.&#10;Avoid trading during your worst hours">?</span></div>
+        <div class="hm-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="icon-inline"><circle cx="7" cy="7" r="5.5" stroke="var(--a)" stroke-width="1.2" fill="rgba(255,57,35,0.06)"/><path d="M7 4v3l2 2" stroke="var(--a)" stroke-width="1.2" stroke-linecap="round"/></svg>Hourly Activity <span class="field-hint" data-tip="Shows what hours you trade.&#10;High green – profitable hour.&#10;High red – losing hour.&#10;Avoid trading during your worst hours">?</span></div>
         <div id="hourly-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
       <div id="hourly-bars" style="display:flex;align-items:flex-end;gap:3px;height:80px;padding:8px 0 4px"></div>
@@ -703,8 +702,8 @@
 
     <!-- ЧЕЛЛЕНДЖИ -->
     <div class="hm-card" id="challenges-card" style="margin-top:12px">
-      <div class="hm-header" style="margin-bottom:12px">
-        <div class="hm-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:middle;margin-right:5px"><path d="M7 1l1.5 4h4l-3.2 2.3 1.2 4L7 9l-3.5 2.3 1.2-4L1.5 5h4z" stroke="var(--a)" stroke-width="1" fill="rgba(255,57,35,0.1)" stroke-linejoin="round"/></svg>Challenges <span class="field-hint" data-tip="Tasks to help you grow as a trader.&#10;Fill out your journal, trade consistently, keep risk management.&#10;Each completed challenge is a real skill, not just a badge">?</span></div>
+      <div class="hm-header" class="mb-12">
+        <div class="hm-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="icon-inline"><path d="M7 1l1.5 4h4l-3.2 2.3 1.2 4L7 9l-3.5 2.3 1.2-4L1.5 5h4z" stroke="var(--a)" stroke-width="1" fill="rgba(255,57,35,0.1)" stroke-linejoin="round"/></svg>Challenges <span class="field-hint" data-tip="Tasks to help you grow as a trader.&#10;Fill out your journal, trade consistently, keep risk management.&#10;Each completed challenge is a real skill, not just a badge">?</span></div>
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--m)">Complete challenges to earn badges</div>
       </div>
       <div id="challenges-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
@@ -886,7 +885,7 @@
       <div class="chat-main">
         <div class="chat-header">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div class="chat-header-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:middle;margin-right:5px"><rect x="1.5" y="4.5" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="4" y="7" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="8" y="7" width="2" height="2" rx="0.5" fill="currentColor"/><path d="M5 11h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M7 4.5V2.5M5 2.5h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="7" cy="2" r="0.8" fill="currentColor"/></svg>AI СОВЕТНИК <span class="field-hint" data-tip="Персональный AI ассистент.&#10;Знает SMC, ICT, технический анализ,&#10;психологию трейдинга.&#10;Задавай любые вопросы по торговле.&#10;История диалога сохраняется в сессии">?</span></div>
+            <div class="chat-header-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="icon-inline"><rect x="1.5" y="4.5" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="4" y="7" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="8" y="7" width="2" height="2" rx="0.5" fill="currentColor"/><path d="M5 11h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M7 4.5V2.5M5 2.5h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="7" cy="2" r="0.8" fill="currentColor"/></svg>AI СОВЕТНИК <span class="field-hint" data-tip="Персональный AI ассистент.&#10;Знает SMC, ICT, технический анализ,&#10;психологию трейдинга.&#10;Задавай любые вопросы по торговле.&#10;История диалога сохраняется в сессии">?</span></div>
             <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(255,57,35,0.08);border:1px solid rgba(255,57,35,0.22);box-shadow:0 0 10px rgba(255,57,35,0.1);">
               <span style="font-size:11px;">🔒</span>
               <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--a);text-transform:uppercase;">Особый доступ</span>
@@ -926,7 +925,7 @@
     </div>
 
     <!-- Biggest Mistake -->
-    <div class="mistake-card" id="mistake-card" style="display:none">
+    <div class="mistake-card" id="mistake-card" class="is-hidden">
       <div class="mistake-icon">💸</div>
       <div class="mistake-body">
         <div class="mistake-label">Biggest Mistake Detected <span class="field-hint" data-tip="Твоя главная повторяющаяся ошибка.&#10;AI находёт паттерн по ключевым словам&#10;в твоих заметках об эмоциях.&#10;FOMO, нарушил план, торопился...&#10;Нужно 5+ сделок с заметками">?</span></div>
@@ -934,7 +933,7 @@
         <div class="mistake-loss">Loss from this: <span id="mistake-amount">—</span></div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
-        <div style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">ПАТТЕРН</div>
+        <div class="trade-metric-label">ПАТТЕРН</div>
         <div style="font-family:var(--font-display);font-size:36px;color:var(--r)" id="mistake-count">—</div>
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--m)">раз</div>
       </div>
@@ -1175,19 +1174,19 @@
       <div class="edit-field"><div class="edit-label">P&L $</div><input class="edit-input" id="edit-pnl-usd" type="number" step="0.01" placeholder="150"></div>
       <div class="edit-field"><div class="edit-label">Setup Type</div><input class="edit-input" id="edit-setup" placeholder="FVG, OB..."></div>
     </div>
-    <div class="edit-field" style="margin-bottom:10px;">
+    <div class="edit-field" class="mb-10">
       <div class="edit-label">Setup / Why Entered</div>
       <textarea class="edit-input" id="edit-note-why" rows="2" placeholder="What did you see on the chart..."></textarea>
     </div>
-    <div class="edit-field" style="margin-bottom:10px;">
+    <div class="edit-field" class="mb-10">
       <div class="edit-label">Emotions / Mistakes</div>
       <textarea class="edit-input" id="edit-note-feel" rows="2" placeholder="How did you feel? Did you break the plan?...\"></textarea>
     </div>
-    <div class="edit-field" style="margin-bottom:10px;">
+    <div class="edit-field" class="mb-10">
       <div class="edit-label">Урок из сделки</div>
       <textarea class="edit-input" id="edit-note-lesson" rows="2" placeholder="Что вынес..."></textarea>
     </div>
-    <div class="edit-field" style="margin-bottom:10px;">
+    <div class="edit-field" class="mb-10">
       <div class="edit-label">Скриншот</div>
       <div class="screenshot-zone" id="edit-scr-zone" onclick="editScrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="editScrDrop(event)">
         <div class="scr-placeholder" id="edit-scr-placeholder">
@@ -1197,7 +1196,7 @@
         <div class="scr-preview" id="edit-scr-preview">
           <img id="edit-scr-img" src="" alt="screenshot">
           <div class="scr-remove" onclick="editScrRemove(event)" title="Удалить">✕</div>
-          <div class="scr-uploading" id="edit-scr-uploading" style="display:none">ЗАГРУЖАЕМ...</div>
+          <div class="scr-uploading" id="edit-scr-uploading" class="is-hidden">ЗАГРУЖАЕМ...</div>
         </div>
       </div>
       <input type="file" class="scr-input" id="edit-scr-file-input" accept="image/*" onchange="editScrFileSelected(event)">
@@ -1349,7 +1348,7 @@
           Анализирую сделку...
         </div>
       </div>
-      <div class="onb-btn-row" id="onb-ai-btns" style="display:none">
+      <div class="onb-btn-row" id="onb-ai-btns" class="is-hidden">
         <button class="onb-btn primary" onclick="onbNext()">ХОЧУ БОЛЬШЕ ИНСАЙТОВ →</button>
       </div>
     </div>
