@@ -82,8 +82,12 @@
     </a>
   </nav>
 
-  <!-- ── MARKET WIDGETS (встроены в nav) ── -->
-  <div class="sb-section-market" id="sb-widgets">
+  <!-- ── MARKET WIDGETS — коллапсируемый drawer ── -->
+  <div class="sb-market-toggle" onclick="toggleMarketDrawer()" id="sb-market-btn">
+    <span class="sb-market-toggle-label">Market Data</span>
+    <span class="sb-market-toggle-arrow" id="sb-market-arrow">↗</span>
+  </div>
+  <div class="sb-section-market sb-market-collapsed" id="sb-widgets">
     <div class="sb-section-label">РЫНОК</div>
 
     <!-- Fear & Greed + Market Metrics -->
@@ -305,15 +309,15 @@
           <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
         </div>
         <div class="field">
-          <label for="f-lev">Leverage ×</label>
-          <input id="f-lev" type="number" placeholder="10" min="1" max="200" oninput="calcRR()">
-          <div class="lev-presets">
-            <button onclick="setLev(5)">5×</button>
-            <button onclick="setLev(10)">10×</button>
-            <button onclick="setLev(25)">25×</button>
-            <button onclick="setLev(50)">50×</button>
-            <button onclick="setLev(100)">100×</button>
+          <label for="lev-display">Leverage ×</label>
+          <div class="lev-slider-wrap">
+            <div class="lev-display" id="lev-display">10×</div>
+            <input type="range" min="1" max="100" value="10"
+              class="lev-range" id="lev-range"
+              oninput="updateLev(this.value)">
           </div>
+          <div class="lev-risk-label" id="lev-risk">⚡ Умеренный риск</div>
+          <input id="f-lev" type="hidden" value="10">
         </div>
       </div>
       <div class="fg2" style="margin-bottom:10px">
