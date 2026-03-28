@@ -3,110 +3,348 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ORBITUM — Choose Your Layer</title>
-<meta name="description" content="Choose the ORBITUM layer that fits your workflow — journal, AI feedback, signals, and full access.">
+<title>ORBITUM · Plans</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#060708;
-  --bg-soft:#0b0d10;
-  --panel:rgba(255,255,255,.04);
-  --panel-2:rgba(255,255,255,.025);
-  --line:rgba(255,255,255,.08);
-  --line-2:rgba(255,255,255,.15);
-  --text:#f3f3f1;
-  --muted:rgba(243,243,241,.62);
-  --muted-2:rgba(243,243,241,.4);
-  --accent:#ff5d1f;
-  --accent-2:#ff7a2f;
-  --accent-soft:rgba(255,93,31,.12);
-  --accent-line:rgba(255,93,31,.28);
-  --radius:30px;
-  --shadow:0 24px 90px rgba(0,0,0,.56);
-  --mono:'DM Mono',monospace;
-  --sans:'Plus Jakarta Sans',sans-serif;
+  --bg:#0d0d0d;--bg2:#111111;--bg3:#161616;--bg4:#1c1c1c;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.2);
+  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
+  --fire:#FF3923;--fire2:rgba(255,57,35,0.1);--fire3:rgba(255,57,35,0.28);
+  --font:'Plus Jakarta Sans',sans-serif;--rad:10px;
 }
-html{scroll-behavior:smooth}
-body{
-  min-height:100%;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255,93,31,.18), transparent 24%),
-    radial-gradient(circle at 20% 85%, rgba(255,93,31,.08), transparent 30%),
-    linear-gradient(180deg,#070809 0%, #050607 100%);
-  color:var(--text);
-  font-family:var(--sans);
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:radial-gradient(rgba(255,255,255,.05) .6px, transparent .6px);
-  background-size:26px 26px;opacity:.16;
-  mask-image:radial-gradient(circle at center, black 45%, transparent 100%);
-}
-a{text-decoration:none;color:inherit}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-[data-en],[data-ru]{display:none}
-html[lang="en"] [data-en]{display:inherit}
-html[lang="ru"] [data-ru]{display:inherit}
-html[lang="en"] [data-en].inline-flex,html[lang="ru"] [data-ru].inline-flex{display:inline-flex}
-html[lang="en"] [data-en].grid,html[lang="ru"] [data-ru].grid{display:grid}
+html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
+button{cursor:pointer;font-family:var(--font);border:none;}
+a{text-decoration:none;}
 
-.container{width:min(1240px,calc(100% - 40px));margin:0 auto;position:relative;z-index:1}
+.topbar{height:48px;background:rgba(7,7,7,0.98);border-bottom:1px solid rgba(255,57,35,0.1);display:flex;align-items:center;padding:0 24px;gap:16px;}
+.logo{font-weight:800;font-size:15px;letter-spacing:4px;color:var(--fire);text-transform:uppercase;}
+.tb-sp{flex:1;}
+.tb-btn{height:26px;padding:0 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--m);font-size:10px;font-weight:600;letter-spacing:0.5px;display:flex;align-items:center;transition:all .15s;}
+.tb-btn:hover{color:var(--t);border-color:var(--bd2);}
 
-.topbar{
-  position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:40;
-  width:min(1220px,calc(100% - 24px));
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.08);
-  background:rgba(8,10,12,.72);backdrop-filter:blur(24px);box-shadow:0 18px 60px rgba(0,0,0,.3);
-}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.22em;font-size:12px;text-transform:uppercase}
-.logo-mark{width:24px;height:24px;border-radius:999px;position:relative;background:linear-gradient(180deg,#181a1d,#0a0b0d);border:1px solid rgba(255,255,255,.08);box-shadow:0 0 0 1px rgba(255,93,31,.12),0 0 30px rgba(255,93,31,.22)}
-.logo-mark::before{content:'';position:absolute;inset:4px;border-radius:999px;border:1.5px solid var(--accent);box-shadow:0 0 18px rgba(255,93,31,.65)}
-.logo-mark::after{content:'';position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:10px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 20px rgba(255,93,31,.9)}
-.nav-center{display:flex;align-items:center;gap:10px;padding:5px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
-.nav-center a{padding:10px 16px;border-radius:999px;font-size:11px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);transition:.2s}
-.nav-center a:hover{background:rgba(255,255,255,.04);color:var(--text)}
-.nav-right{display:flex;align-items:center;gap:10px}
-.nav-lang,.nav-btn,.nav-btn-main{
-  border-radius:999px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;transition:.22s ease
-}
-.nav-lang{width:42px;height:38px;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);font:500 10px var(--mono);letter-spacing:.12em;color:var(--muted-2);text-transform:uppercase}
-.nav-lang.active,.nav-lang:hover{color:var(--text);border-color:var(--accent-line);box-shadow:0 0 0 1px rgba(255,93,31,.15) inset}
-.nav-btn{height:40px;padding:0 18px;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);font:500 11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-.nav-btn:hover{border-color:rgba(255,255,255,.18);color:var(--text)}
-.nav-btn-main{height:42px;padding:0 22px;background:linear-gradient(180deg,#ff6e31,#ff3923);color:#fff;font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;box-shadow:0 10px 30px rgba(255,93,31,.2),0 0 30px rgba(255,93,31,.18)}
-.nav-btn-main:hover{transform:translateY(-1px);box-shadow:0 18px 42px rgba(0,0,0,.44),0 0 44px rgba(255,93,31,.3)}
-.mobile-toggle{display:none;width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--text)}
-.mobile-drawer{display:none;position:fixed;inset:76px 12px auto 12px;z-index:39;background:rgba(8,10,12,.92);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:14px;box-shadow:var(--shadow)}
-.mobile-drawer.open{display:block}
-.mobile-drawer a,.mobile-drawer button{display:block;width:100%;text-align:left;padding:14px 16px;border:none;background:none;border-radius:16px;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-.mobile-drawer a:hover,.mobile-drawer button:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.page{max-width:1020px;margin:0 auto;padding:52px 24px 80px;}
 
-.page{padding:136px 0 64px}
-.hero{position:relative;padding:10px 0 30px}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:center;min-height:calc(100vh - 220px)}
-.eyebrow{display:inline-flex;align-items:center;gap:12px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font:500 10px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
-.eyebrow::before{content:'';width:8px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 14px rgba(255,93,31,.9)}
-.hero h1{margin-top:22px;font-size:clamp(52px,7vw,98px);line-height:.92;letter-spacing:-.06em;max-width:760px}
-.hero h1 span{display:block;color:rgba(255,255,255,.35)}
-.hero p{max-width:600px;margin-top:22px;font-size:17px;line-height:1.85;color:var(--muted)}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
-.btn-main,.btn-alt,.btn-plan,.btn-submit,.btn-cancel,.toggle-btn,.ghost-chip{
-  border-radius:999px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;transition:.22s ease
+.hero{text-align:center;margin-bottom:44px;}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--fire);text-transform:uppercase;margin-bottom:14px;}
+.hero-title{font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px;}
+.hero-title em{color:var(--fire);font-style:normal;text-shadow:0 0 32px rgba(255,57,35,0.35);}
+.hero-sub{font-size:14px;color:var(--m);max-width:440px;margin:0 auto;line-height:1.7;}
+
+/* BILLING TOGGLE */
+.billing-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:36px;}
+.billing-toggle{display:flex;background:var(--bg2);border:1px solid var(--bd2);border-radius:10px;padding:4px;}
+.billing-btn{height:30px;padding:0 18px;border-radius:7px;font-size:11px;font-weight:700;letter-spacing:0.5px;transition:all .18s;color:var(--m);background:transparent;}
+.billing-btn.on{background:var(--fire);color:#fff;box-shadow:0 0 12px rgba(255,57,35,0.4);}
+.billing-save{font-size:9px;font-weight:700;color:var(--fire);background:var(--fire2);border:1px solid var(--fire3);border-radius:20px;padding:3px 10px;}
+
+/* PLANS */
+.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:52px;}
+@media(max-width:880px){.plans{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.plans{grid-template-columns:1fr;}}
+
+.plan{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:16px;
+  padding:24px 20px;position:relative;display:flex;flex-direction:column;
+  transition:border-color .2s,transform .2s;
 }
-.btn-main,.btn-plan,.btn-submit{height:52px;padding:0 26px;background:linear-gradient(180deg,#ff6e31,#ff3923);color:#fff;font:700 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;box-shadow:0 10px 30px rgba(255,93,31,.2),0 0 30px rgba(255,93,31,.18)}
-.btn-main:hover,.btn-plan:hover,.btn-submit:hover{transform:translateY(-1px);box-shadow:0 18px 42px rgba(0,0,0,.44),0 0 44px rgba(255,93,31,.3)}
-.btn-alt,.btn-cancel{height:52px;padding:0 24px;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);color:var(--text);font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase}
-.btn-alt:hover,.btn-cancel:hover{border-color:rgba(255,255,255,.18);color:var(--text)}
+.plan:hover{border-color:var(--bd2);transform:translateY(-2px);}
+.plan.popular{border-color:rgba(255,57,35,0.4);background:linear-gradient(160deg,var(--bg2) 60%,rgba(255,57,35,0.05) 100%);box-shadow:0 0 30px rgba(255,57,35,0.08);}
+.plan.ultimate{border-color:rgba(255,57,35,0.55);background:linear-gradient(150deg,var(--bg2) 40%,rgba(255,57,35,0.07) 100%);box-shadow:0 0 44px rgba(255,57,35,0.13);}
+
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--fire);color:#fff;font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap;}
+
+.plan-tier{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;}
+.plan-name{font-size:18px;font-weight:800;color:var(--t);margin-bottom:4px;}
+.plan-tagline{font-size:11px;color:var(--m2);line-height:1.5;margin-bottom:16px;min-height:32px;}
+
+.plan-price-main{display:flex;align-items:baseline;gap:3px;margin-bottom:2px;}
+.plan-price-num{font-size:34px;font-weight:800;letter-spacing:-1px;color:var(--t);}
+.plan-price-num.fire{color:var(--fire);text-shadow:0 0 18px rgba(255,57,35,0.3);}
+.plan-price-per{font-size:11px;color:var(--m2);}
+.plan-price-lt{font-size:11px;color:var(--m2);margin-bottom:14px;}
+.plan-price-lt b{color:var(--fire);}
+
+.plan-sep{height:1px;background:var(--bd);margin:12px 0;}
+
+.plan-features{display:flex;flex-direction:column;gap:7px;flex:1;margin-bottom:18px;}
+.pf{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--m);line-height:1.45;}
+.pf-mark{flex-shrink:0;width:14px;height:14px;border-radius:50%;background:var(--fire2);border:1px solid var(--fire3);display:flex;align-items:center;justify-content:center;margin-top:0px;font-size:8px;color:var(--fire);font-weight:800;}
+.pf.dim .pf-mark{background:var(--bd);border-color:var(--bd2);color:var(--m2);}
+.pf.dim{color:var(--m2);}
+.pf strong{color:var(--t);font-weight:600;}
+
+.btn-plan{
+  width:100%;height:44px;border-radius:var(--rad);
+  background:var(--fire);color:#fff;border:1px solid var(--fire);
+  font-family:var(--font);font-size:12px;font-weight:700;
+  letter-spacing:0;text-transform:uppercase;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 20px rgba(255,57,35,0.4);
+  transition:all .2s;line-height:1;
+}
+.btn-plan:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);transform:translateY(-1px);}
+.btn-plan.solid{background:var(--fire);color:#fff;border-color:var(--fire);}
+
+@keyframes btnBreathe{
+  0%,100%{box-shadow:0 0 12px rgba(255,57,35,0.12);}
+  50%{box-shadow:0 0 24px rgba(255,57,35,0.34);}
+}
+
+/* COMPARE */
+.section-title{font-size:17px;font-weight:700;margin-bottom:16px;}
+.compare-scroll{overflow-x:auto;margin-bottom:52px;}
+.compare-table{width:100%;border-collapse:collapse;min-width:640px;}
+.compare-table th{text-align:left;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--bd);}
+.compare-table th:not(:first-child){text-align:center;}
+.compare-table td{padding:9px 14px;font-size:12px;color:var(--m);border-bottom:1px solid var(--bd);}
+.compare-table td:not(:first-child){text-align:center;}
+.compare-table tr:last-child td{border-bottom:none;}
+.ct-yes{color:var(--fire);font-size:14px;font-weight:800;}
+.ct-no{color:var(--bd3);font-size:14px;}
+.ct-feat{color:var(--t);font-weight:600;display:block;}
+.ct-sub{color:var(--m2);font-size:10px;margin-top:1px;display:block;}
+
+/* FAQ */
+.faq-wrap{max-width:640px;}
+.faq-item{border-top:1px solid var(--bd);padding:14px 0;cursor:pointer;}
+.faq-q{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.faq-icon{color:var(--fire);font-size:18px;flex-shrink:0;transition:transform .2s;line-height:1;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.faq-a{font-size:12px;color:var(--m);line-height:1.75;margin-top:10px;display:none;}
+.faq-item.open .faq-a{display:block;}
+
+/* ── i18n ── */
+[data-ru],[data-en]{display:none;}
+html[lang="ru"] [data-ru]{display:revert;}
+html[lang="en"] [data-en]{display:revert;}
+
+/* lang toggle buttons */
+.nav-lang{
+  height:26px;padding:0 10px;border-radius:6px;
+  border:1px solid var(--bd);background:transparent;
+  color:var(--m2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;
+  cursor:pointer;transition:all .15s;
+}
+.nav-lang:hover,.nav-lang.active{color:var(--fire);border-color:var(--fire3);}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-bg.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--bd2);border-radius:16px;padding:28px 24px;width:400px;max-width:95vw;}
+.modal-header{margin-bottom:16px;}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:2px;}
+.modal-sub{font-size:11px;color:var(--m2);}
+.modal-pill{display:inline-flex;align-items:center;gap:8px;background:var(--fire2);border:1px solid var(--fire3);border-radius:8px;padding:8px 14px;margin-bottom:14px;}
+.modal-pill-name{font-size:13px;font-weight:700;color:var(--t);}
+.modal-pill-sep{color:var(--bd3);}
+.modal-pill-price{font-size:13px;font-weight:700;color:var(--fire);}
+.modal-note{font-size:11px;color:var(--m2);line-height:1.65;padding:10px 12px;background:var(--bg3);border-radius:7px;border-left:2px solid var(--fire3);margin-bottom:14px;}
+.mf{margin-bottom:11px;}
+.mf label{display:block;font-size:10px;font-weight:700;color:var(--m);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;}
+.mf input,.mf textarea{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:7px;color:var(--t);font-family:var(--font);font-size:12px;font-weight:500;padding:9px 12px;outline:none;transition:border-color .15s;resize:none;}
+.mf input:focus,.mf textarea:focus{border-color:var(--fire3);}
+.mf input::placeholder,.mf textarea::placeholder{color:var(--m2);}
+.modal-btns{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+.btn-submit{height:42px;border-radius:var(--rad);border:1px solid rgba(255,57,35,0.5);background:linear-gradient(135deg,rgba(255,57,35,0.16) 0%,rgba(255,57,35,0.07) 100%);color:var(--fire);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .2s;animation:btnBreathe 2.4s ease-in-out infinite;}
+.btn-submit:hover{background:linear-gradient(135deg,rgba(255,57,35,0.28) 0%,rgba(255,57,35,0.14) 100%);box-shadow:0 0 26px rgba(255,57,35,0.38);color:#ff6b5b;}
+.btn-submit:disabled{opacity:.35;cursor:not-allowed;}
+.btn-cancel{height:36px;border-radius:var(--rad);border:1px solid var(--bd);background:transparent;color:var(--m);font-size:11px;font-weight:600;transition:all .15s;}
+.btn-cancel:hover{color:var(--t);border-color:var(--bd2);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="logo" style="text-decoration:none;color:var(--fire);position:relative;">ORBITUM<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FF3923;box-shadow:0 0 6px rgba(255,57,35,0.8);margin-left:3px;vertical-align:super;font-size:6px;"></span></a>
+  <div class="tb-sp"></div>
+  <a href="/journal" class="tb-btn" data-ru>Журнал</a>
+  <a href="/journal" class="tb-btn" data-en>Journal</a>
+  <a href="/screener" class="tb-btn" data-ru>Скринер</a>
+  <a href="/screener" class="tb-btn" data-en>Screener</a>
+  <button class="nav-lang" id="lang-en" onclick="setLang('en')">EN</button>
+  <button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow" data-ru>Тарифы</div>
+    <div class="hero-eyebrow" data-en>Pricing</div>
+    <h1 class="hero-title" data-ru>Выбери свой <em>уровень.</em></h1>
+    <h1 class="hero-title" data-en>Choose your <em>edge.</em></h1>
+    <p class="hero-sub" data-ru>Начни с того, что нужно. Апгрейд в любой момент. Никаких скрытых платежей.</p>
+    <p class="hero-sub" data-en>Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
+  </div>
+
+  <div class="billing-row">
+    <div class="billing-toggle">
+      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')" data-ru>Ежемесячно</button>
+      <button class="billing-btn on" id="btn-monthly-en" onclick="setBilling('monthly')" data-en>Monthly</button>
+      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')" data-ru>Ежегодно</button>
+      <button class="billing-btn" id="btn-annual-en" onclick="setBilling('annual')" data-en>Annual</button>
+    </div>
+    <span class="billing-save" id="save-tag" data-ru>Экономия 30% ежегодно</span>
+    <span class="billing-save" id="save-tag-en" style="display:none" data-en>Save 30% annually</span>
+  </div>
+
+  <div class="plans" id="plans-grid"></div>
+
+  <div class="section-title" data-ru>Полное сравнение</div>
+  <div class="section-title" data-en>Full comparison</div>
+  <div class="compare-scroll">
+    <table class="compare-table" id="compare-table"></table>
+  </div>
+
+  <div class="faq-wrap">
+    <div class="section-title" data-ru>Вопросы</div>
+    <div class="section-title" data-en>Questions</div>
+    <div id="faq"></div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Get Access</div>
+
+    </div>
+    <div class="modal-pill">
+      <span class="modal-pill-name" id="modal-plan-name">—</span>
+      <span class="modal-pill-sep">|</span>
+      <span class="modal-pill-price" id="modal-plan-price">—</span>
+    </div>
+
+    <div class="mf"><label data-ru>Email</label><label data-en>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
+    <div class="mf"><label data-ru>Telegram (опционально)</label><label data-en>Telegram (optional)</label><input type="text" id="m-tg" placeholder="@username"></div>
+    <div class="mf"><label data-ru>Комментарий</label><label data-en>Comment</label><textarea id="m-note" rows="2" placeholder="Questions or anything else..."></textarea></div>
+    <div class="modal-btns">
+      <button class="btn-submit" id="btn-submit" onclick="submitPayment()">Submit Request</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Admin Telegram notification ──
+// Set these to your bot token and your personal chat_id
+// Get your chat_id by messaging @userinfobot in Telegram
+const ADMIN_BOT_TOKEN = ''; // e.g. '123456:ABCdef...' — same bot as TELEGRAM_BOT_TOKEN in .env
+const ADMIN_CHAT_ID   = ''; // e.g. '123456789' — your personal Telegram chat_id
+
+const PLANS = [
+  {
+    id: 'journal',
+    tier: 'Tier 1',
+    name: 'Journal only',
+    tagline: 'Trade journal + analytics. No AI, no signals.',
+    monthly: 21,
+    annual: 15,
+    lifetime: 97,
+    features: [
+      { text: '<strong>Unlimited trade logging</strong> — pair, direction, result, emotion tags, screenshots' },
+      { text: '<strong>Analytics dashboard</strong> — win rate, P&L curve, equity chart, streaks' },
+      { text: '<strong>Setup analytics</strong> — which setups work for you with % breakdown' },
+      { text: '<strong>Weekly PDF report</strong> — auto-generated Sunday summary with key stats' },
+      { text: 'Day-of-week and time-of-day heatmaps' },
+      { text: 'Journal export to CSV' },
+      { dim: true, text: 'AI Coach — not included' },
+      { dim: true, text: 'Screener / Signals — not included' },
+    ],
+  },
+  {
+    id: 'analytics',
+    tier: 'Tier 2',
+    name: 'Journal + Analytics',
+    tagline: 'Full analytics and AI Coach after every trade.',
+    monthly: 71,
+    annual: 50,
+    lifetime: 297,
+    badge: 'Popular',
+    popular: true,
+    features: [
+      { text: 'Everything in Tier 1' },
+      { text: '<strong>AI Coach after every trade</strong> — within 60 seconds, explains what pattern you repeated' },
+      { text: '<strong>Behavior fingerprint</strong> — identifies your specific losing habit with exact numbers' },
+      { text: '<strong>Brutal Analysis mode</strong> — raw data on what is costing you money each week' },
+      { text: '<strong>AI Weekly breakdown</strong> — top pattern of the week, one concrete fix' },
+      { text: '<strong>Trade Analyzer</strong> — TradingView chart, SL/TP simulation, AI quality score' },
+      { dim: true, text: 'Screener / Signals — not included' },
+    ],
+  },
+  {
+    id: 'signals',
+    tier: 'Tier 3',
+    name: 'Journal + Screener + Signals',
+    tagline: 'Analytics, AI Coach and real-time ICT/SMC signals.',
+    monthly: 149,
+    annual: 104,
+    lifetime: 497,
+    features: [
+      { text: 'Everything in Tier 2' },
+      { text: '<strong>Crypto screener</strong> — 200+ coins real-time, filters by volume, RSI, ATH%' },
+      { text: '<strong>Real-time setup signals</strong> — top 80 coins scanned every 30 min, A/A+ only' },
+      { text: '<strong>Entry, SL, TP</strong> — exact price levels from swing structure + ATR' },
+      { text: '<strong>Morning brief 07:00 UTC</strong> — market state, top setup of the day' },
+      { text: '<strong>Momentum alerts</strong> — volume spike detection, breakout candles in real time' },
+      { text: 'Telegram alerts included' },
+      { dim: true, text: 'Terminal AI — not included' },
+    ],
+  },
+  {
+    id: 'full',
+    tier: 'Full Access',
+    name: '+ Terminal AI',
+    tagline: 'The complete system. Journal, analytics, signals and AI terminal.',
+    monthly: 289,
+    annual: 202,
+    lifetime: 777,
+    badge: 'All-in',
+    ultimate: true,
+    features: [
+      { text: 'Everything in Tier 3' },
+      { text: '<strong>Terminal AI</strong> — setup analysis before entry, probability forecast' },
+      { text: '<strong>All signals in real-time</strong> — setup, momentum, AI insight, critical alerts' },
+      { text: '<strong>Screener cockpit</strong> — live signal feed, heatmap, SA Score, OB/FVG zones' },
+      { text: '<strong>AI Forward Insight 20:30 UTC</strong> — one forward-looking call for tomorrow' },
+      { text: '<strong>Priority delivery</strong> — your signals fire before free-tier delay' },
+      { text: '<strong>All future features</strong> included — Lifetime never pays again' },
+    ],
+  },
+];
+
+const COMPARE = [
+  { feat: 'Trade logging', sub: 'unlimited', v: [1,1,0,1] },
+  { feat: 'Performance dashboard', sub: 'WR, P&L, equity curve', v: [1,1,0,1] },
+  { feat: 'Setup analytics', sub: 'best/worst setups', v: [1,1,0,1] },
+  { feat: 'Weekly PDF report', sub: 'auto Sunday', v: [1,1,0,1] },
+  { feat: 'AI Coach post-trade', sub: 'within 60 seconds', v: [0,1,0,1] },
+  { feat: 'Behavior fingerprint', sub: 'your losing pattern', v: [0,1,0,1] },
+  { feat: 'Brutal Analysis', sub: 'no-filter weekly', v: [0,1,0,1] },
+  { feat: 'Trade Analyzer', sub: 'TradingView + AI', v: [0,1,0,1] },
+  { feat: 'Real-time signals', sub: 'ICT/SMC, 80 coins', v: [0,0,1,1] },
+  { feat: 'Entry / SL / TP', sub: 'exact levels', v: [0,0,1,1] },
+  { feat: 'Morning brief', sub: '07:00 UTC daily', v: [0,0,1,1] },
+  { feat: 'Momentum alerts', sub: 'volume + breakout', v: [0,0,1,1] },
+  { feat: 'Evening result', sub: 'honest outcome', v: [0,0,1,1] },
+  { feat: 'Signal Screener cockpit', sub: 'live heatmap', v: [0,0,1,1] },
+  { feat: 'AI Forward Insight', sub: '20:30 UTC', v: [0,0,0,1] },
+  { feat: 'Future features', sub: 'Lifetime only', v: [0,0,0,1] },
+];
+
+const FAQ = [
+  { q: 'How does payment work?', a: 'After submitting the form, we contact you via email or Telegram with payment details. We accept USDT (TRC20/ERC20), BTC, and bank transfer. Access is activated within 1-2 hours of payment confirmation.' },
+  { q: 'Is there a free plan?', a: 'Yes. Free users get: up to 20 trade logs, delayed signals (+15 min), daily market brief, and basic dashboard. Enough to understand the platform before committing.' },
+  { q: 'What does Lifetime mean exactly?', a: 'One payment, permanent access to your chosen tier — including all future features we add. For the Everything tier at $777, that\'s every feature we will ever build. No subscription, no renewal.' },
+  { q: 'Can I start on Journal and upgrade later?', a: 'Yes. You pay the price difference for the current billing period. Just reach out and we sort it within a few hours.' },
+  { q: 'What is the AI Coach actually doing?', a: 'It analyzes your last N trades and looks for behavioral patterns — specific pairs you lose on, times of day, sequences (e.g. revenge trading after 2 losses). It gives you the exact numbers, not generic advice.' },
+  { q: 'Are the signals tradeable?', a: 'Signals show methodology: structure, OB/FVG confluence, RSI zone, volume. They include .btn-alt:hover,.btn-cancel:hover{border-color:rgba(255,255,255,.18);color:var(--text)}
 
 .hero-visual{position:relative;min-height:650px;display:flex;align-items:center;justify-content:center}
 .orbit-shell{position:relative;width:350px;height:520px;display:grid;place-items:center}
