@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-orbitum-ui="apple-glass">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,7 +50,7 @@
       <div class="apple-menu">
         <button class="apple-nav-link apple-menu-trigger active" type="button" data-apple-menu="workspace">
           Workspace
-          
+          <span class="apple-nav-caret">⌄</span>
         </button>
         <div class="apple-menu-panel" data-apple-panel="workspace">
           <div class="apple-menu-grid">
@@ -73,7 +73,7 @@
       <div class="apple-menu">
         <button class="apple-nav-link apple-menu-trigger" type="button" data-apple-menu="intelligence">
           Intelligence
-          
+          <span class="apple-nav-caret">⌄</span>
         </button>
         <div class="apple-menu-panel" data-apple-panel="intelligence">
           <div class="apple-menu-grid">
@@ -92,7 +92,7 @@
       <div class="apple-menu">
         <button class="apple-nav-link apple-menu-trigger" type="button" data-apple-menu="account">
           Account
-          
+          <span class="apple-nav-caret">⌄</span>
         </button>
         <div class="apple-menu-panel" data-apple-panel="account">
           <div class="apple-menu-grid">
@@ -370,8 +370,8 @@
         <div class="field">
           <label for="btn-long">Direction</label>
           <div class="dtoggle">
-            <div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div>
-            <div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div>
+            <button type="button" class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</button>
+            <button type="button" class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</button>
           </div>
         </div>
         <div class="field">
@@ -391,7 +391,7 @@
           <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
         </div>
         <div class="field">
-          <label for="lev-display">Leverage ×</label>
+          <label for="lev-range">Leverage ×</label>
           <div class="lev-slider-wrap">
             <div class="lev-display" id="lev-display">10×</div>
             <input type="range" min="1" max="100" value="10"
@@ -504,12 +504,12 @@
       <div class="fg3" class="mb-10">
         <div class="field"><label for="f-why">Setup / Why Entered</label><textarea id="f-why" placeholder="What did you see on the chart..."></textarea></div>
         <div class="field"><label for="f-feel">Emotions / Mistakes</label><textarea id="f-feel" placeholder="How did you feel? Did you break the plan?..."></textarea></div>
-        <div class="field"><label aria-label="field">Lesson Learned</label><textarea id="f-lesson" placeholder="Key takeaways..."></textarea></div>
+        <div class="field"><label for="f-lesson">Lesson Learned</label><textarea id="f-lesson" placeholder="Key takeaways..."></textarea></div>
       </div>
 
       <!-- SCREENSHOT -->
       <div class="field" class="mb-10">
-        <label for="scr-zone">Trade Screenshot</label>
+        <label for="scr-file-input">Trade Screenshot</label>
         <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
           <div class="scr-placeholder" id="scr-placeholder">
             <div class="scr-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="15" rx="3" stroke="var(--m2)" stroke-width="1.4" fill="none"/><circle cx="12" cy="12" r="3.5" stroke="var(--m2)" stroke-width="1.4"/><path d="M8 5l1.5-2h5L16 5" stroke="var(--m2)" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg></div>
@@ -1491,4 +1491,31 @@
 <!-- ══ i18n — Language System ══ -->
 <script src="/js/journal.js" defer></script>
 </body>
+<script>
+// Override page names to English for the top bar badge
+document.addEventListener('DOMContentLoaded', function() {
+  const englishPageNames = {
+    journal: 'Journal',
+    dashboard: 'Analytics',
+    progress: 'Progress',
+    digest: 'Digest',
+    premarket: 'Premarket',
+    coach: 'AI Coach',
+    settings: 'Settings'
+  };
+  // Preserve the original showPage function if it exists
+  if (typeof window.showPage === 'function' && !window._origShowPage) {
+    window._origShowPage = window.showPage;
+    window.showPage = function(page, element) {
+      // call original handler
+      window._origShowPage(page, element);
+      // update badge
+      const badge = document.getElementById('jtb-page-badge');
+      if (badge && englishPageNames[page]) {
+        badge.textContent = englishPageNames[page];
+      }
+    };
+  }
+});
+</script>
 </html>
