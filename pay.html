@@ -4,31 +4,20 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ORBITUM · Plans</title>
+<meta name="description" content="ORBITUM AI Trading Journal — choose your plan. Monthly or lifetime access. Start with 10 free trades.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0d0d0d;--bg2:#111111;--bg3:#161616;--bg4:#1c1c1c;
+  --bg:#262626;--bg2:#2e2e2e;--bg3:#353535;--bg4:#404040;
   --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.2);
-  --t:#d0d0d0;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
+  --t:#ffffff;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
   --fire:#FF3923;--fire2:rgba(255,57,35,0.1);--fire3:rgba(255,57,35,0.28);
-  --font:'SF Pro Text','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--rad:14px;
+  --font:'Plus Jakarta Sans',sans-serif;--rad:10px;
 }
 html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
-
-/* NOISE */
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:9999;opacity:0.4;}
-
-/* AMBIENT GLOW */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 55% 55% at 35% 110%, rgba(255,57,35,0.18) 0%,transparent 65%),
-    radial-gradient(ellipse 55% 55% at 65% 110%, rgba(255,57,35,0.14) 0%,transparent 65%),
-    radial-gradient(ellipse 80% 30% at 50% 100%, rgba(255,57,35,0.08) 0%,transparent 70%);
-}
 button{cursor:pointer;font-family:var(--font);border:none;}
 a{text-decoration:none;}
 
@@ -51,7 +40,7 @@ a{text-decoration:none;}
 .billing-toggle{display:flex;background:var(--bg2);border:1px solid var(--bd2);border-radius:10px;padding:4px;}
 .billing-btn{height:30px;padding:0 18px;border-radius:7px;font-size:11px;font-weight:700;letter-spacing:0.5px;transition:all .18s;color:var(--m);background:transparent;}
 .billing-btn.on{background:var(--fire);color:#fff;box-shadow:0 0 12px rgba(255,57,35,0.4);}
-.billing-save{font-size:9px;font-weight:700;color:var(--fire);background:var(--fire2);border:1px solid var(--fire3);border-radius:20px;padding:3px 10px;}
+.billing-save{font-size:11px;font-weight:700;color:var(--fire);background:var(--fire2);border:1px solid var(--fire3);border-radius:20px;padding:3px 10px;}
 
 /* PLANS */
 .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:52px;}
@@ -67,9 +56,9 @@ a{text-decoration:none;}
 .plan.popular{border-color:rgba(255,57,35,0.4);background:linear-gradient(160deg,var(--bg2) 60%,rgba(255,57,35,0.05) 100%);box-shadow:0 0 30px rgba(255,57,35,0.08);}
 .plan.ultimate{border-color:rgba(255,57,35,0.55);background:linear-gradient(150deg,var(--bg2) 40%,rgba(255,57,35,0.07) 100%);box-shadow:0 0 44px rgba(255,57,35,0.13);}
 
-.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--fire);color:#fff;font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap;}
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--fire);color:#fff;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap;}
 
-.plan-tier{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;}
+.plan-tier{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;}
 .plan-name{font-size:18px;font-weight:800;color:var(--t);margin-bottom:4px;}
 .plan-tagline{font-size:11px;color:var(--m2);line-height:1.5;margin-bottom:16px;min-height:32px;}
 
@@ -84,23 +73,22 @@ a{text-decoration:none;}
 
 .plan-features{display:flex;flex-direction:column;gap:7px;flex:1;margin-bottom:18px;}
 .pf{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--m);line-height:1.45;}
-.pf-mark{flex-shrink:0;width:14px;height:14px;border-radius:50%;background:var(--fire2);border:1px solid var(--fire3);display:flex;align-items:center;justify-content:center;margin-top:0px;font-size:8px;color:var(--fire);font-weight:800;}
+.pf-mark{flex-shrink:0;width:14px;height:14px;border-radius:50%;background:var(--fire2);border:1px solid var(--fire3);display:flex;align-items:center;justify-content:center;margin-top:0px;font-size:11px;color:var(--fire);font-weight:800;}
 .pf.dim .pf-mark{background:var(--bd);border-color:var(--bd2);color:var(--m2);}
 .pf.dim{color:var(--m2);}
 .pf strong{color:var(--t);font-weight:600;}
 
 .btn-plan{
-  width:100%;height:44px;border-radius:var(--rad);
-  background:var(--fire);color:#fff;border:1px solid var(--fire);
-  font-family:var(--font);font-size:12px;font-weight:700;
-  letter-spacing:0;text-transform:uppercase;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 20px rgba(255,57,35,0.4);
-  transition:all .2s;line-height:1;
+  width:100%;height:40px;border-radius:var(--rad);
+  border:1px solid rgba(255,57,35,0.4);
+  background:linear-gradient(135deg,rgba(255,57,35,0.13) 0%,rgba(255,57,35,0.06) 100%);
+  color:var(--fire);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  transition:all .2s;
+  animation:btnBreathe 2.4s ease-in-out infinite;
 }
-.btn-plan:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);transform:translateY(-1px);}
-.btn-plan.solid{background:var(--fire);color:#fff;border-color:var(--fire);}
+.btn-plan:hover{background:linear-gradient(135deg,rgba(255,57,35,0.27) 0%,rgba(255,57,35,0.13) 100%);box-shadow:0 0 26px rgba(255,57,35,0.38);color:#ff6b5b;border-color:rgba(255,57,35,.85);transform:translateY(-1px);}
+.btn-plan.solid{background:var(--fire);color:#fff;border-color:var(--fire);box-shadow:0 0 20px rgba(255,57,35,0.4);}
+.btn-plan.solid:hover{background:#ff4d38;box-shadow:0 0 34px rgba(255,57,35,0.6);}
 
 @keyframes btnBreathe{
   0%,100%{box-shadow:0 0 12px rgba(255,57,35,0.12);}
@@ -111,7 +99,7 @@ a{text-decoration:none;}
 .section-title{font-size:17px;font-weight:700;margin-bottom:16px;}
 .compare-scroll{overflow-x:auto;margin-bottom:52px;}
 .compare-table{width:100%;border-collapse:collapse;min-width:640px;}
-.compare-table th{text-align:left;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--bd);}
+.compare-table th{text-align:left;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--bd);}
 .compare-table th:not(:first-child){text-align:center;}
 .compare-table td{padding:9px 14px;font-size:12px;color:var(--m);border-bottom:1px solid var(--bd);}
 .compare-table td:not(:first-child){text-align:center;}
@@ -130,20 +118,6 @@ a{text-decoration:none;}
 .faq-a{font-size:12px;color:var(--m);line-height:1.75;margin-top:10px;display:none;}
 .faq-item.open .faq-a{display:block;}
 
-/* ── i18n ── */
-[data-ru],[data-en]{display:none;}
-html[lang="ru"] [data-ru]{display:revert;}
-html[lang="en"] [data-en]{display:revert;}
-
-/* lang toggle buttons */
-.nav-lang{
-  height:26px;padding:0 10px;border-radius:6px;
-  border:1px solid var(--bd);background:transparent;
-  color:var(--m2);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;
-  cursor:pointer;transition:all .15s;
-}
-.nav-lang:hover,.nav-lang.active{color:var(--fire);border-color:var(--fire3);}
-
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
 .modal-bg.show{display:flex;}
@@ -160,6 +134,14 @@ html[lang="en"] [data-en]{display:revert;}
 .mf label{display:block;font-size:10px;font-weight:700;color:var(--m);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;}
 .mf input,.mf textarea{width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:7px;color:var(--t);font-family:var(--font);font-size:12px;font-weight:500;padding:9px 12px;outline:none;transition:border-color .15s;resize:none;}
 .mf input:focus,.mf textarea:focus{border-color:var(--fire3);}
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible{
+  outline:2px solid var(--fire)!important;
+  outline-offset:2px!important;
+  box-shadow:0 0 0 4px var(--fire2)!important;
+}
 .mf input::placeholder,.mf textarea::placeholder{color:var(--m2);}
 .modal-btns{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
 .btn-submit{height:42px;border-radius:var(--rad);border:1px solid rgba(255,57,35,0.5);background:linear-gradient(135deg,rgba(255,57,35,0.16) 0%,rgba(255,57,35,0.07) 100%);color:var(--fire);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .2s;animation:btnBreathe 2.4s ease-in-out infinite;}
@@ -167,266 +149,45 @@ html[lang="en"] [data-en]{display:revert;}
 .btn-submit:disabled{opacity:.35;cursor:not-allowed;}
 .btn-cancel{height:36px;border-radius:var(--rad);border:1px solid var(--bd);background:transparent;color:var(--m);font-size:11px;font-weight:600;transition:all .15s;}
 .btn-cancel:hover{color:var(--t);border-color:var(--bd2);}
-
-
-/* ═══════════════════════════════════════════════════════
-   ORBITUM 2026 — apple glass pricing refinement
-   ═══════════════════════════════════════════════════════ */
-:root{
-  --bg:#0d0d0d;--bg2:rgba(255,255,255,0.032);--bg3:rgba(255,255,255,0.05);--bg4:rgba(255,255,255,0.075);
-  --bd:rgba(255,255,255,0.08);--bd2:rgba(255,255,255,0.13);--bd3:rgba(255,255,255,0.2);
-  --t:#f4f0ec;--m:rgba(244,240,236,0.58);--m2:rgba(244,240,236,0.34);
-  --fire:#FF3923;--fire2:rgba(255,57,35,0.1);--fire3:rgba(255,57,35,0.24);
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;}
 }
-html,body{background:var(--bg);font-family:var(--font);}
-body::before{z-index:0;opacity:.32;}
-body::after{
-  background:
-    radial-gradient(ellipse 58% 58% at 35% 112%, rgba(255,57,35,0.16) 0%,transparent 64%),
-    radial-gradient(ellipse 58% 58% at 68% 112%, rgba(255,57,35,0.12) 0%,transparent 66%),
-    radial-gradient(ellipse 84% 28% at 50% 103%, rgba(255,57,35,0.08) 0%,transparent 72%);
-}
-
-.apple-navbar{
-  position:fixed;top:0;left:0;right:0;height:48px;z-index:260;
-  background:rgba(14,14,18,0.62);
-  backdrop-filter:saturate(180%) blur(26px);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-}
-.apple-nav-inner{
-  max-width:1320px;height:100%;margin:0 auto;padding:0 28px;
-  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:28px;
-}
-.apple-brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:rgba(255,255,255,0.94);}
-.apple-brand-mark{width:8px;height:8px;border-radius:999px;background:var(--fire);box-shadow:0 0 18px rgba(255,57,35,0.28);}
-.apple-brand-text{font-size:13px;font-weight:650;letter-spacing:-0.01em;}
-.apple-nav-links{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;}
-.apple-menu{position:relative;}
-.apple-nav-link,.apple-menu-item,.apple-tool-btn{font-family:var(--font);}
-.apple-nav-link{
-  height:34px;padding:0 14px;border:1px solid transparent;border-radius:999px;background:transparent;
-  color:rgba(255,255,255,0.76);font-size:13px;font-weight:520;letter-spacing:-0.015em;display:inline-flex;align-items:center;line-height:1;
-}
-.apple-nav-link:hover,.apple-menu.open .apple-nav-link,.apple-nav-link.active{
-  background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.08);color:#fff;
-}
-.apple-menu-panel{
-  position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(8px);
-  width:min(760px, calc(100vw - 40px));padding:20px;border-radius:26px;border:1px solid rgba(255,255,255,0.10);
-  background:rgba(28,28,34,0.72);backdrop-filter:blur(28px) saturate(140%);box-shadow:0 30px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.05);
-  opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;
-}
-.apple-menu.open .apple-menu-panel{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
-.apple-menu-grid{display:grid;grid-template-columns:minmax(260px,1.2fr) minmax(220px,.8fr);gap:28px;}
-.apple-menu-column-main{padding-right:12px;border-right:1px solid rgba(255,255,255,0.08);}
-.apple-menu-eyebrow{font-size:11px;font-weight:500;color:rgba(255,255,255,0.42);margin-bottom:14px;letter-spacing:-0.01em;}
-.apple-menu-item{display:block;text-decoration:none;padding:9px 0;color:rgba(255,255,255,0.94);font-size:24px;line-height:1.08;font-weight:600;letter-spacing:-0.03em;}
-.apple-menu-item:hover,.apple-menu-item.active{color:var(--fire);}
-.apple-menu-copy{color:rgba(255,255,255,0.62);font-size:13px;line-height:1.6;max-width:300px;}
-.apple-nav-tools{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;}
-.apple-current-page{min-width:82px;text-align:right;color:rgba(255,255,255,0.50);font-size:12px;font-weight:500;}
-.apple-tool-btn{height:32px;min-width:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.84);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:12px;font-weight:500;backdrop-filter:blur(12px);transition:background .18s ease,border-color .18s ease,color .18s ease;}
-.apple-tool-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.14);color:#fff;}
-.apple-tool-btn.active,.apple-pay-lang.active{background:rgba(255,57,35,0.12);border-color:rgba(255,57,35,0.24);color:var(--fire);}
-.apple-tool-btn-icon svg{display:block;}
-.pay-lang-wrap{display:inline-flex;align-items:center;gap:6px;}
-
-.page{max-width:1120px;padding:108px 24px 96px;position:relative;z-index:1;}
-.hero{margin-bottom:32px;}
-.hero-glass{
-  max-width:900px;margin:0 auto;padding:38px 34px 34px;border-radius:28px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
-  border:1px solid rgba(255,255,255,0.10);backdrop-filter:blur(22px);
-  box-shadow:0 28px 80px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -1px 0 rgba(255,255,255,0.05);
-  position:relative;overflow:hidden;
-}
-.hero-glass::after{
-  content:'';position:absolute;left:22px;right:22px;bottom:0;height:46px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.06));opacity:.44;pointer-events:none;
-}
-.hero-title{font-size:44px;letter-spacing:-1.5px;}
-.hero-title em{text-shadow:none;}
-.hero-sub{max-width:520px;color:var(--m);}
-
-.billing-toggle,
-.plan,
-.compare-scroll,
-.faq-item,
-.modal,
-.modal-pill,
-.modal-note{
-  backdrop-filter:blur(20px);
-}
-.billing-toggle{background:rgba(255,255,255,0.035);border-color:rgba(255,255,255,0.12);}
-.billing-btn{border:1px solid transparent;border-radius:8px;font-size:12px;}
-.billing-btn.on{background:rgba(255,57,35,0.12);color:var(--fire);border-color:rgba(255,57,35,0.24);box-shadow:none;}
-
-.plans{gap:16px;}
-.plan{
-  background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.024));
-  border:1px solid rgba(255,255,255,0.10);
-  border-radius:22px;
-  padding:28px 22px;
-  box-shadow:0 24px 60px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(255,255,255,0.05);
-  position:relative;overflow:hidden;
-}
-.plan::after{content:'';position:absolute;left:18px;right:18px;bottom:0;height:44px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.06));opacity:.38;pointer-events:none;}
-.plan:hover{border-color:rgba(255,255,255,0.16);transform:translateY(-4px);}
-.plan.popular,.plan.ultimate{box-shadow:0 26px 68px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(255,255,255,0.05);}
-.plan-badge{font-size:10px;letter-spacing:1.6px;}
-.plan-tier{font-size:10px;color:var(--m2);}
-.plan-name{font-size:20px;}
-.plan-tagline{font-size:12px;color:var(--m);min-height:38px;}
-.plan-price-num{font-size:38px;letter-spacing:-1.3px;}
-.plan-price-num.fire{color:var(--fire);text-shadow:none;}
-.plan-price-per,.plan-price-lt,.pf,.compare-table td,.faq-a,.modal-sub,.modal-note,.mf label{color:var(--m);}
-.pf-mark{background:rgba(255,57,35,0.08);border-color:rgba(255,57,35,0.22);}
-.btn-plan,.btn-submit{
-  border-radius:999px;border:1px solid rgba(255,57,35,0.28);
-  background:linear-gradient(135deg, rgba(255,57,35,0.12), rgba(255,57,35,0.06));color:var(--fire);
-  animation:none;
-}
-.btn-plan:hover,.btn-submit:hover{background:linear-gradient(135deg, rgba(255,57,35,0.18), rgba(255,57,35,0.1));color:#ff6b5b;box-shadow:0 18px 38px rgba(255,57,35,0.18);}
-.btn-plan.solid{background:linear-gradient(135deg, rgba(255,57,35,0.96), rgba(255,92,74,0.9));color:#fff;border-color:rgba(255,57,35,0.92);box-shadow:0 18px 40px rgba(255,57,35,0.22);}
-
-.section-title{font-size:18px;letter-spacing:-0.02em;}
-.compare-scroll{border:1px solid rgba(255,255,255,0.10);border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.022));padding:10px 0;box-shadow:0 24px 60px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.03);}
-.compare-table th{color:rgba(244,240,236,0.38);}
-.compare-table td{border-bottom:1px solid rgba(255,255,255,0.08);}
-.ct-yes{color:var(--fire);}
-
-.faq-item{border-top:1px solid rgba(255,255,255,0.08);}
-.faq-q{font-size:14px;}
-.faq-icon{color:var(--fire);}
-
-.modal-bg{background:rgba(0,0,0,.68);backdrop-filter:blur(10px);}
-.modal{
-  background:rgba(24,24,28,0.82);border:1px solid rgba(255,255,255,0.12);border-radius:24px;padding:30px 26px;width:420px;
-  box-shadow:0 30px 80px rgba(0,0,0,0.36), inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -1px 0 rgba(255,255,255,0.06);
-}
-.modal-pill,.modal-note,.mf input,.mf textarea{background:rgba(255,255,255,0.045);border-color:rgba(255,255,255,0.10);}
-.mf input:focus,.mf textarea:focus{border-color:rgba(255,57,35,0.26);box-shadow:0 0 0 4px rgba(255,57,35,0.08);}
-.btn-cancel{border-radius:999px;}
-
-@media(max-width:1024px){
-  .apple-nav-links{display:none;}
-  .page{padding-top:92px;}
-  .hero-glass{padding:28px 22px;}
-}
-
 </style>
 </head>
 <body>
 
-<div class="apple-navbar pay-apple-navbar" id="pay-apple-navbar">
-  <div class="apple-nav-inner">
-    <a href="/" class="apple-brand" aria-label="Orbitum home">
-      <span class="apple-brand-mark"></span>
-      <span class="apple-brand-text">ORBITUM</span>
-    </a>
-
-    <nav class="apple-nav-links" aria-label="Primary">
-      <div class="apple-menu">
-        <button class="apple-nav-link apple-menu-trigger active" type="button">Workspace</button>
-        <div class="apple-menu-panel">
-          <div class="apple-menu-grid">
-            <div class="apple-menu-column apple-menu-column-main">
-              <div class="apple-menu-eyebrow">Main</div>
-              <a href="/journal" class="apple-menu-item">Journal</a>
-              <a href="/screener" class="apple-menu-item">Screener</a>
-              <a href="/trade-analyzer" class="apple-menu-item">Trade Analyzer</a>
-              <a href="/pay" class="apple-menu-item active">Plans</a>
-            </div>
-            <div class="apple-menu-column">
-              <div class="apple-menu-eyebrow">Why this layout</div>
-              <p class="apple-menu-copy">A cleaner navigation layer with calmer spacing, centered alignment, and product-style grouping that feels closer to premium SaaS.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="apple-menu">
-        <button class="apple-nav-link apple-menu-trigger" type="button">Intelligence</button>
-        <div class="apple-menu-panel">
-          <div class="apple-menu-grid">
-            <div class="apple-menu-column apple-menu-column-main">
-              <div class="apple-menu-eyebrow">AI</div>
-              <a href="/journal" class="apple-menu-item">AI Coach</a>
-              <a href="/trade-analyzer" class="apple-menu-item">Analyzer</a>
-            </div>
-            <div class="apple-menu-column">
-              <div class="apple-menu-eyebrow">Direction</div>
-              <p class="apple-menu-copy">Advanced tools stay in a separate layer so the pricing page remains editorial, quiet, and easy to scan.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="apple-menu">
-        <button class="apple-nav-link apple-menu-trigger" type="button">Account</button>
-        <div class="apple-menu-panel">
-          <div class="apple-menu-grid">
-            <div class="apple-menu-column apple-menu-column-main">
-              <div class="apple-menu-eyebrow">More</div>
-              <a href="/login" class="apple-menu-item">Login</a>
-              <a href="/profile" class="apple-menu-item">Profile</a>
-              <a href="/cabinet" class="apple-menu-item">Cabinet</a>
-            </div>
-            <div class="apple-menu-column">
-              <div class="apple-menu-eyebrow">System</div>
-              <p class="apple-menu-copy">Account and support links stay one level deeper to keep the top bar centered, lighter, and more intentional.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <div class="apple-nav-tools">
-      <div class="apple-current-page" id="pay-current-page">Plans</div>
-      <div class="pay-lang-wrap">
-        <button class="apple-tool-btn apple-pay-lang" id="lang-en" onclick="setLang('en')">EN</button>
-        <button class="apple-tool-btn apple-pay-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
-      </div>
-      <a href="/profile" class="apple-tool-btn apple-tool-btn-icon" title="Profile" aria-label="Profile">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 13.5c0-2.5 2.7-4.5 6-4.5s6 2 6 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      </a>
-    </div>
-  </div>
+<div class="topbar">
+  <div class="logo">ORBITUM</div>
+  <div class="tb-sp"></div>
+  <a href="/journal" class="tb-btn">Journal</a>
+  <a href="/screener" class="tb-btn">Screener</a>
 </div>
 
 <div class="page">
 
   <div class="hero">
-    <div class="hero-eyebrow" data-ru>Тарифы</div>
-    <div class="hero-eyebrow" data-en>Pricing</div>
-    <h1 class="hero-title" data-ru>Выбери свой <em>уровень.</em></h1>
-    <h1 class="hero-title" data-en>Choose your <em>edge.</em></h1>
-    <p class="hero-sub" data-ru>Начни с того, что нужно. Апгрейд в любой момент. Никаких скрытых платежей.</p>
-    <p class="hero-sub" data-en>Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
-    </div>
+    <div class="hero-eyebrow">Pricing</div>
+    <h1 class="hero-title">Choose your <em>edge.</em></h1>
+    <p class="hero-sub">Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
   </div>
 
   <div class="billing-row">
     <div class="billing-toggle">
-      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')" data-ru>Ежемесячно</button>
-      <button class="billing-btn on" id="btn-monthly-en" onclick="setBilling('monthly')" data-en>Monthly</button>
-      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')" data-ru>Ежегодно</button>
-      <button class="billing-btn" id="btn-annual-en" onclick="setBilling('annual')" data-en>Annual</button>
+      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
+      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')">Annual</button>
     </div>
-    <span class="billing-save" id="save-tag" data-ru>Экономия 30% ежегодно</span>
-    <span class="billing-save" id="save-tag-en" style="display:none" data-en>Save 30% annually</span>
+    <span class="billing-save" id="save-tag">Save 30% annually</span>
   </div>
 
   <div class="plans" id="plans-grid"></div>
 
-  <div class="section-title" data-ru>Полное сравнение</div>
-  <div class="section-title" data-en>Full comparison</div>
+  <div class="section-title">Full comparison</div>
   <div class="compare-scroll">
     <table class="compare-table" id="compare-table"></table>
   </div>
 
   <div class="faq-wrap">
-    <div class="section-title" data-ru>Вопросы</div>
-    <div class="section-title" data-en>Questions</div>
+    <div class="section-title">Questions</div>
     <div id="faq"></div>
   </div>
 
@@ -437,17 +198,17 @@ body::after{
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="modal-title">Get Access</div>
-
+      <div class="modal-sub">Submit request — we activate within 1-2 hours</div>
     </div>
     <div class="modal-pill">
       <span class="modal-pill-name" id="modal-plan-name">—</span>
       <span class="modal-pill-sep">|</span>
       <span class="modal-pill-price" id="modal-plan-price">—</span>
     </div>
-
-    <div class="mf"><label data-ru>Email</label><label data-en>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
-    <div class="mf"><label data-ru>Telegram (опционально)</label><label data-en>Telegram (optional)</label><input type="text" id="m-tg" placeholder="@username"></div>
-    <div class="mf"><label data-ru>Комментарий</label><label data-en>Comment</label><textarea id="m-note" rows="2" placeholder="Questions or anything else..."></textarea></div>
+    <div class="modal-note">After submitting, we send payment details to your email or Telegram. We accept USDT, BTC, and bank transfer.</div>
+    <div class="mf"><label>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
+    <div class="mf"><label>Telegram (optional)</label><input type="text" id="m-tg" placeholder="@username"></div>
+    <div class="mf"><label>Comment</label><textarea id="m-note" rows="2" placeholder="Questions or anything else..."></textarea></div>
     <div class="modal-btns">
       <button class="btn-submit" id="btn-submit" onclick="submitPayment()">Submit Request</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -456,88 +217,81 @@ body::after{
 </div>
 
 <script>
-// ── Admin Telegram notification ──
-// Set these to your bot token and your personal chat_id
-// Get your chat_id by messaging @userinfobot in Telegram
-const ADMIN_BOT_TOKEN = ''; // e.g. '123456:ABCdef...' — same bot as TELEGRAM_BOT_TOKEN in .env
-const ADMIN_CHAT_ID   = ''; // e.g. '123456789' — your personal Telegram chat_id
-
 const PLANS = [
   {
     id: 'journal',
     tier: 'Tier 1',
-    name: 'Journal only',
-    tagline: 'Trade journal + analytics. No AI, no signals.',
+    name: 'Journal',
+    tagline: 'Track every trade. Spot your patterns.',
     monthly: 21,
     annual: 15,
     lifetime: 97,
     features: [
       { text: '<strong>Unlimited trade logging</strong> — pair, direction, result, emotion tags, screenshots' },
-      { text: '<strong>Analytics dashboard</strong> — win rate, P&L curve, equity chart, streaks' },
-      { text: '<strong>Setup analytics</strong> — which setups work for you with % breakdown' },
+      { text: '<strong>Performance dashboard</strong> — win rate, P&L curve, equity chart, streaks' },
+      { text: '<strong>Setup analytics</strong> — which setups actually work for you with % breakdown' },
       { text: '<strong>Weekly PDF report</strong> — auto-generated Sunday summary with key stats' },
       { text: 'Day-of-week and time-of-day heatmaps' },
       { text: 'Journal export to CSV' },
       { dim: true, text: 'AI Coach — not included' },
-      { dim: true, text: 'Screener / Signals — not included' },
+      { dim: true, text: 'Signals — not included' },
     ],
   },
   {
     id: 'analytics',
     tier: 'Tier 2',
-    name: 'Journal + Analytics',
-    tagline: 'Full analytics and AI Coach after every trade.',
+    name: 'Journal + AI',
+    tagline: 'Your journal. With an AI that knows your habits.',
     monthly: 71,
     annual: 50,
     lifetime: 297,
     badge: 'Popular',
     popular: true,
     features: [
-      { text: 'Everything in Tier 1' },
-      { text: '<strong>AI Coach after every trade</strong> — within 60 seconds, explains what pattern you repeated' },
-      { text: '<strong>Behavior fingerprint</strong> — identifies your specific losing habit with exact numbers' },
-      { text: '<strong>Brutal Analysis mode</strong> — raw data on what is costing you money each week' },
-      { text: '<strong>AI Weekly breakdown</strong> — top pattern of the week, one concrete fix' },
-      { text: '<strong>Trade Analyzer</strong> — TradingView chart, SL/TP simulation, AI quality score' },
-      { dim: true, text: 'Screener / Signals — not included' },
+      { text: 'Everything in Journal' },
+      { text: '<strong>AI Coach after every trade</strong> — within 60 seconds of closing, explains what pattern you just repeated' },
+      { text: '<strong>Behavior fingerprint</strong> — after 10 trades, AI identifies your specific losing habit with exact numbers and times' },
+      { text: '<strong>Brutal Analysis mode</strong> — no softening, just the raw data on what is costing you money each week' },
+      { text: '<strong>AI Weekly breakdown</strong> — top pattern of the week, one concrete fix, measured impact' },
+      { text: '<strong>Trade Analyzer</strong> — TradingView chart, SL/TP simulation, AI quality score before entry' },
+      { dim: true, text: 'Live signals — not included' },
     ],
   },
   {
     id: 'signals',
     tier: 'Tier 3',
-    name: 'Journal + Screener + Signals',
-    tagline: 'Analytics, AI Coach and real-time ICT/SMC signals.',
+    name: 'Signals',
+    tagline: 'Real-time ICT/SMC setups. No noise.',
     monthly: 149,
     annual: 104,
     lifetime: 497,
     features: [
-      { text: 'Everything in Tier 2' },
-      { text: '<strong>Crypto screener</strong> — 200+ coins real-time, filters by volume, RSI, ATH%' },
-      { text: '<strong>Real-time setup signals</strong> — top 80 coins scanned every 30 min, A/A+ only' },
-      { text: '<strong>Entry, SL, TP</strong> — exact price levels from swing structure + ATR' },
-      { text: '<strong>Morning brief 07:00 UTC</strong> — market state, top setup of the day' },
+      { text: '<strong>Real-time setup signals</strong> — top 80 coins scanned every 30 minutes, only A/A+ grade fires' },
+      { text: '<strong>Entry, SL, TP</strong> — exact price levels, not zones. Computed from swing structure + ATR' },
+      { text: '<strong>Confidence score 0-100</strong> — based on structure alignment, OB/FVG confluence, RSI zone, volume' },
+      { text: '<strong>Morning brief 07:00 UTC</strong> — market state, top setup of the day, your weekly stats' },
       { text: '<strong>Momentum alerts</strong> — volume spike detection, breakout candles in real time' },
-      { text: 'Telegram alerts included' },
-      { dim: true, text: 'Terminal AI — not included' },
+      { text: '<strong>Evening result</strong> — 19:00 UTC, honest outcome of today\'s signals (win or loss)' },
+      { text: 'Basic journal included' },
     ],
   },
   {
     id: 'full',
     tier: 'Full Access',
-    name: '+ Terminal AI',
-    tagline: 'The complete system. Journal, analytics, signals and AI terminal.',
+    name: 'Everything',
+    tagline: 'The complete system. Zero compromises.',
     monthly: 289,
     annual: 202,
     lifetime: 777,
-    badge: 'All-in',
+    badge: 'Best Value',
     ultimate: true,
     features: [
-      { text: 'Everything in Tier 3' },
-      { text: '<strong>Terminal AI</strong> — setup analysis before entry, probability forecast' },
-      { text: '<strong>All signals in real-time</strong> — setup, momentum, AI insight, critical alerts' },
-      { text: '<strong>Screener cockpit</strong> — live signal feed, heatmap, SA Score, OB/FVG zones' },
-      { text: '<strong>AI Forward Insight 20:30 UTC</strong> — one forward-looking call for tomorrow' },
+      { text: '<strong>Full Journal + AI Analytics</strong> — every feature from Tiers 1 and 2' },
+      { text: '<strong>All signals in real-time</strong> — setup, momentum, AI insight, critical alerts to Telegram' },
+      { text: '<strong>Screener cockpit</strong> — live signal feed, heatmap, SA Score, OB/FVG zones on 80 coins' },
+      { text: '<strong>Trade Analyzer</strong> — full access, simulation mode, signal stats tracking' },
       { text: '<strong>Priority delivery</strong> — your signals fire before free-tier delay' },
+      { text: '<strong>AI Forward Insight 20:30 UTC</strong> — one forward-looking call for tomorrow, paid only' },
       { text: '<strong>All future features</strong> included — Lifetime never pays again' },
     ],
   },
@@ -584,26 +338,19 @@ function setBilling(m) {
 }
 
 function renderPlans() {
-  const l = document.documentElement.lang || 'en';
-  const isRu = l === 'ru';
-  const perMonthly = isRu ? '/мес' : '/month';
-  const perAnnual  = isRu ? '/мес, ежегодно' : '/mo, billed annually';
-  const orWord     = isRu ? 'или' : 'or';
-  const ltWord     = isRu ? 'lifetime' : 'lifetime';
   document.getElementById('plans-grid').innerHTML = PLANS.map(p => {
     const price = _billing === 'annual' ? p.annual : p.monthly;
-    const per   = _billing === 'annual' ? perAnnual : perMonthly;
-    const lbl   = getPlanLabel(p);
+    const per   = _billing === 'annual' ? '/mo, billed annually' : '/month';
     return `<div class="plan${p.popular ? ' popular' : ''}${p.ultimate ? ' ultimate' : ''}">
-      ${lbl.badge ? `<div class="plan-badge">${lbl.badge}</div>` : ''}
-      <div class="plan-tier">${lbl.tier}</div>
-      <div class="plan-name">${lbl.name}</div>
-      <div class="plan-tagline">${lbl.tagline}</div>
+      ${p.badge ? `<div class="plan-badge">${p.badge}</div>` : ''}
+      <div class="plan-tier">${p.tier}</div>
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-tagline">${p.tagline}</div>
       <div class="plan-price-main">
         <div class="plan-price-num${p.ultimate ? ' fire' : ''}">$${price}</div>
         <div class="plan-price-per">${per}</div>
       </div>
-      <div class="plan-price-lt">${orWord} <b>$${p.lifetime}</b> ${ltWord}</div>
+      <div class="plan-price-lt">or <b>$${p.lifetime}</b> lifetime</div>
       <div class="plan-sep"></div>
       <div class="plan-features">
         ${p.features.map(f => `<div class="pf${f.dim ? ' dim' : ''}">
@@ -611,9 +358,9 @@ function renderPlans() {
           <span>${f.text}</span>
         </div>`).join('')}
       </div>
-      <button class="btn-plan"
-        onclick="openModal('${p.id}','${lbl.name}',${price},'${per}')">
-        ${lbl.btnText}
+      <button class="btn-plan${p.ultimate ? ' solid' : ''}"
+        onclick="openModal('${p.id}','${p.name}',${price},'${per}')">
+        Get ${p.name}
       </button>
     </div>`;
   }).join('');
@@ -671,24 +418,8 @@ async function submitPayment() {
         body: JSON.stringify({ user_id: _session.user.id, plan: _selectedPlan.id, status: 'pending', notes: `email:${email} tg:${tg} price:$${_selectedPlan.price} note:${note}` }),
       });
     }
-    // Notify admin via Telegram bot
-    try {
-      const tgMsg = `🔔 <b>Новая заявка на тариф</b>\n\n` +
-        `📦 Тариф: <b>${_selectedPlan.name}</b>\n` +
-        `💰 Цена: <b>$${_selectedPlan.price} ${_selectedPlan.per}</b>\n` +
-        `📧 Email: <code>${email}</code>\n` +
-        (tg ? `💬 Telegram: ${tg}\n` : '') +
-        (note ? `📝 Комментарий: ${note}\n` : '') +
-        `\n⏰ ${new Date().toLocaleString('ru-RU', {timeZone:'UTC'})} UTC`;
-      await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: tgMsg, parse_mode: 'HTML' })
-      });
-    } catch(tgErr) { console.warn('TG notify failed', tgErr); }
-
     closeModal();
-    alert(`Заявка отправлена!\n\nМы свяжемся с вами на ${email} в течение 1-2 часов.`);
+    alert(`Request submitted for ${_selectedPlan.name} ($${_selectedPlan.price}).\n\nWe will contact you at ${email} within 1-2 hours.`);
   } catch(e) { alert('Error: ' + e.message); }
   finally { btn.disabled = false; btn.textContent = 'Submit Request'; }
 }
@@ -699,83 +430,12 @@ function initSB() {
   _sb.auth.getSession().then(({ data: { session } }) => { _session = session; });
 }
 
-// ── i18n ──
-function setLang(l) {
-  document.documentElement.setAttribute('lang', l);
-  document.getElementById('lang-en').classList.toggle('active', l === 'en');
-  document.getElementById('lang-ru').classList.toggle('active', l === 'ru');
-  localStorage.setItem('orb_lang', l);
-  // sync billing btn display for the active billing mode
-  const isMon = document.getElementById('btn-monthly').classList.contains('on');
-  renderPlans();
-}
-(function() {
-  const l = localStorage.getItem('orb_lang') || 'en';
-  document.documentElement.setAttribute('lang', l);
-  document.getElementById('lang-en').classList.toggle('active', l === 'en');
-  document.getElementById('lang-ru').classList.toggle('active', l === 'ru');
-})();
-
-// Update PLANS data for Russian
-const PLANS_RU = {
-  journal:   { tier:'Уровень 1', name:'Только журнал',        tagline:'Журнал сделок + аналитика. Никакого AI и сигналов.', badge:null },
-  analytics: { tier:'Уровень 2', name:'Журнал + аналитика',   tagline:'Полная аналитика и AI Coach после каждой сделки.', badge:'Популярный' },
-  signals:   { tier:'Уровень 3', name:'Журнал + скринер + сигналы', tagline:'Аналитика, AI Coach и ICT/SMC сигналы в Telegram.', badge:null },
-  full:      { tier:'Полный доступ', name:'+ Terminal AI',    tagline:'Полная система: журнал, аналитика, сигналы и AI-терминал.', badge:'Всё включено' },
-};
-
-function getPlanLabel(p) {
-  const l = document.documentElement.lang;
-  if (l === 'ru') {
-    const ru = PLANS_RU[p.id];
-    return { tier: ru.tier, name: ru.name, tagline: ru.tagline,
-             badge: ru.badge || p.badge,
-             btnText: 'Получить' };
-  }
-  return { tier: p.tier, name: p.name, tagline: p.tagline,
-           badge: p.badge,
-           btnText: 'Get started' };
-}
-
-
-
-function initPayAppleNav(){
-  const navbar = document.getElementById('pay-apple-navbar');
-  if(!navbar) return;
-  const menus = Array.from(navbar.querySelectorAll('.apple-menu'));
-  let closeTimer = null;
-  const closeAll = () => menus.forEach(menu => menu.classList.remove('open'));
-  const openMenu = (menu) => {
-    if(closeTimer) clearTimeout(closeTimer);
-    menus.forEach(item => item.classList.toggle('open', item === menu));
-  };
-  const closeSoon = () => {
-    if(closeTimer) clearTimeout(closeTimer);
-    closeTimer = setTimeout(closeAll, 120);
-  };
-  menus.forEach(menu => {
-    const trigger = menu.querySelector('.apple-menu-trigger');
-    menu.addEventListener('mouseenter', () => openMenu(menu));
-    menu.addEventListener('mouseleave', closeSoon);
-    menu.addEventListener('focusin', () => openMenu(menu));
-    menu.addEventListener('focusout', (e) => { if(!menu.contains(e.relatedTarget)) closeSoon(); });
-    if(trigger){
-      trigger.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
-    }
-  });
-  navbar.addEventListener('mouseenter', () => closeTimer && clearTimeout(closeTimer));
-  navbar.addEventListener('mouseleave', closeSoon);
-  document.addEventListener('click', (e) => { if(!navbar.contains(e.target)) closeAll(); });
-  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeAll(); });
-}
-
 // Init
 document.getElementById('save-tag').style.display = 'none';
 renderPlans();
 renderCompare();
 renderFAQ();
 initSB();
-initPayAppleNav();
 </script>
 </body>
 </html>
