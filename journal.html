@@ -425,49 +425,25 @@
         <div class="field"><label aria-label="field">Lesson Learned</label><textarea id="f-lesson" placeholder="Key takeaways..."></textarea></div>
       </div>
 
-      <!-- SCREENSHOT / ATTACHMENT -->
-      <div class="attachment-shell">
-        <div class="journal-action-row">
-          <button class="attach-toggle" id="attach-toggle" type="button" onclick="toggleAttachmentPanel(event)">
-            <span class="attach-toggle-icon">
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M6 4.5v6a2.5 2.5 0 105 0V4.75a1.75 1.75 0 10-3.5 0V10a1 1 0 102 0V5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span class="attach-toggle-copy">
-              <span class="attach-toggle-kicker" id="attach-toggle-kicker">Attachment</span>
-              <span class="attach-toggle-meta" id="attach-toggle-meta">Optional trade screenshot</span>
-            </span>
-            <span class="attach-toggle-state" id="attach-toggle-state">+</span>
-          </button>
-          <button class="btn-add btn-add-compact" id="btn-add" onclick="addTrade()">Add Trade</button>
-        </div>
-
-        <div class="attachment-panel" id="attachment-panel">
-          <div class="attachment-panel-head">
-            <div>
-              <div class="attachment-kicker" id="attachment-kicker">Attachment</div>
-              <div class="attachment-title" id="attachment-title">Trade Screenshot</div>
-            </div>
-            <button class="attachment-close" type="button" onclick="closeAttachmentPanel()" aria-label="Close attachment panel">✕</button>
+      <!-- SCREENSHOT -->
+      <div class="field" class="mb-10">
+        <label for="scr-zone" class="nv-section-label">Attachment</label>
+        <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
+          <div class="scr-placeholder" id="scr-placeholder">
+            <div class="scr-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="15" rx="3" stroke="var(--m2)" stroke-width="1.4" fill="none"/><circle cx="12" cy="12" r="3.5" stroke="var(--m2)" stroke-width="1.4"/><path d="M8 5l1.5-2h5L16 5" stroke="var(--m2)" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg></div>
+            <div class="scr-label">Drag & Drop / <span>нажми</span> / Ctrl+V<br>PNG · JPG · WEBP · до 5MB</div>
           </div>
-
-          <div class="field attachment-field">
-            <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave(event)" ondrop="scrDrop(event)">
-              <div class="scr-placeholder" id="scr-placeholder">
-                <div class="scr-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="15" rx="3" stroke="var(--m2)" stroke-width="1.4" fill="none"/><circle cx="12" cy="12" r="3.5" stroke="var(--m2)" stroke-width="1.4"/><path d="M8 5l1.5-2h5L16 5" stroke="var(--m2)" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg></div>
-                <div class="scr-label" id="scr-label">Click to attach or drag a file here<br>PNG · JPG · WEBP · up to 5MB</div>
-              </div>
-              <div class="scr-preview" id="scr-preview">
-                <img id="scr-img" src="" alt="screenshot">
-                <div class="scr-remove" onclick="scrRemove(event)" title="Удалить">✕</div>
-                <div class="scr-uploading" id="scr-uploading" class="is-hidden">ЗАГРУЖАЕМ...</div>
-              </div>
-            </div>
-            <input type="file" class="scr-input" id="scr-file-input" accept="image/*" onchange="scrFileSelected(event)">
+          <div class="scr-preview" id="scr-preview">
+            <img id="scr-img" src="" alt="screenshot">
+            <div class="scr-remove" onclick="scrRemove(event)" title="Удалить">✕</div>
+            <div class="scr-uploading" id="scr-uploading" class="is-hidden">ЗАГРУЖАЕМ...</div>
           </div>
         </div>
+        <input type="file" class="scr-input" id="scr-file-input" accept="image/*" onchange="scrFileSelected(event)">
       </div>
+
+      
+      <button class="btn-add" id="btn-add" onclick="addTrade()">Add Trade</button>
     </div>
     <div class="list-head">
       <div class="list-title">History</div>
@@ -634,12 +610,10 @@
 
     <!-- ROW 5: Trade Audit -->
     <div class="dash-card" style="margin-top:14px">
-      <div class="dash-title-row">
-        <div class="dash-title">Trade Audit <span class="field-hint" data-tip="AI reviews your trading style and provides an honest audit of strengths and weaknesses.&#10;Requires 10+ trades">?</span></div>
-        <button class="brutal-link-btn" id="brutal-btn" type="button" onclick="openBrutalModal()">Open report</button>
-      </div>
-      <div class="dash-subtle-copy" id="trade-audit-subcopy">Open the floating audit window when you need the report. It keeps analytics clean.</div>
-      <div class="brutal-result" id="brutal-result" hidden></div>
+      <div class="dash-title">Trade Audit <span class="field-hint" data-tip="AI reviews your trading style and provides an honest audit of strengths and weaknesses.&#10;Requires 10+ trades">?</span></div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--m);margin-bottom:12px;">AI gives an honest breakdown of your trading without filters.</div>
+      <button class="brutal-btn brutal-btn-compact" id="brutal-btn" onclick="openBrutalModal()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="icon-inline"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 4.5v2.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6.5" cy="9" r="0.7" fill="currentColor"/></svg>Trade Audit</button>
+      <div class="brutal-result" id="brutal-result"></div>
     </div>
 
     <!-- GLOBAL HINT -->
@@ -1434,215 +1408,6 @@
 </div>
 <!-- ══ i18n — Language System ══ -->
 <script src="/js/journal.js" defer></script>
-
-<script>
-(function(){
-  const PAGE_LABELS = {
-    journal:{EN:'Journal',RU:'Журнал'},
-    dashboard:{EN:'Analytics',RU:'Аналитика'},
-    progress:{EN:'Progress',RU:'Прогресс'},
-    digest:{EN:'Digest',RU:'Дайджест'},
-    premarket:{EN:'Premarket',RU:'Подготовка'},
-    coach:{EN:'AI Coach',RU:'AI Коуч'},
-    settings:{EN:'Settings',RU:'Настройки'}
-  };
-
-  const UI_COPY = [
-    {sel:'#attach-toggle-kicker', EN:'Attachment', RU:'Вложение'},
-    {sel:'#attach-toggle-meta', EN:'Optional trade screenshot', RU:'Необязательный скрин сделки'},
-    {sel:'#attachment-kicker', EN:'Attachment', RU:'Вложение'},
-    {sel:'#attachment-title', EN:'Trade Screenshot', RU:'Скрин сделки'},
-    {sel:'#scr-label', EN:'Click to attach or drag a file here<br>PNG · JPG · WEBP · up to 5MB', RU:'Нажми, чтобы прикрепить, или перетащи файл сюда<br>PNG · JPG · WEBP · до 5MB'},
-    {sel:'#trade-audit-subcopy', EN:'Open the floating audit window when you need the report. It keeps analytics clean.', RU:'Открывай плавающее окно с аудитом только когда нужен отчёт — так аналитика остаётся чистой.'},
-    {sel:'#page-journal .list-title', EN:'History', RU:'История'},
-    {sel:'#page-journal .fcard-title', EN:'New Trade', RU:'Новая сделка'},
-    {sel:'#btn-add', EN:'Add Trade', RU:'Добавить сделку'},
-    {sel:'#brutal-btn', EN:'Open report', RU:'Открыть отчёт'}
-  ];
-
-  const ATTR_COPY = [
-    ['label[for="f-pair"]','Pair','Пара'],
-    ['label[for="f-dep"]','Position Size $','Размер позиции $'],
-    ['label[for="f-risk"]','Risk %','Риск %'],
-    ['label[for="f-entry"]','Entry Price $','Цена входа $'],
-    ['label[for="f-exit"]','Take Profit $','Тейк-профит $'],
-    ['label[for="f-lev"]','Leverage ×','Плечо ×'],
-    ['label[for="f-pnl"]','P&L %','P&L %'],
-    ['label[for="f-sl"]','Stop Price $','Стоп $'],
-    ['label[for="f-usd"]','P&L $','P&L $'],
-    ['label[for="f-why"]','Setup / Why Entered','Почему вошёл / сетап'],
-    ['label[for="f-feel"]','Emotions / Mistakes','Эмоции / ошибки']
-  ];
-
-  const PLACEHOLDERS = [
-    ['#f-why','What did you see on the chart...','Что ты увидел на графике...'],
-    ['#f-feel','How did you feel? Did you break the plan?...','Что ты чувствовал? Нарушал ли план?...'],
-    ['#f-lesson','Key takeaways...','Главные выводы...']
-  ];
-
-  function lang(){ return window._currentLang || localStorage.getItem('orb_lang') || 'EN'; }
-
-  function setText(selector, value){
-    document.querySelectorAll(selector).forEach(el => { if(el) el.innerHTML = value; });
-  }
-
-  function setPlain(selector, value){
-    document.querySelectorAll(selector).forEach(el => { if(el) el.textContent = value; });
-  }
-
-  function syncLangToggle(){
-    var t = document.getElementById('lang-toggle');
-    if(t) t.checked = (lang() === 'RU');
-  }
-
-  function updatePageChrome(page){
-    const badge = document.getElementById('jtb-page-badge');
-    const curr = document.getElementById('apple-current-page');
-    const label = PAGE_LABELS[page] ? PAGE_LABELS[page][lang()] : page;
-    if(curr) curr.textContent = label;
-    if(badge) badge.textContent = label;
-  }
-
-  function applyLanguage(){
-    const L = lang();
-    document.documentElement.lang = L === 'RU' ? 'ru' : 'en';
-    syncLangToggle();
-
-    UI_COPY.forEach(item => setText(item.sel, item[L]));
-    ATTR_COPY.forEach(([sel,en,ru]) => setPlain(sel, L === 'RU' ? ru : en));
-    PLACEHOLDERS.forEach(([sel,en,ru]) => {
-      document.querySelectorAll(sel).forEach(el => { el.placeholder = L === 'RU' ? ru : en; });
-    });
-
-    const navMap = {
-      workspace:{EN:'Workspace',RU:'Разделы'},
-      intelligence:{EN:'Intelligence',RU:'Интеллект'},
-      account:{EN:'Account',RU:'Аккаунт'}
-    };
-    Object.keys(navMap).forEach(key => {
-      document.querySelectorAll(`[data-apple-menu="${key}"]`).forEach(btn => {
-        btn.childNodes[0].nodeValue = navMap[key][L] + ' ';
-      });
-    });
-
-    document.querySelectorAll('.apple-menu-item[data-page]').forEach(el => {
-      const page = el.getAttribute('data-page');
-      if(PAGE_LABELS[page]) el.textContent = PAGE_LABELS[page][L];
-    });
-    document.querySelectorAll('.sb-item[data-page]').forEach(el => {
-      const page = el.getAttribute('data-page');
-      if(PAGE_LABELS[page]) {
-        const icon = el.querySelector('.sb-item-icon');
-        const labelText = PAGE_LABELS[page][L];
-        Array.from(el.childNodes).forEach(node => {
-          if(node.nodeType === 3) node.textContent = labelText;
-        });
-        if(icon){
-          const textNode = Array.from(el.childNodes).find(n=>n.nodeType===3);
-          if(textNode) textNode.textContent = labelText;
-          else el.append(document.createTextNode(labelText));
-        }
-      }
-    });
-
-    const activePage = document.querySelector('.page.active')?.id?.replace('page-','') || 'journal';
-    updatePageChrome(activePage);
-    updateAttachmentState();
-  }
-
-  window.applyJournalLanguage = applyLanguage;
-  const _toggleLangOrig2 = window.toggleLang;
-  window.toggleLang = function(){
-    if(typeof _toggleLangOrig2 === 'function') _toggleLangOrig2();
-    applyLanguage();
-  };
-
-  const _showPageOrig = window.showPage;
-  if(typeof _showPageOrig === 'function' && !window._showPagePatchedForLang){
-    window.showPage = function(page, el){
-      _showPageOrig(page, el);
-      updatePageChrome(page);
-      applyLanguage();
-    };
-    window._showPagePatchedForLang = true;
-  }
-
-  function closeAppleMenus(){ document.querySelectorAll('.apple-menu').forEach(m => m.classList.remove('open')); }
-  window.closeAppleMenus = closeAppleMenus;
-
-  function initAppleHoverMenus(){
-    const menus = document.querySelectorAll('.apple-menu');
-    let timer;
-    menus.forEach(menu => {
-      menu.addEventListener('mouseenter', () => {
-        clearTimeout(timer);
-        closeAppleMenus();
-        menu.classList.add('open');
-      });
-      menu.addEventListener('mouseleave', () => {
-        timer = setTimeout(() => menu.classList.remove('open'), 120);
-      });
-    });
-    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAppleMenus(); });
-    document.addEventListener('click', e => { if(!e.target.closest('.apple-menu')) closeAppleMenus(); });
-  }
-
-  function updateAttachmentState(){
-    const hasImg = !!(document.getElementById('scr-img') && document.getElementById('scr-img').getAttribute('src'));
-    const panel = document.getElementById('attachment-panel');
-    const state = document.getElementById('attach-toggle-state');
-    const toggle = document.getElementById('attach-toggle');
-    if(state) state.textContent = hasImg ? '1' : '+';
-    if(toggle) toggle.classList.toggle('has-file', hasImg);
-    if(panel && !hasImg && !panel.classList.contains('open')){
-      panel.classList.remove('has-file');
-    }
-    if(panel) panel.classList.toggle('has-file', hasImg);
-  }
-
-  window.toggleAttachmentPanel = function(ev){
-    if(ev) ev.stopPropagation();
-    const panel = document.getElementById('attachment-panel');
-    const hasImg = !!(document.getElementById('scr-img') && document.getElementById('scr-img').getAttribute('src'));
-    if(!panel) return;
-    if(!hasImg){
-      document.getElementById('scr-file-input')?.click();
-      panel.classList.add('open');
-      return;
-    }
-    panel.classList.toggle('open');
-    updateAttachmentState();
-  };
-  window.closeAttachmentPanel = function(){
-    const panel = document.getElementById('attachment-panel');
-    if(panel) panel.classList.remove('open');
-  };
-
-  const _scrSetFile = window.scrSetFile;
-  if(typeof _scrSetFile === 'function'){
-    window.scrSetFile = function(file){
-      _scrSetFile(file);
-      const panel = document.getElementById('attachment-panel');
-      if(panel) panel.classList.add('open');
-      updateAttachmentState();
-    };
-  }
-  const _scrRemove = window.scrRemove;
-  if(typeof _scrRemove === 'function'){
-    window.scrRemove = function(e){
-      _scrRemove(e);
-      updateAttachmentState();
-    };
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    initAppleHoverMenus();
-    applyLanguage();
-    updateAttachmentState();
-  });
-})();
-</script>
-
 </body>
 <script>
 // Override page names to English for the top bar badge
