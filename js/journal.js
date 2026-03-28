@@ -66,7 +66,8 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     if(Array.isArray(value)) value.forEach((v,i)=>{ if(nodes[i] && nodes[i].innerHTML !== v) nodes[i].innerHTML = v; });
   }
   function setPlaceholder(id, value){ const el=document.getElementById(id); if(el && el.placeholder !== value) el.placeholder=value; }
-  function setTitle(sel, value, index){ const nodes=qsa(sel); if(typeof index==='number'){ if(nodes[index]) nodes[index].setAttribute('title', value); } else if(Array.isArray(value)){ value.forEach((v,i)=>{ if(nodes[i]) nodes[i].setAttribute('title', v); }); } }
+  function setTitle(sel, value, index){ const nodes=qsa(sel); if(typeof index==='number'){ if(nodes[index]) nodes[index].setAttribute('title', value); } else if(Array.isArray(value)){ value.forEach((v,i)=>{ if(nodes[i]) nodes[i].setAttribute('title', v); }); } else { nodes.forEach(node => node.setAttribute('title', value)); } }
+  function setAttr(sel, attr, value, index){ const nodes=qsa(sel); if(typeof index==='number'){ if(nodes[index]) nodes[index].setAttribute(attr, value); return; } if(Array.isArray(value)){ value.forEach((v,i)=>{ if(nodes[i]) nodes[i].setAttribute(attr, v); }); return; } nodes.forEach(node => node.setAttribute(attr, value)); }
   function setFieldLabels(map){ Object.entries(map).forEach(([sel,val]) => { const el=document.querySelector(sel); if(el && el.textContent !== val) el.textContent = val; }); }
 
   function applyPageChrome(page){
@@ -315,6 +316,81 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
       const zeroTitle = document.querySelector('.zero-title'); if(zeroTitle && /Первая сделка|По фильтру/i.test(zeroTitle.textContent)) zeroTitle.textContent = document.querySelector('.zero-icon svg rect') ? 'First trade is waiting' : 'No matches for this filter';
       const zeroSub = document.querySelector('.zero-sub'); if(zeroSub && /Заполни форму|Сделок с таким/i.test(zeroSub.textContent)) zeroSub.textContent = document.querySelector('.zero-icon svg rect') ? 'Fill out the form above and AI will start spotting your patterns.' : 'There are no trades with this condition. Try resetting the filter.';
       const zeroBtn = document.querySelector('.zero-btn'); if(zeroBtn && /Добавить первую|Показать все/i.test(zeroBtn.textContent)) zeroBtn.textContent = document.querySelector('.zero-icon svg rect') ? '+ Add first trade' : 'Show all';
+    }
+
+
+    const riskLabel = document.getElementById('lev-risk');
+    if(riskLabel){
+      const text = (riskLabel.textContent || '').toLowerCase();
+      if(lang === 'RU'){
+        if(/moderate|умер/.test(text)) riskLabel.textContent = 'Умеренный риск';
+        else if(/high|высок/.test(text)) riskLabel.textContent = 'Высокий риск';
+        else if(/low|низк/.test(text)) riskLabel.textContent = 'Низкий риск';
+      } else {
+        if(/умер|moderate/.test(text)) riskLabel.textContent = 'Moderate risk';
+        else if(/высок|high/.test(text)) riskLabel.textContent = 'High risk';
+        else if(/низк|low/.test(text)) riskLabel.textContent = 'Low risk';
+      }
+    }
+
+    if(lang === 'RU'){
+      setText('.mob-pill-label', ['Баланс','Цель']);
+      setText('.sb-market-toggle-label','Данные рынка');
+      setText('.sb-section-label','Рынок');
+      setText('#sbw-fng .sbw-title span','Настроение');
+      setText('#sbw-market .sbw-title span','Метрики');
+      setText('#sbw-liveprices .sbw-title span','Цены live');
+      setText('#sbw-trends .sbw-title span','Тренды');
+      setText('#sbw-gainers .sbw-title span','Лидеры');
+      setText('#fng-label','Загрузка');
+      setText('#gl-tab-gain','▲ Рост');
+      setText('#gl-tab-lose','▼ Падение');
+      setText('.widget-loading-text','загрузка...');
+      setText('.sbw-metric-label', ['MCAP','24H %','ОБЪЁМ','BTC DOM']);
+      setText('.chat-sb-title','БЫСТРЫЙ ЗАПРОС ?');
+      setText('.chat-sc-text', ['Разбор BTC/USDT','Разбор ETH/USDT','Разбор SOL/USDT','Новости рынка','Психология','Order Blocks','Fair Value Gap','Риск-менеджмент']);
+      setText('.chat-header-title','AI СОВЕТНИК ?');
+      setText('.chat-status','ОНЛАЙН');
+      setPlaceholder('chat-input','Спроси что-нибудь...');
+      setText('.settings-card-title', ['Telegram','Ценовые алерты']);
+      setText('.tg-status-badge','НЕ ПРИВЯЗАН',0);
+      setText('.notify-label', ['Сделки','Ценовые алерты','Утренний брифинг','Тильт-алерт','Недельный отчёт']);
+      setText('.notify-sub', ['При каждой записи в журнал','Монета пробила твой уровень','9:00 — обзор рынка на день','3 убытка подряд — стоп','Воскресенье — итоги недели']);
+      setText('.edit-label', ['Пара','Направление ?','Результат','P&L %','P&L $','Тип сетапа','Почему вошёл','Что чувствовал','Какой урок вынес','Скриншот']);
+      setPlaceholder('edit-pair','BTC/USDT'); setPlaceholder('edit-setup','FVG, OB...');
+      setAttr('.mob-profile-btn','aria-label','Профиль');
+      setAttr('.apple-tool-btn-icon','aria-label','Профиль');
+      setTitle('.sb-logo-link','На главную');
+      setTitle('.mob-profile-btn','Профиль');
+    } else {
+      setText('.mob-pill-label', ['Balance','Goal']);
+      setText('.sb-market-toggle-label','Market Data');
+      setText('.sb-section-label','Market');
+      setText('#sbw-fng .sbw-title span','Sentiment');
+      setText('#sbw-market .sbw-title span','Metrics');
+      setText('#sbw-liveprices .sbw-title span','Live Prices');
+      setText('#sbw-trends .sbw-title span','Trends');
+      setText('#sbw-gainers .sbw-title span','Leaders');
+      setText('#fng-label','Loading');
+      setText('#gl-tab-gain','▲ Gainers');
+      setText('#gl-tab-lose','▼ Losers');
+      setText('.widget-loading-text','loading...');
+      setText('.sbw-metric-label', ['MCAP','24H %','VOLUME','BTC DOM']);
+      setText('.chat-sb-title','QUICK PROMPT ?');
+      setText('.chat-sc-text', ['BTC/USDT Breakdown','ETH/USDT Breakdown','SOL/USDT Breakdown','Market News','Psychology','Order Blocks','Fair Value Gap','Risk Management']);
+      setText('.chat-header-title','AI ADVISOR ?');
+      setText('.chat-status','ONLINE');
+      setPlaceholder('chat-input','Ask anything...');
+      setText('.settings-card-title', ['Telegram','Price Alerts']);
+      const tgBadge=qsa('.tg-status-badge')[0]; if(tgBadge && /НЕ ПРИВЯЗАН|НЕ/.test(tgBadge.textContent)) tgBadge.textContent='NOT CONNECTED';
+      setText('.notify-label', ['Trades','Price Alerts','Morning Briefing','Tilt Alert','Weekly Report']);
+      setText('.notify-sub', ['On every journal entry','A coin hits your level','9:00 — market overview for the day','3 losses in a row — stop','Sunday — weekly summary']);
+      setText('.edit-label', ['Pair','Direction ?','Result','P&L %','P&L $','Setup Type','Why Entered','How You Felt','Lesson Learned','Screenshot']);
+      setPlaceholder('edit-pair','BTC/USDT'); setPlaceholder('edit-setup','FVG, OB...');
+      setAttr('.mob-profile-btn','aria-label','Profile');
+      setAttr('.apple-tool-btn-icon','aria-label','Profile');
+      setTitle('.sb-logo-link','Home');
+      setTitle('.mob-profile-btn','Profile');
     }
 
     applyPageChrome(activePage());
