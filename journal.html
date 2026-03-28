@@ -1491,86 +1491,55 @@
 <!-- ══ i18n — Language System ══ -->
 <script src="/js/journal.js" defer></script>
 
-<!-- PREMIUM UI: Runtime emoji suppression & micro-fixes -->
+<!-- PREMIUM UI: Runtime emoji suppression -->
 <script>
 (function() {
-  // Suppress emoji characters rendered by JS in key UI elements
-  // by overriding the lb-icon rendering after page load
-  var ICON_SVG = {
-    journal: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-    high:    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 4.5h4l-3.2 2.3 1.2 4L8 10l-3.5 2.3 1.2-4L2.5 6.5h4z" stroke="currentColor" stroke-width="1.3" fill="rgba(255,57,35,0.1)"/></svg>',
-    mid:     '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="8" width="3" height="6.5" rx="1" fill="currentColor" opacity="0.5"/><rect x="6" y="5" width="3" height="9.5" rx="1" fill="currentColor" opacity="0.7"/><rect x="11" y="1.5" width="3" height="13" rx="1" fill="currentColor"/></svg>',
-    low:     '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 10l4-4 3 3 4-6 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-  };
+  var PATCHING = false; // re-entrancy guard
 
   function patchLevelIcon() {
     var el = document.getElementById('level-icon');
     if (!el) return;
     var txt = el.textContent || '';
-    // If it contains an emoji char, replace with SVG
     if (/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}]/u.test(txt)) {
-      if (txt.includes('🎯') || txt.includes('⭐')) el.innerHTML = ICON_SVG.high;
-      else if (txt.includes('⚡') || txt.includes('🔥')) el.innerHTML = ICON_SVG.mid;
-      else if (txt.includes('📊')) el.innerHTML = ICON_SVG.mid;
-      else el.innerHTML = ICON_SVG.low;
+      el.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="8" width="3" height="6.5" rx="1" fill="currentColor" opacity="0.5"/><rect x="6" y="5" width="3" height="9.5" rx="1" fill="currentColor" opacity="0.7"/><rect x="11" y="1.5" width="3" height="13" rx="1" fill="currentColor"/></svg>';
     }
   }
 
   function patchBestBadge() {
-    var el = document.getElementById('best-setup-badge');
-    if (el) el.textContent = (el.textContent || '').replace(/🎯\s*/,'');
-    var el2 = document.getElementById('worst-setup-badge');
-    if (el2) el2.textContent = (el2.textContent || '').replace(/💀\s*/,'');
-  }
-
-  function patchNotifs() {
-    // Suppress emoji in dynamically created notif icons — let CSS handle via color
-    document.querySelectorAll('.notif-icon').forEach(function(n) {
-      var t = n.textContent.trim();
-      if (/[\u{1F000}-\u{1FFFF}]/u.test(t)) {
-        n.innerHTML = '';
-        n.style.width = '8px';
-      }
+    ['best-setup-badge','worst-setup-badge'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = (el.textContent || '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}]\s*/gu, '');
     });
   }
 
   function patchCoachRecIcons() {
     document.querySelectorAll('.coach-rec-icon').forEach(function(el) {
-      var t = el.textContent.trim();
-      if (/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}]/u.test(t)) {
-        el.textContent = '';
+      if (/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}]/u.test(el.textContent || '')) {
         el.style.display = 'none';
       }
     });
   }
 
-  function patchPatternIcons() {
-    document.querySelectorAll('.patt-icon, .pattern-icon').forEach(function(el) {
-      el.style.display = 'none';
-    });
-  }
-
   function runPatches() {
-    patchLevelIcon();
-    patchBestBadge();
-    patchNotifs();
-    patchCoachRecIcons();
-    patchPatternIcons();
+    if (PATCHING) return;
+    PATCHING = true;
+    try {
+      patchLevelIcon();
+      patchBestBadge();
+      patchCoachRecIcons();
+    } finally {
+      PATCHING = false;
+    }
   }
 
-  // Run immediately + observe DOM mutations for dynamic content
+  // Run on load and after dynamic renders — no MutationObserver
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', runPatches);
   } else {
     runPatches();
   }
-  setTimeout(runPatches, 800);
-  setTimeout(runPatches, 2500);
-
-  var obs = new MutationObserver(function() { runPatches(); });
-  document.addEventListener('DOMContentLoaded', function() {
-    obs.observe(document.body, { childList: true, subtree: true, characterData: true });
-  });
+  setTimeout(runPatches, 1000);
+  setTimeout(runPatches, 3000);
 })();
 </script>
 </body>
