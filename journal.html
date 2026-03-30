@@ -1322,23 +1322,82 @@
 <div class="ai-modal" id="ai-modal">
   <div class="ai-box">
     <button class="ai-close" onclick="closeAI()">×</button>
-    <div class="ai-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:middle"><rect x="1.5" y="4" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="4" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="8" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><path d="M5 10h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M7 4V2M5 2h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="7" cy="1.5" r="0.7" fill="currentColor"/></svg> AI Setup Checker</div>
-    <div class="ai-sub">5 QUESTIONS · 30 SECONDS · HONEST VERDICT</div>
-    <div id="ai-checklist">
-      <div class="ck-item"><div class="ck-num">1 · СТРУКТУРА</div><div class="ck-q">Есть подтверждённый BOS или CHoCH в направлении сделки?</div><div class="ck-btns"><button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">✓ ДА</button><button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">✗ НЕТ</button></div></div>
-      <div class="ck-item"><div class="ck-num">2 · ТОЧКА ИНТЕРЕСА</div><div class="ck-q">Есть Order Block, FVG или BPR в зоне входа?</div><div class="ck-btns"><button class="ck-btn" id="ck2-yes" onclick="setCK(2,'yes')">✓ ДА</button><button class="ck-btn" id="ck2-no" onclick="setCK(2,'no')">✗ НЕТ</button></div></div>
-      <div class="ck-item"><div class="ck-num">3 · ПОДТВЕРЖДЕНИЕ</div><div class="ck-q">Есть подтверждение на младшем таймфрейме?</div><div class="ck-btns"><button class="ck-btn" id="ck3-yes" onclick="setCK(3,'yes')">✓ ДА</button><button class="ck-btn" id="ck3-no" onclick="setCK(3,'no')">✗ НЕТ</button></div></div>
-      <div class="ck-item"><div class="ck-num">4 · РИСК-МЕНЕДЖМЕНТ</div><div class="ck-q">SL за структуру, RR минимум 1:2, размер позиции рассчитан?</div><div class="ck-btns"><button class="ck-btn" id="ck4-yes" onclick="setCK(4,'yes')">✓ ДА</button><button class="ck-btn" id="ck4-no" onclick="setCK(4,'no')">✗ НЕТ</button></div></div>
-      <div class="ck-item"><div class="ck-num">5 · ПСИХОЛОГИЯ</div><div class="ck-q">Ты спокоен? Это не месть рынку и не FOMO?</div><div class="ck-btns"><button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">✓ ДА</button><button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">✗ НЕТ</button></div></div>
+    
+    <!-- HEADER -->
+    <div class="ai-header-new">
+      <div class="ai-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="12" rx="3" stroke="currentColor" stroke-width="1.5" fill="rgba(242,107,58,0.08)"/><rect x="6" y="9" width="3" height="3" rx="1" fill="currentColor"/><rect x="11" y="9" width="3" height="3" rx="1" fill="currentColor"/><path d="M7 14h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 6V3M7.5 3h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="10" cy="2" r="1" fill="currentColor"/></svg>
+      </div>
+      <div>
+        <div class="ai-title-new">Trade Analyzer</div>
+        <div class="ai-sub-new">Pre-trade analysis based on your setup</div>
+      </div>
     </div>
-    <div class="ai-note" style="margin-top:12px">
-      <label for="ai-reason">Дополнительно (необязательно)</label>
-      <textarea id="ai-reason" placeholder="Опиши сетап подробнее..."></textarea>
+
+    <!-- CONTEXT CARD — auto-filled from form -->
+    <div class="ai-context" id="ai-context">
+      <div class="ai-ctx-label">Current Setup</div>
+      <div class="ai-ctx-grid">
+        <div class="ai-ctx-item"><span class="ai-ctx-key">Pair</span><span class="ai-ctx-val" id="ai-ctx-pair">—</span></div>
+        <div class="ai-ctx-item"><span class="ai-ctx-key">Direction</span><span class="ai-ctx-val" id="ai-ctx-dir">—</span></div>
+        <div class="ai-ctx-item"><span class="ai-ctx-key">R:R</span><span class="ai-ctx-val" id="ai-ctx-rr">—</span></div>
+        <div class="ai-ctx-item"><span class="ai-ctx-key">Risk</span><span class="ai-ctx-val" id="ai-ctx-risk">—</span></div>
+        <div class="ai-ctx-item"><span class="ai-ctx-key">Leverage</span><span class="ai-ctx-val" id="ai-ctx-lev">—</span></div>
+        <div class="ai-ctx-item"><span class="ai-ctx-key">Setup</span><span class="ai-ctx-val" id="ai-ctx-setup">—</span></div>
+      </div>
     </div>
-    <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">ПОЛУЧИТЬ ВЕРДИКТ</button>
+
+    <!-- SMART CHECKLIST — broader, more thoughtful -->
+    <div class="ai-checklist-new" id="ai-checklist">
+      <div class="ai-ck-group">
+        <div class="ai-ck-group-label">Market Structure</div>
+        <div class="ck-item"><div class="ck-q">Is there a confirmed trend (BOS/CHoCH) in your direction?</div><div class="ck-btns"><button class="ck-btn" id="ck1-yes" onclick="setCK(1,'yes')">Yes</button><button class="ck-btn" id="ck1-no" onclick="setCK(1,'no')">No</button></div></div>
+        <div class="ck-item"><div class="ck-q">Is your entry at a point of interest (OB, FVG, S/R, liquidity)?</div><div class="ck-btns"><button class="ck-btn" id="ck2-yes" onclick="setCK(2,'yes')">Yes</button><button class="ck-btn" id="ck2-no" onclick="setCK(2,'no')">No</button></div></div>
+      </div>
+
+      <div class="ai-ck-group">
+        <div class="ai-ck-group-label">Confluence & Timing</div>
+        <div class="ck-item"><div class="ck-q">Do you have confirmation on a lower timeframe?</div><div class="ck-btns"><button class="ck-btn" id="ck3-yes" onclick="setCK(3,'yes')">Yes</button><button class="ck-btn" id="ck3-no" onclick="setCK(3,'no')">No</button></div></div>
+        <div class="ck-item"><div class="ck-q">Are you trading during an active session (not low-volume hours)?</div><div class="ck-btns"><button class="ck-btn" id="ck4-yes" onclick="setCK(4,'yes')">Yes</button><button class="ck-btn" id="ck4-no" onclick="setCK(4,'no')">No</button></div></div>
+      </div>
+
+      <div class="ai-ck-group">
+        <div class="ai-ck-group-label">Risk Management</div>
+        <div class="ck-item"><div class="ck-q">Is your stop-loss placed behind structure (not arbitrary)?</div><div class="ck-btns"><button class="ck-btn" id="ck5-yes" onclick="setCK(5,'yes')">Yes</button><button class="ck-btn" id="ck5-no" onclick="setCK(5,'no')">No</button></div></div>
+        <div class="ck-item"><div class="ck-q">Is your position size calculated (not overexposed)?</div><div class="ck-btns"><button class="ck-btn" id="ck6-yes" onclick="setCK(6,'yes')">Yes</button><button class="ck-btn" id="ck6-no" onclick="setCK(6,'no')">No</button></div></div>
+      </div>
+
+      <div class="ai-ck-group">
+        <div class="ai-ck-group-label">Psychology</div>
+        <div class="ck-item"><div class="ck-q">Are you calm and following your plan (not revenge/FOMO)?</div><div class="ck-btns"><button class="ck-btn" id="ck7-yes" onclick="setCK(7,'yes')">Yes</button><button class="ck-btn" id="ck7-no" onclick="setCK(7,'no')">No</button></div></div>
+        <div class="ck-item"><div class="ck-q">Would you take this trade if it was your last trade of the week?</div><div class="ck-btns"><button class="ck-btn" id="ck8-yes" onclick="setCK(8,'yes')">Yes</button><button class="ck-btn" id="ck8-no" onclick="setCK(8,'no')">No</button></div></div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="ai-note" style="margin-top:14px">
+      <label for="ai-reason">Additional context (optional)</label>
+      <textarea id="ai-reason" placeholder="Describe your reasoning, what you see on the chart..."></textarea>
+    </div>
+
+    <!-- ACTION -->
+    <button class="ai-check-btn" id="ai-check-btn" onclick="checkSetup()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="vertical-align:middle;margin-right:6px"><rect x="1.5" y="4" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="4" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="8" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><path d="M5 10h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      Analyze Trade
+    </button>
+
+    <!-- RESULT — expanded format -->
     <div class="ai-result" id="ai-result">
+      <div class="ai-score-ring" id="ai-score-ring">
+        <svg viewBox="0 0 60 60" width="60" height="60">
+          <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+          <circle id="ai-score-arc" cx="30" cy="30" r="24" fill="none" stroke="#F26B3A" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 151" transform="rotate(-90 30 30)"/>
+          <text x="30" y="34" text-anchor="middle" fill="white" font-family="Plus Jakarta Sans" font-size="16" font-weight="700" id="ai-score-num">—</text>
+        </svg>
+      </div>
       <div class="ai-verdict" id="ai-verdict"></div>
       <div class="ai-text" id="ai-text"></div>
+      <div class="ai-recommendations" id="ai-recommendations"></div>
     </div>
   </div>
 </div>
@@ -1528,6 +1587,43 @@ function toggleFormSection(el){
   if(!body)return;
   body.classList.toggle('collapsed');
   arrow.classList.toggle('rotated');
+}
+
+// Populate AI context card from form data when opening AI modal
+const _origOpenAI = typeof openAI === 'function' ? openAI : null;
+document.addEventListener('DOMContentLoaded', function(){
+  // Override openAI to also populate context
+  if(typeof window.openAI === 'function'){
+    const orig = window.openAI;
+    window.openAI = function(){
+      populateAIContext();
+      orig();
+    };
+  }
+});
+
+function populateAIContext(){
+  const pair = document.getElementById('f-pair');
+  const dir = document.getElementById('btn-long');
+  const rr = document.getElementById('rr-val');
+  const risk = document.getElementById('f-risk');
+  const lev = document.getElementById('lev-display');
+  const setupBtns = document.querySelectorAll('#setup-btns .setup-btn.active');
+  
+  const el = (id) => document.getElementById(id);
+  if(el('ai-ctx-pair')) el('ai-ctx-pair').textContent = (pair && pair.value) || '—';
+  if(el('ai-ctx-dir')){
+    const isLong = dir && dir.classList.contains('active');
+    el('ai-ctx-dir').textContent = isLong ? 'LONG' : 'SHORT';
+    el('ai-ctx-dir').style.color = isLong ? 'var(--g)' : 'var(--r)';
+  }
+  if(el('ai-ctx-rr')) el('ai-ctx-rr').textContent = (rr && rr.textContent !== '—') ? rr.textContent : '—';
+  if(el('ai-ctx-risk')) el('ai-ctx-risk').textContent = (risk && risk.value) ? risk.value + '%' : '—';
+  if(el('ai-ctx-lev')) el('ai-ctx-lev').textContent = (lev && lev.textContent) || '—';
+  if(el('ai-ctx-setup')){
+    const active = setupBtns.length ? Array.from(setupBtns).map(b=>b.textContent).join(', ') : '—';
+    el('ai-ctx-setup').textContent = active;
+  }
 }
 </script>
 <script src="/js/journal.js" defer></script>
