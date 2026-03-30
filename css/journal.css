@@ -5603,3 +5603,252 @@ input, select, textarea,
   margin-bottom: var(--gap-lg) !important;
 }
 
+
+/* ══════════════════════════════════════════════════════════
+   PHASE 3 — UI Polish (from screenshot review)
+   ══════════════════════════════════════════════════════════ */
+
+/* ── 3.1 KILL CLICK PARTICLE EFFECT (CSS side) ──────────
+   JS spawns particles on click — hide them via CSS.
+   The JS is minified and safe to not touch.
+   Particles are position:fixed divs added to body.       */
+body > div[style*="position:fixed"][style*="border-radius:50%"][style*="pointer-events:none"] {
+  display: none !important;
+}
+
+/* ── 3.2 ЧИСТЫЙ P&L — зелёный цвет ──────────────────────
+   s-pnl gets sv-g/sv-r class from JS.
+   When positive (sv-g), ensure it's clearly green.
+   Also fix -webkit-text-fill-color that may block color. */
+#s-pnl.sv-g {
+  color: var(--g) !important;
+  -webkit-text-fill-color: var(--g) !important;
+}
+#s-pnl.sv-r {
+  color: var(--r) !important;
+  -webkit-text-fill-color: var(--r) !important;
+}
+
+/* ── 3.3 ACTIVE NAV: underline, not rectangle ────────────
+   Replace solid background box with accent underline.    */
+.tnav.active {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--brand) !important;
+  border-radius: 0 !important;
+  color: var(--t) !important;
+  padding-bottom: calc(var(--sp-1) - 2px) !important;
+}
+.tnav:hover:not(.active) {
+  background: rgba(255,255,255,0.04) !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+}
+/* Sidebar active: left accent line, no fill */
+.sb-item.active {
+  background: transparent !important;
+  border-left: 2px solid var(--brand) !important;
+  color: var(--brand) !important;
+  box-shadow: none !important;
+}
+
+/* ── 3.4 ACCENT BORDERS ON CARDS/GRIDS ──────────────────
+   Light accent-tinted border on key interactive cards.  */
+.fcard {
+  border-color: rgba(242,107,58,0.12) !important;
+}
+.stat-cell:hover,
+.fcard:hover {
+  border-color: rgba(242,107,58,0.2) !important;
+}
+.tcard.win {
+  border-left: 2px solid var(--g) !important;
+}
+.tcard.loss {
+  border-left: 2px solid var(--r) !important;
+}
+.tcard.be {
+  border-left: 2px solid rgba(255,255,255,0.15) !important;
+}
+
+/* ── 3.5 HIDE EMOJI FROM lb-icon (discipline) ───────────
+   JS replaces SVG content of #level-icon with emoji.
+   We hide the element visually and show SVG icon only.  */
+#level-icon {
+  font-size: 0 !important; /* hides emoji text */
+  color: var(--brand);
+  background: rgba(242,107,58,0.1) !important;
+  border: 1px solid rgba(242,107,58,0.2) !important;
+}
+#level-icon svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* ── 3.6 TRADE HISTORY: thin-line list style ────────────
+   Transform cards into compact list rows.
+   Expandable via details/summary logic kept intact.
+   Visual: thin separator lines, no card chrome.         */
+.tcard {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  border-radius: 0 !important;
+  border-left: none !important;
+  padding: 10px 4px !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+.tcard:last-child {
+  border-bottom: none !important;
+}
+.tcard.win { border-left: 2px solid var(--g) !important; padding-left: 10px !important; }
+.tcard.loss { border-left: 2px solid var(--r) !important; padding-left: 10px !important; }
+.tcard.be { border-left: 2px solid rgba(255,255,255,0.12) !important; padding-left: 10px !important; }
+
+/* Trade list container — clean, no gaps between rows */
+.trade-list,
+.list-wrap,
+#trades-list {
+  gap: 0 !important;
+  background: var(--bg-card);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  padding: 4px 12px !important;
+}
+
+/* Trade header row — tighter, all on one line */
+.th {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+}
+.tl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.tr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Pair — compact, tabular */
+.tpair {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--t) !important;
+  font-family: var(--font-body) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Direction badge — minimal */
+.tdir {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  letter-spacing: 0 !important;
+  font-family: var(--font-body) !important;
+}
+.tdir.long { background: rgba(52,211,153,0.1); color: var(--g); }
+.tdir.short { background: rgba(248,113,113,0.1); color: var(--r); }
+
+/* P&L — right side, prominent */
+.tpnl {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-body) !important;
+}
+.tpnl.p { color: var(--g) !important; }
+.tpnl.n { color: var(--r) !important; }
+
+/* Date — muted, smaller */
+.tdate {
+  font-size: 11px !important;
+  color: var(--m) !important;
+  font-family: var(--font-body) !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap;
+}
+
+/* Notes — collapsed by default, shown on expand feel */
+.tnotes {
+  padding: 6px 0 4px !important;
+  font-size: 12px !important;
+  color: var(--m) !important;
+  line-height: 1.5 !important;
+  border-top: 1px solid rgba(255,255,255,0.04) !important;
+  margin-top: 4px !important;
+  font-family: var(--font-body) !important;
+  letter-spacing: 0 !important;
+}
+
+/* Edit/delete buttons — minimal */
+.editbtn, .delbtn {
+  background: none !important;
+  border: none !important;
+  color: var(--m2) !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+  padding: 3px 5px !important;
+  border-radius: 4px !important;
+  transition: color 0.12s !important;
+  opacity: 0;
+  transition: opacity 0.15s !important;
+}
+.tcard:hover .editbtn,
+.tcard:hover .delbtn {
+  opacity: 1;
+}
+.editbtn:hover { color: var(--brand) !important; }
+.delbtn:hover { color: var(--r) !important; }
+
+/* Screenshot inside trade — smaller */
+.tcard-screenshot {
+  margin-top: 6px !important;
+  border-radius: 6px !important;
+  max-height: 120px !important;
+  overflow: hidden !important;
+}
+.tcard-screenshot img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* ── 3.7 FORM BLOCKS 02+03: compact vertical layout ─────
+   Make position/prices sections denser.                  */
+.fg2, .fg3, .fg4 {
+  gap: var(--gap-sm) !important;
+}
+
+/* Make Price fields grid 2-col instead of 4-col wide */
+.form-section[data-section="03"] .fg4,
+.fg4 {
+  grid-template-columns: 1fr 1fr !important;
+}
+
+/* Reduce field height */
+.field input,
+.field select {
+  height: 36px !important;
+  font-size: 13px !important;
+}
+
+/* ── 3.8 MISC: remove emoji from reward text ─────────────*/
+.muted-mini {
+  display: none !important; /* hides the 💡 emoji before reward text */
+}
