@@ -979,3 +979,333 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     });
   };
 })();
+
+/* PREMIUM AI + THEME LAYER */
+(function(){
+  const THEME_KEY = 'orb_journal_theme_v2';
+  const CHAT_STATE = [];
+
+  function escapeHtml(value){
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getTheme(){
+    return localStorage.getItem(THEME_KEY) || 'dark';
+  }
+
+  function applyTheme(theme){
+    const nextTheme = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem(THEME_KEY, nextTheme);
+    const label = nextTheme === 'light' ? 'Dark' : 'Light';
+    ['apple-theme-btn', 'jtb-theme-btn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.textContent = label;
+    });
+  }
+
+  window.toggleTheme = function(){
+    applyTheme(getTheme() === 'light' ? 'dark' : 'light');
+  };
+
+  function statsSnapshot(){
+    const trades = Array.isArray(window.allTrades) ? window.allTrades : [];
+    const wins = trades.filter(trade => trade.result === 'win');
+    const totalPnl = trades.reduce((sum, trade) => sum + (Number(trade.pnl_pct) || 0), 0);
+    const totalUsd = trades.reduce((sum, trade) => sum + (Number(trade.pnl_usd) || 0), 0);
+    return {
+      wr: trades.length ? Math.round((wins.length / trades.length) * 100) : 0,
+      totalPnl: Number(totalPnl.toFixed(2)),
+      totalUsd: Number(totalUsd.toFixed(2)),
+    };
+  }
+
+  function recentTrades(limit){
+    return (Array.isArray(window.allTrades) ? window.allTrades : []).slice(0, limit);
+  }
+
+  function ensureAdvisorRail(){
+    const page = document.getElementById('page-aichat');
+    const main = page && page.querySelector('.chat-main');
+    if (!page || !main || page.querySelector('.chat-context-rail')) return;
+
+    const rail = document.createElement('div');
+    rail.className = 'chat-context-rail';
+    rail.innerHTML = `
+      <div class="chat-context-card">
+        <div class="chat-context-eyebrow">Workspace</div>
+        <div class="chat-context-title">AI Advisor on desktop too</div>
+        <div class="chat-context-copy">Use it for trade review, psychology, SMC/ICT concepts, risk questions, workflow questions, and broad strategy thinking.</div>
+      </div>
+      <div class="chat-context-grid" id="chat-context-grid"></div>
+    `;
+    const inputArea = main.querySelector('.chat-input-area');
+    main.insertBefore(rail, inputArea);
+    renderAdvisorContext();
+  }
+
+  function renderAdvisorContext(){
+    const grid = document.getElementById('chat-context-grid');
+    if (!grid) return;
+    const trades = recentTrades(12);
+    const stats = statsSnapshot();
+    const last = trades[0];
+    const cards = [
+      { label: 'Win rate', value: `${stats.wr || 0}%`, tone: 'good' },
+      { label: 'Net P&L', value: `${stats.totalPnl >= 0 ? '+' : ''}${stats.totalPnl || 0}%`, tone: stats.totalPnl >= 0 ? 'good' : 'bad' },
+      { label: 'Net USD', value: `${stats.totalUsd >= 0 ? '+' : '-'}$${Math.abs(stats.totalUsd || 0).toFixed(0)}`, tone: stats.totalUsd >= 0 ? 'good' : 'bad' },
+      { label: 'Last trade', value: last ? `${last.pair || '—'} · ${(last.result || '—').toUpperCase()}` : 'No trades yet', tone: 'neutral' },
+    ];
+
+    grid.innerHTML = cards.map(card => `
+      <div class="chat-mini-card ${card.tone}">
+        <div class="chat-mini-label">${escapeHtml(card.label)}</div>
+        <div class="chat-mini-value">${escapeHtml(card.value)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderChatMessage(role, html, typing){
+    const wrap = document.getElementById('chat-messages');
+    if (!wrap) return null;
+
+    const row = document.createElement('div');
+    row.className = `chat-msg ${role}`;
+    row.innerHTML = role === 'ai'
+      ? `<div class="msg-avatar ai">AI</div><div class="msg-bubble">${typing ? '<div class="msg-typing"><span></span><span></span><span></span></div>' : html}</div>`
+      : `<div class="msg-avatar user">U</div><div class="msg-bubble">${html}</div>`;
+
+    wrap.appendChild(row);
+    wrap.scrollTop = wrap.scrollHeight;
+    return row;
+  }
+
+  function pushChatHistory(role, content){
+    CHAT_STATE.push({ role, content });
+    if (CHAT_STATE.length > 12) CHAT_STATE.splice(0, CHAT_STATE.length - 12);
+  }
+
+  function normalizeAiText(text){
+    return String(text || '')
+      .replace(/\n{3,}/g, '\n\n')
+      .split('\n\n')
+      .map(block => `<p>${escapeHtml(block).replace(/\n/g, '<br>')}</p>`)
+      .join('');
+  }
+
+  window.sendShortcut = function(text){
+    const input = document.getElementById('chat-input');
+    if (!input) return;
+    input.value = text;
+    if (typeof window.autoResize === 'function') window.autoResize(input);
+    input.focus();
+  };
+
+  window.chatKeyDown = function(event){
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      window.sendChatMessage();
+    }
+  };
+
+  window.sendChatMessage = async function(){
+    const input = document.getElementById('chat-input');
+    const button = document.getElementById('chat-send-btn');
+    if (!input || !button) return;
+
+    const text = String(input.value || '').trim();
+    if (!text) return;
+
+    renderChatMessage('user', `<p>${escapeHtml(text)}</p>`);
+    pushChatHistory('user', text);
+    input.value = '';
+    if (typeof window.autoResize === 'function') window.autoResize(input);
+    button.disabled = true;
+
+    const loader = renderChatMessage('ai', '', true);
+
+    try {
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'general',
+          messages: CHAT_STATE,
+          trades: recentTrades(12),
+          stats: statsSnapshot(),
+          max_tokens: 1400,
+          temperature: 0.2,
+        }),
+      });
+
+      if (!response.ok) throw new Error('AI request failed');
+      const data = await response.json();
+      const reply = data && data.text ? String(data.text).trim() : 'No answer';
+      pushChatHistory('assistant', reply);
+      if (loader) {
+        const bubble = loader.querySelector('.msg-bubble');
+        if (bubble) bubble.innerHTML = normalizeAiText(reply);
+      }
+    } catch (error) {
+      if (loader) {
+        const bubble = loader.querySelector('.msg-bubble');
+        if (bubble) bubble.innerHTML = '<p>Advisor is temporarily unavailable. Try again in a moment.</p>';
+      }
+    } finally {
+      button.disabled = false;
+    }
+  };
+
+  function renderCoachInsights(payload){
+    const recs = document.getElementById('coach-recs');
+    const psychGrid = document.getElementById('coach-psych-grid');
+    const mistakeCard = document.getElementById('mistake-card');
+    if (!recs) return;
+
+    const patterns = Array.isArray(payload.patterns) ? payload.patterns : [];
+    const best = payload.best_pattern || null;
+    const rules = Array.isArray(payload.next_session_rules) ? payload.next_session_rules : [];
+
+    recs.innerHTML = `
+      ${payload.summary ? `<div class="coach-summary-card"><div class="coach-summary-eyebrow">Summary</div><div class="coach-summary-text">${escapeHtml(payload.summary)}</div></div>` : ''}
+      ${patterns.map(item => `
+        <article class="coach-rec coach-rec-rich ${item.severity === 'positive' ? 'good' : item.severity === 'critical' ? 'crit' : 'warn'}">
+          <div class="coach-rec-topline">
+            <div class="coach-rec-title">${escapeHtml(item.title || item.pattern || 'Pattern')}</div>
+            <div class="coach-rec-badge">${escapeHtml(item.severity || 'warning')}</div>
+          </div>
+          <div class="coach-rec-detail"><span>Wrong:</span> ${escapeHtml(item.wrong_action || item.pattern || '')}</div>
+          <div class="coach-rec-detail"><span>Why:</span> ${escapeHtml(item.why_it_happened || item.evidence || '')}</div>
+          <div class="coach-rec-detail"><span>Proof:</span> ${escapeHtml(item.proof || item.evidence || '')}</div>
+          <div class="coach-rec-detail"><span>Fix:</span> ${escapeHtml(item.fix_now || item.action || '')}</div>
+          <div class="coach-rec-foot">
+            <span>${item.impact_usd != null ? `Impact $${Math.abs(Number(item.impact_usd) || 0).toFixed(0)}` : 'Impact n/a'}</span>
+            <span>${item.confidence != null ? `Confidence ${Math.round((Number(item.confidence) || 0) * 100)}%` : ''}</span>
+          </div>
+        </article>
+      `).join('')}
+      ${best ? `
+        <article class="coach-summary-card coach-positive-card">
+          <div class="coach-summary-eyebrow">Keep</div>
+          <div class="coach-summary-text"><strong>${escapeHtml(best.title || 'Working pattern')}</strong><br>${escapeHtml(best.proof || '')}</div>
+          <div class="coach-rec-foot"><span>${escapeHtml(best.keep_doing || '')}</span></div>
+        </article>
+      ` : ''}
+      ${rules.length ? `
+        <article class="coach-rules-card">
+          <div class="coach-summary-eyebrow">Next Session Rules</div>
+          <div class="coach-rules-list">${rules.map(rule => `<div class="coach-rule-item">${escapeHtml(rule)}</div>`).join('')}</div>
+        </article>
+      ` : ''}
+    `;
+
+    const primaryMistake = patterns.find(item => item.severity === 'critical') || patterns[0];
+    if (mistakeCard && primaryMistake) {
+      mistakeCard.classList.remove('is-hidden');
+      const title = document.getElementById('mistake-title');
+      const amount = document.getElementById('mistake-amount');
+      const count = document.getElementById('mistake-count');
+      if (title) title.textContent = primaryMistake.title || primaryMistake.pattern || 'Repeated mistake';
+      if (amount) amount.textContent = `$${Math.abs(Number(primaryMistake.impact_usd) || 0).toFixed(0)}`;
+      if (count) count.textContent = `${Math.max(1, Math.round((Number(primaryMistake.confidence) || 0.5) * 10))}`;
+    }
+
+    if (psychGrid) {
+      psychGrid.innerHTML = patterns.slice(0, 4).map(item => `
+        <div class="psych-card psych-card-rich">
+          <div class="psych-cond">${escapeHtml(item.title || item.pattern || 'Pattern')}</div>
+          <div class="psych-result">${escapeHtml(item.why_it_happened || item.evidence || '')}</div>
+          <div class="psych-trades">${escapeHtml(item.fix_now || item.action || '')}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  window.runAICoach = async function(){
+    const button = document.getElementById('coach-btn');
+    const trades = recentTrades(40);
+    if (!button || !trades.length) return;
+
+    button.disabled = true;
+    button.textContent = 'ANALYZING...';
+
+    try {
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'coach',
+          trades,
+          stats: statsSnapshot(),
+          max_tokens: 1800,
+          temperature: 0.1,
+        }),
+      });
+      if (!response.ok) throw new Error('Coach failed');
+      const data = await response.json();
+      const payload = JSON.parse(data.text || '{}');
+      renderCoachInsights(payload);
+    } catch (error) {
+      const recs = document.getElementById('coach-recs');
+      if (recs) {
+        recs.innerHTML = '<div class="coach-summary-card"><div class="coach-summary-text">Coach is temporarily unavailable. Try again in a moment.</div></div>';
+      }
+    } finally {
+      button.disabled = false;
+      button.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="vertical-align:middle;margin-right:6px"><rect x="1" y="4" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="4" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><rect x="7" y="6.5" width="2" height="2" rx="0.5" fill="currentColor"/><path d="M4.5 10h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M6.5 4V2M4.5 2h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6.5" cy="1.5" r="0.8" fill="currentColor"/></svg>ПОЛУЧИТЬ РЕКОМЕНДАЦИИ';
+    }
+  };
+
+  function overrideBoot(){
+    window._runJournalBoot = function(){
+      const today = new Date().toDateString();
+      if (localStorage.getItem('orb_journal_boot') === today) return;
+      localStorage.setItem('orb_journal_boot', today);
+
+      const overlay = document.createElement('div');
+      overlay.className = 'orb-preloader';
+      overlay.innerHTML = `
+        <div class="orb-preloader-logo">
+          <span class="orb-preloader-dot"></span>
+          <span class="orb-preloader-word">ORBITUM</span>
+        </div>
+        <div class="orb-preloader-line"></div>
+        <div class="orb-preloader-copy">Loading workspace, journal context, and AI memory</div>
+      `;
+      document.body.appendChild(overlay);
+      setTimeout(() => overlay.classList.add('is-ready'), 1500);
+      setTimeout(() => overlay.remove(), 2200);
+    };
+  }
+
+  function enhanceShowPage(){
+    const original = window.showPage;
+    if (!original || original.__premiumWrapped) return;
+    const wrapped = function(page, trigger){
+      const result = original.call(this, page, trigger);
+      ensureAdvisorRail();
+      renderAdvisorContext();
+      return result;
+    };
+    wrapped.__premiumWrapped = true;
+    window.showPage = wrapped;
+  }
+
+  function initPremiumLayer(){
+    applyTheme(getTheme());
+    ensureAdvisorRail();
+    renderAdvisorContext();
+    overrideBoot();
+    enhanceShowPage();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPremiumLayer);
+  } else {
+    initPremiumLayer();
+  }
+})();

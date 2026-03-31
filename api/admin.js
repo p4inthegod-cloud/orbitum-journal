@@ -6,6 +6,21 @@ const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const APP_URL   = process.env.APP_URL || 'https://orbitum.trade';
 
+const FEATURE_BUNDLES = {
+  none: ['journal'],
+  free: ['journal'],
+  journal: ['journal'],
+  analytics: ['journal', 'dashboard', 'progress', 'digest', 'premarket', 'coach', 'aichat'],
+  signals: ['journal', 'dashboard', 'progress', 'digest', 'premarket', 'coach', 'aichat', 'screener'],
+  full: ['journal', 'dashboard', 'progress', 'digest', 'premarket', 'coach', 'aichat', 'screener'],
+  monthly: ['journal', 'dashboard', 'progress', 'digest', 'premarket', 'coach', 'aichat', 'screener'],
+  lifetime: ['journal', 'dashboard', 'progress', 'digest', 'premarket', 'coach', 'aichat', 'screener'],
+};
+
+function featuresForPlan(plan) {
+  return FEATURE_BUNDLES[String(plan || 'none').toLowerCase()] || ['journal'];
+}
+
 async function sbFetch(path, opts = {}) {
   const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
     ...opts,
@@ -77,7 +92,7 @@ export default async function handler(req, res) {
       });
       await sbFetch(`profiles?id=eq.${userId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ plan, plan_expires_at: expiresAt }),
+        body: JSON.stringify({ plan, plan_expires_at: expiresAt, features: featuresForPlan(plan) }),
       });
 
       // Notify user via TG
@@ -112,8 +127,8 @@ export default async function handler(req, res) {
         ? new Date(Date.now() + 30 * 24 * 3600000).toISOString()
         : null;
       const updates = plan === 'none'
-        ? { plan: 'none', plan_expires_at: null }
-        : { plan, plan_expires_at: expiresAt };
+        ? { plan: 'none', plan_expires_at: null, features: featuresForPlan('none') }
+        : { plan, plan_expires_at: expiresAt, features: featuresForPlan(plan) };
       await sbFetch(`profiles?id=eq.${userId}`, { method: 'PATCH', body: JSON.stringify(updates) });
       return res.status(200).json({ ok: true });
     }
@@ -129,7 +144,7 @@ export default async function handler(req, res) {
       const newExp  = new Date(Math.max(base.getTime(), Date.now()) + days * 24 * 3600000).toISOString();
       await sbFetch(`profiles?id=eq.${userId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ plan: 'monthly', plan_expires_at: newExp }),
+        body: JSON.stringify({ plan: 'monthly', plan_expires_at: newExp, features: featuresForPlan('monthly') }),
       });
       return res.status(200).json({ ok: true, new_expiry: newExp });
     }

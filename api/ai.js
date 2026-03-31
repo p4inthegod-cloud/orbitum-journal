@@ -1,5 +1,8 @@
-// api/ai.js — ORBITUM AI proxy v3
+// ORBITUM AI proxy
 // Modes: general | coach | brutal | weekly | trade_analyze | screener_insight
+
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const DEFAULT_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.APP_URL || 'https://orbitum.trade');
@@ -10,205 +13,220 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { prompt, messages, mode, trades, stats, tradeData, coinData } = req.body;
+    const {
+      prompt,
+      messages,
+      mode = 'general',
+      trades = [],
+      stats = {},
+      tradeData,
+      max_tokens,
+      temperature,
+    } = req.body || {};
 
-    let chatMessages;
+    let chatMessages = [];
     let forceJson = false;
 
     if (mode === 'coach' && Array.isArray(trades) && trades.length > 0) {
       chatMessages = [
         { role: 'system', content: buildCoachPrompt(trades, stats) },
-        { role: 'user', content: 'Проанализируй мои сделки. Найди конкретные паттерны с числами. Ответь ТОЛЬКО валидным JSON массивом.' }
+        { role: 'user', content: 'Analyze these trades and return only valid JSON.' },
       ];
       forceJson = true;
-    }
-    else if (mode === 'brutal' && Array.isArray(trades) && trades.length > 0) {
+    } else if (mode === 'brutal' && Array.isArray(trades) && trades.length > 0) {
       chatMessages = [
         { role: 'system', content: buildBrutalPrompt(trades, stats) },
-        { role: 'user', content: 'Дай максимально честный и жёсткий разбор. Без вежливости. Только факты и числа.' }
+        { role: 'user', content: 'Give the hardest truthful breakdown. No padding.' },
       ];
-    }
-    else if (mode === 'weekly' && Array.isArray(trades)) {
+    } else if (mode === 'weekly' && Array.isArray(trades)) {
       chatMessages = [
         { role: 'system', content: buildWeeklyPrompt(trades, stats) },
-        { role: 'user', content: 'Сделай недельный AI-разбор. Ответь JSON.' }
+        { role: 'user', content: 'Return only valid JSON.' },
       ];
       forceJson = true;
-    }
-    // ── NEW: trade_analyze — replaces direct Anthropic call in trade-analyzer.html & screener ──
-    else if (mode === 'trade_analyze' && tradeData) {
+    } else if (mode === 'trade_analyze' && tradeData) {
       chatMessages = [
         { role: 'system', content: buildTradeAnalyzePrompt() },
-        { role: 'user', content: JSON.stringify(tradeData) }
+        { role: 'user', content: JSON.stringify(tradeData) },
       ];
       forceJson = true;
-    }
-    // ── NEW: screener_insight — replaces direct Anthropic call in screener.html (AT panel) ──
-    else if (mode === 'screener_insight' && tradeData) {
+    } else if (mode === 'screener_insight' && tradeData) {
       chatMessages = [
         { role: 'system', content: buildScreenerInsightPrompt() },
-        { role: 'user', content: JSON.stringify(tradeData) }
+        { role: 'user', content: JSON.stringify(tradeData) },
       ];
       forceJson = true;
-    }
-    // ── DEFAULT: chat or single prompt ──────────────────────────
-    else {
-      chatMessages = Array.isArray(messages) && messages.length > 0
+    } else {
+      const baseMessages = Array.isArray(messages) && messages.length
         ? messages
-        : [{ role: 'user', content: prompt || 'Привет' }];
+        : [{ role: 'user', content: prompt || 'Hello' }];
+      chatMessages = [
+        { role: 'system', content: buildGeneralPrompt(trades, stats) },
+        ...baseMessages,
+      ];
     }
 
-    const bodyPayload = {
-      model: 'llama-3.3-70b-versatile',
-      max_tokens: Math.min(req.body.max_tokens || 2000, 4096),
-      temperature: req.body.temperature ?? 0.25,
+    const payload = {
+      model: DEFAULT_MODEL,
+      max_tokens: Math.min(max_tokens || 1800, 4096),
+      temperature: temperature ?? (mode === 'general' ? 0.2 : 0.15),
       messages: chatMessages,
     };
 
-    // Force JSON output for structured modes — prevents markdown wrapping
     if (forceJson) {
-      bodyPayload.response_format = { type: 'json_object' };
+      payload.response_format = { type: 'json_object' };
     }
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch(GROQ_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
-      body: JSON.stringify(bodyPayload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      console.error('GROQ error:', response.status, err.slice(0, 200));
-      return res.status(502).json({ error: 'AI service error', detail: err.slice(0, 100) });
+      const detail = await response.text();
+      console.error('GROQ error:', response.status, detail.slice(0, 300));
+      return res.status(502).json({ error: 'AI service error', detail: detail.slice(0, 120) });
     }
 
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content || '';
-    res.status(200).json({ text });
-
-  } catch (err) {
-    console.error('AI handler error:', err);
-    res.status(500).json({ error: err.message });
+    return res.status(200).json({ text });
+  } catch (error) {
+    console.error('AI handler error:', error);
+    return res.status(500).json({ error: error.message || 'Unknown error' });
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PROMPT BUILDERS
-// ═══════════════════════════════════════════════════════════════
+function buildGeneralPrompt(trades, stats = {}) {
+  const context = summarizeTrades(trades, 10);
+  const statsBlock = buildStatsLine(stats);
+
+  return [
+    'You are ORBITUM AI Advisor: a precise trading assistant, trading psychologist, and journal analyst.',
+    'You can answer trading questions, market structure questions, journaling questions, and general user questions.',
+    'If the question is outside trading, still answer helpfully instead of refusing unless it is unsafe.',
+    'Be concrete, specific, and structured.',
+    'Do not give vague filler such as "be disciplined" unless you connect it to a mechanism, example, or rule.',
+    'When discussing trades, explain cause -> mistake -> consequence -> correction.',
+    'Prefer concise blocks, bullets, and practical next steps.',
+    'If market data is not provided, do not pretend you have live quotes.',
+    statsBlock ? `Journal stats: ${statsBlock}` : '',
+    context ? `Recent journal context:\n${context}` : '',
+  ].filter(Boolean).join('\n');
+}
 
 function buildCoachPrompt(trades, stats = {}) {
-  const rows = trades.slice(0, 50).map((t, i) => {
-    const d = new Date(t.created_at);
-    const day = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][d.getDay()];
+  const rows = trades.slice(0, 60).map((trade, index) => {
+    const d = new Date(trade.created_at || Date.now());
+    const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
     return [
-      i+1, t.pair||'?', t.direction==='short'?'S':'L',
-      t.result==='win'?'W':t.result==='loss'?'X':'BE',
-      t.pnl_pct!=null ? Number(t.pnl_pct).toFixed(1)+'%' : '?',
-      t.pnl_usd!=null ? '$'+Number(t.pnl_usd).toFixed(0) : '',
-      t.setup_type||'-',
-      `C${t.emotion_conf||'?'} F${t.emotion_fear||'?'} G${t.emotion_greed||'?'} K${t.emotion_calm||'?'}`,
-      `${day} ${d.getHours()}:xx`,
-      (t.note_why||'').slice(0,60), (t.note_feel||'').slice(0,60),
+      `#${index + 1}`,
+      trade.pair || '?',
+      trade.direction || '?',
+      trade.result || '?',
+      trade.pnl_pct != null ? `${Number(trade.pnl_pct).toFixed(2)}%` : '?',
+      trade.pnl_usd != null ? `$${Number(trade.pnl_usd).toFixed(2)}` : '$?',
+      trade.setup_type || '-',
+      `conf:${trade.emotion_conf ?? '?'}`,
+      `fear:${trade.emotion_fear ?? '?'}`,
+      `greed:${trade.emotion_greed ?? '?'}`,
+      `focus:${trade.emotion_calm ?? '?'}`,
+      `${day} ${String(d.getHours()).padStart(2, '0')}:00`,
+      truncate(trade.note_why, 90),
+      truncate(trade.note_feel, 90),
+      truncate(trade.note_lesson, 90),
     ].join(' | ');
   });
 
-  return `Ты — персональный AI-коуч трейдера. Тебе даны РЕАЛЬНЫЕ сделки.
-
-ПРАВИЛА:
-- Каждый вывод ОБЯЗАН содержать числа из данных
-- Ищи временные паттерны (часы, дни недели)
-- Ищи эмоциональные паттерны (жадность/страх → результат)
-- Ищи revenge trading (убыток → быстрый следующий вход)
-- Считай конкретные $ потерь от каждого паттерна
-- action: ОДНО предложение, максимум 12 слов
-
-ЭМОЦИИ: C=уверенность F=страх G=жадность K=фокус (1-10)
-
-ДАННЫЕ (${trades.length} сделок):
-${stats.wr ? `WR: ${stats.wr}% | P&L: ${stats.totalPnl}%` : ''}
-
-# | Пара | Напр | Рез | P&L% | P&L$ | Сетап | Эмоции | Время | Заметка
-${rows.join('\n')}
-
-ФОРМАТ — ТОЛЬКО валидный JSON объект с полем "patterns":
-{"patterns":[{"severity":"critical|warning|positive","pattern":"до 6 слов","evidence":"числа из данных","action":"одно предложение до 12 слов","impact_usd":число}]}
-
-Дай 4-6 паттернов. Сортируй по impact_usd.`;
+  return [
+    'You are a strict trading performance coach.',
+    'Your job is not to comfort the trader. Your job is to diagnose exactly what they did wrong, why it happened, and how it cost money.',
+    'Every negative finding must include all four parts: wrong_action, why_it_happened, proof, fix_now.',
+    'Never output generic advice like "avoid revenge trading" unless you prove it from the dataset.',
+    'Use the journal notes and emotions to infer the trigger behind the mistake.',
+    'If evidence is weak, say so and lower the confidence.',
+    'Sort findings by estimated money impact.',
+    buildStatsLine(stats) ? `Stats: ${buildStatsLine(stats)}` : '',
+    'Return only valid JSON in this exact shape:',
+    '{"summary":"string","patterns":[{"severity":"critical|warning|positive","title":"string","wrong_action":"string","why_it_happened":"string","proof":"string","fix_now":"string","impact_usd":123,"confidence":0.84}],"best_pattern":{"title":"string","proof":"string","keep_doing":"string"},"next_session_rules":["rule 1","rule 2","rule 3"]}',
+    'Data:',
+    rows.join('\n'),
+  ].filter(Boolean).join('\n');
 }
 
 function buildBrutalPrompt(trades, stats = {}) {
-  const rows = trades.slice(0, 50).map(t => [
-    t.pair||'?', t.direction==='short'?'S':'L',
-    t.result==='win'?'W':'X', t.pnl_pct!=null?Number(t.pnl_pct).toFixed(1)+'%':'?',
-    t.setup_type||'-', `C${t.emotion_conf||'?'}F${t.emotion_fear||'?'}G${t.emotion_greed||'?'}`,
-    (t.note_feel||'').slice(0,40),
-  ].join(' | '));
-
-  return `Ты — жёсткий торговый аналитик. Никакой вежливости. Только правда и числа.
-
-Данные (${trades.length} сд, WR ${stats.wr||'?'}%, P&L ${stats.totalPnl||'?'}%):
-${rows.join('\n')}
-
-5-7 пунктов. Каждый с числами. **Жирный** для выводов.
-Если сливает — скажи прямо. Если сильные стороны — отметь.
-В конце — ОДНА главная рекомендация.`;
+  return [
+    'You are a brutally honest trading analyst.',
+    'Tell the truth with numbers. No motivational filler.',
+    'Explain what the trader is doing that is statistically weak and what is actually working.',
+    buildStatsLine(stats) ? `Stats: ${buildStatsLine(stats)}` : '',
+    summarizeTrades(trades, 50),
+  ].filter(Boolean).join('\n\n');
 }
 
 function buildWeeklyPrompt(trades, stats = {}) {
-  const rows = trades.slice(0, 30).map(t => [
-    t.pair||'?', t.result==='win'?'W':'X',
-    t.pnl_pct!=null?Number(t.pnl_pct).toFixed(1)+'%':'?',
-    t.setup_type||'-', `C${t.emotion_conf||5}F${t.emotion_fear||3}G${t.emotion_greed||3}`,
-  ].join('|'));
-
-  return `AI-разбор недели трейдера. Кратко и конкретно.
-
-Сделки (${trades.length}):
-${rows.join('\n')}
-
-Ответь JSON объектом:
-{"summary":"итог недели до 2 предложений","best_pattern":"что работало + числа","worst_pattern":"проблема + числа","tip":"совет на неделю до 15 слов","potential_saved":"$ экономии от исправления худшего паттерна"}`;
+  return [
+    'Create a short weekly trading review.',
+    'Return only valid JSON.',
+    'Shape:',
+    '{"summary":"string","best_pattern":"string","worst_pattern":"string","tip":"string","potential_saved":"string"}',
+    buildStatsLine(stats) ? `Stats: ${buildStatsLine(stats)}` : '',
+    summarizeTrades(trades, 30),
+  ].filter(Boolean).join('\n');
 }
 
 function buildTradeAnalyzePrompt() {
-  return `Ты — торговый аналитик. Получаешь JSON с параметрами сделки: pair, direction, entry, sl, tp, rr (R:R ratio), riskPct (% риска), rangePos (позиция входа в диапазоне 0–1), setup_type, структурные данные.
-
-Верни ТОЛЬКО JSON массив карточек обратной связи. Без markdown, без пояснений. На русском.
-Формат каждой карточки: {"type":"ok"|"warn"|"danger"|"info","text":"текст с эмодзи до 90 символов"}
-
-ПРАВИЛА ОЦЕНКИ:
-- RR < 1.0: danger — риск превышает потенциальную прибыль
-- RR 1.0–1.5: warn — допустимо, но желательно выше 1.5
-- RR >= 2.0: ok — хорошее соотношение
-- rangePos > 0.85 на лонг: danger — покупаешь на максимуме диапазона
-- rangePos > 0.7 на лонг: warn — поздний вход
-- rangePos < 0.15 на шорт: danger — шортишь на минимуме
-- riskPct > 3%: danger — критически высокий риск на сделку
-- riskPct 1.5–3%: warn — выше стандарта 1–2%
-- riskPct < 0.5%: warn — слишком мал, не окупит комиссии
-- Добавь 1 карточку info с конкретным советом по улучшению входа
-
-Верни 4–6 карточек, отсортированных от danger к ok.`;
+  return [
+    'You are a trading setup analyst.',
+    'Return only a JSON array of cards.',
+    'Format: [{"type":"ok"|"warn"|"danger"|"info","text":"short Russian text"}]',
+    'Judge risk, RR, entry quality, and give one concrete fix.',
+  ].join('\n');
 }
 
 function buildScreenerInsightPrompt() {
-  return `Ты — технический аналитик крипторынка (ICT/SMC). Анализируй параметры сделки и рыночную структуру.
+  return [
+    'You are a crypto technical analyst using market-structure logic.',
+    'Return only a JSON array.',
+    'Format: [{"type":"ok"|"warn"|"danger"|"info","text":"short Russian text"}]',
+    'Judge RR, risk, directional alignment, entry location, and confluence.',
+  ].join('\n');
+}
 
-Входные данные JSON содержат: pair, tf, direction, entry, sl, tp, rr, riskPct, rangePos, structure (тренд HH/HL/LH/LL), rsi, obs (order blocks), fvgs (fair value gaps), liquidity.
+function buildStatsLine(stats = {}) {
+  const bits = [];
+  if (stats.wr != null) bits.push(`WR ${stats.wr}%`);
+  if (stats.totalPnl != null) bits.push(`P&L ${stats.totalPnl}%`);
+  if (stats.totalUsd != null) bits.push(`Net $${stats.totalUsd}`);
+  if (stats.avgLossStreak != null) bits.push(`Avg loss streak ${stats.avgLossStreak}`);
+  return bits.join(' | ');
+}
 
-ПРАВИЛА ОЦЕНКИ:
-- RR < 1.0 → danger; 1.0–1.5 → warn; >= 2.0 → ok
-- riskPct > 3% → danger; > 1.5% → warn; < 0.5% → warn (слишком мал)
-- rangePos > 0.85 на лонг → danger (гонишься за ценой); > 0.7 → warn
-- rangePos < 0.15 на шорт → danger; < 0.3 → warn
-- structure содержит БЫЧИЙ и direction=long → ok; structure МЕДВЕЖИЙ и direction=long → warn
-- Наличие нетронутого OB/FVG рядом с entry → ok (confluences)
-- RSI >= 70 на лонг → warn; RSI <= 30 на шорт → warn
-- Добавь 1–2 карточки info с конкретными уровнями из данных
+function summarizeTrades(trades, limit) {
+  if (!Array.isArray(trades) || !trades.length) return '';
+  return trades.slice(0, limit).map((trade, index) => {
+    const d = new Date(trade.created_at || Date.now());
+    return [
+      `#${index + 1}`,
+      trade.pair || '?',
+      trade.direction || '?',
+      trade.result || '?',
+      trade.pnl_pct != null ? `${Number(trade.pnl_pct).toFixed(2)}%` : '?',
+      trade.pnl_usd != null ? `$${Number(trade.pnl_usd).toFixed(2)}` : '$?',
+      trade.setup_type || '-',
+      `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:00`,
+      truncate(trade.note_why, 80),
+      truncate(trade.note_feel, 80),
+    ].join(' | ');
+  }).join('\n');
+}
 
-Возврати ТОЛЬКО JSON массив. Без markdown. На русском. 5–7 карточек.
-Формат: [{"type":"ok"|"warn"|"danger"|"info","text":"текст с эмодзи до 100 символов"}]`;
+function truncate(value, max) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!text) return '-';
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
