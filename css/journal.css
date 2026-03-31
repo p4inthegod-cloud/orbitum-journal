@@ -52,9 +52,9 @@
   --bg-input: rgba(255,255,255,0.04);
 
   /* BORDERS */
-  --bd:  rgba(255,255,255,0.07);
-  --bd2: rgba(255,255,255,0.12);
-  --bd3: rgba(255,255,255,0.2);
+  --bd:  rgba(255,255,255,0.10);
+  --bd2: rgba(255,255,255,0.18);
+  --bd3: rgba(255,255,255,0.28);
   --line: 1px solid var(--bd);
 
   /* TEXT */
@@ -86,6 +86,12 @@
   --sp-6:  24px;
   --sp-8:  32px;
   --sp-10: 40px;
+
+  /* ── PHASE 3: Gap tokens ── */
+  --gap-sm: 8px;
+  --gap-md: 12px;
+  --gap-lg: 20px;
+  --gap-xl: 32px;
 
   /* ── STAGE 2: Typography Scale (6 sizes only) ── */
   --fs-xs:   11px;
@@ -1201,12 +1207,12 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   to   { opacity: 1; transform: none; }
 }
 
-/* ── STAGE 3: STAT CARDS ── */
+/* ── STAGE 3 / PHASE 3: STAT CARDS — 3 equal columns ── */
 .stats-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-5);
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-xl);
   margin-top: var(--sp-6);
 }
 /* Stage 3: more padding, bigger numbers, no text-shadow */
@@ -1218,13 +1224,14 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   cursor: default;
   position: relative;
   overflow: hidden;
-  /* Stage 7: only interaction transitions */
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.04);
 }
-/* Stage 3: subtle hover, no glow */
+/* Phase 3: subtle glow on hover */
 .stat-cell:hover {
   background: var(--bg-card2);
   border-color: var(--bd2);
+  box-shadow: 0 0 20px rgba(255,255,255,0.04), 0 0 1px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 /* Stage 2: typography — clean labels with proper hierarchy */
 .stat-label {
@@ -1248,14 +1255,14 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   text-shadow: none;
   line-height: 1;
 }
-/* P&L card — hero size since it gets 2fr */
+/* Phase 3: P&L is hero through size of number itself, but same card width */
 .stat-cell:nth-child(3) .stat-value {
-  font-size: var(--t-hero);   /* 32px audit: hero level */
+  font-size: 26px;
   font-weight: 700;
 }
 .stat-cell:nth-child(3) .stat-label {
-  font-size: var(--t-label);  /* 12px */
-  margin-bottom: var(--sp-3);
+  font-size: var(--t-label);
+  margin-bottom: var(--sp-2);
 }
 /* Stage 1: correct color semantics */
 .sv-g { color: var(--g) !important; text-shadow: none !important; }
@@ -1760,43 +1767,156 @@ body.journal-apple-shell .jnl-topbar { display: none; }
 }
 .fbtn.active, .fbtn:hover { border-color: var(--bd2); color: var(--t); background: var(--state-active); }
 
-/* TRADE CARDS */
+/* TRADE CARDS — thin rows, dense, expandable */
 .tcard {
-  background: var(--bg-card);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius);
-  padding: var(--sp-4) var(--sp-4);
-  margin-bottom: var(--sp-2);
-  transition: background 0.15s, border-color 0.15s;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--bd);
+  border-radius: 0;
+  padding: 6px var(--sp-3);
+  margin-bottom: 0;
+  transition: background 0.12s;
+  cursor: pointer;
 }
-.tcard:hover { background: var(--bg-card2); border-color: var(--bd2); }
-.tcard.win  { border-left: 2px solid var(--g); }
-.tcard.loss { border-left: 2px solid var(--r); }
-.tcard.be   { border-left: 2px solid var(--bd2); }
-.th { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2); }
-.tl { display: flex; align-items: center; gap: var(--sp-2); }
-/* Stage 2+5: tpair — no glow */
-.tpair { font-family: var(--font-body); font-size: var(--fs-md); font-weight: 700; letter-spacing: 1px; }
+.tcard:first-child { border-top: 1px solid var(--bd); }
+.tcard:hover { background: rgba(255,255,255,0.025); }
+.tcard.win  { border-left: 2px solid var(--g); padding-left: calc(var(--sp-3) - 2px); }
+.tcard.loss { border-left: 2px solid var(--r); padding-left: calc(var(--sp-3) - 2px); }
+.tcard.be   { border-left: 2px solid rgba(255,255,255,0.2); padding-left: calc(var(--sp-3) - 2px); }
+
+/* Compact single-line header */
+.th {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: 0;
+  height: 32px;
+}
+.tl { display: flex; align-items: center; gap: var(--sp-2); flex: 1; min-width: 0; }
+.tpair {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
 .tdir {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
-  padding: 2px 7px;
+  padding: 1px 6px;
   border-radius: 4px;
   letter-spacing: 1px;
+  flex-shrink: 0;
 }
 .tdir.long { background: var(--gd); color: var(--g); }
 .tdir.short { background: var(--rd); color: var(--r); }
-.tr { display: flex; align-items: center; gap: var(--sp-2); }
-.tpnl { font-family: var(--font-mono); font-size: var(--fs-base); font-weight: 500; }
+
+/* Inline meta tags in the row */
+.tcard-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.tcard-setup-tag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--m2);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
+.tpnl { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600; }
 .tpnl.p { color: var(--g); }
 .tpnl.n { color: var(--r); }
-.tdate { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--m); }
-.delbtn { background: transparent; border: none; color: var(--m); cursor: pointer; font-size: var(--fs-base); padding: 2px 5px; border-radius: 3px; transition: 0.15s; }
+.tdate { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--m2); white-space: nowrap; flex-shrink: 0; }
+.delbtn { background: transparent; border: none; color: var(--m2); cursor: pointer; font-size: var(--fs-base); padding: 2px 4px; border-radius: 3px; transition: 0.12s; flex-shrink: 0; }
 .delbtn:hover { color: var(--r); background: var(--rd); }
-.editbtn { background: transparent; border: none; color: var(--m); cursor: pointer; font-size: var(--fs-base); padding: 2px 5px; border-radius: 3px; transition: 0.15s; }
+.editbtn { background: transparent; border: none; color: var(--m2); cursor: pointer; font-size: var(--fs-base); padding: 2px 4px; border-radius: 3px; transition: 0.12s; flex-shrink: 0; }
 .editbtn:hover { color: var(--a); background: var(--a2); }
-.tnotes { font-size: var(--fs-base); color: var(--m); line-height: 1.55; margin-top: 6px; padding-top: var(--sp-2); border-top: var(--line); }
-.ntag { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 1px; margin-right: var(--sp-1); }
+
+/* Expand chevron */
+.tcard-expand-btn {
+  background: none;
+  border: none;
+  color: var(--m2);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.12s, transform 0.2s;
+}
+.tcard-expand-btn.open { transform: rotate(180deg); color: var(--m); }
+
+/* Expanded analytics panel */
+.tcard-detail {
+  display: none;
+  padding: var(--sp-3) 0 var(--sp-2);
+  border-top: 1px solid var(--bd);
+  margin-top: 4px;
+  animation: detailIn 0.18s ease both;
+}
+.tcard-detail.open { display: block; }
+@keyframes detailIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+.tcard-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap-sm);
+  margin-bottom: var(--sp-2);
+}
+.tcard-detail-stat {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: var(--sp-2) var(--sp-2);
+  box-shadow: 0 0 8px rgba(255,255,255,0.02);
+}
+.tcard-detail-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--m2);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.tcard-detail-val {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--t);
+}
+.tcard-detail-notes {
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  color: var(--m);
+  line-height: 1.55;
+  padding: var(--sp-2) var(--sp-3);
+  background: rgba(255,255,255,0.015);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  margin-bottom: var(--sp-2);
+}
+.tcard-detail-notes .ntag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 1px;
+  margin-right: var(--sp-1);
+  color: var(--m2);
+}
+
+/* old tnotes — hide since replaced by detail */
+.tnotes { display: none; }
 
 /* EMPTY / LOADING */
 .empty { text-align: center; padding: 36px; color: var(--m); font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 1px; }
@@ -1808,15 +1928,19 @@ body.journal-apple-shell .jnl-topbar { display: none; }
 /* ══════════════════════════════════════════════════
    ANALYTICS (DASHBOARD)
    ══════════════════════════════════════════════════ */
-.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-md); margin-bottom: var(--gap-md); }
 .dash-card, .an-card {
   background: var(--bg-card);
   border: 1px solid var(--bd);
   border-radius: var(--radius-lg);
   padding: var(--sp-5);
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.04);
 }
-.dash-card:hover, .an-card:hover { border-color: var(--bd2); }
+.dash-card:hover, .an-card:hover {
+  border-color: var(--bd2);
+  box-shadow: 0 0 20px rgba(255,255,255,0.04), 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+}
 /* Stage 2+5: dash-title clean */
 .dash-title {
   font-family: var(--font-mono);
@@ -4122,16 +4246,21 @@ body.journal-apple-shell .stat-value {
   box-shadow: 0 0 8px rgba(242,107,58,0.3);
 }
 
-/* ── FORM SECTIONS — clear visual separation ── */
+/* ── FORM SECTIONS — each section is a compact step grid ── */
 .form-section {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  margin-bottom: var(--gap-sm);
+  padding-bottom: 0;
+  border-bottom: none;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.02), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .form-section:last-of-type {
   border-bottom: none;
-  margin-bottom: 16px;
-  padding-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 14px;
 }
 .form-section-label {
   display: flex;
@@ -4480,45 +4609,49 @@ body.journal-apple-shell .stat-value {
   color: var(--t) !important;
 }
 
-/* ── TRADE CARDS (History) — NutriSense style ── */
+/* ── TRADE CARDS (History) — Thin dense rows ── */
 .tcard {
-  background: rgba(255,255,255,0.025) !important;
-  border: 1px solid rgba(255,255,255,0.06) !important;
-  border-radius: 16px !important;
-  padding: 16px 18px !important;
-  transition: all 0.2s ease !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 0 !important;
+  padding: 6px 14px !important;
+  transition: background 0.12s !important;
+  transform: none !important;
+  cursor: pointer;
 }
+.tcard:first-child { border-top: 1px solid rgba(255,255,255,0.08) !important; }
 .tcard:hover {
-  background: rgba(255,255,255,0.04) !important;
-  border-color: rgba(255,255,255,0.10) !important;
-  transform: translateY(-1px) !important;
+  background: rgba(255,255,255,0.02) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  transform: none !important;
 }
-.tcard.win { border-left: 3px solid var(--g) !important; }
-.tcard.loss { border-left: 3px solid var(--r) !important; }
-.tcard.be { border-left: 3px solid rgba(255,255,255,0.15) !important; }
+.tcard.win { border-left: 2px solid var(--g) !important; padding-left: 12px !important; }
+.tcard.loss { border-left: 2px solid var(--r) !important; padding-left: 12px !important; }
+.tcard.be { border-left: 2px solid rgba(255,255,255,0.2) !important; padding-left: 12px !important; }
 .tpair {
   font-family: var(--font-body) !important;
   font-size: var(--fs-base) !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   letter-spacing: 0 !important;
 }
 .tdir {
   font-family: var(--font-body) !important;
   font-size: var(--fs-xs) !important;
   font-weight: 600 !important;
-  padding: 3px 8px !important;
-  border-radius: 6px !important;
-  letter-spacing: 0.02em !important;
+  padding: 1px 6px !important;
+  border-radius: 4px !important;
+  letter-spacing: 0 !important;
 }
 .tpnl {
   font-family: var(--font-mono) !important;
-  font-size: var(--fs-base) !important;
+  font-size: var(--fs-sm) !important;
   font-weight: 600 !important;
 }
 .tdate {
   font-family: var(--font-body) !important;
   font-size: var(--fs-xs) !important;
-  color: var(--m) !important;
+  color: var(--m2) !important;
 }
 
 /* ── FILTER BUTTONS — Pill shape ── */
@@ -5565,41 +5698,39 @@ input, select, textarea,
   background: inherit !important;
 }
 
-/* ── 2.5 STATS ROW — 3 EQUAL COLUMNS ─────────────────────
-   Was: 1fr 1fr 2fr (or 1fr 1fr 1.5fr)
-   Now: 1fr 1fr 1fr — symmetry = order
-   --------------------------------------------------------- */
+/* ── Stats row — 3 equal columns (already set in :root, this is override) ── */
 .stats-row {
   grid-template-columns: repeat(3, 1fr) !important;
-  gap: 12px !important;
-}
-
-/* ── 2.6 SPACING TOKENS — 4 values for card gaps ──────────
-   --gap-sm:  8px   within a card between elements
-   --gap-md: 12px   between cards in a grid
-   --gap-lg: 20px   between sections
-   --gap-xl: 32px   major section separation
-   --------------------------------------------------------- */
-:root {
-  --gap-sm:  8px;
-  --gap-md: 12px;
-  --gap-lg: 20px;
-  --gap-xl: 32px;
-}
-
-/* Apply gap-md between trade cards */
-.trade-list,
-.list-wrap {
   gap: var(--gap-md) !important;
+  margin-bottom: var(--gap-xl) !important;
 }
 
-/* Apply gap-md in dashboard grid */
+/* ── Dashboard grid gap ── */
 .dash-grid {
   gap: var(--gap-md) !important;
 }
 
-/* Section spacing */
-.stats-row {
-  margin-bottom: var(--gap-lg) !important;
+/* ── Dashboard inner tabs ── */
+.dash-inner-tab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--bd);
+  background: transparent;
+  color: var(--m);
+  cursor: pointer;
+  transition: 0.15s;
+}
+.dash-inner-tab.active,
+.dash-inner-tab:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--bd2);
+  color: var(--t);
 }
 
+/* ── Form card spacing between step sections ── */
+.fcard .form-section + .form-section {
+  margin-top: var(--gap-sm);
+}
