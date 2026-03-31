@@ -52,9 +52,9 @@
   --bg-input: rgba(255,255,255,0.04);
 
   /* BORDERS */
-  --bd:  rgba(255,255,255,0.10);
-  --bd2: rgba(255,255,255,0.18);
-  --bd3: rgba(255,255,255,0.28);
+  --bd:  rgba(255,255,255,0.07);
+  --bd2: rgba(255,255,255,0.12);
+  --bd3: rgba(255,255,255,0.2);
   --line: 1px solid var(--bd);
 
   /* TEXT */
@@ -86,12 +86,6 @@
   --sp-6:  24px;
   --sp-8:  32px;
   --sp-10: 40px;
-
-  /* ── PHASE 3: Gap tokens ── */
-  --gap-sm: 8px;
-  --gap-md: 12px;
-  --gap-lg: 20px;
-  --gap-xl: 32px;
 
   /* ── STAGE 2: Typography Scale (6 sizes only) ── */
   --fs-xs:   11px;
@@ -268,25 +262,10 @@ html, body {
   transition: background .18s ease, color .18s ease;
 }
 .apple-nav-link:hover,
-.apple-menu.open .apple-nav-link {
-  background: rgba(255,255,255,0.05);
-  color: #fff;
-}
+.apple-menu.open .apple-nav-link,
 .apple-nav-link.active {
-  background: transparent;
+  background: rgba(255,255,255,0.06);
   color: #fff;
-  position: relative;
-}
-.apple-nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 55%;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--brand);
 }
 .apple-nav-caret {
   font-size: var(--fs-xs);
@@ -542,11 +521,10 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   color: var(--t);
 }
 .sb-item.active {
-  background: transparent;
-  color: var(--t);
-  border: 1px solid transparent;
-  border-bottom: 2px solid var(--brand);
-  border-radius: 0;
+  background: var(--state-active);
+  color: var(--state-active-text);
+  border: 1px solid var(--state-active-border);
+  border-left: 2px solid rgba(255,255,255,0.4);
   box-shadow: none;
 }
 
@@ -1223,12 +1201,12 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   to   { opacity: 1; transform: none; }
 }
 
-/* ── STAGE 3 / PHASE 3: STAT CARDS — 3 equal columns ── */
+/* ── STAGE 3: STAT CARDS ── */
 .stats-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--gap-md);
-  margin-bottom: var(--gap-xl);
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
   margin-top: var(--sp-6);
 }
 /* Stage 3: more padding, bigger numbers, no text-shadow */
@@ -1240,14 +1218,13 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   cursor: default;
   position: relative;
   overflow: hidden;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.04);
+  /* Stage 7: only interaction transitions */
+  transition: background 0.15s, border-color 0.15s;
 }
-/* Phase 3: subtle glow on hover */
+/* Stage 3: subtle hover, no glow */
 .stat-cell:hover {
   background: var(--bg-card2);
   border-color: var(--bd2);
-  box-shadow: 0 0 20px rgba(255,255,255,0.04), 0 0 1px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 /* Stage 2: typography — clean labels with proper hierarchy */
 .stat-label {
@@ -1271,14 +1248,14 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   text-shadow: none;
   line-height: 1;
 }
-/* Phase 3: P&L is hero through size of number itself, but same card width */
+/* P&L card — hero size since it gets 2fr */
 .stat-cell:nth-child(3) .stat-value {
-  font-size: 26px;
+  font-size: var(--t-hero);   /* 32px audit: hero level */
   font-weight: 700;
 }
 .stat-cell:nth-child(3) .stat-label {
-  font-size: var(--t-label);
-  margin-bottom: var(--sp-2);
+  font-size: var(--t-label);  /* 12px */
+  margin-bottom: var(--sp-3);
 }
 /* Stage 1: correct color semantics */
 .sv-g { color: var(--g) !important; text-shadow: none !important; }
@@ -1445,14 +1422,13 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   background: var(--bg-input);
   border: 1px solid var(--bd);
   border-radius: 9px;
-  padding: 6px var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
   color: var(--t);
   font-family: var(--font-mono);
   font-size: var(--fs-base);
   outline: 0;
   width: 100%;
-  transition: border-color 0.15s, opacity 0.15s;
-  font-variant-numeric: tabular-nums;
+  transition: 0.15s;
 }
 .field input::placeholder, .field textarea::placeholder { color: rgba(255,255,255,0.18); }
 .field input:focus, .field select:focus, .field textarea:focus {
@@ -1499,72 +1475,57 @@ body.journal-apple-shell .jnl-topbar { display: none; }
 .field-hint:hover { background: var(--a2); border-color: var(--a3); color: var(--a); }
 
 /* DIRECTION TOGGLE */
-.dtoggle { display: flex; gap: 4px; }
+.dtoggle { display: flex; gap: 2px; }
 .dbtn {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 6px 4px;
+  padding: var(--sp-2);
   border: var(--line);
   background: var(--bg3);
   color: var(--m);
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 1px;
+  font-size: var(--fs-xs);
+  letter-spacing: 1.5px;
   cursor: pointer;
   text-align: center;
   border-radius: 8px;
-  transition: border-color 0.15s, opacity 0.15s;
-  min-height: 44px;
+  transition: 0.15s;
 }
-.dbtn svg { flex-shrink: 0; }
-.dbtn:hover { border-color: var(--bd2); opacity: 0.8; }
 .dbtn.long.active {
-  background: rgba(52,211,153,0.06);
-  border-color: rgba(52,211,153,0.35);
+  background: var(--gd);
+  border-color: rgba(52,211,153,0.4);
   color: var(--g);
 }
 .dbtn.short.active {
-  background: rgba(248,113,113,0.06);
-  border-color: rgba(248,113,113,0.35);
+  background: var(--rd);
+  border-color: rgba(248,113,113,0.4);
   color: var(--r);
 }
 
 /* RESULT BUTTONS */
-.res-btns { display: flex; gap: 4px; }
+.res-btns { display: flex; gap: var(--sp-1); }
 .res-btn {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 6px 4px;
+  padding: var(--sp-2) var(--sp-1);
   border: var(--line);
   background: var(--bg3);
   color: var(--m);
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.8px;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.5px;
   text-align: center;
   cursor: pointer;
   border-radius: 8px;
-  transition: border-color 0.15s, opacity 0.15s;
-  min-height: 44px;
+  transition: 0.15s;
 }
-.res-btn svg { flex-shrink: 0; }
-.res-btn:hover { border-color: var(--bd2); }
-.res-btn.active-win { background: rgba(52,211,153,0.06); border-color: rgba(52,211,153,0.35); color: var(--g); }
-.res-btn.active-loss { background: rgba(248,113,113,0.06); border-color: rgba(248,113,113,0.35); color: var(--r); }
+.res-btn:hover { border-color: var(--bd2); color: var(--t); }
+.res-btn.active-win { background: var(--gd); border-color: rgba(52,211,153,0.4); color: var(--g); }
+.res-btn.active-loss { background: var(--rd); border-color: rgba(248,113,113,0.4); color: var(--r); }
 .res-btn.active-be { background: var(--a2); border-color: var(--a3); color: var(--a); }
 
 /* SETUP BUTTONS */
 .setup-btns { display: flex; gap: var(--sp-1); flex-wrap: wrap; margin-bottom: var(--sp-2); }
 .setup-btn {
-  padding: 3px 10px;
+  padding: var(--sp-1) var(--sp-3);
   border: var(--line);
   background: var(--bg3);
   color: var(--m);
@@ -1573,26 +1534,11 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   letter-spacing: 0.5px;
   cursor: pointer;
   white-space: nowrap;
-  border-radius: 6px;
-  transition: border-color 0.15s, opacity 0.15s;
+  border-radius: 7px;
+  transition: 0.15s;
 }
 .setup-btn:hover { border-color: var(--bd2); color: var(--t); }
 .setup-btn.active { background: var(--a2); border-color: var(--a3); color: var(--a); }
-
-/* Override rainbow setup button colors — uniform accent only */
-.sb-fvg, .sb-ob, .sb-liq, .sb-sr, .sb-bo, .sb-wy, .sb-other {
-  border-color: var(--bd) !important;
-  color: var(--m) !important;
-  background: var(--bg3) !important;
-}
-.sb-fvg.active, .sb-ob.active, .sb-liq.active, .sb-sr.active,
-.sb-bo.active, .sb-wy.active, .sb-other.active,
-.sb-fvg:hover, .sb-ob:hover, .sb-liq:hover, .sb-sr:hover,
-.sb-bo:hover, .sb-wy:hover, .sb-other:hover {
-  background: var(--a2) !important;
-  border-color: var(--a3) !important;
-  color: var(--a) !important;
-}
 
 /* EMOTION SECTION */
 .em-section {
@@ -1657,11 +1603,12 @@ body.journal-apple-shell .jnl-topbar { display: none; }
   letter-spacing: 0.3px;
   cursor: pointer;
   margin-top: var(--sp-1);
-  transition: opacity 0.15s, border-color 0.15s;
+  /* Stage 4: only opacity + tiny lift on hover, no gradients, no heavy shadows */
+  transition: opacity 0.15s, transform 0.1s;
 }
-.btn-add:hover { opacity: 0.88; }
-.btn-add:active { opacity: 0.96; }
-.btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-add:active { transform: none; opacity: 0.96; }
+.btn-add:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 /* Stage 5: focus glow on CTA — kept as accent point */
 .btn-add:focus { box-shadow: 0 0 0 3px rgba(242,107,58,0.25); outline: none; }
 
@@ -1813,156 +1760,43 @@ body.journal-apple-shell .jnl-topbar { display: none; }
 }
 .fbtn.active, .fbtn:hover { border-color: var(--bd2); color: var(--t); background: var(--state-active); }
 
-/* TRADE CARDS — thin rows, dense, expandable */
+/* TRADE CARDS */
 .tcard {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--bd);
-  border-radius: 0;
-  padding: 3px var(--sp-3);
-  margin-bottom: 0;
-  transition: background 0.12s, border-color 0.15s;
-  cursor: pointer;
+  background: var(--bg-card);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius);
+  padding: var(--sp-4) var(--sp-4);
+  margin-bottom: var(--sp-2);
+  transition: background 0.15s, border-color 0.15s;
 }
-.tcard:first-child { border-top: 1px solid var(--bd); }
-.tcard:hover { background: rgba(255,255,255,0.018); }
-.tcard.win  { border-left: 2px solid var(--g); padding-left: calc(var(--sp-3) - 2px); }
-.tcard.loss { border-left: 2px solid var(--r); padding-left: calc(var(--sp-3) - 2px); }
-.tcard.be   { border-left: 2px solid rgba(255,255,255,0.2); padding-left: calc(var(--sp-3) - 2px); }
-
-/* Compact single-line header */
-.th {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  margin-bottom: 0;
-  height: 24px;
-}
-.tl { display: flex; align-items: center; gap: var(--sp-2); flex: 1; min-width: 0; }
-.tpair {
-  font-family: var(--font-body);
-  font-size: var(--fs-base);
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  flex-shrink: 0;
-}
+.tcard:hover { background: var(--bg-card2); border-color: var(--bd2); }
+.tcard.win  { border-left: 2px solid var(--g); }
+.tcard.loss { border-left: 2px solid var(--r); }
+.tcard.be   { border-left: 2px solid var(--bd2); }
+.th { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2); }
+.tl { display: flex; align-items: center; gap: var(--sp-2); }
+/* Stage 2+5: tpair — no glow */
+.tpair { font-family: var(--font-body); font-size: var(--fs-md); font-weight: 700; letter-spacing: 1px; }
 .tdir {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   letter-spacing: 1px;
-  flex-shrink: 0;
 }
 .tdir.long { background: var(--gd); color: var(--g); }
 .tdir.short { background: var(--rd); color: var(--r); }
-
-/* Inline meta tags in the row */
-.tcard-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-}
-.tcard-setup-tag {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  color: var(--m2);
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tr { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
-.tpnl { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600; }
+.tr { display: flex; align-items: center; gap: var(--sp-2); }
+.tpnl { font-family: var(--font-mono); font-size: var(--fs-base); font-weight: 500; }
 .tpnl.p { color: var(--g); }
 .tpnl.n { color: var(--r); }
-.tdate { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--m2); white-space: nowrap; flex-shrink: 0; }
-.delbtn { background: transparent; border: none; color: var(--m2); cursor: pointer; font-size: var(--fs-base); padding: 2px 4px; border-radius: 3px; transition: 0.12s; flex-shrink: 0; }
+.tdate { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--m); }
+.delbtn { background: transparent; border: none; color: var(--m); cursor: pointer; font-size: var(--fs-base); padding: 2px 5px; border-radius: 3px; transition: 0.15s; }
 .delbtn:hover { color: var(--r); background: var(--rd); }
-.editbtn { background: transparent; border: none; color: var(--m2); cursor: pointer; font-size: var(--fs-base); padding: 2px 4px; border-radius: 3px; transition: 0.12s; flex-shrink: 0; }
+.editbtn { background: transparent; border: none; color: var(--m); cursor: pointer; font-size: var(--fs-base); padding: 2px 5px; border-radius: 3px; transition: 0.15s; }
 .editbtn:hover { color: var(--a); background: var(--a2); }
-
-/* Expand chevron */
-.tcard-expand-btn {
-  background: none;
-  border: none;
-  color: var(--m2);
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-size: 10px;
-  line-height: 1;
-  flex-shrink: 0;
-  transition: color 0.12s, transform 0.2s;
-}
-.tcard-expand-btn.open { transform: rotate(180deg); color: var(--m); }
-
-/* Expanded analytics panel */
-.tcard-detail {
-  display: none;
-  padding: var(--sp-3) 0 var(--sp-2);
-  border-top: 1px solid var(--bd);
-  margin-top: 4px;
-  animation: detailIn 0.18s ease both;
-}
-.tcard-detail.open { display: block; }
-@keyframes detailIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: none; }
-}
-.tcard-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--gap-sm);
-  margin-bottom: var(--sp-2);
-}
-.tcard-detail-stat {
-  background: rgba(255,255,255,0.025);
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  padding: var(--sp-2) var(--sp-2);
-  box-shadow: 0 0 8px rgba(255,255,255,0.02);
-}
-.tcard-detail-label {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  color: var(--m2);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-.tcard-detail-val {
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--t);
-}
-.tcard-detail-notes {
-  font-family: var(--font-body);
-  font-size: var(--fs-sm);
-  color: var(--m);
-  line-height: 1.55;
-  padding: var(--sp-2) var(--sp-3);
-  background: rgba(255,255,255,0.015);
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  margin-bottom: var(--sp-2);
-}
-.tcard-detail-notes .ntag {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  letter-spacing: 1px;
-  margin-right: var(--sp-1);
-  color: var(--m2);
-}
-
-/* old tnotes — hide since replaced by detail */
-.tnotes { display: none; }
+.tnotes { font-size: var(--fs-base); color: var(--m); line-height: 1.55; margin-top: 6px; padding-top: var(--sp-2); border-top: var(--line); }
+.ntag { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 1px; margin-right: var(--sp-1); }
 
 /* EMPTY / LOADING */
 .empty { text-align: center; padding: 36px; color: var(--m); font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 1px; }
@@ -1974,19 +1808,15 @@ body.journal-apple-shell .jnl-topbar { display: none; }
 /* ══════════════════════════════════════════════════
    ANALYTICS (DASHBOARD)
    ══════════════════════════════════════════════════ */
-.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-md); margin-bottom: var(--gap-md); }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-3); }
 .dash-card, .an-card {
   background: var(--bg-card);
   border: 1px solid var(--bd);
   border-radius: var(--radius-lg);
   padding: var(--sp-5);
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: border-color 0.15s;
 }
-.dash-card:hover, .an-card:hover {
-  border-color: var(--bd2);
-  box-shadow: 0 0 20px rgba(255,255,255,0.04), 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
-}
+.dash-card:hover, .an-card:hover { border-color: var(--bd2); }
 /* Stage 2+5: dash-title clean */
 .dash-title {
   font-family: var(--font-mono);
@@ -3503,27 +3333,11 @@ body::after{
   line-height:1;
 }
 .apple-nav-link:hover,
-.apple-menu.open .apple-nav-link{
+.apple-menu.open .apple-nav-link,
+.apple-nav-link.active{
   background:rgba(255,255,255,0.05);
   border-color:rgba(255,255,255,0.08);
   color:#fff;
-}
-.apple-nav-link.active{
-  background: transparent;
-  border-color: transparent;
-  color:#fff;
-  position: relative;
-}
-.apple-nav-link.active::after{
-  content:'';
-  position:absolute;
-  bottom:-2px;
-  left:50%;
-  transform:translateX(-50%);
-  width:55%;
-  height:2px;
-  border-radius:1px;
-  background:var(--brand);
 }
 .apple-nav-caret{display:none!important;}
 .apple-menu-panel{
@@ -3593,12 +3407,11 @@ body.journal-apple-shell .main{
 .sb-item{color:rgba(255,255,255,0.62);}
 .sb-item:hover{background:rgba(255,255,255,0.05);color:#fff;}
 .sb-item.active{
-  background: transparent;
-  border-color: transparent;
-  border-bottom: 2px solid var(--a);
-  border-radius: 0;
-  color: var(--t);
-  box-shadow: none;
+  background:rgba(242,107,58,0.12);
+  border-color:rgba(242,107,58,0.22);
+  border-left-color:var(--a)!important;
+  color:var(--a);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .sb-section,
 .sb-section-label,
@@ -4309,21 +4122,16 @@ body.journal-apple-shell .stat-value {
   box-shadow: 0 0 8px rgba(242,107,58,0.3);
 }
 
-/* ── FORM SECTIONS — each section is a compact step grid ── */
+/* ── FORM SECTIONS — clear visual separation ── */
 .form-section {
-  margin-bottom: var(--gap-md);
-  padding-bottom: 0;
-  border-bottom: none;
-  background: rgba(255,255,255,0.015);
-  border: 1px solid rgba(242,107,58,0.12);
-  border-radius: 14px;
-  padding: 12px 14px;
-  box-shadow: 0 0 14px rgba(242,107,58,0.05), inset 0 1px 0 rgba(255,255,255,0.03);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .form-section:last-of-type {
   border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 0;
 }
 .form-section-label {
   display: flex;
@@ -4340,17 +4148,16 @@ body.journal-apple-shell .stat-value {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
   background: rgba(242,107,58,0.08);
-  border: 1px solid rgba(242,107,58,0.28);
+  border: 1px solid rgba(242,107,58,0.15);
   color: var(--brand);
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   font-weight: 600;
   flex-shrink: 0;
-  box-shadow: -3px 0 10px rgba(242,107,58,0.18), 0 0 8px rgba(242,107,58,0.1);
 }
 .form-section-toggle {
   cursor: pointer;
@@ -4673,49 +4480,45 @@ body.journal-apple-shell .stat-value {
   color: var(--t) !important;
 }
 
-/* ── TRADE CARDS (History) — Thin dense rows ── */
+/* ── TRADE CARDS (History) — NutriSense style ── */
 .tcard {
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
-  border-radius: 0 !important;
-  padding: 6px 14px !important;
-  transition: background 0.12s !important;
-  transform: none !important;
-  cursor: pointer;
+  background: rgba(255,255,255,0.025) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 16px !important;
+  padding: 16px 18px !important;
+  transition: all 0.2s ease !important;
 }
-.tcard:first-child { border-top: 1px solid rgba(255,255,255,0.08) !important; }
 .tcard:hover {
-  background: rgba(255,255,255,0.02) !important;
-  border-color: rgba(255,255,255,0.08) !important;
-  transform: none !important;
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  transform: translateY(-1px) !important;
 }
-.tcard.win { border-left: 2px solid var(--g) !important; padding-left: 12px !important; }
-.tcard.loss { border-left: 2px solid var(--r) !important; padding-left: 12px !important; }
-.tcard.be { border-left: 2px solid rgba(255,255,255,0.2) !important; padding-left: 12px !important; }
+.tcard.win { border-left: 3px solid var(--g) !important; }
+.tcard.loss { border-left: 3px solid var(--r) !important; }
+.tcard.be { border-left: 3px solid rgba(255,255,255,0.15) !important; }
 .tpair {
   font-family: var(--font-body) !important;
   font-size: var(--fs-base) !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   letter-spacing: 0 !important;
 }
 .tdir {
   font-family: var(--font-body) !important;
   font-size: var(--fs-xs) !important;
   font-weight: 600 !important;
-  padding: 1px 6px !important;
-  border-radius: 4px !important;
-  letter-spacing: 0 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  letter-spacing: 0.02em !important;
 }
 .tpnl {
   font-family: var(--font-mono) !important;
-  font-size: var(--fs-sm) !important;
+  font-size: var(--fs-base) !important;
   font-weight: 600 !important;
 }
 .tdate {
   font-family: var(--font-body) !important;
   font-size: var(--fs-xs) !important;
-  color: var(--m2) !important;
+  color: var(--m) !important;
 }
 
 /* ── FILTER BUTTONS — Pill shape ── */
@@ -5349,11 +5152,9 @@ body.journal-apple-shell .stat-value {
     margin-right: 8px !important;
   }
   .sb-item.active {
-    background: transparent !important;
-    border-left: none !important;
-    border-bottom: 2px solid var(--a) !important;
-    color: var(--t) !important;
-    border-radius: 0 !important;
+    background: rgba(242,107,58,0.06) !important;
+    border-left: 3px solid var(--a) !important;
+    color: var(--a) !important;
   }
 }
 
@@ -5764,92 +5565,399 @@ input, select, textarea,
   background: inherit !important;
 }
 
-/* ── Stats row — 3 equal columns (already set in :root, this is override) ── */
+/* ── 2.5 STATS ROW — 3 EQUAL COLUMNS ─────────────────────
+   Was: 1fr 1fr 2fr (or 1fr 1fr 1.5fr)
+   Now: 1fr 1fr 1fr — symmetry = order
+   --------------------------------------------------------- */
 .stats-row {
   grid-template-columns: repeat(3, 1fr) !important;
-  gap: var(--gap-md) !important;
-  margin-bottom: var(--gap-xl) !important;
+  gap: 12px !important;
 }
 
-/* ── Dashboard grid gap ── */
+/* ── 2.6 SPACING TOKENS — 4 values for card gaps ──────────
+   --gap-sm:  8px   within a card between elements
+   --gap-md: 12px   between cards in a grid
+   --gap-lg: 20px   between sections
+   --gap-xl: 32px   major section separation
+   --------------------------------------------------------- */
+:root {
+  --gap-sm:  8px;
+  --gap-md: 12px;
+  --gap-lg: 20px;
+  --gap-xl: 32px;
+}
+
+/* Apply gap-md between trade cards */
+.trade-list,
+.list-wrap {
+  gap: var(--gap-md) !important;
+}
+
+/* Apply gap-md in dashboard grid */
 .dash-grid {
   gap: var(--gap-md) !important;
 }
 
-/* ── Dashboard inner tabs ── */
-.dash-inner-tab {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 1px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--bd);
-  background: transparent;
-  color: var(--m);
+/* Section spacing */
+.stats-row {
+  margin-bottom: var(--gap-lg) !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   PHASE 3 — Complete UI Polish
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 3.1 KILL PARTICLE EFFECTS ─────────────────────────────── */
+body > div[style*="border-radius:50%"][style*="pointer-events:none"],
+body > div[style*="position:fixed"][style*="border-radius:50%"] {
+  display: none !important;
+}
+
+/* ── 3.2 P&L COLORS (override webkit-text-fill-color) ──────── */
+#s-pnl.sv-g {
+  color: var(--g) !important;
+  -webkit-text-fill-color: var(--g) !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+#s-pnl.sv-r {
+  color: var(--r) !important;
+  -webkit-text-fill-color: var(--r) !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* ── 3.3 ACTIVE NAV: underline not rectangle ────────────────── */
+.tnav.active {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--brand) !important;
+  border-radius: 0 !important;
+  color: var(--t) !important;
+}
+.tnav:hover:not(.active) {
+  border-radius: 0 !important;
+  border-bottom: 2px solid rgba(255,255,255,0.08) !important;
+}
+
+/* Sidebar active: left line, no fill */
+.sb-item.active,
+.sb-item.active:hover {
+  background: transparent !important;
+  border-left: 2px solid var(--brand) !important;
+  color: var(--brand) !important;
+  box-shadow: none !important;
+}
+
+/* ── 3.4 BRIGHTER BORDERS + GLOW ON CARDS ─────────────────── */
+:root {
+  --bd: rgba(255,255,255,0.11);
+  --bd2: rgba(255,255,255,0.16);
+}
+
+/* Form card has orange border tint */
+.fcard {
+  border-color: rgba(242,107,58,0.15) !important;
+  box-shadow: 0 0 0 1px rgba(242,107,58,0.05) !important;
+}
+.fcard:hover {
+  border-color: rgba(242,107,58,0.25) !important;
+  box-shadow: 0 0 12px rgba(242,107,58,0.07) !important;
+}
+
+/* General card glow on hover */
+.dash-card:hover,
+.stat-cell:hover {
+  border-color: rgba(242,107,58,0.18) !important;
+  box-shadow: 0 0 10px rgba(242,107,58,0.06) !important;
+}
+
+/* ── 3.5 DISCIPLINE SECTION: hide emoji text ────────────────── */
+/* JS sets level-icon.textContent = emoji — hide it, keep SVG */
+#level-icon {
+  font-size: 0 !important;
+  color: var(--brand);
+}
+#level-icon svg {
+  display: block !important;
+  font-size: initial !important;
+}
+
+/* ── 3.6 TRADE HISTORY: thin compact list ──────────────────── */
+#trades-list {
+  background: var(--bg-card);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  padding: 0 !important;
+  gap: 0 !important;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 8px rgba(242,107,58,0.04);
+}
+
+/* Each trade row: ultra thin */
+.tcard {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255,255,255,0.055) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  position: relative;
+  transition: background 0.12s;
+}
+.tcard:last-child {
+  border-bottom: none !important;
+}
+.tcard:hover {
+  background: rgba(255,255,255,0.025) !important;
+}
+
+/* Left color stripe by result */
+.tcard.win  { border-left: 2px solid var(--g) !important; }
+.tcard.loss { border-left: 2px solid var(--r) !important; }
+.tcard.be   { border-left: 2px solid rgba(255,255,255,0.18) !important; }
+
+/* Trade header row — single compact line */
+.th {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  min-height: 38px !important;
+  padding: 0 12px 0 10px !important;
   cursor: pointer;
-  transition: 0.15s;
-}
-.dash-inner-tab.active,
-.dash-inner-tab:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: var(--bd2);
-  color: var(--t);
 }
 
-/* ── Form card spacing between step sections ── */
-.fcard .form-section + .form-section {
-  margin-top: var(--gap-md);
+/* Left section of row */
+.tl {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
 }
 
-/* ═══════════════════════════════════════════════════════
-   PHASE 4 — Premium Refinement
-   ═══════════════════════════════════════════════════════ */
+/* Right section */
+.tr {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
 
-/* 4.2 Tabular nums on all numeric values */
-.stat-value, .tpnl, .rr-display, .fng-num, .speedo-val,
-.streak-num, .level-roi-value, .ds-item-val, .lev-display,
-.sbw-lp-price, .sbw-metric-val, .trade-metric-value,
-.dg-val, .em-bar-val, .lb-name, input[type="number"] {
+/* Pair name */
+.tpair {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--t) !important;
   font-variant-numeric: tabular-nums;
 }
 
-/* 4.3 No transform on hover — everywhere */
-.stat-cell:hover, .dash-card:hover, .an-card:hover,
-.tcard:hover, .fcard:hover, .sbw:hover,
-.setup-btn:hover, .em-opt:hover, .res-btn:hover, .dbtn:hover,
-.pair-presets button:hover, .fbtn:hover,
-.jtb-action-btn:hover, .apple-tool-btn:hover {
-  transform: none !important;
+/* Direction badge */
+.tdir {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  letter-spacing: 0 !important;
+}
+.tdir.long  { background: rgba(52,211,153,0.1); color: var(--g); }
+.tdir.short { background: rgba(248,113,113,0.1); color: var(--r); }
+
+/* PnL value */
+.tpnl {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em !important;
+}
+.tpnl.p { color: var(--g) !important; }
+.tpnl.n { color: var(--r) !important; }
+
+/* Date */
+.tdate {
+  font-size: 11px !important;
+  color: var(--m) !important;
+  white-space: nowrap;
+  letter-spacing: 0 !important;
 }
 
-/* 4.3 Unified transition on interactive elements */
-.stat-cell, .dash-card, .an-card, .fcard,
-.setup-btn, .em-opt, .res-btn, .dbtn,
-.fbtn, .sbw, .pair-presets button {
-  transition: border-color 0.15s, opacity 0.15s !important;
+/* Edit/Delete btns: hidden until hover */
+.editbtn, .delbtn {
+  background: none !important;
+  border: none !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.12s !important;
+  color: var(--m2) !important;
+}
+.tcard:hover .editbtn,
+.tcard:hover .delbtn { opacity: 1; }
+.editbtn:hover { color: var(--brand) !important; }
+.delbtn:hover  { color: var(--r) !important; }
+
+/* Chevron for expand */
+.tcard-chevron {
+  display: inline-flex;
+  align-items: center;
+  color: var(--m2);
+  font-size: 12px;
+  transition: transform 0.2s;
+  margin-left: 2px;
+}
+.tcard.expanded .tcard-chevron {
+  transform: rotate(180deg);
 }
 
-/* 4.4 Noise texture — reduce to 0.01 opacity (nearly invisible) */
-body::after {
-  opacity: 0.01 !important;
+/* Expandable detail panel */
+.tcard-detail {
+  display: none;
+  padding: 8px 12px 10px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  background: rgba(0,0,0,0.12);
 }
-.journal-premium-refined::after {
-  opacity: 0.01 !important;
-}
-
-/* Remove any box-shadow animation on hover that was left */
-.stat-cell:hover {
-  background: var(--bg-card2);
-  border-color: var(--bd2);
-  box-shadow: 0 0 20px rgba(255,255,255,0.03);
+.tcard.expanded .tcard-detail {
+  display: block;
 }
 
-/* Section label margin reduce for compact form */
+/* Notes inside detail */
+.tnotes {
+  font-size: 12px !important;
+  color: var(--m) !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Screenshot smaller */
+.tcard-screenshot {
+  margin-top: 6px !important;
+  border-radius: 6px !important;
+  max-height: 110px !important;
+  overflow: hidden !important;
+}
+.tcard-screenshot img {
+  width: 100%;
+  object-fit: cover;
+}
+
+/* ── 3.7 NEW TRADE FORM: compact step layout ────────────────── */
+/* Step wrappers */
+.form-section {
+  padding: 12px 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+.form-section:last-of-type {
+  border-bottom: none !important;
+}
+
 .form-section-label {
-  margin-bottom: 10px;
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  color: var(--m2) !important;
+  margin-bottom: 10px !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.form-section-num {
+  background: rgba(242,107,58,0.12);
+  color: var(--brand);
+  border: 1px solid rgba(242,107,58,0.2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
-/* Textarea compact */
-.field textarea { min-height: 44px; }
+/* Tighter field inputs */
+.field input,
+.field select {
+  height: 34px !important;
+  font-size: 13px !important;
+  padding: 0 10px !important;
+}
+.field textarea {
+  min-height: 52px !important;
+  font-size: 13px !important;
+  padding: 8px 10px !important;
+}
 
-/* Apple nav active underline — handled above in dual rule blocks */
+/* Section 01: pair + direction grid */
+.fg3.mb-12 {
+  grid-template-columns: 2fr 1fr 1.2fr !important;
+  gap: 8px !important;
+}
+
+/* Section 02: position/risk */
+.fg3.mb-6 {
+  grid-template-columns: 1.4fr 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+/* Section 03: prices 2x2 */
+.fg4.mb-6 {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+/* P&L row: tighter */
+.fg2.mb-6 {
+  max-width: 50% !important;
+  gap: 8px !important;
+}
+
+/* Trade metrics row */
+.trade-metrics {
+  gap: 6px !important;
+}
+.trade-metric {
+  padding: 6px 10px !important;
+}
+.trade-metric-label {
+  font-size: 9px !important;
+}
+.trade-metric-value {
+  font-size: 14px !important;
+}
+
+/* Emotion options */
+.em-opt {
+  height: 26px !important;
+  padding: 3px 9px !important;
+  font-size: 11px !important;
+}
+
+/* Notes grid: 3 col */
+.fg3.mb-10 {
+  gap: 8px !important;
+}
+
+/* Form action button */
+.btn-add {
+  height: 38px !important;
+  font-size: 11px !important;
+}
+
+/* Setup buttons smaller */
+.setup-btn {
+  padding: 3px 9px !important;
+  font-size: 11px !important;
+}
+
+/* Fcard padding tighter */
+.fcard {
+  padding: 16px 18px !important;
+}
+
