@@ -360,12 +360,13 @@ html, body {
   text-decoration: none;
   font-size: var(--fs-xs);
   font-weight: 500;
-  transition: background .18s ease, border-color .18s ease, color .18s ease;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
 }
 .apple-tool-btn:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(242,107,58,0.35);
   color: #fff;
+  box-shadow: 0 0 10px rgba(242,107,58,0.2), 0 0 20px rgba(242,107,58,0.08);
 }
 .apple-tool-btn-icon svg { display: block; }
 
@@ -2217,24 +2218,110 @@ body.journal-apple-shell .jnl-topbar { display: none; }
 .coach-card { background: var(--bg2); border: var(--line); border-radius: var(--radius); padding: var(--sp-5); margin-bottom: var(--sp-3); }
 .coach-header { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); }
 .coach-avatar { width: 44px; height: 44px; border-radius: 50%; background: rgba(242,107,58,0.08); border: 1px solid var(--a3); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
-/* Stage 5: coach name — no glow */
-.coach-name { font-family: var(--font-body); font-size: var(--fs-md); font-weight: 600; color: var(--g); }
+.coach-name { font-family: var(--font-body); font-size: var(--fs-md); font-weight: 600; color: rgba(255,255,255,0.9); }
 .coach-sub { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--m); letter-spacing: 1px; }
-.coach-recs { display: flex; flex-direction: column; gap: var(--sp-2); }
-.coach-rec { border-radius: var(--radius); padding: var(--sp-3) var(--sp-3); display: flex; align-items: flex-start; gap: var(--sp-2); transition: 0.15s; }
-.coach-rec.warn { background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.18); }
-.coach-rec.crit { background: rgba(248,113,113,0.04); border: 1px solid rgba(248,113,113,0.18); }
-.coach-rec.good { background: rgba(52,211,153,0.03); border: 1px solid rgba(52,211,153,0.16); }
-.coach-rec-icon { font-size: var(--fs-md); flex-shrink: 0; margin-top: 1px; line-height: 1; }
+.coach-recs { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── COACH REC: cleaner structure with left accent bar ── */
+.coach-rec {
+  border-radius: 10px;
+  padding: 12px 14px 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+.coach-rec::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+.coach-rec.warn {
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.22);
+}
+.coach-rec.warn::before { background: #FBBF24; }
+.coach-rec.crit {
+  background: rgba(248,113,113,0.06);
+  border: 1px solid rgba(248,113,113,0.22);
+}
+.coach-rec.crit::before { background: #F87171; }
+.coach-rec.good {
+  background: rgba(52,211,153,0.05);
+  border: 1px solid rgba(52,211,153,0.2);
+}
+.coach-rec.good::before { background: #34D399; }
+
+.coach-rec-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; line-height: 1; }
+
+/* Main body: title + desc + action */
+.coach-rec-body { flex: 1; min-width: 0; }
+.coach-rec-title {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.coach-rec.warn .coach-rec-title { color: #F5C842; }
+.coach-rec.crit .coach-rec-title { color: #F87171; }
+.coach-rec.good .coach-rec-title { color: #34D399; }
+
+.coach-rec-desc {
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 6px;
+}
+.coach-rec-action {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+.coach-rec.warn .coach-rec-action { color: rgba(251,191,36,0.8); }
+.coach-rec.crit .coach-rec-action { color: rgba(248,113,113,0.8); }
+.coach-rec.good .coach-rec-action  { color: rgba(52,211,153,0.8); }
+
+/* Legacy text support */
 .coach-rec-text { font-family: var(--font-body); font-size: var(--fs-sm); line-height: 1.6; flex: 1; }
 .coach-rec.warn .coach-rec-text { color: rgba(245,200,90,0.9); }
-.coach-rec.crit .coach-rec-text { color: rgba(255,120,110,0.9); }
-.coach-rec.good .coach-rec-text { color: rgba(100,230,130,0.9); }
+.coach-rec.crit .coach-rec-text { color: rgba(248,113,113,0.9); }
+.coach-rec.good .coach-rec-text { color: rgba(52,211,153,0.9); }
 .coach-rec-text strong { font-weight: 600; }
-.coach-rec-badge { margin-left: auto; flex-shrink: 0; font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 1.5px; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
-.coach-rec.warn .coach-rec-badge { background: var(--yd); color: var(--y); border: 1px solid rgba(251,191,36,0.25); }
-.coach-rec.crit .coach-rec-badge { background: var(--rd); color: var(--r); border: 1px solid rgba(248,113,113,0.25); }
-.coach-rec.good .coach-rec-badge { background: var(--gd); color: var(--g); border: 1px solid rgba(52,211,153,0.25); }
+
+.coach-rec-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  align-self: flex-start;
+}
+.coach-rec.warn .coach-rec-badge { background: rgba(251,191,36,0.12); color: #FBBF24; border: 1px solid rgba(251,191,36,0.3); }
+.coach-rec.crit .coach-rec-badge { background: rgba(248,113,113,0.12); color: #F87171; border: 1px solid rgba(248,113,113,0.3); }
+.coach-rec.good .coach-rec-badge { background: rgba(52,211,153,0.1); color: #34D399; border: 1px solid rgba(52,211,153,0.3); }
+
+/* ── COACH PNL TAG ── */
+.coach-rec-pnl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.coach-rec.crit .coach-rec-pnl { color: #F87171; }
+.coach-rec.warn .coach-rec-pnl { color: #FBBF24; }
+.coach-rec.good .coach-rec-pnl { color: #34D399; }
+
 .coach-run-btn { width: 100%; padding: var(--sp-3); background: var(--a2); border: 1px solid var(--a3); border-radius: 8px; color: var(--a); font-family: var(--font-body); font-size: var(--fs-base); font-weight: 500; letter-spacing: 0.3px; cursor: pointer; transition: 0.2s; margin-top: var(--sp-3); }
 .coach-run-btn:hover { background: rgba(242,107,58,0.14); border-color: var(--bd2); }
 .coach-insight { border-radius: var(--radius); padding: var(--sp-3); border: 1px solid var(--bd); margin-bottom: 6px; }
@@ -3303,95 +3390,106 @@ body::after{
 
 .apple-navbar{
   display:block;
-  background:rgba(14,14,18,0.62);
-  backdrop-filter:saturate(180%) blur(26px);
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  background:rgba(10,10,13,0.72);
+  backdrop-filter:saturate(200%) blur(28px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  box-shadow:0 1px 0 rgba(242,107,58,0.08), 0 4px 24px rgba(0,0,0,0.28);
 }
 .apple-nav-inner{
-  max-width:1320px;
-  padding:0 28px;
-  gap:28px;
+  max-width:1280px;
+  padding:0 20px;
+  gap:16px;
 }
 .apple-brand-text{
   font-family:var(--font-body);
-  font-size:var(--fs-sm);
-  font-weight:650;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
 }
 .apple-brand-mark{
-  box-shadow:0 0 18px rgba(242,107,58,0.28);
+  width:6px; height:6px;
+  box-shadow:0 0 10px rgba(242,107,58,0.9), 0 0 20px rgba(242,107,58,0.4);
 }
-.apple-nav-links{gap:8px;}
+.apple-nav-links{gap:2px;}
 .apple-nav-link{
-  height:34px;
-  padding:0 14px;
+  height:28px;
+  padding:0 10px;
   border:1px solid transparent;
   background:transparent;
-  color:rgba(255,255,255,0.76);
-  font-size:var(--fs-sm);
-  font-weight:520;
-  letter-spacing:-0.015em;
+  color:rgba(255,255,255,0.65);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:-0.01em;
   line-height:1;
 }
 .apple-nav-link:hover,
 .apple-menu.open .apple-nav-link,
 .apple-nav-link.active{
   background:rgba(255,255,255,0.05);
-  border-color:rgba(255,255,255,0.08);
-  color:#fff;
+  border-color:rgba(255,255,255,0.07);
+  color:rgba(255,255,255,0.9);
+}
+.apple-nav-link.active{
+  color:var(--brand);
+  border-color:rgba(242,107,58,0.18);
+  background:rgba(242,107,58,0.07);
 }
 .apple-nav-caret{display:none!important;}
 .apple-menu-panel{
-  top:calc(100% + 10px);
-  width:min(760px, calc(100vw - 40px));
-  padding:20px;
-  border-radius:26px;
-  border:1px solid rgba(255,255,255,0.10);
-  background:rgba(28,28,34,0.72);
-  backdrop-filter:blur(28px) saturate(140%);
-  box-shadow:0 30px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.05);
+  top:calc(100% + 8px);
+  width:min(680px, calc(100vw - 32px));
+  padding:18px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.09);
+  background:rgba(16,16,20,0.92);
+  backdrop-filter:blur(32px) saturate(160%);
+  box-shadow:0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(242,107,58,0.06);
 }
-.apple-menu-grid{gap:28px;}
+.apple-menu-grid{gap:20px;}
 .apple-menu-column-main{
-  padding-right:12px;
-  border-right:1px solid rgba(255,255,255,0.08);
+  padding-right:10px;
+  border-right:1px solid rgba(255,255,255,0.07);
 }
 .apple-menu-eyebrow{
-  color:rgba(255,255,255,0.42);
-  font-size:var(--fs-xs);
-  letter-spacing:-0.01em;
-  margin-bottom:14px;
+  color:rgba(255,255,255,0.35);
+  font-size:10px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  margin-bottom:10px;
 }
 .apple-menu-item{
   font-family:var(--font-display);
-  font-size:var(--fs-lg);
-  line-height:1.08;
+  font-size:22px;
+  line-height:1.1;
   font-weight:600;
   letter-spacing:-0.03em;
-  padding:9px 0;
-  color:rgba(255,255,255,0.94);
+  padding:7px 0;
+  color:rgba(255,255,255,0.88);
 }
 .apple-menu-item:hover,
 .apple-menu-item.active{color:var(--brand);}
 .apple-menu-copy{
-  color:rgba(255,255,255,0.62);
-  font-size:var(--fs-sm);
+  color:rgba(255,255,255,0.5);
+  font-size:11px;
   line-height:1.6;
-  max-width:300px;
+  max-width:260px;
 }
 .apple-current-page{
-  min-width:96px;
-  font-size:var(--fs-xs);
+  min-width:72px;
+  font-size:10px;
   font-weight:500;
-  color:rgba(255,255,255,0.50);
+  color:rgba(255,255,255,0.38);
 }
 .apple-tool-btn{
-  height:32px;
-  min-width:32px;
-  padding:0 12px;
+  height:26px;
+  min-width:26px;
+  padding:0 10px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,0.10);
-  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.09);
+  background:rgba(255,255,255,0.03);
   backdrop-filter:blur(12px);
+  font-size:10px;
 }
 
 body.journal-apple-shell .main{
@@ -5959,5 +6057,279 @@ body > div[style*="position:fixed"][style*="border-radius:50%"] {
 /* Fcard padding tighter */
 .fcard {
   padding: 16px 18px !important;
+}
+
+
+/* ══════════════════════════════════════════════════
+   PATCH v4 — 4 tasks:
+   1) AI Coach response colors & structure
+   2) Apple nav — compact + orange glow
+   3) Navbar button glow
+   4) coach-btn breathe animation, match save-trade size
+   ══════════════════════════════════════════════════ */
+
+/* ── TASK 1: AI COACH — richer color structure ─────────── */
+
+/* Card outer container */
+.coach-card {
+  border-color: rgba(242,107,58,0.12) !important;
+}
+
+/* Severity rows — stronger contrast */
+.coach-rec {
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  gap: 10px !important;
+  align-items: flex-start !important;
+}
+
+/* CRITICAL — vivid red */
+.coach-rec.crit {
+  background: rgba(248,113,113,0.07) !important;
+  border: 1px solid rgba(248,113,113,0.28) !important;
+  border-left: 3px solid #F87171 !important;
+}
+.coach-rec.crit .coach-rec-icon { color: #F87171; }
+.coach-rec.crit .coach-rec-text { color: rgba(255,190,190,0.92) !important; }
+.coach-rec.crit .coach-rec-badge {
+  background: rgba(248,113,113,0.14) !important;
+  color: #F87171 !important;
+  border: 1px solid rgba(248,113,113,0.35) !important;
+  font-weight: 600 !important;
+}
+
+/* WARNING — vivid amber */
+.coach-rec.warn {
+  background: rgba(251,191,36,0.06) !important;
+  border: 1px solid rgba(251,191,36,0.24) !important;
+  border-left: 3px solid #FBBF24 !important;
+}
+.coach-rec.warn .coach-rec-icon { color: #FBBF24; }
+.coach-rec.warn .coach-rec-text { color: rgba(255,230,150,0.92) !important; }
+.coach-rec.warn .coach-rec-badge {
+  background: rgba(251,191,36,0.12) !important;
+  color: #FBBF24 !important;
+  border: 1px solid rgba(251,191,36,0.32) !important;
+  font-weight: 600 !important;
+}
+
+/* GOOD / STRENGTH — vivid green */
+.coach-rec.good {
+  background: rgba(52,211,153,0.06) !important;
+  border: 1px solid rgba(52,211,153,0.24) !important;
+  border-left: 3px solid #34D399 !important;
+}
+.coach-rec.good .coach-rec-icon { color: #34D399; }
+.coach-rec.good .coach-rec-text { color: rgba(160,245,200,0.92) !important; }
+.coach-rec.good .coach-rec-badge {
+  background: rgba(52,211,153,0.12) !important;
+  color: #34D399 !important;
+  border: 1px solid rgba(52,211,153,0.32) !important;
+  font-weight: 600 !important;
+}
+
+/* Badge — bigger, more visible */
+.coach-rec-badge {
+  font-size: 10px !important;
+  padding: 3px 9px !important;
+  border-radius: 6px !important;
+  letter-spacing: 1px !important;
+  white-space: nowrap !important;
+}
+
+/* Icon — larger */
+.coach-rec-icon {
+  font-size: 18px !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Action arrow line — orange, stands out */
+.coach-rec-text span[style*="color:var(--a)"] {
+  color: #F26B3A !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  display: block !important;
+  margin-top: 5px !important;
+  padding-top: 5px !important;
+  border-top: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Pattern title inside rec-text */
+.coach-rec-text strong {
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  margin-bottom: 3px !important;
+  color: rgba(255,255,255,0.96) !important;
+}
+
+/* Gap between recs */
+.coach-recs {
+  gap: 10px !important;
+}
+
+/* Coach header name */
+.coach-name {
+  color: var(--brand) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+/* ── TASK 2: APPLE NAV — compact + orange glow ─────────── */
+
+.apple-navbar {
+  height: 44px !important;
+  background: rgba(10,10,13,0.78) !important;
+  backdrop-filter: saturate(200%) blur(28px) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  /* orange bottom glow line */
+  box-shadow: 0 1px 0 rgba(242,107,58,0.18), 0 0 32px rgba(242,107,58,0.06) !important;
+}
+
+/* shrink variable used by body.main padding */
+:root { --apple-nav-h: 44px; }
+
+.apple-nav-inner {
+  max-width: 1380px !important;
+  padding: 0 20px !important;
+  gap: 20px !important;
+}
+
+/* Brand — tighter */
+.apple-brand {
+  gap: 7px !important;
+}
+.apple-brand-text {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+}
+.apple-brand-mark {
+  width: 7px !important;
+  height: 7px !important;
+  box-shadow: 0 0 10px rgba(242,107,58,0.55), 0 0 20px rgba(242,107,58,0.25) !important;
+}
+
+/* Nav links — no dropdown caret, tight */
+.apple-nav-link {
+  height: 28px !important;
+  padding: 0 11px !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  color: rgba(255,255,255,0.72) !important;
+  border-radius: 999px !important;
+  border: 1px solid transparent !important;
+  letter-spacing: -0.01em !important;
+}
+.apple-nav-link:hover {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(242,107,58,0.10) !important;
+}
+.apple-menu.open .apple-nav-link,
+.apple-nav-link.active {
+  background: rgba(242,107,58,0.10) !important;
+  border-color: rgba(242,107,58,0.22) !important;
+  color: rgba(255,200,170,0.95) !important;
+  box-shadow: 0 0 12px rgba(242,107,58,0.14) !important;
+}
+
+/* Caret — hide */
+.apple-nav-caret { display: none !important; }
+
+/* Nav gap tighter */
+.apple-nav-links { gap: 4px !important; }
+
+/* Menu panel — tighter */
+.apple-menu-panel {
+  top: calc(100% + 8px) !important;
+  border-radius: 18px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  background: rgba(16,16,20,0.94) !important;
+  backdrop-filter: blur(30px) saturate(160%) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(242,107,58,0.12), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+.apple-menu-item {
+  font-size: 18px !important;
+  padding: 7px 0 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* Tool buttons right side */
+.apple-tool-btn {
+  height: 28px !important;
+  min-width: 28px !important;
+  padding: 0 10px !important;
+  font-size: 11px !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+  background: rgba(255,255,255,0.03) !important;
+}
+.apple-tool-btn:hover {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(242,107,58,0.28) !important;
+  box-shadow: 0 0 8px rgba(242,107,58,0.12) !important;
+}
+.apple-current-page {
+  font-size: 11px !important;
+  color: rgba(255,255,255,0.40) !important;
+}
+
+/* ── TASK 3: MOB NAV BUTTON GLOW ───────────────────────── */
+
+.mob-nav-btn.active {
+  background: rgba(242,107,58,0.10) !important;
+  border-color: rgba(242,107,58,0.24) !important;
+  color: var(--a) !important;
+  box-shadow: 0 0 10px rgba(242,107,58,0.18), 0 0 0 1px rgba(242,107,58,0.10) !important;
+}
+
+/* ── TASK 4: COACH-BTN — breathe + match btn-add size ───── */
+
+@keyframes btnBreathe {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(242,107,58,0.22), 0 6px 20px rgba(242,107,58,0.16);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(242,107,58,0.42), 0 8px 28px rgba(242,107,58,0.28);
+    transform: scale(1.012);
+  }
+}
+
+#coach-btn,
+.coach-run-btn {
+  /* match save-trade / btn-add size */
+  height: 36px !important;
+  padding: 0 18px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.6px !important;
+  border-radius: 999px !important;
+  /* orange gradient matching btn-add */
+  background: linear-gradient(135deg, rgba(242,107,58,0.95), rgba(255,92,74,0.88)) !important;
+  border: 1px solid rgba(242,107,58,0.9) !important;
+  color: #fff !important;
+  /* breathe */
+  animation: btnBreathe 2.4s ease-in-out infinite !important;
+  transition: opacity 0.15s !important;
+  cursor: pointer !important;
+}
+
+#coach-btn:hover,
+.coach-run-btn:hover {
+  opacity: 0.88 !important;
+  animation-play-state: paused !important;
+}
+
+#coach-btn:disabled,
+.coach-run-btn:disabled {
+  animation: none !important;
+  opacity: 0.55 !important;
+  box-shadow: none !important;
 }
 
