@@ -581,6 +581,359 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
   }
 })();
 
+/* === CUSTOM TRADE PANEL WORKSPACE === */
+(() => {
+  const STORAGE_KEY = 'orb_trade_panel_layout_v1';
+  const EDIT_KEY = 'orb_trade_panel_layout_edit_v1';
+  const GRID_COLS = 12;
+  const MIN_W = 3;
+  const MIN_H = 1;
+  const MAX_ROWS = 16;
+  let layoutState = {};
+  let editMode = false;
+
+  function clamp(value, min, max){ return Math.max(min, Math.min(max, value)); }
+  function workspace(){ return document.getElementById('trade-panel-workspace'); }
+  function tradeForm(){ return document.getElementById('add-trade-form'); }
+
+  function readState(){
+    try{
+      layoutState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {};
+      editMode = localStorage.getItem(EDIT_KEY) !== '0';
+    }catch(_){
+      layoutState = {};
+      editMode = true;
+    }
+  }
+
+  function writeState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layoutState));
+      localStorage.setItem(EDIT_KEY, editMode ? '1' : '0');
+    }catch(_){}
+  }
+
+  function panelDefaults(panel){
+    return {
+      x: parseInt(panel.dataset.defaultX || '1', 10),
+      y: parseInt(panel.dataset.defaultY || '1', 10),
+      w: parseInt(panel.dataset.defaultW || '4', 10),
+      h: parseInt(panel.dataset.defaultH || '2', 10),
+      hidden: false
+    };
+  }
+
+  function rectFor(panelId, override){
+    const panel = document.querySelector(`.trade-panel[data-panel="${panelId}"]`);
+    if(!panel) return null;
+    const base = panelDefaults(panel);
+    const saved = layoutState[panelId] || {};
+    return { ...base, ...saved, ...override };
+  }
+
+  function overlap(a, b){
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  }
+
+  function resolveCollisions(activeId){
+    const panels = Array.from(document.querySelectorAll('.trade-panel'));
+    for(let i = 0; i < 24; i++){
+      let changed = false;
+      for(const panel of panels){
+        const id = panel.dataset.panel;
+        if(id === activeId) continue;
+        const rect = rectFor(id);
+        const active = rectFor(activeId);
+        if(!rect || !active || rect.hidden || active.hidden) continue;
+        if(overlap(active, rect)){
+          layoutState[id] = { ...rect, y: clamp(active.y + active.h, 1, MAX_ROWS) };
+          changed = true;
+        }
+      }
+      if(!changed) break;
+    }
+  }
+
+  function compactPanels(){
+    const items = Array.from(document.querySelectorAll('.trade-panel'))
+      .map(panel => ({ id: panel.dataset.panel, rect: rectFor(panel.dataset.panel) }))
+      .filter(item => item.rect && !item.rect.hidden)
+      .sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
+    items.forEach(item => {
+      let nextY = item.rect.y;
+      while(nextY > 1){
+        const test = { ...item.rect, y: nextY - 1 };
+        const hit = items.some(other => other.id !== item.id && !other.rect.hidden && overlap(test, rectFor(other.id)));
+        if(hit) break;
+        nextY -= 1;
+      }
+      layoutState[item.id] = { ...item.rect, y: nextY };
+    });
+  }
+
+  function updateHiddenTray(){
+    const tray = document.getElementById('trade-layout-hidden');
+    const list = document.getElementById('trade-hidden-list');
+    if(!tray || !list) return;
+    const hidden = Array.from(document.querySelectorAll('.trade-panel'))
+      .map(panel => ({ id: panel.dataset.panel, title: panel.dataset.title, rect: rectFor(panel.dataset.panel) }))
+      .filter(item => item.rect && item.rect.hidden);
+    list.innerHTML = '';
+    tray.hidden = hidden.length === 0;
+    hidden.forEach(item => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'trade-hidden-chip';
+      chip.textContent = `Show ${item.title}`;
+      chip.onclick = () => window.restoreTradePanel(item.id);
+      list.appendChild(chip);
+    });
+  }
+
+  function applyLayout(){
+    const form = tradeForm();
+    const grid = workspace();
+    if(!form || !grid) return;
+    form.classList.toggle('trade-layout-editing', editMode && window.innerWidth > 1080);
+    const editBtn = document.getElementById('trade-layout-edit-btn');
+    if(editBtn) editBtn.classList.toggle('active', editMode && window.innerWidth > 1080);
+    document.querySelectorAll('.trade-panel').forEach(panel => {
+      const rect = rectFor(panel.dataset.panel);
+      if(!rect) return;
+      panel.classList.toggle('is-hidden', !!rect.hidden);
+      panel.style.gridColumn = `${rect.x} / span ${rect.w}`;
+      panel.style.gridRow = `${rect.y} / span ${rect.h}`;
+    });
+    updateHiddenTray();
+    writeState();
+  }
+
+  function buildPanel(id, title, num, nodes, defaults){
+    const panel = document.createElement('section');
+    panel.className = 'trade-panel';
+    panel.dataset.panel = id;
+    panel.dataset.title = title;
+    panel.dataset.defaultX = defaults.x;
+    panel.dataset.defaultY = defaults.y;
+    panel.dataset.defaultW = defaults.w;
+    panel.dataset.defaultH = defaults.h;
+    panel.innerHTML = `
+      <div class="trade-panel-header">
+        <div class="trade-panel-heading">
+          <button class="trade-panel-grip" type="button" aria-label="Move panel">⋮⋮</button>
+          <span><span class="form-section-num">${num}</span> ${title}</span>
+        </div>
+        <div class="trade-panel-actions">
+          <button class="trade-panel-icon" type="button">Hide</button>
+        </div>
+      </div>
+      <div class="trade-panel-body"></div>
+      <button class="trade-panel-resize" type="button" aria-label="Resize panel"></button>
+    `;
+    panel.querySelector('.trade-panel-icon').addEventListener('click', () => window.hideTradePanel(id));
+    const body = panel.querySelector('.trade-panel-body');
+    nodes.filter(Boolean).forEach(node => {
+      node.classList.add('trade-panel-source');
+      body.appendChild(node);
+    });
+    return panel;
+  }
+
+  function createWorkspace(){
+    const form = tradeForm();
+    const actionBar = form && form.querySelector('.form-actions');
+    const shell = form && form.querySelector('.trade-form-shell');
+    const left = shell && shell.querySelector('.trade-form-left');
+    const right = shell && shell.querySelector('.trade-form-right');
+    const analysis = form && Array.from(form.children).find(child => child.classList && child.classList.contains('form-section'));
+    if(!form || !actionBar || !shell || !left || !right || !analysis) return;
+
+    const setupMain = left.querySelector('.form-section');
+    const setupType = setupMain && setupMain.querySelector('.mb-4');
+    const risk = left.querySelector('.form-section-risk');
+    const prices = right.querySelector('.form-section-prices');
+    if(!setupMain || !setupType || !risk || !prices) return;
+    setupType.remove();
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'trade-layout-toolbar';
+    toolbar.innerHTML = `
+      <div class="trade-layout-copy">
+        <span class="trade-layout-title">Workspace Layout</span>
+        <span class="trade-layout-sub">Drag panels, resize them, hide them, and build your own terminal.</span>
+      </div>
+      <div class="trade-layout-actions">
+        <button class="trade-layout-btn" id="trade-layout-edit-btn" type="button">Customize Layout</button>
+        <button class="trade-layout-btn" id="trade-layout-reset-btn" type="button">Reset</button>
+      </div>
+    `;
+
+    const grid = document.createElement('div');
+    grid.className = 'trade-panel-workspace';
+    grid.id = 'trade-panel-workspace';
+
+    const hidden = document.createElement('div');
+    hidden.className = 'trade-layout-hidden';
+    hidden.id = 'trade-layout-hidden';
+    hidden.hidden = true;
+    hidden.innerHTML = '<div class="trade-hidden-label">Hidden panels</div><div class="trade-hidden-list" id="trade-hidden-list"></div>';
+
+    [
+      buildPanel('setup-main', 'Trade Setup', '01A', [setupMain], { x: 1, y: 1, w: 7, h: 2 }),
+      buildPanel('setup-type', 'Setup Type', '01B', [setupType], { x: 1, y: 3, w: 7, h: 1 }),
+      buildPanel('risk', 'Position & Risk', '02', [risk], { x: 1, y: 4, w: 7, h: 2 }),
+      buildPanel('prices', 'Prices & P&L', '03', [prices], { x: 8, y: 1, w: 5, h: 3 }),
+      buildPanel('analysis', 'Analysis & Notes', '04', [analysis], { x: 8, y: 4, w: 5, h: 3 })
+    ].forEach(panel => grid.appendChild(panel));
+
+    form.insertBefore(toolbar, actionBar);
+    form.insertBefore(grid, actionBar);
+    form.insertBefore(hidden, actionBar);
+    shell.remove();
+    form.classList.add('trade-layout-ready');
+
+    const editBtn = document.getElementById('trade-layout-edit-btn');
+    const resetBtn = document.getElementById('trade-layout-reset-btn');
+    if(editBtn) editBtn.addEventListener('click', () => window.toggleTradeLayoutEdit());
+    if(resetBtn) resetBtn.addEventListener('click', () => window.resetTradePanelLayout());
+  }
+
+  function pointerMetrics(grid){
+    const styles = getComputedStyle(grid);
+    const gap = parseFloat(styles.columnGap || '12');
+    const row = parseFloat(styles.gridAutoRows || '72');
+    const col = (grid.getBoundingClientRect().width - gap * (GRID_COLS - 1)) / GRID_COLS;
+    return { gap, row, col };
+  }
+
+  function startDrag(event){
+    if(!editMode || window.innerWidth <= 1080) return;
+    const panel = event.currentTarget.closest('.trade-panel');
+    const grid = workspace();
+    if(!panel || !grid) return;
+    const id = panel.dataset.panel;
+    const start = rectFor(id);
+    if(!start) return;
+    const metrics = pointerMetrics(grid);
+    const startX = event.clientX;
+    const startY = event.clientY;
+    panel.classList.add('is-dragging');
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const move = e => {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      layoutState[id] = {
+        ...start,
+        x: clamp(start.x + Math.round(dx / (metrics.col + metrics.gap)), 1, GRID_COLS - start.w + 1),
+        y: clamp(start.y + Math.round(dy / (metrics.row + metrics.gap)), 1, MAX_ROWS)
+      };
+      resolveCollisions(id);
+      applyLayout();
+    };
+    const up = () => {
+      panel.classList.remove('is-dragging');
+      compactPanels();
+      applyLayout();
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up, { once:true });
+  }
+
+  function startResize(event){
+    if(!editMode || window.innerWidth <= 1080) return;
+    const panel = event.currentTarget.closest('.trade-panel');
+    const grid = workspace();
+    if(!panel || !grid) return;
+    const id = panel.dataset.panel;
+    const start = rectFor(id);
+    if(!start) return;
+    const metrics = pointerMetrics(grid);
+    const startX = event.clientX;
+    const startY = event.clientY;
+    panel.classList.add('is-dragging');
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const move = e => {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      layoutState[id] = {
+        ...start,
+        w: clamp(start.w + Math.round(dx / (metrics.col + metrics.gap)), MIN_W, GRID_COLS - start.x + 1),
+        h: clamp(start.h + Math.round(dy / (metrics.row + metrics.gap)), MIN_H, 6)
+      };
+      resolveCollisions(id);
+      applyLayout();
+    };
+    const up = () => {
+      panel.classList.remove('is-dragging');
+      compactPanels();
+      applyLayout();
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up, { once:true });
+  }
+
+  function bindGestures(){
+    document.querySelectorAll('.trade-panel-grip').forEach(handle => {
+      if(handle.dataset.bound) return;
+      handle.dataset.bound = '1';
+      handle.addEventListener('pointerdown', startDrag);
+    });
+    document.querySelectorAll('.trade-panel-resize').forEach(handle => {
+      if(handle.dataset.bound) return;
+      handle.dataset.bound = '1';
+      handle.addEventListener('pointerdown', startResize);
+    });
+  }
+
+  window.toggleTradeLayoutEdit = function(force){
+    editMode = typeof force === 'boolean' ? force : !editMode;
+    applyLayout();
+  };
+
+  window.hideTradePanel = function(id){
+    const rect = rectFor(id);
+    if(!rect) return;
+    layoutState[id] = { ...rect, hidden:true };
+    compactPanels();
+    applyLayout();
+  };
+
+  window.restoreTradePanel = function(id){
+    const rect = rectFor(id);
+    if(!rect) return;
+    layoutState[id] = { ...rect, hidden:false };
+    compactPanels();
+    applyLayout();
+  };
+
+  window.resetTradePanelLayout = function(){
+    layoutState = {};
+    applyLayout();
+  };
+
+  function initTradePanelWorkspace(){
+    const form = tradeForm();
+    if(!form || form.dataset.tradeWorkspaceInit === '1') return;
+    readState();
+    createWorkspace();
+    if(!workspace()) return;
+    bindGestures();
+    applyLayout();
+    form.dataset.tradeWorkspaceInit = '1';
+    window.addEventListener('resize', applyLayout);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initTradePanelWorkspace);
+  }else{
+    initTradePanelWorkspace();
+  }
+})();
+
 /* ── PHASE 3: Expandable trade cards + click handler ── */
 (function(){
   // Patch render() to emit expandable structure
