@@ -591,31 +591,6 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
   const MAX_ROWS = 16;
   let layoutState = {};
   let editMode = false;
-  let focusPanelId = null;
-  let statusTimer = null;
-  const PRESETS = {
-    scalp: {
-      'setup-main': { x:1, y:1, w:7, h:2, hidden:false },
-      'setup-type': { x:1, y:3, w:7, h:1, hidden:false },
-      risk: { x:1, y:4, w:7, h:2, hidden:false },
-      prices: { x:8, y:1, w:5, h:3, hidden:false },
-      analysis: { x:8, y:4, w:5, h:3, hidden:false }
-    },
-    swing: {
-      'setup-main': { x:1, y:1, w:6, h:2, hidden:false },
-      'setup-type': { x:1, y:3, w:6, h:1, hidden:false },
-      risk: { x:1, y:4, w:6, h:2, hidden:false },
-      prices: { x:7, y:1, w:6, h:3, hidden:false },
-      analysis: { x:7, y:4, w:6, h:4, hidden:false }
-    },
-    review: {
-      'setup-main': { x:1, y:1, w:5, h:2, hidden:false },
-      'setup-type': { x:1, y:3, w:5, h:1, hidden:false },
-      risk: { x:1, y:4, w:5, h:2, hidden:false },
-      prices: { x:6, y:1, w:7, h:3, hidden:false },
-      analysis: { x:6, y:4, w:7, h:4, hidden:false }
-    }
-  };
 
   function clamp(value, min, max){ return Math.max(min, Math.min(max, value)); }
   function workspace(){ return document.getElementById('trade-panel-workspace'); }
@@ -636,18 +611,6 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
       localStorage.setItem(STORAGE_KEY, JSON.stringify(layoutState));
       localStorage.setItem(EDIT_KEY, editMode ? '1' : '0');
     }catch(_){}
-  }
-
-  function setLayoutStatus(text){
-    const badge = document.getElementById('trade-layout-status');
-    if(!badge) return;
-    badge.textContent = text;
-    if(statusTimer) clearTimeout(statusTimer);
-    if(text !== 'Saved'){
-      statusTimer = setTimeout(() => {
-        if(badge.textContent === text) badge.textContent = 'Saved';
-      }, 1400);
-    }
   }
 
   function panelDefaults(panel){
@@ -732,21 +695,14 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     const grid = workspace();
     if(!form || !grid) return;
     form.classList.toggle('trade-layout-editing', editMode && window.innerWidth > 1080);
-    form.classList.toggle('trade-layout-focus', !!focusPanelId);
     const editBtn = document.getElementById('trade-layout-edit-btn');
     if(editBtn) editBtn.classList.toggle('active', editMode && window.innerWidth > 1080);
-    const focusBtn = document.getElementById('trade-layout-focus-reset');
-    if(focusBtn) focusBtn.hidden = !focusPanelId;
     document.querySelectorAll('.trade-panel').forEach(panel => {
       const rect = rectFor(panel.dataset.panel);
       if(!rect) return;
-      const isFocus = focusPanelId === panel.dataset.panel;
-      const hidden = !!rect.hidden || (!!focusPanelId && !isFocus);
-      panel.classList.toggle('is-hidden', hidden);
-      panel.classList.toggle('is-focused', isFocus);
-      panel.classList.toggle('is-muted', !!focusPanelId && !isFocus);
-      panel.style.gridColumn = isFocus ? `1 / span ${GRID_COLS}` : `${rect.x} / span ${rect.w}`;
-      panel.style.gridRow = isFocus ? `1 / span 6` : `${rect.y} / span ${rect.h}`;
+      panel.classList.toggle('is-hidden', !!rect.hidden);
+      panel.style.gridColumn = `${rect.x} / span ${rect.w}`;
+      panel.style.gridRow = `${rect.y} / span ${rect.h}`;
     });
     updateHiddenTray();
     writeState();
@@ -768,15 +724,13 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
           <span><span class="form-section-num">${num}</span> ${title}</span>
         </div>
         <div class="trade-panel-actions">
-          <button class="trade-panel-icon trade-panel-focus" type="button">Focus</button>
           <button class="trade-panel-icon" type="button">Hide</button>
         </div>
       </div>
       <div class="trade-panel-body"></div>
       <button class="trade-panel-resize" type="button" aria-label="Resize panel"></button>
     `;
-    panel.querySelector('.trade-panel-icon.trade-panel-focus').addEventListener('click', () => window.toggleTradePanelFocus(id));
-    panel.querySelector('.trade-panel-icon:not(.trade-panel-focus)').addEventListener('click', () => window.hideTradePanel(id));
+    panel.querySelector('.trade-panel-icon').addEventListener('click', () => window.hideTradePanel(id));
     const body = panel.querySelector('.trade-panel-body');
     nodes.filter(Boolean).forEach(node => {
       node.classList.add('trade-panel-source');
@@ -809,14 +763,7 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
         <span class="trade-layout-sub">Drag panels, resize them, hide them, and build your own terminal.</span>
       </div>
       <div class="trade-layout-actions">
-        <span class="trade-layout-status" id="trade-layout-status">Saved</span>
-        <div class="trade-layout-presets">
-          <button class="trade-layout-btn trade-layout-preset" type="button" data-preset="scalp">Scalp</button>
-          <button class="trade-layout-btn trade-layout-preset" type="button" data-preset="swing">Swing</button>
-          <button class="trade-layout-btn trade-layout-preset" type="button" data-preset="review">Review</button>
-        </div>
         <button class="trade-layout-btn" id="trade-layout-edit-btn" type="button">Customize Layout</button>
-        <button class="trade-layout-btn" id="trade-layout-focus-reset" type="button" hidden>Exit Focus</button>
         <button class="trade-layout-btn" id="trade-layout-reset-btn" type="button">Reset</button>
       </div>
     `;
@@ -846,14 +793,9 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     form.classList.add('trade-layout-ready');
 
     const editBtn = document.getElementById('trade-layout-edit-btn');
-    const focusResetBtn = document.getElementById('trade-layout-focus-reset');
     const resetBtn = document.getElementById('trade-layout-reset-btn');
     if(editBtn) editBtn.addEventListener('click', () => window.toggleTradeLayoutEdit());
-    if(focusResetBtn) focusResetBtn.addEventListener('click', () => window.toggleTradePanelFocus(null));
     if(resetBtn) resetBtn.addEventListener('click', () => window.resetTradePanelLayout());
-    document.querySelectorAll('.trade-layout-preset').forEach(btn => {
-      btn.addEventListener('click', () => window.applyTradePreset(btn.dataset.preset));
-    });
   }
 
   function pointerMetrics(grid){
@@ -949,7 +891,6 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
 
   window.toggleTradeLayoutEdit = function(force){
     editMode = typeof force === 'boolean' ? force : !editMode;
-    setLayoutStatus(editMode ? 'Layout Unlocked' : 'Layout Locked');
     applyLayout();
   };
 
@@ -957,9 +898,7 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     const rect = rectFor(id);
     if(!rect) return;
     layoutState[id] = { ...rect, hidden:true };
-    if(focusPanelId === id) focusPanelId = null;
     compactPanels();
-    setLayoutStatus('Panel Hidden');
     applyLayout();
   };
 
@@ -968,29 +907,11 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     if(!rect) return;
     layoutState[id] = { ...rect, hidden:false };
     compactPanels();
-    setLayoutStatus('Panel Restored');
     applyLayout();
   };
 
   window.resetTradePanelLayout = function(){
     layoutState = {};
-    focusPanelId = null;
-    setLayoutStatus('Layout Reset');
-    applyLayout();
-  };
-
-  window.applyTradePreset = function(name){
-    if(!PRESETS[name]) return;
-    layoutState = JSON.parse(JSON.stringify(PRESETS[name]));
-    focusPanelId = null;
-    setLayoutStatus(`Preset: ${name[0].toUpperCase()}${name.slice(1)}`);
-    applyLayout();
-  };
-
-  window.toggleTradePanelFocus = function(id){
-    focusPanelId = focusPanelId === id ? null : id;
-    const panel = focusPanelId ? document.querySelector(`.trade-panel[data-panel="${focusPanelId}"]`) : null;
-    setLayoutStatus(panel ? `Focus: ${panel.dataset.title}` : 'Saved');
     applyLayout();
   };
 
