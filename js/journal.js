@@ -723,14 +723,10 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
           <button class="trade-panel-grip" type="button" aria-label="Move panel">⋮⋮</button>
           <span><span class="form-section-num">${num}</span> ${title}</span>
         </div>
-        <div class="trade-panel-actions">
-          <button class="trade-panel-icon" type="button">Hide</button>
-        </div>
       </div>
       <div class="trade-panel-body"></div>
       <button class="trade-panel-resize" type="button" aria-label="Resize panel"></button>
     `;
-    panel.querySelector('.trade-panel-icon').addEventListener('click', () => window.hideTradePanel(id));
     const body = panel.querySelector('.trade-panel-body');
     nodes.filter(Boolean).forEach(node => {
       node.classList.add('trade-panel-source');
@@ -760,10 +756,10 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     toolbar.innerHTML = `
       <div class="trade-layout-copy">
         <span class="trade-layout-title">Layout</span>
-        <span class="trade-layout-sub">Rearrange sections only when you need a different workflow.</span>
+        <span class="trade-layout-sub">Adjust only when needed.</span>
       </div>
       <div class="trade-layout-actions">
-        <button class="trade-layout-btn" id="trade-layout-edit-btn" type="button">Customize</button>
+        <button class="trade-layout-btn" id="trade-layout-edit-btn" type="button">Edit</button>
         <button class="trade-layout-btn" id="trade-layout-reset-btn" type="button">Reset</button>
       </div>
     `;
