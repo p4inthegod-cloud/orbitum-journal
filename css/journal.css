@@ -7285,3 +7285,50 @@ html[data-theme="light"] .new-trade-card {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* ══════════════════════════════════════════════════════════
+   ШАГ 1 — Визуальное упрощение
+   Цель: интерфейс дышит. Меньше шума, не меньше характера.
+   Изменения:
+     A. Границы — тише (переменные)
+     B. Фоновый градиент снизу — в 2× слабее
+     C. Фоновые орбы — в 2× тише
+     D. Сетка фона — с 0.6 до 0.22
+     E. Glow на brand-mark — убран (подтверждение)
+     F. Glow на tool-btn hover — убран
+     G. Glow на lever-thumb — ослаблен
+   ══════════════════════════════════════════════════════════ */
+
+/* A — Граничные токены: меньше заметности */
+:root {
+  --bd:  rgba(255,255,255,0.05);
+  --bd2: rgba(255,255,255,0.08);
+  --bd3: rgba(255,255,255,0.13);
+}
+
+/* B — Фоновый градиент у основания: вполовину тише */
+body::after {
+  background:
+    radial-gradient(ellipse 58% 58% at 35% 112%, rgba(242,107,58,0.07) 0%, transparent 64%),
+    radial-gradient(ellipse 58% 58% at 68% 112%, rgba(242,107,58,0.05) 0%, transparent 66%),
+    radial-gradient(ellipse 84% 28% at 50% 103%, rgba(242,107,58,0.03) 0%, transparent 72%);
+}
+
+/* C — Орбы: почти невидимы */
+.bg-orbs-wrap { opacity: 0.45 !important; }
+.bg-o-1, .bg-o-2, .bg-o-3 { opacity: 0.35 !important; }
+
+/* D — Сетка фона: едва различима */
+.main::before { opacity: 0.22 !important; }
+
+/* E — brand-mark: без свечения */
+.apple-brand-mark { box-shadow: none !important; }
+
+/* F — tool-btn hover: без цветного свечения */
+.apple-tool-btn:hover { box-shadow: none !important; }
+
+/* G — lever slider thumb: минимальное свечение */
+.lev-range::-webkit-slider-thumb {
+  box-shadow: 0 0 4px rgba(242,107,58,0.12) !important;
+}
