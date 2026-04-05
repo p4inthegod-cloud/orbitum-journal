@@ -1295,12 +1295,35 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     window.showPage = wrapped;
   }
 
+
+  function syncStatSubtitles(){
+    const lang = (window._currentLang || 'EN').toUpperCase();
+    document.querySelectorAll('.stat-sub[data-en]').forEach(el => {
+      const value = lang === 'RU' ? el.getAttribute('data-ru') : el.getAttribute('data-en');
+      if(value) el.textContent = value;
+    });
+  }
+
+  function bindLangRefresh(){
+    if (typeof window.toggleLang !== 'function' || window.toggleLang.__calmWrapped) return;
+    const original = window.toggleLang;
+    const wrapped = function(){
+      const result = original.apply(this, arguments);
+      syncStatSubtitles();
+      return result;
+    };
+    wrapped.__calmWrapped = true;
+    window.toggleLang = wrapped;
+  }
+
   function initPremiumLayer(){
     applyTheme(getTheme());
     ensureAdvisorRail();
     renderAdvisorContext();
     overrideBoot();
     enhanceShowPage();
+    bindLangRefresh();
+    syncStatSubtitles();
   }
 
   if (document.readyState === 'loading') {

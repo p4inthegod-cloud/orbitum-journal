@@ -7285,3 +7285,232 @@ html[data-theme="light"] .new-trade-card {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   CALM PRODUCT SYSTEM REFINEMENT (2026-04)
+   ─ quiet visuals, 3-level containers, spacing/type/chip unification
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  --radius-page: 20px;
+  --radius-panel: 14px;
+  --radius-component: 10px;
+
+  --border-soft: 1px solid rgba(255,255,255,0.08);
+  --panel-bg: rgba(17,17,20,0.9);
+  --component-bg: rgba(255,255,255,0.025);
+
+  --shadow-soft: 0 10px 28px rgba(0,0,0,0.22);
+  --shadow-focus: 0 0 0 3px rgba(242,107,58,0.2);
+
+  --type-page-title: 28px;
+  --type-section-title: 20px;
+  --type-card-title: 15px;
+  --type-label: 11px;
+  --type-helper: 12px;
+  --type-kpi: 30px;
+  --type-chip: 12px;
+  --lh-tight: 1.2;
+  --lh-base: 1.45;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --text-secondary: 0.62;
+}
+
+/* less texture + less glow = more calm */
+body::before { opacity: 0.08 !important; }
+body::after { opacity: 0.34 !important; }
+.bg-o-1, .bg-o-2, .bg-o-3 { opacity: 0.3 !important; filter: blur(120px) !important; }
+.apple-brand-mark { box-shadow: 0 0 14px rgba(242,107,58,0.14) !important; }
+.stat-cell.glow-g, .stat-cell.glow-r, .stat-cell.glow-a { box-shadow: none !important; }
+
+/* page-level container */
+.main,
+body.journal-apple-shell .main {
+  max-width: 1420px !important;
+  padding: calc(var(--apple-nav-h) + var(--space-24)) var(--space-24) var(--space-32) !important;
+}
+
+/* section-level panels */
+.stats-row,
+.level-bar,
+.fcard,
+.tcard,
+.dash-card,
+.coach-card,
+.settings-card,
+.pm-section-card,
+.mc-card,
+.hm-card {
+  border: var(--border-soft) !important;
+  border-radius: var(--radius-panel) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+/* KPI row cleanup */
+.stats-row {
+  gap: var(--space-16) !important;
+  margin-top: var(--space-20) !important;
+  margin-bottom: var(--space-24) !important;
+}
+.stat-cell {
+  min-height: 116px;
+  padding: var(--space-16) var(--space-20) !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-8);
+}
+.stat-label {
+  margin-bottom: 0 !important;
+  font-size: var(--type-label) !important;
+  line-height: var(--lh-tight);
+  opacity: var(--text-secondary);
+}
+.stat-value {
+  font-size: clamp(24px, 2.1vw, var(--type-kpi)) !important;
+  line-height: 1.05;
+}
+.stat-cell:nth-child(3) .stat-value { font-size: clamp(28px, 2.4vw, 34px) !important; }
+.stat-sub {
+  font-size: var(--type-helper);
+  line-height: var(--lh-tight);
+  color: rgba(255,255,255,0.5);
+}
+
+/* form composition and hierarchy */
+.fcard { padding: var(--space-24) !important; }
+.fcard-title {
+  font-size: var(--type-card-title) !important;
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  margin-bottom: var(--space-20) !important;
+}
+.form-section,
+.em-section,
+.trade-metrics,
+.trade-metrics-grid,
+.trade-layout-toolbar,
+.trade-panel {
+  border: var(--border-soft) !important;
+  border-radius: var(--radius-component) !important;
+  background: var(--component-bg) !important;
+  box-shadow: none !important;
+}
+.form-section { padding: var(--space-16) !important; margin-bottom: var(--space-16) !important; }
+.form-section-label,
+.pm-section-title {
+  font-size: var(--type-section-title) !important;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
+}
+
+/* spacing normalization to 8/12/16/20/24/32 */
+.fg2, .fg3, .fg4 { gap: var(--space-16) !important; margin-bottom: var(--space-16) !important; }
+.field { gap: var(--space-8) !important; }
+.field label,
+.em-label,
+.pkpi-label,
+.trade-metric-label,
+.section-microtitle {
+  font-size: var(--type-label) !important;
+  line-height: var(--lh-tight);
+  opacity: var(--text-secondary);
+}
+.field input, .field select, .field textarea,
+.pm-limit-input {
+  min-height: 40px;
+  border-radius: var(--radius-component) !important;
+  border: var(--border-soft) !important;
+  padding: var(--space-8) var(--space-12) !important;
+  font-size: 13px !important;
+  line-height: var(--lh-base);
+}
+.field input::placeholder,
+.field textarea::placeholder,
+.pm-limit-input::placeholder { color: rgba(255,255,255,0.36) !important; }
+.field input:focus, .field select:focus, .field textarea:focus,
+.pm-limit-input:focus,
+.btn-add:focus,
+.apple-tool-btn:focus,
+.jtb-action-btn:focus,
+.res-btn:focus,
+.setup-btn:focus,
+.dbtn:focus,
+.em-opt:focus { box-shadow: var(--shadow-focus) !important; border-color: rgba(242,107,58,0.44) !important; }
+
+/* one component system for chips / pills / selectable controls */
+.res-btn,
+.setup-btn,
+.dbtn,
+.em-opt,
+.preset-color-btc,
+.preset-color-eth,
+.preset-color-sol,
+.preset-color-bnb,
+.preset-color-xrp,
+.preset-color-doge,
+.jtb-action-btn,
+.apple-tool-btn {
+  height: 34px;
+  border-radius: 999px !important;
+  border: var(--border-soft) !important;
+  padding: 0 var(--space-12) !important;
+  font-size: var(--type-chip) !important;
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+.res-btn:hover,
+.setup-btn:hover,
+.dbtn:hover,
+.em-opt:hover,
+.jtb-action-btn:hover,
+.apple-tool-btn:hover { border-color: rgba(255,255,255,0.16) !important; box-shadow: none !important; }
+
+/* calmer active states */
+.res-btn.active-win,
+.dbtn.long.active { background: rgba(52,211,153,0.14) !important; }
+.res-btn.active-loss,
+.dbtn.short.active { background: rgba(248,113,113,0.14) !important; }
+.res-btn.active-be,
+.setup-btn.active,
+.em-opt.active,
+.tnav.active,
+.jtb-nav.active,
+.apple-nav-link.active,
+.apple-menu.open .apple-nav-link { background: rgba(242,107,58,0.14) !important; border-color: rgba(242,107,58,0.36) !important; color: #fff !important; }
+
+/* product-like desktop header alignment */
+.apple-nav-inner {
+  grid-template-columns: minmax(160px,auto) 1fr minmax(220px,auto) !important;
+  gap: var(--space-20) !important;
+  padding: 0 var(--space-24) !important;
+}
+.apple-nav-links { gap: var(--space-8) !important; }
+.apple-nav-tools { gap: var(--space-8) !important; }
+.apple-current-page {
+  font-size: var(--type-helper) !important;
+  opacity: 0.64;
+  min-width: 94px;
+}
+.jtb-right { gap: var(--space-8) !important; }
+.jtb-profile-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  border: var(--border-soft) !important;
+}
+
+/* maintain readable layout on tablet/mobile */
+@media (max-width: 1080px) {
+  .main, body.journal-apple-shell .main { padding: var(--space-20) var(--space-16) 110px !important; }
+  .stats-row { gap: var(--space-12) !important; }
+  .fcard { padding: var(--space-16) !important; }
+}
