@@ -759,11 +759,11 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     toolbar.className = 'trade-layout-toolbar';
     toolbar.innerHTML = `
       <div class="trade-layout-copy">
-        <span class="trade-layout-title">Workspace Layout</span>
-        <span class="trade-layout-sub">Drag panels, resize them, hide them, and build your own terminal.</span>
+        <span class="trade-layout-title">Layout</span>
+        <span class="trade-layout-sub">Rearrange sections only when you need a different workflow.</span>
       </div>
       <div class="trade-layout-actions">
-        <button class="trade-layout-btn" id="trade-layout-edit-btn" type="button">Customize Layout</button>
+        <button class="trade-layout-btn" id="trade-layout-edit-btn" type="button">Customize</button>
         <button class="trade-layout-btn" id="trade-layout-reset-btn" type="button">Reset</button>
       </div>
     `;
@@ -779,11 +779,11 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     hidden.innerHTML = '<div class="trade-hidden-label">Hidden panels</div><div class="trade-hidden-list" id="trade-hidden-list"></div>';
 
     [
-      buildPanel('setup-main', 'Trade Setup', '01A', [setupMain], { x: 1, y: 1, w: 7, h: 2 }),
-      buildPanel('setup-type', 'Setup Type', '01B', [setupType], { x: 1, y: 3, w: 7, h: 1 }),
-      buildPanel('risk', 'Position & Risk', '02', [risk], { x: 1, y: 4, w: 7, h: 2 }),
-      buildPanel('prices', 'Prices & P&L', '03', [prices], { x: 8, y: 1, w: 5, h: 3 }),
-      buildPanel('analysis', 'Analysis & Notes', '04', [analysis], { x: 8, y: 4, w: 5, h: 3 })
+      buildPanel('setup-main', 'Trade Setup', '01', [setupMain], { x: 1, y: 1, w: 7, h: 2 }),
+      buildPanel('setup-type', 'Setup Type', '02', [setupType], { x: 1, y: 3, w: 7, h: 1 }),
+      buildPanel('risk', 'Position & Risk', '03', [risk], { x: 1, y: 4, w: 7, h: 2 }),
+      buildPanel('prices', 'Prices & P&L', '04', [prices], { x: 8, y: 1, w: 5, h: 3 }),
+      buildPanel('analysis', 'Analysis & Notes', '05', [analysis], { x: 8, y: 4, w: 5, h: 3 })
     ].forEach(panel => grid.appendChild(panel));
 
     form.insertBefore(toolbar, actionBar);
