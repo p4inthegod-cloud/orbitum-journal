@@ -4,121 +4,120 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Private Trading Intelligence System</title>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<meta property="og:type" content="website">
-<meta property="og:title" content="ORBITUM — Private Trading Intelligence System">
-<meta property="og:description" content="Private trading intelligence system. Journal, analytics, AI feedback, discipline tracking, and modular trader tools.">
-<meta property="og:url" content="https://orbitum.trade">
-<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Private trading intelligence system. Journal, analytics, AI feedback, discipline tracking, and modular trader tools.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0B0B0D;--bg2:#101012;--bg3:#161618;--bg4:#1c1c1e;
-  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.2);
-  --t:#d0d0d0;--m:rgba(255,255,255,0.55);--m2:rgba(255,255,255,0.28);
-  --fire:#F26B3A;--fire2:rgba(242,107,58,0.1);--fire3:rgba(242,107,58,0.28);
-  --g:#34D399;--r:#F87171;--y:#FBBF24;
-  --font:'Plus Jakarta Sans',sans-serif;
-  --mono:'DM Mono',monospace;
-  --rad:16px;
+  --bg:#F5F5F7;
+  --bg2:#EDEDEF;
+  --bg3:#E8E8EA;
+  --surface:#FFFFFF;
+  --bd:rgba(0,0,0,0.07);
+  --bd2:rgba(0,0,0,0.12);
+  --bd3:rgba(0,0,0,0.2);
+  --t:#0A0A0B;
+  --t2:#3A3A3C;
+  --m:rgba(0,0,0,0.52);
+  --m2:rgba(0,0,0,0.32);
+  --fire:#1A1A1A;
+  --fire-soft:rgba(26,26,26,0.06);
+  --fire-border:rgba(26,26,26,0.15);
+  --accent:#0A0A0B;
+  --font:'Sora',sans-serif;
+  --mono:'Fira Code',monospace;
+  --rad:14px;
 }
-html{scroll-behavior:smooth;scroll-padding-top:60px;}
-body{background:var(--bg);color:var(--t);font-family:var(--font);font-weight:400;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
-
-/* NOISE */
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:9999;opacity:0.45;}
-
-/* AMBIENT GLOW */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 55% 55% at 35% 110%, rgba(242,107,58,0.18) 0%,transparent 65%),
-    radial-gradient(ellipse 55% 55% at 65% 110%, rgba(242,107,58,0.14) 0%,transparent 65%),
-    radial-gradient(ellipse 80% 30% at 50% 100%, rgba(242,107,58,0.08) 0%,transparent 70%);
+html{scroll-behavior:smooth;scroll-padding-top:64px;}
+body{
+  background:var(--bg);color:var(--t);
+  font-family:var(--font);font-weight:400;line-height:1.6;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
 }
 
-/* ── NAV ── */
+/* SUBTLE ORB BG */
+.orb-bg{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.orb-bg::before{
+  content:'';position:absolute;
+  width:900px;height:900px;
+  background:radial-gradient(circle,rgba(255,255,255,0.9) 0%,transparent 65%);
+  top:-200px;left:50%;transform:translateX(-50%);
+  border-radius:50%;
+}
+.orb-bg::after{
+  content:'';position:absolute;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(0,0,0,0.03) 0%,transparent 70%);
+  bottom:0;right:-100px;border-radius:50%;
+}
+
+/* NAV */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:200;
-  height:52px;display:flex;align-items:center;
-  padding:0 32px;
-  background:rgba(22,22,26,0.92);
-  border-bottom:1px solid rgba(242,107,58,0.08);
+  height:56px;display:flex;align-items:center;
+  padding:0 40px;
+  background:rgba(245,245,247,0.88);
+  border-bottom:1px solid var(--bd);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
+  transition:background .3s,box-shadow .3s;
 }
 nav.scrolled{
-  background:rgba(22,22,26,0.97);
-  border-bottom-color:rgba(242,107,58,0.15);
+  background:rgba(245,245,247,0.96);
+  box-shadow:0 1px 0 var(--bd2),0 4px 20px rgba(0,0,0,0.06);
 }
 .logo{
-  font-weight:800;font-size:14px;letter-spacing:4px;
-  color:var(--t);text-transform:uppercase;text-decoration:none;
-  display:flex;align-items:center;gap:0;position:relative;flex-shrink:0;
+  font-weight:800;font-size:13px;letter-spacing:3.5px;
+  color:var(--t);text-decoration:none;text-transform:uppercase;
+  display:flex;align-items:center;gap:0;flex-shrink:0;position:relative;
 }
-.logo::after{
-  content:'';
-  display:inline-block;
+.logo-dot{
   width:5px;height:5px;border-radius:50%;
-  background:var(--fire);
-  margin-left:3px;
-  box-shadow:0 0 6px rgba(242,107,58,0.8);
-  flex-shrink:0;
-  margin-bottom:8px;
+  background:var(--t);margin-left:2px;margin-bottom:8px;flex-shrink:0;
 }
 .nav-links{
-  display:flex;gap:28px;list-style:none;
+  display:flex;gap:32px;list-style:none;
   position:absolute;left:50%;transform:translateX(-50%);
 }
 .nav-links a{
-  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;
   color:var(--m);text-decoration:none;text-transform:uppercase;
-  transition:color .2s;line-height:1;
+  transition:color .2s;
 }
 .nav-links a:hover{color:var(--t);}
 .nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
 .nav-lang{
-  height:26px;padding:0 10px;border-radius:6px;
-  border:1px solid var(--bd);background:transparent;
+  height:28px;padding:0 10px;border-radius:8px;
+  border:1px solid var(--bd2);background:transparent;
   color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;
   cursor:pointer;transition:all .15s;
 }
-.nav-lang:hover,.nav-lang.active{color:var(--fire);border-color:var(--fire3);}
+.nav-lang:hover,.nav-lang.active{color:var(--t);border-color:var(--bd3);background:rgba(0,0,0,0.05);}
 .nav-btn-ghost{
-  height:30px;padding:0 14px;border-radius:var(--rad);
+  height:32px;padding:0 16px;border-radius:var(--rad);
   border:1px solid var(--bd2);background:transparent;
-  color:rgba(255,255,255,0.6);font-family:var(--mono);font-size:10px;
+  color:var(--t2);font-family:var(--mono);font-size:10px;
   letter-spacing:0;text-transform:uppercase;
   cursor:pointer;text-decoration:none;
   display:inline-flex;align-items:center;justify-content:center;
   transition:all .2s;font-weight:500;white-space:nowrap;
-  line-height:1;
 }
-.nav-btn-ghost:hover{color:var(--t);border-color:var(--bd3);}
+.nav-btn-ghost:hover{border-color:var(--bd3);background:rgba(0,0,0,0.05);}
 .nav-cta{
-  height:30px;padding:0 16px;border-radius:var(--rad);
-  background:var(--fire);color:#fff;border:none;
-  font-family:var(--mono);font-size:10px;
-  font-weight:700;letter-spacing:0;text-transform:uppercase;
+  height:32px;padding:0 18px;border-radius:var(--rad);
+  background:var(--t);color:#fff;border:none;
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  letter-spacing:0;text-transform:uppercase;
   cursor:pointer;text-decoration:none;
   display:inline-flex;align-items:center;justify-content:center;
-  box-shadow:0 0 14px rgba(242,107,58,0.3);
-  transition:all .2s;white-space:nowrap;
-  line-height:1;
+  transition:all .2s;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.18);
 }
-.nav-cta:hover{
-  background:#ff4d38;
-  box-shadow:0 0 22px rgba(242,107,58,0.5);
-}
-@keyframes btnBreathe{
-  0%,100%{box-shadow:0 0 8px rgba(242,107,58,0.1);}
-  50%{box-shadow:0 0 18px rgba(242,107,58,0.28);}
-}
+.nav-cta:hover{background:#2a2a2a;box-shadow:0 4px 16px rgba(0,0,0,0.3);}
 
 /* HAMBURGER */
 .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;z-index:210;}
@@ -130,630 +129,555 @@ nav.scrolled{
 /* MOBILE DRAWER */
 .mob-nav-drawer{
   display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
-  background:rgba(22,22,26,0.97);backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
+  background:rgba(245,245,247,0.97);backdrop-filter:blur(24px);
   flex-direction:column;align-items:center;justify-content:center;gap:4px;
 }
 .mob-nav-drawer.open{display:flex;}
 .mob-nav-close{
   position:absolute;top:14px;right:16px;
   width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  color:var(--m);font-size:18px;line-height:1;
+  background:rgba(0,0,0,0.06);border:1px solid var(--bd2);
+  color:var(--m);font-size:18px;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:all .2s;
 }
-.mob-nav-close:hover{color:var(--t);background:rgba(255,255,255,0.1);}
+.mob-nav-close:hover{color:var(--t);background:rgba(0,0,0,0.1);}
 .mob-nav-drawer a{
-  font-family:var(--mono);font-size:14px;letter-spacing:.18em;text-transform:uppercase;
-  color:rgba(255,255,255,0.55);text-decoration:none;transition:color .2s;
+  font-family:var(--mono);font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--m);text-decoration:none;transition:color .2s;
   padding:12px 0;width:200px;text-align:center;
 }
 .mob-nav-drawer a:hover{color:var(--t);}
-.mob-nav-sep{width:40px;height:1px;background:var(--bd);margin:12px 0;}
+.mob-nav-sep{width:40px;height:1px;background:var(--bd2);margin:12px 0;}
 .mob-nav-drawer .mob-cta{
   height:44px;padding:0 36px;border-radius:var(--rad);
-  background:var(--fire);color:#fff;
+  background:var(--t);color:#fff;
   font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;
   text-transform:uppercase;text-decoration:none;
   display:inline-flex;align-items:center;justify-content:center;
-  box-shadow:0 0 20px rgba(242,107,58,0.4);
   margin-top:8px;width:200px;
 }
-.mob-lang-row{
-  display:flex;gap:8px;margin-top:4px;
-}
+.mob-lang-row{display:flex;gap:8px;margin-top:4px;}
 .mob-lang-row button{
-  height:28px;padding:0 16px;border-radius:6px;
+  height:28px;padding:0 16px;border-radius:8px;
   border:1px solid var(--bd2);background:transparent;
-  color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;
-  cursor:pointer;transition:all .15s;
+  color:var(--m2);font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .15s;
 }
-.mob-lang-row button.active{color:var(--fire);border-color:var(--fire3);}
+.mob-lang-row button.active{color:var(--t);border-color:var(--bd3);}
 
-/* ── HERO ── */
+/* HERO */
 .hero{
   min-height:100vh;display:grid;place-items:center;
-  position:relative;padding:100px 48px 80px;overflow:hidden;
+  position:relative;padding:120px 48px 80px;overflow:hidden;
 }
-.hero-bg{
-  position:absolute;inset:0;overflow:hidden;pointer-events:none;
+.hero-orb{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:700px;height:700px;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,1) 0%,rgba(245,245,247,0.4) 50%,transparent 75%);
+  border-radius:50%;
 }
-/* LEFT PANEL — trade form + recent trades */
-.hero-ghost-left{
-  position:absolute;
-  top:50%;left:-20px;
-  transform:translateY(-50%);
-  width:280px;
-  opacity:0.12;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  user-select:none;
-  mask-image:linear-gradient(to right, transparent 0%, black 20%, black 75%, transparent 100%),
-             linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-  -webkit-mask-image:linear-gradient(to right, transparent 0%, black 20%, black 75%, transparent 100%),
-                     linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-  mask-composite:intersect;
-  -webkit-mask-composite:source-in;
-}
-/* RIGHT PANEL — stats + analytics */
-.hero-ghost-right{
-  position:absolute;
-  top:50%;right:-20px;
-  transform:translateY(-50%);
-  width:300px;
-  opacity:0.12;
-  font-family:'Plus Jakarta Sans',sans-serif;
-  user-select:none;
-  mask-image:linear-gradient(to left, transparent 0%, black 20%, black 75%, transparent 100%),
-             linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-  -webkit-mask-image:linear-gradient(to left, transparent 0%, black 20%, black 75%, transparent 100%),
-                     linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-  mask-composite:intersect;
-  -webkit-mask-composite:source-in;
-}
-
-/* shared ghost components */
-.hg-panel{display:flex;flex-direction:column;gap:3px;}
-.hg-topbar{
-  height:36px;background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);border-radius:8px 8px 0 0;
-  display:flex;align-items:center;padding:0 12px;gap:8px;
-}
-.hg-dot{width:5px;height:5px;border-radius:50%;background:#F26B3A;box-shadow:0 0 4px #F26B3A;}
-.hg-badge{
-  background:rgba(242,107,58,0.15);border:1px solid rgba(242,107,58,0.35);
-  border-radius:4px;padding:2px 7px;
-  font-size:8px;letter-spacing:2px;color:#F26B3A;
-}
-.hg-spacer{flex:1;}
-.hg-pill{
-  height:18px;padding:0 8px;border-radius:20px;
-  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  font-size:8px;color:rgba(255,255,255,0.5);display:flex;align-items:center;
-}
-/* stats row */
-.hg-stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
-.hg-stats-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;}
-.hg-stat{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-  padding:8px 10px;
-}
-.hg-stat-lbl{font-size:7px;color:rgba(255,255,255,0.35);margin-bottom:4px;letter-spacing:1.5px;text-transform:uppercase;}
-.hg-stat-val{font-size:16px;font-weight:800;color:#fff;line-height:1;}
-.hg-stat-val.pos{color:#F26B3A;}
-.hg-stat-val.acc{color:#F26B3A;}
-.hg-stat-val.neg{color:#F87171;}
-/* form */
-.hg-form{
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
-  padding:12px;
-}
-.hg-form-title{font-size:9px;letter-spacing:2px;color:#F26B3A;margin-bottom:10px;text-transform:uppercase;}
-.hg-field{
-  height:26px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-  border-radius:5px;margin-bottom:5px;display:flex;align-items:center;padding:0 8px;
-  font-size:9px;color:rgba(255,255,255,0.3);
-}
-.hg-field.accent{border-color:rgba(242,107,58,0.3);background:rgba(242,107,58,0.05);}
-.hg-row{display:flex;gap:4px;margin-bottom:5px;}
-.hg-mini{
-  flex:1;height:24px;border-radius:4px;
-  border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);
-  font-size:8px;color:rgba(255,255,255,0.25);
-  display:flex;align-items:center;justify-content:center;
-}
-.hg-mini.red{background:rgba(242,107,58,0.12);border-color:rgba(242,107,58,0.3);color:#F26B3A;}
-.hg-mini.grn{background:rgba(242,107,58,0.1);border-color:rgba(242,107,58,0.25);color:#F26B3A;}
-/* trades */
-.hg-trades{
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
-  padding:10px 12px;border-radius:0 0 8px 8px;
-}
-.hg-trade{
-  display:flex;align-items:center;gap:6px;
-  padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);
-  font-size:8px;color:rgba(255,255,255,0.4);
-}
-.hg-trade:last-child{border-bottom:none;}
-.hg-trade-pair{font-weight:700;color:rgba(255,255,255,0.8);font-size:10px;flex:1;}
-.hg-tag{padding:1px 5px;border-radius:3px;font-size:7px;font-weight:600;}
-.hg-tag.l{background:rgba(242,107,58,0.12);color:#F26B3A;}
-.hg-tag.s{background:rgba(248,113,113,0.15);color:#F87171;}
-.hg-pnl-pos{color:#F26B3A;font-weight:700;font-size:9px;}
-.hg-pnl-neg{color:#F87171;font-weight:700;font-size:9px;}
-/* chart bars */
-.hg-chart{
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
-  padding:10px 12px;
-}
-.hg-chart-title{font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-.hg-bars{display:flex;align-items:flex-end;gap:3px;height:48px;}
-.hg-bar{flex:1;border-radius:2px 2px 0 0;min-width:6px;}
-.hg-bar.pos{background:linear-gradient(to top,rgba(242,107,58,0.3),rgba(242,107,58,0.6));}
-.hg-bar.neg{background:linear-gradient(to top,rgba(248,113,113,0.3),rgba(248,113,113,0.5));}
-/* equity line */
-.hg-equity{
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
-  padding:10px 12px;
-}
-.hg-eq-val{font-size:18px;font-weight:800;color:#F26B3A;margin-bottom:4px;}
-.hg-eq-sub{font-size:7px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;}
-/* coach card */
-.hg-coach{
-  background:rgba(242,107,58,0.05);border:1px solid rgba(242,107,58,0.2);
-  padding:10px 12px;border-radius:0 0 8px 8px;
-}
-.hg-coach-lbl{font-size:7px;letter-spacing:2px;color:#F26B3A;text-transform:uppercase;margin-bottom:5px;}
-.hg-coach-text{font-size:8px;color:rgba(255,255,255,0.4);line-height:1.5;}
-.hg-coach-text b{color:rgba(255,255,255,0.7);}
-
-/* glow */
-.hero-glow{
-  position:absolute;top:15%;left:50%;transform:translateX(-50%);
-  width:700px;height:450px;
-  background:radial-gradient(ellipse,rgba(242,107,58,0.09) 0%,transparent 70%);
+/* Concentric ring decorations like reference */
+.hero-rings{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-54%);
   pointer-events:none;
 }
-.hero-inner{position:relative;text-align:center;max-width:900px;}
+.hero-rings::before,.hero-rings::after{
+  content:'';position:absolute;border-radius:50%;
+  border:1px solid rgba(0,0,0,0.06);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.hero-rings::before{width:640px;height:640px;}
+.hero-rings::after{width:820px;height:820px;}
+.ring-extra{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:1000px;height:1000px;border-radius:50%;
+  border:1px solid rgba(0,0,0,0.04);
+  pointer-events:none;
+}
 
-
+.hero-inner{position:relative;text-align:center;max-width:820px;z-index:1;}
 .hero-eyebrow{
-  display:inline-flex;align-items:center;gap:10px;
-  font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:3px;
-  color:var(--fire);text-transform:uppercase;
-  background:var(--fire2);border:1px solid var(--fire3);
-  padding:5px 14px;border-radius:20px;
-  margin-bottom:24px;animation:fadeUp .8s both;
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:2.5px;
+  color:var(--t2);text-transform:uppercase;
+  background:rgba(255,255,255,0.8);border:1px solid var(--bd2);
+  padding:6px 16px;border-radius:20px;margin-bottom:28px;
+  animation:fadeUp .7s both;box-shadow:0 2px 8px rgba(0,0,0,0.06);
 }
+.hero-eyebrow::before{content:'✦';font-size:8px;opacity:.5;}
+.hero-logo-badge{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  margin-bottom:20px;animation:fadeUp .7s .08s both;
+}
+.hero-logo-icon{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--t);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.2);
+  flex-shrink:0;
+}
+.hero-logo-icon svg{width:32px;height:32px;fill:#fff;}
 .hero-title{
-  font-size:clamp(44px,6vw,80px);font-weight:800;
-  letter-spacing:-2px;line-height:1;
-  color:var(--t);animation:fadeUp .8s .1s both;
+  font-size:clamp(52px,7vw,88px);font-weight:800;
+  letter-spacing:-3px;line-height:1;
+  color:var(--t);animation:fadeUp .7s .12s both;
 }
-.hero-title em{color:var(--fire);font-style:normal;text-shadow:0 0 40px rgba(242,107,58,0.4);}
+.hero-title em{
+  font-style:normal;
+  background:linear-gradient(135deg,#0A0A0B 0%,#4a4a4c 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
 .hero-sub{
-  margin-top:24px;font-size:15px;font-weight:400;color:var(--m);
-  max-width:520px;margin-inline:auto;line-height:1.8;
-  animation:fadeUp .8s .2s both;
+  margin-top:22px;font-size:16px;font-weight:400;color:var(--m);
+  max-width:480px;margin-inline:auto;line-height:1.75;
+  animation:fadeUp .7s .2s both;
 }
-.hero-sub strong{color:var(--t);font-weight:600;}
 .hero-actions{
   display:flex;gap:12px;justify-content:center;
-  margin-top:40px;animation:fadeUp .8s .3s both;flex-wrap:wrap;
+  margin-top:36px;animation:fadeUp .7s .28s both;flex-wrap:wrap;
 }
 
 /* BUTTONS */
 .btn-primary{
-  height:46px;padding:0 32px;border-radius:var(--rad);
-  background:var(--fire);color:#fff;border:1px solid var(--fire);
+  height:48px;padding:0 32px;border-radius:var(--rad);
+  background:var(--t);color:#fff;border:1px solid var(--t);
   font-family:var(--font);font-size:13px;font-weight:700;
   letter-spacing:0;text-transform:uppercase;
   cursor:pointer;text-decoration:none;
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 0 20px rgba(242,107,58,0.4);
-  transition:all .2s;line-height:1;
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
+  transition:all .2s;
 }
-.btn-primary:hover{background:#ff4d38;box-shadow:0 0 34px rgba(242,107,58,0.6);}
+.btn-primary:hover{background:#2a2a2a;box-shadow:0 6px 30px rgba(0,0,0,0.3);transform:translateY(-1px);}
 .btn-ghost{
-  height:46px;padding:0 32px;border-radius:var(--rad);
-  background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);
-  border:1px solid rgba(255,255,255,0.12);
+  height:48px;padding:0 32px;border-radius:var(--rad);
+  background:rgba(255,255,255,0.7);color:var(--t2);
+  border:1px solid var(--bd2);
   font-family:var(--font);font-size:13px;font-weight:600;
   letter-spacing:0;text-transform:uppercase;
   cursor:pointer;text-decoration:none;
-  display:inline-flex;align-items:center;justify-content:center;
-  transition:all .2s;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;backdrop-filter:blur(10px);
 }
-.btn-ghost:hover{color:var(--t);border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.08);}
+.btn-ghost:hover{border-color:var(--bd3);background:rgba(255,255,255,0.9);transform:translateY(-1px);}
 
 /* PROOF STRIP */
 .proof-strip{
   display:flex;align-items:center;justify-content:center;
-  gap:40px;margin-top:56px;animation:fadeUp .8s .4s both;flex-wrap:wrap;
-  padding:28px 40px;
-  background:rgba(255,255,255,0.025);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:16px;
+  gap:0;margin-top:52px;
+  background:rgba(255,255,255,0.7);border:1px solid var(--bd);
+  border-radius:18px;padding:0;max-width:700px;margin-inline:auto;
+  animation:fadeUp .7s .36s both;backdrop-filter:blur(10px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.06);
+  overflow:hidden;
 }
-.proof-item{text-align:center;}
-.proof-n{font-size:38px;font-weight:800;line-height:1;color:var(--fire);letter-spacing:-1px;}
-.proof-l{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--m2);margin-top:5px;}
-.proof-sep{width:1px;height:32px;background:var(--bd);}
+.proof-item{
+  flex:1;padding:20px 24px;text-align:center;
+}
+.proof-sep{width:1px;height:48px;background:var(--bd2);flex-shrink:0;}
+.proof-n{
+  font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--t);
+  display:block;line-height:1;
+}
+.proof-l{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--m2);text-transform:uppercase;margin-top:5px;}
 
-/* TICKER */
-.ticker-wrap{
-  overflow:hidden;border-top:1px solid var(--bd);
-  border-bottom:1px solid var(--bd);padding:12px 0;
-  background:var(--bg2);
+/* SECTIONS */
+section{padding:80px 48px;position:relative;z-index:1;}
+.sec-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:2px;
+  color:var(--t2);text-transform:uppercase;
+  background:rgba(255,255,255,0.7);border:1px solid var(--bd2);
+  padding:5px 14px;border-radius:20px;margin-bottom:18px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
 }
-.ticker{display:flex;animation:ticker 28s linear infinite;width:max-content;}
+.sec-tag::before{content:'★';font-size:8px;color:var(--m2);}
+.sec-title{
+  font-size:clamp(32px,4.5vw,56px);font-weight:800;
+  letter-spacing:-2px;line-height:1.05;color:var(--t);
+}
+.sec-sub{font-size:15px;color:var(--m);line-height:1.75;max-width:500px;margin-top:12px;}
+.inner{max-width:1100px;margin:0 auto;}
+
+/* ABOUT / WHY CHOOSE US */
+.about-section{background:var(--bg2);}
+.why-head{text-align:center;margin-bottom:52px;}
+.why-head .sec-tag{margin:0 auto 16px;}
+.why-head .sec-sub{margin-inline:auto;}
+.why-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+}
+.why-card{
+  background:var(--surface);border:1px solid var(--bd);
+  border-radius:22px;padding:32px 28px;
+  position:relative;overflow:hidden;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+  box-shadow:0 4px 20px rgba(0,0,0,0.05);
+}
+.why-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.1);border-color:var(--bd2);}
+.why-card-visual{
+  width:100%;height:180px;margin-bottom:24px;
+  background:var(--bg2);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+  border:1px solid var(--bd);
+}
+/* Analytics card visual */
+.vis-clock{
+  width:100px;height:100px;border-radius:50%;
+  border:2px solid var(--bd2);
+  background:var(--surface);
+  position:relative;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+}
+.vis-clock::before{
+  content:'';position:absolute;
+  width:2px;height:36px;background:var(--t);
+  top:14px;left:50%;transform:translateX(-50%);
+  border-radius:1px;transform-origin:bottom center;
+  transform:translateX(-50%) rotate(-30deg);
+}
+.vis-clock::after{
+  content:'';position:absolute;
+  width:2px;height:28px;background:var(--t2);
+  bottom:14px;left:50%;
+  border-radius:1px;transform-origin:top center;
+  transform:translateX(-50%) rotate(40deg);
+}
+.vis-clock-center{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--t);position:relative;z-index:1;
+}
+/* Bar chart visual */
+.vis-bars{
+  display:flex;align-items:flex-end;gap:6px;height:100px;
+  padding:0 16px;
+}
+.vis-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+.vis-bar{
+  width:100%;border-radius:6px 6px 0 0;
+  background:var(--bg3);border:1px solid var(--bd);
+}
+.vis-bar.accent{background:var(--t);border-color:var(--t);}
+.vis-bar-label{font-family:var(--mono);font-size:8px;color:var(--m2);}
+.vis-chip{
+  position:absolute;top:12px;right:12px;
+  background:var(--t);color:#fff;
+  font-family:var(--mono);font-size:9px;font-weight:600;
+  padding:4px 10px;border-radius:20px;letter-spacing:.5px;
+}
+.vis-chip2{
+  position:absolute;bottom:12px;left:12px;
+  background:var(--bg2);border:1px solid var(--bd2);
+  color:var(--t2);font-family:var(--mono);font-size:9px;font-weight:600;
+  padding:4px 10px;border-radius:20px;letter-spacing:.5px;
+}
+/* Avatar cluster visual */
+.vis-avatars{display:flex;gap:-8px;position:relative;}
+.vis-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--bg3);border:3px solid var(--surface);
+  margin-left:-12px;first:margin-left:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12px;font-weight:700;color:var(--t2);
+}
+.vis-avatar:first-child{margin-left:0;}
+.vis-avatar.dark{background:var(--t);color:#fff;}
+.vis-logo-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--t);display:flex;align-items:center;justify-content:center;
+  margin:0 16px;
+}
+.vis-logo-icon svg{width:28px;height:28px;fill:#fff;}
+
+.why-card-title{font-size:18px;font-weight:700;color:var(--t);margin-bottom:8px;}
+.why-card-desc{font-size:13px;color:var(--m);line-height:1.75;}
+
+/* TICKER STRIP */
+.ticker-section{
+  border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);
+  padding:0;overflow:hidden;background:var(--surface);
+}
+.ticker-track{
+  display:flex;gap:0;
+  animation:ticker 26s linear infinite;
+  white-space:nowrap;
+}
 .ticker-item{
-  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-  color:var(--m);padding:0 40px;white-space:nowrap;
-  display:flex;align-items:center;gap:10px;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 40px;
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;
+  color:var(--m2);text-transform:uppercase;
+  border-right:1px solid var(--bd);
 }
-.ticker-item .dot{width:4px;height:4px;background:var(--fire);border-radius:50%;}
+.ticker-dot{width:5px;height:5px;border-radius:50%;background:var(--t2);flex-shrink:0;}
 @keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 
-/* ── SECTIONS ── */
-section{padding:100px 48px;}
-.wrap{max-width:1100px;margin:0 auto;}
-.sec-eyebrow{
-  font-size:10px;font-weight:700;letter-spacing:3px;
-  color:var(--fire);text-transform:uppercase;margin-bottom:12px;
-}
-.sec-title{
-  font-size:clamp(36px,5vw,64px);font-weight:800;
-  letter-spacing:-1.5px;line-height:1.05;
-  color:var(--t);margin-bottom:20px;
-}
-.sec-title em{color:var(--fire);font-style:normal;}
-
-/* ── ABOUT ── */
-.about{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
-.about-text p{font-size:14px;color:var(--m);line-height:1.85;margin-bottom:16px;}
-.about-text p strong{color:var(--t);font-weight:600;}
-
-.about-pillars{display:flex;flex-direction:column;gap:12px;}
-.pillar-item{
-  display:flex;align-items:flex-start;gap:14px;padding:18px;
-  border:1px solid var(--bd);background:var(--bg2);border-radius:12px;
-  transition:border-color .2s,background .2s;
-}
-.pillar-item:hover{border-color:rgba(242,107,58,0.28);background:var(--bg3);}
-.pillar-icon{
-  width:38px;height:38px;flex-shrink:0;border-radius:9px;
-  background:var(--fire2);border:1px solid var(--fire3);
-  display:flex;align-items:center;justify-content:center;
-}
-.pillar-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:3px;}
-.pillar-desc{font-size:11px;color:var(--m2);line-height:1.6;}
-
-/* ── RESULTS ── */
-.results-section{background:var(--bg2);padding:80px 48px;}
-.results-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:12px;max-width:1100px;margin:40px auto 0;
-}
-.result-card{
-  background:var(--bg3);border:1px solid var(--bd);
-  border-radius:16px;padding:24px;
-  transition:border-color .2s,transform .2s;
-}
-.result-card:hover{border-color:rgba(242,107,58,0.25);transform:translateY(-2px);}
-.result-stars{color:var(--fire);font-size:12px;letter-spacing:2px;margin-bottom:12px;}
-.result-text{font-size:13px;color:var(--m);line-height:1.75;font-style:italic;margin-bottom:16px;}
-.result-author{display:flex;align-items:center;gap:10px;}
-.result-ava{
-  width:32px;height:32px;border-radius:50%;flex-shrink:0;
-  background:var(--bg4);border:1px solid var(--bd2);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:10px;font-weight:700;color:var(--m);
-}
-.result-name{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--fire);}
-.result-role{font-family:var(--mono);font-size:9px;color:var(--m2);margin-top:2px;}
-.result-stat{
-  margin-top:12px;padding:5px 10px;border-radius:6px;
-  border:1px solid rgba(242,107,58,0.18);background:var(--fire2);
-  font-family:var(--mono);font-size:10px;color:var(--fire);
-}
-
-/* ── COURSES ── */
-.courses-section{background:var(--bg2);}
-.courses-header{
-  max-width:1100px;margin:0 auto 48px;
-  display:flex;justify-content:space-between;align-items:flex-end;
-}
-.courses-header p{max-width:360px;color:var(--m);font-size:13px;line-height:1.75;}
+/* COURSES */
+.courses-section{background:var(--bg);}
+.courses-head{margin-bottom:48px;}
+.courses-head-row{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:8px;}
 .courses-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:12px;max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
 }
 .course-card{
-  background:var(--bg3);border:1px solid var(--bd);border-radius:16px;
+  background:var(--surface);border:1px solid var(--bd);border-radius:22px;
   padding:32px 28px;display:flex;flex-direction:column;
   position:relative;overflow:hidden;
-  transition:transform .25s,border-color .25s;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+  box-shadow:0 4px 16px rgba(0,0,0,0.04);
 }
-.course-card:hover{transform:translateY(-3px);border-color:var(--bd2);}
+.course-card:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,0.1);border-color:var(--bd2);}
 .course-card.featured{
-  border-color:rgba(242,107,58,0.4);
-  background:linear-gradient(160deg,var(--bg3) 60%,rgba(242,107,58,0.05) 100%);
-  box-shadow:0 0 30px rgba(242,107,58,0.08);
+  background:var(--t);border-color:var(--t);
+  box-shadow:0 8px 40px rgba(0,0,0,0.25);
 }
+.course-card.featured .card-num,
+.course-card.featured .card-title,
+.course-card.featured .card-desc,
+.course-card.featured .price-amount,
+.course-card.featured .price-currency,
+.course-card.featured .card-price-note{color:rgba(255,255,255,0.9)!important;}
+.course-card.featured .card-modules li{color:rgba(255,255,255,0.65);border-bottom-color:rgba(255,255,255,0.1);}
+.course-card.featured .pf-mark{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25);color:#fff;}
 .card-badge{
-  position:absolute;top:-1px;right:-1px;
-  background:var(--fire);color:#fff;
+  position:absolute;top:20px;right:20px;
+  background:rgba(255,255,255,0.15);color:#fff;
   font-family:var(--mono);font-size:8px;font-weight:700;
   letter-spacing:1.5px;text-transform:uppercase;
-  padding:4px 14px;border-radius:0 16px 0 10px;
-  display:none;
+  padding:4px 12px;border-radius:20px;display:none;
 }
 .course-card.featured .card-badge{display:block;}
 .card-num{
   font-family:var(--mono);font-size:9px;font-weight:700;
-  letter-spacing:2px;color:var(--fire);text-transform:uppercase;
-  margin-bottom:12px;
+  letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:12px;
 }
 .card-title{font-size:20px;font-weight:800;color:var(--t);margin-bottom:8px;line-height:1.2;}
 .card-desc{font-size:12px;color:var(--m2);line-height:1.75;flex:1;margin-bottom:20px;}
 .card-modules{list-style:none;margin-bottom:20px;}
 .card-modules li{
-  font-size:12px;color:var(--m);padding:8px 0;
+  font-size:12px;color:var(--t2);padding:8px 0;
   border-bottom:1px solid var(--bd);
   display:flex;align-items:center;gap:9px;
 }
 .card-modules li .pf-mark{
-  flex-shrink:0;width:14px;height:14px;border-radius:50%;
-  background:var(--fire2);border:1px solid var(--fire3);
+  flex-shrink:0;width:16px;height:16px;border-radius:50%;
+  background:var(--fire-soft);border:1px solid var(--fire-border);
   display:flex;align-items:center;justify-content:center;
-  font-size:8px;color:var(--fire);font-weight:800;
+  font-size:9px;color:var(--t);font-weight:800;
 }
 .card-price{display:flex;align-items:baseline;gap:4px;margin-bottom:6px;}
-.price-amount{font-size:36px;font-weight:800;letter-spacing:-1px;color:var(--t);}
-.price-currency{font-size:18px;font-weight:700;color:var(--m2);}
-.card-price-note{
-  font-family:var(--mono);font-size:9px;color:var(--m2);
-  letter-spacing:.5px;margin-bottom:18px;
-}
+.price-amount{font-size:38px;font-weight:800;letter-spacing:-1.5px;color:var(--t);}
+.price-currency{font-size:20px;font-weight:700;color:var(--m2);}
+.card-price-note{font-family:var(--mono);font-size:9px;color:var(--m2);margin-bottom:18px;}
 .card-btn{
-  width:100%;height:40px;border-radius:var(--rad);
-  border:1px solid rgba(242,107,58,0.4);
-  background:linear-gradient(135deg,rgba(242,107,58,0.13),rgba(242,107,58,0.06));
-  color:var(--fire);font-size:11px;font-weight:700;
+  width:100%;height:42px;border-radius:var(--rad);
+  border:1px solid var(--bd3);background:var(--bg2);
+  color:var(--t);font-size:11px;font-weight:700;
   letter-spacing:1.5px;text-transform:uppercase;
   text-decoration:none;display:inline-flex;align-items:center;
   justify-content:center;gap:8px;cursor:pointer;
-  transition:all .2s;animation:btnBreathe 2.4s ease-in-out infinite;
+  transition:all .2s;
 }
-.card-btn:hover{
-  background:linear-gradient(135deg,rgba(242,107,58,0.27),rgba(242,107,58,0.13));
-  box-shadow:0 0 26px rgba(242,107,58,0.38);
-  color:#ff6b5b;border-color:rgba(242,107,58,.85);
-  transform:translateY(-1px);
+.card-btn:hover{background:var(--t);color:#fff;border-color:var(--t);}
+.course-card.featured .card-btn{
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;
 }
+.course-card.featured .card-btn:hover{background:rgba(255,255,255,0.22);}
 
-/* ── BUNDLE ── */
-.bundle-section{padding:0 48px 100px;background:var(--bg);}
+/* BUNDLE */
+.bundle-section{padding:0 48px 80px;background:var(--bg);}
 .bundle-inner{
   max-width:1100px;margin:0 auto;
-  border:1px solid rgba(242,107,58,0.55);border-radius:20px;
-  background:linear-gradient(150deg,var(--bg2) 40%,rgba(242,107,58,0.07) 100%);
-  box-shadow:0 0 44px rgba(242,107,58,0.13);
+  border:1px solid var(--bd2);border-radius:24px;
+  background:var(--surface);
+  box-shadow:0 8px 48px rgba(0,0,0,0.08);
   display:grid;grid-template-columns:1fr auto;
   align-items:center;gap:64px;padding:56px;
   position:relative;overflow:hidden;
 }
-.bundle-corner-badge{
-  position:absolute;top:-1px;left:-1px;
-  background:var(--fire);color:#fff;
-  font-size:8px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
-  padding:4px 16px;border-radius:20px 0 10px 0;
+.bundle-inner::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--t),rgba(0,0,0,0.3),var(--t));
 }
-.bundle-title{font-size:clamp(32px,4vw,56px);font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--t);margin-bottom:14px;}
-.bundle-title em{color:var(--fire);font-style:normal;}
-.bundle-desc{font-size:14px;color:var(--m);max-width:440px;line-height:1.8;}
+.bundle-corner-badge{
+  position:absolute;top:20px;left:20px;
+  background:var(--t);color:#fff;
+  font-family:var(--mono);font-size:8px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+  padding:4px 14px;border-radius:20px;
+}
+.bundle-title{font-size:clamp(28px,3.5vw,48px);font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--t);margin-bottom:14px;margin-top:8px;}
+.bundle-desc{font-size:14px;color:var(--m);max-width:400px;line-height:1.8;}
 .bundle-pricing{text-align:right;flex-shrink:0;}
-.bundle-was{font-family:var(--mono);font-size:12px;color:var(--m);text-decoration:line-through;margin-bottom:4px;}
-.bundle-price{font-size:72px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--fire);text-shadow:0 0 24px rgba(242,107,58,0.35);display:block;}
+.bundle-was{font-family:var(--mono);font-size:12px;color:var(--m2);text-decoration:line-through;margin-bottom:4px;}
+.bundle-price{font-size:72px;font-weight:800;letter-spacing:-3px;line-height:1;color:var(--t);display:block;}
 .bundle-save-badge{
   display:inline-flex;align-items:center;
   font-family:var(--mono);font-size:9px;font-weight:700;
-  letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--fire);
-  background:var(--fire2);
-  border:1px solid var(--fire3);
-  border-radius:20px;
-  padding:4px 12px;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--t2);
+  background:var(--fire-soft);border:1px solid var(--fire-border);
+  border-radius:20px;padding:4px 12px;margin-top:4px;
 }
-.bundle-cta-row{
-  display:flex;align-items:center;gap:12px;
-  margin-top:16px;flex-wrap:wrap;
-}
+.bundle-cta-row{display:flex;align-items:center;gap:12px;margin-top:24px;flex-wrap:wrap;}
 
-/* ── AI JOURNAL ── */
+/* AI JOURNAL */
 .journal-section{padding:80px 24px 100px;background:var(--bg2);border-top:1px solid var(--bd);}
 .journal-inner{max-width:1100px;margin:0 auto;}
-.jf-plans-wrap{max-width:1020px;margin:0 auto;padding:0 24px;}
 .jf-modules{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
   margin-top:48px;margin-bottom:56px;
 }
 .jf-item{
-  display:flex;align-items:flex-start;gap:12px;padding:16px;
-  border:1px solid var(--bd);background:var(--bg3);border-radius:12px;
-  transition:border-color .2s,background .2s;
+  display:flex;align-items:flex-start;gap:12px;padding:20px;
+  border:1px solid var(--bd);background:var(--surface);border-radius:16px;
+  transition:border-color .2s,box-shadow .2s;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
 }
-.jf-item:hover{border-color:rgba(242,107,58,.25);background:var(--bg4);}
+.jf-item:hover{border-color:var(--bd2);box-shadow:0 8px 24px rgba(0,0,0,0.08);}
 .jf-icon{
-  width:32px;height:32px;border-radius:8px;flex-shrink:0;
-  background:var(--fire2);border:1px solid var(--fire3);
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:var(--fire-soft);border:1px solid var(--fire-border);
   display:flex;align-items:center;justify-content:center;
+  font-size:16px;
 }
 .jf-name{font-size:13px;font-weight:700;color:var(--t);margin-bottom:3px;}
 .jf-desc{font-size:11px;color:var(--m2);line-height:1.6;}
 
-/* Plans — full width, 4 columns like pay.html */
-.jf-plans{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
-}
+/* Plans */
+.jf-plans-wrap{max-width:1020px;margin:0 auto;}
+.jf-plans{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
 .jf-plan{
-  background:var(--bg2);border:1px solid var(--bd);border-radius:16px;
+  background:var(--surface);border:1px solid var(--bd);border-radius:18px;
   padding:24px 20px;display:flex;flex-direction:column;
-  position:relative;transition:border-color .2s,transform .2s;
+  position:relative;transition:transform .2s,box-shadow .2s,border-color .2s;
+  box-shadow:0 4px 16px rgba(0,0,0,0.04);
 }
-.jf-plan:hover{border-color:var(--bd2);transform:translateY(-2px);}
+.jf-plan:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,0.1);}
 .jf-plan.popular{
-  border-color:rgba(242,107,58,0.4);
-  background:linear-gradient(160deg,var(--bg2) 60%,rgba(242,107,58,0.05) 100%);
-  box-shadow:0 0 30px rgba(242,107,58,0.08);
+  border-color:var(--bd2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.12);
 }
 .jf-plan.ultimate{
-  border-color:rgba(242,107,58,0.55);
-  background:linear-gradient(150deg,var(--bg2) 40%,rgba(242,107,58,0.07) 100%);
-  box-shadow:0 0 44px rgba(242,107,58,0.13);
+  background:var(--t);border-color:var(--t);
+  box-shadow:0 8px 40px rgba(0,0,0,0.25);
 }
+.jf-plan.ultimate .jf-plan-tier,
+.jf-plan.ultimate .jf-plan-name,
+.jf-plan.ultimate .jf-plan-desc,
+.jf-plan.ultimate .jf-plan-price,
+.jf-plan.ultimate .jf-plan-per,
+.jf-plan.ultimate .jf-plan-lt,
+.jf-plan.ultimate .jf-pf{color:rgba(255,255,255,0.85)!important;}
+.jf-plan.ultimate .jf-plan-sep{background:rgba(255,255,255,0.12);}
+.jf-plan.ultimate .pf-mark{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25);color:#fff;}
 .jf-plan-badge{
   position:absolute;top:-11px;left:50%;transform:translateX(-50%);
-  background:var(--fire);color:#fff;
+  background:var(--t);color:#fff;
   font-family:var(--mono);font-size:8px;font-weight:800;letter-spacing:2px;
   text-transform:uppercase;padding:3px 12px;border-radius:20px;white-space:nowrap;
 }
-.jf-plan-tier{
-  font-family:var(--mono);font-size:9px;font-weight:700;
-  letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;
-}
+.jf-plan.ultimate .jf-plan-badge{background:#fff;color:var(--t);}
+.jf-plan-tier{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;}
 .jf-plan-name{font-size:18px;font-weight:800;color:var(--t);margin-bottom:4px;line-height:1.15;}
 .jf-plan-desc{font-size:11px;color:var(--m2);line-height:1.5;margin-bottom:16px;min-height:32px;}
 .jf-plan-price-row{display:flex;align-items:baseline;gap:3px;margin-bottom:2px;}
 .jf-plan-price{font-size:34px;font-weight:800;letter-spacing:-1px;color:var(--t);}
-.jf-plan-price.fire{color:var(--fire);text-shadow:0 0 18px rgba(242,107,58,0.3);}
 .jf-plan-per{font-size:11px;color:var(--m2);}
 .jf-plan-lt{font-size:11px;color:var(--m2);margin-bottom:14px;}
-.jf-plan-lt b{color:var(--fire);}
+.jf-plan-lt b{color:var(--t);}
 .jf-plan-sep{height:1px;background:var(--bd);margin:12px 0;}
 .jf-plan-features{display:flex;flex-direction:column;gap:7px;flex:1;margin-bottom:18px;}
-.jf-pf{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--m);line-height:1.45;}
+.jf-pf{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--t2);line-height:1.45;}
 .jf-pf.dim{color:var(--m2);}
-.jf-pf.dim .pf-mark{background:var(--bd);border-color:var(--bd2);color:var(--m2);}
+.jf-pf.dim .pf-mark{background:var(--bg2);border-color:var(--bd2);color:var(--m2);}
+.pf-mark{
+  flex-shrink:0;width:14px;height:14px;border-radius:50%;
+  background:var(--fire-soft);border:1px solid var(--fire-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;color:var(--t);font-weight:800;margin-top:1px;
+}
 .jf-plan-btn{
   width:100%;height:40px;border-radius:var(--rad);
-  border:1px solid rgba(242,107,58,0.4);
-  background:linear-gradient(135deg,rgba(242,107,58,0.13) 0%,rgba(242,107,58,0.06) 100%);
-  color:var(--fire);font-family:var(--mono);font-size:11px;font-weight:700;
+  border:1px solid var(--bd3);background:var(--bg2);
+  color:var(--t);font-family:var(--mono);font-size:11px;font-weight:700;
   letter-spacing:1.5px;text-transform:uppercase;
   text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
   cursor:pointer;transition:all .2s;
-  animation:btnBreathe 2.4s ease-in-out infinite;
 }
-.jf-plan-btn:hover{
-  background:linear-gradient(135deg,rgba(242,107,58,0.27) 0%,rgba(242,107,58,0.13) 100%);
-  box-shadow:0 0 26px rgba(242,107,58,0.38);
-  color:#ff6b5b;border-color:rgba(242,107,58,.85);
-  transform:translateY(-1px);
+.jf-plan-btn:hover{background:var(--t);color:#fff;border-color:var(--t);}
+.jf-plan-btn.solid,.jf-plan.ultimate .jf-plan-btn{
+  background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.25);
 }
-.jf-plan-btn.solid{
-  background:var(--fire);color:#fff;border-color:var(--fire);
-  box-shadow:0 0 20px rgba(242,107,58,0.4);
-}
-.jf-plan-btn.solid:hover{background:#ff4d38;box-shadow:0 0 34px rgba(242,107,58,0.6);}
+.jf-plan.ultimate .jf-plan-btn:hover{background:rgba(255,255,255,0.22);}
 
-.journal-cta-block{
-  background:var(--bg3);border:1px solid rgba(242,107,58,0.4);
-  border-radius:20px;padding:36px;position:relative;overflow:hidden;
-  box-shadow:0 0 30px rgba(242,107,58,0.08);
+/* RESULTS */
+.results-section{background:var(--bg);}
+.results-head{text-align:center;margin-bottom:48px;}
+.results-head .sec-tag{margin:0 auto 16px;}
+.results-head .sec-sub{margin-inline:auto;}
+.results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1100px;margin:0 auto;}
+.result-card{
+  background:var(--surface);border:1px solid var(--bd);
+  border-radius:20px;padding:28px;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  box-shadow:0 4px 16px rgba(0,0,0,0.04);
 }
-.journal-cta-block::before{
-  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
-  background:linear-gradient(90deg,transparent,var(--fire),transparent);
-}
-.jcta-label{
-  font-family:var(--mono);font-size:9px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;color:var(--fire);margin-bottom:12px;
-}
-.jcta-title{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1;color:var(--t);margin-bottom:10px;}
-.jcta-sub{font-size:13px;color:var(--m);line-height:1.75;margin-bottom:24px;}
-.jcta-price-row{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
-.jcta-price-block{display:flex;flex-direction:column;}
-.jcta-price-block + .jcta-price-block{border-left:1px solid var(--bd);padding-left:16px;}
-.jcta-price-strike{font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:1px;text-decoration:line-through;margin-bottom:2px;}
-.jcta-price{font-size:44px;font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--fire);}
-.jcta-price-lt{font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1;color:var(--t);}
-.jcta-period{font-family:var(--mono);font-size:10px;color:var(--m2);}
-.jcta-period-note{font-family:var(--mono);font-size:9px;color:var(--g);}
-.jcta-free-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;
-  color:var(--y);border:1px solid rgba(245,166,35,0.25);
-  background:rgba(245,166,35,0.06);padding:5px 12px;border-radius:20px;
-  margin-bottom:16px;
-}
-.jcta-list{list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:7px;}
-.jcta-list li{
-  font-size:12px;color:var(--m);display:flex;align-items:center;gap:8px;
-}
-.jcta-list .pf-mark{
-  flex-shrink:0;width:14px;height:14px;border-radius:50%;
-  background:var(--fire2);border:1px solid var(--fire3);
+.result-card:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,0.09);border-color:var(--bd2);}
+.result-stars{color:var(--t);font-size:12px;letter-spacing:3px;margin-bottom:14px;}
+.result-text{font-size:13px;color:var(--m);line-height:1.8;font-style:italic;margin-bottom:18px;}
+.result-author{display:flex;align-items:center;gap:10px;}
+.result-ava{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:var(--bg3);border:2px solid var(--bd2);
   display:flex;align-items:center;justify-content:center;
-  font-size:8px;color:var(--fire);font-weight:800;
+  font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);
 }
-.jcta-btn{
-  width:100%;height:44px;border-radius:var(--rad);
-  background:var(--fire);color:#fff;border:1px solid var(--fire);
-  box-shadow:0 0 20px rgba(242,107,58,0.4);
-  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-  text-decoration:none;display:inline-flex;align-items:center;
-  justify-content:center;gap:8px;cursor:pointer;transition:all .2s;
+.result-name{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t);}
+.result-role{font-family:var(--mono);font-size:9px;color:var(--m2);margin-top:2px;}
+.result-stat{
+  margin-top:14px;padding:6px 12px;border-radius:8px;
+  border:1px solid var(--bd2);background:var(--bg2);
+  font-family:var(--mono);font-size:10px;color:var(--t2);
 }
-.jcta-btn:hover{background:#ff4d38;box-shadow:0 0 34px rgba(242,107,58,0.6);}
 
-/* ── WHY ── */
-.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.why-item{
-  background:var(--bg2);border:1px solid var(--bd);border-radius:16px;
-  padding:36px 28px;position:relative;overflow:hidden;
-  transition:border-color .2s,background .2s;
-}
-.why-item:hover{border-color:var(--bd2);background:var(--bg3);}
-.why-num{
-  font-size:72px;font-weight:800;line-height:.9;
-  color:var(--fire);opacity:.08;
-  position:absolute;top:16px;right:20px;pointer-events:none;
-  letter-spacing:-2px;
-}
-.why-icon{width:36px;height:36px;margin-bottom:20px;display:block;}
-.why-h{font-size:18px;font-weight:800;color:var(--t);margin-bottom:10px;}
-.why-p{font-size:13px;color:var(--m);line-height:1.75;}
-
-/* ── FAQ ── */
+/* FAQ */
 .faq-section{padding:80px 48px 100px;}
 .faq-inner{max-width:680px;margin:0 auto;}
+.faq-head{text-align:center;margin-bottom:40px;}
+.faq-head .sec-tag{margin:0 auto 16px;}
 .faq-list{margin-top:40px;}
-.faq-item{border-top:1px solid var(--bd);cursor:pointer;}
+.faq-item{border-top:1px solid var(--bd);}
 .faq-item:last-child{border-bottom:1px solid var(--bd);}
 .faq-q{
-  width:100%;text-align:left;padding:18px 0;background:transparent;border:none;
+  width:100%;text-align:left;padding:20px 0;background:transparent;border:none;
   color:var(--t);font-family:var(--font);font-size:14px;font-weight:600;
   cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;
   transition:color .2s;
 }
-.faq-q:hover{color:var(--fire);}
-.faq-icon{color:var(--fire);font-size:20px;flex-shrink:0;transition:transform .2s;line-height:1;}
+.faq-q:hover{color:var(--t2);}
+.faq-icon{
+  color:var(--t2);font-size:20px;flex-shrink:0;
+  transition:transform .2s;line-height:1;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--bg2);border:1px solid var(--bd2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+}
 .faq-item.open .faq-icon{transform:rotate(45deg);}
-.faq-a{display:none;padding:0 0 18px;font-size:13px;color:var(--m);line-height:1.8;}
+.faq-a{display:none;padding:0 0 20px;font-size:13px;color:var(--m);line-height:1.8;}
 .faq-item.open .faq-a{display:block;}
 
-/* ── FOOTER ── */
+/* FOOTER */
 footer{
   border-top:1px solid var(--bd);padding:36px 48px;
   display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:16px;background:var(--bg);
+  flex-wrap:wrap;gap:16px;background:var(--surface);
 }
 .footer-logo{
-  font-weight:800;font-size:14px;letter-spacing:4px;
-  color:rgba(255,255,255,0.55);text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
+  font-weight:800;font-size:13px;letter-spacing:4px;
+  color:var(--t);text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;
 }
 .footer-links{display:flex;gap:24px;}
 .footer-links a{
@@ -761,7 +685,7 @@ footer{
   letter-spacing:.1em;text-decoration:none;transition:color .2s;
 }
 .footer-links a:hover{color:var(--t);}
-.footer-copy{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,0.18);}
+.footer-copy{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--m2);}
 
 /* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
@@ -772,563 +696,293 @@ footer{
 [data-ru],[data-en]{display:none;}
 html[lang="ru"] [data-ru]{display:revert;}
 html[lang="en"] [data-en]{display:revert;}
-/* restore inline-flex for nav buttons after i18n display:revert */
 html[lang="ru"] a.nav-btn-ghost[data-ru],
 html[lang="ru"] a.nav-cta[data-ru],
 html[lang="en"] a.nav-btn-ghost[data-en],
 html[lang="en"] a.nav-cta[data-en]{display:inline-flex!important;}
 
-/* ── MOBILE ── */
+/* MOBILE */
 @media(max-width:900px){
   nav{padding:0 16px;}
   .nav-links{display:none;}
   .nav-hamburger{display:flex;}
   .nav-right .nav-btn-ghost,.nav-right .nav-lang{display:none;}
-  .nav-right .nav-cta{display:inline-flex;height:28px;padding:0 14px;font-size:9px;}
-
+  .nav-right .nav-cta{display:inline-flex;}
   section{padding:60px 16px;}
-  .hero{padding:80px 16px 52px;min-height:100svh;}
-  .hero-inner{max-width:100%;}
-  .hero-title{font-size:clamp(46px,12vw,72px);letter-spacing:-1.5px;}
-  .hero-sub{font-size:14px;max-width:100%;}
-  .hero-actions{flex-direction:column;align-items:stretch;gap:10px;}
-  .btn-primary,.btn-ghost{width:100%;justify-content:center;height:48px;font-size:13px;}
-
-  .proof-strip{
-    gap:0;margin-top:32px;padding:0;
-    background:transparent;border:none;
-    display:grid;grid-template-columns:1fr 1fr;gap:1px;
-    background-color:var(--bd);border-radius:12px;overflow:hidden;
-  }
-  .proof-item{
-    background:var(--bg2);
-    padding:16px 12px;text-align:center;
-  }
+  .hero{padding:90px 16px 52px;min-height:100svh;}
+  .hero-rings::before{width:320px;height:320px;}
+  .hero-rings::after{width:440px;height:440px;}
+  .ring-extra{width:560px;height:560px;}
+  .hero-title{font-size:clamp(40px,11vw,64px);}
+  .proof-strip{flex-wrap:wrap;grid-template-columns:1fr 1fr;display:grid;}
   .proof-sep{display:none;}
-  .proof-n{font-size:28px;}
-
-  .about{grid-template-columns:1fr;gap:32px;}
-  .about-pillars{gap:8px;}
-  .pillar-item{padding:14px;}
-
-  .results-section{padding:52px 16px;}
-  .results-grid{grid-template-columns:1fr;gap:10px;}
-
-  .courses-section{padding:52px 16px;}
-  .courses-header{flex-direction:column;align-items:flex-start;gap:12px;}
-  .courses-grid{grid-template-columns:1fr;gap:10px;}
-  .course-card{padding:24px 20px;}
-
+  .why-grid,.courses-grid,.results-grid{grid-template-columns:1fr;}
   .bundle-section{padding:0 16px 60px;}
-  .bundle-inner{
-    grid-template-columns:1fr;
-    text-align:left;padding:28px 20px;gap:20px;
-  }
-  .bundle-corner-badge{font-size:7px;padding:3px 12px;}
+  .bundle-inner{grid-template-columns:1fr;padding:28px 20px;gap:24px;}
   .bundle-pricing{text-align:left;}
   .bundle-price{font-size:52px;}
-  .bundle-title{font-size:30px;letter-spacing:-1px;}
-  .bundle-cta-row{flex-direction:column;align-items:flex-start;gap:10px;}
-  .bundle-cta-row .btn-primary{width:100%;justify-content:center;}
-
-  .journal-section{padding:52px 16px 60px;}
-  .jf-modules{grid-template-columns:1fr;gap:8px;margin-bottom:32px;}
-  .jf-plans-wrap{padding:0;}
-  .jf-plans{grid-template-columns:1fr 1fr;gap:10px;}
-  .jf-plan-name{font-size:14px;}
-  .jf-plan-price{font-size:26px;}
-  .jf-plan{padding:20px 14px;}
-
-  .why-grid{grid-template-columns:1fr;gap:10px;}
-  .why-item{padding:28px 20px;}
-
+  .jf-modules{grid-template-columns:1fr;}
+  .jf-plans{grid-template-columns:1fr 1fr;}
   .faq-section{padding:52px 16px 60px;}
-  .faq-q{font-size:13px;}
-
   footer{flex-direction:column;align-items:flex-start;gap:16px;padding:28px 16px;}
   .footer-links{flex-wrap:wrap;gap:16px;}
-
-  .ticker-item{padding:0 28px;}
+  .courses-head-row{flex-direction:column;align-items:flex-start;}
 }
-
-/* ── TABLET intermediate ── */
-@media(min-width:601px) and (max-width:900px){
-  .why-grid{grid-template-columns:1fr 1fr;}
-  .why-grid .why-item:last-child{grid-column:1 / -1;}
-  .results-grid{grid-template-columns:1fr 1fr;}
-  .results-grid .result-card:last-child{grid-column:1 / -1;}
-  .proof-strip{grid-template-columns:repeat(4,1fr);}
-}
-@media(max-width:480px){
-  .hero-title{font-size:clamp(38px,14vw,56px);}
-  .sec-title{font-size:clamp(26px,8vw,40px);}
-  .bundle-price{font-size:44px;}
-  .proof-n{font-size:26px;}
-  nav{padding:0 14px;}
+@media(max-width:600px){
   .jf-plans{grid-template-columns:1fr;}
+  .bundle-price{font-size:44px;}
 }
-
-/* ===== ORBITUM PRODUCT OVERRIDES ===== */
-.hero{padding-top:120px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent 24%);} 
-.hero-inner{max-width:980px}
-.hero-title{max-width:820px;margin:0 auto;letter-spacing:-2.8px}
-.hero-sub{max-width:640px;font-size:16px;color:rgba(255,255,255,0.66)}
-.proof-strip{background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));border-color:rgba(242,107,58,0.14);box-shadow:0 20px 60px rgba(0,0,0,0.22)}
-.proof-item{min-width:120px}
-.orbitum-product-zone{padding-top:90px}
-.orbitum-journal-head{max-width:820px;margin-bottom:30px}
-.orbitum-journal-copy{font-size:15px;color:var(--m);line-height:1.8;max-width:720px}
-.orbitum-showcase{display:grid;grid-template-columns:1.12fr .88fr;gap:16px;margin-top:32px}
-.os-side-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.os-card{background:linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,0.24);position:relative;overflow:hidden}
-.os-card::before{content:'';position:absolute;inset:-10% auto auto -8%;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(242,107,58,0.12),transparent 65%);pointer-events:none}
-.os-terminal{min-height:460px}
-.os-topbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.48)}
-.os-dot{width:8px;height:8px;border-radius:999px;background:var(--fire);box-shadow:0 0 18px rgba(242,107,58,0.8)}
-.os-kicker{color:var(--fire)}
-.os-chip{margin-left:auto;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);font-size:9px;color:rgba(255,255,255,0.5)}
-.os-main-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:14px;height:calc(100% - 42px)}
-.os-block{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
-.os-label{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--fire);margin-bottom:2px}
-.os-input{height:42px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);display:flex;align-items:center;padding:0 14px;font-size:13px;color:rgba(255,255,255,0.7)}
-.os-input.accent{border-color:rgba(242,107,58,0.28);background:rgba(242,107,58,0.08);color:#ffe1dc}
-.os-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.os-row.mini-gap{grid-template-columns:repeat(3,1fr)}
-.os-toggle{height:38px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);display:grid;place-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.48)}
-.os-toggle.active{border-color:rgba(242,107,58,0.32);background:rgba(242,107,58,0.1);color:#ffd4cd}
-.os-toggle.active-soft{border-color:rgba(242,107,58,0.18);background:rgba(242,107,58,0.08);color:var(--fire)}
-.os-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}.os-tags span,.os-file-pill{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,0.54)}
-.os-trade{display:grid;grid-template-columns:.9fr 1fr auto;gap:8px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;color:rgba(255,255,255,0.58)}
-.os-trade:last-child{border-bottom:none}.os-trade b{color:#fff;font-size:12px}.os-trade strong{color:var(--fire)}.os-trade.loss strong{color:#c6c6c6}
-.os-score-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:8px}.os-score{font-size:52px;line-height:.9;font-weight:800;letter-spacing:-.06em}.os-sub{margin-top:6px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.4)}.os-pill{padding:10px 12px;border-radius:999px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase}.os-pill.warn{background:rgba(242,107,58,0.1);border:1px solid rgba(242,107,58,0.24);color:var(--fire)}
-.os-note{margin-top:14px;font-size:13px;line-height:1.75;color:rgba(255,255,255,0.62)}
-.os-bars{height:88px;display:flex;align-items:flex-end;gap:6px;margin-top:16px}.os-bars span{flex:1;border-radius:12px 12px 4px 4px;background:linear-gradient(180deg,rgba(255,154,138,0.9),rgba(242,107,58,0.32))}.os-bars span.neg{background:linear-gradient(180deg,rgba(255,255,255,0.24),rgba(255,255,255,0.08))}.os-mini-meta{margin-top:12px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.46)}
-.os-checks,.os-challenge{display:grid;gap:10px;margin-top:14px}.os-checks span,.os-challenge{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);font-size:12px;color:rgba(255,255,255,0.62)}.os-challenge{grid-template-columns:1fr auto;align-items:center}.os-challenge b{color:var(--fire)}
-.orbitum-module-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}.orb-module-card{padding:22px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)}.orb-module-kicker{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--fire);margin-bottom:10px}.orb-module-card h3{font-size:20px;letter-spacing:-.04em;margin-bottom:10px}.orb-module-card p{font-size:13px;line-height:1.75;color:var(--m)}
-@media (max-width:1100px){.orbitum-showcase{grid-template-columns:1fr}.orbitum-module-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:720px){.hero{padding-inline:22px}.proof-strip{gap:18px;padding:20px}.proof-sep{display:none}.orbitum-showcase,.os-side-grid,.os-main-grid,.orbitum-module-grid{grid-template-columns:1fr}.os-terminal{min-height:auto}.orbitum-journal-copy{font-size:14px}}
-/* ═══ PREMIUM LANDING OVERRIDES ═══ */
-:root{
-  --bg:#0B0B0D;--bg2:#0F0F12;--bg3:#16161A;
-  --t:#F4F0EC;--m:rgba(244,240,236,0.55);--m2:rgba(244,240,236,0.28);
-}
-body{background:var(--bg)!important;color:var(--t)!important;-webkit-font-smoothing:antialiased!important;}
-nav{background:rgba(11,11,13,0.88)!important;backdrop-filter:saturate(160%) blur(24px)!important;border-bottom:1px solid rgba(242,107,58,0.06)!important;}
-nav.scrolled{background:rgba(11,11,13,0.95)!important;}
-.logo{font-family:'Plus Jakarta Sans',sans-serif!important;font-weight:800!important;letter-spacing:0.08em!important;font-size:14px!important;}
-.nav-links a{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:11px!important;font-weight:500!important;letter-spacing:0.04em!important;}
-.nav-cta,.btn-primary{border-radius:14px!important;font-family:'Plus Jakarta Sans',sans-serif!important;font-weight:700!important;letter-spacing:0!important;font-size:13px!important;text-transform:none!important;}
-.btn-ghost,.nav-btn-ghost{border-radius:14px!important;font-family:'Plus Jakarta Sans',sans-serif!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important;}
-.hero-eyebrow{border-radius:999px!important;font-family:'Plus Jakarta Sans',sans-serif!important;font-size:10px!important;font-weight:700!important;letter-spacing:0.12em!important;}
-.hero-title{font-family:'Plus Jakarta Sans',sans-serif!important;letter-spacing:-0.04em!important;}
-.hero-sub{font-family:'Plus Jakarta Sans',sans-serif!important;}
-.proof-strip{border-radius:20px!important;backdrop-filter:blur(12px)!important;}
-.proof-n{font-family:'Plus Jakarta Sans',sans-serif!important;font-weight:800!important;}
-.proof-l{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:10px!important;font-weight:500!important;letter-spacing:0.04em!important;}
-.sec-title{font-family:'Plus Jakarta Sans',sans-serif!important;letter-spacing:-0.04em!important;}
-.sec-desc,.sec-sub{font-family:'Plus Jakarta Sans',sans-serif!important;}
-.feat-card,.os-card,.os-terminal,.orb-module-card{border-radius:20px!important;backdrop-filter:blur(10px)!important;}
-.feat-card:hover,.os-card:hover{transform:translateY(-2px)!important;}
-.ticker-wrap{background:rgba(15,15,18,0.9)!important;}
-.faq-q{font-family:'Plus Jakarta Sans',sans-serif!important;font-weight:600!important;}
-.faq-a{font-family:'Plus Jakarta Sans',sans-serif!important;}
-footer{background:rgba(11,11,13,0.95)!important;}
-
 </style>
 </head>
 <body>
 
+<div class="orb-bg"></div>
+
 <!-- NAV -->
 <nav id="nav">
-  <a href="/" class="logo">ORBITUM</a>
+  <a href="/" class="logo">ORBITUM<span class="logo-dot"></span></a>
   <ul class="nav-links">
     <li><a href="#courses" data-ru>Курсы</a><a href="#courses" data-en>Courses</a></li>
     <li><a href="#journal" data-ru>AI Журнал</a><a href="#journal" data-en>AI Journal</a></li>
     <li><a href="#why" data-ru>Подход</a><a href="#why" data-en>Approach</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <button class="nav-hamburger" id="nav-burger" onclick="toggleMobNav()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
   <div class="nav-right" id="nav-right">
     <button class="nav-lang active" id="lang-en" onclick="setLang('en')">EN</button>
     <button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
     <a href="/login" class="nav-btn-ghost" data-ru>Войти</a>
     <a href="/login" class="nav-btn-ghost" data-en>Sign In</a>
-    <a href="#courses" class="nav-cta" data-ru>Выбрать курс</a>
-    <a href="#courses" class="nav-cta" data-en>Get a Course</a>
+    <a href="/login" class="nav-cta" data-ru>Начать →</a>
+    <a href="/login" class="nav-cta" data-en>Get Started →</a>
   </div>
+  <button class="nav-hamburger" id="nav-burger" onclick="toggleMobNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg">
-    <div class="hero-glow"></div>
-
-    <!-- LEFT: journal form + trades -->
-    <div class="hero-ghost-left">
-      <div class="hg-panel">
-        <div class="hg-topbar">
-          <div class="hg-dot"></div>
-          <div class="hg-badge">TRADE JOURNAL</div>
-          <div class="hg-spacer"></div>
-          <div class="hg-pill">$3,240</div>
-        </div>
-        <div class="hg-stats">
-          <div class="hg-stat"><div class="hg-stat-lbl">Trades</div><div class="hg-stat-val">47</div></div>
-          <div class="hg-stat"><div class="hg-stat-lbl">Win Rate</div><div class="hg-stat-val pos">68%</div></div>
-          <div class="hg-stat"><div class="hg-stat-lbl">P&amp;L $</div><div class="hg-stat-val pos">+$1,204</div></div>
-          <div class="hg-stat"><div class="hg-stat-lbl">Streak</div><div class="hg-stat-val acc">5 ↑</div></div>
-        </div>
-        <div class="hg-form">
-          <div class="hg-form-title">+ New Trade</div>
-          <div class="hg-field accent">BTC/USDT</div>
-          <div class="hg-row">
-            <div class="hg-field" style="flex:1;margin-bottom:0">SL: 41,200</div>
-            <div class="hg-field" style="flex:1;margin-bottom:0">TP: 44,800</div>
-          </div>
-          <div class="hg-row" style="margin-top:5px">
-            <div class="hg-mini red">↑ LONG</div>
-            <div class="hg-mini">SHORT</div>
-            <div class="hg-mini grn">Win</div>
-          </div>
-        </div>
-        <div class="hg-trades">
-          <div class="hg-trade">
-            <div class="hg-trade-pair">BTC/USDT</div>
-            <div class="hg-tag l">LONG</div>
-            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">Order Block</div>
-            <div class="hg-pnl-pos">+3.2R</div>
-          </div>
-          <div class="hg-trade">
-            <div class="hg-trade-pair">ETH/USDT</div>
-            <div class="hg-tag l">LONG</div>
-            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">BOS Retest</div>
-            <div class="hg-pnl-pos">+2.1R</div>
-          </div>
-          <div class="hg-trade">
-            <div class="hg-trade-pair">SOL/USDT</div>
-            <div class="hg-tag s">SHORT</div>
-            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">FVG Fill</div>
-            <div class="hg-pnl-neg">-1.0R</div>
-          </div>
-          <div class="hg-trade">
-            <div class="hg-trade-pair">BTC/USDT</div>
-            <div class="hg-tag l">LONG</div>
-            <div style="flex:1;font-size:8px;color:rgba(255,255,255,0.35)">Liquidity Sweep</div>
-            <div class="hg-pnl-pos">+4.5R</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT: analytics + AI coach -->
-    <div class="hero-ghost-right">
-      <div class="hg-panel">
-        <div class="hg-topbar">
-          <div class="hg-dot"></div>
-          <div class="hg-badge">AI ANALYTICS</div>
-          <div class="hg-spacer"></div>
-          <div class="hg-pill">+84.2% ROI</div>
-        </div>
-        <!-- Discipline Score -->
-        <div class="hg-equity" style="border:1px solid rgba(255,255,255,0.08);padding:12px;">
-          <div class="hg-coach-lbl" style="margin-bottom:8px">Discipline Score</div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <svg width="56" height="56" viewBox="0 0 56 56">
-              <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="5"/>
-              <circle cx="28" cy="28" r="22" fill="none" stroke="#F26B3A" stroke-width="5"
-                stroke-dasharray="110 138" stroke-linecap="round"
-                transform="rotate(-90 28 28)" opacity="0.8"/>
-              <text x="28" y="33" text-anchor="middle" fill="#fff" font-size="13" font-weight="800" font-family="Plus Jakarta Sans">72</text>
-            </svg>
-            <div>
-              <div style="font-size:16px;font-weight:800;color:#F26B3A;line-height:1">UNSTABLE</div>
-              <div style="font-size:8px;color:rgba(255,255,255,0.35);margin-top:3px;letter-spacing:1px">EMOTIONS AFFECTING RESULTS</div>
-              <div style="display:flex;gap:4px;margin-top:6px">
-                <div style="height:3px;flex:3;background:#F26B3A;border-radius:2px;opacity:0.8"></div>
-                <div style="height:3px;flex:1;background:rgba(255,255,255,0.1);border-radius:2px"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Brutal Analysis -->
-        <div class="hg-coach" style="border-radius:0;">
-          <div class="hg-coach-lbl">Brutal Analysis · This Week</div>
-          <div class="hg-coach-text"><b>You lost $340 on Friday sessions.</b> 4 revenge trades after 2 consecutive losses — avg size 2.3× your normal risk. Stop trading after 2 red trades.</div>
-        </div>
-        <!-- Stats row -->
-        <div class="hg-stats-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;">
-          <div class="hg-stat"><div class="hg-stat-lbl">Avg Win</div><div class="hg-stat-val pos" style="font-size:13px;color:#F26B3A">+$68</div></div>
-          <div class="hg-stat"><div class="hg-stat-lbl">Avg Loss</div><div class="hg-stat-val neg" style="font-size:13px">-$32</div></div>
-          <div class="hg-stat"><div class="hg-stat-lbl">R:R avg</div><div class="hg-stat-val" style="font-size:13px">2.1</div></div>
-        </div>
-        <!-- P&L bars -->
-        <div class="hg-chart" style="border-radius:0 0 8px 8px;">
-          <div class="hg-chart-title">P&amp;L by day</div>
-          <div class="hg-bars">
-            <div class="hg-bar pos" style="height:60%"></div>
-            <div class="hg-bar pos" style="height:40%"></div>
-            <div class="hg-bar neg" style="height:30%"></div>
-            <div class="hg-bar pos" style="height:75%"></div>
-            <div class="hg-bar pos" style="height:55%"></div>
-            <div class="hg-bar neg" style="height:20%"></div>
-            <div class="hg-bar pos" style="height:90%"></div>
-            <div class="hg-bar pos" style="height:65%"></div>
-            <div class="hg-bar neg" style="height:35%"></div>
-            <div class="hg-bar pos" style="height:80%"></div>
-            <div class="hg-bar pos" style="height:100%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="hero-rings">
+    <div class="ring-extra"></div>
   </div>
+  <div class="hero-orb"></div>
   <div class="hero-inner">
-    
-    <div class="hero-eyebrow">
-      <span data-ru>Private trading intelligence system</span>
-      <span data-en>Private trading intelligence system</span>
+    <div class="hero-eyebrow" data-ru>✦ СИСТЕМА ТОРГОВОЙ АНАЛИТИКИ</div>
+    <div class="hero-eyebrow" data-en>✦ TRADING INTELLIGENCE SYSTEM</div>
+
+    <div class="hero-logo-badge">
+      <div class="hero-logo-icon">
+        <svg viewBox="0 0 32 32"><path d="M8 8h6l4 8-4 8H8l4-8z"/><path d="M18 8h6l-4 8 4 8h-6l-4-8z" opacity=".5"/></svg>
+      </div>
     </div>
-    <h1 class="hero-title">
-      <span data-ru>Собери себе<br><em>систему трейдера.</em></span>
-      <span data-en>Build your own<br><em>trader system.</em></span>
-    </h1>
-    <p class="hero-sub">
-      <span data-ru><strong>Журнал, аналитика, AI feedback и дисциплина.</strong> Orbitum собирает сделки в единую систему: логирование, ошибки, тепловые карты, PDF-отчёты, score и поведенческие сигналы.</span>
-      <span data-en><strong>Journal, analytics, AI feedback, and discipline.</strong> Orbitum turns your trades into one system: logging, mistakes, heatmaps, PDF reports, score, and behavioral signals.</span>
-    </p>
+
+    <h1 class="hero-title">ORBITUM <em>AI</em></h1>
+    <p class="hero-sub" data-ru>Инструмент профессионального трейдера. Журнал, аналитика, AI-обратная связь и дисциплина.</p>
+    <p class="hero-sub" data-en>Professional trader's intelligence system. Journal, analytics, AI feedback & discipline tracking.</p>
+
     <div class="hero-actions">
-      <a href="/pay" class="btn-primary">
-        <span data-ru>Смотреть модули</span><span data-en>View modules</span> →
-      </a>
-      <a href="/journal" class="btn-ghost">
-        <span data-ru>Открыть Journal Preview</span>
-        <span data-en>Open Journal Preview</span>
-      </a>
+      <a href="#courses" class="btn-primary" data-ru>Смотреть курсы ↗</a>
+      <a href="#courses" class="btn-primary" data-en>Get Template ↗</a>
+      <a href="#why" class="btn-ghost" data-ru>Как это работает</a>
+      <a href="#why" class="btn-ghost" data-en>See Our Services</a>
     </div>
+
     <div class="proof-strip">
       <div class="proof-item">
-        <div class="proof-n">8</div>
-        <div class="proof-l" data-ru>Модулей системы</div><div class="proof-l" data-en>System modules</div>
+        <span class="proof-n">1,200+</span>
+        <span class="proof-l" data-ru>трейдеров</span>
+        <span class="proof-l" data-en>traders</span>
       </div>
       <div class="proof-sep"></div>
       <div class="proof-item">
-        <div class="proof-n">60s</div>
-        <div class="proof-l" data-ru>до AI feedback</div><div class="proof-l" data-en>to AI feedback</div>
+        <span class="proof-n">3</span>
+        <span class="proof-l" data-ru>дисциплины</span>
+        <span class="proof-l" data-en>disciplines</span>
       </div>
       <div class="proof-sep"></div>
       <div class="proof-item">
-        <div class="proof-n">24/7</div>
-        <div class="proof-l" data-ru>аналитика поведения</div><div class="proof-l" data-en>behavior analytics</div>
+        <span class="proof-n">AI</span>
+        <span class="proof-l" data-ru>анализ сделок</span>
+        <span class="proof-l" data-en>trade analysis</span>
       </div>
       <div class="proof-sep"></div>
       <div class="proof-item">
-        <div class="proof-n">CSV</div>
-        <div class="proof-l" data-ru>XLSX · PDF · Screens</div><div class="proof-l" data-en>XLSX · PDF · Screens</div>
+        <span class="proof-n">24/7</span>
+        <span class="proof-l" data-ru>мониторинг</span>
+        <span class="proof-l" data-en>monitoring</span>
       </div>
     </div>
   </div>
 </section>
 
 <!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker">
-    <div class="ticker-item"><span class="dot"></span>Trade logging</div>
-    <div class="ticker-item"><span class="dot"></span>AI Coach</div>
-    <div class="ticker-item"><span class="dot"></span>Hourly heatmap</div>
-    <div class="ticker-item"><span class="dot"></span>Challenges</div>
-    <div class="ticker-item"><span class="dot"></span>CSV / XLSX import</div>
-    <div class="ticker-item"><span class="dot"></span>Behavior fingerprint</div>
-    <div class="ticker-item"><span class="dot"></span>Screenshot workflow</div>
-    <div class="ticker-item"><span class="dot"></span>Score & streaks</div>
-    <div class="ticker-item"><span class="dot"></span>Trade logging</div>
-    <div class="ticker-item"><span class="dot"></span>AI Coach</div>
-    <div class="ticker-item"><span class="dot"></span>Hourly heatmap</div>
-    <div class="ticker-item"><span class="dot"></span>Challenges</div>
-    <div class="ticker-item"><span class="dot"></span>CSV / XLSX import</div>
-    <div class="ticker-item"><span class="dot"></span>Behavior fingerprint</div>
-    <div class="ticker-item"><span class="dot"></span>Screenshot workflow</div>
-    <div class="ticker-item"><span class="dot"></span>Score & streaks</div>
+<div class="ticker-section">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="ticker-dot"></span> Real-Time Analytics</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Virtual Assistance</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Scalable Solutions</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Personalized Experiences</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Cost Effective</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> AI Innovation</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Risk Management</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Trade Journal</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Real-Time Analytics</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Virtual Assistance</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Scalable Solutions</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Personalized Experiences</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Cost Effective</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> AI Innovation</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Risk Management</span>
+    <span class="ticker-item"><span class="ticker-dot"></span> Trade Journal</span>
   </div>
 </div>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="wrap">
-    <div class="about reveal">
-      <div class="about-text">
-        <div class="sec-eyebrow" data-ru>Подход</div>
-        <div class="sec-eyebrow" data-en>Approach</div>
-        <h2 class="sec-title" data-ru>Без воды.<br><em>Только суть.</em></h2>
-        <h2 class="sec-title" data-en>No fluff.<br><em>Only substance.</em></h2>
-        <p>
-          <span data-ru>Orbitum — это <strong>образовательная платформа для тех, кто серьёзно относится к трейдингу</strong>. Мы не продаём сигналы и не обещаем лёгких денег.</span>
-          <span data-en>Orbitum is an <strong>educational platform for traders who are serious about their craft</strong>. We don't sell signals and don't promise easy money.</span>
-        </p>
-        <p>
-          <span data-ru>Каждый курс — это глубокое погружение в концепцию. <strong>Минимум теории. Максимум применения.</strong> Каждый концепт подкреплён реальными примерами на графиках.</span>
-          <span data-en>Each course is a deep dive into a concept. <strong>Minimum theory. Maximum application.</strong> Every concept is backed by real chart examples.</span>
-        </p>
+<!-- WHY CHOOSE US -->
+<section class="about-section" id="why">
+  <div class="inner">
+    <div class="why-head reveal">
+      <div class="sec-tag" data-ru>ПРЕИМУЩЕСТВА</div>
+      <div class="sec-tag" data-en>BENEFITS</div>
+      <h2 class="sec-title" data-ru>Почему выбирают нас</h2>
+      <h2 class="sec-title" data-en>Why Choose Us</h2>
+      <p class="sec-sub" data-ru>Партнёрство с AI-агентством, которое доставляет умные решения.</p>
+      <p class="sec-sub" data-en>Partner with an AI agency delivering smart solutions.</p>
+    </div>
+    <div class="why-grid">
+      <!-- Card 1 -->
+      <div class="why-card reveal">
+        <div class="why-card-visual">
+          <div class="vis-clock">
+            <div class="vis-clock-center"></div>
+          </div>
+        </div>
+        <h3 class="why-card-title" data-ru>Аналитика в реальном времени</h3>
+        <h3 class="why-card-title" data-en>Real-Time Analytics</h3>
+        <p class="why-card-desc" data-ru>Опережай рынок с точным отслеживанием производительности в реальном времени.</p>
+        <p class="why-card-desc" data-en>Stay ahead with accurate, real-time performance tracking for every trade.</p>
       </div>
-      <div class="about-pillars">
-        <div class="pillar-item">
-          <div class="pillar-icon">
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M2 10h16M10 2l8 8-8 8" stroke="#F26B3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <!-- Card 2 -->
+      <div class="why-card reveal">
+        <div class="why-card-visual" style="background:var(--bg3);">
+          <div class="vis-bars">
+            <div class="vis-bar-wrap"><div class="vis-bar" style="height:40px;"></div><span class="vis-bar-label">BEF</span></div>
+            <div class="vis-bar-wrap"><div class="vis-bar" style="height:55px;"></div><span class="vis-bar-label"></span></div>
+            <div class="vis-bar-wrap"><div class="vis-bar" style="height:48px;"></div><span class="vis-bar-label"></span></div>
+            <div class="vis-bar-wrap"><div class="vis-bar accent" style="height:80px;"></div><span class="vis-bar-label"></span></div>
+            <div class="vis-bar-wrap"><div class="vis-bar accent" style="height:95px;"></div><span class="vis-bar-label">AFT</span></div>
           </div>
-          <div>
-            <div class="pillar-title">Market Structure Mastery</div>
-            <div class="pillar-desc" data-ru>Ликвидность, ордерблоки, BOS/ChoCH — как читают рынок институционалы</div>
-            <div class="pillar-desc" data-en>Liquidity, order blocks, BOS/ChoCH — how institutions read the market</div>
+          <div class="vis-chip">+60% Cost</div>
+          <div class="vis-chip2">20% Automation</div>
+        </div>
+        <h3 class="why-card-title" data-ru>Рост с AI</h3>
+        <h3 class="why-card-title" data-en>AI-Driven Growth</h3>
+        <p class="why-card-desc" data-ru>Принимай более умные решения с точными бизнес-инсайтами в реальном времени.</p>
+        <p class="why-card-desc" data-en>Make smarter moves with accurate, real-time business insights.</p>
+      </div>
+      <!-- Card 3 -->
+      <div class="why-card reveal">
+        <div class="why-card-visual">
+          <div class="vis-avatars">
+            <div class="vis-avatar">A</div>
+            <div class="vis-avatar dark">B</div>
+            <div class="vis-avatar">C</div>
+          </div>
+          <div class="vis-logo-icon" style="position:absolute;bottom:20px;right:20px;width:44px;height:44px;">
+            <svg viewBox="0 0 32 32"><path d="M8 8h6l4 8-4 8H8l4-8z"/><path d="M18 8h6l-4 8 4 8h-6l-4-8z" opacity=".5"/></svg>
           </div>
         </div>
-        <div class="pillar-item">
-          <div class="pillar-icon">
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#F26B3A" stroke-width="1.5"/><path d="M7 10c0-3 6-5 6 0s-6 5-6 0" stroke="#F26B3A" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </div>
-          <div>
-            <div class="pillar-title">Wyckoff Method</div>
-            <div class="pillar-desc" data-ru>Накопление, дистрибуция, Composite Man — психология рынка в действии</div>
-            <div class="pillar-desc" data-en>Accumulation, distribution, Composite Man — market psychology in action</div>
-          </div>
-        </div>
-        <div class="pillar-item">
-          <div class="pillar-icon">
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M2 16L6 10L10 12L14 6L18 4" stroke="#F26B3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div>
-            <div class="pillar-title">Elliott Wave Theory</div>
-            <div class="pillar-desc" data-ru>Импульсные и коррекционные волны, Fibonacci — прогноз через цикличность</div>
-            <div class="pillar-desc" data-en>Impulse and corrective waves, Fibonacci — forecasting through cycles</div>
-          </div>
-        </div>
+        <h3 class="why-card-title" data-ru>Синхронизация в реальном времени</h3>
+        <h3 class="why-card-title" data-en>Sync in Real Time</h3>
+        <p class="why-card-desc" data-ru>Мгновенно подключайся к команде для отслеживания прогресса и обновлений.</p>
+        <p class="why-card-desc" data-en>Connect with your team instantly to track progress and updates.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- SOCIAL PROOF -->
-<div class="results-section">
-  <div class="wrap">
-    <div class="reveal">
-      <div class="sec-eyebrow" data-ru>Результаты студентов</div>
-      <div class="sec-eyebrow" data-en>Student Results</div>
-      <h2 class="sec-title" data-ru>Что меняется<br><em>после курса</em></h2>
-      <h2 class="sec-title" data-en>What changes<br><em>after the course</em></h2>
-    </div>
-    <div class="results-grid">
-      <div class="result-card reveal">
-        <div class="result-stars">★★★★★</div>
-        <p class="result-text" data-ru>«MSM курс перевернул моё понимание рынка. Я начал видеть ликвидность и ордерблоки там, где раньше видел только свечи. Первый месяц после — лучший в карьере.»</p>
-        <p class="result-text" data-en>"The MSM course flipped my understanding of the market. I started seeing liquidity and order blocks where I only saw candles before. First month after — my best ever."</p>
-        <div class="result-author">
-          <div class="result-ava">@</div>
-          <div>
-            <div class="result-name">@alextrader</div>
-            <div class="result-role" data-ru>Фьючерсы BTC/ETH · 2 года в трейдинге</div>
-            <div class="result-role" data-en>BTC/ETH Futures · 2 years trading</div>
-          </div>
-        </div>
-        <div class="result-stat" data-ru>↑ WR: 38% → 61% за 6 недель</div>
-        <div class="result-stat" data-en>↑ WR: 38% → 61% in 6 weeks</div>
-      </div>
-      <div class="result-card reveal">
-        <div class="result-stars">★★★★★</div>
-        <p class="result-text" data-ru>«Wyckoff Method полностью изменил то, как я смотрю на накопление и дистрибуцию. Теперь понимаю кто стоит за движением. R:R вырос в два раза.»</p>
-        <p class="result-text" data-en>"Wyckoff Method completely changed how I see accumulation and distribution. Now I understand who's behind the moves. My R:R doubled."</p>
-        <div class="result-author">
-          <div class="result-ava">@</div>
-          <div>
-            <div class="result-name">@dm_swing</div>
-            <div class="result-role" data-ru>Swing Trading · 3 года опыта</div>
-            <div class="result-role" data-en>Swing Trading · 3 years exp.</div>
-          </div>
-        </div>
-        <div class="result-stat" data-ru>R:R: 1.4 → 2.9 за 2 месяца</div>
-        <div class="result-stat" data-en>R:R: 1.4 → 2.9 in 2 months</div>
-      </div>
-      <div class="result-card reveal">
-        <div class="result-stars">★★★★★</div>
-        <p class="result-text" data-ru>«Взял Bundle — лучшее решение. Три методологии вместе дают полную картину рынка. Теперь могу объяснить почему цена должна пойти туда.»</p>
-        <p class="result-text" data-en>"Bought the Bundle — best decision. Three methodologies together give the complete market picture. Now I can explain WHY price should go there."</p>
-        <div class="result-author">
-          <div class="result-ava">@</div>
-          <div>
-            <div class="result-name">@misha_crypto</div>
-            <div class="result-role" data-ru>Крипто + Forex · 4 года</div>
-            <div class="result-role" data-en>Crypto + Forex · 4 years</div>
-          </div>
-        </div>
-        <div class="result-stat" data-ru>Прибыльный 5 месяцев подряд</div>
-        <div class="result-stat" data-en>5 consecutive profitable months</div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- COURSES -->
-<section id="courses" class="courses-section">
-  <div class="courses-header reveal">
-    <div>
-      <div class="sec-eyebrow" data-ru>Программы</div>
-      <div class="sec-eyebrow" data-en>Programs</div>
-      <h2 class="sec-title" data-ru>Курсы</h2>
-      <h2 class="sec-title" data-en>Courses</h2>
+<section class="courses-section" id="courses">
+  <div class="inner">
+    <div class="courses-head reveal">
+      <div class="courses-head-row">
+        <div>
+          <div class="sec-tag" data-ru>ОБУЧЕНИЕ</div>
+          <div class="sec-tag" data-en>EDUCATION</div>
+          <h2 class="sec-title" data-ru>Курсы</h2>
+          <h2 class="sec-title" data-en>Courses</h2>
+        </div>
+        <p class="sec-sub" style="margin-top:0" data-ru>Три дисциплины — три уровня мастерства трейдера.</p>
+        <p class="sec-sub" style="margin-top:0" data-en>Three disciplines — three levels of trader mastery.</p>
+      </div>
     </div>
-    <p data-ru>Каждый курс — самостоятельная дисциплина. Выбери то, что нужно сейчас, или возьми все три.</p>
-    <p data-en>Each course is a standalone discipline. Pick what you need now, or take all three.</p>
-  </div>
-  <div class="courses-grid">
-    <div class="course-card featured reveal">
-      <div class="card-badge" data-ru>Популярный</div>
-      <div class="card-badge" data-en>Most Popular</div>
-      <div class="card-num">01 / MSM</div>
-      <h3 class="card-title">Market Structure Mastery</h3>
-      <p class="card-desc" data-ru>Научитесь читать структуру рынка так, как её видят институциональные игроки. Ликвидность, ордерблоки, слом структуры — от базы до продвинутого применения.</p>
-      <p class="card-desc" data-en>Learn to read market structure the way institutional players see it. Liquidity, order blocks, structure breaks — from foundation to advanced application.</p>
-      <ul class="card-modules">
-        <li><div class="pf-mark">+</div><span data-ru>Структура рынка: основы и фазы</span><span data-en>Market structure: basics &amp; phases</span></li>
-        <li><div class="pf-mark">+</div><span>Liquidity &amp; Order Blocks</span></li>
-        <li><div class="pf-mark">+</div><span>BOS, ChoCH, Sweeps</span></li>
-        <li><div class="pf-mark">+</div><span>Premium / Discount Zones</span></li>
-        <li><div class="pf-mark">+</div><span data-ru>Построение торгового плана</span><span data-en>Building a trade plan</span></li>
-      </ul>
-      <div class="card-price"><span class="price-currency">$</span><span class="price-amount" id="price-bundle_msm">397</span></div>
-      <div class="card-price-note" data-ru>Lifetime доступ · Обновления бесплатно</div>
-      <div class="card-price-note" data-en>Lifetime access · Free updates</div>
-      <a href="/pay?product=bundle_msm" class="card-btn"><span data-ru>Получить доступ</span><span data-en>Get Access</span> →</a>
-    </div>
-    <div class="course-card reveal">
-      <div class="card-num">02 / WYK</div>
-      <h3 class="card-title">Wyckoff Method</h3>
-      <p class="card-desc" data-ru>Метод Вайкоффа — один из старейших и эффективнейших подходов к пониманию рынка. Накопление, дистрибуция, спружины и апстрасты.</p>
-      <p class="card-desc" data-en>One of the oldest and most effective approaches to understanding the market. Accumulation, distribution, springs and upthrusts — all in one course.</p>
-      <ul class="card-modules">
-        <li><div class="pf-mark">+</div><span data-ru>Введение в метод Вайкоффа</span><span data-en>Introduction to Wyckoff</span></li>
-        <li><div class="pf-mark">+</div><span data-ru>Accumulation схемы</span><span data-en>Accumulation schematics</span></li>
-        <li><div class="pf-mark">+</div><span data-ru>Distribution схемы</span><span data-en>Distribution schematics</span></li>
-        <li><div class="pf-mark">+</div><span>Composite Man</span></li>
-        <li><div class="pf-mark">+</div><span data-ru>Практическое применение</span><span data-en>Practical application</span></li>
-      </ul>
-      <div class="card-price"><span class="price-currency">$</span><span class="price-amount" id="price-bundle_wyk">297</span></div>
-      <div class="card-price-note" data-ru>Lifetime доступ · Обновления бесплатно</div>
-      <div class="card-price-note" data-en>Lifetime access · Free updates</div>
-      <a href="/pay?product=bundle_wyk" class="card-btn"><span data-ru>Получить доступ</span><span data-en>Get Access</span> →</a>
-    </div>
-    <div class="course-card reveal">
-      <div class="card-num">03 / EWT</div>
-      <h3 class="card-title">Elliott Wave Theory</h3>
-      <p class="card-desc" data-ru>Теория волн Эллиотта — прогнозирование через цикличные паттерны. Импульсные и коррекционные волны, Fibonacci, торговые стратегии.</p>
-      <p class="card-desc" data-en>Forecast price movement through cyclical patterns. Impulse and corrective waves, fibonacci, trading strategies.</p>
-      <ul class="card-modules">
-        <li><div class="pf-mark">+</div><span data-ru>Основы теории волн</span><span data-en>Wave theory basics</span></li>
-        <li><div class="pf-mark">+</div><span data-ru>Импульсные волны (1-5)</span><span data-en>Impulse waves (1-5)</span></li>
-        <li><div class="pf-mark">+</div><span data-ru>Коррекционные структуры (A-B-C)</span><span data-en>Corrective structures (A-B-C)</span></li>
-        <li><div class="pf-mark">+</div><span>Fibonacci &amp; Ratios</span></li>
-        <li><div class="pf-mark">+</div><span data-ru>Интеграция с другими методами</span><span data-en>Integration with other methods</span></li>
-      </ul>
-      <div class="card-price"><span class="price-currency">$</span><span class="price-amount" id="price-bundle_ewt">297</span></div>
-      <div class="card-price-note" data-ru>Lifetime доступ · Обновления бесплатно</div>
-      <div class="card-price-note" data-en>Lifetime access · Free updates</div>
-      <a href="/pay?product=bundle_ewt" class="card-btn"><span data-ru>Получить доступ</span><span data-en>Get Access</span> →</a>
+    <div class="courses-grid">
+      <div class="course-card reveal">
+        <div class="card-num">01 / COURSE</div>
+        <h3 class="card-title" data-ru>Smart Money Concepts</h3>
+        <h3 class="card-title" data-en>Smart Money Concepts</h3>
+        <p class="card-desc" data-ru>Институциональный подход: структура рынка, ликвидность, манипуляции.</p>
+        <p class="card-desc" data-en>Institutional approach: market structure, liquidity, and manipulation.</p>
+        <ul class="card-modules">
+          <li><span class="pf-mark">✓</span> <span data-ru>Структура рынка</span><span data-en>Market Structure</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Зоны ликвидности</span><span data-en>Liquidity Zones</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Order Blocks</span><span data-en>Order Blocks</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Точки входа</span><span data-en>Entry Points</span></li>
+        </ul>
+        <div class="card-price">
+          <span class="price-currency">$</span>
+          <span class="price-amount" id="price-smc">297</span>
+        </div>
+        <div class="card-price-note" data-ru>единоразово · пожизненный доступ</div>
+        <div class="card-price-note" data-en>one-time · lifetime access</div>
+        <a href="/pay?course=smc" class="card-btn" data-ru>Купить курс →</a>
+        <a href="/pay?course=smc" class="card-btn" data-en>Get Course →</a>
+      </div>
+
+      <div class="course-card featured reveal">
+        <div class="card-badge" data-ru>ПОПУЛЯРНЫЙ</div>
+        <div class="card-badge" data-en>POPULAR</div>
+        <div class="card-num">02 / COURSE</div>
+        <h3 class="card-title" data-ru>Risk Management</h3>
+        <h3 class="card-title" data-en>Risk Management</h3>
+        <p class="card-desc" data-ru>Система управления капиталом и психологией трейдера.</p>
+        <p class="card-desc" data-en>Capital management system and trader psychology mastery.</p>
+        <ul class="card-modules">
+          <li><span class="pf-mark">✓</span> <span data-ru>Расчёт позиции</span><span data-en>Position Sizing</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Дневник сделок</span><span data-en>Trade Journal</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Управление просадкой</span><span data-en>Drawdown Control</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Дисциплина</span><span data-en>Discipline System</span></li>
+        </ul>
+        <div class="card-price">
+          <span class="price-currency">$</span>
+          <span class="price-amount" id="price-risk">347</span>
+        </div>
+        <div class="card-price-note" data-ru>единоразово · пожизненный доступ</div>
+        <div class="card-price-note" data-en>one-time · lifetime access</div>
+        <a href="/pay?course=risk" class="card-btn" data-ru>Купить курс →</a>
+        <a href="/pay?course=risk" class="card-btn" data-en>Get Course →</a>
+      </div>
+
+      <div class="course-card reveal">
+        <div class="card-num">03 / COURSE</div>
+        <h3 class="card-title" data-ru>AI Crypto Analysis</h3>
+        <h3 class="card-title" data-en>AI Crypto Analysis</h3>
+        <p class="card-desc" data-ru>Использование искусственного интеллекта для анализа крипторынка.</p>
+        <p class="card-desc" data-en>Using artificial intelligence to analyze the crypto market.</p>
+        <ul class="card-modules">
+          <li><span class="pf-mark">✓</span> <span data-ru>AI-анализ сетапов</span><span data-en>AI Setup Analysis</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Скринер крипты</span><span data-en>Crypto Screener</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Паттерны убытков</span><span data-en>Loss Patterns</span></li>
+          <li><span class="pf-mark">✓</span> <span data-ru>Автоматизация</span><span data-en>Automation Tools</span></li>
+        </ul>
+        <div class="card-price">
+          <span class="price-currency">$</span>
+          <span class="price-amount" id="price-ai">347</span>
+        </div>
+        <div class="card-price-note" data-ru>единоразово · пожизненный доступ</div>
+        <div class="card-price-note" data-en>one-time · lifetime access</div>
+        <a href="/pay?course=ai" class="card-btn" data-ru>Купить курс →</a>
+        <a href="/pay?course=ai" class="card-btn" data-en>Get Course →</a>
+      </div>
     </div>
   </div>
 </section>
@@ -1336,175 +990,218 @@ footer{background:rgba(11,11,13,0.95)!important;}
 <!-- BUNDLE -->
 <div class="bundle-section">
   <div class="bundle-inner reveal">
-    <div class="bundle-corner-badge" data-ru>Лучший выбор</div>
-    <div class="bundle-corner-badge" data-en>Best Value</div>
-    <div class="bundle-content">
-      <div class="sec-eyebrow" data-ru>Максимум</div>
-      <div class="sec-eyebrow" data-en>Best Value</div>
-      <h2 class="bundle-title" data-ru>Full Bundle —<br><em>все три курса</em></h2>
-      <h2 class="bundle-title" data-en>Full Bundle —<br><em>all three courses</em></h2>
-      <p class="bundle-desc" data-ru>Полная методология от структуры рынка до волновой теории. Все три курса в одном пакете — лучший выбор для системного трейдера.</p>
-      <p class="bundle-desc" data-en>Complete methodology from market structure to wave theory. All three courses in one package — the best choice for a systematic trader.</p>
-    </div>
-    <div class="bundle-pricing">
-      <div class="bundle-was" data-ru id="bundle-was-ru">$991 по отдельности</div>
-      <div class="bundle-was" data-en id="bundle-was-en">$991 separately</div>
-      <span class="bundle-price" id="price-bundle_full">$797</span>
+    <div class="bundle-corner-badge" data-ru>ЛУЧШАЯ ЦЕНА</div>
+    <div class="bundle-corner-badge" data-en>BEST VALUE</div>
+    <div>
+      <h2 class="bundle-title" data-ru>Все три<br>курса вместе</h2>
+      <h2 class="bundle-title" data-en>All Three<br>Courses Together</h2>
+      <p class="bundle-desc" data-ru>Полная система трейдера: SMC + Risk Management + AI Анализ. Лучшая цена при покупке Bundle.</p>
+      <p class="bundle-desc" data-en>Complete trader system: SMC + Risk Management + AI Analysis. Best price with the Bundle.</p>
       <div class="bundle-cta-row">
+        <a href="/pay?course=bundle_full" class="btn-primary" data-ru>Получить Bundle →</a>
+        <a href="/pay?course=bundle_full" class="btn-primary" data-en>Get Bundle →</a>
         <span class="bundle-save-badge" data-ru>Экономия $194</span>
         <span class="bundle-save-badge" data-en>Save $194</span>
-        <a href="/pay?product=bundle_full" class="btn-primary">
-          <span data-ru>Взять Bundle →</span><span data-en>Get Bundle →</span>
-        </a>
       </div>
+    </div>
+    <div class="bundle-pricing">
+      <div class="bundle-was">
+        <span id="bundle-was-ru">$991 по отдельности</span>
+        <span id="bundle-was-en">$991 separately</span>
+      </div>
+      <span class="bundle-price" id="price-bundle_full">$797</span>
     </div>
   </div>
 </div>
 
 <!-- AI JOURNAL -->
-<section id="journal" class="journal-section orbitum-product-zone">
+<section class="journal-section" id="journal">
   <div class="journal-inner">
-    <div class="reveal orbitum-journal-head">
-      <div class="sec-eyebrow" data-ru>Product preview</div>
-      <div class="sec-eyebrow" data-en>Product preview</div>
-      <h2 class="sec-title" data-ru>Внутри <em>Orbitum Journal</em></h2>
-      <h2 class="sec-title" data-en>Inside <em>Orbitum Journal</em></h2>
-      <p class="orbitum-journal-copy" data-ru>Собрано на основе реального интерфейса журнала: лог сделки, AI Coach, тепловые карты по времени, challenges, импорт истории и работа со скриншотами.</p>
-      <p class="orbitum-journal-copy" data-en>Built from the actual journal interface: trade logging, AI Coach, time heatmaps, challenges, history import, and screenshot workflow.</p>
+    <div class="reveal">
+      <div class="sec-tag" data-ru>AI ПРОДУКТ</div>
+      <div class="sec-tag" data-en>AI PRODUCT</div>
+      <h2 class="sec-title" data-ru>AI Журнал сделок</h2>
+      <h2 class="sec-title" data-en>AI Trade Journal</h2>
+      <p class="sec-sub" data-ru>Профессиональная аналитика с искусственным интеллектом для каждого трейдера.</p>
+      <p class="sec-sub" data-en>Professional AI-powered analytics for every serious trader.</p>
     </div>
-
-    <div class="orbitum-showcase reveal">
-      <div class="os-card os-terminal">
-        <div class="os-topbar">
-          <span class="os-dot"></span>
-          <span class="os-kicker">Journal Core</span>
-          <span class="os-chip">live structure</span>
+    <div class="jf-modules">
+      <div class="jf-item reveal"><div class="jf-icon">📊</div><div><div class="jf-name" data-ru>AI-анализ сделок</div><div class="jf-name" data-en>AI Trade Analysis</div><div class="jf-desc" data-ru>Автоматическая оценка каждой сделки с обратной связью.</div><div class="jf-desc" data-en>Automatic evaluation of every trade with detailed feedback.</div></div></div>
+      <div class="jf-item reveal"><div class="jf-icon">🔍</div><div><div class="jf-name" data-ru>Крипто Скринер</div><div class="jf-name" data-en>Crypto Screener</div><div class="jf-desc" data-ru>AI Setup Checker для поиска лучших точек входа.</div><div class="jf-desc" data-en>AI Setup Checker to find the best entry points.</div></div></div>
+      <div class="jf-item reveal"><div class="jf-icon">📉</div><div><div class="jf-name" data-ru>Паттерны убытков</div><div class="jf-name" data-en>Loss Patterns</div><div class="jf-desc" data-ru>Выявление систематических ошибок в торговле.</div><div class="jf-desc" data-en>Detecting systematic errors in your trading.</div></div></div>
+      <div class="jf-item reveal"><div class="jf-icon">🎯</div><div><div class="jf-name" data-ru>Дисциплина</div><div class="jf-name" data-en>Discipline Tracker</div><div class="jf-desc" data-ru>Мониторинг соблюдения торговых правил.</div><div class="jf-desc" data-en>Monitor compliance with your trading rules.</div></div></div>
+      <div class="jf-item reveal"><div class="jf-icon">⚡</div><div><div class="jf-name" data-ru>Реальное время</div><div class="jf-name" data-en>Real-Time Sync</div><div class="jf-desc" data-ru>Данные обновляются в реальном времени.</div><div class="jf-desc" data-en>Data synced and updated in real time.</div></div></div>
+      <div class="jf-item reveal"><div class="jf-icon">🛡️</div><div><div class="jf-name" data-ru>Безопасность</div><div class="jf-name" data-en>Security</div><div class="jf-desc" data-ru>Данные хранятся на защищённых серверах.</div><div class="jf-desc" data-en>Data stored on fully secured servers.</div></div></div>
+    </div>
+    <div class="jf-plans-wrap">
+      <div class="jf-plans">
+        <!-- Free -->
+        <div class="jf-plan reveal">
+          <div class="jf-plan-tier">FREE</div>
+          <div class="jf-plan-name" data-ru>Старт</div>
+          <div class="jf-plan-name" data-en>Starter</div>
+          <div class="jf-plan-desc" data-ru>Попробуй систему бесплатно</div>
+          <div class="jf-plan-desc" data-en>Try the system for free</div>
+          <div class="jf-plan-price-row"><span class="jf-plan-price">$0</span></div>
+          <div class="jf-plan-lt" data-ru>Навсегда бесплатно</div>
+          <div class="jf-plan-lt" data-en>Forever free</div>
+          <div class="jf-plan-sep"></div>
+          <div class="jf-plan-features">
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Журнал (10 сделок)</span><span data-en>Journal (10 trades)</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Базовая статистика</span><span data-en>Basic statistics</span></div>
+            <div class="jf-pf dim"><span class="pf-mark">—</span><span data-ru>AI-анализ</span><span data-en>AI analysis</span></div>
+            <div class="jf-pf dim"><span class="pf-mark">—</span><span data-ru>Скринер</span><span data-en>Screener</span></div>
+          </div>
+          <a href="/login" class="jf-plan-btn" data-ru>Начать бесплатно</a>
+          <a href="/login" class="jf-plan-btn" data-en>Start free</a>
         </div>
-        <div class="os-main-grid">
-          <div class="os-block">
-            <div class="os-label">New trade</div>
-            <div class="os-input accent">BTC/USDT · Market Structure</div>
-            <div class="os-row">
-              <div class="os-input">Entry 62450</div>
-              <div class="os-input">SL 61820</div>
-            </div>
-            <div class="os-row mini-gap">
-              <div class="os-toggle active">Long</div>
-              <div class="os-toggle">Short</div>
-              <div class="os-toggle active-soft">Win</div>
-            </div>
-            <div class="os-tags">
-              <span>Screenshot attached</span>
-              <span>Emotion tags</span>
-              <span>R:R auto</span>
-            </div>
+        <!-- Basic -->
+        <div class="jf-plan reveal">
+          <div class="jf-plan-tier">BASIC</div>
+          <div class="jf-plan-name" data-ru>Базовый</div>
+          <div class="jf-plan-name" data-en>Basic</div>
+          <div class="jf-plan-desc" data-ru>Полный журнал и аналитика</div>
+          <div class="jf-plan-desc" data-en>Full journal and analytics</div>
+          <div class="jf-plan-price-row">
+            <span class="jf-plan-price">$<span id="price-monthly">29</span></span>
+            <span class="jf-plan-per">/mo</span>
           </div>
-          <div class="os-block">
-            <div class="os-label">Last trades</div>
-            <div class="os-trade"><b>BTC/USDT</b><span>Liquidity Sweep</span><strong>+3.2R</strong></div>
-            <div class="os-trade"><b>ETH/USDT</b><span>BOS Retest</span><strong>+2.1R</strong></div>
-            <div class="os-trade loss"><b>SOL/USDT</b><span>FVG Fill</span><strong>-1.0R</strong></div>
-            <div class="os-trade"><b>LINK/USDT</b><span>OB reclaim</span><strong>+1.7R</strong></div>
+          <div class="jf-plan-lt" data-ru>или <b>$197/год</b></div>
+          <div class="jf-plan-lt" data-en>or <b>$197/year</b></div>
+          <div class="jf-plan-sep"></div>
+          <div class="jf-plan-features">
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Неограниченный журнал</span><span data-en>Unlimited journal</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Полная аналитика</span><span data-en>Full analytics</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>AI-анализ (50/мес)</span><span data-en>AI analysis (50/mo)</span></div>
+            <div class="jf-pf dim"><span class="pf-mark">—</span><span data-ru>Скринер</span><span data-en>Screener</span></div>
           </div>
+          <a href="/pay?plan=monthly" class="jf-plan-btn" data-ru>Выбрать план</a>
+          <a href="/pay?plan=monthly" class="jf-plan-btn" data-en>Choose plan</a>
+        </div>
+        <!-- Pro -->
+        <div class="jf-plan popular reveal">
+          <div class="jf-plan-badge" data-ru>ПОПУЛЯРНЫЙ</div>
+          <div class="jf-plan-badge" data-en>POPULAR</div>
+          <div class="jf-plan-tier">PRO</div>
+          <div class="jf-plan-name" data-ru>Профи</div>
+          <div class="jf-plan-name" data-en>Professional</div>
+          <div class="jf-plan-desc" data-ru>Для активных трейдеров</div>
+          <div class="jf-plan-desc" data-en>For active traders</div>
+          <div class="jf-plan-price-row">
+            <span class="jf-plan-price">$<span id="price-pro">49</span></span>
+            <span class="jf-plan-per">/mo</span>
+          </div>
+          <div class="jf-plan-lt" data-ru>или <b>$397/год</b></div>
+          <div class="jf-plan-lt" data-en>or <b>$397/year</b></div>
+          <div class="jf-plan-sep"></div>
+          <div class="jf-plan-features">
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Всё из Basic</span><span data-en>All in Basic</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>AI без лимитов</span><span data-en>Unlimited AI</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Крипто Скринер</span><span data-en>Crypto Screener</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Приоритетная поддержка</span><span data-en>Priority support</span></div>
+          </div>
+          <a href="/pay?plan=pro" class="jf-plan-btn" data-ru>Выбрать план</a>
+          <a href="/pay?plan=pro" class="jf-plan-btn" data-en>Choose plan</a>
+        </div>
+        <!-- Lifetime -->
+        <div class="jf-plan ultimate reveal">
+          <div class="jf-plan-badge" data-ru>НАВСЕГДА</div>
+          <div class="jf-plan-badge" data-en>FOREVER</div>
+          <div class="jf-plan-tier">LIFETIME</div>
+          <div class="jf-plan-name" data-ru>Пожизненный</div>
+          <div class="jf-plan-name" data-en>Lifetime</div>
+          <div class="jf-plan-desc" data-ru>Один раз — навсегда</div>
+          <div class="jf-plan-desc" data-en>Pay once — own forever</div>
+          <div class="jf-plan-price-row">
+            <span class="jf-plan-price">$<span id="price-lifetime">497</span></span>
+          </div>
+          <div class="jf-plan-lt" data-ru><b>разовый платёж</b></div>
+          <div class="jf-plan-lt" data-en><b>one-time payment</b></div>
+          <div class="jf-plan-sep"></div>
+          <div class="jf-plan-features">
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Всё из Pro</span><span data-en>Everything in Pro</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Все будущие обновления</span><span data-en>All future updates</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>Без подписки</span><span data-en>No subscription</span></div>
+            <div class="jf-pf"><span class="pf-mark">✓</span><span data-ru>VIP поддержка</span><span data-en>VIP support</span></div>
+          </div>
+          <a href="/pay?plan=lifetime" class="jf-plan-btn solid" data-ru>Купить навсегда</a>
+          <a href="/pay?plan=lifetime" class="jf-plan-btn solid" data-en>Get lifetime</a>
         </div>
       </div>
-
-      <div class="os-side-grid">
-        <div class="os-card">
-          <div class="os-label">AI Coach</div>
-          <div class="os-score-row">
-            <div>
-              <div class="os-score">72</div>
-              <div class="os-sub">discipline score</div>
-            </div>
-            <div class="os-pill warn">unstable</div>
-          </div>
-          <p class="os-note">4 revenge trades after 2 losses. Cut session after the second red trade.</p>
-        </div>
-
-        <div class="os-card">
-          <div class="os-label">Hourly heatmap</div>
-          <div class="os-bars">
-            <span style="height:42%"></span><span style="height:78%"></span><span style="height:55%"></span><span class="neg" style="height:36%"></span><span style="height:86%"></span><span style="height:64%"></span><span class="neg" style="height:28%"></span><span style="height:94%"></span>
-          </div>
-          <div class="os-mini-meta">Best window · 13:00–16:00</div>
-        </div>
-
-        <div class="os-card">
-          <div class="os-label">Import & review</div>
-          <div class="os-file-pill">CSV / XLSX import ready</div>
-          <div class="os-checks">
-            <span>Weekly PDF report</span>
-            <span>Screenshot paste</span>
-            <span>Setup analytics</span>
-          </div>
-        </div>
-
-        <div class="os-card">
-          <div class="os-label">Challenges</div>
-          <div class="os-challenge"><span>7 day consistency</span><b>84%</b></div>
-          <div class="os-challenge"><span>Risk discipline</span><b>92%</b></div>
-          <div class="os-challenge"><span>No revenge trading</span><b>61%</b></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="orbitum-module-grid reveal">
-      <div class="orb-module-card"><div class="orb-module-kicker">01</div><h3>Trade Journal</h3><p data-ru>Пара, направление, результат, эмоции, скриншоты и быстрый лог без перегруза.</p><p data-en>Pair, direction, result, emotion tags, screenshots, and fast logging without clutter.</p></div>
-      <div class="orb-module-card"><div class="orb-module-kicker">02</div><h3>AI Feedback</h3><p data-ru>После серии сделок система показывает, где ты ломаешь дисциплину и почему повторяешь ошибки.</p><p data-en>After a series of trades, the system shows where discipline breaks and why the same mistakes repeat.</p></div>
-      <div class="orb-module-card"><div class="orb-module-kicker">03</div><h3>Behavior Analytics</h3><p data-ru>Часы, дни, streak-и, score, сетапы и точки, где твоя статистика реально живёт.</p><p data-en>Hours, days, streaks, score, setups, and the exact places where your statistics actually live.</p></div>
-      <div class="orb-module-card"><div class="orb-module-kicker">04</div><h3>Review Layer</h3><p data-ru>Импорт истории, weekly PDF, challenges и превью зоны роста без ручной рутины.</p><p data-en>History import, weekly PDF, challenges, and a clean growth review layer without manual routine.</p></div>
     </div>
   </div>
 </section>
 
-<!-- WHY -->
-<section id="why">
-  <div class="wrap">
-    <div class="reveal" style="margin-bottom:48px">
-      <div class="sec-eyebrow" data-ru>Почему Orbitum</div>
-      <div class="sec-eyebrow" data-en>Why Orbitum</div>
-      <h2 class="sec-title" data-ru>Принципы</h2>
-      <h2 class="sec-title" data-en>Principles</h2>
+<!-- RESULTS -->
+<section class="results-section">
+  <div class="inner">
+    <div class="results-head reveal">
+      <div class="sec-tag" data-ru>ОТЗЫВЫ</div>
+      <div class="sec-tag" data-en>RESULTS</div>
+      <h2 class="sec-title" data-ru>Результаты трейдеров</h2>
+      <h2 class="sec-title" data-en>Trader Results</h2>
+      <p class="sec-sub" data-ru>Реальные истории от реальных трейдеров.</p>
+      <p class="sec-sub" data-en>Real stories from real traders using Orbitum.</p>
     </div>
-    <div class="why-grid reveal">
-      <div class="why-item">
-        <span class="why-num">01</span>
-        <div class="why-icon"><svg width="28" height="28" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="#F26B3A" stroke-width="1.4" fill="rgba(242,107,58,0.08)"/><path d="M5 13L13 5" stroke="#F26B3A" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <h3 class="why-h" data-ru>Никакой воды</h3>
-        <h3 class="why-h" data-en>No Fluff</h3>
-        <p class="why-p" data-ru>Каждый урок — конкретный концепт с разбором на реальных графиках. Без мотивационных вставок и бесполезного введения.</p>
-        <p class="why-p" data-en>Every lesson is a specific concept with real chart breakdowns. No motivational filler, no useless introductions.</p>
+    <div class="results-grid">
+      <div class="result-card reveal">
+        <div class="result-stars">★★★★★</div>
+        <p class="result-text" data-ru>"После 3 месяцев с журналом я наконец увидел, где теряю деньги. AI показал, что я торгую против тренда в 70% убыточных сделок."</p>
+        <p class="result-text" data-en>"After 3 months with the journal I finally saw where I was losing money. AI showed that I trade against the trend in 70% of losing trades."</p>
+        <div class="result-author">
+          <div class="result-ava">DK</div>
+          <div>
+            <div class="result-name">@dk_trader</div>
+            <div class="result-role" data-ru>Крипто-трейдер · 2 года</div>
+            <div class="result-role" data-en>Crypto trader · 2 years</div>
+          </div>
+        </div>
+        <div class="result-stat" data-ru>+34% к Win Rate за 3 месяца</div>
+        <div class="result-stat" data-en>+34% Win Rate in 3 months</div>
       </div>
-      <div class="why-item">
-        <span class="why-num">02</span>
-        <div class="why-icon"><svg width="28" height="28" viewBox="0 0 18 18" fill="none"><path d="M3 9c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3-3-1.3-3-3zm6 0c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3-3-1.3-3-3z" stroke="#F26B3A" stroke-width="1.4" fill="rgba(242,107,58,0.08)"/></svg></div>
-        <h3 class="why-h" data-ru>Доступ навсегда</h3>
-        <h3 class="why-h" data-en>Lifetime Access</h3>
-        <p class="why-p" data-ru>Один раз купил — учишься в своём темпе. Никаких подписок. Обновления курсов — бесплатно.</p>
-        <p class="why-p" data-en>Buy once — learn at your own pace. No subscriptions. Course updates are always free.</p>
+      <div class="result-card reveal">
+        <div class="result-stars">★★★★★</div>
+        <p class="result-text" data-ru>"SMC курс полностью изменил мой взгляд на рынок. Теперь я понимаю, как крупные игроки двигают цену."</p>
+        <p class="result-text" data-en>"The SMC course completely changed how I see the market. Now I understand how big players move price."</p>
+        <div class="result-author">
+          <div class="result-ava">AL</div>
+          <div>
+            <div class="result-name">@alex_l</div>
+            <div class="result-role" data-ru>Форекс-трейдер · 4 года</div>
+            <div class="result-role" data-en>Forex trader · 4 years</div>
+          </div>
+        </div>
+        <div class="result-stat" data-ru>Вышел в стабильный плюс через 6 недель</div>
+        <div class="result-stat" data-en>Turned consistently profitable in 6 weeks</div>
       </div>
-      <div class="why-item">
-        <span class="why-num">03</span>
-        <div class="why-icon"><svg width="28" height="28" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="4.5" width="15" height="3" rx="1" stroke="#F26B3A" stroke-width="1.4" fill="rgba(242,107,58,0.08)"/><rect x="1.5" y="10.5" width="15" height="3" rx="1" stroke="#F26B3A" stroke-width="1.4" fill="rgba(242,107,58,0.08)"/></svg></div>
-        <h3 class="why-h" data-ru>Системный подход</h3>
-        <h3 class="why-h" data-en>Systematic Approach</h3>
-        <p class="why-p" data-ru>Три курса — три взгляда на рынок, которые дополняют друг друга. Вместе формируют полноценную торговую методологию.</p>
-        <p class="why-p" data-en>Three courses — three views of the market that complement each other. Together they form a complete trading methodology.</p>
+      <div class="result-card reveal">
+        <div class="result-stars">★★★★★</div>
+        <p class="result-text" data-ru>"Risk Management курс — лучшее, что я покупал для трейдинга. Просадка сократилась с 40% до 12% за первый месяц."</p>
+        <p class="result-text" data-en>"The Risk Management course is the best trading purchase I've made. Drawdown dropped from 40% to 12% in the first month."</p>
+        <div class="result-author">
+          <div class="result-ava">MV</div>
+          <div>
+            <div class="result-name">@m_volkov</div>
+            <div class="result-role" data-ru>Позиционный трейдер</div>
+            <div class="result-role" data-en>Position trader</div>
+          </div>
+        </div>
+        <div class="result-stat" data-ru>Просадка -28% за первый месяц</div>
+        <div class="result-stat" data-en>Drawdown reduced by 28% in month one</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section id="faq" class="faq-section">
+<section class="faq-section" id="faq">
   <div class="faq-inner">
-    <div class="reveal">
-      <div class="sec-eyebrow" data-ru>Вопросы</div>
-      <div class="sec-eyebrow" data-en>Questions</div>
-      <h2 class="sec-title">FAQ</h2>
+    <div class="faq-head reveal">
+      <div class="sec-tag">FAQ</div>
+      <h2 class="sec-title" data-ru>Частые вопросы</h2>
+      <h2 class="sec-title" data-en>Frequently Asked</h2>
     </div>
-    <div class="faq-list reveal">
+    <div class="faq-list">
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">
           <span data-ru>Для кого эти курсы?</span><span data-en>Who are these courses for?</span>
@@ -1551,7 +1248,7 @@ footer{background:rgba(11,11,13,0.95)!important;}
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">ORBITUM</div>
+  <div class="footer-logo">ORBITUM<span class="logo-dot" style="background:var(--t);box-shadow:none;margin-bottom:0;"></span></div>
   <div class="footer-links">
     <a href="#courses" data-ru>Курсы</a><a href="#courses" data-en>Courses</a>
     <a href="#journal" data-ru>AI Журнал</a><a href="#journal" data-en>AI Journal</a>
@@ -1582,7 +1279,6 @@ footer{background:rgba(11,11,13,0.95)!important;}
 
 <script>
 let sb;
-
 function setLang(l){
   document.documentElement.setAttribute('lang',l);
   document.getElementById('lang-en').classList.toggle('active',l==='en');
@@ -1608,7 +1304,7 @@ function setLang(l){
         nr.innerHTML=`
           <button class="nav-lang active" id="lang-en" onclick="setLang('en')">EN</button>
           <button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
-          <span style="font-family:var(--mono);font-size:10px;color:var(--m);">${name}</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--m2);">${name}</span>
           <a href="${dest}" class="nav-cta">${lang==='ru'?'КАБИНЕТ →':'CABINET →'}</a>
         `;
         document.getElementById('lang-en').classList.toggle('active',lang==='en');
@@ -1624,9 +1320,9 @@ window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40)
 const reveals=document.querySelectorAll('.reveal');
 const io=new IntersectionObserver((entries)=>{
   entries.forEach((e,i)=>{
-    if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*80);io.unobserve(e.target);}
+    if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);io.unobserve(e.target);}
   });
-},{threshold:.08});
+},{threshold:.06});
 reveals.forEach(el=>io.observe(el));
 
 function toggleFaq(btn){
@@ -1635,16 +1331,15 @@ function toggleFaq(btn){
   document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
   if(!wasOpen)item.classList.add('open');
 }
-
 function toggleMobNav(){
-  const open = document.getElementById('mob-nav').classList.toggle('open');
-  document.getElementById('nav-burger').classList.toggle('open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
+  const open=document.getElementById('mob-nav').classList.toggle('open');
+  document.getElementById('nav-burger').classList.toggle('open',open);
+  document.body.style.overflow=open?'hidden':'';
 }
 function closeMobNav(){
   document.getElementById('mob-nav').classList.remove('open');
   document.getElementById('nav-burger').classList.remove('open');
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 }
 function updateMobLang(l){
   document.getElementById('mob-lang-en').classList.toggle('active',l==='en');
