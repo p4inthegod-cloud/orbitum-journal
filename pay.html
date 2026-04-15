@@ -8,20 +8,22 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
  :root{
   --bg:#F5F5F7;--bg2:#EFEFF1;--bg3:#E7E7EA;--surface:#FFFFFF;--surface-2:rgba(255,255,255,0.76);
   --bd:rgba(15,15,18,0.08);--bd2:rgba(15,15,18,0.13);--bd3:rgba(15,15,18,0.2);
   --t:#0A0A0B;--t2:#36363A;--m:rgba(10,10,11,0.58);--m2:rgba(10,10,11,0.34);
   --peach:#EFC7B2;--peach-soft:rgba(239,199,178,0.24);--peach-line:rgba(232,191,174,0.46);
-  --font:'Sora',sans-serif;--mono:'Fira Code',monospace;--rad:18px;
+  --font:'Sora',sans-serif;--mono:'Sora',sans-serif;--rad:18px;
   --shadow-sm:0 10px 24px rgba(15,15,18,0.06),0 2px 6px rgba(15,15,18,0.04);
   --shadow-md:0 24px 60px rgba(15,15,18,0.08),0 8px 24px rgba(15,15,18,0.05);
   --shadow-lg:0 36px 88px rgba(15,15,18,0.12),0 12px 30px rgba(15,15,18,0.06);
 }
 html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
 body{position:relative;overflow-x:hidden;}
+/* typography consistency */
+.tb-btn,.hero-eyebrow,.billing-btn,.billing-save,.plan-tier,.btn-plan,.compare-table th{font-size:11px!important;letter-spacing:.06em!important;}
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
@@ -58,6 +60,10 @@ a{text-decoration:none;}
 .billing-btn{height:34px;padding:0 18px;border-radius:10px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;transition:all .18s;color:var(--m);background:transparent;text-transform:uppercase;}
 .billing-btn.on{background:var(--t);color:#fff;box-shadow:0 12px 24px rgba(15,15,18,0.14);}
 .billing-save{font-size:10px;font-family:var(--mono);font-weight:500;color:var(--t2);background:rgba(255,255,255,0.7);border:1px solid var(--peach-line);border-radius:999px;padding:6px 12px;}
+
+
+.value-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 30px;}
+.value-pill{padding:8px 12px;border-radius:999px;border:1px solid var(--bd2);background:rgba(255,255,255,0.7);font-size:11px;color:var(--t2);font-weight:600;}
 
 /* PLANS */
 .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:60px;}
@@ -183,6 +189,7 @@ a:focus-visible,
 <div class="topbar">
   <div class="logo">ORBITUM</div>
   <div class="tb-sp"></div>
+  <a href="/tools.html" class="tb-btn">Tools</a>
   <a href="/journal" class="tb-btn">Journal</a>
   <a href="/screener" class="tb-btn">Screener</a>
 </div>
@@ -191,8 +198,8 @@ a:focus-visible,
 
   <div class="hero">
     <div class="hero-eyebrow">Pricing</div>
-    <h1 class="hero-title">Choose your <em>edge.</em></h1>
-    <p class="hero-sub">Start with what you need. Upgrade when ready. No hidden fees, no auto-charges.</p>
+    <h1 class="hero-title">Buy your <em>execution edge.</em></h1>
+    <p class="hero-sub">Clear value: journaling, AI feedback, and screener workflow that helps you make better decisions and avoid expensive mistakes.</p>
   </div>
 
   <div class="billing-row">
@@ -201,6 +208,12 @@ a:focus-visible,
       <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')">Annual</button>
     </div>
     <span class="billing-save" id="save-tag">Save 30% annually</span>
+  </div>
+  <div class="value-row">
+    <div class="value-pill">Premium onboarding</div>
+    <div class="value-pill">Fast activation (1-2 hours)</div>
+    <div class="value-pill">No hidden fees</div>
+    <div class="value-pill">Cancel anytime on monthly plans</div>
   </div>
 
   <div class="plans" id="plans-grid"></div>
