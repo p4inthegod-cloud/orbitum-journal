@@ -26,14 +26,31 @@
     .metric{border:1px solid var(--bd);background:#fff;border-radius:14px;padding:12px}
     .metric b{display:block;font-size:24px;letter-spacing:-.04em;line-height:1}
     .metric span{font-size:11px;text-transform:uppercase;color:var(--m);letter-spacing:.08em}
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px}
-    .card{background:#fff;border:1px solid var(--bd);border-radius:24px;padding:24px;box-shadow:0 14px 30px rgba(0,0,0,.05)}
-    .step{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(239,199,178,.24);border:1px solid var(--peachLine);font-size:11px;font-weight:700;margin-bottom:12px}
-    .card h2{font-size:27px;line-height:1.04;letter-spacing:-.03em;margin-bottom:8px}
-    .card p{font-size:14px;color:var(--m)}
-    .list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-    .list li{list-style:none;display:flex;gap:8px;font-size:14px;color:var(--m)}
-    .list li::before{content:'•';color:var(--t);font-weight:700}
+
+    .process-module{margin-top:22px;border:1px solid var(--bd);background:#fff;border-radius:24px;padding:18px}
+    .process-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--m);margin-bottom:12px;font-weight:700}
+    .process-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .process-card{border:1px solid var(--bd);background:rgba(255,255,255,.95);border-radius:18px;padding:16px;cursor:pointer;transition:all .2s ease;text-align:left}
+    .process-card:hover{border-color:rgba(0,0,0,.22)}
+    .process-card.active{border-color:#111;background:#111;color:#fff;box-shadow:0 16px 34px rgba(0,0,0,.18)}
+    .process-card .step{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(239,199,178,.24);border:1px solid var(--peachLine);font-size:11px;font-weight:700;margin-bottom:12px}
+    .process-card.active .step{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.38);color:#fff}
+    .process-card h2{font-size:23px;line-height:1.1;letter-spacing:-.03em;margin-bottom:7px}
+    .process-card p{font-size:13px;color:var(--m);line-height:1.5}
+    .process-card.active p{color:rgba(255,255,255,.82)}
+
+    .process-panel{margin-top:12px;border:1px solid var(--bd);border-radius:20px;padding:20px;background:linear-gradient(170deg,#111,#222);color:#fff}
+    .panel-step{display:inline-flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.68);margin-bottom:8px}
+    .panel-step b{font-size:14px;color:#fff}
+    .process-panel h3{font-size:28px;line-height:1.03;letter-spacing:-.03em;margin-bottom:8px}
+    .process-panel p{font-size:14px;color:rgba(255,255,255,.78);max-width:820px}
+    .panel-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:14px}
+    .panel-box{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);border-radius:14px;padding:12px}
+    .panel-box h4{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.68);margin-bottom:8px}
+    .panel-actions{display:flex;flex-wrap:wrap;gap:7px}
+    .panel-actions span{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2);font-size:12px;color:#fff;background:rgba(255,255,255,.06)}
+    .micro-cta{display:inline-flex;align-items:center;justify-content:center;height:42px;padding:0 16px;border-radius:12px;border:1px solid #fff;background:#fff;color:#111;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
+
     .flow{margin-top:18px;border-radius:20px;padding:20px;background:#111;color:#fff}
     .flow h3{font-size:22px;letter-spacing:-.02em;margin-bottom:8px}
     .flow p{font-size:14px;color:rgba(255,255,255,.78)}
@@ -41,7 +58,16 @@
     .btn{height:46px;padding:0 20px;border-radius:14px;border:1px solid #111;text-decoration:none;font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
     .btn.primary{background:#111;color:#fff}
     .btn.ghost{background:#fff;color:#111}
-    @media(max-width:860px){.grid,.metrics{grid-template-columns:1fr}.hero{padding:22px}}
+
+    @media(max-width:860px){
+      .metrics{grid-template-columns:1fr}
+      .hero{padding:22px}
+      .process-module{padding:14px}
+      .process-cards{grid-template-columns:1fr}
+      .process-card{display:grid;grid-template-columns:30px 1fr;column-gap:12px;align-items:start;padding:14px}
+      .process-card .step{margin-bottom:0;grid-row:1 / span 2}
+      .panel-grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -67,29 +93,45 @@
         <div class="metric"><b>24/7</b><span>Always-on analytical workspace</span></div>
       </div>
 
-      <div class="grid">
-        <article class="card">
-          <span class="step">01</span>
-          <h2>Crypto Screener</h2>
-          <p>Before entry, you need clear market structure. Screener removes random ideas and highlights quality setups.</p>
-          <ul class="list">
-            <li>Filters by structure, momentum, and confluence.</li>
-            <li>Fast shortlist for actual execution decisions.</li>
-            <li>Focuses attention where risk/reward is justified.</li>
-          </ul>
-        </article>
+      <section class="process-module" aria-label="Primary process module">
+        <div class="process-title">Primary 01 / 02 / 03 process module</div>
+        <div class="process-cards" role="tablist" aria-label="Process steps">
+          <article class="process-card active" role="tab" aria-selected="true" tabindex="0" data-step="0">
+            <span class="step">01</span>
+            <h2>Scan</h2>
+            <p>Screener narrows the market to high-quality setups with structure and momentum.</p>
+          </article>
 
-        <article class="card">
-          <span class="step">02</span>
-          <h2>AI Journal</h2>
-          <p>After execution, Journal turns every trade into measurable insight and clear improvement actions.</p>
-          <ul class="list">
-            <li>Logs context: entry logic, risk, emotion, outcome.</li>
-            <li>Detects recurring mistakes and hidden loss patterns.</li>
-            <li>AI gives direct next-step corrections for your style.</li>
-          </ul>
-        </article>
-      </div>
+          <article class="process-card" role="tab" aria-selected="false" tabindex="0" data-step="1">
+            <span class="step">02</span>
+            <h2>Execute</h2>
+            <p>Journal captures the execution context so each trade has measurable ground truth.</p>
+          </article>
+
+          <article class="process-card" role="tab" aria-selected="false" tabindex="0" data-step="2">
+            <span class="step">03</span>
+            <h2>Improve</h2>
+            <p>AI surfaces precise corrections and turns insights into the next trading action.</p>
+          </article>
+        </div>
+
+        <div class="process-panel" id="process-panel" aria-live="polite">
+          <div class="panel-step"><b id="panel-step">01</b><span id="panel-step-name">Scan</span></div>
+          <h3 id="panel-title">Build the shortlist before any entry.</h3>
+          <p id="panel-description">Use objective filters first, then pass only quality setups into execution.</p>
+          <div class="panel-grid">
+            <div class="panel-box">
+              <h4>Actions</h4>
+              <div class="panel-actions" id="panel-actions"></div>
+            </div>
+            <div class="panel-box">
+              <h4>Result + Micro-CTA</h4>
+              <p id="panel-result"></p>
+              <a id="panel-cta" class="micro-cta" href="/screener">Open Screener</a>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div class="flow">
         <h3>Practical funnel</h3>
@@ -102,5 +144,87 @@
       </div>
     </section>
   </div>
+
+  <script>
+    const processData = [
+      {
+        step: '01',
+        name: 'Scan',
+        title: 'Build the shortlist before any entry.',
+        description: 'Use objective filters first, then pass only quality setups into execution.',
+        actions: ['Apply trend filter', 'Validate momentum', 'Flag only A-setups'],
+        result: 'You move from noise to a focused watchlist with justified risk/reward.',
+        ctaLabel: 'Open Screener',
+        ctaHref: '/screener'
+      },
+      {
+        step: '02',
+        name: 'Execute',
+        title: 'Capture every trade with context, not hindsight.',
+        description: 'Log setup logic, risk parameters, and emotional state right after execution.',
+        actions: ['Save entry logic', 'Tag risk model', 'Mark emotion level'],
+        result: 'Every position becomes structured data instead of a vague memory.',
+        ctaLabel: 'Open Journal',
+        ctaHref: '/journal'
+      },
+      {
+        step: '03',
+        name: 'Improve',
+        title: 'Turn analytics into the next concrete behavior.',
+        description: 'AI maps recurring errors to specific corrections and decision rules.',
+        actions: ['Review AI corrections', 'Prioritize one fix', 'Update execution checklist'],
+        result: 'You close the loop and improve next-trade quality with less emotional drift.',
+        ctaLabel: 'Run AI Review',
+        ctaHref: '/journal'
+      }
+    ];
+
+    const cards = Array.from(document.querySelectorAll('.process-card'));
+    const panelStep = document.getElementById('panel-step');
+    const panelStepName = document.getElementById('panel-step-name');
+    const panelTitle = document.getElementById('panel-title');
+    const panelDescription = document.getElementById('panel-description');
+    const panelActions = document.getElementById('panel-actions');
+    const panelResult = document.getElementById('panel-result');
+    const panelCta = document.getElementById('panel-cta');
+
+    const setActiveStep = (index) => {
+      const data = processData[index];
+      cards.forEach((card, i) => {
+        const active = i === index;
+        card.classList.toggle('active', active);
+        card.setAttribute('aria-selected', String(active));
+      });
+
+      panelStep.textContent = data.step;
+      panelStepName.textContent = data.name;
+      panelTitle.textContent = data.title;
+      panelDescription.textContent = data.description;
+      panelResult.textContent = data.result;
+      panelCta.textContent = data.ctaLabel;
+      panelCta.href = data.ctaHref;
+
+      panelActions.innerHTML = '';
+      data.actions.forEach((action) => {
+        const chip = document.createElement('span');
+        chip.textContent = action;
+        panelActions.appendChild(chip);
+      });
+    };
+
+    cards.forEach((card) => {
+      card.addEventListener('click', () => {
+        setActiveStep(Number(card.dataset.step));
+      });
+      card.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setActiveStep(Number(card.dataset.step));
+        }
+      });
+    });
+
+    setActiveStep(0);
+  </script>
 </body>
 </html>
