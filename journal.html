@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORBITUM — Журнал</title>
+<link rel="stylesheet" href="css/journal.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@700&family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -440,7 +441,7 @@ html[data-theme="mono"] .sb-liq:hover{
   color:var(--a)!important;
 }
 
-/* Winrate cell if colored green */
+/* Прибыльrate cell if colored green */
 html[data-theme="mono"] .stat-value.pos{color:var(--a)!important;}
 
 /* P&L % header widget - keep original color logic but override non-pnl */
@@ -2495,7 +2496,7 @@ html[data-theme="mono"] .jtb-logo{
   letter-spacing:7px!important;
 }
 
-/* All themes: section dividers */
+/* Все themes: section dividers */
 .sb-divider{
   background:linear-gradient(90deg,transparent,var(--bd),transparent)!important;
 }
@@ -3036,7 +3037,7 @@ body::after {
   box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(232,114,42,0.1) !important;
   transform: translateY(-2px);
 }
-/* Win/Loss — цветная полоска */
+/* Прибыль/Убыток — цветная полоска */
 .tcard.win {
   box-shadow: inset 3px 0 0 #2ecc71, inset 3px 0 28px rgba(46,204,113,0.07), 0 2px 16px rgba(0,0,0,0.45) !important;
   border-left: none !important;
@@ -3386,7 +3387,7 @@ body::after {
   background:var(--a);box-shadow:0 0 4px var(--a);
   animation:orbDot 3s ease-in-out infinite;
 }
-/* Fear & Greed */
+/* Страх & Жадность */
 .sbw-fng{ display:flex;align-items:center;gap:8px; }
 .fng-arc{ width:40px;height:24px;flex-shrink:0; }
 .fng-arc svg{ width:40px;height:24px; }
@@ -3972,6 +3973,8 @@ body::after {
 .sk-equity    { height:220px; width:100%; border-radius:8px; }
 .sk-pk-row    { display:flex; gap:12px; margin-top:4px; }
 .sk-pk-item   { flex:1; height:56px; border-radius:10px; }
+
+
 </style>
 </head>
 <body>
@@ -4045,7 +4048,7 @@ body::after {
   <div class="sb-section-market" id="sb-widgets">
     <div class="sb-section-label">РЫНОК</div>
 
-    <!-- Fear & Greed + Market Metrics -->
+    <!-- Страх & Жадность + Market Metrics -->
     <div class="sbw" id="sbw-fng">
       <div class="sbw-title"><span>НАСТРОЕНИЕ</span><div class="sbw-dot"></div></div>
       <div class="sbw-fng">
@@ -4291,196 +4294,123 @@ body::after {
   </div>
 
   <!-- ──────────── JOURNAL ──────────────────── -->
-  <div class="page active" id="page-journal">
-    <div class="topnav">
-      <button class="tnav active" onclick="showPage('journal',this)" data-page="journal"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="vertical-align:-2px;margin-right:4px"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>ЖУРНАЛ</button>
-      <button class="tnav" onclick="showPage('dashboard',this)" data-page="dashboard"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="vertical-align:-2px;margin-right:4px"><rect x="1.5" y="8" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="6.5" y="5" width="3" height="9.5" rx="1" fill="currentColor"/><rect x="11.5" y="1.5" width="3" height="13" rx="1" fill="currentColor"/></svg>АНАЛИТИКА</button>
-      <button class="tnav" onclick="showPage('progress',this)" data-page="progress"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="vertical-align:-2px;margin-right:4px"><path d="M1.5 12L5.5 7.5L8.5 10L12 5L14.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.5 4.5H14.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>ПРОГРЕСС</button>
-      <button class="tnav" onclick="showPage('digest',this)" data-page="digest"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="vertical-align:-2px;margin-right:4px"><rect x="1.5" y="3" width="13" height="11.5" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6.5h13" stroke="currentColor" stroke-width="1.5"/><path d="M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>ДАЙДЖЕСТ</button>
-      <button class="tnav" onclick="showPage('premarket',this)" data-page="premarket"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="vertical-align:-2px;margin-right:4px"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>СЕССИЯ</button>
+  <div class="page active journal-v2" id="page-journal">
+    <section class="journal-v2-topbar">
+      <div class="jv2-brand">
+        <div class="jv2-logo-dot"></div>
+        <div>
+          <h1>Журнал Orbitum</h1>
+          <p>Торговой кокпит · быстрый ввод · чистые решения</p>
+        </div>
+      </div>
+      <div class="jv2-top-stats">
+        <div class="jv2-chip"><span>Баланс</span><strong id="jv2-balance-display">$0</strong></div>
+        <div class="jv2-chip"><span>P&L сегодня</span><strong id="jv2-goal-display">0 R</strong></div>
+        <button class="btn-add jv2-new" onclick="document.getElementById('f-pair').focus()">+ Новая сделка</button>
+      </div>
+    </section>
+
+    <div class="journal-v2-layout">
+      <div class="journal-v2-main">
+        <div class="fcard" id="add-trade-form">
+          <div class="fcard-title">Быстрое добавление сделки</div>
+
+          <div class="jv2-step"><div class="jv2-step-title">Шаг 1 · Рынок и направление</div>
+            <div class="fg3">
+              <div class="field field-key">
+                <label for="f-pair">Пара</label>
+                <div class="pair-autocomplete-wrap">
+                  <input id="f-pair" placeholder="BTC/USDT" autocomplete="off" oninput="this.value=this.value.toUpperCase();filterPairs(this.value)" onkeydown="pairKeyNav(event)" onfocus="filterPairs(this.value)" onblur="setTimeout(hidePairList,150)">
+                  <div class="pair-suggestions" id="pair-suggestions" style="display:none"></div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Направление</label>
+                <div class="dtoggle">
+                  <div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div>
+                  <div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Результат</label>
+                <div class="res-btns">
+                  <button class="res-btn" id="rb-win" onclick="setRes('win',this)">✓ Прибыль</button>
+                  <button class="res-btn" id="rb-loss" onclick="setRes('loss',this)">✗ Убыток</button>
+                  <button class="res-btn" id="rb-be" onclick="setRes('be',this)">— BE</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="jv2-step"><div class="jv2-step-title">Шаг 2 · Настройка риска</div>
+            <div class="fg4">
+              <div class="field"><label for="f-entry">Вход</label><input id="f-entry" type="number" placeholder="42000" oninput="calcRR()"></div>
+              <div class="field"><label for="f-sl">Стоп</label><input id="f-sl" type="number" placeholder="41000" oninput="calcRR()"></div>
+              <div class="field"><label for="f-exit">Тейк</label><input id="f-exit" type="number" placeholder="43500" oninput="calcRR()"></div>
+              <div class="field"><label for="f-risk">Риск %</label><input id="f-risk" type="number" placeholder="1" step="0.1" min="0.1" max="100" oninput="calcRR()"></div>
+            </div>
+            <div class="fg4">
+              <div class="field"><label for="f-lev">Плечо</label><input id="f-lev" type="number" placeholder="10" min="1" max="200" oninput="calcRR()"></div>
+              <div class="field"><label for="f-dep">Размер позиции $</label><input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()"></div>
+              <div class="field"><label for="f-pnl">P&L %</label><input id="f-pnl" type="number" placeholder="auto" step="0.01" oninput="fromPct()"></div>
+              <div class="field"><label for="f-usd">P&L $</label><input id="f-usd" type="number" placeholder="auto" step="0.01" oninput="fromUsd()"></div>
+            </div>
+          </div>
+
+          <div class="jv2-step"><div class="jv2-step-title">Шаг 3 · Контекст</div>
+            <div class="setup-btns" id="setup-btns">
+              <button class="setup-btn sb-fvg" onclick="setSetup('FVG',this)">FVG</button><button class="setup-btn sb-ob" onclick="setSetup('OB',this)">Order Block</button><button class="setup-btn sb-liq" onclick="setSetup('Liquidity',this)">Liquidity Sweep</button><button class="setup-btn sb-sr" onclick="setSetup('SR',this)">S/R Level</button><button class="setup-btn sb-bo" onclick="setSetup('Breakout',this)">Breakout</button><button class="setup-btn sb-wy" onclick="setSetup('Wyckoff',this)">Wyckoff</button><button class="setup-btn sb-other" onclick="setSetup('Other',this)">Other</button>
+            </div>
+            <div class="em-section">
+              <div class="em-title">Эмоциональное состояние</div>
+              <div class="em-grid">
+                <div class="em-row"><div class="em-label">Уверенность</div><div class="em-opts"><button class="em-opt" onclick="setEm('conf',3,this)">Низкая</button><button class="em-opt active" onclick="setEm('conf',5,this)">Норм</button><button class="em-opt" onclick="setEm('conf',8,this)">Высокая</button></div></div>
+                <div class="em-row"><div class="em-label">Страх / Жадность</div><div class="em-opts"><button class="em-opt" onclick="setEm('fear',8,this)">Страх</button><button class="em-opt active" onclick="setEm('fear',3,this)">Спокоен</button><button class="em-opt" onclick="setEm('greed',8,this)">Жадность</button></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="jv2-step"><div class="jv2-step-title">Шаг 4 · Заметки и скриншот</div>
+            <div class="fg3">
+              <div class="field"><label for="f-why">Почему вошёл</label><textarea id="f-why" placeholder="Что увидел на графике..."></textarea></div>
+              <div class="field"><label for="f-feel">Эмоции</label><textarea id="f-feel" placeholder="Что чувствовал..."></textarea></div>
+              <div class="field"><label for="f-lesson">Урок</label><textarea id="f-lesson" placeholder="Какой урок вынес..."></textarea></div>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label for="scr-zone">Скриншот</label>
+              <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
+                <div class="scr-placeholder" id="scr-placeholder"><div class="scr-icon">📸</div><div class="scr-label">Drag & Drop / Нажми / Ctrl+V<br>PNG · JPG · WEBP · до 5MB</div></div>
+                <div class="scr-preview" id="scr-preview"><img id="scr-img" src="" alt="screenshot"><div class="scr-remove" onclick="scrRemove(event)" title="Удалить">✕</div><div class="scr-uploading" id="scr-uploading" style="display:none">ЗАГРУЗКА...</div></div>
+              </div>
+              <input type="file" class="scr-input" id="scr-file-input" accept="image/*" onchange="scrFileSelected(event)">
+            </div>
+          </div>
+
+          <div class="jv2-form-actions">
+            <button class="btn-add" id="btn-add" onclick="addTrade()">Сохранить сделку</button>
+            <button class="jv2-reset" type="button" onclick="['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});calcRR();">Сброс</button>
+            <button class="btn-ai" onclick="openAI()">AI Проверка</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="journal-v2-side">
+        <div class="jv2-side-card sticky">
+          <div class="jv2-side-title">Риск и инсайт</div>
+          <div class="jv2-metric"><span>RR превью</span><strong id="rr-val">—</strong></div>
+          <div class="jv2-metric"><span>Потенциальный убыток</span><strong id="risk-usd-val" class="neg">—</strong></div>
+          <div class="jv2-metric"><span>Потенциальная прибыль</span><strong id="tp-usd-val" class="pos">—</strong></div>
+          <div class="jv2-metric"><span>Позиция</span><strong id="pos-size-val">—</strong></div>
+          <div class="jv2-verdict" id="risk-verdict">Заполни вход / стоп / тейк, чтобы увидеть оценку риска.</div>
+          <ul class="jv2-checklist">
+            <li>Риск ≤2% на сделку</li><li>Цель RR ≥ 1:2</li><li>Без revenge/FOMO входов</li><li>Добавляй скриншот</li>
+          </ul>
+        </div>
+      </aside>
     </div>
-    <div class="fcard" id="add-trade-form">
-      <div class="fcard-title">+ НОВАЯ СДЕЛКА</div>
 
-      <!-- ROW 1: Pair + Direction + Result -->
-      <div class="fg3" style="margin-bottom:12px">
-        <div class="field field-key">
-          <label>Пара <span class="field-hint" data-tip="Торговая пара.&#10;Пример: BTC/USDT, ETH/BTC&#10;Пиши как привык на бирже">?</span></label>
-          <div class="pair-autocomplete-wrap">
-            <input id="f-pair" placeholder="BTC/USDT" autocomplete="off"
-              oninput="this.value=this.value.toUpperCase();filterPairs(this.value)"
-              onkeydown="pairKeyNav(event)"
-              onfocus="filterPairs(this.value)"
-              onblur="setTimeout(hidePairList,150)">
-            <div class="pair-suggestions" id="pair-suggestions" style="display:none"></div>
-          </div>
-          <div class="pair-presets">
-            <button onclick="setPair('BTC/USDT')" style="color:#f7931a" data-sym="BTC">BTC</button>
-            <button onclick="setPair('ETH/USDT')" style="color:#627eea" data-sym="ETH">ETH</button>
-            <button onclick="setPair('SOL/USDT')" style="color:#9945ff" data-sym="SOL">SOL</button>
-            <button onclick="setPair('BNB/USDT')" style="color:#f3ba2f" data-sym="BNB">BNB</button>
-            <button onclick="setPair('XRP/USDT')" style="color:#00aae4" data-sym="XRP">XRP</button>
-            <button onclick="setPair('DOGE/USDT')" style="color:#c2a633" data-sym="DOGE">DOGE</button>
-          </div>
-        </div>
-        <div class="field">
-          <label>Направление <span class="field-hint" data-tip="LONG — ставишь на рост цены&#10;SHORT — ставишь на падение цены">?</span></label>
-          <div class="dtoggle">
-            <div class="dbtn long active" id="btn-long" onclick="setDir('long')">LONG</div>
-            <div class="dbtn short" id="btn-short" onclick="setDir('short')">SHORT</div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Результат <span class="field-hint" data-tip="Прибыль — закрыл в плюс&#10;Убыток — закрыл в минус&#10;BE (безубыток) — вышел в ноль">?</span></label>
-          <div class="res-btns">
-            <button class="res-btn" id="rb-win" onclick="setRes('win',this)">✓ Прибыль</button>
-            <button class="res-btn" id="rb-loss" onclick="setRes('loss',this)">✗ Убыток</button>
-            <button class="res-btn" id="rb-be" onclick="setRes('be',this)">— BE</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ROW 2: Deposit + Leverage + Risk% (futures-first) -->
-      <div class="fg4" style="margin-bottom:10px">
-        <div class="field">
-          <label>Размер позиции $ <span class="field-hint" data-tip="Размер позиции в долларах.&#10;Нужен для расчёта P&amp;L %&#10;и размера риска на сделку">?</span></label>
-          <input id="f-dep" type="number" placeholder="1000" oninput="recalc();calcRR()">
-        </div>
-        <div class="field">
-          <label>Плечо × <span class="field-hint" data-tip="Кредитное плечо сделки.&#10;1x — без плеча&#10;10x — позиция = депозит × 10&#10;Используется при расчёте позиции">?</span></label>
-          <input id="f-lev" type="number" placeholder="10" min="1" max="200" oninput="calcRR()">
-          <div class="lev-presets">
-            <button onclick="setLev(5)">5×</button>
-            <button onclick="setLev(10)">10×</button>
-            <button onclick="setLev(25)">25×</button>
-            <button onclick="setLev(50)">50×</button>
-            <button onclick="setLev(100)">100×</button>
-          </div>
-        </div>
-        <div class="field field-key">
-          <label>Риск % <span class="field-hint" data-tip="Сколько % от депозита&#10;ты готов потерять в этой сделке.&#10;Рекомендация: 1–2% на сделку&#10;Используется для расчёта R:R">?</span></label>
-          <input id="f-risk" type="number" placeholder="1" step="0.1" min="0.1" max="100" oninput="calcRR()">
-        </div>
-        <div class="field">
-          <label>P&L % <span class="field-hint" data-tip="Процент прибыли/убытка.&#10;Можно ввести вручную ИЛИ&#10;оставить пустым — посчитается&#10;автоматически из цен входа/выхода">?</span></label>
-          <input id="f-pnl" type="number" placeholder="авто" step="0.01" oninput="fromPct()">
-        </div>
-      </div>
-
-      <!-- ROW 3: Entry / SL / TP → auto RR + P&L $ -->
-      <div class="fg4" style="margin-bottom:10px">
-        <div class="field">
-          <label>Вход $ <span class="field-hint" data-tip="Цена по которой ты открыл сделку.&#10;Используется для автоматического&#10;расчёта P&amp;L и R:R">?</span></label>
-          <input id="f-entry" type="number" placeholder="42000" oninput="calcRR()">
-        </div>
-        <div class="field">
-          <label>Стоп $ <span class="field-hint" data-tip="Уровень стоп-лосса.&#10;Цена при которой ты признаёшь&#10;что ошибся и выходишь из сделки.&#10;Важно для расчёта риска">?</span></label>
-          <input id="f-sl" type="number" placeholder="41000" oninput="calcRR()">
-        </div>
-        <div class="field">
-          <label>Тейк $ <span class="field-hint" data-tip="Цена тейк-профита.&#10;Вместе с входом считает P&amp;L %&#10;и R:R автоматически">?</span></label>
-          <input id="f-exit" type="number" placeholder="43500" oninput="calcRR()">
-        </div>
-        <div class="field">
-          <label>P&L $ <span class="field-hint" data-tip="Прибыль/убыток в долларах.&#10;Считается автоматически.&#10;Можно ввести вручную если&#10;знаешь точную сумму">?</span></label>
-          <input id="f-usd" type="number" placeholder="авто" step="0.01" oninput="fromUsd()">
-        </div>
-      </div>
-
-      <!-- RR + Risk $ display bar -->
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">R:R</span>
-          <div class="rr-display" id="rr-val" style="font-size:14px;">—</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">РИСК $</span>
-          <div style="font-family:var(--font-mono);font-size:14px;color:var(--r);" id="risk-usd-val">—</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">ЦЕЛЬ $</span>
-          <div style="font-family:var(--font-mono);font-size:14px;color:var(--g);" id="tp-usd-val">—</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
-          <span style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">ПОЗИЦИЯ $</span>
-          <div style="font-family:var(--font-mono);font-size:14px;color:var(--a);" id="pos-size-val">—</div>
-        </div>
-      </div>
-
-      <!-- Setup type buttons -->
-      <div style="margin-bottom:4px">
-        <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">Тип сетапа <span class="field-hint" data-tip="Выбери паттерн по которому вошёл.&#10;FVG — Fair Value Gap&#10;Order Block — зона крупного игрока&#10;Liquidity Sweep — снятие ликвидности&#10;S/R Level — уровень поддержки/сопротивления&#10;Breakout — пробой уровня">?</span></div>
-        <div class="setup-btns" id="setup-btns">
-          <button class="setup-btn sb-fvg" onclick="setSetup('FVG',this)">FVG</button>
-          <button class="setup-btn sb-ob" onclick="setSetup('OB',this)">Order Block</button>
-          <button class="setup-btn sb-liq" onclick="setSetup('Liquidity',this)">Liquidity Sweep</button>
-          <button class="setup-btn sb-sr" onclick="setSetup('SR',this)">S/R Level</button>
-          <button class="setup-btn sb-bo" onclick="setSetup('Breakout',this)">Breakout</button>
-          <button class="setup-btn sb-wy" onclick="setSetup('Wyckoff',this)">Wyckoff</button>
-          <button class="setup-btn sb-other" onclick="setSetup('Other',this)">Другое</button>
-        </div>
-      </div>
-
-      <!-- Emotion state -->
-      <div class="em-section">
-        <div class="em-title">Эмоциональное состояние</div>
-        <div class="em-grid">
-          <div class="em-row">
-            <div class="em-label">Уверенность <span class="field-hint" data-tip="Насколько ты уверен в этом сетапе?&#10;Низкая — сомневаешься, но входишь&#10;Норм — стандартная сделка&#10;Высокая — всё сходится, сигнал чёткий">?</span></div>
-            <div class="em-opts">
-              <button class="em-opt" onclick="setEm('conf',3,this)">😰 Низкая</button>
-              <button class="em-opt active" onclick="setEm('conf',5,this)">😐 Норм</button>
-              <button class="em-opt" onclick="setEm('conf',8,this)">💪 Высокая</button>
-            </div>
-          </div>
-          <div class="em-row">
-            <div class="em-label">Страх / Жадность <span class="field-hint" data-tip="Страх — входишь с опаской, боишься потерять&#10;Спокоен — нейтральный фон&#10;Жадность — хочешь больше, нарушаешь план&#10;Жадность — главный враг трейдера">?</span></div>
-            <div class="em-opts">
-              <button class="em-opt" onclick="setEm('fear',8,this)">😨 Страх</button>
-              <button class="em-opt active" onclick="setEm('fear',3,this)">😌 Спокоен</button>
-              <button class="em-opt" onclick="setEm('greed',8,this)">🤑 Жадность</button>
-            </div>
-          </div>
-          <div class="em-row">
-            <div class="em-label">Фокус <span class="field-hint" data-tip="Рассеян — отвлекался, не был сосредоточен&#10;Сфокусирован — в рабочем состоянии&#10;В потоке — пиковое состояние, всё считываешь&#10;Торгуй только когда сфокусирован">?</span></div>
-            <div class="em-opts">
-              <button class="em-opt" onclick="setEm('calm',3,this)">😵 Рассеян</button>
-              <button class="em-opt active" onclick="setEm('calm',7,this)">🎯 Сфокусирован</button>
-              <button class="em-opt" onclick="setEm('calm',10,this)">⚡ В потоке</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Notes -->
-      <div class="fg3" style="margin-bottom:10px">
-        <div class="field"><label>Сетап / почему вошёл <span class="field-hint" data-tip="Опиши что ты увидел на графике.&#10;Какой паттерн? Где уровень?&#10;Почему именно сейчас?&#10;Это помогает учиться на своих сделках">?</span></label><textarea id="f-why" placeholder="Что видел на графике..."></textarea></div>
-        <div class="field"><label>Эмоции / ошибки <span class="field-hint" data-tip="Как себя чувствовал?&#10;Нарушил ли план?&#10;Входил по FOMO или по сигналу?&#10;Честность здесь = рост как трейдера">?</span></label><textarea id="f-feel" placeholder="Нарушил план?..."></textarea></div>
-        <div class="field"><label>Урок из сделки <span class="field-hint" data-tip="Что вынес из этой сделки?&#10;Что сделаешь иначе в следующий раз?&#10;Даже прибыльные сделки&#10;могут быть неправильными">?</span></label><textarea id="f-lesson" placeholder="Что вынес..."></textarea></div>
-      </div>
-
-      <!-- SCREENSHOT -->
-      <div class="field" style="margin-bottom:10px;">
-        <label>Скриншот сделки <span class="field-hint" data-tip="Прикрепи скриншот графика.&#10;Drag & Drop, вставь из буфера (Ctrl+V)&#10;или нажми для выбора файла.">?</span></label>
-        <div class="screenshot-zone" id="scr-zone" onclick="scrZoneClick()" ondragover="scrDragOver(event)" ondragleave="scrDragLeave()" ondrop="scrDrop(event)">
-          <div class="scr-placeholder" id="scr-placeholder">
-            <div class="scr-icon">📸</div>
-            <div class="scr-label">Drag & Drop / <span>нажми</span> / Ctrl+V<br>PNG · JPG · WEBP · до 5MB</div>
-          </div>
-          <div class="scr-preview" id="scr-preview">
-            <img id="scr-img" src="" alt="screenshot">
-            <div class="scr-remove" onclick="scrRemove(event)" title="Удалить">✕</div>
-            <div class="scr-uploading" id="scr-uploading" style="display:none">ЗАГРУЖАЕМ...</div>
-          </div>
-        </div>
-        <input type="file" class="scr-input" id="scr-file-input" accept="image/*" onchange="scrFileSelected(event)">
-      </div>
-
-      <button class="btn-ai" onclick="openAI()">🤖 ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI</button>
-      <button class="btn-add" id="btn-add" onclick="addTrade()">ЗАПИСАТЬ СДЕЛКУ</button>
-    </div>
     <div class="list-head">
-      <div class="list-title">История</div>
+      <div class="list-title">Последние сделки</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="filters">
           <button class="fbtn active" onclick="setF('all',this)">Все</button>
@@ -4489,29 +4419,10 @@ body::after {
           <button class="fbtn" onclick="setF('long',this)">Long</button>
           <button class="fbtn" onclick="setF('short',this)">Short</button>
         </div>
-        <button onclick="clearAllTrades()" style="padding:4px 10px;border-radius:14px;border:1px solid rgba(255,77,77,0.25);background:transparent;color:rgba(255,77,77,0.55);font-family:var(--font-mono);font-size:8px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;white-space:nowrap;" onmouseover="this.style.borderColor='rgba(255,77,77,0.5)';this.style.color='var(--r)'" onmouseout="this.style.borderColor='rgba(255,77,77,0.25)';this.style.color='rgba(255,77,77,0.55)'">🗑 ОЧИСТИТЬ ВСЁ</button>
+        <button onclick="clearAllTrades()" class="ghost-danger-btn">🗑 Очистить всё</button>
       </div>
     </div>
-    <div id="trades-list"><div id="trades-skeleton">
-  <div class="sk-tcard">
-    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
-    <div class="sk sk-note"></div>
-  </div>
-  <div class="sk-tcard">
-    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
-  </div>
-  <div class="sk-tcard">
-    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
-    <div class="sk sk-note" style="width:50%"></div>
-  </div>
-  <div class="sk-tcard">
-    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
-  </div>
-  <div class="sk-tcard">
-    <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
-    <div class="sk sk-note" style="width:80%"></div>
-  </div>
-</div></div>
+    <div id="trades-list"><div id="trades-skeleton"><div class="sk-tcard"></div><div class="sk-tcard"></div><div class="sk-tcard"></div></div></div>
   </div>
 
   <!-- ──────────── DASHBOARD ─────────────────── -->
@@ -4966,7 +4877,7 @@ body::after {
       <div class="mistake-body">
         <div class="mistake-label">Biggest Mistake Detected <span class="field-hint" data-tip="Твоя главная повторяющаяся ошибка.&#10;AI находёт паттерн по ключевым словам&#10;в твоих заметках об эмоциях.&#10;FOMO, нарушил план, торопился...&#10;Нужно 5+ сделок с заметками">?</span></div>
         <div class="mistake-title" id="mistake-title">FOMO Entry</div>
-        <div class="mistake-loss">Loss from this: <span id="mistake-amount">—</span></div>
+        <div class="mistake-loss">Убыток from this: <span id="mistake-amount">—</span></div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-family:var(--font-mono);font-size:8px;color:var(--m);letter-spacing:1px;">ПАТТЕРН</div>
@@ -5795,7 +5706,7 @@ async function addTrade(){
   }
   scrRemove({stopPropagation:()=>{}});
 
-  // Reset form
+  // Сброс form
   rememberFormDefaults();
   ['f-pair','f-dep','f-pnl','f-usd','f-entry','f-exit','f-sl','f-lev','f-risk','f-why','f-feel','f-lesson'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('rr-val').textContent='—';
@@ -5930,10 +5841,10 @@ function renderLevelBar(trades){
   const clamp = (v,mn,mx)=>Math.min(mx,Math.max(mn,v));
   const withSL = trades.filter(t=>t.stop_loss).length;
   const slScore = n ? Math.round(withSL/n*100) : 0;
-  const hasFear = trades.filter(t=>t.emotion_fear||t.emotion_conf||t.emotion_greed||t.emotion_calm).length;
-  const avgFear = hasFear ? trades.reduce((s,t)=>s+(t.emotion_fear||5),0)/hasFear : 5;
-  const avgConf = hasFear ? trades.reduce((s,t)=>s+(t.emotion_conf||5),0)/hasFear : 5;
-  const emotionScore = hasFear>=3 ? clamp(Math.round(((10-avgFear)/10*50)+(avgConf/10*50)),0,100) : 50;
+  const hasСтрах = trades.filter(t=>t.emotion_fear||t.emotion_conf||t.emotion_greed||t.emotion_calm).length;
+  const avgСтрах = hasСтрах ? trades.reduce((s,t)=>s+(t.emotion_fear||5),0)/hasСтрах : 5;
+  const avgConf = hasСтрах ? trades.reduce((s,t)=>s+(t.emotion_conf||5),0)/hasСтрах : 5;
+  const emotionScore = hasСтрах>=3 ? clamp(Math.round(((10-avgСтрах)/10*50)+(avgConf/10*50)),0,100) : 50;
   const withSetup = trades.filter(t=>t.setup_type||t.note_why).length;
   const setupScore = n ? Math.round(withSetup/n*100) : 0;
   const byDay={};
@@ -6136,10 +6047,10 @@ function renderDashboard(){
         html2 += '<span style="font-family:var(--font-mono);font-size:10px;color:#34d058;font-weight:500;">'+wVal.toFixed(1)+'</span>';
         html2 += '<span style="font-family:var(--font-mono);font-size:10px;color:#ff4d4d;font-weight:500;">'+lVal.toFixed(1)+'</span>';
         html2 += '</div></div>';
-        // Win bar
+        // Прибыль bar
         html2 += '<div style="position:relative;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;margin-bottom:4px;overflow:hidden;">';
         html2 += '<div style="position:absolute;left:0;top:0;height:100%;width:'+wPct+'%;background:linear-gradient(90deg,rgba(52,208,88,0.5),#34d058);border-radius:3px;transition:width .6s cubic-bezier(.16,1,.3,1);"></div></div>';
-        // Loss bar
+        // Убыток bar
         html2 += '<div style="position:relative;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden;">';
         html2 += '<div style="position:absolute;left:0;top:0;height:100%;width:'+lPct+'%;background:linear-gradient(90deg,rgba(255,77,77,0.5),#ff4d4d);border-radius:3px;transition:width .6s cubic-bezier(.16,1,.3,1);"></div></div>';
         html2 += '</div>';
@@ -6174,12 +6085,12 @@ function renderDashboard(){
       var patterns=[];
       var fomo=trades.filter(function(t){var h=new Date(t.created_at).getHours();return h>=17&&h<19&&t.result==='loss';});
       if(fomo.length>=2) patterns.push({icon:'🔥',title:'FOMO в вечерние часы',desc:fomo.length+' убытков 17-19ч'});
-      var greedyLoss=trades.filter(function(t){return (t.emotion_greed||0)>=7&&t.result==='loss';});
-      if(greedyLoss.length>=2) patterns.push({icon:'💀',title:'Жадность → убыток',desc:greedyLoss.length+' потерь при жадности ≥7'});
+      var greedyУбыток=trades.filter(function(t){return (t.emotion_greed||0)>=7&&t.result==='loss';});
+      if(greedyУбыток.length>=2) patterns.push({icon:'💀',title:'Жадность → убыток',desc:greedyУбыток.length+' потерь при жадности ≥7'});
       var highConf=trades.filter(function(t){return (t.emotion_conf||0)>=7&&t.result==='win';});
       if(highConf.length>=2) patterns.push({icon:'🎯',title:'Уверенность → победа',desc:highConf.length+' побед при уверенности ≥7'});
-      var fearLoss=trades.filter(function(t){return (t.emotion_fear||0)>=7&&t.result==='loss';});
-      if(fearLoss.length>=2) patterns.push({icon:'😰',title:'Страх → убыток',desc:fearLoss.length+' потерь при страхе ≥7'});
+      var fearУбыток=trades.filter(function(t){return (t.emotion_fear||0)>=7&&t.result==='loss';});
+      if(fearУбыток.length>=2) patterns.push({icon:'😰',title:'Страх → убыток',desc:fearУбыток.length+' потерь при страхе ≥7'});
       var stk=0,maxStk=0;
       trades.slice().reverse().forEach(function(t){if(t.result==='loss'){stk++;maxStk=Math.max(maxStk,stk);}else stk=0;});
       if(maxStk>=3) patterns.push({icon:'📉',title:'Серия убытков',desc:'Макс. серия: '+maxStk+' подряд'});
@@ -6323,10 +6234,10 @@ function renderPsychInsights(trades, wins, losses){
   var insights=[];
 
   // When fear > 7
-  var highFear=trades.filter(function(t){return (t.emotion_fear||0)>7;});
-  if(highFear.length>=2){
-    var pnl=avgPnl(highFear);
-    insights.push({cond:'Страх > 7',pnl:pnl,n:highFear.length});
+  var highСтрах=trades.filter(function(t){return (t.emotion_fear||0)>7;});
+  if(highСтрах.length>=2){
+    var pnl=avgPnl(highСтрах);
+    insights.push({cond:'Страх > 7',pnl:pnl,n:highСтрах.length});
   }
   // When confidence 6-8
   var goodConf=trades.filter(function(t){var c=t.emotion_conf||0;return c>=6&&c<=8;});
@@ -6335,16 +6246,16 @@ function renderPsychInsights(trades, wins, losses){
     insights.push({cond:'Уверенность 6-8',pnl:pnl2,n:goodConf.length});
   }
   // When greed > 7
-  var highGreed=trades.filter(function(t){return (t.emotion_greed||0)>7;});
-  if(highGreed.length>=2){
-    var pnl3=avgPnl(highGreed);
-    insights.push({cond:'Жадность > 7',pnl:pnl3,n:highGreed.length});
+  var highЖадность=trades.filter(function(t){return (t.emotion_greed||0)>7;});
+  if(highЖадность.length>=2){
+    var pnl3=avgPnl(highЖадность);
+    insights.push({cond:'Жадность > 7',pnl:pnl3,n:highЖадность.length});
   }
   // When calm > 7
-  var highCalm=trades.filter(function(t){return (t.emotion_calm||0)>7;});
-  if(highCalm.length>=2){
-    var pnl4=avgPnl(highCalm);
-    insights.push({cond:'Фокус > 7',pnl:pnl4,n:highCalm.length});
+  var highСпокоен=trades.filter(function(t){return (t.emotion_calm||0)>7;});
+  if(highСпокоен.length>=2){
+    var pnl4=avgPnl(highСпокоен);
+    insights.push({cond:'Фокус > 7',pnl:pnl4,n:highСпокоен.length});
   }
 
   if(!insights.length){
@@ -6371,9 +6282,9 @@ function detectTilt(trades){
 
   // Check last 5 trades
   var recent=trades.slice(0,5);
-  var recentLosses=recent.filter(function(t){return t.result==='loss';}).length;
-  var avgFear=recent.reduce(function(s,t){return s+(t.emotion_fear||0);},0)/recent.length;
-  var avgGreed=recent.reduce(function(s,t){return s+(t.emotion_greed||0);},0)/recent.length;
+  var recentУбытокes=recent.filter(function(t){return t.result==='loss';}).length;
+  var avgСтрах=recent.reduce(function(s,t){return s+(t.emotion_fear||0);},0)/recent.length;
+  var avgЖадность=recent.reduce(function(s,t){return s+(t.emotion_greed||0);},0)/recent.length;
 
   // Consecutive losses from start
   var consec=0;
@@ -6385,9 +6296,9 @@ function detectTilt(trades){
   var tiltMsg='';
   if(consec>=3){
     tiltMsg=consec+' убытков подряд. Сделай паузу. Рынок никуда не уйдёт.';
-  } else if(recentLosses>=4&&avgGreed>6){
+  } else if(recentУбытокes>=4&&avgЖадность>6){
     tiltMsg='4 убытка в последних 5 сделках при высокой жадности. Классический тильт.';
-  } else if(recentLosses>=3&&avgFear>7){
+  } else if(recentУбытокes>=3&&avgСтрах>7){
     tiltMsg='Высокий страх + убытки. Ты торгуешь не по плану.';
   }
 
@@ -6712,7 +6623,7 @@ function renderHourlyHeatmap(trades){
           (h<10?'0':'')+h+':00 – '+(h+1<10?'0':'')+(h+1)+':00</div>'+
         '<div>Сделок: <strong style="color:var(--t)">'+total+'</strong></div>'+
         '<div>Победы: <strong style="color:#34d058">'+wins+'</strong> · Убытки: <strong style="color:#ff4d4d">'+losses+'</strong></div>'+
-        '<div>Winrate: <strong style="color:var(--t)">'+wr+'%</strong></div>'+
+        '<div>Прибыльrate: <strong style="color:var(--t)">'+wr+'%</strong></div>'+
         '<div>Avg PnL: <strong style="color:'+pnlColor+'">'+pnl+'</strong></div>';
       var barRect = bar.getBoundingClientRect();
       var parentRect = bars.getBoundingClientRect();
@@ -6960,7 +6871,7 @@ async function importCSV(input){
     // Bybit ClosedPNL — exact name
     'Realized P&L','Realized P&amp;L',
     // Others
-    'Realized PNL','Realized Profit','PNL','Profit and Loss','Profit/Loss',
+    'Realized PNL','Realized Profit','PNL','Profit and Убыток','Profit/Убыток',
     'Realized Gain','Net Profit','Closed PnL','ClosedPnL',
     'RealizedPNL','PnL','pnl','profit','realizedprofit','closedpnl','realisedpnl',
     'Net P&L','P&L'
@@ -6997,7 +6908,7 @@ async function importCSV(input){
   var kOrderValue  = findKey(['Order Value','OrderValue']);
   var kStatus      = findKey(['Order Status','Status','status','orderstatus']);
   var kTradeType   = findKey(['Trade Type','TradeType','tradetype']); // Bybit: Trade / Liquidation / Funding
-  var kSL   = findKey(['Stop Loss Price','StopLoss','stopLossPrice','stop_loss','stopPrice','sl']);
+  var kSL   = findKey(['Stop Убыток Price','StopУбыток','stopУбытокPrice','stop_loss','stopPrice','sl']);
   var kTP   = findKey(['Take Profit Price','TakeProfit','takeProfitPrice','take_profit','tp']);
   var kTime = findKey([
     // Bybit ClosedPNL
@@ -7333,13 +7244,13 @@ function renderBiggestMistake(trades){
   var card=document.getElementById('mistake-card');
   if(!card||!trades.length)return;
   // Find most costly pattern
-  var highGreedLoss=trades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
+  var highЖадностьУбыток=trades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
   var fomoEntries=trades.filter(t=>(t.emotion_fear||0)>=6&&(t.emotion_greed||0)>=6&&t.result==='loss');
-  var noSLLoss=trades.filter(t=>!t.stop_loss&&t.result==='loss');
+  var noSLУбыток=trades.filter(t=>!t.stop_loss&&t.result==='loss');
   var candidates=[
     {name:'FOMO Entry',trades:fomoEntries,icon:'🔥'},
-    {name:'High Greed',trades:highGreedLoss,icon:'💀'},
-    {name:'No Stop-Loss',trades:noSLLoss,icon:'🛑'},
+    {name:'Высокая Жадность',trades:highЖадностьУбыток,icon:'💀'},
+    {name:'No Stop-Убыток',trades:noSLУбыток,icon:'🛑'},
   ].filter(c=>c.trades.length>=1);
   if(!candidates.length){card.style.display='none';return;}
   var worst=candidates.sort((a,b)=>{
@@ -7347,10 +7258,10 @@ function renderBiggestMistake(trades){
     var lossB=b.trades.reduce((s,t)=>s+(t.pnl_usd||t.pnl_pct||0),0);
     return lossA-lossB;
   })[0];
-  var totalLoss=worst.trades.reduce((s,t)=>s+(t.pnl_usd||0),0);
+  var totalУбыток=worst.trades.reduce((s,t)=>s+(t.pnl_usd||0),0);
   card.style.display='flex';
   document.getElementById('mistake-title').textContent=worst.icon+' '+worst.name;
-  document.getElementById('mistake-amount').textContent=totalLoss?'$'+Math.abs(totalLoss).toFixed(0):worst.trades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)+'%';
+  document.getElementById('mistake-amount').textContent=totalУбыток?'$'+Math.abs(totalУбыток).toFixed(0):worst.trades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)+'%';
   document.getElementById('mistake-count').textContent=worst.trades.length;
 }
 
@@ -7488,14 +7399,14 @@ async function runAICoach(){
 function renderPsychInsightsTo(grid, trades, wins, losses){
   var avgPnl=arr=>arr.length?arr.reduce((s,t)=>s+(t.pnl_pct||0),0)/arr.length:0;
   var insights=[];
-  var highFear=trades.filter(t=>(t.emotion_fear||0)>7);
-  if(highFear.length>=2)insights.push({cond:'When fear >7',pnl:avgPnl(highFear),n:highFear.length,icon:'😰'});
+  var highСтрах=trades.filter(t=>(t.emotion_fear||0)>7);
+  if(highСтрах.length>=2)insights.push({cond:'When fear >7',pnl:avgPnl(highСтрах),n:highСтрах.length,icon:'😰'});
   var goodConf=trades.filter(t=>{var c=t.emotion_conf||0;return c>=6&&c<=8;});
-  if(goodConf.length>=2)insights.push({cond:'Confidence 6–8',pnl:avgPnl(goodConf),n:goodConf.length,icon:'💪'});
-  var highGreed=trades.filter(t=>(t.emotion_greed||0)>7);
-  if(highGreed.length>=2)insights.push({cond:'When greed >7',pnl:avgPnl(highGreed),n:highGreed.length,icon:'💰'});
-  var highCalm=trades.filter(t=>(t.emotion_calm||0)>7);
-  if(highCalm.length>=2)insights.push({cond:'Focus >7',pnl:avgPnl(highCalm),n:highCalm.length,icon:'🎯'});
+  if(goodConf.length>=2)insights.push({cond:'Уверенность 6–8',pnl:avgPnl(goodConf),n:goodConf.length,icon:'💪'});
+  var highЖадность=trades.filter(t=>(t.emotion_greed||0)>7);
+  if(highЖадность.length>=2)insights.push({cond:'When greed >7',pnl:avgPnl(highЖадность),n:highЖадность.length,icon:'💰'});
+  var highСпокоен=trades.filter(t=>(t.emotion_calm||0)>7);
+  if(highСпокоен.length>=2)insights.push({cond:'Focus >7',pnl:avgPnl(highСпокоен),n:highСпокоен.length,icon:'🎯'});
   
   if(!insights.length){grid.innerHTML='<div class="empty" style="grid-column:span 2;padding:14px;font-family:var(--font-mono);font-size:10px;color:var(--m)">Заполняй эмоции при записи</div>';return;}
   grid.innerHTML=insights.map(ins=>{
@@ -7540,15 +7451,15 @@ function detectTiltEnhanced(trades){
   if(!coachBar||trades.length<3)return;
   coachBar.classList.remove('show');
   var recent=trades.slice(0,5);
-  var recentLosses=recent.filter(t=>t.result==='loss').length;
+  var recentУбытокes=recent.filter(t=>t.result==='loss').length;
   var consec=0;
   for(var i=0;i<trades.length;i++){if(trades[i].result==='loss')consec++;else break;}
   if(consec>=3){
     document.getElementById('coach-tilt-msg').textContent=`${consec} убытков подряд. Высокий риск тильта. Сделай паузу минимум на 30 минут.`;
     coachBar.classList.add('show');
     showNotif('danger','TILT DETECTED',`${consec} убытков подряд · Рекомендуется пауза`,8000);
-  } else if(recentLosses>=4){
-    document.getElementById('coach-tilt-msg').textContent=`${recentLosses} убытков в последних 5 сделках. Торговля на эмоциях опасна.`;
+  } else if(recentУбытокes>=4){
+    document.getElementById('coach-tilt-msg').textContent=`${recentУбытокes} убытков в последних 5 сделках. Торговля на эмоциях опасна.`;
     coachBar.classList.add('show');
   }
 }
@@ -7581,7 +7492,7 @@ function updateStatsEnhanced(){
   
   // Smart notifications
   if(streak>=5)showNotif('success','🔥 Hot Streak!',`${streak} побед подряд! Ты в потоке.`,5000);
-  if(wr>=70&&t.length>=10)showNotif('success','High Performance','Winrate выше 70% · Отличная работа!',5000);
+  if(wr>=70&&t.length>=10)showNotif('success','Высокая Performance','Прибыльrate выше 70% · Отличная работа!',5000);
   
   // Hover insights
   var wrInsight=document.getElementById('wr-insight');
@@ -8712,11 +8623,11 @@ async function checkTiltAlert() {
       .select('tg_chat_id, tg_notify_tilt, tg_linked')
       .eq('id', currentUser.id).single();
     if (!p?.tg_linked || !p?.tg_notify_tilt || !p?.tg_chat_id) return;
-    const totalLoss = last3.reduce((s,t) => s + (t.pnl_pct || 0), 0);
+    const totalУбыток = last3.reduce((s,t) => s + (t.pnl_pct || 0), 0);
     await fetch('/api/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Notify-User': currentUser?.id || '' },
-      body: JSON.stringify({ type: 'tilt', chat_id: p.tg_chat_id, data: { losses_count: 3, total_loss_pct: totalLoss } })
+      body: JSON.stringify({ type: 'tilt', chat_id: p.tg_chat_id, data: { losses_count: 3, total_loss_pct: totalУбыток } })
     });
   }
 }
@@ -9675,7 +9586,7 @@ function fmtBig(n){
   return '$'+n.toLocaleString();
 }
 
-// ── Fear & Greed ──
+// ── Страх & Жадность ──
 async function fetchFNG(){
   try{
     const r = await fetch('/api/ticker?type=fng');
@@ -9694,8 +9605,8 @@ async function fetchFNG(){
 
     // Русские лейблы
     const labels = {
-      'Extreme Fear':'ЭКСТР. СТРАХ','Fear':'СТРАХ',
-      'Neutral':'НЕЙТРАЛЬНО','Greed':'ЖАДНОСТЬ','Extreme Greed':'ЭКСТР. ЖАДНОСТЬ'
+      'Extreme Страх':'ЭКСТР. СТРАХ','Страх':'СТРАХ',
+      'Neutral':'НЕЙТРАЛЬНО','Жадность':'ЖАДНОСТЬ','Extreme Жадность':'ЭКСТР. ЖАДНОСТЬ'
     };
     lb.textContent = labels[cls] || cls;
     lb.style.color = color;
@@ -10499,15 +10410,15 @@ document.addEventListener('keydown', e => {
     '✏️ Заметка': '✏️ Note',
     // Stats
     'Сделок': 'Trades',
-    'Винрейт': 'Winrate',
-    'Серия побед': 'Win streak',
+    'Винрейт': 'Прибыльrate',
+    'Серия побед': 'Прибыль streak',
     // Form
     '+ НОВАЯ СДЕЛКА': '+ NEW TRADE',
     'Пара': 'Pair',
     'Направление': 'Direction',
     'Результат': 'Result',
-    '✓ Прибыль': '✓ Win',
-    '✗ Убыток': '✗ Loss',
+    '✓ Прибыль': '✓ Прибыль',
+    '✗ Убыток': '✗ Убыток',
     '— BE': '— BE',
     'Размер позиции $': 'Position size $',
     'Плечо ×': 'Leverage ×',
@@ -10517,15 +10428,15 @@ document.addEventListener('keydown', e => {
     'Тейк $': 'Take $',
     'Тип сетапа': 'Setup type',
     'Другое': 'Other',
-    'Эмоциональное состояние': 'Emotional state',
-    'Уверенность': 'Confidence',
-    '😰 Низкая': '😰 Low',
-    '😐 Норм': '😐 Normal',
-    '💪 Высокая': '💪 High',
-    'Страх / Жадность': 'Fear / Greed',
-    '😨 Страх': '😨 Fear',
-    '😌 Спокоен': '😌 Calm',
-    '🤑 Жадность': '🤑 Greed',
+    'Эмоциональное состояние': 'Эмоциональное состояние',
+    'Уверенность': 'Уверенность',
+    '😰 Низкая': '😰 Низкая',
+    '😐 Норм': '😐 Норм',
+    '💪 Высокая': '💪 Высокая',
+    'Страх / Жадность': 'Страх / Жадность',
+    '😨 Страх': '😨 Страх',
+    '😌 Спокоен': '😌 Спокоен',
+    '🤑 Жадность': '🤑 Жадность',
     'Фокус': 'Focus',
     '😵 Рассеян': '😵 Distracted',
     '🎯 Сфокусирован': '🎯 Focused',
@@ -10534,16 +10445,16 @@ document.addEventListener('keydown', e => {
     'Что видел на графике...': 'What I saw on chart...',
     'Эмоции / ошибки': 'Emotions / mistakes',
     'Нарушил план?...': 'Broke the plan?...',
-    'Урок из сделки': 'Lesson learned',
+    'Урок из сделки': 'Урок learned',
     'Что вынес...': 'What I learned...',
     'СКРИНШОТ СДЕЛКИ': 'TRADE SCREENSHOT',
     '🤖 ПРОВЕРИТЬ СЕТАП ЧЕРЕЗ AI': '🤖 CHECK SETUP WITH AI',
     'ЗАПИСАТЬ СДЕЛКУ': 'RECORD TRADE',
     // History
     'История': 'History',
-    'Все': 'All',
-    'Прибыль': 'Win',
-    'Убыток': 'Loss',
+    'All': 'Все',
+    'Прибыль': 'Прибыль',
+    'Убыток': 'Убыток',
     '🗑 ОЧИСТИТЬ ВСЁ': '🗑 CLEAR ALL',
     // Dashboard
     'Discipline Score': 'Discipline Score',
@@ -10609,6 +10520,37 @@ document.addEventListener('keydown', e => {
     if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyLang);
     else setTimeout(applyLang, 500);
   }
+})();
+</script>
+
+
+<script>
+(function(){
+  function updateRiskVerdict(){
+    const rrEl=document.getElementById('rr-val');
+    const riskEl=document.getElementById('risk-usd-val');
+    const verdict=document.getElementById('risk-verdict');
+    if(!verdict||!rrEl) return;
+    const rrTxt=(rrEl.textContent||'').trim();
+    const riskTxt=(riskEl&&riskEl.textContent||'').replace(/[^0-9.\-]/g,'');
+    const m=rrTxt.match(/1\s*:\s*([0-9.]+)/); const rr=m?parseFloat(m[1])||0:0;
+    if(!rr){ verdict.textContent='Заполни вход / стоп / тейк, чтобы увидеть оценку риска.'; verdict.style.borderColor='var(--bd)'; verdict.style.color='var(--m)'; return; }
+    const riskPct=parseFloat((document.getElementById('f-risk')?.value||'').replace(',', '.'));
+    if(Number.isFinite(riskPct) && riskPct>2){ verdict.textContent='Повышенный риск: значение риска выше 2%. Снизь объём или риск.'; verdict.style.borderColor='rgba(251,191,36,.45)'; verdict.style.color='var(--y)'; return; }
+    if(rr<1.5){ verdict.textContent='RR ниже 1:1.5 — улучши тейк или сократи стоп.'; verdict.style.borderColor='rgba(251,191,36,.45)'; verdict.style.color='var(--y)'; return; }
+    verdict.textContent='Профиль риска здоровый: риск под контролем, RR приемлемый.'; verdict.style.borderColor='rgba(52,211,153,.45)'; verdict.style.color='var(--g)';
+  }
+  function syncJournalV2TopChips(){
+    const srcBal=document.getElementById('balance-display');
+    const srcGoal=document.getElementById('goal-display');
+    const dstBal=document.getElementById('jv2-balance-display');
+    const dstGoal=document.getElementById('jv2-goal-display');
+    if(srcBal&&dstBal) dstBal.textContent=srcBal.textContent;
+    if(srcGoal&&dstGoal) dstGoal.textContent=srcGoal.textContent;
+  }
+  const baseCalc=window.calcRR;
+  if(typeof baseCalc==='function') window.calcRR=function(){const r=baseCalc.apply(this,arguments);updateRiskVerdict();return r;};
+  document.addEventListener('DOMContentLoaded',function(){updateRiskVerdict();syncJournalV2TopChips();setInterval(syncJournalV2TopChips,1500);});
 })();
 </script>
 

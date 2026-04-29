@@ -580,3 +580,46 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
     setTimeout(initJournalRefinement, 0);
   }
 })();
+
+/* ===== Journal v2 cockpit bindings (non-breaking wrappers) ===== */
+(function(){
+  function updateRiskVerdict(){
+    const rrEl=document.getElementById('rr-val');
+    const riskEl=document.getElementById('risk-usd-val');
+    const verdict=document.getElementById('risk-verdict');
+    if(!verdict||!rrEl) return;
+    const rrTxt=(rrEl.textContent||'').trim();
+    const riskTxt=(riskEl&&riskEl.textContent||'').replace(/[^0-9.\-]/g,'');
+    const riskVal=Math.abs(parseFloat(riskTxt)||0);
+    let rr=0;
+    const m=rrTxt.match(/1\s*:\s*([0-9.]+)/);
+    if(m) rr=parseFloat(m[1])||0;
+    if(!rr){ verdict.textContent='Заполни вход / стоп / тейк, чтобы увидеть оценку риска.'; verdict.style.borderColor='var(--bd)'; verdict.style.color='var(--m)'; return; }
+    const riskPct = parseFloat((document.getElementById('f-risk')?.value||'').replace(',', '.'));
+    if(Number.isFinite(riskPct) && riskPct>2){ verdict.textContent='Повышенный риск: значение риска выше 2%. Снизь объём или риск.'; verdict.style.borderColor='rgba(251,191,36,.45)'; verdict.style.color='var(--y)'; return; }
+    if(rr<1.5){ verdict.textContent='RR ниже 1:1.5 — улучши тейк или сократи стоп.'; verdict.style.borderColor='rgba(251,191,36,.45)'; verdict.style.color='var(--y)'; return; }
+    verdict.textContent='Профиль риска здоровый: риск под контролем, RR приемлемый.';
+    verdict.style.borderColor='rgba(52,211,153,.45)'; verdict.style.color='var(--g)';
+  }
+
+  const _calcRR = window.calcRR;
+  if(typeof _calcRR === 'function'){
+    window.calcRR = function(){
+      const out=_calcRR.apply(this, arguments);
+      updateRiskVerdict();
+      return out;
+    };
+  }
+
+  const _addTrade = window.addTrade;
+  if(typeof _addTrade === 'function'){
+    window.addTrade = async function(){
+      const btn=document.getElementById('btn-add');
+      if(btn) btn.dataset.state='saving';
+      try{ return await _addTrade.apply(this, arguments); }
+      finally{ if(btn) btn.dataset.state='idle'; updateRiskVerdict(); }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', updateRiskVerdict);
+})();
