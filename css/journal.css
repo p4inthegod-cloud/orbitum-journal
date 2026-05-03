@@ -5158,488 +5158,10 @@ body.journal-apple-shell .stat-value {
   }
 }
 
-/* ══════════════════════════════════════════════════════════
-   PHASE 1 — Typography & Mono Cleanup
-   Applied: 2026. Safe cascade override at end of file.
-   ══════════════════════════════════════════════════════════ */
+/* Legacy PHASE 1/2 override stack removed in Stage 1.5 deduplication.
+   Canonical component styling remains in earlier journal.css sections. */
 
-/* 1.1 Typography scale — 6 sizes only, final values */
-:root {
-  --fs-xs:   11px;
-  --fs-sm:   13px;
-  --fs-base: 15px;
-  --fs-md:   18px;
-  --fs-lg:   22px;
-  --fs-xl:   28px;
-}
-
-/* 1.2 Kill mono companion styles on label/badge/meta classes.
-   High letter-spacing (1-2px) + uppercase = terminal feeling.
-   These were designed for mono — with sans-serif they look wrong. */
-.stat-label, .field label, .em-label, .em-bar-label,
-.pm-limit-label, .pm-mood-label, .pm-section-title,
-.pm-side-title, .dash-title, .mc-title, .hm-title,
-.dg-label, .di-label, .eq-title, .section-microtitle,
-.pkpi-label, .lb-sub, .lb-lbl, .list-title,
-.sbw-metric-label, .trade-metric-label,
-.settings-card-sub, .my-badges-title,
-.ecc, .emc-label, .sim-param-label, .sim-roi-label,
-.coach-sub, .ai-sub, .ck-num, .ai-note label,
-.goal-popup-head, .goal-popup-lbl, .balance-popup-head,
-.balance-popup-lbl, .qnote-label, .qnote-item-type,
-.edit-label, .plo-label, .kb-title, .scr-label,
-.onb-label, .ticker-divider-label, .mob-pill-label,
-.mob-nav-label, .hm-legend, .hm-month-label,
-.dh-week, .setup-name, .setup-meta, .ch-desc,
-.psych-cond, .psych-trades, .mistake-label,
-.pm-streak-label, .pm-ready-text,
-.jtb-balance-label, .jtb-goal-label {
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  font-family: var(--font-body) !important;
-}
-
-/* 1.3 Preserve uppercase only where it's structural (tabs/nav) */
-.gl-tab,
-.mob-nav-label,
-.tnav-item {
-  text-transform: none !important;
-  letter-spacing: -0.01em !important;
-}
-
-/* 1.4 tabular-nums on all numeric values — aligns digits, looks professional */
-.stat-value, .dg-val, .pkpi-val, .speedo-val,
-.tpnl, .fng-num, .sbw-lp-price, .sbw-metric-val,
-.streak-num, .sim-roi-val, .sim-param-val,
-.ds-level, .setup-wr, .pkpi-val, .psych-result,
-.jtb-balance-val, .jtb-goal-val,
-.pm-streak-num {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  font-family: var(--font-body) !important;
-}
-
-/* ══════════════════════════════════════════════════════════
-   PHASE 1 — Steps 1.3 & 1.4: Kill visual noise
-   ══════════════════════════════════════════════════════════ */
-
-/* 1.3a — ORBS: hide completely. Solid bg is calmer. */
-.bg-orbs-wrap {
-  display: none !important;
-}
-
-/* 1.3b — GRADIENT TEXT: kill on stat-cell:nth-child(3).
-   Was: linear-gradient on brand value. Now: plain color.
-   -webkit-text-fill-color must be explicitly reset. */
-.stat-cell:nth-child(3) .stat-value {
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  background-clip: unset !important;
-  -webkit-text-fill-color: var(--t) !important;
-  color: var(--t) !important;
-}
-
-/* 1.3c — GRADIENT TEXT on .sv-g (profit value) — keep color, kill gradient trick */
-.sv-g {
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  background-clip: unset !important;
-  -webkit-text-fill-color: var(--g) !important;
-  color: var(--g) !important;
-}
-
-/* 1.4a — KILL decorative ::after gradient lines on cards.
-   These were a gimmick. Depth comes from bg difference, not gradients. */
-.stat-cell::after,
-.fcard::after,
-.dash-card::after,
-.level-bar::after,
-.tcard::after,
-.coach-card::after,
-.settings-card::after,
-.pm-section-card::after,
-.pm-limits-card::after,
-.pm-moods-card::after,
-.pm-status-bar::after,
-.pm-side-card::after,
-.lb-card::after,
-.score-card::after,
-.setup-card::after,
-.psych-card::after,
-.pair-card::after {
-  display: none !important;
-}
-
-/* 1.4b — KILL brand glow on logo dot (apple-brand-mark).
-   A solid dot is already enough. Glow adds noise. */
-.apple-brand-mark {
-  box-shadow: none !important;
-}
-
-/* 1.4c — KILL glow on fcard-dot (section progress dot) */
-.fcard-dot.active {
-  box-shadow: none !important;
-}
-
-/* 1.4d — KILL big CTA glow. Keep shadow subtle: elevation only, no color. */
-.btn-add,
-.pm-save-btn,
-.settings-btn-primary,
-.edit-save,
-.ai-check-btn {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
-}
-.btn-add:hover,
-.pm-save-btn:hover,
-.settings-btn-primary:hover,
-.edit-save:hover,
-.ai-check-btn:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
-  transform: none !important;
-}
-
-/* 1.4e — KILL hover lift (translateY) on cards.
-   Only border-color changes on hover. Clean, calm. */
-.stat-cell:hover,
-.fcard:hover,
-.dash-card:hover,
-.tcard:hover,
-.coach-card:hover,
-.settings-card:hover,
-.pm-section-card:hover,
-.pm-limits-card:hover,
-.pm-moods-card:hover,
-.pm-side-card:hover {
-  transform: none !important;
-  border-color: rgba(255,255,255,0.12) !important;
-  transition: border-color 0.15s ease !important;
-}
-
-/* 1.4f — KILL hover gradient background on cards */
-.stat-cell:hover,
-.fcard:hover,
-.dash-card:hover,
-.tcard:hover,
-.coach-card:hover,
-.settings-card:hover,
-.pm-section-card:hover {
-  background: inherit !important;
-}
-
-/* 1.4g — CTA gradient → flat color. Simpler, more confident. */
-.btn-add,
-.pm-save-btn,
-.settings-btn-primary,
-.edit-save,
-.ai-check-btn {
-  background: var(--brand) !important;
-}
-
-
-/* 1.4h — KILL stat-cell dynamic glow classes (added via JS on data change) */
-.stat-cell.glow-g,
-.stat-cell.glow-r,
-.stat-cell.glow-a {
-  box-shadow: none !important;
-}
-
-/* 1.4i — KILL noise texture body::before (too visible at current opacity) */
-body::before {
-  opacity: 0.012 !important;
-}
-
-/* ══════════════════════════════════════════════════════════
-   PHASE 2 — Visual System Cleanup
-   2.1 Three radius levels
-   2.2 Unified card padding
-   2.3 Remove backdrop-filter from cards (solid bg only)
-   2.4 Single hover effect (border-color only)
-   2.5 Stats row: equal columns
-   2.6 Spacing tokens applied
-   ══════════════════════════════════════════════════════════ */
-
-/* ── 2.1 THREE RADIUS LEVELS. THAT'S IT. ──────────────────
-   --r-sm:   8px  → inputs, small buttons, tags, badges
-   --r-md:  16px  → cards, modals, sections
-   --r-lg:  24px  → large containers, fcard
-   --r-pill: 999px → pills, toggles (already used)
-   --------------------------------------------------------- */
-:root {
-  --r-sm:   8px;
-  --r-md:   16px;
-  --r-lg:   24px;
-  --r-pill: 999px;
-}
-
-/* Cards → --r-md */
-.stat-cell,
-.dash-card, .an-card,
-.tcard,
-.coach-card,
-.settings-card,
-.hm-card,
-.equity-card,
-.digest-header,
-.mc-card,
-.pm-section-card,
-.pm-limits-card,
-.pm-moods-card,
-.pm-side-card,
-.level-bar,
-.pkpi,
-.setup-card,
-.psych-card,
-.pair-card,
-.sbw,
-.lb-card,
-.score-card,
-.dg-card,
-.digest-insights {
-  border-radius: var(--r-md) !important;
-}
-
-/* Form card and modals → --r-lg */
-.fcard,
-.ai-box,
-.edit-box,
-.onb-box,
-.qnote-popup,
-.apple-menu-panel {
-  border-radius: var(--r-lg) !important;
-}
-
-/* Inputs, small buttons, tags → --r-sm */
-input, select, textarea,
-.setup-btn, .res-btn, .dbtn,
-.fbtn,
-.ntag,
-.pattern-badge,
-.ch-badge,
-.ci-badge,
-.coach-rec-badge,
-.tg-status-badge,
-.best-setup-badge,
-.worst-setup-badge,
-.settings-btn-secondary,
-.settings-btn-danger,
-.settings-card-icon,
-.edit-input,
-.goal-popup-input,
-.balance-popup-input,
-.onb-input,
-.sim-toggle,
-.psych-btn,
-.tilt-btn,
-.qnote-type-btn {
-  border-radius: var(--r-sm) !important;
-}
-
-/* CTA buttons → --r-md for confidence, not pill */
-.btn-add,
-.pm-save-btn,
-.settings-btn-primary,
-.edit-save,
-.qnote-save,
-.ai-check-btn,
-.zero-btn,
-.es-cta,
-.plo-btn,
-.onb-btn,
-.goal-popup-save,
-.balance-popup-save {
-  border-radius: var(--r-md) !important;
-}
-
-/* Nav items stay pill */
-.apple-nav-link,
-.gl-tab,
-.mob-nav-btn,
-.filter-btn {
-  border-radius: var(--r-pill) !important;
-}
-
-/* ── 2.2 UNIFIED CARD PADDING ─────────────────────────────
-   --card-pad:    20px  → standard cards
-   --card-pad-sm: 14px  → compact cards (metric, badge)
-   --------------------------------------------------------- */
-:root {
-  --card-pad:    20px;
-  --card-pad-sm: 14px;
-}
-
-.stat-cell,
-.dash-card, .an-card,
-.tcard,
-.coach-card,
-.hm-card,
-.equity-card,
-.digest-header,
-.mc-card,
-.pm-section-card,
-.pm-limits-card,
-.pm-moods-card,
-.pm-side-card,
-.setup-card,
-.psych-card,
-.pair-card,
-.dg-card,
-.digest-insights,
-.lb-card,
-.score-card {
-  padding: var(--card-pad) !important;
-}
-
-.fcard {
-  padding: 24px 28px !important;
-}
-
-.pkpi,
-.sbw {
-  padding: var(--card-pad-sm) !important;
-}
-
-/* ── 2.3 REMOVE BACKDROP-FILTER FROM CARDS ────────────────
-   Blur on solid-bg cards = muteness, not depth.
-   Blur stays ONLY on: navbar, sidebar, mob-bar, overlays, modals.
-   --------------------------------------------------------- */
-.stat-cell,
-.fcard,
-.dash-card, .an-card,
-.tcard,
-.coach-card,
-.settings-card,
-.hm-card,
-.equity-card,
-.digest-header,
-.mc-card,
-.pm-section-card,
-.pm-limits-card,
-.pm-moods-card,
-.pm-side-card,
-.level-bar,
-.pkpi,
-.setup-card,
-.psych-card,
-.pair-card,
-.sbw,
-.lb-card,
-.score-card {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Kill fcard::before decorative gradient line (top accent line) */
-.fcard::before {
-  display: none !important;
-}
-
-/* ── 2.4 SINGLE HOVER EFFECT — border-color only ──────────
-   No transform. No shadow animation. No background shift.
-   Just the border brightening slightly.
-   --------------------------------------------------------- */
-.stat-cell,
-.fcard,
-.dash-card, .an-card,
-.tcard,
-.coach-card,
-.settings-card,
-.pm-section-card,
-.pm-limits-card,
-.pm-moods-card,
-.pm-side-card {
-  transition: border-color 0.15s ease !important;
-}
-
-.stat-cell:hover,
-.fcard:hover,
-.dash-card:hover, .an-card:hover,
-.tcard:hover,
-.coach-card:hover,
-.settings-card:hover,
-.pm-section-card:hover,
-.pm-limits-card:hover,
-.pm-moods-card:hover,
-.pm-side-card:hover {
-  border-color: rgba(255,255,255,0.14) !important;
-  transform: none !important;
-  background: inherit !important;
-}
-
-/* ── 2.5 STATS ROW — 3 EQUAL COLUMNS ─────────────────────
-   Was: 1fr 1fr 2fr (or 1fr 1fr 1.5fr)
-   Now: 1fr 1fr 1fr — symmetry = order
-   --------------------------------------------------------- */
-.stats-row {
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 12px !important;
-}
-
-/* ── 2.6 SPACING TOKENS — 4 values for card gaps ──────────
-   --gap-sm:  8px   within a card between elements
-   --gap-md: 12px   between cards in a grid
-   --gap-lg: 20px   between sections
-   --gap-xl: 32px   major section separation
-   --------------------------------------------------------- */
-:root {
-  --gap-sm:  8px;
-  --gap-md: 12px;
-  --gap-lg: 20px;
-  --gap-xl: 32px;
-}
-
-/* Apply gap-md between trade cards */
-.trade-list,
-.list-wrap {
-  gap: var(--gap-md) !important;
-}
-
-/* Apply gap-md in dashboard grid */
-.dash-grid {
-  gap: var(--gap-md) !important;
-}
-
-/* Section spacing */
-.stats-row {
-  margin-bottom: var(--gap-lg) !important;
-}
-
-/* ===== Journal v2 cockpit ===== */
-.journal-v2{
-  --accent:#ff9a8b;
-  --accent-strong:#ff7f8f;
-  --accent-soft:rgba(255,154,139,0.14);
-  --accent-border:rgba(255,154,139,0.38);
-  --accent-glow:rgba(255,127,143,0.24);
-  display:block;
-  padding:18px 20px 24px;
-}
-.journal-v2-topbar{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:14px;padding:14px;border:1px solid var(--accent-border);background:linear-gradient(135deg,rgba(255,255,255,.03),var(--accent-soft));border-radius:14px;}
-.jv2-brand{display:flex;gap:12px;align-items:center}
-.jv2-logo-dot{width:11px;height:11px;border-radius:50%;background:var(--accent-strong);box-shadow:0 0 24px var(--accent-glow)}
-.jv2-brand h1{font-size:20px;line-height:1.1;color:#fff}
-.jv2-brand p{font-size:12px;color:var(--m)}
-.jv2-top-stats{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.jv2-chip{padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg3);display:flex;gap:7px;align-items:center}
-.jv2-chip span{font-size:11px;color:var(--m)}
-.jv2-new{background:linear-gradient(135deg,var(--accent),var(--accent-strong))!important;box-shadow:0 8px 22px -12px var(--accent-glow)!important}
-.journal-v2-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:14px;align-items:start}
-.jv2-step{padding:12px;border:1px solid var(--bd);border-radius:12px;background:rgba(255,255,255,.015);margin-bottom:10px}
-.jv2-step-title{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.jv2-form-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.jv2-reset{height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--accent-border);background:transparent;color:var(--m);cursor:pointer}
-.jv2-reset:hover{border-color:var(--accent);color:#fff}
-.journal-v2-side .sticky{position:sticky;top:72px}
-.jv2-side-card{padding:14px;border:1px solid var(--bd);border-radius:14px;background:var(--bg-card)}
-.jv2-side-title{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:10px}
-.jv2-metric{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)}
-.jv2-metric span{font-size:12px;color:var(--m)}
-.jv2-metric strong{font-size:16px;color:#fff}
-.jv2-metric strong.neg{color:var(--r)}
-.jv2-metric strong.pos{color:var(--g)}
-.jv2-verdict{margin-top:12px;padding:10px;border-radius:10px;border:1px solid var(--accent-border);background:var(--accent-soft);font-size:12px;color:#ffd8e4}
-.jv2-checklist{margin-top:10px;padding-left:16px;color:var(--m);font-size:12px;display:grid;gap:6px}
-.ghost-danger-btn{padding:7px 12px;border-radius:999px;border:1px solid rgba(248,113,113,.35);background:transparent;color:rgba(248,113,113,.85);font-size:11px;cursor:pointer}
-@media (max-width: 980px){.journal-v2-layout{grid-template-columns:1fr}.journal-v2-topbar{flex-direction:column;align-items:flex-start}.journal-v2-side .sticky{position:static}}
+/* Journal v2 base duplicate removed; scoped refinement block kept below. */
 
 /* ===== Journal v2 premium direction refinement (scoped) ===== */
 .journal-v2{
@@ -5656,127 +5178,70 @@ input, select, textarea,
   --jv2-line-soft:rgba(255,255,255,0.06);
   --jv2-text:rgba(255,255,255,0.93);
   --jv2-muted:rgba(198,206,221,0.65);
-  background:
-    radial-gradient(900px 500px at 6% -6%, rgba(255,154,139,0.08), transparent 62%),
-    radial-gradient(700px 420px at 94% 0%, rgba(255,127,143,0.06), transparent 65%),
-    linear-gradient(180deg,var(--jv2-bg),var(--jv2-bg2));
+  background:radial-gradient(900px 500px at 6% -6%, rgba(255,154,139,0.08), transparent 62%),radial-gradient(700px 420px at 94% 0%, rgba(255,127,143,0.06), transparent 65%),linear-gradient(180deg,var(--jv2-bg),var(--jv2-bg2));
   border-radius:18px;
+  padding:18px 20px 24px;
 }
-.journal-v2 .fcard{
-  border:1px solid var(--jv2-line) !important;
-  border-radius:16px !important;
-  background:linear-gradient(180deg,var(--jv2-surface),rgba(16,19,27,0.88)) !important;
-  box-shadow:0 12px 36px rgba(2,5,12,0.42), inset 0 1px 0 rgba(255,255,255,0.04) !important;
-}
-.journal-v2 .field label,
-.journal-v2 .jv2-step-title,
-.journal-v2 .fcard-title{letter-spacing:.02em;}
-.journal-v2 .fcard-title{font-size:19px;font-weight:600;color:var(--jv2-text) !important;margin-bottom:16px;}
+.journal-v2-topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;padding:14px;border:1px solid var(--jv2-line);border-radius:16px;background:linear-gradient(130deg,rgba(255,255,255,0.04),rgba(255,154,139,0.08));}
+.journal-v2 .jv2-brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.journal-v2 .jv2-logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent-strong);}
+.journal-v2 .jv2-brand h1{font-size:22px;letter-spacing:-.01em;color:var(--jv2-text);line-height:1.1;}
+.journal-v2 .jv2-brand p{font-size:13px;color:var(--jv2-muted);}
+.journal-v2 .jv2-top-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.journal-v2 .jv2-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--jv2-line-soft);border-radius:11px;white-space:nowrap;}
+.journal-v2 .jv2-chip span{font-size:11px;color:var(--jv2-muted);}
+.journal-v2 .jv2-chip strong{font-size:12px;color:var(--jv2-text);}
+.journal-v2 .jv2-new{width:auto;min-width:170px;margin-top:0;}
+
+.journal-v2-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,0.85fr);gap:18px;align-items:start;}
+.journal-v2-main,.journal-v2-side{min-width:0;}
+.journal-v2 .jv2-side-card.sticky{position:sticky;top:72px;}
+
+.journal-v2 .fcard{border:1px solid var(--jv2-line);border-radius:16px;background:linear-gradient(180deg,var(--jv2-surface),rgba(16,19,27,0.88));box-shadow:0 12px 36px rgba(2,5,12,0.42), inset 0 1px 0 rgba(255,255,255,0.04);}
+.journal-v2 .field label,.journal-v2 .jv2-step-title,.journal-v2 .fcard-title{letter-spacing:.02em;}
+.journal-v2 .fcard-title{font-size:19px;font-weight:600;color:var(--jv2-text);margin-bottom:16px;}
 .journal-v2 .jv2-step{margin-bottom:14px;padding:16px;border-radius:14px;border-color:var(--jv2-line);background:var(--jv2-surface-soft);}
 .journal-v2 .jv2-step-title{font-size:10px;color:#ffc0b6;}
-.journal-v2 input,
-.journal-v2 textarea,
-.journal-v2 select{
-  min-height:44px;
-  border-radius:10px !important;
-  border-color:var(--jv2-line-soft) !important;
-  background:rgba(255,255,255,0.025) !important;
-  color:var(--jv2-text) !important;
-}
+.journal-v2 input,.journal-v2 textarea,.journal-v2 select{min-height:44px;border-radius:10px;border-color:var(--jv2-line-soft);background:rgba(255,255,255,0.025);color:var(--jv2-text);}
 .journal-v2 textarea{min-height:118px;}
-.journal-v2 input:focus,
-.journal-v2 textarea:focus,
-.journal-v2 select:focus{
-  border-color:var(--accent-border) !important;
-  box-shadow:0 0 0 3px rgba(255,154,139,0.1), 0 0 16px rgba(255,127,143,0.1) !important;
-}
-.journal-v2 .dbtn,
-.journal-v2 .res-btn,
-.journal-v2 .setup-btn,
-.journal-v2 .em-opt,
-.journal-v2 .fbtn{
-  border-radius:10px !important;
-  border-color:var(--jv2-line-soft) !important;
-  background:rgba(255,255,255,0.02) !important;
-  color:rgba(255,255,255,0.88) !important;
-  transition:all .18s ease;
-}
-.journal-v2 .res-btn.active-be,
-.journal-v2 .setup-btn.active,
-.journal-v2 .em-opt.active,
-.journal-v2 .fbtn.active{
-  color:var(--accent) !important;
-  border-color:var(--accent-border) !important;
-  background:var(--accent-soft) !important;
-  box-shadow:0 8px 24px -16px var(--accent-glow) !important;
-}
-.journal-v2 .btn-add,
-.journal-v2 .btn-ai{
-  min-height:42px;border-radius:10px !important;font-size:13px;
-}
-.journal-v2 .btn-add{
-  background:linear-gradient(135deg,var(--accent),var(--accent-strong)) !important;
-  box-shadow:0 10px 22px -14px var(--accent-glow) !important;
-  color:#2a1619 !important;
-  font-weight:600;
-}
-.journal-v2 .btn-ai{
-  background:rgba(255,255,255,0.04) !important;
-  border:1px solid var(--jv2-line-soft) !important;
-  color:rgba(255,255,255,.88) !important;
-}
-.journal-v2 .journal-v2-topbar{
-  border:1px solid var(--jv2-line);
-  background:linear-gradient(130deg,rgba(255,255,255,0.04),rgba(255,154,139,0.08));
-  border-radius:16px;
-  padding:16px;
-}
-.journal-v2 .jv2-brand h1{font-size:24px;letter-spacing:-.01em;}
-.journal-v2 .jv2-brand p{font-size:13px;color:var(--jv2-muted);}
-.journal-v2 .jv2-chip{
-  background:rgba(255,255,255,0.03);
-  border:1px solid var(--jv2-line-soft);
-  border-radius:11px;
-}
-.journal-v2 .jv2-chip span{color:var(--jv2-muted);}
-.journal-v2 .jv2-side-card{
-  border-color:var(--jv2-line);
-  border-radius:16px;
-  background:linear-gradient(180deg,rgba(16,19,27,0.94),rgba(12,15,22,0.92));
-  box-shadow:0 14px 34px rgba(3,8,18,0.44), inset 0 1px 0 rgba(255,255,255,0.04);
-}
-.journal-v2 .jv2-metric{padding:10px 0;}
-.journal-v2 .jv2-verdict{
-  color:#ffe4ea;
-  background:linear-gradient(135deg,rgba(255,154,139,0.12),rgba(255,127,143,0.08));
-  border-color:rgba(255,154,139,0.32);
-}
-.journal-v2 .jv2-checklist{color:var(--jv2-muted);}
+.journal-v2 input:focus,.journal-v2 textarea:focus,.journal-v2 select:focus{border-color:var(--accent-border);box-shadow:0 0 0 3px rgba(255,154,139,0.1);}
+.journal-v2 .dbtn,.journal-v2 .res-btn,.journal-v2 .setup-btn,.journal-v2 .em-opt,.journal-v2 .fbtn{border-radius:10px;border-color:var(--jv2-line-soft);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.88);}
+.journal-v2 .res-btn.active-be,.journal-v2 .setup-btn.active,.journal-v2 .em-opt.active,.journal-v2 .fbtn.active{color:var(--accent);border-color:var(--accent-border);background:var(--accent-soft);}
+
+.journal-v2 .btn-add,.journal-v2 .btn-ai,.journal-v2 .jv2-reset{min-height:42px;border-radius:10px;font-size:13px;width:100%;}
+.journal-v2 .btn-add{background:linear-gradient(135deg,var(--accent),var(--accent-strong));box-shadow:0 10px 22px -14px var(--accent-glow);color:#2a1619;font-weight:600;}
+.journal-v2 .btn-ai{background:rgba(255,255,255,0.04);border:1px solid var(--jv2-line-soft);color:rgba(255,255,255,.88);}
+.journal-v2 .jv2-reset{border:1px solid var(--jv2-line-soft);background:transparent;color:var(--jv2-muted);cursor:pointer;}
+.journal-v2 .jv2-reset:hover{border-color:var(--accent-border);color:var(--jv2-text);background:rgba(255,255,255,0.03);}
+.journal-v2 .jv2-form-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+
+.journal-v2 .jv2-side-card{padding:14px;border:1px solid var(--jv2-line);border-radius:16px;background:linear-gradient(180deg,rgba(16,19,27,0.94),rgba(12,15,22,0.92));box-shadow:0 10px 24px rgba(3,8,18,0.3), inset 0 1px 0 rgba(255,255,255,0.04);}
+.journal-v2 .jv2-side-title{font-size:12px;letter-spacing:.06em;color:var(--jv2-text);margin-bottom:10px;}
+.journal-v2 .jv2-metric{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--jv2-line-soft);}
+.journal-v2 .jv2-metric:last-of-type{border-bottom:none;}
+.journal-v2 .jv2-metric span{font-size:12px;color:var(--jv2-muted);}
+.journal-v2 .jv2-metric strong{font-size:15px;color:var(--jv2-text);}
+.journal-v2 .jv2-verdict{margin-top:12px;padding:10px;border-radius:10px;color:#ffe4ea;background:linear-gradient(135deg,rgba(255,154,139,0.12),rgba(255,127,143,0.08));border:1px solid rgba(255,154,139,0.32);font-size:12px;}
+.journal-v2 .jv2-checklist{margin-top:10px;padding-left:16px;color:var(--jv2-muted);font-size:12px;display:grid;gap:6px;}
+
 .journal-v2 .list-head{margin-top:16px;padding-top:6px;}
-.journal-v2 #trades-list .tcard,
-.journal-v2 #trades-list .trade-row{
-  border-radius:12px !important;
-  border-color:var(--jv2-line) !important;
-  background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015)) !important;
-}
-.journal-v2 .dbtn.active-long,
-.journal-v2 .dbtn.active-short{
-  box-shadow:0 0 0 1px rgba(255,154,139,0.28), 0 12px 28px -18px rgba(255,127,143,0.42) !important;
-}
-@media (max-width:1024px){
-  .journal-v2 .journal-v2-topbar{gap:12px;}
-  .journal-v2 .jv2-brand h1{font-size:22px;}
-}
+.journal-v2 #trades-list .tcard,.journal-v2 #trades-list .trade-row{border-radius:12px;border-color:var(--jv2-line);background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));}
+
+.trade-row,.tr-note,.tr-meta,.trade-meta,.tr-pair,.tr-setup,.tr-date{min-width:0;overflow-wrap:anywhere;word-break:break-word;}
+.tr-note,.trade-meta{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+
+#orb-theme-ctrl,#orb-sp-ov{display:none;}
+
 @media (max-width:1024px){
   .journal-v2{padding:14px 14px 20px;}
-  .journal-v2 .journal-v2-layout{gap:12px;}
+  .journal-v2-topbar{gap:12px;}
+  .journal-v2-layout{grid-template-columns:1fr;gap:12px;}
+  .journal-v2 .jv2-side-card.sticky{position:static;top:auto;}
 }
 @media (max-width:720px){
   .journal-v2{border-radius:14px;}
-  .journal-v2 .journal-v2-topbar{padding:14px;}
+  .journal-v2-topbar{padding:14px;flex-direction:column;align-items:flex-start;}
   .journal-v2 .jv2-top-stats{width:100%;}
   .journal-v2 .jv2-chip{flex:1;justify-content:space-between;min-width:0;}
-  .journal-v2 .jv2-form-actions{display:grid;grid-template-columns:1fr;}
-  .journal-v2 .btn-add,.journal-v2 .btn-ai,.journal-v2 .jv2-reset{width:100%;}
-  .journal-v2 .jv2-side-card.sticky{position:static;top:auto;}
+  .journal-v2 .jv2-form-actions{grid-template-columns:1fr;}
 }
