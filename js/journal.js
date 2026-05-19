@@ -623,3 +623,49 @@ function setLev(e){const t=document.getElementById("f-lev");t&&(t.value=e,calcRR
 
   document.addEventListener('DOMContentLoaded', updateRiskVerdict);
 })();
+
+/* --- Auth hardening + profile visibility patch (2026-05-19) --- */
+(function(){
+  const RETURN_TO = '/journal';
+
+  function ensureCabinetBadge(user, profile){
+    const fullName = (profile && (profile.full_name || profile.username)) || user.email || 'User';
+    const email = user.email || '';
+    const plan = (profile && profile.plan) ? String(profile.plan).toUpperCase() : 'USER';
+
+    let box = document.getElementById('journal-auth-badge');
+    if(!box){
+      box = document.createElement('a');
+      box.id = 'journal-auth-badge';
+      box.href = '/cabinet.html';
+      box.style.cssText = 'position:fixed;right:16px;top:56px;z-index:1200;padding:8px 10px;border:1px solid rgba(255,255,255,.14);background:rgba(15,17,23,.82);backdrop-filter:blur(8px);border-radius:10px;color:#eaeaea;text-decoration:none;font-family:var(--font-mono,monospace);min-width:180px;';
+      document.body.appendChild(box);
+    }
+    box.innerHTML = '<div style="font-size:10px;opacity:.7;letter-spacing:1.2px;margin-bottom:3px">LOGGED IN</div>'+
+                    '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+fullName+'</div>'+
+                    '<div style="font-size:10px;opacity:.62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+email+'</div>'+
+                    '<div style="font-size:10px;opacity:.82;margin-top:4px">PLAN: '+plan+'</div>';
+  }
+
+  async function enforceAuth(){
+    if(typeof supabase === 'undefined' || !supabase.createClient) return;
+    const url = 'https://kgutmsosfyyxnlnhucaa.supabase.co';
+    const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q';
+    const cli = (window.sb && window.sb.auth) ? window.sb : supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true}});
+    const { data } = await cli.auth.getSession();
+    const session = data && data.session;
+    if(!session || !session.user){
+      location.href = '/login?returnTo=' + encodeURIComponent(RETURN_TO);
+      return;
+    }
+    let profile = null;
+    try {
+      const r = await cli.from('profiles').select('full_name,username,plan').eq('id', session.user.id).single();
+      profile = r && r.data ? r.data : null;
+    } catch(_) {}
+    ensureCabinetBadge(session.user, profile);
+  }
+
+  function boot(){ enforceAuth().catch(()=>{}); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
