@@ -1,42 +1,62 @@
 # Проверка работоспособности `journal.html` и подключения к Supabase (2026-05-19)
 
-## Что проверено
+## Результаты живой проверки через Supabase MCP
 
-1. Локальная отдача страницы `journal.html` через HTTP-сервер.
-2. Наличие и загрузочный путь Supabase SDK в коде `journal.html` / `js/journal.js`.
-3. Наличие логики авторизации, редиректа на `/login` и операций чтения/записи в таблицу `trades`.
-4. Сетевая доступность Supabase endpoint из текущего окружения.
+### Проект и подключение
+- Проект `orbitum-journal` (ref `kgutmsosfyyxnlnhucaa`), регион `ap-southeast-2`, статус `ACTIVE_HEALTHY`.
+- URL `https://kgutmsosfyyxnlnhucaa.supabase.co` и встроенный в `journal.html` anon-key совпадают с фактическими значениями проекта; ключ JWT валиден (exp 2036), не disabled.
+- Аутентификация работает: в API-логах сотни `GET /auth/v1/user → 200` и `POST /auth/v1/token (refresh) → 200`.
+- В БД 18 пользователей в `auth.users`, 18 строк в `public.trades` от 5 разных юзеров (последняя 2026-05-03).
+- RLS на `trades` настроена корректно (`auth.uid() = user_id` для SELECT/INSERT/UPDATE/DELETE, отдельный admin-override).
 
-## Результаты
+### Критический баг — был найден и устранён
+В bootstrap-скрипте `journal.html` (внутри `<head>`) клиент обращался к таблице `public.trades` так:
 
-### 1) Доступность сайта (локально)
-- `journal.html` успешно отдается локальным сервером с HTTP 200.
-- Размер HTML-бандла крупный (~1.7MB), но отдача происходит корректно.
+```js
+fetch(SB_URL + '/rest/v1/trades?...&select=client_id,payload,created_at&...')
+fetch(SB_URL + '/rest/v1/trades?on_conflict=user_id,client_id', { POST, body: [{ client_id, payload, ... }] })
+```
 
-### 2) Интеграция Supabase в коде
-- В `js/journal.js` присутствуют `SUPABASE_URL`, `SUPABASE_ANON_KEY`, инициализация `createClient`, получение сессии и пользователя, а также загрузка/добавление сделок в таблицу `trades`.
-- В `journal.html` внутри шаблона бандла также встроен Supabase bootstrap:
-  - подключение `@supabase/supabase-js@2`;
-  - `auth.getUser()`, `auth.getSession()`;
-  - hydrаte сделок из `rest/v1/trades`;
-  - upsert/delete синхронизация через REST.
-- В репозитории есть дополнительный мост `js/orbitum-standalone-supabase.js` (локальное хранилище ↔ Supabase), но основной runtime в `journal.html` уже содержит собственный bootstrap, и ключ `STORE_KEY` там отличается (`v3` vs `v1`).
+В реальной схеме БД колонок `client_id` и `payload` **не было** — таблица хранила «развёрнутые» поля (`pair`, `direction`, `result`, `pnl_pct`, `entry_price`, …). Также отсутствовал уникальный индекс на `(user_id, client_id)`, необходимый для `ON CONFLICT user_id,client_id`.
 
-### 3) Критичные наблюдения
-- В проекте обнаружено **несколько разных подходов интеграции** с Supabase:
-  - крупный встроенный runtime в `journal.html`;
-  - отдельный `js/journal.js` с похожей, но не идентичной логикой;
-  - отдельный адаптер `js/orbitum-standalone-supabase.js`.
-- Есть риск рассинхронизации поведения из-за разницы `STORE_KEY` и дублирующейся логики sync.
+Подтверждение из прод-логов API за последние сутки (выборка):
+- `GET /rest/v1/trades?...&select=client_id,payload,created_at → 400` — десятки записей, разные user_id.
+- `POST /rest/v1/trades?on_conflict=user_id,client_id → 400` — попытки upsert падали для всех клиентов.
 
-### 4) Фактическая проверка внешнего соединения с Supabase
-- Прямая проверка `https://kgutmsosfyyxnlnhucaa.supabase.co/...` из этого CI/контейнера не прошла:
-  - `curl` возвращает `CONNECT tunnel failed, response 403`.
-- Это указывает на ограничение сетевого тракта окружения (прокси/egress), а не на гарантированную неисправность проекта.
+Следствие: история сделок не подгружалась из облака и новые сделки не синхронизировались — данные оставались только в `localStorage['orbitum.trades.v3']`.
 
-## Итог
+### Применённая миграция
+Имя миграции: `journal_html_sync_compat`.
 
-- **Сайт `journal.html` локально открывается и отдается корректно.**
-- **Код подключения к Supabase присутствует и полноценно реализован (auth + CRUD/sync).**
-- **Подтвердить живое подключение к Supabase из данного окружения невозможно из-за сетевого ограничения `403 CONNECT tunnel`.**
-- Для финальной валидации прод-подключения нужен запуск в браузере с доступом в интернет (или в вашей Vercel-среде) и проверка: login → загрузка сделок → добавление сделки → обновление истории.
+```sql
+ALTER TABLE public.trades
+  ADD COLUMN IF NOT EXISTS client_id text,
+  ADD COLUMN IF NOT EXISTS payload   jsonb;
+
+CREATE UNIQUE INDEX IF NOT EXISTS trades_user_client_id_uniq
+  ON public.trades (user_id, client_id)
+  WHERE client_id IS NOT NULL;
+
+ALTER TABLE public.trades ALTER COLUMN pair      DROP NOT NULL;
+ALTER TABLE public.trades ALTER COLUMN direction DROP NOT NULL;
+ALTER TABLE public.trades ALTER COLUMN result    DROP NOT NULL;
+
+NOTIFY pgrst, 'reload schema';
+```
+
+Почему DROP NOT NULL: bundle отправляет `pair`, `direction`, `result` как `null`, когда соответствующее поле в локальной сделке пустое (например, статус ещё не WIN/LOSS/BE). Без послабления NOT NULL даже после добавления `client_id`/`payload` INSERT всё равно падал бы. Существующие CHECK-констрейнты на `direction ∈ {long,short}` и `result ∈ {win,loss,be}` сохранены — они корректно пропускают NULL.
+
+### Что проверить в браузере после деплоя
+- Логин → редирект `journal.html` отрабатывает, не уходит обратно на `/login`.
+- В DevTools нет 400-х на `/rest/v1/trades` (ни на hydrate-select, ни на upsert).
+- Добавить сделку → она появляется в `public.trades` с заполненным `client_id` и `payload`.
+- Удалить сделку локально → DELETE с фильтром `client_id=in.(...)` отрабатывает 204.
+
+### Найденные, но не блокирующие замечания безопасности (advisors)
+- `view public.public_profiles` — `SECURITY DEFINER` (level ERROR).
+- Функции `handle_new_user`, `schedule_onboarding`, `process_onboarding_queue` — `SECURITY DEFINER` + executable анонимом + mutable `search_path` (WARN).
+- `follows.follows_all` и `notifications.notifs_insert` — overly permissive RLS (`USING true` / `WITH CHECK true`).
+- Bucket `trade-screenshots` — публичный с broad SELECT, позволяет листинг.
+- В Auth выключена защита от утёкших паролей (HaveIBeenPwned).
+
+Эти пункты не влияют на работу журнала, но имеет смысл пройтись отдельно.
