@@ -1,3 +1,5 @@
+import { handleLead } from '../lib/lead-handler.js';
+
 // api/bot.js v5 — ORBITUM Telegram Bot
 // Commands: /start /stats /brief /signal /ai /alerts /plan /notify /log /help /stop
 // Inline keyboard buttons on key messages
@@ -133,6 +135,7 @@ async function sendOnboarding(chat_id, stage, name = 'trader') {
 
 // ── MAIN HANDLER ──────────────────────────────────────────────────
 export default async function handler(req, res) {
+  if (req.query?.action === 'lead') return handleLead(req, res);
   if (req.method !== 'POST') return res.status(200).send('OK');
 
   try {
