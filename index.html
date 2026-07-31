@@ -1,1239 +1,381 @@
-<!DOCTYPE html>
-
-<html lang="en">
+<!doctype html>
+<html lang="ru">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ORBITUM — Trading Education, AI Journal &amp; Crypto Screener</title>
-<meta content="Structured trading education with an AI journal, crypto screener, performance analytics, and discipline tracking for serious traders." name="description"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<script defer="" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --space-1:8px;
-  --space-2:12px;
-  --space-3:16px;
-  --space-4:24px;
-  --space-5:32px;
-  --space-6:48px;
-  --gap-sm:var(--space-2);
-  --gap-md:var(--space-3);
-  --gap-lg:var(--space-4);
-  --container-max:1100px;
-  --section-pad-y:100px;
-  --section-pad-x:var(--space-6);
-  --bg:#F5F5F7;
-  --bg2:#EFEFF1;
-  --bg3:#E8E8EA;
-  --surface:#FFFFFF;
-  --surface-2:rgba(255,255,255,0.78);
-  --bd:rgba(0,0,0,0.07);
-  --bd2:rgba(0,0,0,0.12);
-  --bd3:rgba(0,0,0,0.2);
-  --t:#0A0A0B;
-  --t2:#3A3A3C;
-  --m:rgba(0,0,0,0.52);
-  --m2:rgba(0,0,0,0.32);
-  --peach:#EFC7B2;
-  --peach-soft:rgba(239,199,178,0.18);
-  --peach-line:rgba(232,191,174,0.42);
-  --fire:#1A1A1A;
-  --fire-soft:rgba(26,26,26,0.06);
-  --fire-border:rgba(26,26,26,0.15);
-  --accent:#0A0A0B;
-  --font-display:'Plus Jakarta Sans','Inter','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  --font-body:'Inter','Plus Jakarta Sans','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  --font-ui:'Inter','Plus Jakarta Sans','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  --font:var(--font-body);
-  --mono:var(--font-ui);
-  --rad:16px;
-  --surface-card:rgba(255,255,255,0.9);
-  --surface-card-strong:#fff;
-  --border-card:rgba(0,0,0,0.08);
-  --radius-12:12px;
-  --radius-20:20px;
-  --radius-40:40px;
-  --shadow-sm:0 8px 18px rgba(15,15,18,0.06);
-  --shadow-md:0 16px 36px rgba(15,15,18,0.1);
-  --shadow-lg:0 28px 60px rgba(15,15,18,0.16);
-}
-html{scroll-behavior:smooth;scroll-padding-top:64px;}
-body{
-  background:var(--bg);color:var(--t);
-  font-family:var(--font-body);font-weight:400;line-height:1.68;
-  overflow-x:hidden;-webkit-font-smoothing:antialiased;
-}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORBITUM — торговая система, которая объясняет ваши сделки</title>
+  <meta name="description" content="Журнал сделок, скринер и ИИ-анализ в одном понятном рабочем пространстве. Находите ошибки, контролируйте риск и улучшайте исполнение.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ORBITUM — меньше импульса, больше системы">
+  <meta property="og:description" content="Проверьте идею, запишите сделку и получите понятный разбор без перегруженных таблиц.">
+  <meta name="theme-color" content="#0a0b0d">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/orbitum-ui.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-padding-top: 92px; }
+    body.orbitum-home { margin: 0; color: var(--orb-text); background: var(--orb-paper); font-size: 18px; }
+    .home-shell { width: min(1180px, calc(100% - 40px)); margin-inline: auto; }
+    .skip-link { position: fixed; z-index: 1000; top: 12px; left: 12px; padding: 12px 18px; color: #fff; background: #111; border-radius: 12px; transform: translateY(-160%); }
+    .skip-link:focus { transform: translateY(0); }
+    .top-note { padding: 10px 20px; color: #eefdf8; background: #0a0b0d; text-align: center; font-size: 15px; font-weight: 700; }
+    .top-note span { color: var(--orb-mint); }
+    .site-header { position: sticky; z-index: 50; top: 0; border-bottom: 1px solid rgba(16,18,22,.09); background: rgba(244,245,242,.88); backdrop-filter: blur(18px); }
+    .header-row { display: flex; min-height: 76px; align-items: center; gap: 30px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; color: #0b0d10; text-decoration: none; font-size: 18px; font-weight: 900; letter-spacing: .12em; }
+    .brand-mark { position: relative; display: grid; width: 37px; height: 37px; place-items: center; border-radius: 50%; background: #0a0b0d; }
+    .brand-mark::before, .brand-mark::after { content: ''; position: absolute; width: 26px; height: 11px; border: 1.5px solid var(--orb-mint); border-radius: 50%; transform: rotate(34deg); }
+    .brand-mark::after { border-color: var(--orb-blue); transform: rotate(-34deg); }
+    .brand-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+    .desktop-nav { display: flex; align-items: center; gap: 26px; margin-left: auto; }
+    .desktop-nav a { color: #383e46; text-decoration: none; font-size: 16px; font-weight: 700; }
+    .desktop-nav a:hover { color: #0b0d10; }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .button { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: 9px; padding: 0 21px; border: 0; border-radius: 15px; font-size: 16px; font-weight: 800; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+    .button:hover { transform: translateY(-2px); }
+    .button-dark { color: #fff; background: #0a0b0d; box-shadow: 0 10px 25px rgba(10,11,13,.16); }
+    .button-dark:hover { box-shadow: 0 14px 34px rgba(10,11,13,.24); }
+    .button-light { color: #11151a; background: #fff; border: 1px solid var(--orb-line); }
+    .button-gradient { color: #08110f; background: var(--orb-gradient); box-shadow: 0 14px 34px rgba(50,195,178,.25); }
+    .menu-button { display: none; width: 48px; height: 48px; padding: 0; border: 1px solid var(--orb-line); border-radius: 13px; background: #fff; font-size: 24px; }
+    .mobile-nav { display: none; padding: 0 0 18px; }
+    .mobile-nav a { display: block; padding: 12px 0; color: #11151a; text-decoration: none; font-size: 17px; font-weight: 800; }
 
-/* TYPOGRAPHY POLICY: one family, readable sizes */
-.nav-links a,.nav-lang,.btn-secondary,.nav-cta,.sec-tag,.ticker-item{
-  font-family:var(--font-ui);
-  font-size:11px;
-  font-weight:600;
-  letter-spacing:.11em;
-  text-transform:uppercase;
-}
+    .hero { padding: 56px 0 74px; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(420px, .98fr); min-height: 610px; overflow: hidden; border-radius: 32px; background: #0a0b0d; box-shadow: 0 28px 90px rgba(13,16,25,.18); }
+    .hero-copy { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 58px 60px; color: #fff; overflow: hidden; }
+    .hero-copy::before { content: ''; position: absolute; width: 420px; height: 420px; left: -210px; bottom: -260px; border-radius: 50%; background: rgba(91,105,255,.24); filter: blur(8px); }
+    .eyebrow { display: inline-flex; width: fit-content; align-items: center; gap: 9px; margin-bottom: 24px; padding: 9px 13px; color: #dffbf4; border: 1px solid rgba(67,224,189,.3); border-radius: 999px; background: rgba(67,224,189,.09); font-size: 15px; font-weight: 800; }
+    .eyebrow-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--orb-mint); box-shadow: 0 0 0 5px rgba(67,224,189,.12); }
+    h1 { max-width: 720px; margin: 0; font-size: clamp(3.15rem, 5.5vw, 5.65rem); line-height: .95; letter-spacing: -.065em; }
+    h1 span { color: var(--orb-mint); }
+    .hero-text { max-width: 610px; margin: 28px 0 0; color: rgba(255,255,255,.7); font-size: clamp(18px, 1.7vw, 22px); line-height: 1.55; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .hero-trust { display: flex; flex-wrap: wrap; gap: 14px 24px; margin-top: 28px; color: rgba(255,255,255,.62); font-size: 15px; font-weight: 700; }
+    .hero-trust span::before { content: '✓'; margin-right: 8px; color: var(--orb-mint); }
+    .hero-visual { position: relative; display: grid; place-items: center; min-height: 610px; padding: 48px; overflow: hidden; background: var(--orb-gradient); }
+    .hero-visual::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 10%, rgba(255,255,255,.3), transparent 30%), linear-gradient(180deg, transparent, rgba(6,19,20,.2)); }
+    .visual-stack { position: relative; z-index: 1; width: min(100%, 470px); }
+    .visual-number { margin-bottom: 14px; color: #fff; text-align: center; font-size: clamp(8rem, 15vw, 12rem); font-weight: 900; line-height: .78; letter-spacing: -.08em; text-shadow: 0 20px 45px rgba(20,64,70,.2); }
+    .visual-title { margin: 0 0 28px; color: #fff; text-align: center; font-size: clamp(1.9rem, 3vw, 3rem); line-height: 1.05; letter-spacing: -.04em; }
+    .paper-card { position: relative; padding: 25px 27px; border-radius: 24px; background: #fff; box-shadow: 12px 18px 0 rgba(255,255,255,.32), 0 28px 50px rgba(10,40,42,.2); }
+    .paper-card::after { content: '📎'; position: absolute; top: -19px; right: 25px; font-size: 46px; transform: rotate(-8deg); }
+    .paper-label { margin-bottom: 8px; color: var(--orb-blue); font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .paper-card p { margin: 0; color: #161a20; font-size: 20px; font-weight: 800; line-height: 1.4; }
+    .mini-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 24px; }
+    .mini-step { padding: 13px 10px; color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 14px; background: rgba(7,19,22,.16); text-align: center; font-size: 15px; font-weight: 800; backdrop-filter: blur(10px); }
 
-/* SUBTLE ORB BG */
-.orb-bg{
-  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
-}
-.orb-bg::before{
-  content:'';position:absolute;
-  width:900px;height:900px;
-  background:radial-gradient(circle,rgba(255,255,255,0.58) 0%,rgba(255,255,255,0.14) 42%,transparent 68%);
-  top:-200px;left:50%;transform:translateX(-50%);
-  border-radius:50%;
-  opacity:.62;
-}
-.orb-bg::after{
-  content:'';position:absolute;
-  width:600px;height:600px;
-  background:radial-gradient(circle,rgba(232,191,174,0.08) 0%,rgba(232,191,174,0.03) 48%,transparent 74%);
-  bottom:0;right:-100px;border-radius:50%;
-  opacity:.55;
-}
+    .signal-strip { padding: 0 0 92px; }
+    .signal-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--orb-line); }
+    .signal { padding: 30px 34px; border-right: 1px solid var(--orb-line); }
+    .signal:last-child { border-right: 0; }
+    .signal strong { display: block; margin-bottom: 5px; font-size: 20px; }
+    .signal span { color: var(--orb-muted); font-size: 16px; line-height: 1.5; }
 
-/* NAV */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:200;
-  height:56px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;
-  gap:24px;padding:0 28px;
-  background:rgba(245,245,247,0.88);
-  border-bottom:1px solid var(--bd2);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  transition:background .3s,box-shadow .3s,border-color .3s;
-}
-nav.scrolled{
-  background:rgba(245,245,247,0.96);
-  border-bottom-color:var(--bd2);
-  box-shadow:0 1px 0 rgba(255,255,255,0.68),0 14px 34px rgba(15,15,18,0.08);
-}
-.logo{
-  font-weight:800;font-size:13px;letter-spacing:3.5px;
-  color:var(--t);text-decoration:none;text-transform:uppercase;
-  display:flex;align-items:center;gap:0;flex-shrink:0;position:relative;
-}
-.logo-dot{
-  width:5px;height:5px;border-radius:50%;
-  background:var(--t);margin-left:2px;margin-bottom:8px;flex-shrink:0;
-}
-.nav-links{
-  display:flex;gap:24px;list-style:none;
-  position:static;transform:none;justify-content:center;
-  min-width:0;flex-wrap:nowrap;
-}
-.nav-links a{
-  font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:.11em;
-  color:var(--t2);text-decoration:none;text-transform:uppercase;
-  transition:color .2s,opacity .2s;
-  white-space:nowrap;
-}
-.nav-links a:hover{color:var(--t);opacity:1;}
-.nav-right{display:flex;align-items:center;gap:8px;margin-left:0;justify-self:end;position:relative;z-index:2;}
-.nav-lang{
-  height:28px;padding:0 10px;border-radius:8px;
-  border:1px solid var(--bd2);background:rgba(255,255,255,0.72);
-  color:var(--t2);font-family:var(--font-ui);font-size:9px;font-weight:650;letter-spacing:.11em;
-  cursor:pointer;transition:color .15s,border-color .15s,background-color .15s;
-}
-.nav-lang:hover,.nav-lang.active{color:var(--t);border-color:var(--peach-line);background:var(--surface);}
-.btn-secondary{
-  min-height:32px;padding:8px 16px;border-radius:var(--rad);
-  border:1px solid var(--bd2);background:rgba(255,255,255,0.72);
-  color:var(--t2);font-family:var(--font-ui);font-size:10px;
-  font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  cursor:pointer;text-decoration:none;
-  display:inline-flex;align-items:center;justify-content:center;
-  line-height:1;vertical-align:middle;text-align:center;
-  transition:color .2s,border-color .2s,background-color .2s,box-shadow .2s,transform .2s;
-  white-space:nowrap;box-shadow:var(--shadow-sm);
-}
-.btn-secondary:hover{border-color:var(--peach-line);background:var(--surface);}
-.nav-cta{
-  min-height:44px;padding:0 22px;border-radius:var(--rad);
-  background:var(--t);color:#fff;border:none;
-  font-family:var(--font-ui);font-size:10px;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;
-  cursor:pointer;text-decoration:none;
-  display:inline-flex;align-items:center;justify-content:center;line-height:1;
-  text-align:center;
-  transition:background-color .2s,box-shadow .2s,transform .2s;white-space:nowrap;box-shadow:0 12px 28px rgba(15,15,18,0.12);
-}
-.nav-cta:hover{background:#1f1f22;box-shadow:0 18px 34px rgba(15,15,18,0.16);transform:translateY(-1px);}
-.mob-cta:hover{background:#1f1f22;box-shadow:0 18px 34px rgba(15,15,18,0.16);transform:translateY(-1px);}
+    .section { padding: 96px 0; }
+    .section-dark { color: #fff; background: #0a0b0d; }
+    .section-head { display: grid; grid-template-columns: .8fr 1.2fr; align-items: end; gap: 40px; margin-bottom: 46px; }
+    .kicker { margin: 0 0 14px; color: var(--orb-blue); font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: .09em; }
+    .section-dark .kicker { color: var(--orb-mint); }
+    h2 { max-width: 760px; margin: 0; font-size: clamp(2.55rem, 5vw, 5rem); line-height: .98; letter-spacing: -.055em; }
+    .section-lead { max-width: 600px; margin: 0 0 4px auto; color: var(--orb-muted); font-size: 20px; line-height: 1.55; }
+    .section-dark .section-lead { color: rgba(255,255,255,.64); }
+    .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .pain-card { min-height: 330px; padding: 28px; border: 1px solid var(--orb-line); border-radius: 26px; background: #fff; box-shadow: 0 10px 30px rgba(12,15,23,.05); }
+    .pain-number { color: #d9dbe0; font-size: 68px; font-weight: 900; line-height: 1; letter-spacing: -.07em; }
+    .pain-emoji { display: grid; width: 64px; height: 64px; margin: 30px 0 24px; place-items: center; border-radius: 19px; background: #eef0ff; font-size: 34px; }
+    .pain-card:nth-child(2) .pain-emoji { background: #e5faf4; }
+    .pain-card:nth-child(3) .pain-emoji { background: #fff0ec; }
+    .pain-card h3 { margin: 0 0 10px; font-size: 24px; line-height: 1.15; letter-spacing: -.035em; }
+    .pain-card p { margin: 0; color: var(--orb-muted); font-size: 17px; line-height: 1.55; }
 
-/* HAMBURGER */
-.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;z-index:210;}
-.nav-hamburger span{display:block;width:20px;height:1.5px;background:var(--t2);transition:transform .3s,opacity .3s;}
-.nav-hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4.5px,4.5px);}
-.nav-hamburger.open span:nth-child(2){opacity:0;}
-.nav-hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4.5px,-4.5px);}
+    .workflow { display: grid; grid-template-columns: .9fr 1.1fr; gap: 20px; }
+    .workflow-visual { position: relative; min-height: 610px; overflow: hidden; padding: 36px; border-radius: 28px; background: var(--orb-gradient); }
+    .workflow-visual::before { content: '🧠'; position: absolute; right: 24px; top: 12px; font-size: 105px; filter: drop-shadow(0 20px 25px rgba(0,0,0,.12)); transform: rotate(8deg); }
+    .trade-card { position: absolute; right: 34px; bottom: 34px; left: 34px; padding: 28px; color: #11151a; border-radius: 24px; background: rgba(255,255,255,.94); box-shadow: var(--orb-shadow); }
+    .trade-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .pair { font-size: 24px; font-weight: 900; }
+    .quality { padding: 8px 11px; color: #087059; border-radius: 999px; background: #ddf8ef; font-size: 15px; font-weight: 900; }
+    .risk-bar { height: 16px; margin: 26px 0 12px; overflow: hidden; border-radius: 999px; background: #e9eaeb; }
+    .risk-bar span { display: block; width: 74%; height: 100%; border-radius: inherit; background: var(--orb-gradient); }
+    .trade-card p { margin: 0; color: #56606a; font-size: 16px; line-height: 1.5; }
+    .workflow-list { display: grid; gap: 14px; }
+    .work-step { display: grid; grid-template-columns: 72px 1fr; gap: 20px; min-height: 188px; padding: 26px; border: 1px solid rgba(255,255,255,.12); border-radius: 24px; background: #14171b; }
+    .step-num { display: grid; width: 64px; height: 64px; place-items: center; color: #0a0b0d; border-radius: 18px; background: var(--orb-mint); font-size: 28px; font-weight: 900; }
+    .work-step:nth-child(2) .step-num { background: #7d86ff; }
+    .work-step:nth-child(3) .step-num { background: #ff7b64; }
+    .work-step h3 { margin: 6px 0 8px; font-size: 25px; letter-spacing: -.035em; }
+    .work-step p { margin: 0; color: rgba(255,255,255,.62); font-size: 17px; line-height: 1.55; }
 
-/* MOBILE DRAWER */
-.mob-nav-drawer{
-  display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
-  background:rgba(245,245,247,0.96);backdrop-filter:blur(24px);
-  border-top:1px solid var(--bd2);
-  flex-direction:column;align-items:center;justify-content:center;gap:4px;
-}
-.mob-nav-drawer.open{display:flex;}
-.mob-nav-close{
-  position:absolute;top:14px;right:16px;
-  width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,0.82);border:1px solid var(--bd2);
-  color:var(--t2);font-size:18px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .2s;
-}
-.mob-nav-close:hover{color:var(--t);background:var(--surface);}
-.mob-nav-drawer a{
-  font-family:var(--font-ui);font-size:13px;font-weight:650;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--t2);text-decoration:none;transition:color .2s;
-  padding:12px 0;width:200px;text-align:center;
-}
-.mob-nav-drawer a:hover{color:var(--t);}
-.mob-nav-sep{width:40px;height:1px;background:var(--bd3);margin:12px 0;}
-.mob-nav-drawer .mob-cta{
-  min-height:44px;padding:0 22px;border-radius:var(--rad);
-  background:var(--t);color:#fff;
-  font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;text-decoration:none;
-  display:inline-flex;align-items:center;justify-content:center;
-  margin-top:8px;width:200px;
-}
-.mob-lang-row{display:flex;gap:8px;margin-top:4px;}
-.mob-lang-row button{
-  height:28px;padding:0 16px;border-radius:8px;
-  border:1px solid var(--bd2);background:rgba(255,255,255,0.72);
-  color:var(--t2);font-family:var(--font-ui);font-size:9px;font-weight:650;letter-spacing:.11em;cursor:pointer;transition:color .15s,border-color .15s,background-color .15s;
-}
-.mob-lang-row button.active{color:var(--t);border-color:var(--peach-line);background:var(--surface);}
+    .tools-grid { display: grid; grid-template-columns: 1.2fr .8fr; grid-template-areas: 'journal screener' 'journal analyzer'; gap: 16px; }
+    .tool-card { position: relative; min-height: 300px; overflow: hidden; padding: 32px; border: 1px solid var(--orb-line); border-radius: 28px; background: #fff; }
+    .tool-card--journal { grid-area: journal; min-height: 616px; color: #fff; background: #111419; }
+    .tool-card--screener { grid-area: screener; background: #dcf8f1; }
+    .tool-card--analyzer { grid-area: analyzer; background: #eceeff; }
+    .tool-icon { display: grid; width: 66px; height: 66px; place-items: center; border-radius: 20px; background: rgba(255,255,255,.12); font-size: 34px; }
+    .tool-card:not(.tool-card--journal) .tool-icon { background: rgba(255,255,255,.8); }
+    .tool-card h3 { max-width: 420px; margin: 24px 0 10px; font-size: 32px; line-height: 1.05; letter-spacing: -.045em; }
+    .tool-card p { max-width: 460px; margin: 0; color: var(--orb-muted); font-size: 17px; line-height: 1.55; }
+    .tool-card--journal p { color: rgba(255,255,255,.62); }
+    .tool-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; color: inherit; font-size: 16px; font-weight: 900; text-decoration: none; }
+    .journal-demo { position: absolute; right: 28px; bottom: 28px; left: 28px; padding: 24px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: #1a1e24; }
+    .demo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .demo-stat { padding: 18px; border-radius: 16px; background: rgba(255,255,255,.06); }
+    .demo-stat span { display: block; margin-bottom: 7px; color: rgba(255,255,255,.5); font-size: 15px; }
+    .demo-stat strong { font-size: 27px; }
+    .demo-note { margin-top: 11px; padding: 16px; color: #dffbf4; border-radius: 15px; background: rgba(67,224,189,.11); font-size: 15px; font-weight: 700; line-height: 1.45; }
 
-/* HERO */
-.hero{
-  min-height:calc(100vh - 56px);display:grid;place-items:center;
-  position:relative;
-  padding:calc(var(--section-pad-y) - var(--space-1)) var(--section-pad-x) calc(var(--section-pad-y) - var(--space-5));
-  overflow:hidden;
-}
-.hero-orb{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:700px;height:700px;pointer-events:none;
-  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,0.72) 0%,rgba(245,245,247,0.22) 48%,transparent 72%);
-  border-radius:50%;
-  opacity:.68;
-}
-/* Concentric ring decorations like reference */
-.hero-rings{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-54%);
-  pointer-events:none;
-  opacity:.45;
-}
-.hero-rings::before,.hero-rings::after{
-  content:'';position:absolute;border-radius:50%;
-  border:1px solid rgba(0,0,0,0.04);
-  top:50%;left:50%;transform:translate(-50%,-50%);
-}
-.hero-rings::before{width:640px;height:640px;}
-.hero-rings::after{
-  width:820px;height:820px;
-  border-color:rgba(0,0,0,0.028);
-}
-.ring-extra{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:1000px;height:1000px;border-radius:50%;
-  border:1px solid rgba(0,0,0,0.018);
-  pointer-events:none;
-  opacity:.16;
-}
+    .promise { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .promise-card { padding: 34px; border-radius: 28px; background: #fff; }
+    .promise-card:first-child { background: linear-gradient(145deg, #5b69ff, #8a5cff); color: #fff; }
+    .promise-card h3 { margin: 0 0 16px; font-size: 32px; line-height: 1.1; letter-spacing: -.045em; }
+    .promise-card p { margin: 0; color: var(--orb-muted); font-size: 18px; line-height: 1.6; }
+    .promise-card:first-child p { color: rgba(255,255,255,.75); }
+    .check-list { display: grid; gap: 13px; margin-top: 26px; padding: 0; list-style: none; }
+    .check-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 17px; font-weight: 700; }
+    .check-list li::before { content: '✓'; display: grid; flex: 0 0 27px; height: 27px; place-items: center; border-radius: 50%; background: rgba(255,255,255,.15); }
+    .promise-card:last-child .check-list li::before { color: #087059; background: #ddf8ef; }
 
-.hero-inner{position:relative;text-align:center;max-width:860px;z-index:1;transform:translateY(-40px);}
-.hero-eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:2.5px;
-  color:var(--t2);text-transform:uppercase;
-  background:rgba(255,255,255,0.84);border:1px solid var(--peach-line);
-  padding:6px 16px;border-radius:20px;margin-bottom:32px;
-  animation:fadeUp .7s both;box-shadow:var(--shadow-sm);
-}
-.hero-eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--peach);flex-shrink:0;}
-/* hero-logo-badge hidden per design update */
-.hero-logo-badge{display:none;}
-.hero-wordmark{
-  font-family:var(--font-display);
-  font-size:clamp(72px,10vw,140px);font-weight:900;
-  letter-spacing:-.07em;line-height:.84;
-  background:linear-gradient(145deg,#0A0A0B 0%,#2a2a2e 28%,#6b5c5c 52%,#c49a8a 72%,#e8bfae 88%,#f5d6c8 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:fadeUp .7s .1s both;
-  margin-bottom:20px;
-  display:block;
-}
-.hero-title{
-  font-family:var(--font-display);
-  font-size:clamp(22px,2.8vw,34px);font-weight:700;
-  letter-spacing:-.03em;line-height:1.14;
-  color:var(--t);animation:fadeUp .7s .18s both;
-  max-width:680px;margin-inline:auto;
-  text-wrap:balance;
-}
-.hero-title em{
-  font-style:normal;
-  background:linear-gradient(135deg,#0A0A0B 0%,#4a4a4c 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.hero-sub{
-  margin-top:16px;font-size:15px;font-weight:400;color:rgba(10,10,11,0.72);
-  max-width:540px;margin-inline:auto;line-height:1.88;
-  animation:fadeUp .7s .26s both;
-}
-.hero-actions{
-  display:flex;gap:var(--gap-sm);justify-content:center;
-  margin-top:40px;animation:fadeUp .7s .34s both;flex-wrap:wrap;
-}
+    .faq-list { max-width: 900px; margin: 0 auto; border-top: 1px solid var(--orb-line); }
+    .faq-item { border-bottom: 1px solid var(--orb-line); }
+    .faq-button { display: grid; width: 100%; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding: 25px 0; color: #11151a; border: 0; background: transparent; text-align: left; font-size: 20px; font-weight: 850; cursor: pointer; }
+    .faq-plus { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: #fff; font-size: 25px; transition: transform .2s ease; }
+    .faq-answer { display: none; max-width: 720px; padding: 0 0 26px; color: var(--orb-muted); font-size: 17px; line-height: 1.65; }
+    .faq-item.is-open .faq-answer { display: block; }
+    .faq-item.is-open .faq-plus { transform: rotate(45deg); }
 
-/* BUTTONS */
-.nav-cta,.btn-primary,.prog-btn,.mob-cta{
-  min-height:44px;
-  padding:0 22px;
-  border-radius:var(--rad);
-  font-family:var(--font-ui);
-  font-weight:700;
-  letter-spacing:.1em;
-  text-transform:uppercase;
-  line-height:1;
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  vertical-align:middle;
-  text-align:center;
-  transition:background-color .2s,border-color .2s,color .2s,box-shadow .2s,transform .2s,opacity .2s;
-}
-.btn-primary{
-  background:var(--t);color:#fff;border:1px solid var(--t);
-  font-size:13px;
-  cursor:pointer;text-decoration:none;
-  gap:8px;
-  box-shadow:0 14px 30px rgba(15,15,18,0.12);
-}
-.btn-primary:hover{background:#1f1f22;box-shadow:0 20px 36px rgba(15,15,18,0.16);transform:translateY(-1px);}
-.btn-secondary{
-  min-height:44px;padding:0 22px;border-radius:var(--rad);
-  background:rgba(255,255,255,0.72);color:var(--t2);
-  border:1px solid var(--bd2);
-  font-family:var(--font-ui);font-size:13px;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;line-height:1;
-  cursor:pointer;text-decoration:none;
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  vertical-align:middle;text-align:center;
-  transition:background-color .2s,border-color .2s,transform .2s,box-shadow .2s;backdrop-filter:blur(10px);box-shadow:var(--shadow-sm);
-}
-.btn-secondary:hover{border-color:var(--peach-line);background:#fff;transform:translateY(-1px);box-shadow:var(--shadow-md);}
-.nav-cta:active,.btn-primary:active,.prog-btn:active,.mob-cta:active,.btn-secondary:active{
-  transform:translateY(0);
-  box-shadow:var(--shadow-sm);
-}
-.nav-cta:disabled,.btn-primary:disabled,.prog-btn:disabled,.mob-cta:disabled,.btn-secondary:disabled,
-.nav-cta.is-disabled,.btn-primary.is-disabled,.prog-btn.is-disabled,.mob-cta.is-disabled,.btn-secondary.is-disabled,
-.nav-cta[aria-disabled="true"],.btn-primary[aria-disabled="true"],.prog-btn[aria-disabled="true"],.mob-cta[aria-disabled="true"],.btn-secondary[aria-disabled="true"]{
-  opacity:.46;
-  pointer-events:none;
-  box-shadow:none;
-  transform:none;
-}
-.btn-primary:focus-visible,.btn-secondary:focus-visible,.nav-cta:focus-visible,.faq-q:focus-visible,.nav-lang:focus-visible,.mob-lang-row button:focus-visible,.mob-cta:focus-visible{
-  outline:2px solid var(--t);
-  outline-offset:3px;
-}
+    .final-cta { padding: 22px 0 88px; }
+    .cta-box { position: relative; overflow: hidden; padding: 68px; color: #fff; border-radius: 32px; background: #0a0b0d; }
+    .cta-box::after { content: '↗'; position: absolute; right: 25px; bottom: -75px; color: rgba(67,224,189,.16); font-size: 280px; font-weight: 900; }
+    .cta-box h2 { position: relative; z-index: 1; max-width: 820px; }
+    .cta-box p { position: relative; z-index: 1; max-width: 620px; margin: 24px 0 30px; color: rgba(255,255,255,.65); font-size: 20px; line-height: 1.55; }
+    .cta-box .button { position: relative; z-index: 1; }
+    .site-footer { padding: 34px 0 46px; border-top: 1px solid var(--orb-line); }
+    .footer-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .footer-copy { color: var(--orb-muted); font-size: 15px; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { color: #2e353d; font-size: 15px; font-weight: 700; text-decoration: none; }
 
-/* SECTIONS */
-section{padding:var(--section-pad-y) var(--section-pad-x);position:relative;z-index:1;}
-.sec-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:.14em;
-  color:var(--t2);text-transform:uppercase;
-  background:rgba(255,255,255,0.78);border:1px solid var(--peach-line);
-  padding:5px 14px;border-radius:20px;margin-bottom:18px;
-  box-shadow:var(--shadow-sm);
-}
-.sec-tag::before{content:'★';font-size:8px;color:var(--m2);}
-.sec-title{
-  font-family:var(--font-display);
-  font-size:clamp(32px,4.5vw,56px);font-weight:900;
-  letter-spacing:-.04em;line-height:1.01;color:var(--t);
-  text-wrap:balance;
-}
-.sec-sub{font-size:15px;color:var(--m);line-height:1.88;max-width:540px;margin-top:14px;}
-.inner{max-width:var(--container-max);margin:0 auto;}
-
-/* PREMIUM OFFER BLOCK */
-.offer-section{
-  padding:var(--space-5) var(--section-pad-x) calc(var(--section-pad-y) - var(--space-2));
-  background:linear-gradient(180deg,var(--bg) 0%,#f1f1f4 100%);
-}
-.offer-inner{
-  max-width:1120px;margin:0 auto;border:1px solid var(--border-card);
-  background:var(--surface-card);
-  border-radius:var(--radius-40);padding:42px;
-  box-shadow:var(--shadow-md);
-}
-.offer-top{display:flex;justify-content:space-between;gap:var(--gap-lg);flex-wrap:wrap;align-items:flex-end;}
-.offer-note{
-  font-size:13px;color:var(--m);max-width:360px;line-height:1.75;
-  background:rgba(255,255,255,0.74);border:1px solid var(--bd);
-  border-radius:14px;padding:12px 14px;
-}
-.offer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-md);margin-top:28px;}
-.offer-card{
-  background:var(--surface-card-strong);
-  border:1px solid var(--border-card);border-radius:var(--radius-20);padding:24px;
-  box-shadow:var(--shadow-sm);
-}
-.offer-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--peach-line);}
-.offer-card,.why-card,.course-card,.prog-card,.fw-card,.fw-stat-card,.faq-item{
-  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease,background-color .22s ease;
-}
-.offer-card:is(:hover,:focus-within),
-.why-card:is(:hover,:focus-within),
-.course-card:is(:hover,:focus-within),
-.prog-card:is(:hover,:focus-within),
-.fw-card:is(:hover,:focus-within),
-.fw-stat-card:is(:hover,:focus-within),
-.faq-item:is(:hover,:focus-within){
-  transform:translateY(-3px);
-  box-shadow:var(--shadow-md);
-  border-color:var(--peach-line);
-}
-.offer-step{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:30px;height:30px;border-radius:50%;font-size:12px;font-weight:700;
-  background:var(--peach-soft);border:1px solid var(--peach-line);margin-bottom:12px;
-}
-.offer-only{
-  display:inline-flex;align-items:center;padding:6px 10px;margin-bottom:12px;
-  border-radius:999px;border:1px solid rgba(242,107,58,.32);
-  background:rgba(242,107,58,.10);color:var(--a);
-  font-size:10px;letter-spacing:.10em;text-transform:uppercase;font-weight:800;
-}
-.offer-card h3{font-size:20px;line-height:1.2;letter-spacing:-.02em;margin-bottom:10px;}
-.offer-card p{font-size:14px;color:var(--m);line-height:1.72;}
-.offer-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-sm);margin-top:16px;}
-.offer-metric{
-  background:var(--t);border:1px solid var(--t);border-radius:14px;padding:14px 16px;
-}
-.offer-metric b{color:#fff!important;}
-.offer-metric span{color:rgba(255,255,255,0.52)!important;}
-.offer-metric b{display:block;font-size:28px;font-weight:900;letter-spacing:-.04em;line-height:1;color:var(--t);}
-.offer-metric span{font-size:10px;color:var(--m2);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;display:block;}
-.offer-cta{margin-top:22px;display:flex;gap:var(--gap-sm);flex-wrap:wrap;}
-.final-offer{max-width:740px;margin:0 auto;text-align:center;padding:30px 24px;border:1px solid var(--border-card);border-radius:var(--radius-24);background:var(--surface-card-strong);box-shadow:var(--shadow-sm);}
-.final-offer-title{font-family:var(--font-display);font-size:clamp(30px,4vw,44px);line-height:1.04;letter-spacing:-.03em;color:var(--t);margin:0 0 10px;}
-.final-offer-sub{font-size:15px;color:var(--m);line-height:1.8;max-width:560px;margin:0 auto 18px;}
-.final-offer-meta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
-.final-offer-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:#fff;border:1px solid var(--bd);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--m2);}
-.final-offer-actions{display:flex;flex-direction:column;align-items:center;gap:8px;}
-
-/* ABOUT / WHY CHOOSE US */
-.about-section{background:var(--bg2);}
-.why-head{text-align:center;margin-bottom:52px;}
-.why-head .sec-tag{margin:0 auto 16px;}
-.why-head .sec-sub{margin-inline:auto;}
-.why-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-md);
-}
-.why-card{
-  background:var(--surface-card-strong);border:1px solid var(--border-card);
-  border-radius:var(--radius-20);padding:34px 30px;
-  position:relative;overflow:hidden;
-  box-shadow:var(--shadow-sm);
-}
-.why-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--peach-line);}
-.why-card-visual{
-  width:100%;height:180px;margin-bottom:24px;
-  background:var(--bg2);border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;position:relative;
-  border:1px solid var(--bd);
-}
-/* why-card info panels are defined above */
-/* why-card new info panels */
-.why-card-info{
-  width:100%;height:180px;margin-bottom:24px;
-  background:var(--bg2);border-radius:14px;
-  padding:18px 20px;
-  border:1px solid var(--bd);
-  display:flex;flex-direction:column;justify-content:space-between;
-  position:relative;overflow:hidden;
-}
-.why-card-info-tag{
-  font-family:var(--mono);font-size:8px;font-weight:700;
-  letter-spacing:2px;color:var(--m2);text-transform:uppercase;
-  margin-bottom:10px;
-}
-.why-card-info-title{
-  font-size:15px;font-weight:700;color:var(--t);line-height:1.25;
-  margin-bottom:6px;
-}
-.why-card-info-list{
-  list-style:none;display:flex;flex-direction:column;gap:4px;
-}
-.why-card-info-list li{
-  font-family:var(--mono);font-size:9px;color:var(--m2);letter-spacing:.5px;
-  display:flex;align-items:center;gap:6px;
-}
-.why-card-info-list li::before{content:'→';font-size:8px;color:var(--peach);}
-.why-card-info-badge{
-  position:absolute;top:12px;right:12px;
-  background:var(--t);color:#fff;
-  font-family:var(--mono);font-size:9px;font-weight:600;
-  padding:3px 10px;border-radius:20px;letter-spacing:.5px;
-}
-.why-card-info-num{
-  font-size:36px;font-weight:800;letter-spacing:-2px;color:var(--t);
-  line-height:1;opacity:.12;
-  position:absolute;bottom:12px;right:16px;
-  pointer-events:none;
-}
-
-.why-card-title{font-size:18px;font-weight:700;color:var(--t);margin-bottom:8px;}
-.why-card-desc{font-size:13px;color:var(--m);line-height:1.75;}
-
-/* TICKER STRIP */
-.ticker-section{
-  border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);
-  padding:0;overflow:hidden;background:var(--surface);
-}
-.ticker-track{
-  display:flex;gap:0;
-  animation:ticker 26s linear infinite;
-  white-space:nowrap;
-}
-.ticker-item{
-  display:inline-flex;align-items:center;gap:10px;
-  padding:16px 40px;
-  font-family:var(--mono);font-size:10px;letter-spacing:2px;
-  color:var(--m2);text-transform:uppercase;
-  border-right:1px solid var(--bd);
-}
-.ticker-dot{width:5px;height:5px;border-radius:50%;background:var(--t2);flex-shrink:0;}
-@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-
-/* COURSES */
-.courses-section{background:var(--bg);}
-.courses-head{margin-bottom:48px;}
-.courses-head-row{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--gap-lg);margin-bottom:8px;}
-.courses-grid{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gap-md);
-}
-
-/* FINAL CTA */
-.final-cta-section{
-  padding:calc(var(--section-pad-y) - var(--space-4)) var(--section-pad-x) var(--section-pad-y);
-  background:var(--bg2);border-top:1px solid var(--bd);
-}
-
-.pf-mark{
-  flex-shrink:0;width:14px;height:14px;border-radius:50%;
-  background:var(--fire-soft);border:1px solid var(--fire-border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:8px;color:var(--t);font-weight:800;margin-top:1px;
-}
-
-/* FAQ */
-.faq-section{padding:calc(var(--section-pad-y) - var(--space-1)) var(--section-pad-x) calc(var(--section-pad-y) + var(--space-1));}
-.faq-inner{max-width:680px;margin:0 auto;}
-.faq-head{text-align:center;margin-bottom:40px;}
-.faq-head .sec-tag{margin:0 auto 16px;}
-.faq-list{margin-top:40px;display:grid;gap:12px;}
-.faq-item{
-  border:1px solid var(--bd2);border-radius:16px;background:var(--surface);
-  box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,0.86);
-  padding:0 18px;
-}
-.faq-q{
-  width:100%;text-align:left;padding:20px 0;background:transparent;border:none;
-  color:var(--t);font-family:var(--font-display);font-size:14px;font-weight:800;letter-spacing:-.01em;line-height:1.35;
-  cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;
-  transition:color .2s;
-}
-.faq-q:hover{color:var(--t2);}
-.faq-icon{
-  color:var(--t2);font-size:20px;flex-shrink:0;
-  transition:transform .2s;line-height:1;
-  width:28px;height:28px;border-radius:50%;
-  background:var(--bg2);border:1px solid var(--bd2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;
-}
-.faq-item.open .faq-icon{transform:rotate(45deg);}
-.faq-a{
-  display:none;padding:0 0 18px 0;
-  font-size:13px;color:var(--m);line-height:1.82;
-}
-.faq-item.open .faq-q{padding-bottom:14px;}
-.faq-item.open .faq-a{display:block;}
-
-/* FOOTER */
-footer{
-  border-top:1px solid var(--bd2);padding:32px 48px;
-  display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:var(--gap-md);background:rgba(255,255,255,0.78);backdrop-filter:blur(12px);
-}
-.footer-logo{
-  font-weight:800;font-size:13px;letter-spacing:4px;
-  color:var(--t);text-transform:uppercase;
-  display:flex;align-items:center;gap:6px;
-}
-.footer-links{display:flex;gap:var(--gap-lg);}
-.footer-links a{
-  font-family:var(--font-ui);font-size:9px;font-weight:600;color:var(--t2);
-  letter-spacing:.11em;text-transform:uppercase;text-decoration:none;transition:color .2s;
-}
-.footer-links a:hover{color:var(--t);}
-.footer-copy{font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:.1em;color:var(--m);text-transform:uppercase;}
-
-/* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;}
-.reveal.visible{opacity:1;transform:translateY(0);}
-@media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto;}
-  *,*::before,*::after{animation:none !important;transition:none !important;}
-  .reveal{opacity:1;transform:none;}
-  .ticker-track{animation:none;}
-}
-
-/* i18n */
-[data-ru],[data-en]{display:none;}
-html[lang="ru"] [data-ru]{display:revert;}
-html[lang="en"] [data-en]{display:revert;}
-[data-ru],[data-en]{text-wrap:pretty;word-break:normal;overflow-wrap:anywhere;}
-html[lang="ru"] a.btn-secondary[data-ru],
-html[lang="ru"] a.nav-cta[data-ru],
-html[lang="en"] a.btn-secondary[data-en],
-html[lang="en"] a.nav-cta[data-en]{display:inline-flex!important;}
-
-.about-section :is(.sec-title,.for-whom-headline,.fw-title),
-.courses-section :is(.sec-title,.prog-name),
-.final-cta-section :is(.final-offer-title),
-.faq-section :is(.sec-title,.faq-q),
-.sec-h{
-  font-family:var(--font-display);
-  font-weight:800;
-  letter-spacing:-.025em;
-  line-height:1.12;
-}
-
-
-@media(max-width:1180px){
-  nav{grid-template-columns:auto auto auto;gap:16px;padding:0 18px;}
-  .nav-links{gap:16px;}
-  .nav-right{gap:6px;}
-  .nav-links a{font-size:8px;letter-spacing:.1em;}
-  .faq-item{padding:0 16px;}
-  footer{padding:30px 24px;}
-}
-
-/* MOBILE */
-@media(max-width:900px){
-  :root{
-    --section-pad-y:60px;
-    --section-pad-x:var(--space-3);
-  }
-  nav{display:flex;padding:0 16px;}
-  .nav-links{display:none;}
-  .nav-hamburger{display:flex;}
-  .nav-right .btn-secondary,.nav-right .nav-lang{display:none;}
-  .nav-right .nav-cta{display:inline-flex;}
-  .hero{padding:calc(var(--section-pad-y) + var(--space-4)) var(--section-pad-x) calc(var(--section-pad-y) - var(--space-1));min-height:100svh;}
-  .hero-rings::before{width:320px;height:320px;}
-  .hero-rings::after{width:440px;height:440px;}
-  .ring-extra{width:560px;height:560px;}
-  .hero-title{font-size:clamp(18px,5.5vw,28px);}
-  .hero-wordmark{font-size:clamp(56px,16vw,100px);letter-spacing:-3px;}
-  .hero-inner{transform:none;}
-  .offer-section{padding:var(--space-2) var(--section-pad-x) calc(var(--section-pad-y) - var(--space-1));}
-  .offer-inner{padding:20px;border-radius:22px;}
-  .offer-top{gap:var(--gap-md);}
-  .offer-grid,.offer-metrics{grid-template-columns:1fr;}
-  .why-grid,.courses-grid{grid-template-columns:1fr;}
-  .faq-section{padding:56px 16px 64px;}
-  .faq-list{gap:10px;}
-  .faq-item{padding:0 14px;}
-  .faq-q{padding:18px 0;font-size:13px;}
-  .faq-a{font-size:12px;line-height:1.78;padding:0 0 16px;}
-  footer{flex-direction:column;align-items:flex-start;gap:14px;padding:24px 16px;}
-  .footer-links{flex-wrap:wrap;gap:16px;}
-  .courses-head-row{flex-direction:column;align-items:flex-start;}
-}
-@media(max-width:600px){
-  .faq-section{padding:52px 14px 56px;}
-  .faq-item{padding:0 12px;}
-  .footer-links{gap:12px;}
-}
-
-
-
-
-
-
-.hero-sub{max-width:540px;}
-.hero-actions{margin-top:36px;}
-.sec-sub{max-width:600px;}
-.courses-grid,.why-grid{align-items:stretch;}
-/* why-card visual container kept for sizing */
-.why-card-visual{
-  width:100%;height:180px;margin-bottom:24px;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;position:relative;
-}
-</style>
-</head>
-<body>
-<div class="orb-bg"></div>
-<!-- NAV -->
-<nav id="nav">
-<a class="logo" href="/">ORBITUM<span class="logo-dot"></span></a>
-<ul class="nav-links">
-<li><a data-ru="" href="#twelve">Как это устроено</a><a data-en="" href="#twelve">How it works</a></li>
-<li><a data-ru="" href="#courses">Тарифы</a><a data-en="" href="#courses">Plans</a></li>
-<li><a href="#faq">FAQ</a></li>
-</ul>
-<div class="nav-right" id="nav-right">
-<button class="nav-lang active" id="lang-en" onclick="setLang('en')">EN</button>
-<button class="nav-lang" id="lang-ru" onclick="setLang('ru')">RU</button>
-<a class="btn-secondary" data-ru="" href="/login">Войти</a>
-<a class="btn-secondary" data-en="" href="/login">Sign In</a>
-<a class="nav-cta btn-primary" data-ru="" href="/pay?course=elite">В Elite</a>
-<a class="nav-cta btn-primary" data-en="" href="/pay?course=elite">Join Elite</a>
-</div>
-<button aria-label="Menu" class="nav-hamburger" id="nav-burger" onclick="toggleMobNav()">
-<span></span><span></span><span></span>
-</button>
-</nav>
-<!-- HERO -->
-<section class="hero">
-<div class="hero-rings">
-<div class="ring-extra"></div>
-</div>
-<div class="hero-orb"></div>
-<div class="hero-inner">
-<span class="hero-wordmark">ORBITUM</span>
-<div class="hero-eyebrow" data-ru="">12 недель · индивидуально · без потоков</div>
-<div class="hero-eyebrow" data-en="">12 weeks · 1-on-1 · no cohorts</div>
-<h1 class="hero-title" data-ru="">Перестать терять прибыль на одних и тех же ошибках. За 12 недель, 1-на-1.</h1>
-<h1 class="hero-title" data-en="">Stop losing profit on the same mistakes. In 12 weeks, 1-on-1.</h1>
-<p class="hero-sub" data-ru="">Каждую неделю — разбор ваших реальных сделок, точечные правки в риск-модель и контроль исполнения. Не курс, а индивидуальная работа до устойчивого результата.</p>
-<p class="hero-sub" data-en="">Each week — review of your actual trades, targeted fixes to your risk model, and execution control. Not a course — individual work until results hold.</p>
-<div class="hero-actions">
-<a class="btn-primary" data-ru="" href="/pay?course=elite">В Elite</a>
-<a class="btn-primary" data-en="" href="/pay?course=elite">Join Elite</a>
-<a class="btn-secondary" data-ru="" href="#twelve">Как это устроено</a>
-<a class="btn-secondary" data-en="" href="#twelve">How it works</a>
-</div>
-</div>
-</section>
-
-<!-- ELITE OPERATIONAL CYCLE -->
-<section class="offer-section" id="twelve">
-  <div class="offer-inner reveal">
-    <div class="offer-top">
-      <div>
-        <div class="sec-tag" data-ru="">ТОЛЬКО В ТАРИФЕ ELITE</div>
-        <div class="sec-tag" data-en="">ONLY IN THE ELITE PLAN</div>
-        <h2 class="sec-title" data-ru="">Рабочий цикл: разбор → правка → контроль</h2>
-        <h2 class="sec-title" data-en="">The working cycle: review → correction → control</h2>
-        <p class="sec-sub" data-ru="">Один и тот же цикл каждую неделю. Именно он переводит знание в исполнение, а действия — в измеримый результат.</p>
-        <p class="sec-sub" data-en="">The same loop every week. This is what converts knowledge into execution and actions into measurable results.</p>
-      </div>
-      <div class="offer-note" data-ru="">Пока цикла нет — вы ежемесячно оплачиваете рынку одни и те же ошибки.</div>
-      <div class="offer-note" data-en="">Without this cycle, you keep paying the market for the same mistakes every month.</div>
-    </div>
-    <div class="offer-grid">
-      <article class="offer-card"><span class="offer-step">01</span><h3 data-ru="">Разбор</h3><h3 data-en="">Review</h3><p data-ru="">Раз в неделю смотрим на ваши сделки и находим, где именно утекают деньги: вход, выход, риск, дисциплина. Ошибка, которую вы не замечали полгода, становится видна за один созвон.</p><p data-en="">Once a week we go through your trades and find where the money is leaking: entries, exits, risk, discipline. The mistake you've been missing for months becomes visible in a single call.</p></article>
-      <article class="offer-card"><span class="offer-step">02</span><h3 data-ru="">Правка</h3><h3 data-en="">Correction</h3><p data-ru="">Вы получаете одну точечную правку на следующую неделю — что убрать, что усилить, что измерить. Никаких «попробуйте торговать спокойнее» — конкретное действие на конкретных сделках.</p><p data-en="">You get one targeted fix for the next week — what to cut, what to reinforce, what to measure. No "try to trade calmer" — a specific action on specific trades.</p></article>
-      <article class="offer-card"><span class="offer-step">03</span><h3 data-ru="">Контроль</h3><h3 data-en="">Control</h3><p data-ru="">На следующем созвоне проверяем исполнение по цифрам. Если правка не работает — меняем подход сразу, а не через три месяца просадки.</p><p data-en="">On the next call we verify execution against the numbers. If the fix isn't working, we change the approach immediately — not three months into a drawdown.</p></article>
-    </div>
-    <div class="offer-cta">
-      <a class="btn-primary" data-ru="" href="/pay?course=elite">В Elite</a>
-      <a class="btn-primary" data-en="" href="/pay?course=elite">Join Elite</a>
-      <a class="btn-secondary" data-ru="" href="#courses">Увидеть тарифы</a>
-      <a class="btn-secondary" data-en="" href="#courses">See plans</a>
-    </div>
-  </div>
-</section>
-<!-- WHO IS THIS FOR -->
-<section class="about-section" id="why">
-<style>
-.for-whom-section{background:var(--bg2);}
-.for-whom-inner{max-width:1100px;margin:0 auto;}
-.for-whom-top{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:end;margin-bottom:72px;}
-.for-whom-headline{font-family:var(--font-display);font-size:clamp(36px,5vw,60px);font-weight:900;letter-spacing:-.05em;line-height:.98;color:var(--t);text-wrap:balance;}
-.for-whom-headline em{font-style:normal;color:var(--m2);}
-.for-whom-right{display:flex;flex-direction:column;gap:16px;}
-.for-whom-right p{font-size:15px;color:var(--m);line-height:1.85;}
-.for-whom-right strong{color:var(--t);font-weight:700;}
-.for-whom-divider{height:1px;background:linear-gradient(90deg,transparent,var(--bd2),transparent);margin-bottom:56px;}
-.for-whom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border:none;border-radius:0;overflow:visible;background:transparent;}
-.fw-card{
-  background:var(--surface-card-strong);padding:40px 36px;position:relative;
-  border:1px solid var(--border-card);border-radius:var(--radius-20);
-  box-shadow:var(--shadow-sm);
-}
-.fw-card:hover{background:var(--surface-card-strong);}
-.fw-num{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--m2);text-transform:uppercase;margin-bottom:32px;display:flex;align-items:center;gap:10px;}
-.fw-num::after{content:'';flex:1;height:1px;background:var(--bd2);}
-.fw-icon{font-size:28px;margin-bottom:20px;display:block;}
-.fw-title{font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:-.025em;color:var(--t);margin-bottom:12px;line-height:1.15;text-wrap:balance;}
-.fw-desc{font-size:13px;color:var(--m);line-height:1.85;margin-bottom:24px;}
-.fw-list{display:flex;flex-direction:column;gap:8px;}
-.fw-list li{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--t2);line-height:1.6;list-style:none;}
-.fw-list li::before{content:'→';font-family:var(--mono);font-size:10px;color:var(--peach);flex-shrink:0;margin-top:2px;}
-.fw-bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px;}
-.fw-stat-card{background:var(--surface-card-strong);border:1px solid var(--border-card);border-radius:var(--radius-20);padding:28px 24px;text-align:center;box-shadow:var(--shadow-sm);}
-.fw-stat-num{font-size:36px;font-weight:800;letter-spacing:-1.5px;color:var(--t);line-height:1;}
-.fw-stat-label{font-family:var(--font-ui);font-size:9px;font-weight:650;letter-spacing:.12em;color:var(--m2);text-transform:uppercase;margin-top:8px;}
-@media(max-width:900px){
-  .for-whom-top{grid-template-columns:1fr;gap:24px;}
-  .for-whom-grid{grid-template-columns:1fr;}
-  .fw-bottom{grid-template-columns:1fr;}
-}
-</style>
-<div class="for-whom-inner">
-  <div class="for-whom-top reveal">
-    <div>
-      <div class="sec-tag" data-ru="">ДЛЯ КОГО</div>
-      <div class="sec-tag" data-en="">WHO THIS IS FOR</div>
-      <h2 class="for-whom-headline" data-ru="">Вы теряете не потому что<br>не знаете рынок.<br><em>Вы теряете на исполнении.</em></h2>
-      <h2 class="for-whom-headline" data-en="">You're not losing because<br>you don't know the market.<br><em>You're losing on execution.</em></h2>
-    </div>
-    <div class="for-whom-right">
-      <p data-ru="">Вы уже знаете, как должен выглядеть вход и какой риск держать. Но раз за разом заходите без подтверждения, увеличиваете позицию в минусе и отдаёте за неделю 4-6R.</p>
-      <p data-en="">You already know what a clean entry looks like and how much risk to hold. But week after week you enter without confirmation, press into losers, and hand away 4-6R.</p>
-      <p data-ru="">Курс этого не решит. Нужен <strong>еженедельный разбор и контроль</strong>, который ловит срывы до того, как они становятся убытком.</p>
-      <p data-en="">A course won't fix this. You need <strong>weekly review and accountability</strong> that catches slips before they become losses.</p>
-    </div>
-  </div>
-  <div class="for-whom-divider"></div>
-  <div class="for-whom-grid">
-    <!-- Card 1 -->
-    <div class="fw-card reveal">
-      <div class="fw-num" data-ru="">01 / Паттерн</div>
-      <div class="fw-num" data-en="">01 / Pattern</div>
-      <span class="fw-icon">⬡</span>
-      <h3 class="fw-title" data-ru="">Вы теряете на одних и тех же срывах каждую неделю</h3>
-      <h3 class="fw-title" data-en="">You lose on the same slips every week</h3>
-      <p class="fw-desc" data-ru="">Вы знаете базу, но нарушаете её под давлением: перезаходите после стопа, увеличиваете объём в минусе, переносите тейк. Каждый отдельный срыв кажется случайным — а на дистанции это один и тот же сценарий, повторённый десятками раз.</p>
-      <p class="fw-desc" data-en="">You know the basics but break them under pressure: re-entering after a stop, sizing up into a loser, moving the take. Each slip feels like a one-off — but over time it's the same script played dozens of times.</p>
-      <ul class="fw-list">
-        <li data-ru="">Еженедельный разбор + контроль — срывы перестают повторяться</li>
-        <li data-en="">Weekly review + accountability — slips stop repeating</li>
-      </ul>
-    </div>
-    <!-- Card 2 -->
-    <div class="fw-card reveal">
-      <div class="fw-num" data-ru="">02 / Потолок</div>
-      <div class="fw-num" data-en="">02 / Ceiling</div>
-      <span class="fw-icon">◈</span>
-      <h3 class="fw-title" data-ru="">Вы в плюсе, но результат упёрся в потолок</h3>
-      <h3 class="fw-title" data-en="">You're profitable, but growth has hit a ceiling</h3>
-      <p class="fw-desc" data-ru="">Без R-модели рост упирается: берёте +1R и пропускаете +5R, затем одной эмоциональной сделкой возвращаете прибыль недели обратно рынку.</p>
-      <p class="fw-desc" data-en="">Without an R-model, growth caps out: you take +1R and skip +5R, then one emotional trade hands the week back to the market.</p>
-      <ul class="fw-list">
-        <li data-ru="">R-модель + Elliott Wave + 3 стратегии — +1R превращается в +5R</li>
-        <li data-en="">R-model + Elliott Wave + 3 strategies — +1R becomes +5R</li>
-      </ul>
-    </div>
-    <!-- Card 3 -->
-    <div class="fw-card reveal">
-      <div class="fw-num" data-ru="">03 / Исполнение</div>
-      <div class="fw-num" data-en="">03 / Execution</div>
-      <span class="fw-icon">◎</span>
-      <h3 class="fw-title" data-ru="">Знания у вас есть. Дисциплины — нет.</h3>
-      <h3 class="fw-title" data-en="">You have the knowledge. You don't have the discipline.</h3>
-      <p class="fw-desc" data-ru="">SMC, Elliott Wave, риск-менеджмент — вы это прошли. Но в одиночку вы не закрепляете то, что знаете. Ошибки повторяются не потому что вы их не видите — а потому что некому вовремя их остановить.</p>
-      <p class="fw-desc" data-en="">SMC, Elliott Wave, risk management — you've already studied it. But alone, you can't lock in what you know. Mistakes repeat not because you don't see them — but because no one stops them in time.</p>
-      <ul class="fw-list">
-        <li data-ru="">Личный ментор каждую неделю — пока исполнение не закрепится</li>
-        <li data-en="">1-on-1 mentor every week — until execution holds</li>
-      </ul>
-    </div>
-  </div>
-  <div class="fw-bottom reveal">
-    <div class="fw-stat-card">
-      <div class="fw-stat-num">1-2</div>
-      <div class="fw-stat-label" data-ru="">Недели — первые правки видны</div>
-      <div class="fw-stat-label" data-en="">Weeks — first fixes show up</div>
-    </div>
-    <div class="fw-stat-card">
-      <div class="fw-stat-num">4-6</div>
-      <div class="fw-stat-label" data-ru="">Недели — паттерн срывов закрыт</div>
-      <div class="fw-stat-label" data-en="">Weeks — slip pattern broken</div>
-    </div>
-    <div class="fw-stat-card">
-      <div class="fw-stat-num">12</div>
-      <div class="fw-stat-label" data-ru="">Недель — система держится сама</div>
-      <div class="fw-stat-label" data-en="">Weeks — system holds on its own</div>
-    </div>
-  </div>
-</div>
-</section>
-<!-- PROGRAMS -->
-<section class="courses-section" id="courses">
-<style>
-.programs-head{margin-bottom:56px;}
-.programs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:stretch;}
-.prog-card{background:var(--surface-card-strong);border:1px solid var(--border-card);border-radius:var(--radius-20);padding:36px 30px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;}
-.prog-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--peach-line);}
-.prog-card.elite{background:var(--t);border-color:var(--t);box-shadow:var(--shadow-lg);}
-.prog-tier{font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--m2);text-transform:uppercase;margin-bottom:16px;}
-.prog-card.elite .prog-tier{color:rgba(255,255,255,0.4);}
-.prog-badge{position:absolute;top:20px;right:20px;padding:5px 14px;border-radius:999px;border:1px solid var(--peach-line);background:rgba(255,255,255,0.82);font-family:var(--font-ui);font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--t2);}
-.prog-card.elite .prog-badge{background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.2);}
-.prog-name{font-family:var(--font-display);font-size:26px;font-weight:900;letter-spacing:-.03em;color:var(--t);margin-bottom:8px;line-height:1.05;text-wrap:balance;}
-.prog-card.elite .prog-name{color:#fff;}
-.prog-tagline{font-size:13px;color:var(--m);line-height:1.75;margin-bottom:24px;}
-.prog-card.elite .prog-tagline{color:rgba(255,255,255,0.6);}
-.prog-price-row{display:flex;align-items:baseline;gap:4px;margin-bottom:4px;}
-.prog-price{font-size:44px;font-weight:800;letter-spacing:-2px;color:var(--t);line-height:1;}
-.prog-card.elite .prog-price{color:#fff;}
-.prog-price-note{font-size:11px;color:var(--m2);margin-bottom:24px;font-family:var(--font-ui);font-weight:600;letter-spacing:.07em;text-transform:uppercase;}
-.prog-card.elite .prog-price-note{color:rgba(255,255,255,0.45);}
-.prog-sep{height:1px;background:var(--bd);margin:16px 0;}
-.prog-card.elite .prog-sep{background:rgba(255,255,255,0.1);}
-.prog-features{display:flex;flex-direction:column;gap:9px;flex:1;margin-bottom:24px;}
-.prog-feat{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--t2);line-height:1.6;}
-.prog-card.elite .prog-feat{color:rgba(255,255,255,0.75);}
-.prog-feat .pf-mark{flex-shrink:0;width:16px;height:16px;border-radius:50%;background:var(--fire-soft);border:1px solid var(--fire-border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--t);font-weight:800;margin-top:1px;}
-.prog-card.elite .prog-feat .pf-mark{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;}
-.prog-btn{width:100%;border:1px solid var(--bd2);background:rgba(255,255,255,0.74);color:var(--t);font-size:10px;box-shadow:var(--shadow-sm);}
-.prog-btn:hover{background:var(--t);color:#fff;border-color:var(--t);box-shadow:0 18px 34px rgba(15,15,18,0.16);}
-.prog-card.elite .prog-btn{background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.2);}
-.prog-card.elite .prog-btn:hover{background:rgba(255,255,255,0.22);}
-.prog-includes{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:.09em;color:var(--m2);text-align:center;text-transform:uppercase;}
-.prog-card.elite .prog-includes{color:rgba(255,255,255,0.3);border-top-color:rgba(255,255,255,0.1);}
-@media(max-width:900px){.programs-grid{grid-template-columns:1fr;}.prog-card{transform:none;}.prog-card:hover{transform:translateY(-3px);}}
-</style>
-<div class="inner">
-  <div class="programs-head reveal">
-    <div class="courses-head-row">
-      <div>
-        <div class="sec-tag" data-ru="">ТАРИФЫ</div>
-        <div class="sec-tag" data-en="">PLANS</div>
-        <h2 class="sec-title" data-ru="">Материалы или материалы + ментор.</h2>
-        <h2 class="sec-title" data-en="">Materials, or materials + a mentor.</h2>
-      </div>
-      <p class="sec-sub" data-ru="" style="margin-top:0">Core — база для самостоятельного изучения. Elite — вся программа плюс 12 недель личной работы с ментором.</p>
-      <p class="sec-sub" data-en="" style="margin-top:0">Core — the foundation for self-paced study. Elite — the full program plus 12 weeks of 1-on-1 work with a mentor.</p>
-    </div>
-  </div>
-  <div class="programs-grid">
-
-    <!-- CORE -->
-    <div class="prog-card reveal">
-      <div class="prog-tier" data-ru="">01 / CORE · ОСНОВА</div>
-      <div class="prog-tier" data-en="">01 / CORE</div>
-      <h3 class="prog-name">Core</h3>
-      <p class="prog-tagline" data-ru="">База для самостоятельного изучения. Для тех, кто готов разбираться сам.</p>
-      <p class="prog-tagline" data-en="">The foundation, self-paced. For traders who'll do the work themselves.</p>
-      <div class="prog-price-row">
-        <span style="font-size:22px;font-weight:700;color:var(--t);">$</span>
-        <span class="prog-price">997</span>
-      </div>
-      <div class="prog-price-note" data-ru="">единоразово · пожизненный доступ</div>
-      <div class="prog-price-note" data-en="">one-time · lifetime access</div>
-      <div class="prog-sep"></div>
-      <div class="prog-features">
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Market Structure — полный модуль</span><span data-en="">Market Structure — full module</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Smart Money Concepts (SMC): Order Blocks, FVG, ликвидность</span><span data-en="">Smart Money Concepts (SMC): Order Blocks, FVG, liquidity</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Risk Control System — управление позицией и риском</span><span data-en="">Risk Control System — position and risk management</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Разборы реальных сделок на графиках</span><span data-en="">Real trade breakdowns on live charts</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Пожизненный доступ к материалам</span><span data-en="">Lifetime access to all materials</span></div>
-      </div>
-      <a class="prog-btn btn-primary" data-ru="" href="/pay?course=core">Получить доступ</a>
-      <a class="prog-btn btn-primary" data-en="" href="/pay?course=core">Get access</a>
-      <div class="prog-includes" data-ru="">Без личного сопровождения и AI-инструментов</div>
-      <div class="prog-includes" data-en="">No 1-on-1 mentorship or AI tools</div>
-    </div>
-
-    <!-- ELITE -->
-    <div class="prog-card elite reveal" id="elite">
-      <div class="prog-badge" data-ru="">С МЕНТОРОМ</div>
-      <div class="prog-badge" data-en="">WITH MENTOR</div>
-      <div class="prog-tier" data-ru="">02 / ELITE</div>
-      <div class="prog-tier" data-en="">02 / ELITE</div>
-      <h3 class="prog-name" style="color:#fff;">Elite</h3>
-      <p class="prog-tagline" data-ru="">12 недель работы со мной — пока ваша система не начнёт держаться сама.</p>
-      <p class="prog-tagline" data-en="">12 weeks of work with me — until your system holds on its own.</p>
-      <div class="prog-price-row">
-        <span style="font-size:22px;font-weight:700;color:#fff;">$</span>
-        <span class="prog-price" style="color:#fff;">2,497</span>
-      </div>
-      <div class="prog-price-note" data-ru="">12 недель · индивидуально · старт в день оплаты</div>
-      <div class="prog-price-note" data-en="">12 weeks · 1-on-1 · start on payment day</div>
-      <div class="prog-sep"></div>
-      <div class="prog-features">
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Всё из Core: Market Structure, SMC, Risk Control</span><span data-en="">Everything in Core: Market Structure, SMC, Risk Control</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Elliott Wave + 3 стратегии с RR 1:10</span><span data-en="">Elliott Wave + 3 strategies with 1:10 RR</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">12 недель личной работы с ментором</span><span data-en="">12 weeks of 1-on-1 work with a mentor</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Еженедельные разборы ваших сделок</span><span data-en="">Weekly review of your trades</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Прямая связь в мессенджере — ответы в течение дня</span><span data-en="">Direct messenger access — same-day answers</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">Индивидуальный план под ваш депозит и цели</span><span data-en="">Individual plan for your deposit and goals</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">AI Screener — сетапы в Telegram 24/7, 80+ монет</span><span data-en="">AI Screener — setups to Telegram 24/7, 80+ coins</span></div>
-        <div class="prog-feat"><span class="pf-mark">✓</span><span data-ru="">AI Journal — AI-разбор каждой сделки и паттернов убытков</span><span data-en="">AI Journal — AI review of every trade and loss patterns</span></div>
-      </div>
-      <a class="prog-btn btn-primary" data-ru="" href="/pay?course=elite">В Elite</a>
-      <a class="prog-btn btn-primary" data-en="" href="/pay?course=elite">Join Elite</a>
-      <div class="prog-includes" data-ru="">Только индивидуальный формат · без потоков</div>
-      <div class="prog-includes" data-en="">1-on-1 only · no cohorts</div>
-    </div>
-
-  </div>
-</div>
-</section>
-<!-- FINAL CTA -->
-<section class="final-cta-section" id="final-cta">
-  <div class="final-offer reveal">
-    <h2 class="final-offer-title" data-ru="">Следующий шаг — 12 недель 1-на-1</h2>
-    <h2 class="final-offer-title" data-en="">The next step — 12 weeks 1-on-1</h2>
-    <p class="final-offer-sub" data-ru="">Знание → исполнение. Начинаем с разбора ваших последних сделок и строим план под ваш депозит и цели.</p>
-    <p class="final-offer-sub" data-en="">Knowledge → execution. We start with a review of your recent trades and build a plan around your capital and goals.</p>
-    <div class="final-offer-meta">
-      <div class="final-offer-chip">$2,497</div>
-      <div class="final-offer-chip" data-ru="">12 недель · 1-на-1</div>
-      <div class="final-offer-chip" data-en="">12 weeks · 1-on-1</div>
-      <div class="final-offer-chip" data-ru="">Старт в день оплаты</div>
-      <div class="final-offer-chip" data-en="">Start on payment day</div>
-    </div>
-    <div class="final-offer-actions">
-      <a class="btn-primary" data-ru="" href="/pay?course=elite">Начать 12 недель</a>
-      <a class="btn-primary" data-en="" href="/pay?course=elite">Start the 12 weeks</a>
-    </div>
-  </div>
-</section>
-<!-- FAQ -->
-<section class="faq-section" id="faq">
-<div class="faq-inner">
-<div class="faq-head reveal">
-<div class="sec-tag">FAQ</div>
-<h2 class="sec-title" data-ru="">Частые вопросы</h2>
-<h2 class="sec-title" data-en="">Frequently Asked</h2>
-</div>
-<div class="faq-list">
-<div class="faq-item">
-<button class="faq-q" onclick="toggleFaq(this)">
-<span data-ru="">Чем Core отличается от Elite?</span><span data-en="">What's the difference between Core and Elite?</span>
-<span class="faq-icon">+</span>
-</button>
-<div class="faq-a" data-ru="">Core — это база (Market Structure, SMC, Risk Control) для самостоятельного изучения. Elite — вся программа целиком плюс 12 недель личной работы со мной: еженедельные разборы ваших сделок, прямая связь, индивидуальный план и AI-инструменты в комплекте.</div>
-<div class="faq-a" data-en="">Core is the foundation (Market Structure, SMC, Risk Control) for self-paced study. Elite is the full program plus 12 weeks of 1-on-1 work with me: weekly trade reviews, direct messenger access, an individual plan, and AI tools included.</div>
-</div>
-<div class="faq-item">
-<button class="faq-q" onclick="toggleFaq(this)">
-<span data-ru="">Когда я могу начать Elite?</span><span data-en="">When can I start Elite?</span>
-<span class="faq-icon">+</span>
-</button>
-<div class="faq-a" data-ru="">В день оплаты. Это индивидуальная работа, без потоков и общих стартов — отсчёт 12 недель начинается с первого созвона, который мы назначаем сразу после оплаты.</div>
-<div class="faq-a" data-en="">On the day you pay. This is individual work — no cohorts, no group start date. Your 12 weeks begin with our first call, which we schedule right after payment.</div>
-</div>
-<div class="faq-item">
-<button class="faq-q" onclick="toggleFaq(this)">
-<span data-ru="">Почему именно 12 недель?</span><span data-en="">Why exactly 12 weeks?</span>
-<span class="faq-icon">+</span>
-</button>
-<div class="faq-a" data-ru="">Этого достаточно, чтобы собрать репрезентативную статистику ваших сделок, выявить повторяющиеся срывы и закрепить новое исполнение под контролем. Меньше — не успеть. Больше — уже не нужно: к 12-й неделе либо система держится сама, либо вопрос не во внешнем контроле.</div>
-<div class="faq-a" data-en="">Long enough to gather meaningful stats on your trades, surface the slips that keep repeating, and lock in new execution under accountability. Less — not enough time. More — unnecessary: by week 12 either the system holds on its own, or the issue isn't external accountability.</div>
-</div>
-<div class="faq-item">
-<button class="faq-q" onclick="toggleFaq(this)">
-<span data-ru="">Подойдёт ли мне Elite, если я только начинаю?</span><span data-en="">Is Elite right for me if I'm just starting out?</span>
-<span class="faq-icon">+</span>
-</button>
-<div class="faq-a" data-ru="">Если у вас ещё нет своих сделок, разбирать на еженедельных созвонах будет нечего — начните с Core. Elite даёт максимум, когда у вас уже есть торговая активность, повторяющиеся ошибки и понимание базы. Если сомневаетесь — напишите мне, отвечу честно.</div>
-<div class="faq-a" data-en="">If you don't have your own trades yet, there's nothing to review on weekly calls — start with Core. Elite delivers the most value when you already have trading activity, recurring mistakes, and a grasp of the basics. If you're unsure — message me, I'll answer honestly.</div>
-</div>
-<div class="faq-item">
-<button class="faq-q" onclick="toggleFaq(this)">
-<span data-ru="">Как оплатить?</span><span data-en="">How do I pay?</span>
-<span class="faq-icon">+</span>
-</button>
-<div class="faq-a" data-ru="">Оплата через USDT (TRC20 / ERC20). После оплаты сразу получаете доступ к материалам и ссылку для записи на первый созвон.</div>
-<div class="faq-a" data-en="">Payment via USDT (TRC20 / ERC20). After payment you immediately get access to the materials and a booking link for the first call.</div>
-</div>
-</div>
-</div>
-</section>
-<!-- FOOTER -->
-<footer>
-<div class="footer-logo">ORBITUM<span class="logo-dot" style="background:var(--t);box-shadow:none;margin-bottom:0;"></span></div>
-<div class="footer-links">
-<a data-ru="" href="#twelve">Как это устроено</a><a data-en="" href="#twelve">How it works</a>
-<a data-ru="" href="#courses">Тарифы</a><a data-en="" href="#courses">Plans</a>
-<a href="#faq">FAQ</a>
-<a data-ru="" href="/login">Войти</a><a data-en="" href="/login">Sign In</a>
-</div>
-<div class="footer-copy">© 2026 Orbitum. All rights reserved.</div>
-</footer>
-<!-- MOBILE DRAWER -->
-<div class="mob-nav-drawer" id="mob-nav">
-<button aria-label="Close" class="mob-nav-close" onclick="closeMobNav()">✕</button>
-<a data-ru="" href="#twelve" onclick="closeMobNav()">Как это устроено</a>
-<a data-en="" href="#twelve" onclick="closeMobNav()">How it works</a>
-<a data-ru="" href="#courses" onclick="closeMobNav()">Тарифы</a>
-<a data-en="" href="#courses" onclick="closeMobNav()">Plans</a>
-<a href="#faq" onclick="closeMobNav()">FAQ</a>
-<div class="mob-nav-sep"></div>
-<a class="mob-cta btn-primary" data-ru="" href="/pay?course=elite">В Elite</a>
-<a class="mob-cta btn-primary" data-en="" href="/pay?course=elite">Join Elite</a>
-<div class="mob-lang-row">
-<button class="active" id="mob-lang-en" onclick="setLang('en');updateMobLang('en')">EN</button>
-<button id="mob-lang-ru" onclick="setLang('ru');updateMobLang('ru')">RU</button>
-</div>
-</div>
-<script>
-let sb = null;
-
-function setLang(lang){
-  document.documentElement.setAttribute('lang', lang);
-  const langEn = document.getElementById('lang-en');
-  const langRu = document.getElementById('lang-ru');
-  if (langEn) langEn.classList.toggle('active', lang === 'en');
-  if (langRu) langRu.classList.toggle('active', lang === 'ru');
-  updateMobLang(lang);
-  localStorage.setItem('orb_lang', lang);
-  if (window.__orbUser) enhanceNavForUser(window.__orbUser, window.__orbProfile);
-}
-
-function toggleFaq(btn){
-  const item = btn.parentElement;
-  const wasOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach((node) => node.classList.remove('open'));
-  if (!wasOpen) item.classList.add('open');
-}
-
-function toggleMobNav(){
-  const drawer = document.getElementById('mob-nav');
-  const burger = document.getElementById('nav-burger');
-  if (!drawer || !burger) return;
-  const open = drawer.classList.toggle('open');
-  burger.classList.toggle('open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
-}
-
-function closeMobNav(){
-  const drawer = document.getElementById('mob-nav');
-  const burger = document.getElementById('nav-burger');
-  if (drawer) drawer.classList.remove('open');
-  if (burger) burger.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function updateMobLang(lang){
-  const langEn = document.getElementById('mob-lang-en');
-  const langRu = document.getElementById('mob-lang-ru');
-  if (langEn) langEn.classList.toggle('active', lang === 'en');
-  if (langRu) langRu.classList.toggle('active', lang === 'ru');
-}
-
-function enhanceNavForUser(user, profile){
-  const navRight = document.getElementById('nav-right');
-  if (!navRight || !user) return;
-  const lang = document.documentElement.getAttribute('lang') || 'en';
-  const firstName = (profile?.full_name || profile?.username || user.email?.split('@')[0] || 'Trader').split(' ')[0];
-  const destination = profile?.role === 'admin' ? '/admin' : '/cabinet';
-  navRight.innerHTML = `
-    <button class="nav-lang ${lang === 'en' ? 'active' : ''}" id="lang-en" onclick="setLang('en')">EN</button>
-    <button class="nav-lang ${lang === 'ru' ? 'active' : ''}" id="lang-ru" onclick="setLang('ru')">RU</button>
-    <span style="font-family:var(--mono);font-size:10px;color:var(--m2);white-space:nowrap;">${firstName}</span>
-    <a href="${destination}" class="nav-cta btn-primary">${lang === 'ru' ? 'Кабинет' : 'Account'}</a>
-  `;
-}
-
-async function initSupabase(){
-  if (!window.supabase?.createClient) return null;
-  sb = window.supabase.createClient(
-    'https://kgutmsosfyyxnlnhucaa.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q'
-  );
-  try {
-    const { data: { user } } = await sb.auth.getUser();
-    if (user) {
-      const { data: profile } = await sb.from('profiles').select('full_name,username,role').eq('id', user.id).single();
-      window.__orbUser = user;
-      window.__orbProfile = profile;
-      enhanceNavForUser(user, profile);
+    @media (max-width: 980px) {
+      .desktop-nav { display: none; }
+      .header-actions .button-light { display: none; }
+      .menu-button { display: block; margin-left: auto; }
+      .mobile-nav.is-open { display: block; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-copy { padding: 54px 44px; }
+      .hero-visual { min-height: 570px; }
+      .section-head { grid-template-columns: 1fr; }
+      .section-lead { margin-left: 0; }
+      .pain-grid { grid-template-columns: 1fr; }
+      .pain-card { min-height: 0; }
+      .workflow { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: 1fr 1fr; grid-template-areas: 'journal journal' 'screener analyzer'; }
     }
-  } catch (error) {
-    console.warn('Supabase auth init skipped:', error);
-  }
-  return sb;
-}
 
-async function hydratePrices(){
-  if (!sb) return;
-  try {
-    const { data } = await sb.from('products').select('id,price,price_old').eq('is_active', true);
-    if (!data) return;
-    data.forEach((product) => {
-      const el = document.getElementById(`price-${product.id}`);
-      if (el) el.textContent = parseFloat(product.price).toFixed(0);
-    });
-  } catch (error) {
-    console.warn('Price hydration skipped:', error);
-  }
-}
+    @media (max-width: 680px) {
+      .home-shell { width: min(100% - 28px, 1180px); }
+      .top-note { font-size: 15px; }
+      .header-row { min-height: 68px; }
+      .header-actions { display: none; }
+      .hero { padding-top: 20px; }
+      .hero-grid { border-radius: 24px; }
+      .hero-copy { padding: 38px 24px 42px; }
+      h1 { font-size: clamp(3rem, 15vw, 4.5rem); }
+      .hero-text { font-size: 18px; }
+      .hero-actions .button { width: 100%; }
+      .hero-visual { min-height: 505px; padding: 34px 22px; }
+      .visual-number { font-size: 8rem; }
+      .paper-card { padding: 22px; }
+      .paper-card p { font-size: 18px; }
+      .signal-grid { grid-template-columns: 1fr; }
+      .signal { border-right: 0; border-bottom: 1px solid var(--orb-line); }
+      .signal:last-child { border-bottom: 0; }
+      .section { padding: 72px 0; }
+      h2 { font-size: clamp(2.45rem, 12vw, 4rem); }
+      .section-lead { font-size: 18px; }
+      .workflow-visual { min-height: 500px; padding: 24px; }
+      .trade-card { right: 20px; bottom: 20px; left: 20px; }
+      .work-step { grid-template-columns: 56px 1fr; padding: 20px; }
+      .step-num { width: 54px; height: 54px; }
+      .tools-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: 'journal' 'screener' 'analyzer'; }
+      .tool-card--journal { min-height: 650px; }
+      .promise { grid-template-columns: 1fr; }
+      .cta-box { padding: 45px 25px; }
+      .footer-row { align-items: flex-start; flex-direction: column; }
+      .footer-links { flex-wrap: wrap; }
+    }
+  </style>
+  <script defer src="/orbitum-ru.js"></script>
+</head>
+<body class="orbitum-home">
+  <a class="skip-link" href="#main">К основному содержанию</a>
+  <div class="top-note">Новый Orbitum: <span>журнал + скринер + ИИ-разбор</span> в одной системе</div>
 
-function initInteractions(){
-  const savedLang = localStorage.getItem('orb_lang') || 'en';
-  setLang(savedLang);
+  <header class="site-header">
+    <div class="home-shell header-row">
+      <a class="brand" href="/" aria-label="Orbitum — главная">
+        <span class="brand-mark" aria-hidden="true"><span class="brand-dot"></span></span>
+        ORBITUM
+      </a>
+      <nav class="desktop-nav" aria-label="Основная навигация">
+        <a href="#how">Как работает</a>
+        <a href="#tools">Инструменты</a>
+        <a href="#result">Что изменится</a>
+        <a href="#faq">Вопросы</a>
+      </nav>
+      <div class="header-actions">
+        <a class="button button-light" href="/login">Войти</a>
+        <a class="button button-dark" href="/login">Начать бесплатно →</a>
+      </div>
+      <button class="menu-button" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-button>☰</button>
+    </div>
+    <nav class="home-shell mobile-nav" aria-label="Мобильная навигация" data-mobile-nav>
+      <a href="#how">Как работает</a>
+      <a href="#tools">Инструменты</a>
+      <a href="#result">Что изменится</a>
+      <a href="#faq">Вопросы</a>
+      <a href="/login">Начать бесплатно →</a>
+    </nav>
+  </header>
 
-  const nav = document.getElementById('nav');
-  if (nav) {
-    const syncNav = () => nav.classList.toggle('scrolled', window.scrollY > 40);
-    syncNav();
-    window.addEventListener('scroll', syncNav, { passive: true });
-  }
+  <main id="main">
+    <section class="hero">
+      <div class="home-shell hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Рабочая система трейдера</div>
+          <h1>Не угадывай рынок. <span>Собирай доказательства.</span></h1>
+          <p class="hero-text">Orbitum помогает проверить идею до входа, сохранить сделку и увидеть повторяющиеся ошибки простым языком.</p>
+          <div class="hero-actions">
+            <a class="button button-gradient" href="/login">Попробовать бесплатно →</a>
+            <a class="button button-light" href="#how">Понять за 60 секунд</a>
+          </div>
+          <div class="hero-trust" aria-label="Условия бесплатного старта">
+            <span>10 первых сделок бесплатно</span>
+            <span>Без привязки карты</span>
+            <span>Интерфейс на русском</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-label="Три шага работы в Orbitum">
+          <div class="visual-stack">
+            <div class="visual-number">3</div>
+            <h2 class="visual-title">шага до осознанной сделки</h2>
+            <div class="paper-card">
+              <div class="paper-label">Задача на сегодня</div>
+              <p>Перед входом ответь: где отменяется идея и сколько ты готов потерять?</p>
+            </div>
+            <div class="mini-steps" aria-hidden="true">
+              <div class="mini-step">📡 Найти</div>
+              <div class="mini-step">🧠 Проверить</div>
+              <div class="mini-step">📝 Записать</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  const reveals = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window && reveals.length) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), index * 70);
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.06 });
-    reveals.forEach((el) => io.observe(el));
-  } else {
-    reveals.forEach((el) => el.classList.add('visible'));
-  }
+    <section class="signal-strip" aria-label="Главные преимущества">
+      <div class="home-shell signal-grid">
+        <div class="signal"><strong>Понятно с первого экрана</strong><span>Крупный текст, ясные действия и никакого визуального шума.</span></div>
+        <div class="signal"><strong>Решение до эмоции</strong><span>Риск и сценарий фиксируются до того, как позиция начнёт давить.</span></div>
+        <div class="signal"><strong>Разбор после сделки</strong><span>Вы видите не отдельный минус, а повторяющийся паттерн.</span></div>
+      </div>
+    </section>
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeMobNav();
-  });
+    <section class="section" id="problem">
+      <div class="home-shell">
+        <div class="section-head">
+          <div><p class="kicker">Зачем это нужно</p><h2>Проблема редко в точке входа</h2></div>
+          <p class="section-lead">Даже сильный анализ не спасает, если риск, исполнение и выводы живут в разных местах — или только в голове.</p>
+        </div>
+        <div class="pain-grid">
+          <article class="pain-card"><div class="pain-number">01</div><div class="pain-emoji">🎯</div><h3>Идея есть, плана нет</h3><p>Вход выглядит логично, но точка отмены и допустимый риск определяются уже внутри позиции.</p></article>
+          <article class="pain-card"><div class="pain-number">02</div><div class="pain-emoji">🌪️</div><h3>Эмоция меняет решение</h3><p>Стоп двигается, прибыль закрывается рано, а после сделки трудно объяснить, что произошло.</p></article>
+          <article class="pain-card"><div class="pain-number">03</div><div class="pain-emoji">🔁</div><h3>Ошибка повторяется</h3><p>Без системной записи каждая потеря кажется новой, хотя сценарий мог повториться уже десять раз.</p></article>
+        </div>
+      </div>
+    </section>
 
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener('click', (event) => {
-      const target = document.querySelector(anchor.getAttribute('href'));
-      if (!target) return;
-      event.preventDefault();
-      closeMobNav();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-}
+    <section class="section section-dark" id="how">
+      <div class="home-shell">
+        <div class="section-head">
+          <div><p class="kicker">Как работает Orbitum</p><h2>Один цикл. Три понятных действия.</h2></div>
+          <p class="section-lead">Система не обещает угадать рынок. Она делает ваше решение проверяемым и помогает улучшать процесс.</p>
+        </div>
+        <div class="workflow">
+          <div class="workflow-visual">
+            <div class="trade-card">
+              <div class="trade-top"><span class="pair">BTC / USDT</span><span class="quality">Идея: 74 / 100</span></div>
+              <div class="risk-bar"><span></span></div>
+              <p><strong>Риск под контролем.</strong> Соотношение 1:3,2. Слабое место: вход против часовой структуры.</p>
+            </div>
+          </div>
+          <div class="workflow-list">
+            <article class="work-step"><div class="step-num">1</div><div><h3>Найдите ситуацию</h3><p>Скринер собирает активы и сигналы в одном месте, чтобы вы не листали рынок без цели.</p></div></article>
+            <article class="work-step"><div class="step-num">2</div><div><h3>Проверьте сделку</h3><p>Укажите вход, стоп и цель. Анализатор покажет риск, потенциальный результат и уязвимости идеи.</p></div></article>
+            <article class="work-step"><div class="step-num">3</div><div><h3>Запишите результат</h3><p>Журнал свяжет цифры с контекстом и покажет, какие действия помогают, а какие стоят денег.</p></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
 
-document.addEventListener('DOMContentLoaded', async () => {
-  initInteractions();
-  await initSupabase();
-  await hydratePrices();
-});
-</script>
+    <section class="section" id="tools">
+      <div class="home-shell">
+        <div class="section-head">
+          <div><p class="kicker">Инструменты</p><h2>Всё нужное — без десяти вкладок</h2></div>
+          <p class="section-lead">Каждый модуль отвечает на один конкретный вопрос трейдера и ведёт к следующему действию.</p>
+        </div>
+        <div class="tools-grid">
+          <article class="tool-card tool-card--journal"><div class="tool-icon">📝</div><h3>Журнал, который объясняет статистику</h3><p>Сделки, скриншоты, сетапы, эмоции и результат собраны в одном контексте.</p><a class="tool-link" href="/journal">Открыть журнал →</a><div class="journal-demo"><div class="demo-row"><div class="demo-stat"><span>Лучший сетап</span><strong>Пробой + ретест</strong></div><div class="demo-stat"><span>Дисциплина</span><strong>82%</strong></div></div><div class="demo-note">💡 Сделки после 18:00 снижают ваш средний результат. Проверьте режим торговли.</div></div></article>
+          <article class="tool-card tool-card--screener"><div class="tool-icon">📡</div><h3>Скринер сигналов</h3><p>Фильтры по направлению, сетапу и активности рынка.</p><a class="tool-link" href="/screener">Смотреть рынок →</a></article>
+          <article class="tool-card tool-card--analyzer"><div class="tool-icon">🧠</div><h3>Анализ сделки</h3><p>Проверка риска и логики идеи до нажатия кнопки.</p><a class="tool-link" href="/trade-analyzer">Проверить идею →</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="result">
+      <div class="home-shell">
+        <div class="section-head">
+          <div><p class="kicker">Результат</p><h2>Не больше сигналов. Больше ясности.</h2></div>
+          <p class="section-lead">Orbitum не торгует за вас. Он делает видимым то, что обычно теряется между анализом, входом и итогом.</p>
+        </div>
+        <div class="promise">
+          <article class="promise-card"><h3>До Orbitum</h3><p>Решения разбросаны между TradingView, заметками, Telegram и памятью.</p><ul class="check-list"><li>Риск считается на ходу</li><li>Причина входа меняется после факта</li><li>Ошибки ощущаются, но не измеряются</li></ul></article>
+          <article class="promise-card"><h3>С Orbitum</h3><p>У каждой сделки есть сценарий, риск, результат и вывод.</p><ul class="check-list"><li>План зафиксирован до входа</li><li>Статистика связана с поведением</li><li>Следующее улучшение видно сразу</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="home-shell">
+        <div class="section-head">
+          <div><p class="kicker">Коротко о главном</p><h2>Вопросы перед стартом</h2></div>
+          <p class="section-lead">Без сложных внедрений: создайте аккаунт и добавьте первую сделку.</p>
+        </div>
+        <div class="faq-list">
+          <article class="faq-item"><button class="faq-button" type="button" aria-expanded="false">Orbitum даёт торговые сигналы?<span class="faq-plus">+</span></button><div class="faq-answer">Скринер показывает рыночные ситуации и помогает сузить поиск, но решение о входе остаётся за вами. Главная ценность Orbitum — качество процесса, риск и разбор собственных действий.</div></article>
+          <article class="faq-item"><button class="faq-button" type="button" aria-expanded="false">Нужно подключать биржу?<span class="faq-plus">+</span></button><div class="faq-answer">Для начала не обязательно. Сделки можно добавлять вручную — это позволяет попробовать систему без передачи доступа к торговому аккаунту.</div></article>
+          <article class="faq-item"><button class="faq-button" type="button" aria-expanded="false">Подойдёт опытному трейдеру?<span class="faq-plus">+</span></button><div class="faq-answer">Да. Чем больше сделок и устоявшихся сетапов, тем полезнее становится разбор закономерностей: времени торговли, качества исполнения, риска и дисциплины.</div></article>
+          <article class="faq-item"><button class="faq-button" type="button" aria-expanded="false">Можно попробовать бесплатно?<span class="faq-plus">+</span></button><div class="faq-answer">Да. Создайте аккаунт без привязки карты и добавьте первые 10 сделок, чтобы оценить интерфейс и логику журнала.</div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="home-shell cta-box">
+        <p class="kicker">Первый шаг</p>
+        <h2>Добавьте одну сделку. Посмотрите на неё как на данные.</h2>
+        <p>Без обещаний лёгкой прибыли. Только понятный способ увидеть, что в вашей торговле действительно работает.</p>
+        <a class="button button-gradient" href="/login">Начать бесплатно →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="home-shell footer-row">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><span class="brand-dot"></span></span>ORBITUM</a>
+      <div class="footer-copy">Торговля связана с риском. Orbitum — инструмент анализа, а не финансовая рекомендация.</div>
+      <div class="footer-links"><a href="/login">Войти</a><a href="/pay">Тарифы</a></div>
+    </div>
+  </footer>
 </body>
 </html>

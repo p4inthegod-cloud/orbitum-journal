@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <title>Orbitum</title>
@@ -30,7 +30,7 @@
     <text x="600" y="510" font-family="Inter, sans-serif" font-weight="500" font-size="18" fill="#5a5b66" text-anchor="middle" letter-spacing="0.32em">ORBITUM JOURNAL</text>
   </svg>
 </div>
-  <div id="__bundler_loading">Unpacking...</div>
+  <div id="__bundler_loading">Загружаем журнал…</div>
 
   <script>
     
@@ -136,7 +136,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // DOMParser/replaceWith are inert per spec — re-create each with
     // createElement so they execute, awaiting onload for src scripts to
     // preserve ordering (React before ReactDOM before Babel before text/babel).
+    const orbitumUi = '<link rel="stylesheet" href="/orbitum-ui.css">' +
+      '<script src="/orbitum-ru.js"></' + 'script>';
+    template = template.replace(/<\/head>/i, orbitumUi + '</head>');
     const doc = new DOMParser().parseFromString(template, 'text/html');
+    doc.documentElement.lang = 'ru';
     document.documentElement.replaceWith(doc.documentElement);
     const dead = Array.from(document.scripts);
     for (const old of dead) {
