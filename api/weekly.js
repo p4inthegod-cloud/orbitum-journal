@@ -217,7 +217,7 @@ export default async function handler(req, res) {
       if (!isPaid && isSunday) {
         msg +=
           `\n\n---\n` +
-          `Хочешь собрать один понятный план перед сделкой? 9 августа в 19:00 МСК пройдёт бесплатная встреча Orbitum.\n\n` +
+          `Хочешь собрать один понятный план перед сделкой? 3 августа в 19:00 МСК пройдёт бесплатная встреча Orbitum.\n\n` +
           `<a href="${APP_URL}/#contact">Записаться бесплатно --></a>`;
       } else if (!isPaid) {
         // Non-Sunday: just a link, no pressure
