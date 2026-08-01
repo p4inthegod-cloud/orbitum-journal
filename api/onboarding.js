@@ -98,10 +98,9 @@ function emailActivation(email, tradeCount) {
 }
 
 function emailConversion(email, tradeCount) {
-  const savings = Math.round(tradeCount * 12);
   return {
     to: email,
-    subject: 'AI видит твои паттерны. Разблокируй разбор.',
+    subject: 'Сделки записаны. Теперь собери один понятный план.',
     html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
@@ -125,27 +124,27 @@ function emailConversion(email, tradeCount) {
 </style></head>
 <body><div class="wrap">
   <div class="logo">ORBITUM</div>
-  <div class="label">День 5 · Конверсия</div>
-  <h1>У тебя ${tradeCount} сделок.<br>AI Coach ждёт.</h1>
-  <p>Бесплатный план не даёт доступа к AI Coach, Brutal Analysis и полному дашборду. Именно там находятся паттерны которые стоят тебе денег каждую неделю.</p>
-  <p>Средняя экономия после первого разбора — <strong style="color:#e8722a">$${savings}+</strong> в месяц за счёт устранения одного повторяющегося паттерна.</p>
+  <div class="label">Следующий шаг</div>
+  <h1>У тебя ${tradeCount} сделок.<br>Теперь нужен порядок.</h1>
+  <p>Журнал показывает факты, но не заменяет торговый план. Если перед каждым входом ты используешь разные признаки, после сделки невозможно понять: подвёл способ или ты сам нарушил правила.</p>
+  <p><strong style="color:#e8722a">3 августа в 19:00 МСК</strong> Данил проведёт бесплатную встречу и покажет на реальных графиках четыре вопроса, которые стоит задать до любой сделки.</p>
   <div class="price-block">
     <div class="price-row">
       <div class="price-opt">
-        <div class="price-label">Месячный</div>
-        <div class="price-val">$29</div>
-        <div class="price-note"><s style="color:rgba(235,235,235,0.2)">$49</s> /месяц</div>
+        <div class="price-label">Первый шаг</div>
+        <div class="price-val">$0</div>
+        <div class="price-note">живая встреча</div>
       </div>
       <div style="width:1px;background:rgba(255,255,255,0.07);align-self:stretch;"></div>
       <div class="price-opt">
-        <div class="price-label">Lifetime</div>
-        <div class="price-val">$197</div>
-        <div class="price-note">один раз навсегда</div>
-        <div class="price-save">≡ 7 месяцев подписки</div>
+        <div class="price-label">Если захочешь продолжить</div>
+        <div class="price-val">$50</div>
+        <div class="price-note">7 дней с личной проверкой</div>
+        <div class="price-save">засчитываются в практикум</div>
       </div>
     </div>
   </div>
-  <a href="${APP_URL}/pay" class="cta">Получить полный доступ →</a>
+  <a href="${APP_URL}/#contact" class="cta">Записаться бесплатно →</a>
   <a href="${APP_URL}/journal" class="cta-ghost">Вернуться в журнал</a>
   <hr class="divider">
   <div class="footer">ORBITUM · ${APP_URL}<br>Ты получаешь это письмо как зарегистрированный пользователь.</div>
@@ -207,96 +206,57 @@ async function tgSend(chat_id, text) {
 
 // TG onboarding messages — conversion funnel template
 // Stage 1: +2h — show real setup format
-// Stage 2: +6h — show result proof
-// Stage 3: +24h — soft conversion
+// Stage 2: +6h — explain how to review execution
+// Stage 3: +24h — invite to the free event
 function tgStageMessage(stage, name = 'trader', appUrl = 'https://orbitum.trade') {
   const messages = {
     1: () =>
-      `📊 <b>Your first look inside</b>
+      `📊 <b>Четыре ответа до сделки</b>
 
 ` +
-      `Here's what a premium setup signal looks like:
+      `1. Что сейчас происходит с ценой?
+` +
+      `2. Какое условие я жду?
+` +
+      `3. Где идея станет неверной?
+` +
+      `4. Какую небольшую потерю я допускаю?
 
 ` +
-      `⚡ <b>SETUP SIGNAL</b>
-` +
-      `━━━━━━━━━━━━━━━━━━━
-` +
-      `🟢 <b>BTC/USDT · LONG</b> · 4H
-` +
-      `<code>Wyckoff Spring · Re-accumulation</code>
-` +
-      `🟢 <code>████████░░</code> <b>82%</b> confidence
-` +
-      `━━━━━━━━━━━━━━━━━━━
-` +
-      `Entry  ·  <b>$97,200</b>
-` +
-      `SL     ·  <code>$96,400</code>
-` +
-      `TP     ·  <b>$99,800</b>
-` +
-      `R:R    ·  <b>3.25:1</b>
-` +
-      `━━━━━━━━━━━━━━━━━━━
-` +
-      `🧠 <i>Spring confirmed on volume. 340 similar setups — 82% accuracy.</i>
+      `Если на один вопрос нет ответа, сделку лучше пропустить.
 
 ` +
-      `<i>On free tier: confidence %, entry zone, and AI insight are locked.</i>
-
-` +
-      `<a href="${appUrl}/pay">Unlock full signals →</a>`,
+      `<a href="${appUrl}/#example">Посмотреть понятный пример →</a>`,
 
     2: () =>
-      `✅ <b>Setup result</b>
+      `✅ <b>Как проверить себя после сделки</b>
 
 ` +
-      `The BTC setup from earlier:
+      `Сначала проверь не прибыль, а исполнение:
+` +
+      `— вход был по заранее записанному условию;
+` +
+      `— риск не менялся в процессе;
+` +
+      `— сделка закрыта там, где идея стала неверной.
 
 ` +
-      `<b>BTC/USDT LONG</b> · Entry $97,200
-` +
-      `Result: <b>+$2,600 · TP hit · +2.7%</b>
+      `Так видно, подвёл план или ты сам его нарушил.
 
 ` +
-      `That's what premium users saw first.
-
-` +
-      `This week: <b>7 signals · 5 hit target · avg +11.4%</b>
-
-` +
-      `<code>Sent to premium at 09:14. Free delay: +15 min.</code>
-
-` +
-      `<a href="${appUrl}/pay">Get real-time signals →</a>  ·  <a href="${appUrl}/journal">Open journal</a>`,
+      `<a href="${appUrl}/journal">Записать сделку →</a>`,
 
     3: () =>
-      `🧠 <b>One pattern costs most traders $300–500/month.</b>
+      `🧠 <b>Бесплатная встреча Orbitum</b>
 
 ` +
-      `The most common:
-` +
-      `— Trading Friday after 17:00 (low liquidity)
-` +
-      `— Entering after 2 consecutive losses (revenge)
-` +
-      `— Exiting winners early when BTC drops 0.5%
+      `3 августа в 19:00 МСК Данил покажет на реальных графиках, как превратить разрозненные знания в понятный порядок действий.
 
 ` +
-      `ORBITUM's AI Coach finds <i>your</i> version — with exact numbers.
+      `Без сигналов, обещаний прибыли и обязательной покупки. После встречи можно при желании пройти Orbitum Reset за $50.
 
 ` +
-      `━━━━━━━━━━━━━━━━━━━
-` +
-      `Monthly  ·  <b>$29</b> / 30 days
-` +
-      `Lifetime ·  <b>$197</b> · pay once forever
-` +
-      `━━━━━━━━━━━━━━━━━━━
-
-` +
-      `<a href="${appUrl}/pay">Get full access →</a>  ·  <a href="${appUrl}/journal">Keep using free</a>`,
+      `<a href="${appUrl}/#contact">Записаться бесплатно →</a>  ·  <a href="${appUrl}/journal">Открыть журнал</a>`,
   };
   return messages[stage]?.() || null;
 }

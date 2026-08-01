@@ -1,17 +1,5 @@
-// api/weekly.js v3 — Full conversion funnel
-// Sunday 20:00 UTC (optimal from funnel doc: user is calm, not trading)
-//
-// FREE users get:
-//   - Personal stats
-//   - "YOU ALMOST HAD IT" — exact entry time comparison (hard sell)
-//   - Win attribution: "Premium entered at X. Your alert at X+15min."
-//   - Soft sell at END only (rule: never mid-message)
-//
-// PAID users get:
-//   - Full stats + AI coach insight
-//   - Behavior fingerprint (after 10+ trades)
-//   - "That's N in a row. Keep it up."  (positive reinforcement)
-//   - Zero upsell
+// api/weekly.js — private weekly statistics delivered to the user's Telegram.
+// Trade and emotion data stays inside Orbitum; no external AI provider receives it.
 
 const BOT_TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL      = process.env.SUPABASE_URL;
@@ -32,43 +20,6 @@ async function tgSend(chat_id, text) {
     }
     return true;
   } catch(e) { console.error('[tgSend]', e.message); return false; }
-}
-
-// AI weekly coach + behavior fingerprint via Groq
-async function getAIInsight(trades, wr, pnl, isPaid) {
-  if (!process.env.GROQ_API_KEY || trades.length < 3) return null;
-  try {
-    const compact = trades.slice(0, 20).map(t => ({
-      pair: t.pair, dir: t.direction, result: t.result,
-      pnl: t.pnl_pct, setup: t.setup_type,
-      conf: t.emotion_conf, fear: t.emotion_fear, greed: t.emotion_greed, calm: t.emotion_calm,
-    }));
-
-    // Behavior fingerprint prompt (only for paid with enough data)
-    const fingerprint = isPaid && trades.length >= 10;
-    const systemMsg = fingerprint
-      ? `ICT/SMC trading coach. ${trades.length} trades, WR ${wr}%, P&L ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%. Data: ${JSON.stringify(compact).slice(0,2500)}. Give 2 parts: 1) main performance pattern this week with numbers. 2) behavioral fingerprint — ONE specific behavior pattern (like revenge trading after losses, overtrading on certain days, emotion-performance correlation). Russian. No markdown.`
-      : `ICT/SMC trading coach. ${trades.length} trades, WR ${wr}%, P&L ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%. Data: ${JSON.stringify(compact).slice(0,2500)}. Give 2-3 sentences: main pattern + one concrete improvement with numbers. Russian. No markdown.`;
-
-    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: fingerprint ? 400 : 280,
-        temperature: 0.2,
-        messages: [
-          { role: 'system', content: systemMsg },
-          { role: 'user', content: 'Weekly analysis.' },
-        ],
-      }),
-      signal: AbortSignal.timeout(14000),
-    });
-    if (!r.ok) return null;
-    const d = await r.json();
-    const text = d.choices?.[0]?.message?.content?.trim() || '';
-    return text.length > 10 ? text.slice(0, 420) : null;
-  } catch(_) { return null; }
 }
 
 // Get this week's premium signals from DB for win attribution
@@ -146,7 +97,7 @@ export default async function handler(req, res) {
       let trades = [];
       try {
         trades = await fetch(
-          `${SB_URL}/rest/v1/trades?user_id=eq.${user.id}&created_at=gte.${weekStartIso}&order=created_at.desc&select=result,pnl_pct,pnl_usd,pair,setup_type,direction,emotion_conf,emotion_fear,emotion_greed,emotion_calm,created_at`,
+          `${SB_URL}/rest/v1/trades?user_id=eq.${user.id}&created_at=gte.${weekStartIso}&order=created_at.desc&select=result,pnl_pct,pnl_usd,pair,setup_type,direction,created_at`,
           { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, Accept: 'application/json' } }
         ).then(r => r.json()) || [];
       } catch(_) {}
@@ -170,7 +121,7 @@ export default async function handler(req, res) {
         if (!isPaid && isSunday) {
           noTradeMsg +=
             `\n\n---\n` +
-            `<a href="${APP_URL}/pay">Start next week with real-time signals --></a>`;
+            `<a href="${APP_URL}/#contact">Записаться на бесплатную встречу --></a>`;
         }
 
         await tgSend(user.tg_chat_id, noTradeMsg);
@@ -213,9 +164,6 @@ export default async function handler(req, res) {
       const setups    = Object.entries(setupMap).sort((a, b) => b[1].pnl - a[1].pnl);
       const bestSetup = setups[0];
 
-      // ── AI INSIGHT ────────────────────────────────────────────────
-      const aiText = await getAIInsight(trades, wr, pnl, isPaid);
-
       // ── BUILD MESSAGE ─────────────────────────────────────────────
       const pnlEmoji = pnl >= 0 ? '[+]' : '[-]';
 
@@ -247,56 +195,30 @@ export default async function handler(req, res) {
 
       msg += `---\n`;
 
-      // AI Coach block (paid)
-      if (aiText && isPaid) {
-        msg += `\n<b>AI Coach</b>\n<i>${aiText}</i>\n`;
-      }
-
-      // ── FREE USER: WIN ATTRIBUTION + MISSED OPPORTUNITY ───────────
-      // "BTC hit target. Premium entered at $97,240. Your alert arrived at $97,810."
-      // From conversion funnel doc: "precise comparison makes the cost tangible"
+      // ── FREE USER: EDUCATIONAL CONTEXT ────────────────────────────
       if (!isPaid && weekSignals.length > 0) {
         const topSig = weekSignals[0];
         const sym    = (topSig.symbol || '').toUpperCase();
-        const dir    = topSig.condition || 'long';
-        const entry  = parseFloat(topSig.target_price || 0);
-        const sentAt = new Date(topSig.triggered_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-        // Estimate free tier received +15 min later
-        const freeAt = new Date(new Date(topSig.triggered_at).getTime() + 15 * 60000)
-          .toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-        // Simple price difference estimate: 0.5-2% gap is realistic in 15 min
-        const entryFree = entry > 0 ? (dir === 'long' ? entry * 1.008 : entry * 0.992) : 0;
-
         msg += `\n---\n` +
-          `<b>YOU ALMOST HAD IT</b>\n` +
-          `${sym} setup sent: <b>${sentAt}</b>\n` +
-          `Your alert arrived: <b>${freeAt} (+15 min)</b>\n` +
-          (entry > 0 ? `Premium entry: $${entry.toLocaleString()}\nYour entry: ~$${entryFree.toLocaleString('en', { maximumFractionDigits: 0 })} (already moved)\n` : '') +
-          `\n15 minutes cost you the entry.\n` +
-          `<b>Premium = real-time. Always.</b>`;
+          `<b>Контекст для разбора</b>\n` +
+          `На этой неделе система отметила ситуацию по <b>${sym}</b>. Не оценивай её только по результату. Запиши, какое условие было видно до движения, где идея отменялась и какой риск был допустим.\n` +
+          `<i>Цель — проверить порядок решения, а не догонять ушедшую цену.</i>`;
       }
 
       // ── FREE USER: SIGNAL SYSTEM STATS (filter transparency) ──────
       if (!isPaid && signalCount > 0) {
-        msg += `\n\n<code>This week: ${signalCount} signal${signalCount !== 1 ? 's' : ''} sent` +
+        msg += `\n\n<code>Система отметила ситуаций: ${signalCount}` +
           (avgSignalScore ? `  |  avg score ${avgSignalScore}/100` : '') +
-          `</code>` +
-          (signalCount > 3 ? `\nFree tier received: <b>${Math.floor(signalCount * 0.43)} of ${signalCount} (delayed)</b>` : '');
+          `</code>`;
       }
 
       // ── SOFT SELL — Sunday only, always at END ─────────────────────
       // Rule from funnel doc: "upgrade mention at end — never mid-message"
       if (!isPaid && isSunday) {
-        const weekSummary = pnl >= 0
-          ? `This week: <b>${pnlSign}${pnl.toFixed(1)}%</b>.`
-          : `Tough week: <b>${pnl.toFixed(1)}%</b>.`;
         msg +=
           `\n\n---\n` +
-          `${weekSummary} AI Coach shows which patterns cost you.\n\n` +
-          `Monthly  <b>$29</b>  |  Lifetime  <b>$197</b>\n` +
-          `<a href="${APP_URL}/pay">See what you're missing --></a>`;
+          `Хочешь собрать один понятный план перед сделкой? 3 августа в 19:00 МСК пройдёт бесплатная встреча Orbitum.\n\n` +
+          `<a href="${APP_URL}/#contact">Записаться бесплатно --></a>`;
       } else if (!isPaid) {
         // Non-Sunday: just a link, no pressure
         msg += `\n\n<a href="${APP_URL}/journal">Full journal --></a>  |  <a href="${APP_URL}/screener">Screener --></a>`;
