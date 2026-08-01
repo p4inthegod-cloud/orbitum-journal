@@ -122,13 +122,13 @@ async function quickScan() {
 // ── Onboarding sequence ───────────────────────────────────────────
 async function sendOnboarding(chat_id, stage, name = 'trader') {
   const msgs = {
-    0: `<b>ORBITUM</b>  Trading Intelligence\n---\n\nWelcome, <b>${name}</b>.\n\nThis isn't a signals channel.\n\nORBITUM is a system that learns your trading patterns and tells you exactly what's costing you money.\n\nFree tier:\n+ Morning brief every day at 07:00\n+ Critical alerts in real-time\n+ Trading journal with AI analysis\n\n<a href="${APP_URL}/journal">Open Journal</a>`,
+    0: `<b>ORBITUM</b>\n---\n\nПривет, <b>${name}</b>. Аккаунт подключён.\n\nOrbitum помогает не искать очередной сигнал, а проверять собственный порядок действий: почему вы вошли, где идея отменяется и соблюдали ли вы риск.\n\n<a href="${APP_URL}/journal">Открыть журнал</a>`,
 
-    1: `<b>Your first look inside</b>\n\nHere's what a premium setup signal looks like:\n\n<b>SETUP SIGNAL</b>\n---\n<b>BTC/USDT  LONG</b>  4H\n<code>Wyckoff Spring  Re-accumulation</code>\n${confBar(82)}\n---\nEntry  <b>$97,200</b>\nSL     <code>$96,400</code>\nTP     <b>$99,800</b>\nR:R    <b>3.25:1</b>\n---\n<i>Spring confirmed on volume. 340 similar setups — 82% accuracy.</i>\n\n<i>On free tier: confidence %, entry zone, and AI insight are locked.</i>\n\n<a href="${APP_URL}/pay">Unlock full signals</a>`,
+    1: `<b>Четыре ответа до сделки</b>\n\n1. Что сейчас происходит с ценой?\n2. Какое условие я жду?\n3. Где моя идея станет неверной?\n4. Какую небольшую потерю я допускаю?\n\nЕсли на один вопрос нет ответа, сделку лучше пропустить.\n\n<a href="${APP_URL}/#example">Посмотреть понятный пример</a>`,
 
-    2: `<b>Setup update</b>\n\nThe BTC setup from this morning:\n\n<b>BTC/USDT LONG</b>  Entry $97,200\nResult: <b>+$2,600  TP hit  +2.7%</b>\n\nThat's what premium users saw 6 hours ago.\n\nThis week: <b>7 signals  5 hit target  avg +11.4%</b>\n\n<code>Sent to premium at 09:14. You received this recap +6h later.</code>\n\n<a href="${APP_URL}/pay">Get real-time signals</a>  |  <a href="${APP_URL}/journal">Open journal</a>`,
+    2: `<b>Как проверить себя после сделки</b>\n\nНе начинайте с вопроса «сколько я заработал». Сначала проверьте:\n— был ли вход по заранее записанному условию;\n— не изменили ли вы риск в процессе;\n— закрыли ли сделку там, где идея стала неверной.\n\nТак становится видно, подвёл план или вы сами его нарушили.\n\n<a href="${APP_URL}/journal">Записать сделку</a>`,
 
-    3: `<b>One pattern costs most traders $300-500/month.</b>\n\nThe most common:\n- Trading Friday after 17:00 (low liquidity)\n- Entering after 2 consecutive losses (revenge)\n- Exiting winners early when BTC drops 0.5%\n\nORBITUM's AI Coach finds <i>your</i> version of this.\nWith exact numbers. Exact pairs. Exact times.\n---\nMonthly  <b>$29</b> / 30 days\nLifetime <b>$197</b>  pay once, yours forever\n---\n\n<a href="${APP_URL}/pay">Get full access</a>  |  <a href="${APP_URL}/journal">Keep using free</a>`,
+    3: `<b>Бесплатная встреча Orbitum</b>\n\n9 августа в 19:00 МСК Данил покажет на реальных графиках, как собрать понятный порядок перед сделкой.\n\nБез сигналов, обещаний прибыли и обязательной покупки. После встречи можно при желании пройти 7-дневный Orbitum Reset за $50 с личной проверкой.\n\n<a href="${APP_URL}/#contact">Записаться бесплатно</a>`,
   };
   if (msgs[stage]) await tgSend(chat_id, msgs[stage]);
 }
@@ -295,7 +295,7 @@ export default async function handler(req, res) {
           `TP     <code>[UNLOCK]</code>\n---\n` +
           `<code>${scan.scanned} scanned  |  ${scan.signals.length} passed threshold</code>\n` +
           `Grade: <b>${grade}</b>\n\n` +
-          `<a href="${APP_URL}/pay">Unlock full signal</a>  |  <a href="${APP_URL}/screener?coin=${encodeURIComponent(top.sym+'/USDT')}">View chart</a>`
+          `<a href="${APP_URL}/#contact">Начать с бесплатной встречи</a>  |  <a href="${APP_URL}/screener?coin=${encodeURIComponent(top.sym+'/USDT')}">Открыть график</a>`
         );
       } else {
         // Paid: full signal
@@ -343,7 +343,7 @@ export default async function handler(req, res) {
         (fng    ? `F&G     ${fng.value}  ${fng.value_classification}\n` : '') +
         statsLine + `\n---\n` +
         `<a href="${APP_URL}/screener">Open screener</a>` +
-        (isPaid ? '' : `  |  <a href="${APP_URL}/pay">Unlock signals</a>`)
+        (isPaid ? '' : `  |  <a href="${APP_URL}/#contact">Бесплатная встреча</a>`)
       );
       return res.status(200).send('OK');
     }
@@ -361,12 +361,11 @@ export default async function handler(req, res) {
         );
       } else {
         await tgSend(chat_id,
-          `<b>Free Plan</b>\n---\n` +
-          `Monthly  <b>$29</b> / 30 days\n` +
-          `Lifetime <b>$197</b>  pay once forever\n---\n` +
-          `Unlocks: real-time signals, AI Coach, confidence %, SL/TP zones.\n\n` +
-          `<a href="${APP_URL}/pay">Get full access</a>`,
-          kb([btn('Get Premium', `${APP_URL}/pay`)])
+          `<b>Бесплатный доступ</b>\n---\n` +
+          `Журнал можно использовать для записи и проверки своих решений.\n\n` +
+          `Новые инструменты Orbitum не продаются как отдельный набор сигналов. Сначала пройдите бесплатную встречу и соберите собственный порядок действий.\n\n` +
+          `<a href="${APP_URL}/#contact">Записаться бесплатно</a>`,
+          kb([btn('О программе', `${APP_URL}/pay`)])
         );
       }
       return res.status(200).send('OK');
@@ -449,22 +448,19 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // ══ /upgrade / /premium ═══════════════════════════════════════
+    // ══ /upgrade / /premium — legacy aliases for the learning path ═
     if (cmd === '/upgrade' || cmd === '/premium') {
       if (isPaid) {
         await tgSend(chat_id, `You're on <b>${profile.plan}</b> plan.\nAll features active.\n\n<a href="${APP_URL}/profile">View profile</a>`);
       } else {
         await tgSend(chat_id,
-          `<b>ORBITUM Premium</b>\n---\n` +
-          `+ Setup signals (real-time)\n` +
-          `+ AI insights (full)\n` +
-          `+ Confidence % + SL/TP zones\n` +
-          `+ Momentum alerts\n` +
-          `+ Behavior fingerprint\n---\n` +
-          `Monthly  <b>$29</b> / 30 days\n` +
-          `Lifetime <b>$197</b>  pay once forever\n\n` +
-          `<a href="${APP_URL}/pay">Get full access</a>`,
-          kb([btn('Get Premium', `${APP_URL}/pay`)])
+          `<b>Как проходит Orbitum</b>\n---\n` +
+          `1. Бесплатная встреча — понять причину хаоса.\n` +
+          `2. Orbitum Reset за $50 — собрать один план за 7 дней.\n` +
+          `3. Практикум — научиться соблюдать план; доплата $250.\n\n` +
+          `Никаких сигналов и обещаний прибыли.\n\n` +
+          `<a href="${APP_URL}/#contact">Записаться на бесплатную встречу</a>`,
+          kb([btn('Посмотреть программу', `${APP_URL}/pay`)])
         );
       }
       return res.status(200).send('OK');
@@ -491,9 +487,9 @@ export default async function handler(req, res) {
       `/plan     — your plan & status\n` +
       `/log      — quick trade log\n` +
       `/notify   — notification settings\n` +
-      `/upgrade  — premium features\n` +
+      `/upgrade  — как проходит программа\n` +
       `/stop     — unlink account\n---\n` +
-      `<a href="${APP_URL}">Screener</a>  |  <a href="${APP_URL}/journal">Journal</a>  |  <a href="${APP_URL}/pay">Premium</a>`
+      `<a href="${APP_URL}">Главная</a>  |  <a href="${APP_URL}/journal">Журнал</a>  |  <a href="${APP_URL}/pay">Программа</a>`
     );
     return res.status(200).send('OK');
 
