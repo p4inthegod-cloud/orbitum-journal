@@ -1,492 +1,128 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ORBITUM · Plans</title>
-<meta name="description" content="ORBITUM — выберите подходящий набор инструментов. Бесплатный старт и понятные варианты доступа.">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
- :root{
-  --bg:#F5F5F7;--bg2:#EFEFF1;--bg3:#E7E7EA;--surface:#FFFFFF;--surface-2:rgba(255,255,255,0.76);
-  --bd:rgba(15,15,18,0.08);--bd2:rgba(15,15,18,0.13);--bd3:rgba(15,15,18,0.2);
-  --t:#0A0A0B;--t2:#36363A;--m:rgba(10,10,11,0.58);--m2:rgba(10,10,11,0.34);
-  --peach:#EFC7B2;--peach-soft:rgba(239,199,178,0.24);--peach-line:rgba(232,191,174,0.46);
-  --font:'Plus Jakarta Sans',sans-serif;--mono:'Inter',sans-serif;--rad:18px;
-  --shadow-sm:0 10px 24px rgba(15,15,18,0.06),0 2px 6px rgba(15,15,18,0.04);
-  --shadow-md:0 24px 60px rgba(15,15,18,0.08),0 8px 24px rgba(15,15,18,0.05);
-  --shadow-lg:0 36px 88px rgba(15,15,18,0.12),0 12px 30px rgba(15,15,18,0.06);
-}
-html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:var(--font);-webkit-font-smoothing:antialiased;}
-body{position:relative;overflow-x:hidden;}
-/* typography consistency */
-.tb-btn,.hero-eyebrow,.billing-btn,.billing-save,.plan-tier,.btn-plan,.compare-table th{font-size:11px;letter-spacing:.06em;}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(circle at 18% 12%,rgba(255,255,255,0.92) 0%,transparent 34%),
-    radial-gradient(circle at 84% 78%,rgba(232,191,174,0.15) 0%,transparent 22%),
-    linear-gradient(180deg,rgba(255,255,255,0.38),rgba(255,255,255,0));
-}
-button{cursor:pointer;font-family:var(--font);border:none;}
-a{text-decoration:none;}
-
-.orb-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-.orb-bg::before{content:'';position:absolute;top:-220px;left:50%;transform:translateX(-50%);width:940px;height:940px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.94) 0%,transparent 68%)}
-.orb-bg::after{content:'';position:absolute;right:-140px;bottom:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(232,191,174,0.12) 0%,transparent 72%)}
-
-.topbar{position:relative;z-index:10;height:56px;background:rgba(245,245,247,0.86);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 28px;gap:16px;backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(255,255,255,0.65);}
-.logo{font-weight:800;font-size:13px;letter-spacing:3.4px;color:var(--t);text-transform:uppercase;}
-.logo::after{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--t);margin-left:3px;vertical-align:super}
-.tb-sp{flex:1;}
-.tb-btn{height:30px;padding:0 14px;border-radius:10px;border:1px solid var(--bd);background:transparent;color:var(--m);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.06em;display:flex;align-items:center;transition:all .18s;}
-.tb-btn:hover{color:var(--t);border-color:var(--bd2);background:rgba(255,255,255,0.62);}
-
-.page{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:62px 24px 96px;}
-
-.hero{text-align:center;margin-bottom:52px;}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,0.68);border:1px solid var(--peach-line);box-shadow:var(--shadow-sm);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.16em;color:var(--t2);text-transform:uppercase;margin-bottom:22px;}
-.hero-eyebrow::before{content:'';width:7px;height:7px;border-radius:999px;background:var(--peach)}
-.hero-title{font-size:clamp(40px,6vw,68px);font-weight:800;letter-spacing:-.07em;line-height:.95;margin-bottom:18px;}
-.hero-title em{color:rgba(10,10,11,0.36);font-style:normal;}
-.hero-sub{font-size:15px;color:var(--m);max-width:560px;margin:0 auto;line-height:1.9;}
-.funnel-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:940px;margin:22px auto 0;}
-.funnel-card{background:rgba(255,255,255,0.78);border:1px solid var(--bd);border-radius:16px;padding:14px 14px;text-align:left;}
-.funnel-step{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--m2);text-transform:uppercase;}
-.funnel-title{font-size:14px;font-weight:700;color:var(--t);margin-top:6px;}
-.funnel-desc{font-size:12px;color:var(--m);line-height:1.6;margin-top:4px;}
-
-/* BILLING TOGGLE */
-.billing-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:42px;flex-wrap:wrap;}
-.billing-toggle{display:flex;background:rgba(255,255,255,0.72);border:1px solid var(--bd2);border-radius:14px;padding:4px;box-shadow:var(--shadow-sm);}
-.billing-btn{height:34px;padding:0 18px;border-radius:10px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;transition:all .18s;color:var(--m);background:transparent;text-transform:uppercase;}
-.billing-btn.on{background:var(--t);color:#fff;box-shadow:0 12px 24px rgba(15,15,18,0.14);}
-.billing-save{font-size:10px;font-family:var(--mono);font-weight:500;color:var(--t2);background:rgba(255,255,255,0.7);border:1px solid var(--peach-line);border-radius:999px;padding:6px 12px;}
-
-
-.value-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 30px;}
-.value-pill{padding:8px 12px;border-radius:999px;border:1px solid var(--bd2);background:rgba(255,255,255,0.7);font-size:11px;color:var(--t2);font-weight:600;}
-
-/* PLANS */
-.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:60px;}
-@media(max-width:880px){.plans{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px){.plans{grid-template-columns:1fr;}}
-
-.plan{
-  background:var(--surface-2);border:1px solid rgba(15,15,18,0.08);border-radius:24px;
-  padding:28px 22px;position:relative;display:flex;flex-direction:column;
-  transition:border-color .2s,transform .2s,box-shadow .2s;
-  box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,0.88);
-}
-.plan:hover{border-color:var(--bd2);transform:translateY(-3px);box-shadow:var(--shadow-md);}
-.plan.popular{border-color:var(--peach-line);background:linear-gradient(180deg,rgba(255,255,255,0.86),rgba(255,255,255,0.74) 72%,rgba(239,199,178,0.12));}
-.plan.ultimate{border-color:rgba(15,15,18,0.16);background:linear-gradient(180deg,#111114 0%,#1A1A1D 100%);box-shadow:0 28px 64px rgba(15,15,18,0.22);}
-
-.plan-badge{position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.72);border:1px solid var(--peach-line);color:var(--t2);font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;border-radius:999px;white-space:nowrap;}
-.plan.ultimate .plan-badge{background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(239,199,178,0.35);}
-
-.plan-tier{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;color:var(--m2);text-transform:uppercase;margin-bottom:10px;}
-.plan-name{font-size:20px;font-weight:800;color:var(--t);margin-bottom:6px;letter-spacing:-.04em;}
-.plan-tagline{font-size:12px;color:var(--m);line-height:1.7;margin-bottom:20px;min-height:42px;}
-.plan.ultimate .plan-tier,.plan.ultimate .plan-tagline{color:rgba(255,255,255,0.62);}
-.plan.ultimate .plan-name{color:#fff;}
-
-.plan-price-main{display:flex;align-items:baseline;gap:4px;margin-bottom:4px;}
-.plan-price-num{font-size:38px;font-weight:800;letter-spacing:-.06em;color:var(--t);}
-.plan-price-num.fire{color:#fff;}
-.plan-price-per{font-size:10px;color:var(--m2);font-family:var(--mono);letter-spacing:.04em;}
-.plan-price-lt{font-size:11px;color:var(--m2);margin-bottom:16px;}
-.plan-price-lt b{color:var(--t2);}
-.plan.ultimate .plan-price-per,.plan.ultimate .plan-price-lt{color:rgba(255,255,255,0.56);}
-.plan.ultimate .plan-price-lt b{color:#fff;}
-
-.plan-sep{height:1px;background:var(--bd);margin:12px 0;}
-.plan.ultimate .plan-sep{background:rgba(255,255,255,0.1);}
-
-.plan-features{display:flex;flex-direction:column;gap:7px;flex:1;margin-bottom:18px;}
-.pf{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--m);line-height:1.68;}
-.pf-mark{flex-shrink:0;width:16px;height:16px;border-radius:50%;background:var(--peach-soft);border:1px solid var(--peach-line);display:flex;align-items:center;justify-content:center;margin-top:1px;font-size:10px;color:var(--t2);font-weight:700;}
-.pf.dim .pf-mark{background:rgba(15,15,18,0.04);border-color:var(--bd2);color:var(--m2);}
-.pf.dim{color:var(--m2);}
-.pf strong{color:var(--t);font-weight:600;}
-.plan.ultimate .pf{color:rgba(255,255,255,0.72);}
-.plan.ultimate .pf strong{color:#fff;}
-.plan.ultimate .pf-mark{background:rgba(239,199,178,0.16);border-color:rgba(239,199,178,0.3);color:#fff;}
-.plan.ultimate .pf.dim,.plan.ultimate .pf.dim .pf-mark{color:rgba(255,255,255,0.36);}
-
-.btn-plan{
-  width:100%;height:44px;border-radius:var(--rad);
-  border:1px solid var(--bd2);
-  background:rgba(255,255,255,0.62);
-  color:var(--t);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-  transition:all .2s;
-  box-shadow:var(--shadow-sm);
-}
-.btn-plan:hover{background:#fff;box-shadow:var(--shadow-md);border-color:var(--peach-line);transform:translateY(-1px);}
-.btn-plan.solid{background:#fff;color:var(--t);border-color:rgba(255,255,255,0.18);}
-.btn-plan.solid:hover{background:#fff;box-shadow:0 20px 36px rgba(15,15,18,0.22);}
-
-/* COMPARE */
-.section-title{font-size:18px;font-weight:700;margin-bottom:18px;letter-spacing:-.03em;}
-.compare-scroll{overflow-x:auto;margin-bottom:56px;background:var(--surface-2);border:1px solid rgba(15,15,18,0.08);border-radius:24px;box-shadow:var(--shadow-sm);}
-.compare-table{width:100%;border-collapse:collapse;min-width:640px;}
-.compare-table th{text-align:left;font-size:10px;font-family:var(--mono);font-weight:500;letter-spacing:.12em;color:var(--m2);text-transform:uppercase;padding:14px 16px;border-bottom:1px solid var(--bd);}
-.compare-table th:not(:first-child){text-align:center;}
-.compare-table td{padding:12px 16px;font-size:12px;color:var(--m);border-bottom:1px solid var(--bd);}
-.compare-table td:not(:first-child){text-align:center;}
-.compare-table tr:last-child td{border-bottom:none;}
-.ct-yes{color:var(--t);font-size:14px;font-weight:800;}
-.ct-no{color:var(--bd3);font-size:14px;}
-.ct-feat{color:var(--t);font-weight:600;display:block;}
-.ct-sub{color:var(--m2);font-size:10px;margin-top:3px;display:block;line-height:1.5;}
-
-/* FAQ */
-.faq-wrap{max-width:720px;}
-.faq-item{border-top:1px solid var(--bd);padding:16px 0;cursor:pointer;}
-.faq-q{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:12px;}
-.faq-icon{color:var(--t2);font-size:18px;flex-shrink:0;transition:transform .2s;line-height:1;}
-.faq-item.open .faq-icon{transform:rotate(45deg);}
-.faq-a{font-size:12px;color:var(--m);line-height:1.85;margin-top:10px;display:none;}
-.faq-item.open .faq-a{display:block;}
-
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
-.modal-bg.show{display:flex;}
-.modal{background:var(--surface);border:1px solid rgba(15,15,18,0.08);border-radius:26px;padding:30px 26px;width:420px;max-width:95vw;box-shadow:var(--shadow-lg);}
-.modal-header{margin-bottom:16px;}
-.modal-title{font-size:18px;font-weight:800;margin-bottom:2px;}
-.modal-sub{font-size:11px;color:var(--m2);}
-.modal-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.86);border:1px solid var(--peach-line);border-radius:999px;padding:8px 14px;margin-bottom:14px;}
-.modal-pill-name{font-size:13px;font-weight:700;color:var(--t);}
-.modal-pill-sep{color:var(--bd3);}
-.modal-pill-price{font-size:13px;font-weight:700;color:var(--t2);}
-.modal-note{font-size:11px;color:var(--m);line-height:1.75;padding:12px 14px;background:rgba(255,255,255,0.74);border-radius:14px;border:1px solid var(--bd);margin-bottom:14px;}
-.mf{margin-bottom:11px;}
-.mf label{display:block;font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.05em;margin-bottom:6px;text-transform:uppercase;}
-.mf input,.mf textarea{width:100%;background:rgba(255,255,255,0.82);border:1px solid rgba(15,15,18,0.09);border-radius:14px;color:var(--t);font-family:var(--font);font-size:12px;font-weight:500;padding:11px 13px;outline:none;transition:border-color .15s,box-shadow .15s;resize:none;}
-.mf input:focus,.mf textarea:focus{border-color:var(--peach-line);box-shadow:0 0 0 4px rgba(239,199,178,0.18);}
-button:focus-visible,
-a:focus-visible,
-[role="button"]:focus-visible,
-[tabindex]:focus-visible{
-  outline:2px solid var(--t)!important;
-  outline-offset:2px!important;
-  box-shadow:0 0 0 4px rgba(239,199,178,0.18)!important;
-}
-.mf input::placeholder,.mf textarea::placeholder{color:var(--m2);}
-.modal-btns{display:flex;flex-direction:column;gap:7px;margin-top:4px;}
-.btn-submit{height:44px;border-radius:var(--rad);border:1px solid var(--t);background:var(--t);color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;transition:all .2s;box-shadow:0 14px 30px rgba(15,15,18,0.12);}
-.btn-submit:hover{background:#1f1f22;box-shadow:0 20px 36px rgba(15,15,18,0.16);}
-.btn-submit:disabled{opacity:.35;cursor:not-allowed;}
-.btn-cancel{height:40px;border-radius:var(--rad);border:1px solid var(--bd2);background:rgba(255,255,255,0.58);color:var(--t2);font-size:11px;font-weight:600;transition:all .15s;box-shadow:var(--shadow-sm);}
-.btn-cancel:hover{color:var(--t);border-color:var(--peach-line);background:#fff;}
-@media (prefers-reduced-motion: reduce) {
-  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;}
-}
-@media(max-width:780px){.funnel-row{grid-template-columns:1fr;}}
-</style>
-<script>try{localStorage.setItem('orb_lang','ru');localStorage.setItem('orb_admin_lang','ru')}catch(e){}</script>
-<link rel="stylesheet" href="/orbitum-ui.css">
-<script defer src="/orbitum-ru.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORBITUM — как проходит обучение</title>
+  <meta name="description" content="Три последовательных шага Orbitum: бесплатная встреча, 7-дневная сборка торгового плана и практика его исполнения.">
+  <meta name="theme-color" content="#f5f5f7">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#f5f5f7;--surface:rgba(255,255,255,.78);--bd:rgba(15,15,18,.09);--t:#0a0a0b;
+      --m:rgba(10,10,11,.58);--peach:#efc7b2;--shadow:0 24px 60px rgba(15,15,18,.08);
+      --font:'Plus Jakarta Sans',sans-serif;--mono:'Inter',sans-serif;
+    }
+    html{scroll-behavior:smooth}
+    body{min-height:100%;color:var(--t);background:var(--bg);font-family:var(--font);-webkit-font-smoothing:antialiased}
+    body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 18% 10%,#fff,transparent 38%),radial-gradient(circle at 84% 80%,rgba(239,199,178,.22),transparent 27%)}
+    a{color:inherit;text-decoration:none}
+    .topbar{position:sticky;z-index:10;top:0;display:flex;height:62px;align-items:center;padding:0 28px;border-bottom:1px solid var(--bd);background:rgba(245,245,247,.88);backdrop-filter:blur(18px)}
+    .logo{font-size:13px;font-weight:800;letter-spacing:3.4px}
+    .spacer{flex:1}
+    .top-link{padding:9px 14px;border:1px solid var(--bd);border-radius:10px;color:var(--m);font:600 11px var(--mono)}
+    .page{width:min(1080px,calc(100% - 40px));margin:auto;padding:72px 0 96px}
+    .hero{text-align:center}
+    .eyebrow{display:inline-flex;padding:8px 14px;border:1px solid rgba(232,191,174,.46);border-radius:999px;background:rgba(255,255,255,.72);font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+    h1{max-width:850px;margin:24px auto 0;font-size:clamp(42px,7vw,76px);line-height:.96;letter-spacing:-.07em}
+    h1 em{color:rgba(10,10,11,.35);font-style:normal}
+    .lead{max-width:690px;margin:22px auto 0;color:var(--m);font-size:17px;line-height:1.75}
+    .date{width:fit-content;margin:24px auto 0;padding:11px 16px;border-radius:12px;background:#111114;color:#fff;font-size:13px;font-weight:700}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:54px}
+    .step{position:relative;display:flex;min-height:430px;flex-direction:column;padding:29px 25px;border:1px solid var(--bd);border-radius:24px;background:var(--surface);box-shadow:0 10px 24px rgba(15,15,18,.05)}
+    .step.primary{border-color:rgba(232,191,174,.55);background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(239,199,178,.2))}
+    .step-index{font:700 10px var(--mono);letter-spacing:.14em;color:var(--m);text-transform:uppercase}
+    .price{margin-top:25px;font-size:58px;font-weight:800;line-height:1;letter-spacing:-.07em}
+    h2{margin-top:18px;font-size:25px;line-height:1.1;letter-spacing:-.04em}
+    .step p{margin-top:13px;color:var(--m);font-size:14px;line-height:1.65}
+    ul{display:grid;gap:10px;margin:22px 0 25px;padding:0;list-style:none}
+    li{display:flex;gap:9px;color:#39393e;font-size:13px;line-height:1.5}
+    li::before{content:'✓';font-weight:800}
+    .step .button{margin-top:auto}
+    .button{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:0 18px;border-radius:14px;background:#111114;color:#fff;font-size:13px;font-weight:800}
+    .button.secondary{color:var(--t);border:1px solid var(--bd);background:#fff}
+    .note{max-width:760px;margin:26px auto 0;color:var(--m);text-align:center;font-size:13px;line-height:1.65}
+    .faq{max-width:760px;margin:76px auto 0}
+    .faq h2{margin:0 0 22px;font-size:34px}
+    details{border-top:1px solid var(--bd);padding:18px 0}
+    summary{cursor:pointer;font-size:15px;font-weight:700}
+    details p{margin-top:10px;color:var(--m);font-size:13px;line-height:1.7}
+    footer{padding:28px;border-top:1px solid var(--bd);color:var(--m);text-align:center;font-size:11px;line-height:1.6}
+    @media(max-width:850px){.steps{grid-template-columns:1fr}.step{min-height:0}.topbar{padding:0 16px}.page{width:min(100% - 24px,1080px);padding-top:48px}}
+  </style>
 </head>
 <body>
-<div class="orb-bg"></div>
+  <header class="topbar">
+    <a class="logo" href="/">ORBITUM</a>
+    <div class="spacer"></div>
+    <a class="top-link" href="/">На главную</a>
+  </header>
 
-<div class="topbar">
-  <div class="logo">ORBITUM</div>
-  <div class="tb-sp"></div>
-  <a href="/tools.html" class="tb-btn">Tools</a>
-  <a href="/journal" class="tb-btn">Журнал</a>
-  <a href="/screener" class="tb-btn">Screener</a>
-</div>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Один путь · три последовательных шага</div>
+      <h1>Сначала разберитесь бесплатно. <em>Платите только за личную работу.</em></h1>
+      <p class="lead">Orbitum не продаёт сигналы, обещание прибыли или набор разрозненных уроков. Цель программы — превратить ваши знания в один понятный порядок действий, а затем научиться его соблюдать.</p>
+      <div class="date">Ближайшая встреча: 9 августа · 19:00 МСК</div>
+    </section>
 
-<div class="page">
+    <section class="steps" aria-label="Этапы программы">
+      <article class="step primary">
+        <div class="step-index">Шаг 01 · знакомство</div>
+        <div class="price">$0</div>
+        <h2>Бесплатная встреча</h2>
+        <p>Понимаем, почему перед сделкой возникает хаос, и разбираем простой порядок на реальных графиках.</p>
+        <ul>
+          <li>75–90 минут в Telegram</li>
+          <li>три разобранные сделки</li>
+          <li>четыре вопроса перед входом</li>
+          <li>ответы Данила на вопросы</li>
+        </ul>
+        <a class="button" href="/#contact">Записаться бесплатно →</a>
+      </article>
 
-  <div class="hero">
-    <div class="hero-eyebrow">Тарифы</div>
-    <h1 class="hero-title">Buy your <em>execution edge.</em></h1>
-    <p class="hero-sub">Clear value: journaling, AI feedback, and screener workflow that helps you make better decisions and avoid expensive mistakes.</p>
-    <div class="funnel-row">
-      <article class="funnel-card"><div class="funnel-step">Шаг 1</div><div class="funnel-title">Быстрее находите сетапы</div><p class="funnel-desc">Используйте фильтры скринера, чтобы убрать случайные сделки и сосредоточиться на качественных ситуациях.</p></article>
-      <article class="funnel-card"><div class="funnel-step">Шаг 2</div><div class="funnel-title">Контролируйте качество исполнения</div><p class="funnel-desc">Записывайте контекст каждой сделки, чтобы точно видеть, что ухудшает результат.</p></article>
-      <article class="funnel-card"><div class="funnel-step">Шаг 3</div><div class="funnel-title">Улучшайте торговлю с ИИ-разбором</div><p class="funnel-desc">Получайте конкретные выводы, чтобы каждую неделю торговать точнее предыдущей.</p></article>
-    </div>
-  </div>
+      <article class="step">
+        <div class="step-index">Шаг 02 · личная проверка</div>
+        <div class="price">$50</div>
+        <h2>Orbitum Reset · 7 дней</h2>
+        <p>Выбираем один способ входа, проверяем его на десяти примерах и собираем торговый план на одной странице.</p>
+        <ul>
+          <li>короткое задание каждый день</li>
+          <li>два групповых разбора</li>
+          <li>личная проверка плана</li>
+          <li>не больше 10 участников</li>
+        </ul>
+        <a class="button secondary" href="/#contact">Сначала прийти бесплатно</a>
+      </article>
 
-  <div class="billing-row">
-    <div class="billing-toggle">
-      <button class="billing-btn on" id="btn-monthly" onclick="setBilling('monthly')">Ежемесячно</button>
-      <button class="billing-btn" id="btn-annual" onclick="setBilling('annual')">На год</button>
-    </div>
-    <span class="billing-save" id="save-tag">Экономия 30% при оплате за год</span>
-  </div>
-  <div class="value-row">
-    <div class="value-pill">Персональное подключение</div>
-    <div class="value-pill">Быстрая активация за 1–2 часа</div>
-    <div class="value-pill">Без скрытых платежей</div>
-    <div class="value-pill">Ежемесячный тариф можно отменить в любой момент</div>
-  </div>
+      <article class="step">
+        <div class="step-index">Шаг 03 · исполнение</div>
+        <div class="price">+$250</div>
+        <h2>Практикум · 10 дней</h2>
+        <p>Учимся исполнять уже собранный план: разбирать входы, пропуски, риск и нарушения без добавления новых методов.</p>
+        <ul>
+          <li>пять живых встреч</li>
+          <li>разбор учебных и реальных сделок</li>
+          <li>обратная связь по нарушениям</li>
+          <li>$50 засчитываются полностью</li>
+        </ul>
+        <a class="button secondary" href="/#contact">Начать с первого шага</a>
+      </article>
+    </section>
 
-  <div class="plans" id="plans-grid"></div>
+    <p class="note">Платные этапы предлагаются только после бесплатной встречи. Никакой автоматической оплаты. Торговля связана с риском потери денег; обучение не является финансовой рекомендацией и не гарантирует прибыль.</p>
 
-  <div class="section-title">Полное сравнение</div>
-  <div class="compare-scroll">
-    <table class="compare-table" id="compare-table"></table>
-  </div>
+    <section class="faq">
+      <h2>Короткие ответы</h2>
+      <details><summary>Можно сразу оплатить $300?</summary><p>Нет. Сначала бесплатная встреча и 7-дневный этап за $50. Так мы оба понимаем, подходит ли вам формат и есть ли смысл переходить к практике.</p></details>
+      <details><summary>Почему $50 потом засчитываются?</summary><p>Потому что второй и третий этапы — части одной работы. При переходе в практикум итоговая стоимость остаётся $300, поэтому доплата составляет $250.</p></details>
+      <details><summary>Когда откроются журнал и скринер?</summary><p>Инструменты Orbitum развиваются отдельно. Сейчас главная задача — вручную помочь первым участникам собрать и проверить работающий порядок действий. Доступ к инструментам не входит в обещание этой программы.</p></details>
+    </section>
+  </main>
 
-  <div class="faq-wrap">
-    <div class="section-title">Вопросы</div>
-    <div id="faq"></div>
-  </div>
-
-</div>
-
-<!-- Modal -->
-<div class="modal-bg" id="modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title">Получить доступ</div>
-      <div class="modal-sub">Отправьте заявку — активируем доступ в течение 1–2 часов</div>
-    </div>
-    <div class="modal-pill">
-      <span class="modal-pill-name" id="modal-plan-name">—</span>
-      <span class="modal-pill-sep">|</span>
-      <span class="modal-pill-price" id="modal-plan-price">—</span>
-    </div>
-    <div class="modal-note">После заявки мы пришлём реквизиты на email или в Telegram. Принимаем USDT, BTC и банковский перевод.</div>
-    <div class="mf"><label>Email</label><input type="email" id="m-email" placeholder="you@example.com"></div>
-    <div class="mf"><label>Telegram (необязательно)</label><input type="text" id="m-tg" placeholder="@username"></div>
-    <div class="mf"><label>Комментарий</label><textarea id="m-note" rows="2" placeholder="Вопрос или пожелание..."></textarea></div>
-    <div class="modal-btns">
-      <button class="btn-submit" id="btn-submit" onclick="submitPayment()">Отправить заявку</button>
-      <button class="btn-cancel" onclick="closeModal()">Отмена</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const PLANS = [
-  {
-    id: 'journal',
-    tier: 'Уровень 1',
-    name: 'Журнал',
-    tagline: 'Записывайте сделки. Находите свои паттерны.',
-    monthly: 21,
-    annual: 15,
-    lifetime: 97,
-    features: [
-      { text: '<strong>Неограниченная запись сделок</strong> — пара, направление, результат, эмоции и скриншоты' },
-      { text: '<strong>Панель результатов</strong> — винрейт, P&L, кривая капитала и серии' },
-      { text: '<strong>Аналитика сетапов</strong> — какие сетапы действительно работают и с каким процентом' },
-      { text: '<strong>Еженедельный PDF-отчёт</strong> — автоматическая сводка с ключевой статистикой по воскресеньям' },
-      { text: 'Тепловые карты по дням недели и времени' },
-      { text: 'Экспорт журнала в CSV' },
-      { dim: true, text: 'ИИ-наставник — не включён' },
-      { dim: true, text: 'Сигналы — не включены' },
-    ],
-  },
-  {
-    id: 'analytics',
-    tier: 'Уровень 2',
-    name: 'Журнал + ИИ',
-    tagline: 'Ваш журнал с ИИ, который понимает ваши привычки.',
-    monthly: 71,
-    annual: 50,
-    lifetime: 297,
-    badge: 'Популярный',
-    popular: true,
-    features: [
-      { text: 'Всё из тарифа «Журнал»' },
-      { text: '<strong>ИИ-разбор после каждой сделки</strong> — в течение 60 секунд после закрытия объясняет повторившийся паттерн' },
-      { text: '<strong>Поведенческий профиль</strong> — после 10 сделок ИИ находит вашу убыточную привычку с точными цифрами и временем' },
-      { text: '<strong>Режим прямого разбора</strong> — без смягчений: только данные о том, что каждую неделю стоит вам денег' },
-      { text: '<strong>Еженедельный ИИ-разбор</strong> — главный паттерн недели, одно конкретное исправление и измеримый эффект' },
-      { text: '<strong>Анализ сделки</strong> — график TradingView, моделирование SL/TP и оценка качества до входа' },
-      { dim: true, text: 'Сигналы в реальном времени — не включены' },
-    ],
-  },
-  {
-    id: 'signals',
-    tier: 'Уровень 3',
-    name: 'Сигналы',
-    tagline: 'ICT/SMC-сетапы в реальном времени. Без шума.',
-    monthly: 149,
-    annual: 104,
-    lifetime: 497,
-    features: [
-      { text: '<strong>Сигналы сетапов в реальном времени</strong> — 80 монет проверяются каждые 30 минут, показываются только оценки A/A+' },
-      { text: '<strong>Вход, стоп и цель</strong> — точные ценовые уровни вместо зон, рассчитанные по структуре и ATR' },
-      { text: '<strong>Оценка уверенности 0–100</strong> — на основе структуры, сочетания OB/FVG, зоны RSI и объёма' },
-      { text: '<strong>Утренний обзор в 07:00 UTC</strong> — состояние рынка, лучший сетап дня и ваша недельная статистика' },
-      { text: '<strong>Уведомления об импульсе</strong> — всплески объёма и пробойные свечи в реальном времени' },
-      { text: '<strong>Вечерний итог</strong> — в 19:00 UTC — честный результат сигналов за день' },
-      { text: 'Базовый журнал включён' },
-    ],
-  },
-  {
-    id: 'full',
-    tier: 'Полный доступ',
-    name: 'Всё включено',
-    tagline: 'Полная система без компромиссов.',
-    monthly: 289,
-    annual: 202,
-    lifetime: 777,
-    badge: 'Лучший выбор',
-    ultimate: true,
-    features: [
-      { text: '<strong>Полный журнал и ИИ-аналитика</strong> — все функции первых двух тарифов' },
-      { text: '<strong>Все сигналы в реальном времени</strong> — сетапы, импульсы, ИИ-выводы и важные уведомления в Telegram' },
-      { text: '<strong>Панель скринера</strong> — лента сигналов, тепловая карта, SA Score и зоны OB/FVG для 80 монет' },
-      { text: '<strong>Анализ сделки</strong> — полный доступ, моделирование и статистика сигналов' },
-      { text: '<strong>Приоритетная доставка</strong> — сигналы приходят без задержки бесплатного тарифа' },
-      { text: '<strong>ИИ-прогноз в 20:30 UTC</strong> — один аналитический сценарий на завтра, только для платных тарифов' },
-      { text: '<strong>Все будущие функции</strong> включены — бессрочный доступ не требует повторной оплаты' },
-    ],
-  },
-];
-
-const COMPARE = [
-  { feat: 'Trade logging', sub: 'unlimited', v: [1,1,0,1] },
-  { feat: 'Панель результатов', sub: 'WR, P&L, equity curve', v: [1,1,0,1] },
-  { feat: 'Аналитика сетапов', sub: 'best/worst setups', v: [1,1,0,1] },
-  { feat: 'Еженедельный PDF-отчёт', sub: 'auto Sunday', v: [1,1,0,1] },
-  { feat: 'AI Coach post-trade', sub: 'within 60 seconds', v: [0,1,0,1] },
-  { feat: 'Поведенческий профиль', sub: 'your losing pattern', v: [0,1,0,1] },
-  { feat: 'Brutal Analysis', sub: 'no-filter weekly', v: [0,1,0,1] },
-  { feat: 'Анализ сделки', sub: 'TradingView + AI', v: [0,1,0,1] },
-  { feat: 'Real-time signals', sub: 'ICT/SMC, 80 coins', v: [0,0,1,1] },
-  { feat: 'Entry / SL / TP', sub: 'exact levels', v: [0,0,1,1] },
-  { feat: 'Morning brief', sub: '07:00 UTC daily', v: [0,0,1,1] },
-  { feat: 'Уведомления об импульсе', sub: 'volume + breakout', v: [0,0,1,1] },
-  { feat: 'Вечерний итог', sub: 'honest outcome', v: [0,0,1,1] },
-  { feat: 'Signal Панель скринера', sub: 'live heatmap', v: [0,0,1,1] },
-  { feat: 'AI Forward Insight', sub: '20:30 UTC', v: [0,0,0,1] },
-  { feat: 'Future features', sub: 'Lifetime only', v: [0,0,0,1] },
-];
-
-const FAQ = [
-  { q: 'Как проходит оплата?', a: 'После отправки формы мы свяжемся с вами по email или в Telegram и пришлём реквизиты. Принимаем USDT (TRC20/ERC20), BTC и банковский перевод. Доступ активируется в течение 1–2 часов после подтверждения оплаты.' },
-  { q: 'Есть ли бесплатный тариф?', a: 'Да. Бесплатно доступны до 20 записей сделок, сигналы с задержкой 15 минут, ежедневный обзор рынка и базовая панель. Этого достаточно, чтобы оценить платформу.' },
-  { q: 'Что означает бессрочный доступ?', a: 'Один платёж даёт постоянный доступ к выбранному тарифу, включая будущие функции этого тарифа. В тарифе «Всё включено» за $777 доступны все текущие и будущие функции. Без подписки и продления.' },
-  { q: 'Можно начать с журнала и перейти выше?', a: 'Да. Вы оплачиваете разницу в стоимости за текущий период. Напишите нам — оформим переход в течение нескольких часов.' },
-  { q: 'Что именно делает ИИ-наставник?', a: 'ИИ анализирует последние сделки и ищет поведенческие паттерны: убыточные пары, время торговли и последовательности действий. Вы получаете конкретные цифры, а не общие советы.' },
-  { q: 'Можно ли торговать по сигналам?', a: 'Сигналы показывают структуру, сочетание OB/FVG, зону RSI и объём. В них есть вход, стоп и цель. Это аналитические данные, а не финансовая рекомендация. Решение и риск остаются за вами.' },
-];
-
-let _billing = 'monthly';
-let _selectedPlan = null;
-let _sb = null, _session = null;
-
-function setBilling(m) {
-  _billing = m;
-  document.getElementById('btn-monthly').className = 'billing-btn' + (m === 'monthly' ? ' on' : '');
-  document.getElementById('btn-annual').className  = 'billing-btn' + (m === 'annual'  ? ' on' : '');
-  document.getElementById('save-tag').style.display = m === 'annual' ? 'inline' : 'none';
-  renderPlans();
-}
-
-function renderPlans() {
-  document.getElementById('plans-grid').innerHTML = PLANS.map(p => {
-    const price = _billing === 'annual' ? p.annual : p.monthly;
-    const per   = _billing === 'annual' ? '/мес., оплата за год' : '/месяц';
-    return `<div class="plan${p.popular ? ' popular' : ''}${p.ultimate ? ' ultimate' : ''}">
-      ${p.badge ? `<div class="plan-badge">${p.badge}</div>` : ''}
-      <div class="plan-tier">${p.tier}</div>
-      <div class="plan-name">${p.name}</div>
-      <div class="plan-tagline">${p.tagline}</div>
-      <div class="plan-price-main">
-        <div class="plan-price-num${p.ultimate ? ' fire' : ''}">$${price}</div>
-        <div class="plan-price-per">${per}</div>
-      </div>
-      <div class="plan-price-lt">или <b>$${p.lifetime}</b> навсегда</div>
-      <div class="plan-sep"></div>
-      <div class="plan-features">
-        ${p.features.map(f => `<div class="pf${f.dim ? ' dim' : ''}">
-          <div class="pf-mark">${f.dim ? '—' : '+'}</div>
-          <span>${f.text}</span>
-        </div>`).join('')}
-      </div>
-      <button class="btn-plan${p.ultimate ? ' solid' : ''}"
-        onclick="openModal('${p.id}','${p.name}',${price},'${per}')">
-        Выбрать ${p.name}
-      </button>
-    </div>`;
-  }).join('');
-}
-
-function renderCompare() {
-  const heads = PLANS.map(p => `<th>${p.name}</th>`).join('');
-  const rows  = COMPARE.map(r => {
-    const cells = r.v.map(v =>
-      v ? `<td><span class="ct-yes">+</span></td>`
-        : `<td><span class="ct-no">—</span></td>`
-    ).join('');
-    return `<tr><td><span class="ct-feat">${r.feat}</span><span class="ct-sub">${r.sub}</span></td>${cells}</tr>`;
-  }).join('');
-  document.getElementById('compare-table').innerHTML =
-    `<thead><tr><th>Функция</th>${heads}</tr></thead><tbody>${rows}</tbody>`;
-}
-
-function renderFAQ() {
-  document.getElementById('faq').innerHTML = FAQ.map(item =>
-    `<div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">${item.q}<span class="faq-icon">+</span></div>
-      <div class="faq-a">${item.a}</div>
-    </div>`
-  ).join('');
-}
-
-function openModal(id, name, price, per) {
-  _selectedPlan = { id, name, price, per };
-  document.getElementById('modal-title').textContent      = `Get ${name}`;
-  document.getElementById('modal-plan-name').textContent  = name;
-  document.getElementById('modal-plan-price').textContent = `$${price} ${per}`;
-  if (_session) document.getElementById('m-email').value  = _session.user.email || '';
-  document.getElementById('modal').classList.add('show');
-}
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
-
-async function submitPayment() {
-  const email = document.getElementById('m-email').value.trim();
-  if (!email) { alert('Введите email'); return; }
-  const tg   = document.getElementById('m-tg').value.trim();
-  const note = document.getElementById('m-note').value.trim();
-  const btn  = document.getElementById('btn-submit');
-  btn.disabled = true; btn.textContent = 'Отправляем…';
-  try {
-    if (_sb && _session) {
-      await fetch('https://kgutmsosfyyxnlnhucaa.supabase.co/rest/v1/payments', {
-        method: 'POST',
-        headers: {
-          apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q',
-          Authorization: `Bearer ${_session.access_token}`,
-          'Content-Type': 'application/json',
-          Prefer: 'return=minimal',
-        },
-        body: JSON.stringify({ user_id: _session.user.id, plan: _selectedPlan.id, status: 'pending', notes: `email:${email} tg:${tg} price:$${_selectedPlan.price} note:${note}` }),
-      });
-    }
-    closeModal();
-    alert(`Заявка на тариф «${_selectedPlan.name}» ($${_selectedPlan.price}) отправлена.\n\nМы свяжемся с вами по адресу ${email} в течение 1–2 часов.`);
-  } catch(e) { alert('Ошибка: ' + e.message); }
-  finally { btn.disabled = false; btn.textContent = 'Отправить заявку'; }
-}
-
-function initSB() {
-  if (typeof supabase === 'undefined') { setTimeout(initSB, 100); return; }
-  _sb = supabase.createClient('https://kgutmsosfyyxnlnhucaa.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtndXRtc29zZnl5eG5sbmh1Y2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4Njk2NTMsImV4cCI6MjA4ODQ0NTY1M30.yDPTEkhCvVNpLjSSUqEqD_UTR5N0IeZKtkLCNpW7W_Q');
-  _sb.auth.getSession().then(({ data: { session } }) => { _session = session; });
-}
-
-// Init
-document.getElementById('save-tag').style.display = 'none';
-renderPlans();
-renderCompare();
-renderFAQ();
-initSB();
-</script>
+  <footer>ORBITUM · Обучение не гарантирует финансовый результат. Решения и риск всегда остаются за участником.</footer>
 </body>
 </html>
+
