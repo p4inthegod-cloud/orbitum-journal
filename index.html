@@ -444,11 +444,11 @@
           <div class="form-grid">
             <div class="form-field">
               <label for="lead-name">Ваше имя</label>
-              <input id="lead-name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="Данил" required>
+              <input id="lead-name" name="name" type="text" autocomplete="name" minlength="2" maxlength="80" placeholder="Данил" required>
             </div>
             <div class="form-field">
               <label for="lead-telegram">Telegram</label>
-              <input id="lead-telegram" name="telegram" type="text" inputmode="text" autocomplete="off" maxlength="80" placeholder="@username" required>
+              <input id="lead-telegram" name="telegram" type="text" inputmode="text" autocomplete="off" maxlength="80" pattern="@?[A-Za-z0-9_]{5,32}|(?:https?://)?(?:www\\.)?t\\.me/[A-Za-z0-9_]{5,32}/?" title="Введите @username или ссылку t.me/username" placeholder="@username" required>
             </div>
             <div class="form-field">
               <label for="lead-interest">Что вас интересует</label>
@@ -469,7 +469,7 @@
             </div>
             <div class="form-field form-field--full">
               <label for="lead-goal">Главная задача</label>
-              <textarea id="lead-goal" name="goal" maxlength="1200" placeholder="Например: хочу перестать повторять одну и ту же ошибку и собрать понятную систему разбора сделок" required></textarea>
+              <textarea id="lead-goal" name="goal" minlength="10" maxlength="1200" placeholder="Например: хочу перестать повторять одну и ту же ошибку и собрать понятную систему разбора сделок" required></textarea>
             </div>
             <label class="form-honeypot" aria-hidden="true">Компания<input name="company" type="text" tabindex="-1" autocomplete="off"></label>
           </div>
@@ -543,7 +543,9 @@
           status.textContent = 'Заявка отправлена. Скоро свяжемся с вами в Telegram.';
           status.classList.add('is-success');
         } catch (error) {
-          status.textContent = 'Не удалось отправить заявку. Проверьте Telegram и попробуйте ещё раз.';
+          status.textContent = error instanceof Error && error.message
+            ? error.message
+            : 'Не удалось отправить заявку. Попробуйте ещё раз.';
           status.classList.add('is-error');
         } finally {
           submit.disabled = false;
