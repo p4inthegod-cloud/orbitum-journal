@@ -44,7 +44,14 @@ async function fetchWithRetry(url, retries = 2) {
 }
 
 const CG = 'https://api.coingecko.com/api/v3';
-const BINANCE = 'https://api.binance.com/api/v3';
+// Binance recommends the data-only host for public market data. The generic
+// api.binance.com host can return HTTP 451 from US-hosted serverless regions.
+// Keep a second official market-data host as a failover, but never fall back to
+// the trading API host that caused the screener to silently lose every candle.
+const BINANCE_MARKET_DATA_BASES = [
+  'https://data-api.binance.vision/api/v3',
+  'https://data.binance.com/api/v3',
+];
 const INTRADAY_INTERVALS = new Set(['5m', '15m']);
 const ENDPOINTS = {
   crypto:   () => `${CG}/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,cardano,avalanche-2,chainlink,pepe,the-open-network,sui&price_change_percentage=1h,24h,7d&per_page=20&sparkline=false`,
@@ -62,25 +69,43 @@ function wait(ms) {
 }
 
 async function fetchBinanceKlines(symbol, interval, limit) {
-  const url = `${BINANCE}/klines?symbol=${encodeURIComponent(symbol)}&interval=${interval}&limit=${limit}`;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(7000),
-      headers: { 'Accept': 'application/json' },
-    });
-    if (response.status === 429 && attempt === 0) {
-      await wait(700);
-      continue;
+  let lastError = new Error('Binance market data unavailable');
+
+  for (const base of BINANCE_MARKET_DATA_BASES) {
+    const url = `${base}/klines?symbol=${encodeURIComponent(symbol)}&interval=${interval}&limit=${limit}`;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await fetch(url, {
+          signal: AbortSignal.timeout(6500),
+          headers: { 'Accept': 'application/json' },
+        });
+        if (response.status === 429 && attempt === 0) {
+          await wait(500);
+          continue;
+        }
+        if (!response.ok) {
+          const detail = (await response.text().catch(() => '')).slice(0, 120);
+          throw new Error(`${new URL(base).hostname} HTTP ${response.status}${detail ? `: ${detail}` : ''}`);
+        }
+        const rows = await response.json();
+        if (!Array.isArray(rows)) throw new Error(`${new URL(base).hostname}: invalid payload`);
+        const normalized = rows.map(row => [
+          Number(row[0]), Number(row[1]), Number(row[2]), Number(row[3]),
+          Number(row[4]), Number(row[5]), Number(row[6]),
+        ]).filter(row => row.every(Number.isFinite));
+        if (!normalized.length) throw new Error(`${new URL(base).hostname}: empty candles`);
+        return { rows: normalized, source: new URL(base).hostname };
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        if (attempt === 0 && /429|timeout|aborted/i.test(lastError.message)) {
+          await wait(350);
+          continue;
+        }
+        break;
+      }
     }
-    if (!response.ok) throw new Error(`Binance ${response.status}`);
-    const rows = await response.json();
-    if (!Array.isArray(rows)) throw new Error('Invalid Binance payload');
-    return rows.map(row => [
-      Number(row[0]), Number(row[1]), Number(row[2]), Number(row[3]),
-      Number(row[4]), Number(row[5]), Number(row[6]),
-    ]).filter(row => row.every(Number.isFinite));
   }
-  throw new Error('Binance rate limit');
+  throw lastError;
 }
 
 async function mapWithConcurrency(items, concurrency, worker) {
@@ -98,6 +123,7 @@ async function mapWithConcurrency(items, concurrency, worker) {
 }
 
 async function handleIntraday(req, res) {
+  const startedAt = Date.now();
   const interval = INTRADAY_INTERVALS.has(req.query.interval) ? req.query.interval : '15m';
   const limit = Math.min(120, Math.max(60, Number.parseInt(req.query.limit, 10) || 96));
   const symbols = [...new Set(String(req.query.symbols || '')
@@ -112,37 +138,68 @@ async function handleIntraday(req, res) {
   const ttl = CACHE_TTL.intraday * 1000;
   const candles = {};
   const missing = [];
+  const failures = {};
+  const sources = new Set();
   const pending = [];
 
   for (const symbol of symbols) {
     const key = `${interval}:${limit}:${symbol}`;
     const cached = intradayCache.get(key);
-    if (cached && now - cached.ts < ttl) candles[symbol] = cached.rows;
+    if (cached && now - cached.ts < ttl) {
+      candles[symbol] = cached.rows;
+      if (cached.source) sources.add(cached.source);
+    }
     else pending.push({ symbol, key });
   }
 
-  const fetched = await mapWithConcurrency(pending, 8, async item => ({
-    ...item,
-    rows: await fetchBinanceKlines(item.symbol, interval, limit),
-  }));
+  const fetched = await mapWithConcurrency(pending, 8, async item => {
+    const payload = await fetchBinanceKlines(item.symbol, interval, limit);
+    return { ...item, ...payload };
+  });
 
   fetched.forEach((result, index) => {
     const item = pending[index];
     if (result?.rows?.length) {
-      intradayCache.set(item.key, { ts: now, rows: result.rows });
+      intradayCache.set(item.key, { ts: now, rows: result.rows, source:result.source });
       candles[item.symbol] = result.rows;
+      if (result.source) sources.add(result.source);
       return;
     }
     const stale = intradayCache.get(item.key);
     if (stale?.rows?.length) candles[item.symbol] = stale.rows;
-    else missing.push(item.symbol);
+    else {
+      missing.push(item.symbol);
+      failures[item.symbol] = String(result?.error?.message || 'market data unavailable').slice(0, 180);
+    }
   });
 
-  return sendJSON(res, 200, {
+  const available = Object.keys(candles).length;
+  const diagnostic = {
+    level: available ? 'info' : 'error',
+    msg: available ? 'intraday_complete' : 'intraday_provider_unavailable',
+    route: '/api/ticker',
+    interval,
+    requested: symbols.length,
+    available,
+    unavailable: missing.length,
+    sources: [...sources],
+    sampleError: Object.values(failures)[0] || null,
+    ms: Date.now() - startedAt,
+  };
+  (available ? console.log : console.error)(JSON.stringify(diagnostic));
+
+  const payload = {
     interval,
     generated_at: new Date(now).toISOString(),
+    sources: [...sources],
     candles,
     unavailable: missing,
+    failures,
+  };
+
+  return sendJSON(res, available ? 200 : 502, available ? payload : {
+    error: 'Intraday market data provider unavailable',
+    ...payload,
   }, {
     'Cache-Control': `public, s-maxage=${CACHE_TTL.intraday}, stale-while-revalidate=30`,
   });
