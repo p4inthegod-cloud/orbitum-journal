@@ -968,7 +968,7 @@ body::after { display:none; }
           <div class="decision-card primary">
             <div class="decision-label">Режим отбора</div>
             <div class="decision-value accent" id="summary-mode">15M · 5R</div>
-            <div class="decision-sub">Реальные intraday-свечи Binance</div>
+            <div class="decision-sub" id="summary-source">Подключаем intraday-свечи Binance…</div>
           </div>
           <div class="decision-card">
             <div class="decision-label">Готовы к входу</div>
@@ -1075,6 +1075,7 @@ let _view = 'table';
 let _timeframe = ['5m','15m'].includes(localStorage.getItem('orb_scr_tf')) ? localStorage.getItem('orb_scr_tf') : '15m';
 let _intraday = { '5m': Object.create(null), '15m': Object.create(null) };
 let _intradayLoadedAt = { '5m': 0, '15m': 0 };
+let _intradayStatus = { '5m': null, '15m': null };
 let _aiCache = {}, _wsMap = {}, _wsConn = null;
 let _soundEnabled = localStorage.getItem('orb_sound') !== '0';
 let _actx = null;
@@ -1545,7 +1546,7 @@ function coinPair(c) {
 }
 
 async function loadIntradayTimeframe(timeframe, raw, force = false) {
-  if (!force && Date.now() - _intradayLoadedAt[timeframe] < 15000) return;
+  if (!force && Date.now() - _intradayLoadedAt[timeframe] < 15000) return _intradayStatus[timeframe];
   const symbols = [...new Set(raw.map(coinPair).filter(Boolean))].slice(0, 120);
   const batches = [];
   for (let i = 0; i < symbols.length; i += 30) batches.push(symbols.slice(i, i + 30));
@@ -1556,43 +1557,88 @@ async function loadIntradayTimeframe(timeframe, raw, force = false) {
     });
     try {
       const response = await fetch('/api/ticker?' + query, { signal:AbortSignal.timeout(14000) });
-      if (!response.ok) return null;
-      return await response.json();
-    } catch(e) { return null; }
+      const payload = await response.json().catch(() => ({}));
+      return { ok:response.ok, status:response.status, payload, batch };
+    } catch(error) {
+      return { ok:false, status:0, payload:{}, batch, error:String(error?.message || error) };
+    }
   }));
 
   const merged = Object.create(null);
-  results.forEach(result => Object.assign(merged, result?.candles || {}));
-  if (Object.keys(merged).length) {
-    _intraday[timeframe] = merged;
+  const sources = new Set();
+  const errors = [];
+  results.forEach(result => {
+    Object.assign(merged, result?.payload?.candles || {});
+    (result?.payload?.sources || []).forEach(source => sources.add(source));
+    if (!result?.ok) {
+      const sample = Object.values(result?.payload?.failures || {})[0];
+      errors.push(sample || result?.payload?.error || result?.error || `HTTP ${result?.status || 0}`);
+    }
+  });
+
+  const loaded = Object.keys(merged).length;
+  const previous = Object.keys(_intraday[timeframe] || {}).length;
+  if (loaded) {
+    _intraday[timeframe] = { ..._intraday[timeframe], ...merged };
     _intradayLoadedAt[timeframe] = Date.now();
+    _intradayStatus[timeframe] = { loaded, requested:symbols.length, sources:[...sources], partial:loaded < symbols.length };
+    updateIntradayStatus(timeframe);
+    return _intradayStatus[timeframe];
+  }
+
+  _intradayStatus[timeframe] = { loaded:previous, requested:symbols.length, sources:[], partial:true, error:errors[0] || 'Свечи не получены' };
+  updateIntradayStatus(timeframe);
+  if (previous) return _intradayStatus[timeframe];
+  throw new Error(`Нет данных ${timeframe.toUpperCase()}: ${_intradayStatus[timeframe].error}`);
+}
+
+function updateIntradayStatus(timeframe = _timeframe) {
+  if (timeframe !== _timeframe) return;
+  const el = document.getElementById('summary-source');
+  const status = _intradayStatus[timeframe];
+  if (!el || !status) return;
+  if (status.loaded) {
+    const source = status.sources?.[0] || 'Binance cache';
+    el.textContent = `${status.loaded}/${status.requested} пар · ${source}${status.partial ? ' · частично' : ''}`;
+    el.style.color = status.partial ? 'var(--y)' : '';
+  } else {
+    el.textContent = 'Ошибка источника intraday-свечей';
+    el.style.color = 'var(--r)';
   }
 }
 
 async function loadCoins() {
+  let data;
   try {
     const r = await fetch('/api/ticker?type=screener&per_page=80&sparkline=true&price_change_percentage=1h,7d,30d');
     if (!r.ok) throw new Error('ticker fail');
-    const data = await r.json();
+    data = await r.json();
     if (!data?.length) throw new Error('empty');
-    _rawCoins = data;
-    await loadIntradayTimeframe(_timeframe, data, true);
-    if (_timeframe === '5m') await loadIntradayTimeframe('15m', data);
-    processCoins(data);
   } catch(e) {
     // Fallback to CoinGecko directly
     try {
       const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=80&page=1&sparkline=true&price_change_percentage=1h,7d,30d';
       const r = await fetch(url, { signal: AbortSignal.timeout(12000) });
-      const data = await r.json();
-      _rawCoins = data;
-      await loadIntradayTimeframe(_timeframe, data, true);
-      if (_timeframe === '5m') await loadIntradayTimeframe('15m', data);
-      processCoins(data);
+      data = await r.json();
+      if (!data?.length) throw new Error('empty');
     } catch(e2) {
       showState('table-wrap', 'Ошибка загрузки данных');
+      return;
     }
   }
+
+  _rawCoins = data;
+  let intradayError = null;
+  try {
+    await loadIntradayTimeframe(_timeframe, data, true);
+  } catch(error) {
+    intradayError = error;
+  }
+  if (_timeframe === '5m') {
+    try { await loadIntradayTimeframe('15m', data); } catch(error) {}
+  }
+  processCoins(data);
+  if (intradayError) showToast(intradayError.message, 'err');
 }
 
 function processCoins(raw) {
@@ -2310,11 +2356,18 @@ async function setTimeframe(timeframe, btn) {
   if (btn) btn.classList.add('active');
   showState('table-wrap', `СКАНИРУЕМ ${timeframe.toUpperCase()} СВЕЧИ`);
   showState('heatmap-wrap', `СКАНИРУЕМ ${timeframe.toUpperCase()} СВЕЧИ`);
-  await loadIntradayTimeframe(timeframe, _rawCoins, true);
-  if (timeframe === '5m') await loadIntradayTimeframe('15m', _rawCoins);
+  let intradayError = null;
+  try {
+    await loadIntradayTimeframe(timeframe, _rawCoins, true);
+  } catch(error) {
+    intradayError = error;
+  }
+  if (timeframe === '5m') {
+    try { await loadIntradayTimeframe('15m', _rawCoins); } catch(error) {}
+  }
   processCoins(_rawCoins);
   renderSetupBars();
-  showToast(`Таймфрейм переключён на ${timeframe.toUpperCase()}`, 'ok');
+  showToast(intradayError ? intradayError.message : `Таймфрейм переключён на ${timeframe.toUpperCase()}`, intradayError ? 'err' : 'ok');
 }
 
 function sortBy(key) {
