@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap"></noscript>
-<title>ORBITUM · Market Screener 5R</title>
+<title>ORBITUM · Intraday Screener 5R</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script>window.addEventListener('DOMContentLoaded',function(){if(typeof supabase==='undefined'){var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';document.head.appendChild(s);}});</script>
@@ -17,7 +17,7 @@
 
 <style>
 /* ══════════════════════════════════════════
-   ORBITUM MARKET SCREENER v3.0
+   ORBITUM MARKET SCREENER v4.0
    Design: decision-first · 5R framework
 ══════════════════════════════════════════ */
 :root {
@@ -271,6 +271,10 @@ body::after {
 .flt-btn:hover { color: var(--m); border-color: var(--bd); }
 .flt-btn.active { color: var(--a); background: var(--a2); border-color: var(--a3); }
 .flt-sep { width: 1px; height: 18px; background: var(--bd); flex-shrink: 0; }
+.tf-switch { display:flex; align-items:center; padding:2px; border:1px solid var(--bd); border-radius:6px; background:var(--bg3); flex-shrink:0; }
+.tf-btn { height:20px; min-width:34px; padding:0 8px; border:0; border-radius:4px; background:transparent; color:var(--m2); font-size:8px; letter-spacing:1px; transition:all .12s; }
+.tf-btn:hover { color:var(--m); }
+.tf-btn.active { color:#fff; background:var(--a); box-shadow:0 2px 8px rgba(255,57,35,.22); }
 .ctrl-spacer { flex: 1; min-width: 20px; }
 .search-inp {
   height: 26px; width: 130px; background: var(--bg3); border: 1px solid var(--bd); border-radius: 5px;
@@ -330,6 +334,14 @@ body::after {
 .price-val { font-family: var(--disp); font-size: 14px; line-height: 1; }
 .price-chg { font-size: 8px; margin-top: 2px; }
 
+/* Intraday move */
+.move-cell { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+.move-chip { display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:3px; font-size:7px; font-weight:700; letter-spacing:1px; }
+.move-pump { color:var(--g); background:var(--g2); border:1px solid rgba(52,208,88,.22); }
+.move-dump { color:var(--r); background:var(--r2); border:1px solid rgba(255,77,77,.22); }
+.move-normal { color:var(--m); background:var(--bg3); border:1px solid var(--bd); }
+.move-meta { color:var(--m2); font-size:7px; letter-spacing:.4px; }
+
 /* Sparkline */
 .spark-cell { width: 72px; }
 
@@ -342,6 +354,7 @@ body::after {
 /* Setup tags */
 .tag-wrap { display: flex; gap: 3px; flex-wrap: wrap; }
 .setup-tag { font-size: 7px; color: var(--m2); border: 1px solid var(--bd); padding: 1px 5px; border-radius: 2px; letter-spacing: .3px; }
+.setup-tag.trendline { color:var(--a); border-color:var(--a3); background:var(--a2); }
 
 /* Volume */
 .vol-val { font-size: 10px; }
@@ -705,7 +718,7 @@ html,body{max-width:100vw;overflow-x:hidden;}
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   ORBITUM SCREENER v3 — decision-first workspace
+   ORBITUM SCREENER v4 — intraday decision workspace
 ═══════════════════════════════════════════════════════════════════ */
 :root {
   --bg:#090a0c;
@@ -807,6 +820,9 @@ body::after { display:none; }
 .level-item { background:var(--surface-2); padding:10px 11px; }
 .level-val { font-family:var(--mono); font-size:13px; font-weight:750; }
 .analysis-disclaimer { padding:10px 20px 16px; color:var(--m2); font-size:8px; line-height:1.55; }
+.trendline-summary { margin-top:7px; padding:9px 10px; border:1px solid var(--a3); border-radius:6px; background:var(--a2); }
+.trendline-summary-head { display:flex; justify-content:space-between; gap:8px; color:var(--a); font-size:8px; letter-spacing:1px; text-transform:uppercase; }
+.trendline-summary-text { margin-top:5px; color:var(--m); font-size:8px; line-height:1.55; }
 
 @media(max-width:1100px){
   .decision-strip { grid-template-columns:1.3fr repeat(3,1fr); }
@@ -951,8 +967,8 @@ body::after { display:none; }
         <div class="decision-strip" role="region" aria-label="Сводка скринера">
           <div class="decision-card primary">
             <div class="decision-label">Режим отбора</div>
-            <div class="decision-value accent">Только 5R</div>
-            <div class="decision-sub">Слабые входы остаются в Watch</div>
+            <div class="decision-value accent" id="summary-mode">15M · 5R</div>
+            <div class="decision-sub">Реальные intraday-свечи Binance</div>
           </div>
           <div class="decision-card">
             <div class="decision-label">Готовы к входу</div>
@@ -965,8 +981,9 @@ body::after { display:none; }
             <div class="decision-sub">по активным сетапам</div>
           </div>
           <div class="decision-card">
-            <div class="decision-label">Методика</div>
-            <div class="method-note">Тренд + структура + импульс + ликвидность</div>
+            <div class="decision-label">Повышенная волатильность</div>
+            <div class="decision-value" id="summary-volatility">—</div>
+            <div class="decision-sub">Pump / Dump за 15 минут</div>
           </div>
         </div>
 
@@ -979,9 +996,15 @@ body::after { display:none; }
           <button type="button" class="flt-btn" onclick="setFilter('watch',this)">◉ Watch</button>
           <div class="flt-sep"></div>
           <button type="button" class="flt-btn" onclick="setFilter('trend',this)">Trend</button>
+          <button type="button" class="flt-btn" onclick="setFilter('trendline',this)">Trendline</button>
           <button type="button" class="flt-btn" onclick="setFilter('pullback',this)">Pullback</button>
           <button type="button" class="flt-btn" onclick="setFilter('breakout',this)">Breakout</button>
+          <button type="button" class="flt-btn" onclick="setFilter('volatility',this)">Pump / Dump</button>
           <div class="ctrl-spacer"></div>
+          <div class="tf-switch" role="group" aria-label="Таймфрейм скринера">
+            <button type="button" class="tf-btn" data-tf="5m" onclick="setTimeframe('5m',this)">5M</button>
+            <button type="button" class="tf-btn active" data-tf="15m" onclick="setTimeframe('15m',this)">15M</button>
+          </div>
           <input class="search-inp" type="text" placeholder="Поиск..." id="search-inp" oninput="applySearch(this.value)">
           <div class="view-btns">
             <button type="button" class="vb active" id="vb-table" onclick="setView('table',this)" title="Таблица" aria-label="Показать таблицу">
@@ -1034,7 +1057,7 @@ body::after { display:none; }
 
 <script>
 /* ══════════════════════════════════════════════════════════
-   ORBITUM MARKET SCREENER — Core Engine v3.0
+   ORBITUM MARKET SCREENER — Core Engine v4.0
    API: /api/ticker (CoinGecko proxy), /api/ai (Claude),
         /api/notify (TG), Supabase auth + profiles
    Binance WS: live price ticks
@@ -1046,17 +1069,19 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 // ── STATE ────────────────────────────────────────────────
 let sb, _session, _userPlan = 'free', _isPaid = false, _tgProfile = {};
-let allCoins = [], _signals = [], _selectedSym = null;
+let allCoins = [], _rawCoins = [], _signals = [], _selectedSym = null;
 let _filter = 'all', _sort = { key: 'ai_score', dir: 'desc' }, _search = '';
 let _view = 'table';
+let _timeframe = ['5m','15m'].includes(localStorage.getItem('orb_scr_tf')) ? localStorage.getItem('orb_scr_tf') : '15m';
+let _intraday = { '5m': Object.create(null), '15m': Object.create(null) };
+let _intradayLoadedAt = { '5m': 0, '15m': 0 };
 let _aiCache = {}, _wsMap = {}, _wsConn = null;
 let _soundEnabled = localStorage.getItem('orb_sound') !== '0';
 let _actx = null;
 
-// ── CONFLUENCE ENGINE v3 ─────────────────────────────────
-// CoinGecko gives a 7-day close series, not candles/order book data. The
-// engine therefore uses only metrics it can actually calculate and exposes
-// both supporting and conflicting evidence instead of inventing precision.
+// ── CONFLUENCE ENGINE v4 ─────────────────────────────────
+// Decisions use real 5m/15m OHLCV candles. CoinGecko remains the broad
+// universe/market-context source; it is never presented as intraday candles.
 const MIN_RR = 5;
 const STRETCH_RR = 8;
 const SIGNAL_THRESHOLD = 72;
@@ -1079,6 +1104,141 @@ function averageMove(values, period = 14) {
   const moves = [];
   for (let i = 1; i < sample.length; i++) moves.push(Math.abs(sample[i] - sample[i - 1]));
   return moves.reduce((sum, value) => sum + value, 0) / Math.max(1, moves.length);
+}
+
+function median(values) {
+  const sorted = values.filter(Number.isFinite).slice().sort((a,b) => a-b);
+  if (!sorted.length) return 0;
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function trueATR(candles, period = 14) {
+  if (!candles || candles.length < 2) return 0;
+  const ranges = [];
+  const start = Math.max(1, candles.length - period);
+  for (let i = start; i < candles.length; i++) {
+    const high = candles[i][2], low = candles[i][3], prevClose = candles[i - 1][4];
+    ranges.push(Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose)));
+  }
+  return ranges.reduce((sum, value) => sum + value, 0) / Math.max(1, ranges.length);
+}
+
+function findPivots(candles, field, mode, radius = 2) {
+  const pivots = [];
+  const start = Math.max(radius, candles.length - 84);
+  for (let i = start; i < candles.length - radius; i++) {
+    const value = candles[i][field];
+    let pivot = true;
+    for (let j = i - radius; j <= i + radius; j++) {
+      if (j === i) continue;
+      if (mode === 'low' ? candles[j][field] < value : candles[j][field] > value) { pivot = false; break; }
+    }
+    if (pivot) pivots.push({ index:i, price:value });
+  }
+  return pivots;
+}
+
+function buildTrendlineCandidate(candles, pivots, side, atr) {
+  if (pivots.length < 2 || !atr) return null;
+  const tolerance = atr * .48;
+  const lastIndex = candles.length - 1;
+  let best = null;
+
+  for (let b = Math.max(1, pivots.length - 6); b < pivots.length; b++) {
+    for (let a = Math.max(0, b - 6); a < b; a++) {
+      const first = pivots[a], second = pivots[b];
+      const span = second.index - first.index;
+      if (span < 5) continue;
+      const slope = (second.price - first.price) / span;
+      if (side === 'support' && slope < -atr * .035) continue;
+      if (side === 'resistance' && slope > atr * .035) continue;
+      const lineAt = index => first.price + slope * (index - first.index);
+      const touches = pivots.filter(p => p.index >= first.index && Math.abs(p.price - lineAt(p.index)) <= tolerance).length;
+      if (touches < 2) continue;
+
+      let breaches = 0;
+      for (let i = second.index + 1; i < lastIndex - 1; i++) {
+        const close = candles[i][4], line = lineAt(i);
+        if (side === 'support' ? close < line - tolerance : close > line + tolerance) breaches++;
+      }
+      if (breaches > 1) continue;
+
+      const linePrice = lineAt(lastIndex);
+      if (!Number.isFinite(linePrice) || linePrice <= 0) continue;
+      const reference = side === 'support' ? candles[lastIndex][3] : candles[lastIndex][2];
+      const distanceATR = Math.abs(reference - linePrice) / atr;
+      const recency = lastIndex - second.index;
+      const quality = clamp(Math.round(48 + touches * 9 - distanceATR * 9 - recency * .25 - breaches * 12), 20, 96);
+      if (!best || quality > best.quality) best = { side, first, second, slope, lineAt, linePrice, distanceATR, touches, quality };
+    }
+  }
+  return best;
+}
+
+function computeTrendline(candles, atr, price) {
+  if (!candles || candles.length < 60 || !atr || !price) return { active:false };
+  const support = buildTrendlineCandidate(candles, findPivots(candles, 3, 'low'), 'support', atr);
+  const resistance = buildTrendlineCandidate(candles, findPivots(candles, 2, 'high'), 'resistance', atr);
+  const lastIndex = candles.length - 1;
+  const lastCandle = candles[lastIndex];
+  const prevClose = candles[lastIndex - 1][4];
+  const candidates = [support, resistance].filter(Boolean).map(line => {
+    const prevLine = line.lineAt(lastIndex - 1);
+    const breaksLine = line.side === 'support'
+      ? lastCandle[4] < line.linePrice - atr * .28 && prevClose >= prevLine - atr * .16
+      : lastCandle[4] > line.linePrice + atr * .28 && prevClose <= prevLine + atr * .16;
+    const near = line.distanceATR <= 1.15;
+    const rejects = line.side === 'support'
+      ? lastCandle[3] <= line.linePrice + atr * .48 && lastCandle[4] > lastCandle[1]
+      : lastCandle[2] >= line.linePrice - atr * .48 && lastCandle[4] < lastCandle[1];
+    const action = breaksLine ? 'breakout' : near && rejects ? 'bounce' : near ? 'near' : null;
+    const direction = line.side === 'support'
+      ? (breaksLine ? 'short' : 'long')
+      : (breaksLine ? 'long' : 'short');
+    const priority = action === 'breakout' ? 35 : action === 'bounce' ? 30 : action === 'near' ? 10 : 0;
+    return {
+      ...line, active:Boolean(action), action, direction,
+      slopePctPerBar:line.linePrice ? line.slope / line.linePrice * 100 : 0,
+      rank:line.quality + priority,
+    };
+  }).filter(line => line.active);
+
+  if (!candidates.length) return { active:false, support, resistance };
+  const primary = candidates.sort((a,b) => b.rank - a.rank)[0];
+  const actionLabel = primary.action === 'breakout' ? 'пробой' : primary.action === 'bounce' ? 'отбой' : 'касание';
+  return {
+    ...primary,
+    active:true,
+    label:`Trendline ${actionLabel}`,
+    support,
+    resistance,
+  };
+}
+
+function computeVolatility(candles, barMinutes, atrPct) {
+  if (!candles || candles.length < 35) return { active:false, label:'NORMAL', changePct:0, volumeRatio:0, score:0 };
+  const bars15 = Math.max(1, Math.round(15 / barMinutes));
+  const closes = candles.map(row => row[4]);
+  const volumes = candles.map(row => row[5]);
+  const from = closes[Math.max(0, closes.length - 1 - bars15)];
+  const changePct = from ? (last(closes) - from) / from * 100 : 0;
+  const recentVolume = volumes.slice(-bars15).reduce((sum, value) => sum + value, 0);
+  const baseline = median(volumes.slice(Math.max(0, volumes.length - 40 - bars15), -bars15));
+  const volumeRatio = baseline > 0 ? recentVolume / (baseline * bars15) : 0;
+  const moveThreshold = Math.max(.38, atrPct * Math.sqrt(bars15) * 1.65);
+  const active = Math.abs(changePct) >= moveThreshold && (volumeRatio >= 1.6 || Math.abs(changePct) >= moveThreshold * 1.9 && volumeRatio >= 1.15);
+  const score = clamp(Math.round(Math.abs(changePct) / moveThreshold * 44 + Math.min(volumeRatio, 4) / 4 * 36), 0, 100);
+  return {
+    active,
+    label:active ? (changePct >= 0 ? 'PUMP' : 'DUMP') : 'NORMAL',
+    direction:changePct >= 0 ? 'long' : 'short',
+    changePct,
+    volumeRatio,
+    score,
+    windowMinutes:15,
+    moveThreshold,
+  };
 }
 
 function changeOver(values, bars) {
@@ -1107,29 +1267,50 @@ function computeRSI(prices, period = 14) {
 }
 
 function computeMarketFeatures(c) {
-  const prices = (c.sparkline_in_7d?.price || []).filter(v => Number.isFinite(v) && v > 0);
-  const price = Number(c.current_price) || last(prices, 0);
+  const candles = (c._candles || []).filter(row => Array.isArray(row) && row.length >= 6 && row.slice(1,6).every(Number.isFinite));
+  const intradayPrices = candles.map(row => row[4]).filter(v => Number.isFinite(v) && v > 0);
+  const fallbackPrices = (c.sparkline_in_7d?.price || []).filter(v => Number.isFinite(v) && v > 0);
+  const prices = intradayPrices.length >= 60 ? intradayPrices : fallbackPrices;
+  const intradayAvailable = intradayPrices.length >= 60;
+  const barMinutes = c._timeframe === '5m' ? 5 : c._timeframe === '15m' ? 15 : 60;
+  const price = last(prices, Number(c.current_price) || 0);
   const e20 = last(emaSeries(prices, 20), price);
   const e50 = last(emaSeries(prices, 50), price);
-  const atr = Math.max(averageMove(prices, 14), price * 0.0015);
-  const recent = prices.slice(-36, -2);
-  const structuralSample = recent.length >= 10 ? recent : prices.slice(-36);
-  const swingHigh = structuralSample.length ? Math.max(...structuralSample) : price * 1.03;
-  const swingLow = structuralSample.length ? Math.min(...structuralSample) : price * 0.97;
+  const atr = Math.max(intradayAvailable ? trueATR(candles, 14) : averageMove(prices, 14), price * .00035);
+  const structuralCandles = intradayAvailable ? candles.slice(-50, -2) : [];
+  const structuralSample = prices.slice(-50, -2);
+  const swingHigh = structuralCandles.length ? Math.max(...structuralCandles.map(row => row[2])) : structuralSample.length ? Math.max(...structuralSample) : price * 1.03;
+  const swingLow = structuralCandles.length ? Math.min(...structuralCandles.map(row => row[3])) : structuralSample.length ? Math.min(...structuralSample) : price * .97;
+  const recentCandles = intradayAvailable ? candles.slice(-18, -1) : [];
+  const recentSwingHigh = recentCandles.length ? Math.max(...recentCandles.map(row => row[2])) : swingHigh;
+  const recentSwingLow = recentCandles.length ? Math.min(...recentCandles.map(row => row[3])) : swingLow;
   const range = Math.max(swingHigh - swingLow, atr);
   const rangePos = clamp((price - swingLow) / range, 0, 1);
   const turnover = c.market_cap > 0 ? c.total_volume / c.market_cap * 100 : 0;
+  const contextPrices = c._contextCandles?.length >= 50
+    ? c._contextCandles.map(row => row[4])
+    : fallbackPrices;
+  const contextE20 = last(emaSeries(contextPrices, 20), price);
+  const contextE50 = last(emaSeries(contextPrices, 50), price);
+  const atrPct = price ? atr / price * 100 : 0;
+  const trendline = intradayAvailable ? computeTrendline(candles, atr, price) : { active:false };
+  const volatility = intradayAvailable ? computeVolatility(candles, barMinutes, atrPct) : { active:false, label:'NO DATA', changePct:0, volumeRatio:0, score:0 };
+  const barsForMinutes = minutes => Math.max(1, Math.round(minutes / barMinutes));
   return {
-    prices, samples:prices.length, price, ema20:e20, ema50:e50, atr,
-    atrPct:price ? atr / price * 100 : 0,
-    swingHigh, swingLow, rangePos, turnover,
+    candles, prices, samples:prices.length, intradayAvailable, timeframe:c._timeframe, barMinutes,
+    price, ema20:e20, ema50:e50, atr, atrPct,
+    swingHigh, swingLow, recentSwingHigh, recentSwingLow, rangePos, turnover,
     rsi:computeRSI(prices),
-    momentum24:changeOver(prices, 24),
-    momentum72:changeOver(prices, 72),
+    momentum15:changeOver(prices, barsForMinutes(15)),
+    momentum60:changeOver(prices, barsForMinutes(60)),
+    momentum240:changeOver(prices, barsForMinutes(240)),
     chg1h:Number(c.price_change_percentage_1h_in_currency) || 0,
     chg24:Number(c.price_change_percentage_24h) || 0,
     chg7d:Number(c.price_change_percentage_7d_in_currency) || 0,
     chg30d:Number(c.price_change_percentage_30d_in_currency) || 0,
+    contextE20, contextE50,
+    contextDirection:contextE20 >= contextE50 ? 'long' : 'short',
+    trendline, volatility,
     emaDistanceATR:atr ? (price - e20) / atr : 0,
   };
 }
@@ -1142,22 +1323,38 @@ function computeDirectionalScores(c, f = computeMarketFeatures(c)) {
     else { short += points; if (reason) shortReasons.push(reason); }
   };
 
-  if (f.samples < 48) {
-    long -= 35; short -= 35;
-    longRisks.push('Недостаточно ценовой истории для подтверждения');
-    shortRisks.push('Недостаточно ценовой истории для подтверждения');
+  if (!f.intradayAvailable) {
+    long -= 45; short -= 45;
+    longRisks.push(`Нет достаточной истории ${c._timeframe?.toUpperCase() || 'intraday'} на Binance`);
+    shortRisks.push(`Нет достаточной истории ${c._timeframe?.toUpperCase() || 'intraday'} на Binance`);
   }
 
-  if (f.ema20 > f.ema50) add('long',18,'EMA 20 выше EMA 50');
-  else add('short',18,'EMA 20 ниже EMA 50');
-  if (f.price > f.ema20) add('long',10,'Цена удерживается выше EMA 20');
-  else add('short',10,'Цена удерживается ниже EMA 20');
-  if (f.momentum24 > .35) add('long',10,'Импульс последних 24 часов положительный');
-  else if (f.momentum24 < -.35) add('short',10,'Импульс последних 24 часов отрицательный');
-  if (f.chg7d > 1) add('long',8,'Недельный тренд направлен вверх');
-  else if (f.chg7d < -1) add('short',8,'Недельный тренд направлен вниз');
-  if (f.chg30d > 2) add('long',6,'Месячный контекст поддерживает LONG');
-  else if (f.chg30d < -2) add('short',6,'Месячный контекст поддерживает SHORT');
+  if (f.ema20 > f.ema50) add('long',15,`EMA 20 выше EMA 50 на ${f.timeframe.toUpperCase()}`);
+  else add('short',15,`EMA 20 ниже EMA 50 на ${f.timeframe.toUpperCase()}`);
+  if (f.price > f.ema20) add('long',8,'Цена удерживается выше EMA 20');
+  else add('short',8,'Цена удерживается ниже EMA 20');
+  if (f.momentum60 > .3) add('long',10,'Импульс последнего часа положительный');
+  else if (f.momentum60 < -.3) add('short',10,'Импульс последнего часа отрицательный');
+  if (f.momentum15 > .12) add('long',5,'Краткосрочный импульс подтверждает LONG');
+  else if (f.momentum15 < -.12) add('short',5,'Краткосрочный импульс подтверждает SHORT');
+  add(f.contextDirection,8,`Старший контекст поддерживает ${f.contextDirection.toUpperCase()}`);
+  if (f.chg7d > 1) add('long',4,'Недельный фон направлен вверх');
+  else if (f.chg7d < -1) add('short',4,'Недельный фон направлен вниз');
+
+  if (f.trendline.active) {
+    const actionPoints = f.trendline.action === 'bounce' ? 20 : f.trendline.action === 'breakout' ? 16 : 10;
+    add(f.trendline.direction, actionPoints, `${f.trendline.label}: ${f.trendline.touches} подтверждённых касания`);
+  }
+
+  if (f.volatility.active) {
+    add(f.volatility.direction,7,`${f.volatility.label} ${fmtChg(f.volatility.changePct)} · объём ${f.volatility.volumeRatio.toFixed(1)}x`);
+    if (f.volatility.score >= 82) {
+      const risks = f.volatility.direction === 'long' ? longRisks : shortRisks;
+      risks.push('Резкое движение: не догонять цену без отката');
+      if (f.volatility.direction === 'long') long -= 8;
+      else short -= 8;
+    }
+  }
 
   if (f.rsi >= 50 && f.rsi <= 66) add('long',12,`RSI ${f.rsi}: импульс без перекупленности`);
   else if (f.rsi >= 42 && f.rsi < 50) add('long',6,`RSI ${f.rsi}: зона потенциального возврата`);
@@ -1182,10 +1379,10 @@ function computeDirectionalScores(c, f = computeMarketFeatures(c)) {
   if (f.rsi < 28) { short -= 11; shortRisks.push(`RSI ${f.rsi}: вход перепродан`); }
   if (f.emaDistanceATR > 2) { long -= 13; longRisks.push('Цена слишком далеко от EMA 20'); }
   if (f.emaDistanceATR < -2) { short -= 13; shortRisks.push('Цена слишком далеко от EMA 20'); }
-  if (f.chg24 > 12) { long -= 8; longRisks.push('Слишком сильное движение за 24 часа'); }
-  if (f.chg24 < -12) { short -= 8; shortRisks.push('Слишком сильное падение за 24 часа'); }
-  if (f.rangePos > .94) longRisks.push('Цена у верхней границы 36-часового диапазона');
-  if (f.rangePos < .06) shortRisks.push('Цена у нижней границы 36-часового диапазона');
+  if (f.momentum240 > 8) { long -= 8; longRisks.push('Движение за 4 часа уже растянуто'); }
+  if (f.momentum240 < -8) { short -= 8; shortRisks.push('Падение за 4 часа уже растянуто'); }
+  if (f.rangePos > .94) longRisks.push('Цена у верхней границы intraday-диапазона');
+  if (f.rangePos < .06) shortRisks.push('Цена у нижней границы intraday-диапазона');
 
   return {
     long:clamp(Math.round(long),5,96), short:clamp(Math.round(short),5,96),
@@ -1204,13 +1401,15 @@ function computeSignal(c, scores) {
 function computeSetup(c, f, direction) {
   const tags = [];
   const trendAligned = direction === 'long' ? f.ema20 > f.ema50 : f.ema20 < f.ema50;
-  const breakout = direction === 'long' ? f.rangePos >= .82 && f.momentum24 > 0 : f.rangePos <= .18 && f.momentum24 < 0;
+  const breakout = direction === 'long' ? f.rangePos >= .82 && f.momentum60 > 0 : f.rangePos <= .18 && f.momentum60 < 0;
+  if (f.trendline.active) tags.push('Trendline');
   if (trendAligned) tags.push('Trend');
   if (Math.abs(f.emaDistanceATR) <= 1.15) tags.push('Pullback');
   if (breakout) tags.push('Breakout');
-  if (Math.abs(f.momentum24) >= 1.5) tags.push('Momentum');
+  if (f.volatility.active) tags.push(f.volatility.label);
+  else if (Math.abs(f.momentum60) >= 1.2) tags.push('Momentum');
   if (!tags.length) tags.push('Structure');
-  return tags.slice(0,3);
+  return tags.slice(0,4);
 }
 
 function computeKeyLevels(c) {
@@ -1218,12 +1417,18 @@ function computeKeyLevels(c) {
   const direction = c._signal === 'watch' ? c._bias : c._signal;
   const price = f.price;
   const atr = f.atr;
+  const trendline = f.trendline?.active && f.trendline.direction === direction ? f.trendline : null;
   const pullback = clamp(f.emaDistanceATR, -1.25, 1.25);
-  const entry = direction === 'long'
+  const emaEntry = direction === 'long'
     ? Math.min(price, Math.max(f.ema20, price - Math.max(.25, pullback) * atr * .55))
     : Math.max(price, Math.min(f.ema20, price - Math.min(-.25, pullback) * atr * .55));
-  const structuralStop = direction === 'long' ? f.swingLow - atr * .25 : f.swingHigh + atr * .25;
-  const minRisk = atr * .85;
+  const entry = trendline
+    ? (trendline.action === 'breakout' ? price : trendline.linePrice)
+    : emaEntry;
+  const structuralStop = trendline
+    ? (direction === 'long' ? trendline.linePrice - atr * .68 : trendline.linePrice + atr * .68)
+    : (direction === 'long' ? f.recentSwingLow - atr * .25 : f.recentSwingHigh + atr * .25);
+  const minRisk = atr * .58;
   const sl = direction === 'long'
     ? Math.min(structuralStop, entry - minRisk)
     : Math.max(structuralStop, entry + minRisk);
@@ -1235,12 +1440,14 @@ function computeKeyLevels(c) {
   const roomRR = direction === 'long'
     ? Math.max(0,(f.swingHigh - entry) / risk)
     : Math.max(0,(entry - f.swingLow) / risk);
-  const valid = riskPct >= .25 && riskPct <= 5 && entryDistanceATR <= 1.5 && tp1 > 0;
-  const status = c._signal === 'watch' ? 'watch' : entryDistanceATR <= .22 ? 'ready' : entryDistanceATR <= 1.5 ? 'wait' : 'extended';
+  const minRiskPct = f.timeframe === '5m' ? .05 : .08;
+  const valid = f.intradayAvailable && riskPct >= minRiskPct && riskPct <= 3.5 && entryDistanceATR <= 1.35 && tp1 > 0;
+  const status = c._signal === 'watch' ? 'watch' : entryDistanceATR <= .3 ? 'ready' : entryDistanceATR <= 1.35 ? 'wait' : 'extended';
   return {
-    direction, entry, entryLow:entry - atr * .14, entryHigh:entry + atr * .14,
+    direction, entry, entryLow:entry - atr * .12, entryHigh:entry + atr * .12,
     sl, tp1, tp2, rr:MIN_RR, risk, riskPct, roomRR, entryDistanceATR, valid, status,
-    invalidation:direction === 'long' ? 'Закрепление ниже структурного стопа отменяет LONG' : 'Закрепление выше структурного стопа отменяет SHORT',
+    basedOn:trendline ? `Trendline ${trendline.action}` : 'EMA + structure',
+    invalidation:direction === 'long' ? `Закрепление ниже стопа на ${f.timeframe.toUpperCase()} отменяет LONG` : `Закрепление выше стопа на ${f.timeframe.toUpperCase()} отменяет SHORT`,
   };
 }
 
@@ -1328,12 +1535,49 @@ async function doLogout() {
 }
 
 // ── COIN DATA via /api/ticker ────────────────────────────
+const STABLE_SYMBOLS = new Set(['usdt','usdc','dai','fdusd','tusd','usde','usds','pyusd','frax','busd']);
+const PAIR_ALIASES = { matic:'POLUSDT' };
+
+function coinPair(c) {
+  const symbol = String(c?.symbol || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!symbol || STABLE_SYMBOLS.has(symbol)) return '';
+  return PAIR_ALIASES[symbol] || `${symbol.toUpperCase()}USDT`;
+}
+
+async function loadIntradayTimeframe(timeframe, raw, force = false) {
+  if (!force && Date.now() - _intradayLoadedAt[timeframe] < 15000) return;
+  const symbols = [...new Set(raw.map(coinPair).filter(Boolean))].slice(0, 120);
+  const batches = [];
+  for (let i = 0; i < symbols.length; i += 30) batches.push(symbols.slice(i, i + 30));
+
+  const results = await Promise.all(batches.map(async batch => {
+    const query = new URLSearchParams({
+      type:'intraday', interval:timeframe, limit:'96', symbols:batch.join(','),
+    });
+    try {
+      const response = await fetch('/api/ticker?' + query, { signal:AbortSignal.timeout(14000) });
+      if (!response.ok) return null;
+      return await response.json();
+    } catch(e) { return null; }
+  }));
+
+  const merged = Object.create(null);
+  results.forEach(result => Object.assign(merged, result?.candles || {}));
+  if (Object.keys(merged).length) {
+    _intraday[timeframe] = merged;
+    _intradayLoadedAt[timeframe] = Date.now();
+  }
+}
+
 async function loadCoins() {
   try {
     const r = await fetch('/api/ticker?type=screener&per_page=80&sparkline=true&price_change_percentage=1h,7d,30d');
     if (!r.ok) throw new Error('ticker fail');
     const data = await r.json();
     if (!data?.length) throw new Error('empty');
+    _rawCoins = data;
+    await loadIntradayTimeframe(_timeframe, data, true);
+    if (_timeframe === '5m') await loadIntradayTimeframe('15m', data);
     processCoins(data);
   } catch(e) {
     // Fallback to CoinGecko directly
@@ -1341,6 +1585,9 @@ async function loadCoins() {
       const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=80&page=1&sparkline=true&price_change_percentage=1h,7d,30d';
       const r = await fetch(url, { signal: AbortSignal.timeout(12000) });
       const data = await r.json();
+      _rawCoins = data;
+      await loadIntradayTimeframe(_timeframe, data, true);
+      if (_timeframe === '5m') await loadIntradayTimeframe('15m', data);
       processCoins(data);
     } catch(e2) {
       showState('table-wrap', 'Ошибка загрузки данных');
@@ -1350,20 +1597,30 @@ async function loadCoins() {
 
 function processCoins(raw) {
   allCoins = raw.map(c => {
-    const features = computeMarketFeatures(c);
-    const scores = computeDirectionalScores(c, features);
+    const pair = coinPair(c);
+    const source = {
+      ...c,
+      _pair:pair,
+      _timeframe,
+      _candles:pair ? (_intraday[_timeframe][pair] || []) : [],
+      _contextCandles:_timeframe === '5m' && pair ? (_intraday['15m'][pair] || []) : [],
+    };
+    const features = computeMarketFeatures(source);
+    const scores = computeDirectionalScores(source, features);
     const bias = scores.long >= scores.short ? 'long' : 'short';
-    let signal = computeSignal(c, scores);
-    const setup = computeSetup(c, features, signal === 'watch' ? bias : signal);
+    let signal = features.intradayAvailable ? computeSignal(source, scores) : 'watch';
+    const setup = computeSetup(source, features, signal === 'watch' ? bias : signal);
     const reasons = bias === 'long' ? scores.longReasons : scores.shortReasons;
     const risks = bias === 'long' ? scores.longRisks : scores.shortRisks;
     const enriched = {
-      ...c,
+      ...source,
+      current_price:features.price || c.current_price,
       _features:features, _scores:scores, _bias:bias, _signal:signal,
       _score:scores[bias], _counterScore:scores[bias === 'long' ? 'short' : 'long'],
       _setup:setup, _rsi:features.rsi, _volMult:+features.turnover.toFixed(1),
-      _reasons:reasons, _risks:risks,
+      _reasons:reasons, _risks:risks, _volatility:features.volatility,
     };
+    if (!features.intradayAvailable) enriched._rejectionReason = `Нет свечей ${_timeframe.toUpperCase()} для этой пары на Binance`;
     let levels = computeKeyLevels(enriched);
     if (levels.roomRR < 1 && !setup.includes('Breakout')) {
       enriched._risks = [...enriched._risks, 'Для реализации 5R цене потребуется пробить ближайшую структуру'].slice(0,3);
@@ -1402,13 +1659,18 @@ function buildSignals() {
 function updateDecisionSummary() {
   const active = allCoins.filter(c => c._signal !== 'watch');
   const ready = active.filter(c => c._levels?.status === 'ready');
+  const volatility = allCoins.filter(c => c._volatility?.active);
   const avg = active.length ? Math.round(active.reduce((sum,c) => sum + c._score, 0) / active.length) : 0;
   const readyEl = document.getElementById('summary-ready');
   const readySub = document.getElementById('summary-ready-sub');
   const qualityEl = document.getElementById('summary-quality');
+  const modeEl = document.getElementById('summary-mode');
+  const volatilityEl = document.getElementById('summary-volatility');
   if (readyEl) readyEl.textContent = ready.length;
   if (readySub) readySub.textContent = `${active.length} сетапов прошли фильтр`;
   if (qualityEl) qualityEl.textContent = active.length ? `${avg}/100` : '—';
+  if (modeEl) modeEl.textContent = `${_timeframe.toUpperCase()} · 5R`;
+  if (volatilityEl) volatilityEl.textContent = volatility.length;
 }
 
 // ── LIVE WS ──────────────────────────────────────────────
@@ -1528,7 +1790,7 @@ function renderSignalFeed() {
     const scoreColor = sc >= 80 ? 'var(--g)' : sc >= 60 ? 'var(--y)' : 'var(--r)';
     const pillCls = s === 'long' ? 'pill-long' : s === 'short' ? 'pill-short' : 'pill-watch';
     const pillTxt = s === 'long' ? '▲ LONG' : s === 'short' ? '▼ SHORT' : '◉ WATCH';
-    const chg = (c.price_change_percentage_24h || 0).toFixed(2);
+    const chg = (c._volatility?.changePct || 0).toFixed(2);
     const statusClass = lvl.status === 'ready' ? 'ready' : 'wait';
     const statusText = lvl.status === 'ready' ? '● В зоне входа' : `↘ Ждать ${fmtPShort(lvl.entry)}`;
     const rationale = c._reasons?.[0] || 'Структура и импульс согласованы';
@@ -1542,7 +1804,7 @@ function renderSignalFeed() {
       <div class="sig-meta">
         <div class="sig-m"><span class="sig-m-lbl">Качество</span><span class="sig-m-val" style="color:${scoreColor}">${sc}/100</span></div>
         <div class="sig-m"><span class="sig-m-lbl">Цель</span><span class="sig-m-val" style="color:var(--g)">1:${lvl.rr}</span></div>
-        <div class="sig-m"><span class="sig-m-lbl">24H</span><span class="sig-m-val ${chg>=0?'up':'dn'}">${chg>=0?'+':''}${chg}%</span></div>
+        <div class="sig-m"><span class="sig-m-lbl">15M MOVE</span><span class="sig-m-val ${chg>=0?'up':'dn'}">${chg>=0?'+':''}${chg}%</span></div>
       </div>
       <div class="sig-status ${statusClass}">${statusText}</div>
       <div class="sig-bar"><div class="sig-bar-fill" style="width:${sc}%;background:${scoreColor}"></div></div>
@@ -1560,8 +1822,10 @@ function getDisplayData() {
   if (_filter === 'short')   data = data.filter(c => c._signal === 'short');
   if (_filter === 'watch')   data = data.filter(c => c._signal === 'watch');
   if (_filter === 'breakout') data = data.filter(c => c._setup.some(s => s.toLowerCase().includes('breakout')));
-  if (_filter === 'trend')    data = data.filter(c => c._setup.some(s => s.toLowerCase().includes('trend')));
+  if (_filter === 'trend')    data = data.filter(c => c._setup.some(s => s.toLowerCase() === 'trend'));
+  if (_filter === 'trendline') data = data.filter(c => c._features?.trendline?.active);
   if (_filter === 'pullback') data = data.filter(c => c._setup.some(s => s.toLowerCase().includes('pullback')));
+  if (_filter === 'volatility') data = data.filter(c => c._volatility?.active);
 
   const key = _sort.key;
   data.sort((a, b) => {
@@ -1570,6 +1834,7 @@ function getDisplayData() {
     else if (key === 'price')  { va = a.current_price; vb = b.current_price; }
     else if (key === 'chg')    { va = a.price_change_percentage_24h; vb = b.price_change_percentage_24h; }
     else if (key === 'vol')    { va = a.total_volume; vb = b.total_volume; }
+    else if (key === 'move')   { va = a._volatility?.score || 0; vb = b._volatility?.score || 0; }
     else if (key === 'rsi')    { va = a._rsi; vb = b._rsi; }
     else if (key === 'mcap')   { va = a.market_cap; vb = b.market_cap; }
     else if (key === 'status') {
@@ -1608,6 +1873,9 @@ function renderTable() {
     const stateTitle = s === 'watch' ? 'Наблюдать' : lvl.status === 'ready' ? 'В зоне входа' : 'Ждать откат';
     const stateSub = s === 'watch' ? (c._rejectionReason || `Порог ${SIGNAL_THRESHOLD}+ не пройден`) : fmtPShort(lvl.entry);
     const riskText = c._risks?.[0] || (s === 'watch' ? 'Недостаточно подтверждений' : lvl.invalidation);
+    const move = c._volatility || { label:'NO DATA', changePct:0, volumeRatio:0, active:false };
+    const moveClass = move.label === 'PUMP' ? 'move-pump' : move.label === 'DUMP' ? 'move-dump' : 'move-normal';
+    const moveLabel = move.label === 'NO DATA' ? 'NO DATA' : move.active ? `${move.label} ${fmtChg(move.changePct)}` : `${fmtChg(move.changePct)} · 15M`;
     return `<tr class="${_selectedSym===c.id?'row-selected':''}" onclick="focusCoin('${c.id}')">
       <td><div class="sym-cell">
         <div class="sym-ico">${ico}</div>
@@ -1615,10 +1883,11 @@ function renderTable() {
       </div></td>
       <td><span class="tbl-pill ${pillCls}"><span class="pd"></span>${pillTxt}</span></td>
       <td><div class="price-val">${fmtP(c.current_price)}</div><div class="price-chg ${isUp?'up':'dn'}">${fmtChg(c.price_change_percentage_24h)}</div></td>
+      <td><div class="move-cell"><span class="move-chip ${moveClass}">${moveLabel}</span><span class="move-meta">VOL ${move.volumeRatio ? move.volumeRatio.toFixed(1)+'x' : '—'} · ${_timeframe.toUpperCase()}</span></div></td>
       <td><div class="entry-state"><strong>${stateTitle}</strong><span>${stateSub}</span></div></td>
       <td><div class="quality-cell"><div class="quality-head"><span class="quality-num" style="color:${scoreColor}">${sc}/100</span><span style="font-size:8px;color:var(--m2)">L${c._scores.long} · S${c._scores.short}</span></div><div class="quality-bar"><div class="quality-fill" style="width:${sc}%;background:${scoreColor}"></div></div></div></td>
       <td><span class="rr-chip ${s==='watch'?'muted':''}">${s==='watch'?'не подтверждён':'1:'+lvl.rr}</span></td>
-      <td><div class="tag-wrap">${c._setup.map(t=>`<span class="setup-tag">${t}</span>`).join('')}</div></td>
+      <td><div class="tag-wrap">${c._setup.map(t=>`<span class="setup-tag ${t==='Trendline'?'trendline':''}">${t}</span>`).join('')}</div></td>
       <td><div style="font-size:9px;color:${rsiColor}">RSI ${c._rsi} · SL ${lvl.riskPct.toFixed(1)}%</div><div class="risk-flag">${riskText}</div></td>
     </tr>`;
   }).join('');
@@ -1628,6 +1897,7 @@ function renderTable() {
       ${th('mcap','Символ')}
       ${th('signal','Сигнал')}
       ${th('price','Цена')}
+      ${th('move','Движение')}
       ${th('status','Вход')}
       ${th('ai_score','Качество')}
       <th>R/R</th>
@@ -1645,19 +1915,20 @@ function renderHeatmap() {
   if (!data.length) { wrap.innerHTML = '<div class="state-wrap"><div class="state-text">НЕТ ДАННЫХ</div></div>'; return; }
 
   wrap.innerHTML = '<div class="heatmap-grid">' + data.map(c => {
-    const chg = c.price_change_percentage_24h || 0;
-    const cls = chg > 6 ? 'h-sup' : chg > 0 ? 'h-up' : chg > -4 ? 'h-dn' : 'h-sdn';
+    const move = c._volatility || { changePct:0, label:'NORMAL', active:false };
+    const chg = move.changePct || 0;
+    const cls = move.label === 'PUMP' ? 'h-sup' : move.label === 'DUMP' ? 'h-sdn' : chg > 0 ? 'h-up' : chg < 0 ? 'h-dn' : 'h-flat';
     if (chg === 0) return `<div class="heat-cell h-flat" onclick="focusCoin('${c.id}')">
       <div class="heat-sym">${(c.symbol||'').toUpperCase()}</div>
-      <div class="heat-chg">${fmtChg(chg)}</div>
-      <div class="heat-sig">${c._signal === 'watch' ? c._bias.toUpperCase()+' · '+c._score : c._signal.toUpperCase()+' · 5R'}</div>
+      <div class="heat-chg">NO ${_timeframe.toUpperCase()} DATA</div>
+      <div class="heat-sig">WATCH</div>
     </div>`;
     const badge = c._signal==='long'?'<span class="heat-badge hb-long"></span>':c._signal==='short'?'<span class="heat-badge hb-short"></span>':'';
     return `<div class="heat-cell ${cls}" onclick="focusCoin('${c.id}')">
       ${badge}
       <div class="heat-sym">${(c.symbol||'').toUpperCase()}</div>
       <div class="heat-chg">${fmtChg(chg)}</div>
-      <div class="heat-sig">${c._signal === 'watch' ? c._bias.toUpperCase()+' · '+c._score : c._signal.toUpperCase()+' · 5R'}</div>
+      <div class="heat-sig">${move.active ? move.label+' · VOL '+move.volumeRatio.toFixed(1)+'x' : c._signal === 'watch' ? c._bias.toUpperCase()+' · '+c._score : c._signal.toUpperCase()+' · 5R'}</div>
     </div>`;
   }).join('') + '</div>';
 }
@@ -1677,7 +1948,7 @@ function focusCoin(id) {
   document.getElementById('detail-panel').classList.add('open');
   document.getElementById('detail-overlay').classList.add('open');
 
-  const isUp = (c.price_change_percentage_24h || 0) >= 0;
+  const isUp = (c._volatility?.changePct || 0) >= 0;
   const s = c._signal;
   const sc = c._score;
   const scoreColor = sc>=80?'var(--g)':sc>=60?'var(--y)':'var(--r)';
@@ -1686,6 +1957,8 @@ function focusCoin(id) {
   const rsi = c._rsi;
   const lvl = c._levels;
   const f = c._features;
+  const move = c._volatility || { label:'NORMAL', changePct:0, volumeRatio:0, active:false };
+  const tl = f.trendline || { active:false };
   const isActive = s !== 'watch';
   const directionScore = c._scores[c._bias];
   const stateTitle = !isActive ? 'Вход не подтверждён' : lvl.status === 'ready' ? 'Цена в зоне входа' : 'Ждать возврат в зону';
@@ -1700,6 +1973,11 @@ function focusCoin(id) {
     .map(text => `<div class="reason-item risk-item">${text}</div>`).join('');
   const trendClass = f.ema20 > f.ema50 ? 'ind-bull' : 'ind-bear';
   const trendText = f.ema20 > f.ema50 ? 'EMA20 > EMA50' : 'EMA20 < EMA50';
+  const trendlineBlock = tl.active ? `
+    <div class="trendline-summary">
+      <div class="trendline-summary-head"><span>${tl.label}</span><span>${tl.direction.toUpperCase()} · ${tl.touches} касания</span></div>
+      <div class="trendline-summary-text">Линия сейчас: ${fmtPShort(tl.linePrice)} · расстояние ${tl.distanceATR.toFixed(2)} ATR · качество геометрии ${tl.quality}/100. Перед входом проверь точность построения на графике.</div>
+    </div>` : '';
 
   content.innerHTML = `
     <div class="det-header">
@@ -1715,19 +1993,19 @@ function focusCoin(id) {
       </div>
       <div class="det-price-row">
         <div class="det-price" id="dp-live-price">${fmtP(c.current_price)}</div>
-        <div class="det-chg ${isUp?'up':'dn'}">${fmtChg(c.price_change_percentage_24h)}</div>
+        <div class="det-chg ${isUp?'up':'dn'}">${move.active ? move.label+' ' : ''}${fmtChg(move.changePct)}</div>
       </div>
       <div class="det-meta">
         <span class="det-meta-item">Качество <span style="color:${scoreColor}">${directionScore}/100</span></span>
         <span class="det-meta-item">Оборот <span>${c._volMult}%</span></span>
         <span class="det-meta-item">RSI <span style="color:${rsi>=70?'var(--r)':rsi<=30?'var(--g)':'var(--y)'}">${rsi}</span></span>
-        <span class="det-meta-item">Rank <span>#${c.market_cap_rank||'?'}</span></span>
+        <span class="det-meta-item">TF <span>${_timeframe.toUpperCase()}</span></span>
       </div>
     </div>
 
     <div class="det-chart">
-      <div class="det-chart-lbl">Цена 7 дней</div>
-      ${drawDetailSpark(c.sparkline_in_7d?.price || [], isUp)}
+      <div class="det-chart-lbl">${f.intradayAvailable ? `Цена · ${_timeframe.toUpperCase()} · ${f.samples} свечей` : 'Резервный контекст CoinGecko · 7D'}</div>
+      ${drawDetailSpark(f.prices || [], isUp)}
     </div>
 
     <div class="det-levels">
@@ -1748,6 +2026,7 @@ function focusCoin(id) {
         <div class="trade-state-head"><span>${stateTitle}</span><span style="color:${isActive?'var(--g)':'var(--m2)'}">SL ${lvl.riskPct.toFixed(2)}%</span></div>
         <div class="trade-state-text">${stateText}<br>${lvl.invalidation}.</div>
       </div>
+      ${trendlineBlock}
     </div>
 
     <div class="det-ai">
@@ -1776,10 +2055,11 @@ function focusCoin(id) {
       <div class="inds-grid">
         <div class="ind-row"><span class="ind-name">RSI (14)</span><span class="ind-val ${rsi>=70?'ind-bear':rsi<=30?'ind-bull':'ind-neut'}">${rsi}${rsi>=70?' OB':rsi<=30?' OS':''}</span></div>
         <div class="ind-row"><span class="ind-name">EMA 20 / 50</span><span class="ind-val ${trendClass}">${trendText}</span></div>
-        <div class="ind-row"><span class="ind-name">Импульс 24ч</span><span class="ind-val ${f.momentum24>=0?'ind-bull':'ind-bear'}">${fmtChg(f.momentum24)}</span></div>
-        <div class="ind-row"><span class="ind-name">Импульс 72ч</span><span class="ind-val ${f.momentum72>=0?'ind-bull':'ind-bear'}">${fmtChg(f.momentum72)}</span></div>
-        <div class="ind-row"><span class="ind-name">Оборот / MCap</span><span class="ind-val ${c._volMult>=8?'ind-bull':c._volMult<2?'ind-bear':'ind-neut'}">${c._volMult}%</span></div>
-        <div class="ind-row"><span class="ind-name">Позиция в range</span><span class="ind-val ind-neut">${Math.round(f.rangePos*100)}%</span></div>
+        <div class="ind-row"><span class="ind-name">Импульс 15м</span><span class="ind-val ${f.momentum15>=0?'ind-bull':'ind-bear'}">${f.intradayAvailable ? fmtChg(f.momentum15) : '—'}</span></div>
+        <div class="ind-row"><span class="ind-name">Импульс 1ч</span><span class="ind-val ${f.momentum60>=0?'ind-bull':'ind-bear'}">${f.intradayAvailable ? fmtChg(f.momentum60) : '—'}</span></div>
+        <div class="ind-row"><span class="ind-name">Импульс 4ч</span><span class="ind-val ${f.momentum240>=0?'ind-bull':'ind-bear'}">${f.intradayAvailable ? fmtChg(f.momentum240) : '—'}</span></div>
+        <div class="ind-row"><span class="ind-name">Объём 15м</span><span class="ind-val ${move.volumeRatio>=1.6?'ind-bull':'ind-neut'}">${f.intradayAvailable && move.volumeRatio ? move.volumeRatio.toFixed(1)+'x' : '—'}</span></div>
+        <div class="ind-row"><span class="ind-name">Trendline</span><span class="ind-val ${tl.active?(tl.direction==='long'?'ind-bull':'ind-bear'):'ind-neut'}">${tl.active ? tl.action+' · '+tl.direction.toUpperCase() : 'нет сетапа'}</span></div>
       </div>
     </div>
 
@@ -1801,13 +2081,16 @@ function focusCoin(id) {
 
 function buildLocalInsight(c) {
   const lvl = c._levels;
+  const tl = c._features?.trendline;
+  const move = c._volatility;
+  const context = `${c._timeframe.toUpperCase()}: ${tl?.active ? tl.label+' '+tl.direction.toUpperCase() : 'без trendline-сетапа'}${move?.active ? `, ${move.label} ${fmtChg(move.changePct)}` : ''}.`;
   if (c._signal === 'watch') {
-    return `${c._bias.toUpperCase()} остаётся только направлением наблюдения: качество ${c._score}/100, встречная оценка ${c._counterScore}/100. ${c._rejectionReason || 'Подтверждений для сделки пока недостаточно.'}`;
+    return `${context} ${c._bias.toUpperCase()} остаётся только направлением наблюдения: качество ${c._score}/100, встречная оценка ${c._counterScore}/100. ${c._rejectionReason || 'Подтверждений для сделки пока недостаточно.'}`;
   }
   const action = lvl.status === 'ready'
     ? 'Цена находится рядом с рассчитанной зоной, но вход требует проверки уровня на графике.'
     : `Оптимальное действие — дождаться возврата к ${fmtPShort(lvl.entry)} и не догонять движение.`;
-  return `${c._signal.toUpperCase()} прошёл фильтр ${c._score}/100 с планом 1:${lvl.rr}. ${action} Риск до структурного стопа — ${lvl.riskPct.toFixed(2)}%.`;
+  return `${context} ${c._signal.toUpperCase()} прошёл фильтр ${c._score}/100 с планом 1:${lvl.rr}. ${action} Риск до структурного стопа — ${lvl.riskPct.toFixed(2)}%.`;
 }
 
 async function loadAIInsight(c) {
@@ -1815,9 +2098,10 @@ async function loadAIInsight(c) {
   if (!slot) return;
 
   const sym = (c.symbol||'').toUpperCase();
+  const cacheKey = `${sym}:${c._timeframe}`;
   // 5-min cache
-  if (_aiCache[sym] && Date.now() - _aiCache[sym].ts < 300000) {
-    slot.innerHTML = `<div class="det-ai-text">${_aiCache[sym].text}</div>`;
+  if (_aiCache[cacheKey] && Date.now() - _aiCache[cacheKey].ts < 300000) {
+    slot.innerHTML = `<div class="det-ai-text">${_aiCache[cacheKey].text}</div>`;
     return;
   }
 
@@ -1832,7 +2116,8 @@ async function loadAIInsight(c) {
       body: JSON.stringify({
         prompt: `Объясни решение рыночного скринера по ${sym}/USDT простым русским языком в 2-3 коротких предложениях.
 Решение: ${c._signal.toUpperCase()}, наблюдаемый уклон: ${c._bias.toUpperCase()}.
-Оценки: LONG ${c._scores.long}/100, SHORT ${c._scores.short}/100. RSI ${c._rsi}. EMA20 ${f.ema20.toFixed(6)}, EMA50 ${f.ema50.toFixed(6)}. Импульс 24ч ${f.momentum24.toFixed(2)}%, 72ч ${f.momentum72.toFixed(2)}%. Оборот/MCap ${c._volMult}%.
+Таймфрейм: ${c._timeframe.toUpperCase()}, источник: Binance OHLCV. Оценки: LONG ${c._scores.long}/100, SHORT ${c._scores.short}/100. RSI ${c._rsi}. EMA20 ${f.ema20.toFixed(6)}, EMA50 ${f.ema50.toFixed(6)}. Импульс 15м ${f.momentum15.toFixed(2)}%, 1ч ${f.momentum60.toFixed(2)}%, 4ч ${f.momentum240.toFixed(2)}%.
+Trendline: ${f.trendline.active ? `${f.trendline.action}, направление ${f.trendline.direction}, ${f.trendline.touches} касания, линия ${f.trendline.linePrice.toFixed(6)}` : 'активного сетапа нет'}. Волатильность: ${f.volatility.label}, изменение 15м ${f.volatility.changePct.toFixed(2)}%, объём ${f.volatility.volumeRatio.toFixed(2)}x к медиане.
 План: вход ${lvl.entry.toFixed(6)}, стоп ${lvl.sl.toFixed(6)}, цель 5R ${lvl.tp1.toFixed(6)}, риск цены ${lvl.riskPct.toFixed(2)}%.
 Подтверждения: ${c._reasons.join('; ') || 'нет'}. Риски: ${c._risks.join('; ') || 'нет явных'}.
 Не выдумывай свечи, объёмы в сравнении со средним, новости или уровни, которых нет во входных данных. Не обещай прибыль. Дай одно конкретное действие: входить в зоне, ждать или пропустить. Без markdown.`,
@@ -1844,7 +2129,7 @@ async function loadAIInsight(c) {
     const d = await r.json();
     const text = (d.text || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     if (text.length > 20) {
-      _aiCache[sym] = { text, ts: Date.now() };
+      _aiCache[cacheKey] = { text, ts: Date.now() };
       if (slot) slot.innerHTML = `<div class="det-ai-text">${text}</div>`;
     } else {
       slot.innerHTML = `<div class="det-ai-text">${localText}</div>`;
@@ -1882,7 +2167,7 @@ async function sendSignalTG() {
   try {
     // Fetch AI insight text from cache if available
     const sym = (c.symbol || '').toUpperCase();
-    const insight = (_aiCache[sym]?.text?.replace(/<[^>]+>/g, '') || buildLocalInsight(c)).slice(0, 180);
+    const insight = (_aiCache[`${sym}:${c._timeframe}`]?.text?.replace(/<[^>]+>/g, '') || buildLocalInsight(c)).slice(0, 180);
 
     const r = await fetch('/api/notify', {
       method: 'POST',
@@ -1898,9 +2183,9 @@ async function sendSignalTG() {
           tp:         lvl.tp1,
           rr:         String(lvl.rr),
           confidence: sc,
-          setup_type: `5R · ${c._setup.join(' · ') || 'Structure'}`,
+          setup_type: `${c._timeframe.toUpperCase()} · 5R · ${c._setup.join(' · ') || 'Structure'}`,
           insight:    insight,
-          tf:         '1H data · 7D context',
+          tf:         `${c._timeframe.toUpperCase()} Binance candles`,
           app_url:    'https://orbitum.trade',
         }
       })
@@ -1929,7 +2214,7 @@ function openJournal() {
   const p = new URLSearchParams({
     symbol:(c.symbol||'').toUpperCase(), price:c.current_price,
     direction:c._signal === 'watch' ? c._bias : c._signal,
-    entry:lvl.entry, sl:lvl.sl, tp:lvl.tp1, rr:lvl.rr,
+    entry:lvl.entry, sl:lvl.sl, tp:lvl.tp1, rr:lvl.rr, tf:c._timeframe,
   });
   location.href = '/journal?' + p;
 }
@@ -1990,9 +2275,9 @@ function renderSetupBars() {
   });
   const setups = [
     group('5R active', allCoins.filter(c => c._signal !== 'watch')),
-    group('Trend', allCoins.filter(c => c._setup.includes('Trend'))),
-    group('Pullback', allCoins.filter(c => c._setup.includes('Pullback'))),
-    group('Breakout', allCoins.filter(c => c._setup.includes('Breakout'))),
+    group('Trendline', allCoins.filter(c => c._features?.trendline?.active)),
+    group('Pump / Dump', allCoins.filter(c => c._volatility?.active)),
+    group('Intraday data', allCoins.filter(c => c._features?.intradayAvailable)),
   ];
   document.getElementById('setup-bars').innerHTML = setups.map(s => `
     <div class="setup-bar-row">
@@ -2016,6 +2301,21 @@ function setFilter(f, btn) {
 }
 
 function applySearch(q) { _search = q; renderTable(); renderHeatmap(); }
+
+async function setTimeframe(timeframe, btn) {
+  if (!['5m','15m'].includes(timeframe) || timeframe === _timeframe && _intradayLoadedAt[timeframe]) return;
+  _timeframe = timeframe;
+  localStorage.setItem('orb_scr_tf', timeframe);
+  document.querySelectorAll('.tf-btn').forEach(button => button.classList.toggle('active', button.dataset.tf === timeframe));
+  if (btn) btn.classList.add('active');
+  showState('table-wrap', `СКАНИРУЕМ ${timeframe.toUpperCase()} СВЕЧИ`);
+  showState('heatmap-wrap', `СКАНИРУЕМ ${timeframe.toUpperCase()} СВЕЧИ`);
+  await loadIntradayTimeframe(timeframe, _rawCoins, true);
+  if (timeframe === '5m') await loadIntradayTimeframe('15m', _rawCoins);
+  processCoins(_rawCoins);
+  renderSetupBars();
+  showToast(`Таймфрейм переключён на ${timeframe.toUpperCase()}`, 'ok');
+}
 
 function sortBy(key) {
   if (_sort.key === key) _sort.dir = _sort.dir === 'asc' ? 'desc' : 'asc';
@@ -2094,6 +2394,9 @@ async function init() {
   if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
   if (localStorage.getItem('orb_sb_exp') === '1') document.getElementById('main-sidebar')?.classList.add('expanded');
   document.getElementById('sound-btn').classList.toggle('on', _soundEnabled);
+  document.querySelectorAll('.tf-btn').forEach(button => button.classList.toggle('active', button.dataset.tf === _timeframe));
+  const modeEl = document.getElementById('summary-mode');
+  if (modeEl) modeEl.textContent = `${_timeframe.toUpperCase()} · 5R`;
 
   // Auth
   const ok = await initAuth();
