@@ -1,7 +1,8 @@
 // api/ticker.js — Vercel Serverless Function
-// Route: GET /api/ticker?type=screener|crypto|forex|fng|market|trending|gl
+// Route: GET /api/ticker?type=screener|intraday|crypto|forex|fng|market|trending|gl
 
 const cache = {};
+const intradayCache = new Map();
 const CACHE_TTL = {
   crypto:   30,
   forex:    60,
@@ -10,6 +11,7 @@ const CACHE_TTL = {
   trending: 300,
   gl:       60,
   screener: 45,
+  intraday: 20,
   sa_score: 120,  // Situational Awareness Score — refresh every 2 min
 };
 
@@ -42,6 +44,8 @@ async function fetchWithRetry(url, retries = 2) {
 }
 
 const CG = 'https://api.coingecko.com/api/v3';
+const BINANCE = 'https://api.binance.com/api/v3';
+const INTRADAY_INTERVALS = new Set(['5m', '15m']);
 const ENDPOINTS = {
   crypto:   () => `${CG}/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,cardano,avalanche-2,chainlink,pepe,the-open-network,sui&price_change_percentage=1h,24h,7d&per_page=20&sparkline=false`,
   forex:    () => 'https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,AUD,CHF,CAD,NZD',
@@ -52,6 +56,97 @@ const ENDPOINTS = {
   screener: (page=1) => `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}&sparkline=true&price_change_percentage=1h,24h,7d,30d`,
   sa_score: null, // computed, not a direct URL
 };
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchBinanceKlines(symbol, interval, limit) {
+  const url = `${BINANCE}/klines?symbol=${encodeURIComponent(symbol)}&interval=${interval}&limit=${limit}`;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(7000),
+      headers: { 'Accept': 'application/json' },
+    });
+    if (response.status === 429 && attempt === 0) {
+      await wait(700);
+      continue;
+    }
+    if (!response.ok) throw new Error(`Binance ${response.status}`);
+    const rows = await response.json();
+    if (!Array.isArray(rows)) throw new Error('Invalid Binance payload');
+    return rows.map(row => [
+      Number(row[0]), Number(row[1]), Number(row[2]), Number(row[3]),
+      Number(row[4]), Number(row[5]), Number(row[6]),
+    ]).filter(row => row.every(Number.isFinite));
+  }
+  throw new Error('Binance rate limit');
+}
+
+async function mapWithConcurrency(items, concurrency, worker) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  async function run() {
+    while (cursor < items.length) {
+      const index = cursor++;
+      try { results[index] = await worker(items[index]); }
+      catch (error) { results[index] = { error }; }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, run));
+  return results;
+}
+
+async function handleIntraday(req, res) {
+  const interval = INTRADAY_INTERVALS.has(req.query.interval) ? req.query.interval : '15m';
+  const limit = Math.min(120, Math.max(60, Number.parseInt(req.query.limit, 10) || 96));
+  const symbols = [...new Set(String(req.query.symbols || '')
+    .split(',')
+    .map(symbol => symbol.trim().toUpperCase())
+    .filter(symbol => /^[A-Z0-9]{2,16}USDT$/.test(symbol)))]
+    .slice(0, 30);
+
+  if (!symbols.length) return sendJSON(res, 400, { error: 'symbols required' });
+
+  const now = Date.now();
+  const ttl = CACHE_TTL.intraday * 1000;
+  const candles = {};
+  const missing = [];
+  const pending = [];
+
+  for (const symbol of symbols) {
+    const key = `${interval}:${limit}:${symbol}`;
+    const cached = intradayCache.get(key);
+    if (cached && now - cached.ts < ttl) candles[symbol] = cached.rows;
+    else pending.push({ symbol, key });
+  }
+
+  const fetched = await mapWithConcurrency(pending, 8, async item => ({
+    ...item,
+    rows: await fetchBinanceKlines(item.symbol, interval, limit),
+  }));
+
+  fetched.forEach((result, index) => {
+    const item = pending[index];
+    if (result?.rows?.length) {
+      intradayCache.set(item.key, { ts: now, rows: result.rows });
+      candles[item.symbol] = result.rows;
+      return;
+    }
+    const stale = intradayCache.get(item.key);
+    if (stale?.rows?.length) candles[item.symbol] = stale.rows;
+    else missing.push(item.symbol);
+  });
+
+  return sendJSON(res, 200, {
+    interval,
+    generated_at: new Date(now).toISOString(),
+    candles,
+    unavailable: missing,
+  }, {
+    'Cache-Control': `public, s-maxage=${CACHE_TTL.intraday}, stale-while-revalidate=30`,
+  });
+}
 
 async function handler(req, res) {
   // CORS preflight
@@ -64,7 +159,8 @@ async function handler(req, res) {
 
   const { type } = req.query;
 
-  if (!type) return sendJSON(res, 400, { error: 'type required', available: Object.keys(ENDPOINTS) });
+  if (!type) return sendJSON(res, 400, { error: 'type required', available: [...Object.keys(ENDPOINTS), 'intraday'] });
+  if (type === 'intraday') return handleIntraday(req, res);
   if (!ENDPOINTS[type] && type !== 'sa_score') return sendJSON(res, 400, { error: `unknown type: "${type}"` });
 
   const now = Date.now();
