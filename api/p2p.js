@@ -58,7 +58,10 @@ export default async function handler(req, res) {
       });
     }
 
-    const repeatMinutes = Math.max(5, Number(process.env.P2P_REPEAT_MINUTES || 30));
+    const configuredRepeat = Number(process.env.P2P_REPEAT_MINUTES || 30);
+    const repeatMinutes = Number.isFinite(configuredRepeat)
+      ? Math.max(5, configuredRepeat)
+      : 30;
     const fingerprint = `${best.id}:${best.price}`;
     const lastSentAt = dedupe.get(fingerprint) || 0;
     if (Date.now() - lastSentAt < repeatMinutes * 60_000) {
