@@ -1,5 +1,5 @@
 import { handleLead } from '../lib/lead-handler.js';
-import { formatP2PMessage, P2P_WALLET_URL, scanWalletP2P } from '../lib/p2p-scanner.js';
+import { escapeHtml, formatP2PMessage, P2P_WALLET_URL, scanWalletP2P } from '../lib/p2p-scanner.js';
 
 // api/bot.js v5 — ORBITUM Telegram Bot
 // Commands: /start /p2p /stats /brief /signal /ai /alerts /plan /notify /log /help /stop
@@ -193,7 +193,7 @@ export default async function handler(req, res) {
         const hint = /P2P_WALLET_API_KEY/.test(error.message)
           ? '\n\nДобавьте P2P_WALLET_API_KEY в Vercel.'
           : '';
-        await tgSend(chat_id, `Не удалось проверить P2P: <code>${String(error.message).slice(0, 180)}</code>${hint}`);
+        await tgSend(chat_id, `Не удалось проверить P2P: <code>${escapeHtml(String(error.message).slice(0, 180))}</code>${hint}`);
       }
       return res.status(200).send('OK');
     }
