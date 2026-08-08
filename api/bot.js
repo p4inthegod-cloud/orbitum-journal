@@ -161,10 +161,10 @@ export default async function handler(req, res) {
       const allowedChatId = process.env.P2P_CHAT_ID;
       if (!allowedChatId) {
         await tgSend(chat_id,
-          \`<b>P2P-скринер ещё не настроен.</b>\n\n\` +
-          \`Добавьте в Vercel:\n\` +
-          \`P2P_CHAT_ID = <code>\${chat_id}</code>\n\` +
-          \`P2P_WALLET_API_KEY = ключ из Wallet P2P\`
+          `<b>P2P-скринер ещё не настроен.</b>\n\n` +
+          `Добавьте в Vercel:\n` +
+          `P2P_CHAT_ID = <code>${chat_id}</code>\n` +
+          `P2P_WALLET_API_KEY = ключ из Wallet P2P`
         );
         return res.status(200).send('OK');
       }
@@ -193,7 +193,7 @@ export default async function handler(req, res) {
         const hint = /P2P_WALLET_API_KEY/.test(error.message)
           ? '\n\nДобавьте P2P_WALLET_API_KEY в Vercel.'
           : '';
-        await tgSend(chat_id, \`Не удалось проверить P2P: <code>\${String(error.message).slice(0, 180)}</code>\${hint}\`);
+        await tgSend(chat_id, `Не удалось проверить P2P: <code>${String(error.message).slice(0, 180)}</code>${hint}`);
       }
       return res.status(200).send('OK');
     }
