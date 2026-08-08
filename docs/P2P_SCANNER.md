@@ -26,6 +26,6 @@ Optional variables:
 - `/p2p` — scan using `P2P_FIAT_AMOUNT`.
 - `/p2p 5000` — scan ads available for a 5,000 RUB order.
 
-For automatic alerts, call `GET /api/p2p` every 1–5 minutes and pass `Authorization: Bearer <CRON_SECRET>`. The endpoint only sends a message when the cheapest eligible ad is at least `P2P_MIN_DISCOUNT_PCT` below the median eligible price.
+For automatic alerts, call `GET /api/bot?action=p2p-cron` every 1–5 minutes and pass `Authorization: Bearer <CRON_SECRET>`. The endpoint only sends a message when the cheapest eligible ad is at least `P2P_MIN_DISCOUNT_PCT` below the median eligible price.
 
 Wallet currently refreshes P2P API data approximately every 30 seconds. On Vercel Hobby, use an external scheduler because Vercel Cron is limited to one invocation per day.
