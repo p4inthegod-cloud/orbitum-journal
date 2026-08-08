@@ -1,7 +1,8 @@
 import { handleLead } from '../lib/lead-handler.js';
+import { escapeHtml, formatP2PMessage, P2P_WALLET_URL, scanWalletP2P } from '../lib/p2p-scanner.js';
 
 // api/bot.js v5 — ORBITUM Telegram Bot
-// Commands: /start /stats /brief /signal /ai /alerts /plan /notify /log /help /stop
+// Commands: /start /p2p /stats /brief /signal /ai /alerts /plan /notify /log /help /stop
 // Inline keyboard buttons on key messages
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -153,6 +154,50 @@ export default async function handler(req, res) {
 
     if (isCallback) answerCB(body.callback_query.id);
 
+    // ══ /p2p [fiat amount] — Wallet P2P scan ═════════════════════
+    // Kept before the Orbitum profile gate so the private P2P bot works
+    // without linking or using the old trading screener.
+    if (cmd === '/p2p' || cmd.startsWith('/p2p ')) {
+      const allowedChatId = process.env.P2P_CHAT_ID;
+      if (!allowedChatId) {
+        await tgSend(chat_id,
+          `<b>P2P-скринер ещё не настроен.</b>\n\n` +
+          `Добавьте в Vercel:\n` +
+          `P2P_CHAT_ID = <code>${chat_id}</code>\n` +
+          `P2P_WALLET_API_KEY = ключ из Wallet P2P`
+        );
+        return res.status(200).send('OK');
+      }
+      if (String(chat_id) !== String(allowedChatId)) {
+        await tgSend(chat_id, 'Эта команда доступна только владельцу P2P-скринера.');
+        return res.status(200).send('OK');
+      }
+
+      const amountArg = text.split(/\s+/)[1];
+      const requestedAmount = amountArg ? Number(amountArg.replace(',', '.')) : undefined;
+      if (amountArg && (!Number.isFinite(requestedAmount) || requestedAmount <= 0)) {
+        await tgSend(chat_id, 'Формат: <code>/p2p 5000</code>');
+        return res.status(200).send('OK');
+      }
+
+      await tgSend(chat_id, 'Сканирую Wallet P2P...');
+      try {
+        const scan = await scanWalletP2P(requestedAmount ? { fiatAmount: requestedAmount } : {});
+        await tgSend(
+          chat_id,
+          formatP2PMessage(scan),
+          kb([btn('Открыть Wallet', P2P_WALLET_URL)])
+        );
+      } catch (error) {
+        console.error('[bot:p2p]', error);
+        const hint = /P2P_WALLET_API_KEY/.test(error.message)
+          ? '\n\nДобавьте P2P_WALLET_API_KEY в Vercel.'
+          : '';
+        await tgSend(chat_id, `Не удалось проверить P2P: <code>${escapeHtml(String(error.message).slice(0, 180))}</code>${hint}`);
+      }
+      return res.status(200).send('OK');
+    }
+
     // ══ /start ════════════════════════════════════════════════════
     if (cmd === '/start' || cmd.startsWith('/start ')) {
       const deepParam = cmd.split(' ')[1] || '';
@@ -189,6 +234,7 @@ export default async function handler(req, res) {
         const isPaid = existing.plan === 'lifetime' || existing.plan === 'monthly';
         await tgSend(chat_id,
           `Welcome back, <b>${existing.full_name || 'trader'}</b>!\n---\n` +
+          `/p2p     — Wallet P2P prices\n` +
           `/stats   — P&L & statistics\n` +
           `/signal  — top setup right now\n` +
           `/brief   — today's market brief\n` +
@@ -480,6 +526,7 @@ export default async function handler(req, res) {
     // ══ /help (default) ═══════════════════════════════════════════
     await tgSend(chat_id,
       `<b>ORBITUM Commands</b>\n---\n` +
+      `/p2p      — Wallet P2P prices; /p2p 5000 for amount\n` +
       `/stats    — P&L & performance\n` +
       `/signal   — top setup right now\n` +
       `/brief    — today's market brief\n` +
