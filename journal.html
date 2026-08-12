@@ -4953,6 +4953,102 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
   .edge-ai-head{align-items:flex-start;flex-direction:column}.edge-ai-head button{width:100%}.edge-ai-grid{grid-template-columns:1fr}
   .edge-v2-mini-kpis{grid-template-columns:1fr 1fr;gap:6px}.edge-psych-score-row{grid-template-columns:78px 1fr}.edge-psych-score-row>strong{width:74px;height:74px;font-size:23px}.edge-psych-bars{grid-template-columns:1fr}
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   REVIEW V2 — turn past trades into explicit next-cycle decisions
+════════════════════════════════════════════════════════════════════ */
+#page-progress> :not(.review-v2){display:none!important;}
+.review-v2{
+  --rv-acid:#b6ff2e;--rv-red:#ff5c6c;--rv-warn:#dce75a;--rv-panel:#050706;--rv-soft:#080b09;--rv-line:#1a211d;
+  width:100%;min-width:0;padding-bottom:34px;color:#dce2de;font-family:var(--font-mono);
+}
+.review-v2 *{box-sizing:border-box;}
+.review-v2-head{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;padding:2px 3px 18px;border-bottom:1px solid var(--rv-line);}
+.review-v2-kicker{display:flex;align-items:center;gap:9px;margin-bottom:10px;color:var(--rv-acid);font-size:10px;line-height:1;letter-spacing:2.4px;}
+.review-v2-kicker span{width:6px;height:6px;border-radius:50%;background:var(--rv-acid);box-shadow:0 0 10px rgba(182,255,46,.58);}
+.review-v2 h1{margin:0;color:#edf2ee;font:500 25px/1.1 var(--font-display);letter-spacing:1.1px;text-transform:uppercase;}
+.review-v2-head p{max-width:720px;margin:8px 0 0;color:#626c65;font-size:9px;line-height:1.6;letter-spacing:.55px;}
+.review-v2-actions,.review-periods,.review-v2-tabs,.review-queue-filters{display:flex;align-items:center;gap:5px;}
+.review-quiet-btn,.review-periods button,.review-v2-tabs button,.review-queue-filters button,.review-decision-intro button,.review-commit-row button{
+  appearance:none;border:1px solid #202822;border-radius:7px;background:#070908;color:#68716b;cursor:pointer;font:9px/1 var(--font-mono);letter-spacing:1.15px;padding:9px 12px;transition:.16s ease;white-space:nowrap;
+}
+.review-quiet-btn:hover,.review-periods button:hover,.review-v2-tabs button:hover,.review-queue-filters button:hover{border-color:#39443c;color:#c7cfc9;}
+.review-periods button.active,.review-v2-tabs button.active,.review-queue-filters button.active{border-color:var(--rv-acid);background:rgba(182,255,46,.055);color:var(--rv-acid);}
+.review-v2-tabs button span{display:inline-grid;place-items:center;min-width:16px;height:16px;margin-left:5px;padding:0 4px;border-radius:999px;background:#121713;color:#78827b;font-size:7px;}
+.review-v2-tabs button.active span{background:rgba(182,255,46,.12);color:var(--rv-acid);}
+.review-v2-control-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 14px;}
+.review-v2-tabs button{min-width:108px;}.review-v2-tabs button:nth-child(2){min-width:145px;}
+.review-v2-view{display:none;min-width:0;}.review-v2-view.active{display:block;animation:reviewIn .16s ease both;}
+@keyframes reviewIn{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+.review-v2-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.review-v2-kpis article,.review-v2-card,.review-context-summary article{
+  position:relative;min-width:0;border:1px solid var(--rv-line);border-radius:9px;background:var(--rv-panel);box-shadow:0 16px 42px rgba(0,0,0,.24);
+}
+.review-v2-kpis article{padding:14px 14px 13px;overflow:hidden;}
+.review-v2-kpis article::before{content:"";position:absolute;left:0;top:0;width:26px;height:1px;background:var(--rv-acid);opacity:.5;}
+.review-v2-kpis span,.review-context-summary span{display:block;color:#59635c;font-size:7px;line-height:1.2;letter-spacing:1.15px;white-space:nowrap;}
+.review-v2-kpis strong{display:block;margin:10px 0 8px;color:#d9e0db;font:500 21px/1 var(--font-display);letter-spacing:.5px;}
+.review-v2 strong.good,.review-v2 .good{color:var(--rv-acid)!important}.review-v2 strong.bad,.review-v2 .bad{color:var(--rv-red)!important}.review-v2 strong.warn,.review-v2 .warn{color:var(--rv-warn)!important}
+.review-v2-kpis small{display:block;overflow:hidden;color:#424a45;font-size:7px;line-height:1.3;letter-spacing:.4px;white-space:nowrap;text-overflow:ellipsis;}
+.review-v2-card{padding:15px;}
+.review-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px;}
+.review-card-head>div{min-width:0;}.review-card-title{display:block;color:#9ba59e;font-size:9px;line-height:1.2;letter-spacing:1.6px;}
+.review-card-head small{display:block;margin-top:5px;color:#465049;font-size:7px;letter-spacing:.65px;}
+
+.review-summary-grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(270px,.58fr);gap:10px;margin-bottom:10px;}
+.review-record{flex:0 0 auto;border:1px solid #252d28;border-radius:999px;padding:5px 9px;color:#727c75;font-size:7px;line-height:1;letter-spacing:.8px;}
+.review-chart-wrap{position:relative;height:246px;overflow:hidden;border:1px solid #121814;border-radius:8px;background:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px),#030504;background-size:100% 25%,12.5% 100%;}
+#review-curve-svg{display:block;width:100%;height:100%;overflow:visible;}
+.review-chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#444d47;font-size:9px;line-height:1.7;letter-spacing:.5px;}
+.review-chart-foot{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#465049;font-size:7px;letter-spacing:.75px;}
+
+.review-verdict-card{display:flex;flex-direction:column;min-height:100%;overflow:hidden;}
+.review-verdict-card::after{content:"";position:absolute;right:-48px;bottom:-65px;width:185px;height:185px;border:1px solid rgba(182,255,46,.026);border-radius:50%;box-shadow:0 0 0 28px rgba(182,255,46,.012),0 0 0 56px rgba(182,255,46,.007);pointer-events:none;}
+.review-verdict-dot{width:6px;height:6px;border-radius:50%;background:#454d48;box-shadow:0 0 8px currentColor;}
+.review-verdict-card.positive .review-verdict-dot{background:var(--rv-acid)}.review-verdict-card.negative .review-verdict-dot{background:var(--rv-red)}.review-verdict-card.mixed .review-verdict-dot{background:var(--rv-warn)}
+.review-verdict-code{position:relative;z-index:1;margin:16px 0 7px;color:#737d76;font:500 26px/1 var(--font-display);letter-spacing:1px;}
+.review-verdict-card.positive .review-verdict-code{color:var(--rv-acid)}.review-verdict-card.negative .review-verdict-code{color:var(--rv-red)}.review-verdict-card.mixed .review-verdict-code{color:var(--rv-warn)}
+.review-verdict-title{position:relative;z-index:1;color:#c4ccc6;font-size:10px;line-height:1.4;letter-spacing:.55px;}
+.review-verdict-card>p{position:relative;z-index:1;flex:1;margin:8px 0 18px;color:#59635c;font-size:8px;line-height:1.65;letter-spacing:.4px;}
+.review-verdict-rule{position:relative;z-index:1;padding:11px;border:1px solid #182019;border-radius:8px;background:#030504;}
+.review-verdict-rule span{display:block;color:#465049;font-size:6px;letter-spacing:1px;}.review-verdict-rule strong{display:block;margin-top:7px;color:var(--rv-acid);font-size:9px;line-height:1.5;font-weight:400;}
+
+.review-summary-lower{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:10px;margin-bottom:10px;}
+.review-compare-status{border:1px solid #252d28;border-radius:999px;padding:5px 8px;color:#69736c;font-size:7px;letter-spacing:.7px;white-space:nowrap;}
+.review-compare-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.review-compare-cell{min-width:0;padding:10px;border:1px solid #151c17;border-radius:7px;background:#030504;}
+.review-compare-cell span{display:block;color:#48514b;font-size:6px;letter-spacing:.8px;white-space:nowrap;}.review-compare-cell strong{display:block;margin:8px 0 5px;color:#aeb7b0;font-size:11px;font-weight:500;}.review-compare-cell small{display:block;color:#59635c;font-size:7px;white-space:nowrap;}
+.review-inline-link{appearance:none;border:0;background:transparent;color:#58625b;cursor:pointer;font:7px/1 var(--font-mono);letter-spacing:.8px;padding:2px;white-space:nowrap;}.review-inline-link:hover{color:var(--rv-acid);}
+.review-inbox-list{display:grid;gap:5px;}.review-inbox-row{display:grid;grid-template-columns:minmax(85px,1fr) 68px auto;align-items:center;gap:8px;padding:9px 10px;border:1px solid #151b17;border-radius:7px;background:#030504;}
+.review-inbox-row>span{overflow:hidden;color:#9da69f;font-size:8px;letter-spacing:.55px;white-space:nowrap;text-overflow:ellipsis;}.review-inbox-row small{color:#525c55;font-size:7px;text-align:right;white-space:nowrap;}.review-inbox-row button{border:1px solid #252e28;border-radius:6px;background:#070908;color:#77817a;cursor:pointer;font:7px/1 var(--font-mono);padding:5px 7px;}.review-inbox-row button:hover{border-color:var(--rv-acid);color:var(--rv-acid);}.review-inbox-empty{padding:26px 12px;text-align:center;color:#465049;font-size:8px;line-height:1.7;}
+.review-focus-strip{display:grid;grid-template-columns:210px 1fr;align-items:center;gap:14px;padding:12px 15px;border:1px solid rgba(182,255,46,.12);border-radius:8px;background:linear-gradient(90deg,rgba(182,255,46,.035),transparent 48%),#040605;}
+.review-focus-strip span{color:#59645d;font-size:7px;letter-spacing:1.2px;}.review-focus-strip strong{color:var(--rv-acid);font-size:9px;line-height:1.5;font-weight:400;}
+
+.review-spotlight-grid{display:grid;grid-template-columns:1fr 1fr .55fr;gap:9px;margin-bottom:10px;}.review-spotlight{min-height:118px;overflow:hidden;}
+.review-spotlight>span{display:block;color:#59635c;font-size:7px;letter-spacing:1.1px;}.review-spotlight>strong{display:block;margin:17px 0 8px;color:#c4ccc6;font:500 20px/1 var(--font-display);letter-spacing:.5px;}.review-spotlight>p{margin:0;color:#505a53;font-size:8px;line-height:1.5;}.review-spotlight.best::before,.review-spotlight.worst::before{content:"";position:absolute;left:0;top:0;width:34px;height:1px}.review-spotlight.best::before{background:var(--rv-acid)}.review-spotlight.worst::before{background:var(--rv-red)}.review-spotlight.queue strong{color:var(--rv-warn);font-size:28px;}
+.review-table-card{padding:0;overflow:hidden;}.review-table-head{padding:15px 16px 12px;margin:0;border-bottom:1px solid #151b17;}.review-queue-filters button{padding:7px 9px;font-size:7px;}
+.review-table-scroll{width:100%;overflow:auto;}.review-v2-table{width:100%;min-width:900px;border-collapse:collapse;}.review-v2-table th{padding:11px 13px;border-bottom:1px solid #171e19;color:#4f5952;font-size:7px;font-weight:400;letter-spacing:1.05px;text-align:left;white-space:nowrap;}.review-v2-table td{padding:11px 13px;border-bottom:1px solid #101512;color:#939d96;font-size:8px;line-height:1.25;white-space:nowrap;}.review-v2-table tbody tr:last-child td{border-bottom:0}.review-v2-table tbody tr:hover td{background:rgba(255,255,255,.012)}.review-v2-table .empty-row{text-align:center;color:#454e48;padding:34px 15px;}.review-tag{display:inline-flex;border:1px solid #242c27;border-radius:999px;padding:4px 7px;color:#737d76;font-size:6px;letter-spacing:.65px;}.review-tag.done{border-color:rgba(182,255,46,.2);color:var(--rv-acid)}.review-tag.needs{border-color:rgba(220,231,90,.18);color:var(--rv-warn)}.review-tag.flagged{border-color:rgba(255,92,108,.2);color:var(--rv-red)}.review-edit-btn{border:1px solid #252e28;border-radius:6px;background:#070908;color:#748078;cursor:pointer;font:7px/1 var(--font-mono);padding:6px 8px;}.review-edit-btn:hover{border-color:var(--rv-acid);color:var(--rv-acid);}
+
+.review-context-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}.review-context-summary article{padding:14px;}.review-context-summary strong{display:block;margin-top:9px;color:#c8d0ca;font:500 17px/1 var(--font-display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.review-context-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}.review-context-list{display:grid;gap:5px;}.review-context-row{display:grid;grid-template-columns:minmax(90px,1fr) 45px 55px 64px;align-items:center;gap:8px;padding:9px 10px;border:1px solid #151b17;border-radius:7px;background:#030504;}.review-context-row>span{overflow:hidden;color:#939d96;font-size:8px;letter-spacing:.45px;white-space:nowrap;text-overflow:ellipsis;}.review-context-row small{color:#4f5952;font-size:7px;text-align:right;}.review-context-row strong{font-size:8px;font-weight:400;text-align:right;}.review-empty-block{padding:30px 12px;text-align:center;color:#465049;font-size:8px;line-height:1.7;}
+
+.review-decision-intro{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:10px;padding:16px;border:1px solid rgba(182,255,46,.12);border-radius:9px;background:linear-gradient(100deg,rgba(182,255,46,.035),transparent 42%),#050706;}.review-decision-intro span{display:block;color:var(--rv-acid);font-size:7px;letter-spacing:1.4px;}.review-decision-intro strong{display:block;margin:8px 0 5px;color:#d4dcd6;font:500 20px/1 var(--font-display);letter-spacing:.7px;}.review-decision-intro p{margin:0;color:#566059;font-size:8px;line-height:1.5;}.review-decision-intro button{border-color:rgba(182,255,46,.26);color:var(--rv-acid);background:rgba(182,255,46,.035);}.review-decision-intro button:hover{background:var(--rv-acid);color:#071000;}
+.review-decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:10px;}.review-decision-card{position:relative;display:block;padding:15px;border:1px solid var(--rv-line);border-radius:9px;background:var(--rv-panel);box-shadow:0 16px 42px rgba(0,0,0,.24);}.review-decision-card::before{content:"";position:absolute;left:0;top:0;width:32px;height:1px}.review-decision-card.keep::before{background:var(--rv-acid)}.review-decision-card.stop::before{background:var(--rv-red)}.review-decision-card.test::before{background:var(--rv-warn)}.review-decision-card>span{display:block;margin-bottom:11px;color:#7f8982;font-size:8px;letter-spacing:1.1px;}.review-decision-card.keep>span{color:var(--rv-acid)}.review-decision-card.stop>span{color:var(--rv-red)}.review-decision-card.test>span{color:var(--rv-warn)}
+.review-v2 textarea{display:block;width:100%;resize:vertical;min-height:94px;padding:11px!important;border:1px solid #19201b!important;border-radius:7px!important;background:#020303!important;color:#cbd3cd!important;font:9px/1.65 var(--font-mono)!important;box-shadow:none!important;}.review-v2 textarea:focus{border-color:var(--rv-acid)!important;box-shadow:0 0 0 2px rgba(182,255,46,.055)!important;outline:none;}
+.review-decision-bottom{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);gap:10px;}.review-rule-card textarea{min-height:72px}.review-guardrails-card>div:last-child{display:grid;gap:6px;}.review-guardrail{display:flex;align-items:flex-start;gap:9px;padding:8px 9px;border:1px solid #151b17;border-radius:7px;background:#030504;color:#7e8881;font-size:8px;line-height:1.5;}.review-guardrail i{display:grid;place-items:center;flex:0 0 16px;width:16px;height:16px;border:1px solid rgba(182,255,46,.2);border-radius:50%;color:var(--rv-acid);font-style:normal;font-size:7px;}
+.review-commit-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px;padding:11px 12px;border:1px solid #171d19;border-radius:8px;background:#040605;}.review-commit-row span{color:#4c554f;font-size:7px;letter-spacing:1px;}.review-commit-row span.saved{color:var(--rv-acid)}.review-commit-row button{min-width:220px;border-color:var(--rv-acid);color:var(--rv-acid);background:#090c0a;}.review-commit-row button:hover{background:var(--rv-acid);color:#071000;}
+
+@media(max-width:1280px){.review-v2-kpis{grid-template-columns:repeat(3,1fr)}.review-summary-grid{grid-template-columns:minmax(0,1.5fr) minmax(260px,.7fr)}.review-compare-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){
+  .review-v2-head{align-items:flex-start;flex-direction:column}.review-v2-control-row{align-items:flex-start;flex-direction:column}.review-v2-tabs{width:100%;overflow:auto;padding-bottom:3px}.review-v2-tabs button{min-width:105px}.review-v2-tabs button:nth-child(2){min-width:140px}
+  .review-summary-grid,.review-summary-lower,.review-context-grid,.review-decision-bottom{grid-template-columns:1fr}.review-spotlight-grid{grid-template-columns:1fr 1fr}.review-spotlight.queue{grid-column:span 2}.review-decision-grid{grid-template-columns:1fr}.review-chart-wrap{height:220px}
+}
+@media(max-width:620px){
+  .review-v2 h1{font-size:20px}.review-v2-actions,.review-periods{width:100%}.review-v2-actions button,.review-periods button{flex:1;padding:9px 6px}.review-v2-control-row{gap:9px}
+  .review-v2-kpis{grid-template-columns:1fr 1fr;gap:6px}.review-v2-kpis article{padding:12px}.review-v2-kpis strong{font-size:18px}.review-v2-card{padding:12px}.review-chart-wrap{height:194px}
+  .review-summary-lower{gap:7px}.review-compare-grid{grid-template-columns:1fr 1fr}.review-focus-strip{grid-template-columns:1fr;gap:7px}.review-spotlight-grid{grid-template-columns:1fr}.review-spotlight.queue{grid-column:auto}.review-table-head{align-items:flex-start;flex-direction:column}.review-queue-filters{width:100%;overflow:auto}.review-context-summary{grid-template-columns:1fr 1fr;gap:6px}.review-decision-intro{align-items:flex-start;flex-direction:column}.review-decision-intro button{width:100%}.review-commit-row{align-items:stretch;flex-direction:column}.review-commit-row button{width:100%;min-width:0}
+}
 </style>
 </head>
 <body>
@@ -5902,6 +5998,151 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
 
   <div class="page" id="page-progress">
+    <section class="review-v2" id="review-v2" aria-label="Разбор торгового периода">
+      <header class="review-v2-head">
+        <div>
+          <div class="review-v2-kicker"><span></span>REVIEW // DECISION ROOM</div>
+          <h1>Разбор торгового периода</h1>
+          <p>Не просто смотреть на цифры — решить, что продолжать, что остановить и что проверить следующим циклом.</p>
+        </div>
+        <div class="review-v2-actions">
+          <button type="button" class="review-quiet-btn" onclick="document.getElementById('review-csv-input').click()">IMPORT</button>
+          <button type="button" class="review-quiet-btn" onclick="exportPDF('week')">PDF REPORT</button>
+          <input type="file" id="review-csv-input" accept=".csv,.xlsx,.xls" hidden onchange="importCSV(this)">
+        </div>
+      </header>
+
+      <div class="review-v2-control-row">
+        <nav class="review-v2-tabs" aria-label="Разделы Review">
+          <button type="button" class="active" data-review-tab="summary" onclick="setReviewTab('summary',this)">SUMMARY</button>
+          <button type="button" data-review-tab="trades" onclick="setReviewTab('trades',this)">TRADE REVIEW <span id="review-tab-badge">0</span></button>
+          <button type="button" data-review-tab="context" onclick="setReviewTab('context',this)">CONTEXT</button>
+          <button type="button" data-review-tab="decisions" onclick="setReviewTab('decisions',this)">DECISIONS</button>
+        </nav>
+        <div class="review-periods" role="group" aria-label="Период разбора">
+          <button type="button" data-review-period="7" onclick="setReviewPeriod('7',this)">7D</button>
+          <button type="button" class="active" data-review-period="30" onclick="setReviewPeriod('30',this)">30D</button>
+          <button type="button" data-review-period="90" onclick="setReviewPeriod('90',this)">90D</button>
+          <button type="button" data-review-period="all" onclick="setReviewPeriod('all',this)">ALL</button>
+        </div>
+      </div>
+
+      <div class="review-v2-view active" data-review-view="summary">
+        <div class="review-v2-kpis">
+          <article><span>PERIOD NET R</span><strong id="review-net-r">—</strong><small id="review-period-label">30 DAYS</small></article>
+          <article><span>AVG R / TRADE</span><strong id="review-avg-r">—</strong><small>включая break-even</small></article>
+          <article><span>EXECUTION QUALITY</span><strong id="review-quality">—</strong><small>план · стоп · без leaks</small></article>
+          <article><span>REVIEW COMPLETION</span><strong id="review-completion">—</strong><small>сделки с зафиксированным уроком</small></article>
+          <article><span>LEAK COST</span><strong id="review-leak-cost">—</strong><small>убытки в отмеченных нарушениях</small></article>
+          <article><span>ACTIVE DAYS</span><strong id="review-active-days">—</strong><small id="review-trades-count">0 trades</small></article>
+        </div>
+
+        <div class="review-summary-grid">
+          <article class="review-v2-card review-curve-card">
+            <div class="review-card-head">
+              <div><span class="review-card-title">PERIOD R // CUMULATIVE</span><small id="review-curve-mode">R NORMALIZED</small></div>
+              <div class="review-record" id="review-record">0W · 0L · 0BE</div>
+            </div>
+            <div class="review-chart-wrap">
+              <svg id="review-curve-svg" viewBox="0 0 900 260" preserveAspectRatio="none" role="img" aria-label="Кривая R за выбранный период"></svg>
+              <div class="review-chart-empty" id="review-curve-empty">Нет закрытых сделок в выбранном периоде.</div>
+            </div>
+            <div class="review-chart-foot"><span id="review-chart-range">START 0.00R</span><span id="review-chart-current">CURRENT —</span></div>
+          </article>
+
+          <article class="review-v2-card review-verdict-card" id="review-verdict-card">
+            <div class="review-card-head"><span class="review-card-title">PERIOD VERDICT</span><span class="review-verdict-dot"></span></div>
+            <div class="review-verdict-code" id="review-verdict-code">NO DATA</div>
+            <div class="review-verdict-title" id="review-verdict-title">Нечего разбирать</div>
+            <p id="review-verdict-desc">Закрой хотя бы одну сделку в выбранном периоде.</p>
+            <div class="review-verdict-rule"><span>NEXT PRIORITY</span><strong id="review-priority">Собрать данные</strong></div>
+          </article>
+        </div>
+
+        <div class="review-summary-lower">
+          <article class="review-v2-card review-compare-card">
+            <div class="review-card-head"><div><span class="review-card-title">VS PREVIOUS PERIOD</span><small id="review-compare-caption">предыдущие 30 дней</small></div><span class="review-compare-status" id="review-compare-status">—</span></div>
+            <div class="review-compare-grid" id="review-compare-grid"></div>
+          </article>
+          <article class="review-v2-card review-inbox-card">
+            <div class="review-card-head"><div><span class="review-card-title">REVIEW INBOX</span><small>сделки без урока или плана</small></div><button type="button" class="review-inline-link" onclick="setReviewTab('trades')">OPEN ALL →</button></div>
+            <div class="review-inbox-list" id="review-inbox-preview"></div>
+          </article>
+        </div>
+
+        <article class="review-focus-strip">
+          <span>ONE THING THAT MATTERS</span>
+          <strong id="review-focus-insight">Сначала собери выборку.</strong>
+        </article>
+      </div>
+
+      <div class="review-v2-view" data-review-view="trades">
+        <div class="review-spotlight-grid">
+          <article class="review-v2-card review-spotlight best">
+            <span>BEST EXECUTION</span><strong id="review-best-trade">—</strong><p id="review-best-trade-meta">Нет данных</p>
+          </article>
+          <article class="review-v2-card review-spotlight worst">
+            <span>WORST EXECUTION</span><strong id="review-worst-trade">—</strong><p id="review-worst-trade-meta">Нет данных</p>
+          </article>
+          <article class="review-v2-card review-spotlight queue">
+            <span>TO REVIEW</span><strong id="review-queue-count">0</strong><p>Открой сделку и добавь конкретный урок.</p>
+          </article>
+        </div>
+        <article class="review-v2-card review-table-card">
+          <div class="review-card-head review-table-head">
+            <div><span class="review-card-title">TRADE REVIEW QUEUE</span><small>редактирование открывается прямо из строки</small></div>
+            <div class="review-queue-filters">
+              <button type="button" class="active" data-review-filter="all" onclick="setReviewQueueFilter('all',this)">ALL</button>
+              <button type="button" data-review-filter="needs" onclick="setReviewQueueFilter('needs',this)">NEEDS REVIEW</button>
+              <button type="button" data-review-filter="clean" onclick="setReviewQueueFilter('clean',this)">CLEAN</button>
+              <button type="button" data-review-filter="flagged" onclick="setReviewQueueFilter('flagged',this)">FLAGGED</button>
+            </div>
+          </div>
+          <div class="review-table-scroll"><table class="review-v2-table"><thead><tr><th>DATE</th><th>PAIR</th><th>SETUP</th><th>RESULT</th><th>R</th><th>CONTEXT</th><th>REVIEW</th><th></th></tr></thead><tbody id="review-trades-table"></tbody></table></div>
+        </article>
+      </div>
+
+      <div class="review-v2-view" data-review-view="context">
+        <div class="review-context-summary">
+          <article><span>CLEAN TRADES AVG R</span><strong id="review-clean-avg">—</strong></article>
+          <article><span>FLAGGED TRADES AVG R</span><strong id="review-flagged-avg">—</strong></article>
+          <article><span>BEHAVIOR GAP</span><strong id="review-behavior-gap">—</strong></article>
+          <article><span>BEST CONTEXT</span><strong id="review-best-context">—</strong></article>
+        </div>
+        <div class="review-context-grid">
+          <article class="review-v2-card"><div class="review-card-head"><span class="review-card-title">BY DAY</span><small>день недели</small></div><div class="review-context-list" id="review-by-day"></div></article>
+          <article class="review-v2-card"><div class="review-card-head"><span class="review-card-title">BY SESSION</span><small>UTC session</small></div><div class="review-context-list" id="review-by-session"></div></article>
+          <article class="review-v2-card"><div class="review-card-head"><span class="review-card-title">BY DIRECTION</span><small>long / short</small></div><div class="review-context-list" id="review-by-direction"></div></article>
+          <article class="review-v2-card"><div class="review-card-head"><span class="review-card-title">BY PAIR</span><small>инструмент</small></div><div class="review-context-list" id="review-by-pair"></div></article>
+        </div>
+      </div>
+
+      <div class="review-v2-view" data-review-view="decisions">
+        <div class="review-decision-intro">
+          <div><span>DECISION PROTOCOL</span><strong>Один цикл — три решения</strong><p>Review считается завершённым только после фиксации следующего поведения.</p></div>
+          <button type="button" onclick="reviewGenerateDecisions(true)">GENERATE FROM DATA</button>
+        </div>
+        <div class="review-decision-grid">
+          <label class="review-decision-card keep"><span>KEEP // ПРОДОЛЖАТЬ</span><textarea id="review-keep" rows="5" placeholder="Что доказало свою ценность?"></textarea></label>
+          <label class="review-decision-card stop"><span>STOP // ПРЕКРАТИТЬ</span><textarea id="review-stop" rows="5" placeholder="Что системно стоит денег?"></textarea></label>
+          <label class="review-decision-card test"><span>TEST // ПРОВЕРИТЬ</span><textarea id="review-test" rows="5" placeholder="Какая одна гипотеза нужна следующему циклу?"></textarea></label>
+        </div>
+        <div class="review-decision-bottom">
+          <article class="review-v2-card review-rule-card">
+            <div class="review-card-head"><span class="review-card-title">NEXT 5-TRADE RULE</span><small>одно правило без исключений</small></div>
+            <textarea id="review-next-rule" rows="3" placeholder="Например: следующие 5 сделок только MS, со стопом до входа."></textarea>
+          </article>
+          <article class="review-v2-card review-guardrails-card">
+            <div class="review-card-head"><span class="review-card-title">AUTO GUARDRAILS</span><small>из текущей выборки</small></div>
+            <div id="review-guardrails"></div>
+          </article>
+        </div>
+        <div class="review-commit-row">
+          <span id="review-saved-state">NOT COMMITTED</span>
+          <button type="button" onclick="saveReviewDecisions()">COMMIT NEXT CYCLE</button>
+        </div>
+      </div>
+    </section>
     <div class="progress-hdr">
       <div>
         <div style="font-family:var(--font-display);font-size:28px;letter-spacing:2px;display:flex;align-items:center;gap:10px;"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M2 16l5-7 4 4 5-7 4 5" stroke="var(--a)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>ПРОГРЕСС</div>
@@ -7794,7 +8035,157 @@ async function runBrutalAnalysis(){
 
 
 // ─── PROGRESS ─────────────────────────────────────
+let reviewActivePeriod='30';
+let reviewActiveTab='summary';
+let reviewQueueFilter='all';
+let reviewLastAnalysis=null;
+
+function setReviewTab(tab,btn){
+  reviewActiveTab=String(tab||'summary');
+  document.querySelectorAll('[data-review-tab]').forEach(el=>el.classList.toggle('active',el.dataset.reviewTab===reviewActiveTab));
+  document.querySelectorAll('[data-review-view]').forEach(el=>el.classList.toggle('active',el.dataset.reviewView===reviewActiveTab));
+}
+function setReviewPeriod(period,btn){
+  reviewActivePeriod=String(period||'30');
+  document.querySelectorAll('[data-review-period]').forEach(el=>el.classList.toggle('active',el.dataset.reviewPeriod===reviewActivePeriod));
+  renderReviewV2(allTrades||[]);
+}
+function setReviewQueueFilter(filter,btn){
+  reviewQueueFilter=String(filter||'all');
+  document.querySelectorAll('[data-review-filter]').forEach(el=>el.classList.toggle('active',el.dataset.reviewFilter===reviewQueueFilter));
+  if(reviewLastAnalysis)reviewRenderTrades(reviewLastAnalysis);
+}
+function reviewPeriodTrades(trades,previous){
+  const list=(trades||[]).slice();
+  if(reviewActivePeriod==='all')return previous?[]:list;
+  const days=Number(reviewActivePeriod)||30,now=Date.now(),end=previous?now-days*86400000:now,start=previous?now-days*2*86400000:now-days*86400000;
+  return list.filter(t=>{const ms=new Date(t.created_at).getTime();return Number.isFinite(ms)&&ms>=start&&(previous?ms<end:ms<=end);});
+}
+function reviewHasLeak(trade){
+  const note=(' '+String(trade&&trade.note_feel||'')).toLowerCase();
+  return Object.values(TERMINAL_LEAKS||{}).some(meta=>meta.patterns.some(pattern=>note.includes(pattern)));
+}
+function reviewLeakLabels(trade){
+  const note=(' '+String(trade&&trade.note_feel||'')).toLowerCase();
+  return Object.values(TERMINAL_LEAKS||{}).filter(meta=>meta.patterns.some(pattern=>note.includes(pattern))).map(meta=>meta.label);
+}
+function reviewQuality(stats){
+  const entries=stats.entries||[],n=entries.length;
+  if(!n)return {score:null,plan:null,stop:null,clean:null,reviewed:null};
+  const plan=entries.filter(x=>String(x.trade.setup_type||'').trim()||terminalCleanNote(x.trade.note_why)).length/n*100;
+  const stop=entries.filter(x=>Number(x.trade.stop_loss)>0).length/n*100;
+  const clean=entries.filter(x=>!reviewHasLeak(x.trade)).length/n*100;
+  const reviewed=entries.filter(x=>String(x.trade.note_lesson||'').trim().length>=4).length/n*100;
+  return {score:Math.round(plan*.35+stop*.35+clean*.3),plan:Math.round(plan),stop:Math.round(stop),clean:Math.round(clean),reviewed:Math.round(reviewed)};
+}
+function reviewDayGroups(entries){
+  const groups={};
+  (entries||[]).forEach(x=>{const d=new Date(x.trade.created_at),key=Number.isNaN(d.getTime())?'UNKNOWN':d.toISOString().slice(0,10);if(!groups[key])groups[key]={key,date:d,items:[]};groups[key].items.push(x);});
+  return Object.values(groups).map(g=>({...g,netR:g.items.reduce((s,x)=>s+x.r,0)})).sort((a,b)=>a.date-b.date);
+}
+function reviewVerdict(stats,quality,leakCost){
+  const n=stats.valid.length;
+  if(!n)return {code:'NO DATA',title:'Нечего разбирать',desc:'Закрой хотя бы одну сделку в выбранном периоде.',priority:'Собрать данные',cls:''};
+  if(n<3)return {code:'NO VERDICT',title:'Выборка слишком мала',desc:`${n} сделок недостаточно для вывода. Проверь заполнение и продолжай сбор.`,priority:'Закрыть ещё '+(3-n)+' сделки',cls:'mixed'};
+  if(stats.netR>0&&quality.score>=75&&leakCost<1)return {code:'CLEAN PERIOD',title:'Результат и исполнение совпали',desc:'Период положительный без заметной цены нарушений. Не меняй систему — повторяй рабочий контекст.',priority:'Повторять без роста риска',cls:'positive'};
+  if(stats.netR>0&&quality.score<65)return {code:'PROFIT / DIRTY',title:'Прибыль скрывает слабое исполнение',desc:'Период закрыт в плюс, но качество процесса низкое. Масштабирование сейчас закрепит ошибки.',priority:'Поднять execution quality',cls:'mixed'};
+  if(stats.netR<=0&&quality.score<65)return {code:'CONTROL FIRST',title:'Сначала вернуть контроль',desc:'Отрицательный результат совпал с нарушениями процесса. Стратегию рано обвинять — сначала убери поведенческий шум.',priority:'Убрать самый дорогой leak',cls:'negative'};
+  if(stats.netR<0&&quality.score>=65)return {code:'SYSTEM CHECK',title:'Исполнение чистое, результат слабый',desc:'Ты следовал процессу, но математика периода отрицательная. Сократи торговлю до лучших сетапов и проверь гипотезу.',priority:'Проверить лучший сетап отдельно',cls:'negative'};
+  return {code:'MIXED PERIOD',title:'Нет одного доминирующего сигнала',desc:'Часть метрик улучшилась, часть просела. Не меняй всё сразу — выбери одну проверяемую гипотезу.',priority:'Одна гипотеза на 5 сделок',cls:'mixed'};
+}
+function reviewRenderCurve(stats){
+  const svg=document.getElementById('review-curve-svg'),empty=document.getElementById('review-curve-empty');if(!svg||!empty)return;
+  const entries=stats.entries||[];
+  if(!entries.length){svg.innerHTML='';empty.style.display='flex';edgeSet('review-chart-range','START 0.00R');edgeSet('review-chart-current','CURRENT —');return;}
+  empty.style.display='none';
+  const values=[0];entries.forEach(x=>values.push(values[values.length-1]+x.r));
+  let lo=Math.min(0,...values),hi=Math.max(0,...values);const span=Math.max(.75,hi-lo);lo-=span*.14;hi+=span*.14;
+  const W=900,H=260,PX=24,PY=20,x=i=>PX+(W-PX*2)*(i/(values.length-1||1)),y=v=>PY+(H-PY*2)*(1-(v-lo)/(hi-lo||1));
+  const path=values.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' '),area=path+` L ${x(values.length-1).toFixed(1)} ${y(0).toFixed(1)} L ${x(0).toFixed(1)} ${y(0).toFixed(1)} Z`;
+  let peak=0,maxDD=0,ddIndex=0;values.forEach((v,i)=>{peak=Math.max(peak,v);if(peak-v>maxDD){maxDD=peak-v;ddIndex=i;}});
+  const dots=entries.map((e,i)=>`<circle cx="${x(i+1).toFixed(1)}" cy="${y(values[i+1]).toFixed(1)}" r="${e.r<0?3:2.3}" fill="${e.r<0?'#ff5c6c':'#b6ff2e'}" opacity="${e.r===0?.45:.82}"/>`).join('');
+  const dd=maxDD?`<line x1="${x(ddIndex)}" y1="${y(values[ddIndex])}" x2="${x(ddIndex)}" y2="${Math.max(16,y(values[ddIndex])-24)}" stroke="#ff5c6c" stroke-dasharray="3 4" opacity=".55"/><text x="${Math.min(W-72,x(ddIndex)+6)}" y="${Math.max(14,y(values[ddIndex])-28)}" fill="#ff7a88" font-size="10" font-family="monospace">DD −${maxDD.toFixed(2)}R</text>`:'';
+  svg.innerHTML=`<defs><linearGradient id="reviewArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b6ff2e" stop-opacity=".14"/><stop offset="1" stop-color="#b6ff2e" stop-opacity="0"/></linearGradient></defs><line x1="${PX}" y1="${y(0)}" x2="${W-PX}" y2="${y(0)}" stroke="#3d4740" stroke-dasharray="3 5" opacity=".7"/><path d="${area}" fill="url(#reviewArea)"/><path d="${path}" fill="none" stroke="#b6ff2e" stroke-width="2.2" vector-effect="non-scaling-stroke"/>${dots}${dd}<circle cx="${x(values.length-1)}" cy="${y(values[values.length-1])}" r="5" fill="#b6ff2e"/><circle cx="${x(values.length-1)}" cy="${y(values[values.length-1])}" r="10" fill="none" stroke="#b6ff2e" opacity=".16"/>`;
+  edgeSet('review-chart-range',`LOW ${lo.toFixed(2)}R · HIGH ${hi.toFixed(2)}R`);edgeSet('review-chart-current',`CURRENT ${edgeFmtR(stats.netR,true)}`);
+}
+function reviewCompareMetric(label,current,previous,format,goodHigh){
+  const hasPrev=Number.isFinite(previous),delta=hasPrev?current-previous:null;
+  const cls=delta==null?'':(goodHigh?(delta>0?'good':delta<0?'bad':''):(delta<0?'good':delta>0?'bad':''));
+  return `<div class="review-compare-cell"><span>${label}</span><strong>${format(current)}</strong><small class="${cls}">${delta==null?'NO PREVIOUS':(delta>0?'▲ ':'▼ ')+format(Math.abs(delta))}</small></div>`;
+}
+function reviewRenderComparison(current,previous,currentQuality,previousQuality){
+  const grid=document.getElementById('review-compare-grid'),caption=document.getElementById('review-compare-caption'),status=document.getElementById('review-compare-status');if(!grid)return;
+  if(reviewActivePeriod==='all'||!previous.valid.length){grid.innerHTML='<div class="review-inbox-empty" style="grid-column:1/-1">Предыдущего сопоставимого периода пока нет.</div>';if(caption)caption.textContent='нет сопоставимого периода';if(status)status.textContent='—';return;}
+  if(caption)caption.textContent=`предыдущие ${reviewActivePeriod} дней`;
+  const wr=x=>x.decisions.length?x.winRate*100:NaN;
+  grid.innerHTML=reviewCompareMetric('NET R',current.netR,previous.netR,v=>edgeFmtR(v,true),true)+reviewCompareMetric('AVG R',current.expectancy,previous.expectancy,v=>edgeFmtR(v,true),true)+reviewCompareMetric('PF',current.pf===Infinity?99:current.pf,previous.pf===Infinity?99:previous.pf,v=>v===99?'∞':Number.isFinite(v)?v.toFixed(2):'—',true)+reviewCompareMetric('WIN RATE',wr(current),wr(previous),v=>Number.isFinite(v)?Math.round(v)+'%':'—',true)+reviewCompareMetric('QUALITY',currentQuality.score,previousQuality.score,v=>Number.isFinite(v)?Math.round(v)+'%':'—',true);
+  const score=(current.expectancy-previous.expectancy)+(currentQuality.score-previousQuality.score)/100;
+  if(status){status.textContent=score>.15?'IMPROVING':score<-.15?'DECLINING':'MIXED';status.className='review-compare-status '+(score>.15?'good':score<-.15?'bad':'warn');}
+}
+function reviewNeedsReview(entry){return !String(entry.trade.note_lesson||'').trim()||!(String(entry.trade.setup_type||'').trim()||terminalCleanNote(entry.trade.note_why));}
+function reviewEntryStatus(entry){if(reviewHasLeak(entry.trade))return {label:'FLAGGED',cls:'flagged'};if(reviewNeedsReview(entry))return {label:'NEEDS REVIEW',cls:'needs'};return {label:'DONE',cls:'done'};}
+function reviewRenderInbox(analysis){
+  const needs=analysis.stats.entries.filter(reviewNeedsReview),preview=document.getElementById('review-inbox-preview'),badge=document.getElementById('review-tab-badge');
+  if(badge)badge.textContent=String(needs.length);edgeSet('review-queue-count',String(needs.length));
+  if(preview)preview.innerHTML=needs.length?needs.slice().reverse().slice(0,3).map(x=>{const d=new Date(x.trade.created_at),date=Number.isNaN(d.getTime())?'—':d.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});return `<div class="review-inbox-row"><span>${escHtml(x.trade.pair||'NO PAIR')}</span><small>${date} · ${edgeFmtR(x.r,true)}</small><button type="button" data-id="${escHtml(String(x.trade.id||''))}" onclick="openEditModal(this.dataset.id)">REVIEW</button></div>`;}).join(''):'<div class="review-inbox-empty">Inbox чист. Все сделки периода содержат план и урок.</div>';
+}
+function reviewRenderTrades(analysis){
+  const entries=analysis.stats.entries||[],best=entries.slice().sort((a,b)=>b.r-a.r)[0],worst=entries.slice().sort((a,b)=>a.r-b.r)[0];
+  const fillSpot=(prefix,item)=>{edgeSet(prefix+'-trade',item?`${item.trade.pair||'NO PAIR'} · ${edgeFmtR(item.r,true)}`:'—',item?(item.r>0?'good':item.r<0?'bad':null):null);const meta=document.getElementById(prefix+'-trade-meta');if(meta)meta.textContent=item?`${String(item.trade.setup_type||'NO SETUP').toUpperCase()} · ${terminalSession(item.trade.created_at)} · ${String(item.trade.direction||'—').toUpperCase()}`:'Нет данных';};
+  fillSpot('review-best',best);fillSpot('review-worst',worst);
+  let filtered=entries.slice().reverse();if(reviewQueueFilter==='needs')filtered=filtered.filter(reviewNeedsReview);else if(reviewQueueFilter==='clean')filtered=filtered.filter(x=>!reviewHasLeak(x.trade));else if(reviewQueueFilter==='flagged')filtered=filtered.filter(x=>reviewHasLeak(x.trade));
+  const body=document.getElementById('review-trades-table');if(!body)return;
+  body.innerHTML=filtered.length?filtered.map(x=>{const t=x.trade,d=new Date(t.created_at),date=Number.isNaN(d.getTime())?'—':d.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}),status=reviewEntryStatus(x),leaks=reviewLeakLabels(t),context=[terminalMarker(t.note_why,'TF','—'),terminalSession(t.created_at)].filter(Boolean).join(' · ');return `<tr><td>${date}</td><td>${escHtml(t.pair||'—')}</td><td>${escHtml(String(t.setup_type||'NO SETUP').toUpperCase())}</td><td class="${x.r>0?'good':x.r<0?'bad':''}">${String(t.result||'be').toUpperCase()}</td><td class="${x.r>0?'good':x.r<0?'bad':''}">${edgeFmtR(x.r,true)}</td><td>${escHtml(leaks.length?leaks.join(', '):context)}</td><td><span class="review-tag ${status.cls}">${status.label}</span></td><td><button type="button" class="review-edit-btn" data-id="${escHtml(String(t.id||''))}" onclick="openEditModal(this.dataset.id)">OPEN</button></td></tr>`;}).join(''):'<tr><td colspan="8" class="empty-row">Нет сделок для выбранного фильтра.</td></tr>';
+}
+function reviewGroupEntries(entries,keyFn){
+  const groups={};(entries||[]).forEach(x=>{const name=String(keyFn(x.trade)||'—').toUpperCase();if(!groups[name])groups[name]=[];groups[name].push(x);});
+  return Object.entries(groups).map(([name,items])=>{const w=items.filter(x=>x.r>0).length,l=items.filter(x=>x.r<0).length,net=items.reduce((s,x)=>s+x.r,0);return {name,n:items.length,wr:w+l?w/(w+l):null,net,avg:items.length?net/items.length:0};}).sort((a,b)=>b.avg-a.avg||b.n-a.n);
+}
+function reviewRenderContextList(id,rows){const el=document.getElementById(id);if(!el)return;el.innerHTML=rows.length?rows.slice(0,8).map(r=>`<div class="review-context-row"><span>${escHtml(r.name)}</span><small>N ${r.n}</small><strong class="${r.wr==null?'':r.wr>=.5?'good':'bad'}">${r.wr==null?'—':Math.round(r.wr*100)+'%'}</strong><strong class="${r.avg>0?'good':r.avg<0?'bad':''}">${edgeFmtR(r.avg,true)}</strong></div>`).join(''):'<div class="review-empty-block">Нет данных.</div>';}
+function reviewRenderContext(analysis){
+  const entries=analysis.stats.entries||[],clean=entries.filter(x=>!reviewHasLeak(x.trade)),flagged=entries.filter(x=>reviewHasLeak(x.trade)),avg=arr=>arr.length?arr.reduce((s,x)=>s+x.r,0)/arr.length:null,cleanAvg=avg(clean),flaggedAvg=avg(flagged),gap=cleanAvg!=null&&flaggedAvg!=null?cleanAvg-flaggedAvg:null;
+  edgeSet('review-clean-avg',cleanAvg==null?'—':edgeFmtR(cleanAvg,true),cleanAvg>0?'good':cleanAvg<0?'bad':null);edgeSet('review-flagged-avg',flaggedAvg==null?'—':edgeFmtR(flaggedAvg,true),flaggedAvg>0?'good':flaggedAvg<0?'bad':null);edgeSet('review-behavior-gap',gap==null?'—':edgeFmtR(gap,true),gap>0?'good':gap<0?'bad':null);
+  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'],byDay=reviewGroupEntries(entries,t=>{const d=new Date(t.created_at);return Number.isNaN(d.getTime())?'UNKNOWN':days[d.getUTCDay()];}),bySession=reviewGroupEntries(entries,t=>terminalSession(t.created_at)),byDirection=reviewGroupEntries(entries,t=>t.direction||'—'),byPair=reviewGroupEntries(entries,t=>t.pair||'—');
+  const candidates=[...byDay,...bySession,...byDirection,...byPair].filter(x=>x.n>=2).sort((a,b)=>b.avg-a.avg);edgeSet('review-best-context',candidates[0]?`${candidates[0].name} · ${edgeFmtR(candidates[0].avg,true)}`:'—',candidates[0]&&candidates[0].avg>0?'good':null);
+  reviewRenderContextList('review-by-day',byDay);reviewRenderContextList('review-by-session',bySession);reviewRenderContextList('review-by-direction',byDirection);reviewRenderContextList('review-by-pair',byPair);
+  analysis.context={byDay,bySession,byDirection,byPair,cleanAvg,flaggedAvg,gap};
+}
+function reviewDecisionKey(){return 'et_review_decisions_'+reviewActivePeriod;}
+function reviewMarkDirty(){const state=document.getElementById('review-saved-state');if(state){state.textContent='UNCOMMITTED CHANGES';state.classList.remove('saved');}}
+function reviewGenerateDecisions(force){
+  const a=reviewLastAnalysis;if(!a)return;
+  if(!force){try{const saved=JSON.parse(localStorage.getItem(reviewDecisionKey())||'null');if(saved){document.getElementById('review-keep').value=saved.keep||'';document.getElementById('review-stop').value=saved.stop||'';document.getElementById('review-test').value=saved.test||'';document.getElementById('review-next-rule').value=saved.rule||'';const state=document.getElementById('review-saved-state');if(state){state.textContent='COMMITTED · '+new Date(saved.savedAt).toLocaleDateString('ru-RU');state.classList.add('saved');}return;}}catch(e){}
+  }
+  const setups=edgeSetupRows(a.stats),best=setups.filter(x=>x.n>=3&&x.avgR>0)[0]||setups.find(x=>x.avgR>0),leak=a.leaks[0],worstDay=a.context&&a.context.byDay.slice().sort((x,y)=>x.avg-y.avg)[0];
+  const keep=best?`Повторять ${best.name}: ${edgeFmtR(best.avgR,true)} в среднем на ${best.n} сделках. Риск не увеличивать.`:a.stats.netR>0?`Сохранять текущий риск: период дал ${edgeFmtR(a.stats.netR,true)}, но сетап ещё не подтверждён.`:'Сохранять только полное заполнение плана, стопа и результата.';
+  const stop=leak&&leak.costR?`Исключить ${leak.label}: нарушение связано с −${leak.costR.toFixed(2)}R.`:worstDay&&worstDay.avg<0?`Не открывать импульсивные сделки в ${worstDay.name}: среднее ${edgeFmtR(worstDay.avg,true)}.`:'Прекратить входы без стопа и заранее названного сетапа.';
+  const test=best&&best.n<20?`Довести ${best.name} до ${Math.min(20,best.n+5)} сделок без изменения правил.`:'Следующие 5 сделок провести с одним сетапом и одинаковым риском.';
+  const rule=leak?`Следующие 5 сделок: ноль ${leak.label}; любое нарушение = пропуск входа.`:best?`Следующие 5 сделок: только ${best.name}, стоп определяется до входа.`:'Следующие 5 сделок: один сетап, фиксированный риск, стоп до входа.';
+  document.getElementById('review-keep').value=keep;document.getElementById('review-stop').value=stop;document.getElementById('review-test').value=test;document.getElementById('review-next-rule').value=rule;reviewMarkDirty();
+}
+function reviewRenderGuardrails(analysis){
+  const el=document.getElementById('review-guardrails');if(!el)return;const q=analysis.quality,leak=analysis.leaks[0],setups=edgeSetupRows(analysis.stats),best=setups.filter(x=>x.n>=3&&x.avgR>0)[0]||setups[0],rules=[];
+  rules.push(`Не больше ${terminalLimits().maxTrades} сделок за день.`);if(q.stop<100)rules.push('Стоп определяется до входа в каждой сделке.');if(leak)rules.push(`Zero tolerance: ${leak.label}.`);if(best)rules.push(`Приоритет: ${best.name}; остальные сетапы только WATCH.`);if(q.reviewed<100)rules.push('Урок фиксируется в день закрытия сделки.');
+  el.innerHTML=rules.slice(0,4).map((r,i)=>`<div class="review-guardrail"><i>${i+1}</i><span>${escHtml(r)}</span></div>`).join('');
+}
+function saveReviewDecisions(){
+  const data={keep:document.getElementById('review-keep').value.trim(),stop:document.getElementById('review-stop').value.trim(),test:document.getElementById('review-test').value.trim(),rule:document.getElementById('review-next-rule').value.trim(),period:reviewActivePeriod,savedAt:new Date().toISOString()};
+  try{localStorage.setItem(reviewDecisionKey(),JSON.stringify(data));const state=document.getElementById('review-saved-state');if(state){state.textContent='COMMITTED · '+new Date(data.savedAt).toLocaleDateString('ru-RU');state.classList.add('saved');}showNotif('success','REVIEW COMMITTED','План следующего цикла сохранён',2800);}catch(e){showNotif('danger','SAVE ERROR',e.message,3000);}
+}
+function renderReviewV2(trades){
+  const root=document.getElementById('review-v2');if(!root)return;
+  const currentList=reviewPeriodTrades(trades||[],false),previousList=reviewPeriodTrades(trades||[],true),stats=terminalStats(currentList),previous=terminalStats(previousList),quality=reviewQuality(stats),previousQuality=reviewQuality(previous),leaks=edgeLeakRows(stats),leakCost=leaks.reduce((s,x)=>s+x.costR,0),days=reviewDayGroups(stats.entries),verdict=reviewVerdict(stats,quality,leakCost);
+  const analysis={trades:currentList,stats,previous,quality,previousQuality,leaks,leakCost,days,verdict};reviewLastAnalysis=analysis;
+  edgeSet('review-net-r',stats.valid.length?edgeFmtR(stats.netR,true):'—',stats.netR>0?'good':stats.netR<0?'bad':null);edgeSet('review-avg-r',stats.valid.length?edgeFmtR(stats.expectancy,true):'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);edgeSet('review-quality',quality.score==null?'—':quality.score+'%',quality.score>=75?'good':quality.score<50&&quality.score!=null?'bad':quality.score!=null?'warn':null);edgeSet('review-completion',quality.reviewed==null?'—':quality.reviewed+'%',quality.reviewed>=80?'good':quality.reviewed<50&&quality.reviewed!=null?'bad':quality.reviewed!=null?'warn':null);edgeSet('review-leak-cost',stats.valid.length?(leakCost?'−'+leakCost.toFixed(2)+'R':'0.00R'):'—',leakCost?'bad':'good');edgeSet('review-active-days',stats.valid.length?String(days.length):'—');
+  edgeSet('review-trades-count',`${stats.valid.length} ${stats.valid.length===1?'trade':'trades'}`);edgeSet('review-period-label',reviewActivePeriod==='all'?'ALL TIME':reviewActivePeriod+' DAYS');edgeSet('review-record',`${stats.pos.length}W · ${stats.neg.length}L · ${stats.be.length}BE`);edgeSet('review-curve-mode',stats.rMode);reviewRenderCurve(stats);
+  const card=document.getElementById('review-verdict-card');if(card){card.classList.remove('positive','negative','mixed');if(verdict.cls)card.classList.add(verdict.cls);}edgeSet('review-verdict-code',verdict.code);edgeSet('review-verdict-title',verdict.title);edgeSet('review-verdict-desc',verdict.desc);edgeSet('review-priority',verdict.priority);
+  reviewRenderComparison(stats,previous,quality,previousQuality);reviewRenderInbox(analysis);reviewRenderTrades(analysis);reviewRenderContext(analysis);reviewRenderGuardrails(analysis);
+  const setups=edgeSetupRows(stats),bestSetup=setups.filter(x=>x.n>=3&&x.avgR>0)[0]||setups.find(x=>x.avgR>0),topLeak=leaks[0];let focus='Сначала собери выборку.';if(topLeak&&topLeak.costR)focus=`${topLeak.label} стоил −${topLeak.costR.toFixed(2)}R. Это главный рычаг следующего периода.`;else if(bestSetup)focus=`${bestSetup.name} даёт ${edgeFmtR(bestSetup.avgR,true)} в среднем. Следующий цикл должен подтвердить именно его.`;else if(stats.valid.length)focus=quality.reviewed<80?`Закрой review inbox: ${stats.entries.filter(reviewNeedsReview).length} сделок ещё не превращены в урок.`:'Не меняй систему без новой выборки.';edgeSet('review-focus-insight',focus);
+  ['review-keep','review-stop','review-test','review-next-rule'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.dataset.reviewBound){el.dataset.reviewBound='1';el.addEventListener('input',reviewMarkDirty);}});reviewGenerateDecisions(false);
+}
+
 function renderProgress(){
+  renderReviewV2(allTrades||[]);
   var trades=[].concat(allTrades).sort(function(a,b){return new Date(a.created_at)-new Date(b.created_at);});
   var canvas=document.getElementById('equity-canvas');
   var empty=document.getElementById('eq-empty');
