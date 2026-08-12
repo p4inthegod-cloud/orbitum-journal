@@ -4799,6 +4799,160 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
   .form-actions{grid-template-columns:1fr;}
   .history-insights-grid{grid-template-columns:1fr 1fr;}
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   EDGE V2 — quiet terminal analytics, acid only for actionable signal
+════════════════════════════════════════════════════════════════════ */
+#page-dashboard> :not(.edge-v2){display:none!important;}
+.edge-v2{
+  --edge-acid:#b6ff2e;--edge-red:#ff5c6c;--edge-warn:#dce75a;
+  --edge-panel:#050706;--edge-soft:#080b09;--edge-line:#1a211d;
+  width:100%;min-width:0;color:#dce2de;font-family:var(--font-mono);padding-bottom:34px;
+}
+.edge-v2 *{box-sizing:border-box;}
+.edge-v2-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:2px 3px 18px;border-bottom:1px solid var(--edge-line);}
+.edge-v2-kicker{display:flex;align-items:center;gap:9px;color:var(--edge-acid);font-size:10px;line-height:1;letter-spacing:2.4px;margin-bottom:10px;}
+.edge-v2-pulse{width:6px;height:6px;border-radius:50%;background:var(--edge-acid);box-shadow:0 0 10px rgba(182,255,46,.65);animation:edgePulse 2s ease-in-out infinite;}
+@keyframes edgePulse{50%{opacity:.35;box-shadow:0 0 3px rgba(182,255,46,.25)}}
+.edge-v2 h1{margin:0;color:#edf2ee;font:500 25px/1.1 var(--font-display);letter-spacing:1.1px;text-transform:uppercase;}
+.edge-v2-head p{max-width:650px;margin:8px 0 0;color:#636d66;font-size:9px;line-height:1.6;letter-spacing:.65px;}
+.edge-periods,.edge-v2-tabs{display:flex;align-items:center;gap:5px;}
+.edge-periods button,.edge-v2-tabs button,.edge-inline-link,.edge-ai-head button{
+  appearance:none;border:1px solid #202822;border-radius:7px;background:#070908;color:#68716b;cursor:pointer;
+  font:9px/1 var(--font-mono);letter-spacing:1.25px;padding:9px 12px;transition:.16s ease;
+}
+.edge-periods button:hover,.edge-v2-tabs button:hover{border-color:#38433b;color:#c6cec8;}
+.edge-periods button.active,.edge-v2-tabs button.active{border-color:var(--edge-acid);background:rgba(182,255,46,.055);color:var(--edge-acid);box-shadow:inset 0 -1px rgba(182,255,46,.18);}
+.edge-v2-nav-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 14px;}
+.edge-v2-tabs button{min-width:108px;}
+.edge-v2-sample{color:#59625c;font-size:8px;letter-spacing:1.3px;text-align:right;}
+.edge-v2-sample strong{color:var(--edge-warn);font-weight:500;}
+.edge-v2-view{display:none;min-width:0;}
+.edge-v2-view.active{display:block;animation:edgeViewIn .16s ease both;}
+@keyframes edgeViewIn{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+.edge-v2-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.edge-v2-kpi,.edge-v2-card,.edge-v2-mini-kpis article{
+  position:relative;min-width:0;border:1px solid var(--edge-line);border-radius:9px;background:var(--edge-panel);box-shadow:0 16px 42px rgba(0,0,0,.24);
+}
+.edge-v2-kpi{padding:14px 14px 13px;overflow:hidden;}
+.edge-v2-kpi::before{content:"";position:absolute;left:0;top:0;width:26px;height:1px;background:var(--edge-acid);opacity:.5;}
+.edge-v2-kpi span,.edge-v2-mini-kpis span{display:block;color:#5a645d;font-size:7px;line-height:1.2;letter-spacing:1.25px;white-space:nowrap;}
+.edge-v2-kpi strong{display:block;margin:10px 0 8px;color:#d9e0db;font:500 21px/1 var(--font-display);letter-spacing:.5px;}
+.edge-v2-kpi strong.good,.edge-v2-table .good,.edge-preview-value.good{color:var(--edge-acid);}
+.edge-v2-kpi strong.bad,.edge-v2-table .bad,.edge-preview-value.bad{color:var(--edge-red);}
+.edge-v2-kpi strong.warn,.edge-v2-table .warn,.edge-preview-value.warn{color:var(--edge-warn);}
+.edge-v2-kpi small{display:block;overflow:hidden;color:#424a45;font-size:7px;line-height:1.3;letter-spacing:.45px;white-space:nowrap;text-overflow:ellipsis;}
+
+.edge-v2-overview-grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(260px,.62fr);gap:10px;margin-bottom:10px;}
+.edge-v2-card{padding:15px;}
+.edge-v2-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;}
+.edge-v2-card-head>div{min-width:0;}
+.edge-v2-card-title{display:block;color:#9ba59e;font-size:9px;line-height:1.2;letter-spacing:1.65px;}
+.edge-v2-card-head small{display:block;margin-top:5px;color:#465049;font-size:7px;letter-spacing:.7px;}
+.edge-confidence{flex:0 0 auto;border:1px solid #252d28;border-radius:999px;padding:5px 9px;color:#69736c;font-size:7px;line-height:1;letter-spacing:1px;}
+.edge-confidence.low{border-color:rgba(220,231,90,.24);color:var(--edge-warn);}
+.edge-confidence.high{border-color:rgba(182,255,46,.28);color:var(--edge-acid);}
+.edge-chart-wrap{position:relative;height:258px;overflow:hidden;border:1px solid #121814;border-radius:8px;background:
+  linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px),#030504;
+  background-size:100% 25%,12.5% 100%;}
+#edge-v2-curve{display:block;width:100%;height:100%;overflow:visible;}
+.edge-chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#444d47;font-size:9px;line-height:1.7;letter-spacing:.6px;}
+.edge-chart-foot{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#465049;font-size:7px;letter-spacing:.8px;}
+
+.edge-status-card{display:flex;flex-direction:column;min-height:100%;overflow:hidden;}
+.edge-status-card::after{content:"";position:absolute;right:-44px;bottom:-58px;width:180px;height:180px;border:1px solid rgba(182,255,46,.025);border-radius:50%;box-shadow:0 0 0 28px rgba(182,255,46,.012),0 0 0 56px rgba(182,255,46,.008);pointer-events:none;}
+.edge-status-dot{width:6px;height:6px;border-radius:50%;background:#3f4742;box-shadow:0 0 8px currentColor;}
+.edge-status-card.positive .edge-status-dot{background:var(--edge-acid);}.edge-status-card.negative .edge-status-dot{background:var(--edge-red);}.edge-status-card.forming .edge-status-dot{background:var(--edge-warn);}
+.edge-status-code{position:relative;z-index:1;margin:14px 0 7px;color:#68716b;font:500 27px/1 var(--font-display);letter-spacing:1.1px;}
+.edge-status-card.positive .edge-status-code{color:var(--edge-acid);}.edge-status-card.negative .edge-status-code{color:var(--edge-red);}.edge-status-card.forming .edge-status-code{color:var(--edge-warn);}
+.edge-status-title{position:relative;z-index:1;color:#c3cbc5;font-size:10px;line-height:1.4;letter-spacing:.6px;}
+.edge-status-card p{position:relative;z-index:1;flex:1;margin:8px 0 16px;color:#59635c;font-size:8px;line-height:1.65;letter-spacing:.45px;}
+.edge-status-meter{position:relative;z-index:1;height:3px;overflow:hidden;border-radius:3px;background:#111612;}
+.edge-status-meter i{display:block;height:100%;width:0;background:#59625c;transition:width .4s ease;}
+.edge-status-card.positive .edge-status-meter i{background:var(--edge-acid);}.edge-status-card.negative .edge-status-meter i{background:var(--edge-red);}.edge-status-card.forming .edge-status-meter i{background:var(--edge-warn);}
+.edge-status-meta{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:12px;}
+.edge-status-meta div{min-width:0;padding:8px;border:1px solid #161c18;border-radius:7px;background:#030504;}
+.edge-status-meta span{display:block;color:#414a44;font-size:6px;letter-spacing:.8px;white-space:nowrap;}
+.edge-status-meta strong{display:block;margin-top:6px;color:#aab3ac;font-size:10px;font-weight:500;overflow:hidden;text-overflow:ellipsis;}
+
+.edge-v2-preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.edge-inline-link{border:0!important;background:transparent!important;color:#58625b!important;padding:2px!important;font-size:7px!important;white-space:nowrap;}
+.edge-inline-link:hover{color:var(--edge-acid)!important;}
+.edge-preview-list{display:grid;gap:5px;}
+.edge-preview-row{display:grid;grid-template-columns:minmax(100px,1.2fr) 58px 70px 72px;align-items:center;gap:8px;padding:9px 10px;border:1px solid #141a16;border-radius:7px;background:#030504;}
+.edge-preview-row.empty{display:block;text-align:center;color:#465049;font-size:8px;line-height:1.6;}
+.edge-preview-name{overflow:hidden;color:#aeb7b0;font-size:8px;letter-spacing:.65px;white-space:nowrap;text-overflow:ellipsis;}
+.edge-preview-meta{color:#4f5952;font-size:7px;text-align:right;white-space:nowrap;}
+.edge-preview-value{font-size:9px;text-align:right;white-space:nowrap;}
+.edge-status-pill{justify-self:end;border:1px solid #252e28;border-radius:999px;padding:4px 7px;color:#6e7771;font-size:6px;line-height:1;letter-spacing:.7px;}
+.edge-status-pill.trade{border-color:rgba(182,255,46,.24);color:var(--edge-acid);}.edge-status-pill.pause{border-color:rgba(255,92,108,.22);color:var(--edge-red);}.edge-status-pill.watch{border-color:rgba(220,231,90,.18);color:var(--edge-warn);}
+
+.edge-ai-card{border-color:#222a24;background:linear-gradient(100deg,rgba(182,255,46,.022),transparent 34%),#050706;}
+.edge-ai-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:13px;}
+.edge-ai-head p{margin:6px 0 0;color:#4e5851;font-size:8px;letter-spacing:.45px;}
+.edge-ai-head button{border-color:rgba(182,255,46,.3);color:var(--edge-acid);background:rgba(182,255,46,.035);}
+.edge-ai-head button:hover{background:var(--edge-acid);color:#071000;}.edge-ai-head button:disabled{opacity:.45;cursor:wait;}
+.edge-ai-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.edge-ai-grid>div{min-width:0;padding:11px;border:1px solid #171e19;border-radius:7px;background:#030504;}
+.edge-ai-grid span{display:block;margin-bottom:7px;color:#526059;font-size:7px;letter-spacing:1px;}
+.edge-ai-grid strong{display:block;color:#aeb7b0;font-size:8px;line-height:1.55;font-weight:400;}
+.edge-ai-grid>div:first-child strong{color:#b8c7bc}.edge-ai-grid>div:nth-child(2) strong{color:#c49aa0}.edge-ai-grid>div:nth-child(3) strong{color:var(--edge-acid)}
+.edge-ai-output{display:none;margin-top:8px;padding:11px;border-left:2px solid var(--edge-acid);background:#030504;color:#9ca69f;font-size:9px;line-height:1.75;}
+.edge-ai-output.show{display:block;}
+
+.edge-table-card{padding:0;overflow:hidden;}
+.edge-table-card>.edge-v2-card-head{padding:15px 16px 12px;margin:0;border-bottom:1px solid #151b17;}
+.edge-table-scroll{width:100%;overflow:auto;}
+.edge-v2-table{width:100%;border-collapse:collapse;min-width:720px;}
+.edge-v2-table th{padding:11px 13px;border-bottom:1px solid #171e19;color:#4f5952;font-size:7px;font-weight:400;letter-spacing:1.15px;text-align:left;white-space:nowrap;}
+.edge-v2-table td{padding:12px 13px;border-bottom:1px solid #101512;color:#939d96;font-size:8px;line-height:1.25;white-space:nowrap;}
+.edge-v2-table tbody tr:last-child td{border-bottom:0;}.edge-v2-table tbody tr:hover td{background:rgba(255,255,255,.012);}
+.edge-v2-table .empty-row{text-align:center;color:#454e48;padding:32px 15px;}
+.edge-table-legend{display:flex;gap:5px;}.edge-table-legend span{border:1px solid #242c27;border-radius:999px;padding:4px 7px;font-size:6px;letter-spacing:.7px;}
+.edge-table-legend .trade{color:var(--edge-acid)}.edge-table-legend .watch{color:var(--edge-warn)}.edge-table-legend .pause{color:var(--edge-red)}
+.edge-v2-note{margin-top:9px;padding:10px 12px;border:1px solid #171d19;border-radius:7px;background:#040605;color:#4b554e;font-size:7px;line-height:1.5;letter-spacing:.8px;}
+.edge-confidence-cell{display:inline-flex;border:1px solid #222a25;border-radius:999px;padding:4px 7px;color:#6f7872;font-size:6px;letter-spacing:.65px;}
+.edge-confidence-cell.low{color:var(--edge-warn);border-color:rgba(220,231,90,.18)}.edge-confidence-cell.high{color:var(--edge-acid);border-color:rgba(182,255,46,.22)}
+
+.edge-v2-mini-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.edge-v2-mini-kpis article{padding:13px 14px;}.edge-v2-mini-kpis strong{display:block;margin-top:8px;color:#c7cfc9;font:500 17px/1 var(--font-display);}
+.edge-v2-execution-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:10px;}
+.edge-impact{display:inline-flex;min-width:58px;justify-content:center;border:1px solid #242c27;border-radius:999px;padding:4px 7px;color:#737c76;font-size:6px;letter-spacing:.7px;}
+.edge-impact.high{border-color:rgba(255,92,108,.22);color:var(--edge-red)}.edge-impact.medium{border-color:rgba(220,231,90,.18);color:var(--edge-warn)}
+
+.edge-v2-psych-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:10px;}
+.edge-v2-psych-grid-bottom{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);}
+.edge-psych-score-row{display:grid;grid-template-columns:94px 1fr;gap:16px;align-items:center;margin:18px 0;}
+.edge-psych-score-row>strong{display:grid;place-items:center;width:88px;height:88px;border:1px solid #273029;border-radius:50%;color:var(--edge-acid);font:500 27px/1 var(--font-display);box-shadow:inset 0 0 24px rgba(182,255,46,.02);}
+.edge-psych-score-row span{display:block;color:#c4cdc6;font-size:11px;letter-spacing:1px;}.edge-psych-score-row p{margin:7px 0 0;color:#505a53;font-size:8px;line-height:1.6;}
+.edge-psych-bars{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.edge-psych-bar{display:grid;grid-template-columns:70px 1fr 28px;align-items:center;gap:7px;color:#59635c;font-size:7px;letter-spacing:.6px;}
+.edge-psych-bar i{display:block;height:3px;border-radius:3px;background:#141a16;overflow:hidden;}.edge-psych-bar i::before{content:"";display:block;width:var(--w);height:100%;background:var(--edge-acid);opacity:.7;}
+.edge-psych-bar.bad i::before{background:var(--edge-red);}.edge-psych-bar b{color:#858f88;font-weight:400;text-align:right;}
+.edge-psych-compare{display:grid;gap:9px;}.edge-psych-compare-row{display:grid;grid-template-columns:80px 1fr 1fr;gap:8px;align-items:center;}
+.edge-psych-compare-row>span{color:#59635c;font-size:7px;letter-spacing:.65px;}.edge-psych-compare-cell{padding:8px;border:1px solid #171d19;border-radius:6px;background:#030504;color:#79837c;font-size:8px;}.edge-psych-compare-cell.good{color:var(--edge-acid)}.edge-psych-compare-cell.bad{color:var(--edge-red)}
+.edge-condition-list,.edge-pattern-list{display:grid;gap:6px;}.edge-condition-row,.edge-pattern-row{display:grid;grid-template-columns:minmax(100px,1fr) 52px 64px;align-items:center;gap:8px;padding:9px 10px;border:1px solid #151b17;border-radius:7px;background:#030504;}
+.edge-condition-row span,.edge-pattern-row span{overflow:hidden;color:#8b958e;font-size:8px;white-space:nowrap;text-overflow:ellipsis;}.edge-condition-row small,.edge-pattern-row small{color:#4f5952;font-size:7px;text-align:right;}.edge-condition-row strong,.edge-pattern-row strong{font-size:8px;font-weight:400;text-align:right;}.edge-empty-block{padding:28px 12px;text-align:center;color:#465049;font-size:8px;line-height:1.7;}
+
+@media(max-width:1280px){
+  .edge-v2-kpis{grid-template-columns:repeat(3,1fr)}
+  .edge-v2-overview-grid{grid-template-columns:minmax(0,1.55fr) minmax(250px,.7fr)}
+}
+@media(max-width:900px){
+  .edge-v2-head{align-items:flex-start;flex-direction:column}.edge-v2-nav-row{align-items:flex-start;flex-direction:column}.edge-v2-sample{text-align:left}
+  .edge-v2-tabs{width:100%;overflow:auto;padding-bottom:3px}.edge-v2-tabs button{min-width:105px}
+  .edge-v2-overview-grid,.edge-v2-preview-grid,.edge-v2-execution-grid,.edge-v2-psych-grid,.edge-v2-psych-grid-bottom{grid-template-columns:1fr}
+  .edge-chart-wrap{height:230px}.edge-v2-mini-kpis{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .edge-v2 h1{font-size:20px}.edge-v2-head{padding-top:0}.edge-periods{width:100%}.edge-periods button{flex:1;padding:9px 6px}
+  .edge-v2-kpis{grid-template-columns:1fr 1fr;gap:6px}.edge-v2-kpi{padding:12px}.edge-v2-kpi strong{font-size:18px}
+  .edge-v2-card{padding:12px}.edge-chart-wrap{height:198px}.edge-v2-card-head{gap:8px}.edge-v2-preview-grid{gap:7px}
+  .edge-preview-row{grid-template-columns:minmax(86px,1fr) 45px 58px}.edge-preview-row .edge-preview-meta:nth-of-type(2){display:none}
+  .edge-ai-head{align-items:flex-start;flex-direction:column}.edge-ai-head button{width:100%}.edge-ai-grid{grid-template-columns:1fr}
+  .edge-v2-mini-kpis{grid-template-columns:1fr 1fr;gap:6px}.edge-psych-score-row{grid-template-columns:78px 1fr}.edge-psych-score-row>strong{width:74px;height:74px;font-size:23px}.edge-psych-bars{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -5429,6 +5583,149 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
   <!-- ──────────── DASHBOARD ─────────────────── -->
   <div class="page" id="page-dashboard">
+
+    <!-- EDGE V2 — decision-first analytical workspace -->
+    <section class="edge-v2" id="edge-v2" aria-label="Аналитика торгового преимущества">
+      <header class="edge-v2-head">
+        <div>
+          <div class="edge-v2-kicker"><span class="edge-v2-pulse"></span>EDGE // COMMAND CENTER</div>
+          <h1>Математика преимущества</h1>
+          <p>Ответ на один вопрос: что реально приносит R, а что системно забирает деньги.</p>
+        </div>
+        <div class="edge-periods" role="group" aria-label="Период аналитики">
+          <button type="button" data-edge-period="7" onclick="setEdgePeriod('7',this)">7D</button>
+          <button type="button" data-edge-period="30" onclick="setEdgePeriod('30',this)">30D</button>
+          <button type="button" data-edge-period="90" onclick="setEdgePeriod('90',this)">90D</button>
+          <button type="button" class="active" data-edge-period="all" onclick="setEdgePeriod('all',this)">ALL</button>
+        </div>
+      </header>
+
+      <div class="edge-v2-nav-row">
+        <nav class="edge-v2-tabs" aria-label="Разделы Edge">
+          <button type="button" class="active" data-edge-tab="overview" onclick="setEdgeTab('overview',this)">OVERVIEW</button>
+          <button type="button" data-edge-tab="setups" onclick="setEdgeTab('setups',this)">SETUPS</button>
+          <button type="button" data-edge-tab="execution" onclick="setEdgeTab('execution',this)">EXECUTION</button>
+          <button type="button" data-edge-tab="psychology" onclick="setEdgeTab('psychology',this)">PSYCHOLOGY</button>
+        </nav>
+        <div class="edge-v2-sample" id="edge-v2-sample">SAMPLE // —</div>
+      </div>
+
+      <div class="edge-v2-view active" data-edge-view="overview">
+        <div class="edge-v2-kpis">
+          <article class="edge-v2-kpi"><span>NET R</span><strong id="edge-v2-net-r">—</strong><small>суммарный результат</small></article>
+          <article class="edge-v2-kpi"><span>EXPECTANCY</span><strong id="edge-v2-exp">—</strong><small>ожидание / сделку</small></article>
+          <article class="edge-v2-kpi"><span>PROFIT FACTOR</span><strong id="edge-v2-pf">—</strong><small>gross win / gross loss</small></article>
+          <article class="edge-v2-kpi"><span>WIN RATE</span><strong id="edge-v2-wr">—</strong><small id="edge-v2-record">0W · 0L · 0BE</small></article>
+          <article class="edge-v2-kpi"><span>MAX DRAWDOWN</span><strong id="edge-v2-dd">—</strong><small>в единицах риска</small></article>
+          <article class="edge-v2-kpi"><span>CONSISTENCY</span><strong id="edge-v2-consistency">—</strong><small>стабильность исполнения</small></article>
+        </div>
+
+        <div class="edge-v2-overview-grid">
+          <article class="edge-v2-card edge-curve-card">
+            <div class="edge-v2-card-head">
+              <div><span class="edge-v2-card-title">CUMULATIVE R // EQUITY CURVE</span><small id="edge-v2-r-mode">R NORMALIZED</small></div>
+              <div class="edge-confidence" id="edge-v2-confidence">N/A</div>
+            </div>
+            <div class="edge-chart-wrap">
+              <svg id="edge-v2-curve" viewBox="0 0 900 280" preserveAspectRatio="none" role="img" aria-label="Кривая накопленного R"></svg>
+              <div class="edge-chart-empty" id="edge-v2-curve-empty">Запиши хотя бы одну закрытую сделку — здесь появится кривая R.</div>
+            </div>
+            <div class="edge-chart-foot"><span id="edge-v2-curve-range">START 0.00R</span><span id="edge-v2-curve-summary">CURRENT —</span></div>
+          </article>
+
+          <article class="edge-v2-card edge-status-card" id="edge-v2-status-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">EDGE STATUS</span><span class="edge-status-dot"></span></div>
+            <div class="edge-status-code" id="edge-v2-status-code">NO DATA</div>
+            <div class="edge-status-title" id="edge-v2-status-title">Недостаточно наблюдений</div>
+            <p id="edge-v2-status-desc">Сначала собери базовую выборку. Break-even не считается ни победой, ни убытком.</p>
+            <div class="edge-status-meter"><i id="edge-v2-status-meter"></i></div>
+            <div class="edge-status-meta">
+              <div><span>DECISIONS</span><strong id="edge-v2-decisions">0</strong></div>
+              <div><span>REQUIRED</span><strong id="edge-v2-required">5</strong></div>
+              <div><span>DATA QUALITY</span><strong id="edge-v2-quality">—</strong></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="edge-v2-preview-grid">
+          <article class="edge-v2-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">TOP SETUPS</span><button type="button" class="edge-inline-link" onclick="setEdgeTab('setups')">OPEN MATRIX →</button></div>
+            <div id="edge-v2-setup-preview" class="edge-preview-list"></div>
+          </article>
+          <article class="edge-v2-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">LEAK DETECTOR</span><button type="button" class="edge-inline-link" onclick="setEdgeTab('execution')">OPEN EXECUTION →</button></div>
+            <div id="edge-v2-leak-preview" class="edge-preview-list"></div>
+          </article>
+        </div>
+
+        <article class="edge-v2-card edge-ai-card">
+          <div class="edge-ai-head">
+            <div><span class="edge-v2-card-title">AI DIAGNOSIS</span><p>Короткий вывод без мотивационных формулировок.</p></div>
+            <button type="button" id="edge-v2-ai-btn" onclick="runEdgeDiagnosisAI()">RUN DEEP SCAN</button>
+          </div>
+          <div class="edge-ai-grid">
+            <div><span>WHAT WORKS</span><strong id="edge-v2-ai-works">Нужно больше данных.</strong></div>
+            <div><span>WHAT COSTS MONEY</span><strong id="edge-v2-ai-costs">Ошибки ещё не зафиксированы.</strong></div>
+            <div><span>NEXT 5-TRADE RULE</span><strong id="edge-v2-ai-next">Заполняй контекст каждой сделки.</strong></div>
+          </div>
+          <div class="edge-ai-output" id="edge-v2-ai-output"></div>
+        </article>
+      </div>
+
+      <div class="edge-v2-view" data-edge-view="setups">
+        <article class="edge-v2-card edge-table-card">
+          <div class="edge-v2-card-head">
+            <div><span class="edge-v2-card-title">SETUP MATRIX</span><small>Решение строится по Avg R, а не по одному винрейту.</small></div>
+            <div class="edge-table-legend"><span class="trade">TRADE</span><span class="watch">WATCH</span><span class="pause">PAUSE</span></div>
+          </div>
+          <div class="edge-table-scroll"><table class="edge-v2-table"><thead><tr><th>SETUP</th><th>N</th><th>W / L / BE</th><th>WR</th><th>AVG R</th><th>NET R</th><th>CONFIDENCE</th><th>STATUS</th></tr></thead><tbody id="edge-v2-setup-table"></tbody></table></div>
+        </article>
+        <div class="edge-v2-note">RULE // До 5 сделок статус только WATCH. От 20 сделок выборка становится аналитической.</div>
+      </div>
+
+      <div class="edge-v2-view" data-edge-view="execution">
+        <div class="edge-v2-mini-kpis">
+          <article><span>STOP COVERAGE</span><strong id="edge-v2-stop-coverage">—</strong></article>
+          <article><span>PLAN COVERAGE</span><strong id="edge-v2-plan-coverage">—</strong></article>
+          <article><span>FLAGGED TRADES</span><strong id="edge-v2-flagged">—</strong></article>
+          <article><span>OVERTRADE DAYS</span><strong id="edge-v2-overtrade">—</strong></article>
+        </div>
+        <div class="edge-v2-execution-grid">
+          <article class="edge-v2-card edge-table-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">LEAK COST // EXECUTION FLAGS</span><small>Стоимость нарушения в R</small></div>
+            <div class="edge-table-scroll"><table class="edge-v2-table"><thead><tr><th>LEAK</th><th>N</th><th>AVG R</th><th>COST R</th><th>IMPACT</th></tr></thead><tbody id="edge-v2-leak-table"></tbody></table></div>
+          </article>
+          <article class="edge-v2-card edge-table-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">CONTEXT MATRIX</span><small>TF × session</small></div>
+            <div class="edge-table-scroll"><table class="edge-v2-table"><thead><tr><th>TF</th><th>SESSION</th><th>N</th><th>WR</th><th>NET R</th></tr></thead><tbody id="edge-v2-context-table"></tbody></table></div>
+          </article>
+        </div>
+      </div>
+
+      <div class="edge-v2-view" data-edge-view="psychology">
+        <div class="edge-v2-psych-grid">
+          <article class="edge-v2-card edge-psych-score">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">EMOTIONAL CONTROL</span><small>минимум 5 заполненных сделок</small></div>
+            <div class="edge-psych-score-row"><strong id="edge-v2-psych-score">—</strong><div><span id="edge-v2-psych-state">NO DATA</span><p id="edge-v2-psych-desc">Заполняй эмоциональные показатели после сделки.</p></div></div>
+            <div class="edge-psych-bars" id="edge-v2-psych-bars"></div>
+          </article>
+          <article class="edge-v2-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">WINS VS LOSSES</span><small>эмоциональный профиль</small></div>
+            <div class="edge-psych-compare" id="edge-v2-psych-compare"></div>
+          </article>
+        </div>
+        <div class="edge-v2-psych-grid edge-v2-psych-grid-bottom">
+          <article class="edge-v2-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">CONDITION EDGE</span><small>состояния с лучшим Avg R</small></div>
+            <div id="edge-v2-condition-table" class="edge-condition-list"></div>
+          </article>
+          <article class="edge-v2-card">
+            <div class="edge-v2-card-head"><span class="edge-v2-card-title">RECURRING PATTERNS</span><small>по заметкам и execution flags</small></div>
+            <div id="edge-v2-patterns" class="edge-pattern-list"></div>
+          </article>
+        </div>
+      </div>
+    </section>
 
     <!-- EDGE KERNEL -->
     <section class="edge-kernel" id="edge-kernel">
@@ -6862,7 +7159,8 @@ function updateStats(){
   document.getElementById('s-total').textContent=t.length||'—';
   if(!t.length){['s-wr','s-pnl','s-usd','s-str'].forEach(id=>document.getElementById(id).textContent='—');return;}
   const wins=t.filter(x=>x.result==='win');
-  document.getElementById('s-wr').textContent=Math.round(wins.length/t.length*100)+'%';
+  const losses=t.filter(x=>x.result==='loss');
+  document.getElementById('s-wr').textContent=wins.length+losses.length?Math.round(wins.length/(wins.length+losses.length)*100)+'%':'—';
   const totalPct=t.reduce((s,x)=>s+(x.pnl_pct||0),0);
   const pEl=document.getElementById('s-pnl');
   pEl.textContent=(totalPct>=0?'+':'')+totalPct.toFixed(1)+'%';
@@ -6984,7 +7282,8 @@ function renderLevelBar(trades){
   const byDay={};
   trades.forEach(t=>{const d=new Date(t.created_at).toDateString();byDay[d]=(byDay[d]||0)+1;});
   const avgPD = Object.values(byDay).length ? Object.values(byDay).reduce((s,v)=>s+v,0)/Object.values(byDay).length : 1;
-  const wr = n ? Math.round(trades.filter(t=>t.result==='win').length/n*100) : 50;
+  const wrDecisions = trades.filter(t=>t.result==='win'||t.result==='loss');
+  const wr = wrDecisions.length ? Math.round(wrDecisions.filter(t=>t.result==='win').length/wrDecisions.length*100) : 50;
   const consistScore = clamp(Math.round(clamp(100-(Math.max(0,avgPD-5)*12),0,100)*0.5+wr*0.5),0,100);
   const ds = clamp(Math.round(slScore*0.30+emotionScore*0.25+setupScore*0.25+consistScore*0.20),0,100);
 
@@ -7044,7 +7343,8 @@ function orbColorUserByRank(trades){
     {minT:5,   minWr:0,  minRoi:0,  color:'#cd7f32', glow:'rgba(205,127,50,0.35)', label:'BRONZE',svgIcon:'<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 4h4l-3.2 2.3 1.2 4L7 9l-3.5 2.3 1.2-4L1.5 5h4z" fill="#cd7f32" stroke="#cd7f32" stroke-width="0.5" stroke-linejoin="round"/></svg>', icon:'bronze'},
   ];
   const n = trades.length;
-  const wr = n ? Math.round(trades.filter(t=>t.result==='win').length/n*100) : 0;
+  const rankDecisions=trades.filter(t=>t.result==='win'||t.result==='loss');
+  const wr = rankDecisions.length ? Math.round(rankDecisions.filter(t=>t.result==='win').length/rankDecisions.length*100) : 0;
   const roi = trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
   let rank = null;
   for(const r of RANKS){
@@ -7090,6 +7390,7 @@ function orbColorUserByRank(trades){
 
 function renderDashboard(){
   var trades = allTrades;
+  renderEdgeV2(trades);
   detectTilt(trades);
 
   // ── RELIABILITY THRESHOLDS ────────────────────
@@ -7453,7 +7754,8 @@ async function runBrutalAnalysis(){
 
   var trades=allTrades;
   var wins=trades.filter(function(t){return t.result==='win';});
-  var wr=Math.round(wins.length/trades.length*100);
+  var losses=trades.filter(function(t){return t.result==='loss';});
+  var wr=wins.length+losses.length?Math.round(wins.length/(wins.length+losses.length)*100):null;
   var totalPnl=trades.reduce(function(s,t){return s+(t.pnl_pct||0);},0).toFixed(1);
 
   // Send full trade data for deep analysis
@@ -8556,7 +8858,8 @@ async function runAICoach(){
   
   var trades=allTrades;
   var wins=trades.filter(t=>t.result==='win');
-  var wr=Math.round(wins.length/trades.length*100);
+  var losses=trades.filter(t=>t.result==='loss');
+  var wr=wins.length+losses.length?Math.round(wins.length/(wins.length+losses.length)*100):null;
   var totalPnl=trades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1);
 
   // Compact trade data for AI (last 50 trades)
@@ -8656,7 +8959,8 @@ function renderMyBadges(trades){
   var list=document.getElementById('my-badges-list');
   if(!list)return;
   var badges=[];
-  var wr=trades.length?trades.filter(t=>t.result==='win').length/trades.length:0;
+  var badgeDecisions=trades.filter(t=>t.result==='win'||t.result==='loss');
+  var wr=badgeDecisions.length?badgeDecisions.filter(t=>t.result==='win').length/badgeDecisions.length:0;
   var roi=trades.reduce((s,t)=>s+(t.pnl_pct||0),0);
   var streak=calcStreak(trades);
   
@@ -8723,21 +9027,221 @@ function terminalStats(trades){
   const valid=(trades||[]).filter(t=>Number.isFinite(Number(t.pnl_pct)));
   const pos=valid.filter(t=>Number(t.pnl_pct)>0);
   const neg=valid.filter(t=>Number(t.pnl_pct)<0);
+  const be=valid.filter(t=>Number(t.pnl_pct)===0);
+  const decisions=pos.concat(neg);
   const grossWin=pos.reduce((s,t)=>s+Number(t.pnl_pct),0);
   const grossLoss=Math.abs(neg.reduce((s,t)=>s+Number(t.pnl_pct),0));
   const avgWin=pos.length?grossWin/pos.length:0;
   const avgLoss=neg.length?grossLoss/neg.length:0;
-  const winRate=valid.length?pos.length/valid.length:0;
-  const lossRate=valid.length?neg.length/valid.length:0;
+  const winRate=decisions.length?pos.length/decisions.length:null;
+  const lossRate=decisions.length?neg.length/decisions.length:null;
   const payoff=avgLoss?avgWin/avgLoss:0;
-  const expectancy=avgLoss?(winRate*payoff-lossRate):0;
-  const pf=grossLoss?grossWin/grossLoss:(grossWin?Infinity:0);
-  const beWr=payoff?1/(1+payoff)*100:0;
+  const lossUnit=avgLoss||((pos.length&&avgWin)||1);
   const chronological=valid.slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  let exactR=0;
+  const entries=chronological.map(t=>{
+    const pnl=Number(t.pnl_pct)||0;
+    const entry=Number(t.entry_price),stop=Number(t.stop_loss),exit=Number(t.exit_price!=null?t.exit_price:t.take_profit);
+    let r;
+    if(pnl===0||t.result==='be')r=0;
+    else if(Number.isFinite(entry)&&Number.isFinite(stop)&&Number.isFinite(exit)&&Math.abs(entry-stop)>0){
+      r=String(t.direction||'long').toLowerCase()==='short'?(entry-exit)/Math.abs(entry-stop):(exit-entry)/Math.abs(entry-stop);
+      if(Number.isFinite(r))exactR++;
+    }else r=pnl/lossUnit;
+    if(!Number.isFinite(r))r=0;
+    return {trade:t,r:r};
+  });
+  const rValues=entries.map(x=>x.r);
+  const grossRWin=rValues.filter(r=>r>0).reduce((s,r)=>s+r,0);
+  const grossRLoss=Math.abs(rValues.filter(r=>r<0).reduce((s,r)=>s+r,0));
+  const netR=rValues.reduce((s,r)=>s+r,0);
+  const expectancy=valid.length?netR/valid.length:0;
+  const pf=grossRLoss?grossRWin/grossRLoss:(grossRWin?Infinity:0);
+  const beWr=payoff?1/(1+payoff)*100:0;
   let curve=0,peak=0,maxDD=0;
   chronological.forEach(t=>{curve+=Number(t.pnl_pct)||0;peak=Math.max(peak,curve);maxDD=Math.max(maxDD,peak-curve);});
   const recovery=maxDD?curve/maxDD:(curve>0?Infinity:0);
-  return {valid,pos,neg,grossWin,grossLoss,avgWin,avgLoss,winRate,lossRate,payoff,expectancy,pf,beWr,net:curve,maxDD,recovery};
+  let rCurve=0,rPeak=0,maxDDR=0;
+  rValues.forEach(r=>{rCurve+=r;rPeak=Math.max(rPeak,rCurve);maxDDR=Math.max(maxDDR,rPeak-rCurve);});
+  return {valid,pos,neg,be,decisions,grossWin,grossLoss,avgWin,avgLoss,winRate,lossRate,payoff,expectancy,pf,beWr,net:curve,maxDD,recovery,entries,rValues,netR,maxDDR,grossRWin,grossRLoss,rMode:exactR===valid.length-be.length&&valid.length-be.length?'PRICE R':'NORMALIZED R'};
+}
+
+let edgeActivePeriod='all';
+let edgeActiveTab='overview';
+
+function edgePeriodTrades(trades){
+  const list=trades||[];
+  if(edgeActivePeriod==='all')return list.slice();
+  const days=Number(edgeActivePeriod)||0;
+  const cutoff=Date.now()-days*86400000;
+  return list.filter(t=>{const ms=new Date(t.created_at).getTime();return Number.isFinite(ms)&&ms>=cutoff;});
+}
+function setEdgePeriod(period,btn){
+  edgeActivePeriod=String(period||'all');
+  document.querySelectorAll('[data-edge-period]').forEach(el=>el.classList.toggle('active',el.dataset.edgePeriod===edgeActivePeriod));
+  renderEdgeV2(allTrades||[]);
+}
+function setEdgeTab(tab,btn){
+  edgeActiveTab=String(tab||'overview');
+  document.querySelectorAll('[data-edge-tab]').forEach(el=>el.classList.toggle('active',el.dataset.edgeTab===edgeActiveTab));
+  document.querySelectorAll('[data-edge-view]').forEach(el=>el.classList.toggle('active',el.dataset.edgeView===edgeActiveTab));
+}
+function edgeFmtR(value,withPlus){
+  if(value===Infinity)return '∞';
+  if(!Number.isFinite(Number(value)))return '—';
+  const n=Number(value);return (withPlus&&n>0?'+':'')+n.toFixed(2)+'R';
+}
+function edgeSet(id,text,state){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;el.classList.remove('good','bad','warn');if(state)el.classList.add(state);
+}
+function edgeConfidence(n){
+  if(n<5)return {label:'N/A',cls:'',detail:'INSUFFICIENT'};
+  if(n<20)return {label:'LOW CONFIDENCE',cls:'low',detail:'LOW'};
+  return {label:'ANALYTICAL',cls:'high',detail:n>=50?'HIGH':'NORMAL'};
+}
+function edgeConsistency(stats){
+  if(!stats||stats.valid.length<5)return null;
+  const entries=stats.entries;
+  const days={};
+  entries.forEach(x=>{const d=new Date(x.trade.created_at);const key=Number.isNaN(d.getTime())?'UNKNOWN':d.toISOString().slice(0,10);if(!days[key])days[key]=[];days[key].push(x);});
+  const dayGroups=Object.values(days);
+  const positiveDays=dayGroups.length?dayGroups.filter(g=>g.reduce((s,x)=>s+x.r,0)>0).length/dayGroups.length*100:0;
+  const maxTrades=terminalLimits().maxTrades;
+  const controlledDays=dayGroups.length?dayGroups.filter(g=>g.length<=maxTrades).length/dayGroups.length*100:100;
+  const stopCoverage=entries.length?entries.filter(x=>Number(x.trade.stop_loss)>0).length/entries.length*100:0;
+  const windows=[];for(let i=0;i<=entries.length-5;i++)windows.push(entries.slice(i,i+5).reduce((s,x)=>s+x.r,0));
+  const positiveWindows=windows.length?windows.filter(v=>v>0).length/windows.length*100:positiveDays;
+  return Math.round(positiveWindows*.4+positiveDays*.25+controlledDays*.2+stopCoverage*.15);
+}
+function edgeSetupRows(stats){
+  const groups={};
+  (stats.entries||[]).forEach(x=>{const name=String(x.trade.setup_type||'NO SETUP').trim().toUpperCase()||'NO SETUP';if(!groups[name])groups[name]=[];groups[name].push(x);});
+  return Object.entries(groups).map(([name,items])=>{
+    const w=items.filter(x=>x.r>0).length,l=items.filter(x=>x.r<0).length,be=items.length-w-l;
+    const decision=w+l,wr=decision?w/decision:null,netR=items.reduce((s,x)=>s+x.r,0),avgR=items.length?netR/items.length:0;
+    const grossWin=items.filter(x=>x.r>0).reduce((s,x)=>s+x.r,0),grossLoss=Math.abs(items.filter(x=>x.r<0).reduce((s,x)=>s+x.r,0));
+    const pf=grossLoss?grossWin/grossLoss:(grossWin?Infinity:0),conf=edgeConfidence(items.length);
+    let status='WATCH';if(items.length>=5&&avgR>0.1&&pf>=1.15)status='TRADE';else if(items.length>=5&&(avgR<=0||netR<0))status='PAUSE';
+    return {name,items,n:items.length,w,l,be,wr,netR,avgR,pf,conf,status};
+  }).sort((a,b)=>b.avgR-a.avgR||b.n-a.n);
+}
+function edgeLeakRows(stats){
+  const rows=[];
+  Object.entries(TERMINAL_LEAKS).forEach(([code,meta])=>{
+    const items=(stats.entries||[]).filter(x=>{const note=(' '+String(x.trade.note_feel||'')).toLowerCase();return meta.patterns.some(p=>note.includes(p));});
+    if(!items.length)return;
+    const netR=items.reduce((s,x)=>s+x.r,0),costR=Math.abs(items.filter(x=>x.r<0).reduce((s,x)=>s+x.r,0)),avgR=netR/items.length;
+    const impact=costR>=3||items.length>=5?'HIGH':costR>=1||items.length>=3?'MEDIUM':'LOW';
+    rows.push({code,label:meta.label,items,n:items.length,netR,costR,avgR,impact});
+  });
+  return rows.sort((a,b)=>b.costR-a.costR||b.n-a.n);
+}
+function edgeStatus(stats,consistency){
+  const n=stats.valid.length;
+  if(!n)return {code:'NO DATA',title:'Нет закрытых сделок',desc:'Добавь результат сделки. Break-even будет учтён отдельно и не испортит win rate.',cls:'',meter:0};
+  if(n<5)return {code:'FORMING',title:'Выборка ещё холодная',desc:`${n} из 5 базовых наблюдений. Пока фиксируй контекст и не делай выводов о стратегии.`,cls:'forming',meter:n/5*28};
+  if(stats.expectancy<0||stats.pf<1)return {code:'NEGATIVE EDGE',title:'Математика сейчас против тебя',desc:'Ожидание или Profit Factor ниже рабочей зоны. Сначала убери самый дорогой leak, затем оцени заново.',cls:'negative',meter:Math.min(55,25+n)};
+  if(n<20)return {code:'FORMING',title:'Преимущество формируется',desc:`Показатели положительные, но доверие низкое: ${n} из 20 сделок аналитической выборки.`,cls:'forming',meter:35+n*2};
+  if(consistency!=null&&consistency<50)return {code:'UNSTABLE',title:'Плюс есть, повторяемости нет',desc:'Результат положительный, но исполнение или распределение по дням нестабильно. Не масштабируй риск.',cls:'forming',meter:62};
+  if(stats.expectancy>0&&stats.pf>=1.15)return {code:'CONFIRMED',title:'Преимущество подтверждено',desc:'Положительное ожидание держится на рабочей выборке. Масштабируй только сетапы со статусом TRADE.',cls:'positive',meter:Math.min(100,75+n/2)};
+  return {code:'UNSTABLE',title:'Граница преимущества',desc:'Математика около нуля. Нужен более строгий отбор сетапов и ещё одна серия наблюдений.',cls:'forming',meter:58};
+}
+function edgeRenderCurve(stats){
+  const svg=document.getElementById('edge-v2-curve'),empty=document.getElementById('edge-v2-curve-empty');if(!svg||!empty)return;
+  const entries=stats.entries||[];
+  if(!entries.length){svg.innerHTML='';empty.style.display='flex';edgeSet('edge-v2-curve-range','START 0.00R');edgeSet('edge-v2-curve-summary','CURRENT —');return;}
+  empty.style.display='none';
+  const values=[0];entries.forEach(x=>values.push(values[values.length-1]+x.r));
+  let lo=Math.min(0,...values),hi=Math.max(0,...values);const span=Math.max(.75,hi-lo);lo-=span*.14;hi+=span*.14;
+  const W=900,H=280,PX=24,PY=20,x=i=>PX+(W-PX*2)*(i/(values.length-1||1)),y=v=>PY+(H-PY*2)*(1-(v-lo)/(hi-lo||1));
+  const path=values.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+  const area=path+` L ${x(values.length-1).toFixed(1)} ${y(0).toFixed(1)} L ${x(0).toFixed(1)} ${y(0).toFixed(1)} Z`;
+  let peak=0,ddPath='',maxDD=0,maxDDIndex=0;
+  values.forEach((v,i)=>{peak=Math.max(peak,v);const dd=peak-v;if(dd>maxDD){maxDD=dd;maxDDIndex=i;}ddPath+=(dd>0?(ddPath?' L ':'M ')+x(i).toFixed(1)+' '+y(v).toFixed(1):'');});
+  const zeroY=y(0).toFixed(1),lossDots=entries.map((e,i)=>e.r<0?`<circle cx="${x(i+1).toFixed(1)}" cy="${y(values[i+1]).toFixed(1)}" r="3" fill="#ff5c6c" opacity=".82"/>`:'').join('');
+  const ddLabel=maxDD>0?`<g><line x1="${x(maxDDIndex)}" y1="${y(values[maxDDIndex])}" x2="${x(maxDDIndex)}" y2="${Math.max(16,y(values[maxDDIndex])-25)}" stroke="#ff5c6c" stroke-width="1" stroke-dasharray="3 4" opacity=".6"/><text x="${Math.min(W-78,x(maxDDIndex)+6)}" y="${Math.max(15,y(values[maxDDIndex])-29)}" fill="#ff7a88" font-size="10" font-family="monospace">DD −${maxDD.toFixed(2)}R</text></g>`:'';
+  svg.innerHTML=`<defs><linearGradient id="edgeArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b6ff2e" stop-opacity=".15"/><stop offset="1" stop-color="#b6ff2e" stop-opacity="0"/></linearGradient></defs><line x1="${PX}" y1="${zeroY}" x2="${W-PX}" y2="${zeroY}" stroke="#3d4740" stroke-width="1" stroke-dasharray="3 5" opacity=".7"/><path d="${area}" fill="url(#edgeArea)"/><path d="${ddPath}" fill="none" stroke="#ff5c6c" stroke-width="3" opacity=".3"/><path d="${path}" fill="none" stroke="#b6ff2e" stroke-width="2.2" vector-effect="non-scaling-stroke"/><circle cx="${x(values.length-1)}" cy="${y(values[values.length-1])}" r="4" fill="#b6ff2e"/><circle cx="${x(values.length-1)}" cy="${y(values[values.length-1])}" r="9" fill="none" stroke="#b6ff2e" opacity=".18"/>${lossDots}${ddLabel}`;
+  edgeSet('edge-v2-curve-range',`LOW ${lo.toFixed(2)}R · HIGH ${hi.toFixed(2)}R`);
+  edgeSet('edge-v2-curve-summary',`CURRENT ${edgeFmtR(stats.netR,true)}`);
+}
+function edgeRenderSetup(rows){
+  const body=document.getElementById('edge-v2-setup-table');
+  if(body)body.innerHTML=rows.length?rows.map(r=>`<tr><td>${escHtml(r.name)}</td><td>${r.n}</td><td>${r.w} / ${r.l} / ${r.be}</td><td class="${r.wr==null?'':r.wr>=.5?'good':'bad'}">${r.wr==null?'—':Math.round(r.wr*100)+'%'}</td><td class="${r.avgR>0?'good':r.avgR<0?'bad':''}">${edgeFmtR(r.avgR,true)}</td><td class="${r.netR>0?'good':r.netR<0?'bad':''}">${edgeFmtR(r.netR,true)}</td><td><span class="edge-confidence-cell ${r.conf.cls}">${r.conf.label}</span></td><td><span class="edge-status-pill ${r.status.toLowerCase()}">${r.status}</span></td></tr>`).join(''):'<tr><td colspan="8" class="empty-row">Нет сделок с указанным сетапом.</td></tr>';
+  const preview=document.getElementById('edge-v2-setup-preview');
+  if(preview)preview.innerHTML=rows.length?rows.slice(0,3).map(r=>`<div class="edge-preview-row"><span class="edge-preview-name">${escHtml(r.name)}</span><span class="edge-preview-meta">N ${r.n}</span><span class="edge-preview-value ${r.avgR>0?'good':r.avgR<0?'bad':''}">${edgeFmtR(r.avgR,true)}</span><span class="edge-status-pill ${r.status.toLowerCase()}">${r.status}</span></div>`).join(''):'<div class="edge-preview-row empty">Сетапы появятся после первой закрытой сделки.</div>';
+}
+function edgeRenderExecution(stats,leaks){
+  const valid=stats.valid||[],n=valid.length;
+  const stop=n?Math.round(valid.filter(t=>Number(t.stop_loss)>0).length/n*100):null;
+  const plan=n?Math.round(valid.filter(t=>String(t.setup_type||'').trim()||terminalCleanNote(t.note_why)).length/n*100):null;
+  const flagged=n?valid.filter(t=>{const note=(' '+String(t.note_feel||'')).toLowerCase();return Object.values(TERMINAL_LEAKS).some(m=>m.patterns.some(p=>note.includes(p)));}).length:0;
+  const days={};valid.forEach(t=>{const d=new Date(t.created_at);const key=Number.isNaN(d.getTime())?'UNKNOWN':d.toISOString().slice(0,10);days[key]=(days[key]||0)+1;});
+  const overtrade=Object.values(days).filter(v=>v>terminalLimits().maxTrades).length;
+  edgeSet('edge-v2-stop-coverage',stop==null?'—':stop+'%',stop>=80?'good':stop!=null&&stop<50?'bad':'warn');
+  edgeSet('edge-v2-plan-coverage',plan==null?'—':plan+'%',plan>=80?'good':plan!=null&&plan<50?'bad':'warn');
+  edgeSet('edge-v2-flagged',n?`${flagged} / ${n}`:'—',flagged?'warn':'good');edgeSet('edge-v2-overtrade',n?String(overtrade):'—',overtrade?'bad':'good');
+  const body=document.getElementById('edge-v2-leak-table');if(body)body.innerHTML=leaks.length?leaks.map(x=>`<tr><td>${escHtml(x.label)}</td><td>${x.n}</td><td class="${x.avgR<0?'bad':x.avgR>0?'good':''}">${edgeFmtR(x.avgR,true)}</td><td class="${x.costR?'bad':''}">${x.costR?'−'+x.costR.toFixed(2)+'R':'0.00R'}</td><td><span class="edge-impact ${x.impact.toLowerCase()}">${x.impact}</span></td></tr>`).join(''):'<tr><td colspan="5" class="empty-row">Execution flags не отмечены — пока журнал не видит стоимость ошибок.</td></tr>';
+  const context={};(stats.entries||[]).forEach(x=>{const tf=terminalMarker(x.trade.note_why,'TF','—'),session=terminalSession(x.trade.created_at),key=tf+'|'+session;if(!context[key])context[key]={tf,session,items:[]};context[key].items.push(x);});
+  const rows=Object.values(context).map(g=>{const w=g.items.filter(x=>x.r>0).length,l=g.items.filter(x=>x.r<0).length,net=g.items.reduce((s,x)=>s+x.r,0);return {...g,n:g.items.length,wr:w+l?w/(w+l):null,net};}).sort((a,b)=>b.n-a.n||b.net-a.net).slice(0,12);
+  const cb=document.getElementById('edge-v2-context-table');if(cb)cb.innerHTML=rows.length?rows.map(g=>`<tr><td>${escHtml(g.tf)}</td><td>${escHtml(g.session)}</td><td>${g.n}</td><td class="${g.wr==null?'':g.wr>=.5?'good':'bad'}">${g.wr==null?'—':Math.round(g.wr*100)+'%'}</td><td class="${g.net>0?'good':g.net<0?'bad':''}">${edgeFmtR(g.net,true)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty-row">Контекст появится после закрытых сделок.</td></tr>';
+  const preview=document.getElementById('edge-v2-leak-preview');if(preview)preview.innerHTML=leaks.length?leaks.slice(0,3).map(x=>`<div class="edge-preview-row"><span class="edge-preview-name">${escHtml(x.label)}</span><span class="edge-preview-meta">${x.n}×</span><span class="edge-preview-value ${x.costR?'bad':''}">${x.costR?'−'+x.costR.toFixed(2)+'R':'0.00R'}</span><span class="edge-status-pill ${x.impact==='HIGH'?'pause':'watch'}">${x.impact}</span></div>`).join(''):'<div class="edge-preview-row empty">Пока чисто. Отмечай нарушения в блоке «Контекст».</div>';
+  return {stop,plan,flagged,overtrade};
+}
+function edgeEmotionValue(items,key){const values=items.map(x=>Number(x.trade[key])).filter(v=>Number.isFinite(v)&&v>0);return values.length?values.reduce((s,v)=>s+v,0)/values.length:null;}
+function edgeRenderPsychology(stats,leaks){
+  const entries=(stats.entries||[]).filter(x=>['emotion_conf','emotion_fear','emotion_greed','emotion_calm'].some(k=>Number(x.trade[k])>0));
+  const conf=edgeEmotionValue(entries,'emotion_conf'),fear=edgeEmotionValue(entries,'emotion_fear'),greed=edgeEmotionValue(entries,'emotion_greed'),calm=edgeEmotionValue(entries,'emotion_calm');
+  const score=entries.length>=5?Math.round(((conf||5)+(calm||5)+(10-(fear||5))+(10-(greed||5)))/4*10):null;
+  edgeSet('edge-v2-psych-score',score==null?'—':String(score),score>=70?'good':score!=null&&score<40?'bad':'warn');
+  edgeSet('edge-v2-psych-state',score==null?'NO DATA':score>=70?'CONTROLLED':score>=40?'VARIABLE':'STRESSED',score>=70?'good':score!=null&&score<40?'bad':'warn');
+  edgeSet('edge-v2-psych-desc',entries.length<5?`Нужно ещё ${5-entries.length} заполненных сделок.`:score>=70?'Эмоциональное состояние поддерживает исполнение плана.':score>=40?'Состояние меняется от сделки к сделке. Сверь убытки с уровнем страха и жадности.':'Эмоции сейчас системно мешают исполнению.');
+  const bars=document.getElementById('edge-v2-psych-bars');if(bars){const data=[['CONFIDENCE',conf,false],['CALM',calm,false],['FEAR',fear,true],['GREED',greed,true]];bars.innerHTML=data.map(([label,v,bad])=>`<div class="edge-psych-bar ${bad?'bad':''}"><span>${label}</span><i style="--w:${v==null?0:Math.max(0,Math.min(100,v*10))}%"></i><b>${v==null?'—':v.toFixed(1)}</b></div>`).join('');}
+  const wins=entries.filter(x=>x.r>0),losses=entries.filter(x=>x.r<0),compare=document.getElementById('edge-v2-psych-compare');
+  if(compare)compare.innerHTML=entries.length<5?'<div class="edge-empty-block">Нужно минимум 5 сделок с эмоциями.</div>':['emotion_conf|CONFIDENCE','emotion_calm|CALM','emotion_fear|FEAR','emotion_greed|GREED'].map(raw=>{const [key,label]=raw.split('|'),wv=edgeEmotionValue(wins,key),lv=edgeEmotionValue(losses,key);return `<div class="edge-psych-compare-row"><span>${label}</span><div class="edge-psych-compare-cell good">WIN ${wv==null?'—':wv.toFixed(1)}</div><div class="edge-psych-compare-cell bad">LOSS ${lv==null?'—':lv.toFixed(1)}</div></div>`;}).join('');
+  const conditions=[['HIGH CONFIDENCE','emotion_conf'],['CALM','emotion_calm'],['HIGH FEAR','emotion_fear'],['HIGH GREED','emotion_greed']].map(([label,key])=>{const items=entries.filter(x=>Number(x.trade[key])>=7),net=items.reduce((s,x)=>s+x.r,0);return {label,n:items.length,avg:items.length?net/items.length:null};}).filter(x=>x.n).sort((a,b)=>b.avg-a.avg);
+  const cond=document.getElementById('edge-v2-condition-table');if(cond)cond.innerHTML=conditions.length?conditions.map(x=>`<div class="edge-condition-row"><span>${x.label}</span><small>N ${x.n}</small><strong class="${x.avg>0?'good':x.avg<0?'bad':''}">${edgeFmtR(x.avg,true)}</strong></div>`).join(''):'<div class="edge-empty-block">Пока нет повторяющихся эмоциональных состояний.</div>';
+  const patterns=document.getElementById('edge-v2-patterns');if(patterns)patterns.innerHTML=leaks.length?leaks.slice(0,6).map(x=>`<div class="edge-pattern-row"><span>${escHtml(x.label)}</span><small>${x.n}×</small><strong class="${x.avgR<0?'bad':x.avgR>0?'good':''}">${edgeFmtR(x.avgR,true)}</strong></div>`).join(''):'<div class="edge-empty-block">Отмечай execution flags — повторяющиеся паттерны появятся здесь.</div>';
+}
+function edgeRenderDiagnosis(stats,setups,leaks){
+  const usable=setups.filter(x=>x.n>=3),best=(usable.length?usable:setups)[0],worstLeak=leaks[0];
+  let works='Нужно больше данных.';if(best&&best.avgR>0)works=`${best.name}: ${edgeFmtR(best.avgR,true)} в среднем, ${best.n} сделок.`;else if(stats.netR>0)works=`Суммарный результат ${edgeFmtR(stats.netR,true)}, но рабочий сетап ещё не отделён.`;
+  let costs='Ошибки ещё не зафиксированы.';if(worstLeak&&worstLeak.costR)costs=`${worstLeak.label}: −${worstLeak.costR.toFixed(2)}R на ${worstLeak.n} сделках.`;else if(stats.expectancy<0)costs='Отрицательное ожидание без отмеченных execution flags — заполняй нарушения честнее.';
+  let next='Следующие 5 сделок: заполняй сетап, стоп и execution flags.';if(worstLeak)next=`Следующие 5 сделок: ноль ${worstLeak.label}; нарушение = пропуск входа.`;else if(best&&best.status==='TRADE')next=`Следующие 5 сделок: только ${best.name}, без увеличения риска.`;
+  edgeSet('edge-v2-ai-works',works);edgeSet('edge-v2-ai-costs',costs);edgeSet('edge-v2-ai-next',next);
+}
+function renderEdgeV2(trades){
+  const root=document.getElementById('edge-v2');if(!root)return;
+  const filtered=edgePeriodTrades(trades||[]),stats=terminalStats(filtered),n=stats.valid.length,conf=edgeConfidence(n),consistency=edgeConsistency(stats),setups=edgeSetupRows(stats),leaks=edgeLeakRows(stats),status=edgeStatus(stats,consistency);
+  const sample=document.getElementById('edge-v2-sample');if(sample)sample.innerHTML=`SAMPLE // <strong>${n}</strong> · ${conf.detail} · ${edgeActivePeriod==='all'?'ALL TIME':edgeActivePeriod+' DAYS'}`;
+  const confidence=document.getElementById('edge-v2-confidence');if(confidence){confidence.textContent=conf.label;confidence.className='edge-confidence '+conf.cls;}
+  edgeSet('edge-v2-net-r',n?edgeFmtR(stats.netR,true):'—',stats.netR>0?'good':stats.netR<0?'bad':null);
+  edgeSet('edge-v2-exp',n?edgeFmtR(stats.expectancy,true):'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);
+  edgeSet('edge-v2-pf',n?terminalNum(stats.pf,2):'—',stats.pf>=1.15?'good':stats.pf&&stats.pf<1?'bad':stats.pf?'warn':null);
+  edgeSet('edge-v2-wr',stats.decisions.length?Math.round(stats.winRate*100)+'%':'—',stats.decisions.length?(stats.winRate>=.55?'good':stats.winRate<.45?'bad':'warn'):null);
+  edgeSet('edge-v2-record',`${stats.pos.length}W · ${stats.neg.length}L · ${stats.be.length}BE`);
+  edgeSet('edge-v2-dd',n?'−'+stats.maxDDR.toFixed(2)+'R':'—',stats.maxDDR>=3?'bad':stats.maxDDR>1.5?'warn':null);
+  edgeSet('edge-v2-consistency',consistency==null?'—':consistency+'%',consistency>=65?'good':consistency<45&&consistency!=null?'bad':consistency!=null?'warn':null);
+  edgeSet('edge-v2-r-mode',stats.rMode);edgeRenderCurve(stats);
+  const card=document.getElementById('edge-v2-status-card');if(card){card.classList.remove('positive','negative','forming');if(status.cls)card.classList.add(status.cls);}
+  edgeSet('edge-v2-status-code',status.code);edgeSet('edge-v2-status-title',status.title);edgeSet('edge-v2-status-desc',status.desc);
+  const meter=document.getElementById('edge-v2-status-meter');if(meter)meter.style.width=Math.max(0,Math.min(100,status.meter))+'%';
+  edgeSet('edge-v2-decisions',String(stats.decisions.length));edgeSet('edge-v2-required',n<5?String(5-n):n<20?String(20-n):'MET');
+  const stopQuality=n?stats.valid.filter(t=>Number(t.stop_loss)>0).length/n:0,planQuality=n?stats.valid.filter(t=>t.setup_type||terminalCleanNote(t.note_why)).length/n:0,quality=n?Math.round((stopQuality+planQuality)/2*100):null;
+  edgeSet('edge-v2-quality',quality==null?'—':quality>=80?'HIGH':quality>=50?'MID':'LOW',quality>=80?'good':quality!=null&&quality<50?'bad':'warn');
+  edgeRenderSetup(setups);edgeRenderExecution(stats,leaks);edgeRenderPsychology(stats,leaks);edgeRenderDiagnosis(stats,setups,leaks);
+}
+async function runEdgeDiagnosisAI(){
+  const btn=document.getElementById('edge-v2-ai-btn'),output=document.getElementById('edge-v2-ai-output'),trades=edgePeriodTrades(allTrades||[]),stats=terminalStats(trades);if(!btn||!output)return;
+  if(!trades.length){showNotif('warn','NO DATA','Сначала добавь закрытую сделку',2600);return;}
+  btn.disabled=true;btn.textContent='SCANNING...';output.classList.remove('show');
+  const compact=trades.slice(0,60).map(t=>({pair:t.pair,direction:t.direction,result:t.result,pnl_pct:t.pnl_pct,setup_type:t.setup_type,stop_loss:Boolean(t.stop_loss),note_feel:terminalCleanFeel(t.note_feel).slice(0,90),note_why:terminalCleanNote(t.note_why).slice(0,90),created_at:t.created_at}));
+  try{
+    const response=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'brutal',trades:compact,stats:{winRate:stats.winRate==null?null:Math.round(stats.winRate*100),wins:stats.pos.length,losses:stats.neg.length,breakEven:stats.be.length,expectancy:Number(stats.expectancy.toFixed(2)),netR:Number(stats.netR.toFixed(2)),maxDrawdownR:Number(stats.maxDDR.toFixed(2)),instruction:'Ответь кратко: 1) что работает, 2) что стоит денег, 3) одно правило на следующие 5 сделок.'}})});
+    if(!response.ok)throw new Error('AI endpoint '+response.status);
+    const data=await response.json();output.innerHTML='<div class="brutal-line">'+formatAIText(data.text||'Диагноз не получен')+'</div>';output.classList.add('show');
+  }catch(error){output.textContent='Локальный диагноз выше уже рассчитан. Глубокий AI-разбор временно недоступен: '+error.message;output.classList.add('show');}
+  btn.disabled=false;btn.textContent='RUN DEEP SCAN';
 }
 function terminalNum(value,digits=2,suffix=''){
   if(value===Infinity)return '∞';
@@ -8786,14 +9290,15 @@ function renderHistoryInsights(trades,providedStats){
   const todayValid=today.filter(t=>Number.isFinite(Number(t.pnl_pct)));
   const todayPnl=todayValid.reduce((sum,t)=>sum+(Number(t.pnl_pct)||0),0);
   const todayWins=todayValid.filter(t=>Number(t.pnl_pct)>0).length;
-  const todayWr=todayValid.length?Math.round(todayWins/todayValid.length*100):null;
+  const todayLosses=todayValid.filter(t=>Number(t.pnl_pct)<0).length;
+  const todayWr=todayWins+todayLosses?Math.round(todayWins/(todayWins+todayLosses)*100):null;
 
   const setupGroups={};
   stats.valid.forEach(t=>{
     const name=String(t.setup_type||'NO SETUP').trim().toUpperCase();
-    if(!setupGroups[name])setupGroups[name]={name,n:0,w:0,pnl:0};
+    if(!setupGroups[name])setupGroups[name]={name,n:0,w:0,l:0,pnl:0};
     const group=setupGroups[name];
-    group.n++;group.pnl+=Number(t.pnl_pct)||0;if(Number(t.pnl_pct)>0)group.w++;
+    group.n++;group.pnl+=Number(t.pnl_pct)||0;if(Number(t.pnl_pct)>0)group.w++;if(Number(t.pnl_pct)<0)group.l++;
   });
   const bestSetup=Object.values(setupGroups).sort((a,b)=>(b.pnl/b.n)-(a.pnl/a.n)||b.n-a.n)[0];
 
@@ -8809,7 +9314,7 @@ function renderHistoryInsights(trades,providedStats){
   setInsight('hi-today-pnl',todayValid.length?`${todayPnl>=0?'+':''}${todayPnl.toFixed(2)}%`:'—',todayPnl>0?'good':todayPnl<0?'bad':null);
   setInsight('hi-today-wr',todayWr===null?'—':`${todayWr}%`,todayWr>=60?'good':todayWr!==null&&todayWr<40?'bad':todayWr!==null?'warn':null);
   setInsight('hi-expectancy',stats.valid.length?`${stats.expectancy>=0?'+':''}${stats.expectancy.toFixed(2)}R`:'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);
-  setInsight('hi-best-setup',bestSetup?`${bestSetup.name} · ${Math.round(bestSetup.w/bestSetup.n*100)}%`:'—',bestSetup&&bestSetup.pnl>0?'good':bestSetup&&bestSetup.pnl<0?'bad':null);
+  setInsight('hi-best-setup',bestSetup?`${bestSetup.name} · ${bestSetup.w+bestSetup.l?Math.round(bestSetup.w/(bestSetup.w+bestSetup.l)*100)+'%':'—'}`:'—',bestSetup&&bestSetup.pnl>0?'good':bestSetup&&bestSetup.pnl<0?'bad':null);
   setInsight('hi-last-leak',lastLeak,lastLeak==='CLEAN'?'good':'warn');
   const total=document.getElementById('hi-total-trades');if(total)total.textContent=`${list.length} ${list.length===1?'TRADE':'TRADES'}`;
 }
@@ -8830,13 +9335,14 @@ function renderTerminalOS(trades){
   terminalSetMetric('tc-session',`${terminalSession(now)} · ${utc}`);
   terminalSetMetric('tc-day-pnl',`${dayPnl>=0?'+':''}${dayPnl.toFixed(2)}%`,dayPnl>0?'good':dayPnl<0?'bad':null);
   terminalSetMetric('tc-trades',`${today.length} / ${limits.maxTrades}`,today.length>=limits.maxTrades?'bad':today.length===limits.maxTrades-1?'warn':null);
-  terminalSetMetric('s-wr',stats.valid.length?`${Math.round(stats.winRate*100)}%`:'—',stats.winRate>=.6?'good':stats.valid.length&&stats.winRate<.4?'bad':stats.valid.length?'warn':null);
+  terminalSetMetric('s-wr',stats.decisions.length?`${Math.round(stats.winRate*100)}%`:'—',stats.decisions.length&&stats.winRate>=.6?'good':stats.decisions.length&&stats.winRate<.4?'bad':stats.decisions.length?'warn':null);
   terminalSetMetric('tc-edge',stats.valid.length?`${stats.expectancy>=0?'+':''}${stats.expectancy.toFixed(2)}R`:'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);
   renderHistoryInsights(list,stats);
   renderEdgeKernel(list,stats);
 }
 function renderEdgeKernel(trades,providedStats){
   const stats=providedStats||terminalStats(trades);
+  renderEdgeV2(trades||[]);
   const n=stats.valid.length;
   const sample=n<10?'COLD':n<30?'FORMING':n<60?'USABLE':'STRONG';
   const sampleEl=document.getElementById('edge-sample-status');if(sampleEl)sampleEl.textContent=`SAMPLE: ${n} // ${sample}`;
@@ -8890,9 +9396,11 @@ function updateStatsEnhanced(){
   if(totalEl)animateCounter(totalEl, t.length, '');
   if(!t.length){['s-wr','s-pnl','s-usd','s-str'].forEach(id=>{var el=document.getElementById(id);if(el)el.textContent='—';});return;}
   var wins=t.filter(x=>x.result==='win');
-  var wr=Math.round(wins.length/t.length*100);
+  var losses=t.filter(x=>x.result==='loss');
+  var decisions=wins.length+losses.length;
+  var wr=decisions?Math.round(wins.length/decisions*100):null;
   var wrEl=document.getElementById('s-wr');
-  if(wrEl){animateCounter(wrEl,wr,'%');}
+  if(wrEl){if(wr==null)wrEl.textContent='—';else animateCounter(wrEl,wr,'%');}
   var totalPct=t.reduce((s,x)=>s+(x.pnl_pct||0),0);
   var pEl=document.getElementById('s-pnl');
   if(pEl){
@@ -8911,11 +9419,11 @@ function updateStatsEnhanced(){
   
   // Smart notifications
   if(streak>=5)terminalNotifyOnce('hot_streak','success','HOT STREAK',`${streak} побед подряд · не увеличивай риск автоматически`,5000);
-  if(wr>=70&&t.length>=10)terminalNotifyOnce('high_wr','success','HIGH PERFORMANCE',`Winrate ${wr}% · выборка ${t.length} сделок`,5000);
+  if(wr!=null&&wr>=70&&decisions>=10)terminalNotifyOnce('high_wr','success','HIGH PERFORMANCE',`Winrate ${wr}% · ${decisions} решений`,5000);
   
   // Hover insights
   var wrInsight=document.getElementById('wr-insight');
-  if(wrInsight)wrInsight.innerHTML=`WR: ${wr}%<br>${wr>=60?'✅ Отлично':wr>=50?'⚡ Норма':'⚠️ Ниже нормы'}<br>Победы: ${wins.length} / ${t.length}`;
+  if(wrInsight)wrInsight.innerHTML=wr==null?'WR: —<br>Нет решений W/L<br>Break-even не входит в WR':`WR: ${wr}%<br>${wr>=60?'✅ Отлично':wr>=50?'⚡ Норма':'⚠️ Ниже нормы'}<br>Победы: ${wins.length} / ${decisions}`;
   var usdInsight=document.getElementById('usd-insight');
   if(usdInsight)usdInsight.innerHTML=`Прибыль $: ${totalUsd>=0?'+':'-'}${Math.abs(totalUsd).toFixed(0)}<br>P&L %: ${(totalPct>=0?'+':'')+totalPct.toFixed(1)}%`;
   
