@@ -8,7 +8,7 @@ const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
 const APP_URL   = process.env.APP_URL || 'https://orbitum.trade';
 
 // Silent hours: 23:00–06:00 UTC (non-critical suppressed)
-const CRITICAL_TYPES = new Set(['signal_critical', 'tilt', 'raw']);
+const CRITICAL_TYPES = new Set(['signal_critical', 'tilt', 'raw', 'screenshot']);
 function isSilent() {
   const h = new Date().getUTCHours();
   return h >= 23 || h < 6;
@@ -27,6 +27,7 @@ const NOTIFY_GATE = {
   tilt:              'tg_notify_tilt',
   daily:             'tg_notify_daily',
   ai_coach_feedback: 'tg_notify_trades',
+  screenshot:        null,
   raw:               null,
 };
 
@@ -45,6 +46,25 @@ async function tgSend(chat_id, text, extra = {}) {
     return true;
   } catch(e) {
     console.error('[notify] tgSend', e.message);
+    return false;
+  }
+}
+
+async function tgSendPhoto(chat_id, imageBuffer, caption) {
+  try {
+    const form = new FormData();
+    form.append('chat_id', String(chat_id));
+    form.append('photo', new Blob([imageBuffer], { type: 'image/jpeg' }), 'eternity-screen.jpg');
+    if (caption) form.append('caption', String(caption).slice(0, 900));
+    const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: form });
+    if (!r.ok) {
+      const e = await r.json().catch(() => ({}));
+      if (e?.error_code === 403) return false;
+      throw new Error(e?.description || `Telegram HTTP ${r.status}`);
+    }
+    return true;
+  } catch (e) {
+    console.error('[notify] tgSendPhoto', e.message);
     return false;
   }
 }
@@ -115,6 +135,9 @@ export default async function handler(req, res) {
 
   const { type, data } = req.body;
   if (!type) return res.status(400).json({ error: 'Missing type' });
+
+  if (type === 'screenshot' && !await verifyUserToken(req, userId))
+    return res.status(401).json({ error: 'Invalid user token' });
 
   // ── PAYMENT REQUEST → ADMIN TELEGRAM ──────────────────────────
   // This path is authenticated with the user's Supabase access token.
@@ -190,6 +213,21 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: true, reason: 'silent hours' });
 
   try {
+
+    // ── USER-INITIATED ANALYTICS SCREENSHOT ─────────────────────
+    if (type === 'screenshot') {
+      const raw = String(data?.image_base64 || '');
+      if (!/^[A-Za-z0-9+/=]+$/.test(raw)) return res.status(400).json({ error: 'Invalid image payload' });
+      const image = Buffer.from(raw, 'base64');
+      if (!image.length || image.length > 5 * 1024 * 1024)
+        return res.status(413).json({ error: 'Screenshot is too large' });
+      const section = String(data?.section || 'Analytics').replace(/[\r\n<>]/g, ' ').slice(0, 80);
+      const symbol = String(data?.symbol || '').replace(/[^A-Z0-9/._-]/gi, '').slice(0, 20);
+      const caption = `ETERNITY TRADE // ${section}${symbol ? `\n${symbol}` : ''}\n${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`;
+      const sent = await tgSendPhoto(chat_id, image, caption);
+      if (!sent) return res.status(502).json({ error: 'Telegram delivery failed' });
+      return res.status(200).json({ ok: true });
+    }
 
     // ── PRICE / RSI / VOLUME ALERT ────────────────────────────────
     if (type === 'alert') {

@@ -83,7 +83,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).end();
 
-  const { type, from, to } = req.query;
+  const { type, from, to, category } = req.query;
   try {
     if (type === 'calendar') {
       if (!DATE_RE.test(from || '') || !DATE_RE.test(to || '')) return res.status(400).json({ error: 'from/to must use YYYY-MM-DD' });
@@ -96,9 +96,10 @@ export default async function handler(req, res) {
 
     if (type === 'news') {
       if (!FINNHUB_KEY) return res.status(503).json({ error: 'Finnhub not configured' });
-      const data = await fetchJson(`https://finnhub.io/api/v1/news?category=crypto&token=${encodeURIComponent(FINNHUB_KEY)}`);
+      const newsCategory = category === 'general' ? 'general' : 'crypto';
+      const data = await fetchJson(`https://finnhub.io/api/v1/news?category=${newsCategory}&token=${encodeURIComponent(FINNHUB_KEY)}`);
       res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60');
-      return res.status(200).json(data);
+      return res.status(200).json({ category: newsCategory, news: data, updatedAt: new Date().toISOString() });
     }
 
     return res.status(400).json({ error: 'type must be calendar or news' });
