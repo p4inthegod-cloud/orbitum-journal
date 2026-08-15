@@ -1,8 +1,9 @@
 import { handleLead } from '../lib/lead-handler.js';
+import { publishMarketDaily } from '../lib/market-daily-runtime.js';
 import { escapeHtml, formatP2PMessage, P2P_WALLET_URL, scanWalletP2P } from '../lib/p2p-scanner.js';
 
 // api/bot.js v5 — ORBITUM Telegram Bot
-// Commands: /start /p2p /stats /brief /signal /ai /alerts /plan /notify /log /help /stop
+// Commands: /start /p2p /stats /brief /markettest /signal /ai /alerts /plan /notify /log /help /stop
 // Inline keyboard buttons on key messages
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -332,6 +333,11 @@ export default async function handler(req, res) {
     }
 
     const isPaid = profile.plan === 'lifetime' || profile.plan === 'monthly';
+
+    // ══ /markettest — full public-style market overview in DM ══════
+    if (cmd === '/markettest') {
+      return publishMarketDaily(req, res, { testChatId: chat_id });
+    }
 
     // ══ /stats ════════════════════════════════════════════════════
     if (cmd === '/stats') {

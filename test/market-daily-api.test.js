@@ -8,6 +8,7 @@ process.env.ETERNITY_CHAT_ID = '-100123456789';
 process.env.APP_URL = 'https://example.test';
 
 const { default: handler } = await import('../api/daily.js?api-test=1');
+const { publishMarketDaily } = await import('../lib/market-daily-runtime.js');
 
 function makeDailyRows(count = 70) {
   const start = Date.UTC(2026, 4, 1);
@@ -126,6 +127,27 @@ test('live run delivers separate messages to channel and chat', async () => {
     assert.equal(bodies[1].chat_id, '-100123456789');
     assert.match(bodies[0].text, /📊/);
     assert.match(bodies[1].text, /🗣/);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('bot test mode delivers the full overview only to the requesting chat', async () => {
+  const originalFetch = global.fetch;
+  const calls = [];
+  global.fetch = marketFetchMock(calls);
+  try {
+    const response = responseRecorder();
+    await publishMarketDaily({ method: 'POST', headers: {}, query: {} }, response, {
+      testChatId: 6746369295,
+    });
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.delivered, 1);
+    const telegramCalls = calls.filter((call) => call.url.includes('api.telegram.org'));
+    assert.equal(telegramCalls.length, 1);
+    const body = JSON.parse(telegramCalls[0].options.body);
+    assert.equal(body.chat_id, 6746369295);
+    assert.match(body.text, /📊 <b>ЕЖЕДНЕВНЫЙ ОБЗОР/);
   } finally {
     global.fetch = originalFetch;
   }
