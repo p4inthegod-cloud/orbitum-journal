@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeScenario, getSessionWarning, shouldWarnEvent } from '../lib/market-notifications.js';
+import { analyzeCoin, getSessionWarning, shouldWarnEvent } from '../lib/market-notifications.js';
 
 function candles(count, start, step, { spread = 10, volume = 100 } = {}) {
   return Array.from({ length: count }, (_, index) => {
@@ -10,17 +10,33 @@ function candles(count, start, step, { spread = 10, volume = 100 } = {}) {
   });
 }
 
-test('analyzeScenario identifies an upward structure', () => {
-  const scenario = analyzeScenario('BTC', candles(80, 50_000, 100), candles(30, 45_000, 250, { spread: 500 }));
-  assert.equal(scenario.trend.key, 'bullish');
-  assert.ok(scenario.longTarget > scenario.previousHigh);
-  assert.ok(scenario.previousHigh > scenario.previousLow);
+test('analyzeCoin combines timeframes into an argued upward bias', () => {
+  const analysis = analyzeCoin(
+    'BTC',
+    candles(80, 56_000, 25, { spread: 40, volume: 150 }),
+    candles(80, 50_000, 100),
+    candles(80, 35_000, 250, { spread: 500 }),
+  );
+  assert.equal(analysis.trend.key, 'bullish');
+  assert.ok(analysis.bullishScore >= 6);
+  assert.equal(analysis.structure.key, 'bullish');
+  assert.ok(analysis.longTarget > analysis.upTrigger);
+  assert.ok(analysis.previousHigh > analysis.previousLow);
 });
 
-test('analyzeScenario identifies a downward structure', () => {
-  const scenario = analyzeScenario('ETH', candles(80, 4_000, -10, { spread: 4 }), candles(30, 5_000, -50, { spread: 50 }));
-  assert.equal(scenario.trend.key, 'bearish');
-  assert.ok(scenario.shortTarget < scenario.previousLow);
+test('analyzeCoin identifies bearish structure and relative weakness against BTC', () => {
+  const analysis = analyzeCoin(
+    'ETH',
+    candles(80, 4_200, -4, { spread: 4, volume: 120 }),
+    candles(80, 4_000, -10, { spread: 4 }),
+    candles(80, 6_000, -50, { spread: 50 }),
+    candles(80, 50_000, 100),
+  );
+  assert.equal(analysis.trend.key, 'bearish');
+  assert.ok(analysis.bearishScore >= 6);
+  assert.equal(analysis.structure.key, 'bearish');
+  assert.ok(analysis.relativeStrength < 0);
+  assert.ok(analysis.shortTarget < analysis.downTrigger);
 });
 
 test('session warnings respect regional daylight-saving time', () => {

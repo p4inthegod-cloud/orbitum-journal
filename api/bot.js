@@ -13,7 +13,7 @@ import {
   summarizeCandles,
   TIMEFRAMES,
 } from '../lib/public-market-bot.js';
-import { buildCalendarMessage, buildScenarioMessage, runMarketMonitor } from '../lib/market-notifications.js';
+import { buildAnalysisMessage, buildCalendarMessage, runMarketMonitor } from '../lib/market-notifications.js';
 import { escapeHtml, formatP2PMessage, P2P_WALLET_URL, scanWalletP2P } from '../lib/p2p-scanner.js';
 
 // EYE Eternity — публичный Telegram-бот с рыночной аналитикой.
@@ -35,7 +35,7 @@ const PUBLIC_COMMANDS = [
   { command: 'fear', description: 'Настроение и доминация BTC' },
   { command: 'top', description: 'Лидеры роста и падения' },
   { command: 'session', description: 'Текущая торговая сессия' },
-  { command: 'scenario', description: 'Сценарии монеты: /scenario BTC' },
+  { command: 'analysis', description: 'Подробный анализ: /analysis BTC' },
   { command: 'calendar', description: 'Экономические события' },
   { command: 'help', description: 'Все публичные команды' },
 ];
@@ -248,7 +248,7 @@ function menuKeyboard() {
     [cbBtn('📊 Обзор рынка', 'public:market'), cbBtn('₿ График BTC', 'chart:BTC:1h')],
     [cbBtn('Ξ График ETH', 'chart:ETH:1h'), cbBtn('◎ График SOL', 'chart:SOL:1h')],
     [cbBtn('😨 Настроение', 'public:fear'), cbBtn('🔥 Лидеры рынка', 'public:top')],
-    [cbBtn('🧭 Сценарий BTC', 'public:scenario:BTC'), cbBtn('🗓 Календарь', 'public:calendar')],
+    [cbBtn('🧠 Анализ BTC', 'public:analysis:BTC'), cbBtn('🗓 Календарь', 'public:calendar')],
   );
 }
 
@@ -265,8 +265,8 @@ function helpText() {
     `/fear — настроение рынка и доминация BTC\n` +
     `/top — лидеры роста и падения за 24 часа\n` +
     `/session — текущая торговая сессия\n\n` +
-    `🧭 <b>План и события</b>\n` +
-    `/scenario BTC — сценарии вверх, вниз и внутри диапазона\n` +
+    `🧠 <b>Аналитика и события</b>\n` +
+    `/analysis BTC — подробный анализ монеты по 15м, 1ч и 1д\n` +
     `/calendar — важные события сегодня и завтра\n\n` +
     `📈 <b>Монеты</b>\n` +
     `/chart BTC 15m — свечной график монеты\n` +
@@ -437,11 +437,11 @@ export default async function handler(req, res) {
       if (!cooldownExceeded(from.id, 'top', 8)) await sendTop(chatId);
       return res.status(200).send('OK');
     }
-    if (callbackData.startsWith('public:scenario:')) {
+    if (callbackData.startsWith('public:analysis:') || callbackData.startsWith('public:scenario:')) {
       const symbol = callbackData.split(':')[2] || 'BTC';
-      if (!cooldownExceeded(from.id, 'scenario', 8)) {
+      if (!cooldownExceeded(from.id, 'analysis', 10)) {
         sendAction(chatId);
-        await tgSend(chatId, await buildScenarioMessage(symbol));
+        await tgSend(chatId, await buildAnalysisMessage(symbol));
       }
       return res.status(200).send('OK');
     }
@@ -500,10 +500,10 @@ export default async function handler(req, res) {
       await sendSession(chatId);
       return res.status(200).send('OK');
     }
-    if (name === '/scenario') {
-      if (!cooldownExceeded(from.id, 'scenario', 8)) {
+    if (name === '/analysis' || name === '/scenario') {
+      if (!cooldownExceeded(from.id, 'analysis', 10)) {
         sendAction(chatId);
-        await tgSend(chatId, await buildScenarioMessage(arg1 || 'BTC'));
+        await tgSend(chatId, await buildAnalysisMessage(arg1 || 'BTC'));
       }
       return res.status(200).send('OK');
     }
