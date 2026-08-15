@@ -74,7 +74,7 @@ test('analysis creates conditional levels and readable Telegram messages', () =>
   }]);
   const channel = buildChannelMessage(withCalendar, 'https://orbitum.trade');
   const chat = buildChatMessage(withCalendar, 'https://orbitum.trade');
-  assert.match(channel, /📊 <b>ЕЖЕДНЕВНЫЙ ОБЗОР — BTC<\/b>/);
+  assert.match(channel, /🌅 <b>УТРЕННИЙ ОБЗОР — BTC<\/b>/);
   assert.match(channel, /🟢 <b>Сценарий вверх<\/b>/);
   assert.match(channel, /Это сценарий работы с рынком/);
   assert.match(channel, /Индекс потребительских цен/);

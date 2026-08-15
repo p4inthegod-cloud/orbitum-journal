@@ -132,7 +132,7 @@ test('dry run returns both formatted messages without Telegram delivery', async 
     }, response);
     assert.equal(response.statusCode, 200);
     assert.equal(response.body.preview, true);
-    assert.match(response.body.channelMessage, /ЕЖЕДНЕВНЫЙ ОБЗОР/);
+    assert.match(response.body.channelMessage, /УТРЕННИЙ ОБЗОР/);
     assert.match(response.body.chatMessage, /сценарий на день/);
     assert.equal(calls.filter((call) => call.url.includes('api.telegram.org')).length, 0);
   } finally {
@@ -158,8 +158,8 @@ test('live run delivers separate messages to channel and chat', async () => {
     const bodies = telegramCalls.map((call) => JSON.parse(call.options.body));
     assert.equal(bodies[0].chat_id, '@eternity_test');
     assert.equal(bodies[1].chat_id, '-100123456789');
-    assert.match(bodies[0].text, /📊/);
-    assert.match(bodies[1].text, /🗣/);
+    assert.match(bodies[0].text, /🌅/);
+    assert.match(bodies[1].text, /🌅/);
   } finally {
     global.fetch = originalFetch;
   }
@@ -180,7 +180,7 @@ test('bot test mode delivers the full overview only to the requesting chat', asy
     assert.equal(telegramCalls.length, 1);
     const body = JSON.parse(telegramCalls[0].options.body);
     assert.equal(body.chat_id, 6746369295);
-    assert.match(body.text, /📊 <b>ЕЖЕДНЕВНЫЙ ОБЗОР/);
+    assert.match(body.text, /🌅 <b>УТРЕННИЙ ОБЗОР/);
   } finally {
     global.fetch = originalFetch;
   }
@@ -201,7 +201,7 @@ test('falls back to Coinbase and Deribit when Bybit blocks the Vercel region', a
     assert.ok(calls.some((call) => call.url.includes('api.exchange.coinbase.com')));
     assert.ok(calls.some((call) => call.url.includes('deribit.com')));
     const telegramCall = calls.find((call) => call.url.includes('api.telegram.org'));
-    assert.match(JSON.parse(telegramCall.options.body).text, /ЕЖЕДНЕВНЫЙ ОБЗОР/);
+    assert.match(JSON.parse(telegramCall.options.body).text, /УТРЕННИЙ ОБЗОР/);
   } finally {
     global.fetch = originalFetch;
   }
