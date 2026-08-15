@@ -80,6 +80,39 @@ function marketFetchMock(calls) {
   };
 }
 
+function fallbackMarketFetchMock(calls) {
+  const bybitRows = makeDailyRows();
+  const coinbaseRows = bybitRows.map((row) => [
+    Math.floor(Number(row[0]) / 1000),
+    row[3],
+    row[2],
+    row[1],
+    row[4],
+    row[5],
+  ]);
+  return async (input, options = {}) => {
+    const url = String(input);
+    calls.push({ url, options });
+    if (url.includes('api.bybit.com')) return jsonResponse({ error: 'forbidden' }, 403);
+    if (url.endsWith('/products/BTC-USD/ticker')) {
+      return jsonResponse({ price: '97500', volume: '12000' });
+    }
+    if (url.endsWith('/products/BTC-USD/stats')) {
+      return jsonResponse({ open: '96200', high: '98100', low: '95800', last: '97500', volume: '12000' });
+    }
+    if (url.includes('/products/BTC-USD/candles')) return jsonResponse(coinbaseRows);
+    if (url.includes('deribit.com')) {
+      return jsonResponse({ result: { open_interest: 31_000_000_000, funding_8h: 0.0001 } });
+    }
+    if (url.includes('alternative.me')) return jsonResponse({ data: [{ value: '58' }] });
+    if (url.includes('/api/finnhub')) return jsonResponse({ events: [] });
+    if (url.includes('api.telegram.org')) {
+      return jsonResponse({ ok: true, result: { message_id: calls.length } });
+    }
+    throw new Error(`Unexpected URL: ${url}`);
+  };
+}
+
 test('rejects requests without the cron authorization header', async () => {
   const response = responseRecorder();
   await handler({ method: 'GET', headers: {}, query: { action: 'market' } }, response);
@@ -148,6 +181,27 @@ test('bot test mode delivers the full overview only to the requesting chat', asy
     const body = JSON.parse(telegramCalls[0].options.body);
     assert.equal(body.chat_id, 6746369295);
     assert.match(body.text, /📊 <b>ЕЖЕДНЕВНЫЙ ОБЗОР/);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('falls back to Coinbase and Deribit when Bybit blocks the Vercel region', async () => {
+  const originalFetch = global.fetch;
+  const calls = [];
+  global.fetch = fallbackMarketFetchMock(calls);
+  try {
+    const response = responseRecorder();
+    await publishMarketDaily({ method: 'POST', headers: {}, query: {} }, response, {
+      testChatId: 6746369295,
+    });
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.delivered, 1);
+    assert.ok(calls.some((call) => call.url.includes('api.bybit.com')));
+    assert.ok(calls.some((call) => call.url.includes('api.exchange.coinbase.com')));
+    assert.ok(calls.some((call) => call.url.includes('deribit.com')));
+    const telegramCall = calls.find((call) => call.url.includes('api.telegram.org'));
+    assert.match(JSON.parse(telegramCall.options.body).text, /ЕЖЕДНЕВНЫЙ ОБЗОР/);
   } finally {
     global.fetch = originalFetch;
   }

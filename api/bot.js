@@ -336,6 +336,7 @@ export default async function handler(req, res) {
 
     // ══ /markettest — full public-style market overview in DM ══════
     if (cmd === '/markettest') {
+      await tgSend(chat_id, '⏳ <b>Собираю актуальный обзор BTC…</b>');
       return publishMarketDaily(req, res, { testChatId: chat_id });
     }
 
