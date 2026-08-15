@@ -132,6 +132,65 @@ function isP2PCronAuthorized(req) {
     req.query?.secret === secret;
 }
 
+async function handleTelegramHealth(req, res) {
+  if (!['GET', 'POST'].includes(req.method)) {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!isP2PCronAuthorized(req)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (!BOT_TOKEN) {
+    return res.status(503).json({ error: 'TELEGRAM_BOT_TOKEN is not configured' });
+  }
+
+  const webhookUrl = process.env.TELEGRAM_WEBHOOK_URL || 'https://www.orbitum.trade/api/bot';
+
+  try {
+    const api = async (method, payload) => {
+      const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+        method: payload ? 'POST' : 'GET',
+        headers: payload ? { 'Content-Type': 'application/json' } : undefined,
+        body: payload ? JSON.stringify(payload) : undefined,
+        signal: AbortSignal.timeout(10000),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(`${method}: ${data.description || `HTTP ${response.status}`}`);
+      }
+      return data.result;
+    };
+
+    const bot = await api('getMe');
+    const previous = await api('getWebhookInfo');
+    const needsUpdate = previous.url !== webhookUrl;
+
+    if (needsUpdate) {
+      await api('setWebhook', {
+        url: webhookUrl,
+        allowed_updates: ['message', 'callback_query'],
+        drop_pending_updates: false,
+      });
+    }
+
+    const current = needsUpdate ? await api('getWebhookInfo') : previous;
+    console.log(
+      `[bot:webhook] @${bot.username} previous=${previous.url || '-'} current=${current.url || '-'} updated=${needsUpdate}`
+    );
+
+    return res.status(200).json({
+      ok: true,
+      username: bot.username,
+      webhookUrl: current.url,
+      updated: needsUpdate,
+      pendingUpdateCount: current.pending_update_count || 0,
+      lastErrorMessage: current.last_error_message || null,
+    });
+  } catch (error) {
+    console.error('[bot:webhook]', error);
+    return res.status(502).json({ error: error.message });
+  }
+}
+
 async function handleP2PCron(req, res) {
   if (!['GET', 'POST'].includes(req.method)) {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -206,6 +265,7 @@ async function sendOnboarding(chat_id, stage, name = 'trader') {
 
 // ── MAIN HANDLER ──────────────────────────────────────────────────
 export default async function handler(req, res) {
+  if (req.query?.action === 'telegram-health') return handleTelegramHealth(req, res);
   if (req.query?.action === 'p2p-cron') return handleP2PCron(req, res);
   if (req.query?.action === 'lead') return handleLead(req, res);
   if (req.method !== 'POST') return res.status(200).send('OK');
