@@ -1,7 +1,6 @@
 import { handleLead } from '../lib/lead-handler.js';
 import { publishMarketDaily } from '../lib/market-daily-runtime.js';
 import { escapeHtml, formatP2PMessage, P2P_WALLET_URL, scanWalletP2P } from '../lib/p2p-scanner.js';
-import { createHash } from 'node:crypto';
 
 // api/bot.js v5 — ORBITUM Telegram Bot
 // Commands: /start /p2p /stats /brief /markettest /signal /ai /alerts /plan /notify /log /help /stop
@@ -42,12 +41,22 @@ async function sbPatch(table, filters, patch) {
 // ── TG helpers ────────────────────────────────────────────────────
 async function tgSend(chat_id, text, extra = {}) {
   try {
-    const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    const send = (targetChatId) => fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true, ...extra }),
+      body: JSON.stringify({ chat_id: targetChatId, text, parse_mode: 'HTML', disable_web_page_preview: true, ...extra }),
     });
-    if (!r.ok) console.warn('[bot] tgSend', await r.text());
+    let r = await send(chat_id);
+    if (!r.ok) {
+      const payload = await r.json().catch(() => ({}));
+      const migratedChatId = payload?.parameters?.migrate_to_chat_id;
+      if (migratedChatId) {
+        console.log(`[bot] retrying migrated supergroup ${chat_id} -> ${migratedChatId}`);
+        r = await send(migratedChatId);
+      } else {
+        console.warn('[bot] tgSend', JSON.stringify(payload));
+      }
+    }
     return r.ok;
   } catch(e) { console.error('[bot] tgSend', e.message); return false; }
 }
@@ -126,17 +135,11 @@ async function quickScan() {
 
 function isP2PCronAuthorized(req) {
   const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
   const bearer = String(req.headers?.authorization || '').replace(/^Bearer\\s+/i, '');
-  const oneTime = String(req.query?.one_time || '');
-  const oneTimeHash = oneTime
-    ? createHash('sha256').update(oneTime).digest('hex')
-    : '';
-  return (secret && (
-    bearer === secret ||
+  return bearer === secret ||
     req.headers?.['x-cron-secret'] === secret ||
-    req.query?.secret === secret
-  )) ||
-    oneTimeHash === '3f5c1f93036bea05f6e574d2cd679cfc2b91654de30b43288a1d7475ec97131d';
+    req.query?.secret === secret;
 }
 
 async function handleTelegramHealth(req, res) {
