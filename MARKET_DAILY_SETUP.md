@@ -1,6 +1,6 @@
 # Ежедневная аналитика Eternity Trade
 
-Маршрут `GET /api/market-daily` собирает данные BTC с Bybit, добавляет Fear & Greed и экономические события, после чего отправляет:
+Маршрут `GET /api/daily?action=market` собирает данные BTC с Bybit, добавляет Fear & Greed и экономические события, после чего отправляет:
 
 - полный оформленный обзор в Telegram-канал;
 - короткий сценарий и вопрос для обсуждения в Telegram-чат.
@@ -35,14 +35,14 @@ Vercel Cron запускает маршрут каждый день в `07:00 UT
 
 ```bash
 curl -H "Authorization: Bearer $CRON_SECRET" \
-  "https://orbitum.trade/api/market-daily?dry_run=1"
+  "https://orbitum.trade/api/daily?action=market&dry_run=1"
 ```
 
 Отправить обзор вручную:
 
 ```bash
 curl -H "Authorization: Bearer $CRON_SECRET" \
-  "https://orbitum.trade/api/market-daily"
+  "https://orbitum.trade/api/daily?action=market"
 ```
 
 В штатном режиме ручной запуск не нужен: расписание находится в `vercel.json`.

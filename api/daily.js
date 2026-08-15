@@ -1,9 +1,12 @@
+import { publishMarketDaily } from '../lib/market-daily-runtime.js';
+
 // api/daily.js v3 — Full addiction loop
 // Cron schedule:
 //   06:45 UTC  → ?action=hook      (anticipation hook)
 //   07:00 UTC  → default           (morning brief)
 //   19:00 UTC  → ?action=evening   (signal outcome — transparency builds trust)
 //   20:30 UTC  → ?action=insight   (AI forward insight, paid only)
+//   07:00 UTC  → ?action=market    (public channel + community chat)
 // On-demand:   → ?action=onboard   (new user welcome, called by bot.js)
 
 const BOT_TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
@@ -142,13 +145,19 @@ async function getPrice(cgId) {
 }
 
 export default async function handler(req, res) {
-  const secret = req.headers['x-cron-secret'] || req.query.secret;
+  const bearerSecret = req.headers.authorization === `Bearer ${CRON_SECRET}`
+    ? CRON_SECRET
+    : null;
+  const secret = req.headers['x-cron-secret'] || req.query.secret || bearerSecret;
   if (CRON_SECRET && secret !== CRON_SECRET)
     return res.status(401).json({ error: 'Unauthorized' });
   if (req.method !== 'GET' && req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
   const action = req.query.action || 'brief';
+
+  // ══ PUBLIC MARKET BRIEF — channel + community chat ══════════════
+  if (action === 'market') return publishMarketDaily(req, res);
 
   // ══ ONBOARD — welcome new user ════════════════════════════════════
   if (action === 'onboard') {

@@ -7,7 +7,7 @@ process.env.ETERNITY_CHANNEL_ID = '@eternity_test';
 process.env.ETERNITY_CHAT_ID = '-100123456789';
 process.env.APP_URL = 'https://example.test';
 
-const { default: handler } = await import('../api/market-daily.js?api-test=1');
+const { default: handler } = await import('../api/daily.js?api-test=1');
 
 function makeDailyRows(count = 70) {
   const start = Date.UTC(2026, 4, 1);
@@ -81,7 +81,7 @@ function marketFetchMock(calls) {
 
 test('rejects requests without the cron authorization header', async () => {
   const response = responseRecorder();
-  await handler({ method: 'GET', headers: {}, query: {} }, response);
+  await handler({ method: 'GET', headers: {}, query: { action: 'market' } }, response);
   assert.equal(response.statusCode, 401);
 });
 
@@ -94,7 +94,7 @@ test('dry run returns both formatted messages without Telegram delivery', async 
     await handler({
       method: 'GET',
       headers: { authorization: 'Bearer test-secret' },
-      query: { dry_run: '1' },
+      query: { action: 'market', dry_run: '1' },
     }, response);
     assert.equal(response.statusCode, 200);
     assert.equal(response.body.preview, true);
@@ -115,7 +115,7 @@ test('live run delivers separate messages to channel and chat', async () => {
     await handler({
       method: 'GET',
       headers: { authorization: 'Bearer test-secret' },
-      query: {},
+      query: { action: 'market' },
     }, response);
     assert.equal(response.statusCode, 200);
     assert.equal(response.body.delivered, 2);
