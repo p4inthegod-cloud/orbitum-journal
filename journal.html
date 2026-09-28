@@ -5718,15 +5718,39 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
         </div>
       </header>
 
+      <nav class="ov-page-tabs" aria-label="Разделы обзора">
+        <button type="button" class="active" onclick="overviewJump('ov-pulse',this)">Сводка</button>
+        <button type="button" onclick="overviewJump('ov-market-table',this)">Монеты</button>
+        <button type="button" onclick="overviewJump('ov-action-card',this)">Перед сделкой</button>
+        <button type="button" onclick="overviewJump('ov-context-card',this)">Новости</button>
+      </nav>
+
       <div class="ov-loading" id="ov-loading"><i></i><span id="ov-loading-copy">Собираю BTC, сессии, новости и макро-календарь…</span></div>
 
-      <div class="ov-pulse">
+      <div class="ov-pulse" id="ov-pulse">
         <article class="ov-selected-coin"><div class="ov-coin-heading"><img id="ov-coin-icon" class="coin-icon" src="assets/coins/btc.svg" alt="" width="32" height="32"><span id="ov-coin-name">Bitcoin · BTC</span></div><strong id="ov-price">—</strong><small id="ov-price-meta">BTC / USDT · загрузка</small></article>
         <article><span>24 ЧАСА</span><strong id="ov-change">—</strong><small id="ov-range">диапазон —</small></article>
         <article><span>АКТИВНАЯ СЕССИЯ</span><strong id="ov-session">—</strong><small id="ov-session-next">следующая —</small></article>
         <article><span>РЕЖИМ РЫНКА</span><strong id="ov-regime">—</strong><small id="ov-breadth">ширина рынка —</small></article>
         <article><span>МАКРО-РИСК</span><strong id="ov-macro-risk">—</strong><small id="ov-next-event">события загружаются</small></article>
       </div>
+
+      <section class="ov-market-table" id="ov-market-table" aria-labelledby="ov-market-title">
+        <div class="ov-market-toolbar">
+          <div><h2 id="ov-market-title">Основные монеты</h2><p>Цены и изменение за 24 часа из рыночного потока</p></div>
+          <div class="ov-market-filters" role="group" aria-label="Фильтр монет">
+            <button type="button" class="active" data-ov-market-filter="all" aria-pressed="true" onclick="overviewMarketSetFilter('all',this)">Все</button>
+            <button type="button" data-ov-market-filter="up" aria-pressed="false" onclick="overviewMarketSetFilter('up',this)">Растут</button>
+            <button type="button" data-ov-market-filter="down" aria-pressed="false" onclick="overviewMarketSetFilter('down',this)">Падают</button>
+          </div>
+        </div>
+        <div class="ov-market-scroll">
+          <table class="ov-market-grid">
+            <thead><tr><th scope="col">#</th><th scope="col">Монета</th><th scope="col" class="numeric">Цена</th><th scope="col" class="numeric">24 ч</th></tr></thead>
+            <tbody id="ov-market-body"><tr><td colspan="4" class="ov-market-empty">Ожидаем котировки…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
 
       <div class="ov-main-grid">
         <article class="ov-card ov-market-card">
@@ -5762,7 +5786,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       </div>
 
       <div class="ov-lower-grid">
-        <article class="ov-card ov-context-card">
+        <article class="ov-card ov-context-card" id="ov-context-card">
           <div class="ov-card-head"><div><span class="ov-card-title">Новости и события</span><small>экономика и крипторынок · только свежая выжимка</small></div><button type="button" class="ov-inline-link" onclick="showPage('premarket',document.querySelector('[data-page=&quot;premarket&quot;]'))">Все события →</button></div>
           <div class="ov-context-columns">
             <div>
@@ -12988,6 +13012,7 @@ function updateTickerItem(sym, newPrice, chg) {
     tickerData[sym].price = newPrice;
     if(chg !== null) tickerData[sym].chg = chg;
   }
+  if(typeof overviewMarketScheduleRender==='function')overviewMarketScheduleRender();
 }
 
 
@@ -13481,6 +13506,7 @@ function initJournalWS(){
           tickerData[symUpper].price = price;
           tickerData[symUpper].chg   = chg;
         }
+        if(typeof overviewMarketScheduleRender==='function')overviewMarketScheduleRender();
         if(typeof renderTickerTrack==='function'&&!window._ttThrottle){window._ttThrottle=true;requestAnimationFrame(function(){renderTickerTrack();setTimeout(function(){window._ttThrottle=false;},1000);});}
       }
 
@@ -14582,11 +14608,24 @@ document.addEventListener('click',event=>{
 // ══════════════════════════════════════════════════════
 // OVERVIEW — live synthesis across market, macro and session data
 // ══════════════════════════════════════════════════════
-const overviewState={symbol:'BTC',pinnedSymbol:'',news:[],newsLoadedAt:0,initialized:false,loading:false,requestId:0,refreshTimer:null,contextTimer:null};
+const overviewState={symbol:'BTC',pinnedSymbol:'',news:[],newsLoadedAt:0,initialized:false,loading:false,requestId:0,refreshTimer:null,contextTimer:null,marketFilter:'all',marketRenderTimer:null};
 function overviewEl(id){return document.getElementById(id)}
 function overviewSet(id,value,tone){const el=overviewEl(id);if(!el)return;el.textContent=value;el.classList.remove('good','bad','warn','cyan');if(tone)el.classList.add(tone)}
+function overviewJump(id,button){overviewEl(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.ov-page-tabs button').forEach(tab=>tab.classList.toggle('active',tab===button))}
+function overviewMarketSetFilter(filter,button){overviewState.marketFilter=filter;document.querySelectorAll('[data-ov-market-filter]').forEach(tab=>{const active=tab===button;tab.classList.toggle('active',active);tab.setAttribute('aria-pressed',String(active))});overviewRenderMarketTable()}
+function overviewMarketScheduleRender(){if(overviewState.marketRenderTimer||!overviewEl('page-overview')?.classList.contains('active'))return;overviewState.marketRenderTimer=setTimeout(()=>{overviewState.marketRenderTimer=null;overviewRenderMarketTable()},500)}
+function overviewRenderMarketTable(){
+  const body=overviewEl('ov-market-body');if(!body)return;
+  const names={BTC:'Bitcoin',ETH:'Ethereum',SOL:'Solana',BNB:'BNB',XRP:'XRP'},symbols=Object.keys(names);
+  const rows=symbols.map((symbol,index)=>{const feed=tickerData[symbol]||{},fallback=marketIntelState.symbol===symbol?marketIntelState.ticker:null,useSnapshot=symbol===overviewState.symbol&&fallback&&Number.isFinite(Number(fallback.price)),feedPrice=Number(feed.price),price=useSnapshot?Number(fallback.price):Number.isFinite(feedPrice)&&feedPrice>0?feedPrice:Number(fallback?.price),feedChange=feed.chg==null?NaN:Number(feed.chg),change=useSnapshot&&fallback.changePct!=null?Number(fallback.changePct):Number.isFinite(feedChange)?feedChange:fallback?.changePct==null?NaN:Number(fallback.changePct);return {symbol,index,price,change}})
+    .filter(row=>overviewState.marketFilter==='all'||Number.isFinite(row.change)&&(overviewState.marketFilter==='up'?row.change>=0:row.change<0));
+  body.innerHTML=rows.length?rows.map(row=>{
+    const quoted=Number.isFinite(row.price)&&row.price>0,changed=Number.isFinite(row.change),tone=changed?(row.change>=0?'good':'bad'):'',selected=row.symbol===overviewState.symbol;
+    return '<tr'+(selected?' class="selected"':'')+'><td class="ov-market-rank">'+(row.index+1)+'</td><td><button type="button" class="ov-market-asset" onclick="overviewSelectSymbol(\''+row.symbol+'\',this)" aria-label="Показать обзор '+names[row.symbol]+'" aria-current="'+(selected?'true':'false')+'"><img class="coin-icon" src="assets/coins/'+row.symbol.toLowerCase()+'.svg" width="26" height="26" alt=""><span>'+names[row.symbol]+' <small>'+row.symbol+'</small></span></button></td><td class="numeric ov-market-price">'+(quoted?miFmtPrice(row.price):'—')+'</td><td class="numeric"><span class="ov-market-change '+tone+'">'+(changed?miPct(row.change):'—')+'</span></td></tr>';
+  }).join(''):'<tr><td colspan="4" class="ov-market-empty">Для этого фильтра пока нет монет с доступными котировками.</td></tr>';
+}
 function overviewRestorePin(){try{const symbol=miCleanSymbol(localStorage.getItem('et_overview_pinned_symbol')||'');if(symbol){overviewState.pinnedSymbol=symbol;overviewState.symbol=symbol}}catch(e){}}
-function overviewSyncControls(){const symbol=overviewState.symbol,input=overviewEl('ov-symbol-input'),pin=overviewEl('ov-pin-btn'),active=overviewState.pinnedSymbol===symbol;if(input)input.value=symbol;document.querySelectorAll('[data-ov-symbol]').forEach(btn=>btn.classList.toggle('active',btn.dataset.ovSymbol===symbol));if(pin){pin.classList.toggle('active',active);pin.setAttribute('aria-pressed',String(active));const copy=pin.querySelector('span');if(copy)copy.textContent=active?'ЗАКРЕПЛЕНО':'ЗАКРЕПИТЬ'}}
+function overviewSyncControls(){const symbol=overviewState.symbol,input=overviewEl('ov-symbol-input'),pin=overviewEl('ov-pin-btn'),active=overviewState.pinnedSymbol===symbol;if(input)input.value=symbol;document.querySelectorAll('[data-ov-symbol]').forEach(btn=>btn.classList.toggle('active',btn.dataset.ovSymbol===symbol));if(pin){pin.classList.toggle('active',active);pin.setAttribute('aria-pressed',String(active));const copy=pin.querySelector('span');if(copy)copy.textContent=active?'ЗАКРЕПЛЕНО':'ЗАКРЕПИТЬ'}overviewRenderMarketTable()}
 function toggleOverviewPin(){const current=overviewState.symbol;if(overviewState.pinnedSymbol===current){overviewState.pinnedSymbol='';try{localStorage.removeItem('et_overview_pinned_symbol')}catch(e){}showNotif('success','ОБЗОР','Закрепление '+current+' снято',2200)}else{overviewState.pinnedSymbol=current;try{localStorage.setItem('et_overview_pinned_symbol',current)}catch(e){}showNotif('success','ОБЗОР',current+' закреплён как основная монета',2400)}overviewSyncControls()}
 function overviewClock(){const now=new Date();overviewSet('ov-clock',now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'UTC'})+' UTC')}
 function overviewTimeAgo(value){const timestamp=Number(value)>1e12?Number(value):Number(value)*1000;if(!Number.isFinite(timestamp))return '—';const minutes=Math.max(0,Math.round((Date.now()-timestamp)/60000));if(minutes<2)return 'СЕЙЧАС';if(minutes<60)return minutes+'М НАЗАД';if(minutes<1440)return Math.round(minutes/60)+'Ч НАЗАД';return Math.round(minutes/1440)+'Д НАЗАД'}
