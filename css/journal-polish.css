@@ -1,0 +1,152 @@
+/* Final readability pass: clear hierarchy, restrained accents and room for data. */
+html[data-theme] {
+  --bg: #f4f7fb;
+  --bd: #d9e2ee;
+  --shadow-card: 0 3px 12px rgba(31, 48, 79, .045);
+}
+html[data-theme="dark"] {
+  --bg: #101827;
+  --bd: #34445c;
+  --shadow-card: 0 3px 14px rgba(0, 0, 0, .1);
+}
+
+/* The sticky market tape covered headings while scrolling. The same context
+   remains available in a compact disclosure above each work area. */
+html[data-theme] .ticker-bar { display: none !important; }
+html[data-theme] .market-context {
+  margin: 0 0 24px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  color: var(--t);
+}
+html[data-theme] .market-context > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 11px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+html[data-theme] .market-context > summary::-webkit-details-marker { display: none; }
+html[data-theme] .market-context-title { font-size: 13px; font-weight: 700; }
+html[data-theme] .market-context-hint { font-size: 12px; color: var(--m); }
+html[data-theme] .market-context-chevron { margin-left: auto; color: var(--m); font-size: 22px; line-height: 1; transition: transform .18s; }
+html[data-theme] .market-context[open] .market-context-chevron { transform: rotate(180deg); }
+html[data-theme] .market-context-panel { display: grid; gap: 10px; padding: 0 12px 12px; }
+html[data-theme] .market-context .terminal-console,
+html[data-theme] .market-context .environment-rail { margin: 0 !important; box-shadow: none !important; }
+html[data-theme] body.overview-page-active .market-context { display: none; }
+
+/* A loading state should explain why the history has no content yet. */
+html[data-theme] .history-loading-label {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--m);
+}
+
+/* Decision matrix: values get their own flexible column and never sit on labels. */
+html[data-theme] .bs-factor-list { gap: 8px; }
+html[data-theme] .bs-factor {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 38%) !important;
+  grid-template-areas: "label value" "detail value" "bar bar";
+  gap: 4px 14px;
+  align-items: center;
+  min-height: 78px;
+  padding: 13px 15px;
+  border-radius: 9px;
+  background: var(--bg-card2) !important;
+}
+html[data-theme] .bs-factor > span {
+  grid-area: label;
+  font-size: 13px !important;
+  font-weight: 650;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+html[data-theme] .bs-factor small {
+  display: block !important;
+  grid-area: detail;
+  text-align: left !important;
+  font-size: 11px !important;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+html[data-theme] .bs-factor strong {
+  grid-area: value;
+  font-size: 13px !important;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+html[data-theme] .bs-factor.good strong { color: var(--g) !important; }
+html[data-theme] .bs-factor.bad strong { color: var(--r) !important; }
+html[data-theme] .bs-factor.warn strong { color: var(--y) !important; }
+html[data-theme] .bs-factor i {
+  grid-area: bar;
+  height: 3px;
+  margin: 7px 0 0;
+  background: var(--bd) !important;
+}
+html[data-theme] .bs-factor.good i::after { background: var(--g) !important; }
+html[data-theme] .bs-factor.bad i::after { background: var(--r) !important; }
+html[data-theme] .bs-factor.warn i::after { background: var(--y) !important; }
+
+/* Watch list: make the asset and reason primary, score secondary. */
+html[data-theme] .wt-signal-grid { gap: 12px; }
+html[data-theme] .wt-signal-card,
+html[data-theme] .wt-signal-card.good,
+html[data-theme] .wt-signal-card.bad {
+  grid-template-columns: 66px minmax(0, 1fr);
+  gap: 15px;
+  padding: 16px;
+  border: 1px solid var(--bd) !important;
+  border-radius: 10px;
+  background: var(--bg-card2) !important;
+  background-image: none !important;
+}
+html[data-theme] .wt-signal-card:hover { border-color: var(--a3) !important; }
+html[data-theme] .wt-rank { min-height: 0; padding-right: 12px; }
+html[data-theme] .wt-rank span { font-size: 10px !important; line-height: 1.3; text-align: center; }
+html[data-theme] .wt-rank strong { margin: 9px 0 2px; font-size: 28px; }
+html[data-theme] .wt-signal-card.good .wt-rank strong { color: var(--g) !important; }
+html[data-theme] .wt-signal-card.bad .wt-rank strong { color: var(--r) !important; }
+html[data-theme] .wt-signal-top { align-items: flex-start; }
+html[data-theme] .wt-signal-symbol { font-size: 16px !important; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+html[data-theme] .wt-signal-card.warn .wt-signal-symbol { color: var(--t) !important; }
+html[data-theme] .wt-direction { font-size: 11px !important; flex-shrink: 0; }
+html[data-theme] .wt-direction.long { color: var(--g) !important; }
+html[data-theme] .wt-direction.short { color: var(--r) !important; }
+html[data-theme] .wt-signal-name { margin: 8px 0 4px; font-size: 13px !important; font-weight: 650; line-height: 1.4; }
+html[data-theme] .wt-signal-copy { font-size: 12px !important; line-height: 1.5; }
+html[data-theme] .wt-signal-metrics { gap: 6px; margin-top: 12px; }
+html[data-theme] .wt-signal-metrics span { padding: 5px 7px; font-size: 11px !important; line-height: 1.3; background: var(--bg-card); }
+
+/* Keep chart coordinates honest while giving dense labels room to breathe. */
+html[data-theme] .lq-chart-wrap { height: 440px; }
+html[data-theme] .lq-chart-current-line { stroke: var(--a) !important; }
+html[data-theme] .lq-chart-current-pill { fill: var(--a2) !important; stroke: var(--a) !important; }
+html[data-theme] .lq-chart-current-text { fill: var(--a) !important; font-weight: 700; }
+html[data-theme] .lq-chart-wrap svg text { font-size: 12px !important; }
+
+@media (max-width: 760px) {
+  html[data-theme] .market-context-hint { display: none; }
+  html[data-theme] #page-journal .fg2 { grid-template-columns: 1fr !important; }
+  html[data-theme] .bs-factor { grid-template-columns: minmax(0, 1fr) minmax(110px, 43%) !important; }
+  html[data-theme] .lq-chart-wrap { height: 340px; overflow-x: auto; }
+  html[data-theme] .lq-chart-wrap svg { min-width: 740px; }
+}
+@media (max-width: 480px) {
+  html[data-theme] .wt-signal-card,
+  html[data-theme] .wt-signal-card.good,
+  html[data-theme] .wt-signal-card.bad { grid-template-columns: 54px minmax(0, 1fr); gap: 11px; padding: 13px; }
+  html[data-theme] .wt-rank { padding-right: 9px; }
+  html[data-theme] .wt-signal-symbol { font-size: 14px !important; }
+}

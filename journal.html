@@ -5297,6 +5297,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 </style>
 <link rel="stylesheet" href="css/journal-sections.css">
 <link rel="stylesheet" href="css/journal-refresh.css">
+<link rel="stylesheet" href="css/journal-polish.css">
 </head>
 <body class="overview-page-active">
 
@@ -5635,6 +5636,9 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
   <div class="bg-o bg-o-3"></div>
 </div>
 
+  <details class="market-context">
+    <summary><span class="market-context-title">Рыночный контекст</span><span class="market-context-hint">Сессия, лимиты и ближайшие события</span><span class="market-context-chevron" aria-hidden="true">⌄</span></summary>
+    <div class="market-context-panel">
   <!-- TERMINAL SESSION CONSOLE -->
   <section class="terminal-console" id="terminal-console" aria-label="Состояние торговой сессии">
     <div class="tc-brand">
@@ -5673,6 +5677,9 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
     <button type="button" class="env-rail-open" tabindex="-1">ОТКРЫТЬ →</button>
   </section>
 
+
+    </div>
+  </details>
 
   <!-- Hidden data sinks keep the existing analytics engine intact. -->
   <div class="stats-cache" aria-hidden="true">
@@ -6030,7 +6037,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
         <button class="history-clear-btn" onclick="clearAllTrades()" title="Очистить всю историю" aria-label="Очистить всю историю">Очистить</button>
       </div>
     </div>
-    <div id="trades-list"><div id="trades-skeleton">
+    <div id="trades-list"><div id="trades-skeleton" role="status" aria-live="polite">
+  <p class="history-loading-label">Загружаем историю сделок…</p>
   <div class="sk-tcard">
     <div class="sk-tcard-row"><span class="sk sk-pair"></span><span class="sk sk-dir"></span><span class="sk sk-pnl"></span><span class="sk sk-date"></span></div>
     <div class="sk sk-note"></div>
@@ -14120,8 +14128,14 @@ function liquidityBuild(){
 function liquidityDistance(pool){return pool?pool.distancePct.toFixed(2)+'% · '+pool.distanceAtr.toFixed(2)+' ATR':'НЕТ АКТИВНОГО УРОВНЯ'}
 function liquidityRenderChart(data){
   const svg=liquidityEl('lq-chart');if(!svg)return;const levels=data.pools.slice(0,12),values=levels.map(x=>x.price).concat(data.current),min=Math.min(...values),max=Math.max(...values),pad=Math.max((max-min)*.08,data.atr*.35),lo=min-pad,hi=max+pad,w=900,h=410,y=value=>30+(hi-value)/(hi-lo)*(h-60);
-  const rows=levels.map(pool=>{const yy=y(pool.price),color=pool.status==='swept'?'#39423c':pool.side==='above'?'#ff5c6c':'#b6ff2e',dash=pool.status==='swept'?'5 7':'',opacity=pool.status==='swept'?.48:.9,width=150+pool.strength*5.8;return '<line x1="210" x2="'+Math.min(830,210+width)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="'+(pool.kind==='cluster'?3:1.6)+'" stroke-dasharray="'+dash+'" opacity="'+opacity+'"/><circle cx="210" cy="'+yy+'" r="'+(pool.kind==='cluster'?4:3)+'" fill="'+color+'" opacity="'+opacity+'"/><text x="24" y="'+(yy+4)+'" fill="'+color+'" font-size="10" opacity="'+opacity+'">'+escHtml(pool.short)+' · '+escHtml(pool.name.slice(0,25))+'</text><text x="872" y="'+(yy+4)+'" fill="'+color+'" font-size="10" text-anchor="end" opacity="'+opacity+'">'+miFmtPrice(pool.price)+'</text>'}).join('');
-  const cy=y(data.current);svg.innerHTML='<defs><filter id="lqGlow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'+rows+'<line x1="18" x2="882" y1="'+cy+'" y2="'+cy+'" stroke="#dce75a" stroke-width="2" stroke-dasharray="3 5" filter="url(#lqGlow)"/><rect x="385" y="'+(cy-13)+'" width="130" height="26" rx="6" fill="#0a0d0a" stroke="#dce75a"/><text x="450" y="'+(cy+4)+'" fill="#dce75a" font-size="11" text-anchor="middle">ЦЕНА '+miFmtPrice(data.current)+'</text>';
+  // Keep the line at its real price. Only labels move when nearby pools collide.
+  const labelRows=levels.map((pool,index)=>({index,rawY:y(pool.price)})).sort((a,b)=>a.rawY-b.rawY);
+  const labelGap=27,top=30,bottom=380;
+  labelRows.forEach((row,index)=>{row.labelY=Math.max(row.rawY,index?labelRows[index-1].labelY+labelGap:top)});
+  if(labelRows.length&&labelRows.at(-1).labelY>bottom){labelRows.at(-1).labelY=bottom;for(let index=labelRows.length-2;index>=0;index--)labelRows[index].labelY=Math.min(labelRows[index].labelY,labelRows[index+1].labelY-labelGap)}
+  const labelYByIndex=new Map(labelRows.map(row=>[row.index,row.labelY]));
+  const rows=levels.map((pool,index)=>{const yy=y(pool.price),labelY=labelYByIndex.get(index),color=pool.status==='swept'?'#697688':pool.side==='above'?'#d8324c':'#16835d',dash=pool.status==='swept'?'5 7':'',opacity=pool.status==='swept'?.65:.95,width=150+pool.strength*5.8;return '<line x1="210" x2="'+Math.min(830,210+width)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="'+(pool.kind==='cluster'?3:1.6)+'" stroke-dasharray="'+dash+'" opacity="'+opacity+'"/><circle cx="210" cy="'+yy+'" r="'+(pool.kind==='cluster'?4:3)+'" fill="'+color+'" opacity="'+opacity+'"/>'+(Math.abs(labelY-yy)>4?'<path d="M 205 '+yy+' L 195 '+labelY+' L 184 '+labelY+' M 830 '+yy+' L 844 '+labelY+'" fill="none" stroke="'+color+'" stroke-width="1" opacity=".6"/>':'')+'<text x="24" y="'+(labelY+4)+'" fill="'+color+'" font-size="10" opacity="'+opacity+'">'+escHtml(pool.short)+' · '+escHtml(pool.name.slice(0,18))+'</text><text x="872" y="'+(labelY+4)+'" fill="'+color+'" font-size="10" text-anchor="end" opacity="'+opacity+'">'+miFmtPrice(pool.price)+'</text>'}).join('');
+  const cy=y(data.current);svg.innerHTML=rows+'<line class="lq-chart-current-line" x1="18" x2="882" y1="'+cy+'" y2="'+cy+'" stroke-width="2" stroke-dasharray="4 5"/><rect class="lq-chart-current-pill" x="385" y="'+(cy-13)+'" width="130" height="26" rx="6"/><text class="lq-chart-current-text" x="450" y="'+(cy+4)+'" text-anchor="middle">ЦЕНА '+miFmtPrice(data.current)+'</text>';
 }
 function liquidityBuildVRVP(tf){
   const limits={'5m':220,'15m':200,'1h':168,'4h':180,'1d':180},candles=(marketIntelState.candles[tf]||[]).slice(-(limits[tf]||168));if(candles.length<20)return null;
