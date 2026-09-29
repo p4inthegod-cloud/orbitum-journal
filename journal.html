@@ -7087,7 +7087,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <div class="lq-main">
         <article class="lq-card lq-ladder">
           <div class="lq-card-head"><div><span class="lq-card-title">ЦЕНОВАЯ ЛЕСТНИЦА // АКТИВНЫЕ ПУЛЫ</span><small id="lq-chart-caption">уровни относительно текущей цены</small></div><span class="mi-live"><i></i><span id="lq-live-count">0 ПУЛОВ</span></span></div>
-          <div class="lq-chart-wrap"><svg id="lq-chart" viewBox="0 0 900 410" preserveAspectRatio="none" role="img" aria-label="Карта уровней ликвидности"></svg></div>
+          <div class="lq-chart-wrap"><svg id="lq-chart" viewBox="0 0 900 410" preserveAspectRatio="xMinYMin meet" role="img" aria-label="Карта уровней ликвидности"></svg></div>
           <div class="lq-chart-legend"><span><i></i>ЛИКВИДНОСТЬ СНИЗУ</span><span><i></i>ЛИКВИДНОСТЬ СВЕРХУ</span><span><i></i>ТЕКУЩАЯ ЦЕНА</span></div>
         </article>
         <article class="lq-card lq-gravity">
@@ -14227,12 +14227,14 @@ function liquidityRenderChart(data){
   const levels=data.pools.slice(0,12).map(pool=>({pool}));levels.push({current:true,price:data.current});
   levels.sort((a,b)=>(b.pool?.price??b.price)-(a.pool?.price??a.price));
   const top=20,gap=34,height=Math.max(180,top+(levels.length-1)*gap+28);
-  svg.setAttribute('viewBox','0 0 900 '+height);svg.parentElement.style.height=(height+2)+'px';
+  const width=Math.max(740,Math.round(svg.parentElement.clientWidth-2));
+  const trackStart=Math.round(width*.40),trackWidth=width-trackStart-112,priceX=width-30;
+  svg.setAttribute('viewBox','0 0 '+width+' '+height);svg.parentElement.style.height=(height+2)+'px';
   svg.innerHTML=levels.map((row,index)=>{
     const y=top+index*gap,band=y-13;
-    if(row.current)return '<g class="lq-ladder-current"><rect x="12" y="'+band+'" width="876" height="28" rx="11"/><text x="26" y="'+(y+5)+'">ТЕКУЩАЯ ЦЕНА</text><text x="870" y="'+(y+5)+'" text-anchor="end">'+escHtml(miFmtPrice(data.current))+'</text></g>';
-    const pool=row.pool,tone=pool.status==='swept'?'swept':pool.side==='above'?'above':'below',strength=miClamp(Number(pool.strength)||0,0,100),width=Math.round(100+strength*3.2);
-    return '<g class="lq-ladder-row '+tone+'"><title>'+escHtml(pool.name)+' · '+escHtml(miFmtPrice(pool.price))+'</title><rect class="lq-ladder-band" x="12" y="'+band+'" width="876" height="28" rx="11"/><circle cx="28" cy="'+(y+1)+'" r="5"/><text x="44" y="'+(y+5)+'" class="lq-ladder-name">'+escHtml((pool.short+' · '+pool.name).slice(0,34))+'</text><rect class="lq-ladder-track" x="352" y="'+(y-4)+'" width="423" height="10" rx="5"/><rect class="lq-ladder-fill" x="352" y="'+(y-4)+'" width="'+width+'" height="10" rx="5"/><text x="870" y="'+(y+5)+'" text-anchor="end">'+escHtml(miFmtPrice(pool.price))+'</text></g>';
+    if(row.current)return '<g class="lq-ladder-current"><rect x="12" y="'+band+'" width="'+(width-24)+'" height="28" rx="11"/><text x="26" y="'+(y+5)+'">ТЕКУЩАЯ ЦЕНА</text><text x="'+priceX+'" y="'+(y+5)+'" text-anchor="end">'+escHtml(miFmtPrice(data.current))+'</text></g>';
+    const pool=row.pool,tone=pool.status==='swept'?'swept':pool.side==='above'?'above':'below',strength=miClamp(Number(pool.strength)||0,0,100),fillWidth=Math.round((.24+strength*.0072)*trackWidth);
+    return '<g class="lq-ladder-row '+tone+'"><title>'+escHtml(pool.name)+' · '+escHtml(miFmtPrice(pool.price))+'</title><rect class="lq-ladder-band" x="12" y="'+band+'" width="'+(width-24)+'" height="28" rx="11"/><circle cx="28" cy="'+(y+1)+'" r="5"/><text x="44" y="'+(y+5)+'" class="lq-ladder-name">'+escHtml((pool.short+' · '+pool.name).slice(0,34))+'</text><rect class="lq-ladder-track" x="'+trackStart+'" y="'+(y-4)+'" width="'+trackWidth+'" height="10" rx="5"/><rect class="lq-ladder-fill" x="'+trackStart+'" y="'+(y-4)+'" width="'+fillWidth+'" height="10" rx="5"/><text x="'+priceX+'" y="'+(y+5)+'" text-anchor="end">'+escHtml(miFmtPrice(pool.price))+'</text></g>';
   }).join('');
 }
 function liquidityBuildVRVP(tf){
@@ -14274,7 +14276,7 @@ function liquiditySubmit(event){event.preventDefault();liquidityScan(liquidityEl
 function setLiquidityTF(tf,button){liquidityState.tf=tf;document.querySelectorAll('[data-lq-tf]').forEach(btn=>btn.classList.toggle('active',btn===button));renderLiquidityMap()}
 function setLiquidityVRVPTF(tf,button){liquidityState.vrvpTf=tf;document.querySelectorAll('[data-vrvp-tf]').forEach(btn=>btn.classList.toggle('active',btn===button));liquidityRenderVRVP()}
 function openLiquidityAnalytics(){marketIntelState.symbol=liquidityState.symbol;showPage('marketintel',document.querySelector('[data-page="marketintel"]'));selectMarketCoin(liquidityState.symbol);window.scrollTo({top:0,behavior:'smooth'})}
-function initLiquidityMap(){if(!liquidityState.initialized){liquidityState.initialized=true;liquidityScan('BTC');liquidityState.refreshTimer=setInterval(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))liquidityScan(liquidityState.symbol,true)},60000)}else if(marketIntelState.symbol===liquidityState.symbol&&marketIntelState.ticker)renderLiquidityMap();else liquidityScan(liquidityState.symbol)}
+function initLiquidityMap(){if(!liquidityState.initialized){liquidityState.initialized=true;let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))renderLiquidityMap()})});liquidityScan('BTC');liquidityState.refreshTimer=setInterval(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))liquidityScan(liquidityState.symbol,true)},60000)}else if(marketIntelState.symbol===liquidityState.symbol&&marketIntelState.ticker)renderLiquidityMap();else liquidityScan(liquidityState.symbol)}
 
 // ── TRENDLINE ENGINE ─────────────────────────────────────────────
 const trendlineState={symbol:'BTC',tf:'15m',initialized:false,result:null,frames:{},refreshTimer:null,lastNotice:''};
