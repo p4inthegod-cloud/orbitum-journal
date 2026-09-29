@@ -443,3 +443,112 @@ html[data-theme] .bs-action:not(:disabled):hover { filter: brightness(1.08); }
   html[data-theme] .bs-scoreboard-head { display: block; }
   html[data-theme] .bs-scoreboard-head span { display: block; margin-top: 4px; }
 }
+
+/* A small market HUD: vivid signal colors, compact controls and one live focus rail. */
+html[data-theme] {
+  --g: #00a876;
+  --g-bright: #19dca0;
+  --gd: #e4fbf1;
+}
+html[data-theme="dark"] {
+  --g: #45efb1;
+  --g-bright: #45efb1;
+  --gd: #153e34;
+}
+html[data-theme] .ov-pulse article { --stat-accent: var(--a); }
+html[data-theme] .ov-pulse article:nth-child(3) { --stat-accent: var(--g-bright); }
+html[data-theme] .ov-pulse article:has(#ov-change.good),
+html[data-theme] .ov-pulse article:has(#ov-macro-risk.good) { --stat-accent: var(--g-bright); }
+html[data-theme] .ov-pulse article:has(#ov-change.bad),
+html[data-theme] .ov-pulse article:has(#ov-macro-risk.bad),
+html[data-theme] .ov-pulse article:has(#ov-macro-risk.warn) { --stat-accent: var(--r); }
+html[data-theme] .ov-pulse article::before {
+  display: block !important;
+  width: 100%;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+  background: var(--stat-accent);
+  opacity: 1;
+}
+html[data-theme] .ov-focus-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  margin: 0 0 16px;
+  padding: 5px 14px 5px 6px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+    linear-gradient(100deg, var(--a), #a665eb 55%, var(--g-bright)) border-box;
+  box-shadow: 0 4px 13px rgba(41, 56, 96, .09);
+  color: var(--t);
+  text-align: left;
+  cursor: pointer;
+}
+html[data-theme] .ov-focus-pill:hover { box-shadow: 0 6px 16px rgba(41, 56, 96, .15); transform: translateY(-1px); }
+html[data-theme] .ov-focus-pill:focus-visible { outline: 3px solid var(--a); outline-offset: 3px; }
+html[data-theme] .ov-focus-pill.urgent {
+  background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+    linear-gradient(100deg, var(--r), #ed7a73 60%, var(--a)) border-box;
+}
+html[data-theme] .ov-focus-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: var(--a2);
+  color: var(--a);
+  font-size: 18px;
+}
+html[data-theme] .ov-focus-pill.urgent .ov-focus-icon { background: var(--rd); }
+html[data-theme] .ov-focus-label { flex: 0 0 auto; color: var(--a); font-size: 10px; font-weight: 800; letter-spacing: .06em; }
+html[data-theme] .ov-focus-pill.urgent .ov-focus-label { color: var(--r); }
+html[data-theme] .ov-focus-pill strong { overflow: hidden; min-width: 0; color: var(--t); font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+html[data-theme] .ov-focus-count { flex: 0 0 auto; margin-left: auto; padding-left: 8px; color: var(--a); font-size: 12px; font-weight: 800; white-space: nowrap; }
+html[data-theme] .ov-focus-pill.urgent .ov-focus-count { color: var(--r); }
+html[data-theme] .bs-score-ring.good { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--g-bright) 25%, transparent); }
+html[data-theme] .bs-direction.long .bs-dir-bar i { background: var(--g-bright) !important; }
+html[data-theme] .ov-coins button.active { box-shadow: inset 0 0 0 1px var(--a3), 0 3px 10px rgba(56, 97, 237, .10); }
+html[data-theme] .ov-market-filters button.active { font-weight: 800; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html[data-theme] .ov-pulse article,
+  html[data-theme] .ov-focus-pill { transition: transform .18s ease, box-shadow .18s ease; }
+  html[data-theme] .ov-pulse article:hover { transform: translateY(-2px); box-shadow: 0 9px 20px rgba(29, 48, 82, .15) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] .ov-focus-pill:hover { transform: none; }
+}
+@media (max-width: 760px) {
+  html[data-theme] .ov-search { display: grid; grid-template-columns: minmax(0, 1fr) 104px 42px; gap: 7px; }
+  html[data-theme] .ov-search input { grid-column: auto; min-width: 0; }
+  html[data-theme] .ov-search > button:first-of-type { padding: 0 8px; font-size: 11px; }
+  html[data-theme] .ov-search .ov-pin { display: grid; place-items: center; padding: 0; }
+  html[data-theme] .ov-search .ov-pin span,
+  html[data-theme] .ov-search .tg-shot-btn { display: none !important; }
+  html[data-theme] .ov-coins { display: flex; flex-wrap: nowrap; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 4px; scrollbar-width: none; }
+  html[data-theme] .ov-coins::-webkit-scrollbar { display: none; }
+  html[data-theme] .ov-coins button { flex: 0 0 auto; height: 38px; padding: 6px 9px; white-space: nowrap; }
+  html[data-theme] .ov-coins .ov-live-stamp { display: none; }
+  html[data-theme] .ov-page-tabs { gap: 7px; margin: 16px 0; border: 0; }
+  html[data-theme] .ov-page-tabs button { min-height: 34px; padding: 6px 11px; border: 1px solid var(--bd); border-radius: 999px; background: var(--bg-card); font-size: 12px; white-space: nowrap; }
+  html[data-theme] .ov-page-tabs button.active { border-color: var(--a3); background: var(--a2); color: var(--a); }
+  html[data-theme] .ov-focus-pill { gap: 7px; min-height: 44px; padding: 4px 10px 4px 5px; }
+  html[data-theme] .ov-focus-icon { flex-basis: 32px; width: 32px; height: 32px; }
+  html[data-theme] .ov-focus-label { display: none; }
+  html[data-theme] .ov-focus-pill strong { font-size: 12px; }
+  html[data-theme] .ov-market-grid { min-width: 0; table-layout: fixed; }
+  html[data-theme] .ov-market-grid th,
+  html[data-theme] .ov-market-grid td { padding: 9px 7px; font-size: 11px; }
+  html[data-theme] .ov-market-grid th:first-child,
+  html[data-theme] .ov-market-grid td:first-child { width: 22px; padding-right: 2px; }
+  html[data-theme] .ov-market-grid th:nth-child(2) { width: 39%; }
+  html[data-theme] .ov-market-grid th:nth-child(3) { width: 32%; }
+  html[data-theme] .ov-market-asset { gap: 5px; font-size: 11px; }
+  html[data-theme] .ov-market-asset .coin-icon { width: 21px; height: 21px; }
+  html[data-theme] .ov-market-asset small { margin-left: 2px; font-size: 10px; }
+  html[data-theme] .ov-market-change { font-size: 11px; }
+}
