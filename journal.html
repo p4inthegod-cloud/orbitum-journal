@@ -5743,16 +5743,16 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
       <div class="ov-chip-rail" aria-label="Актуальные рыночные сигналы">
         <button type="button" class="ov-focus-pill" id="ov-focus-pill" onclick="overviewJump('ov-context-card',document.querySelector('.ov-page-tabs button:last-child'))" aria-label="Открыть новости и события">
-          <span class="ov-focus-icon" id="ov-focus-icon" aria-hidden="true">✦</span>
+          <span class="ov-focus-icon" id="ov-focus-icon" aria-hidden="true"><img src="assets/icons/calendar.svg" alt=""></span>
           <span class="ov-focus-label" id="ov-focus-label">КАЛЕНДАРЬ</span>
           <strong id="ov-focus-text">Проверяем ближайшие события…</strong>
           <span class="ov-focus-count" id="ov-focus-count" aria-hidden="true">→</span>
         </button>
         <button type="button" class="ov-news-pill" id="ov-news-pill" onclick="overviewJump('ov-context-card',document.querySelector('.ov-page-tabs button:last-child'))" hidden aria-label="Открыть свежую новость">
-          <span class="ov-pill-emoji" aria-hidden="true">📰</span><span class="ov-pill-tag">НОВОСТЬ</span><strong id="ov-news-pill-text">—</strong><span class="ov-pill-arrow" aria-hidden="true">↗</span>
+          <img class="ov-pill-icon" src="assets/icons/news.svg" alt=""><span class="ov-pill-tag">НОВОСТЬ</span><strong id="ov-news-pill-text">—</strong><span class="ov-pill-arrow" aria-hidden="true">↗</span>
         </button>
         <button type="button" class="ov-index-pill" onclick="document.querySelector('.ov-market-card')?.scrollIntoView({behavior:'smooth',block:'start'})" aria-label="Перейти к индексу страха и жадности">
-          <span class="ov-pill-emoji" aria-hidden="true">💠</span><span class="ov-pill-tag">ИНДЕКС</span><strong>Страх и жадность</strong><span class="ov-index-pill-value" id="ov-index-pill-value">—</span>
+          <img class="ov-pill-icon" src="assets/icons/index.svg" alt=""><span class="ov-pill-tag">ИНДЕКС</span><strong>Страх и жадность</strong><span class="ov-index-pill-value" id="ov-index-pill-value">—</span>
         </button>
       </div>
 
@@ -5776,7 +5776,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <div class="ov-main-grid">
         <article class="ov-card ov-market-card">
           <div class="ov-card-head"><div><span class="ov-card-title">Состояние рынка</span><small id="ov-source">рыночные данные</small></div><span class="ov-score" id="ov-score">—/100</span></div>
-          <div class="ov-sentiment" aria-label="Индекс страха и жадности">
+          <div class="ov-status-grid"><div class="ov-sentiment" aria-label="Индекс страха и жадности">
             <div class="ov-sentiment-gauge">
               <span class="ov-gauge-title">Страх и жадность</span>
               <svg viewBox="0 0 210 118" role="img" aria-label="Пять сегментов индекса от страха к жадности">
@@ -5787,6 +5787,11 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
             </div>
             <div class="ov-sentiment-copy"><span>НАСТРОЕНИЕ РЫНКА</span><strong id="ov-sentiment-label">Ожидаем индекс</strong><small>Индекс страха и жадности · 0–100</small></div>
           </div>
+          <div class="ov-altseason" aria-label="Доля отслеживаемых альткоинов, опередивших Bitcoin за 24 часа">
+            <span class="ov-altseason-title">Альтсезон · выборка</span><strong id="ov-altseason-value">—</strong>
+            <div class="ov-altseason-track"><i id="ov-altseason-marker"></i></div>
+            <small id="ov-altseason-copy">Ожидаем котировки ETH, SOL, BNB и XRP</small>
+          </div></div>
           <div class="ov-market-hero">
             <div class="ov-bias">
               <span>БАЛАНС СИЛ</span>
@@ -7047,6 +7052,12 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           <div class="lq-current-node">ЦЕНА</div>
           <div class="lq-target below"><span>БЛИЖАЙШАЯ ЛИКВИДНОСТЬ СНИЗУ</span><strong id="lq-below-price">—</strong><p id="lq-below-name">Сканирование</p><small id="lq-below-distance">—</small></div>
         </article>
+      </div>
+
+      <div class="lq-insight-rail" aria-label="Ориентиры карты ликвидности">
+        <div class="lq-insight-pill price"><img src="assets/icons/index.svg" alt=""><span>ЦЕНА</span><strong id="lq-insight-price">—</strong></div>
+        <div class="lq-insight-pill magnet"><img src="assets/icons/liquidity.svg" alt=""><span>БЛИЖАЙШИЙ ПУЛ</span><strong id="lq-insight-pool">Сканирование</strong></div>
+        <div class="lq-insight-pill route"><img src="assets/icons/calendar.svg" alt=""><span>ФОКУС</span><strong id="lq-insight-focus">Ждать карту</strong></div>
       </div>
 
       <div class="lq-main">
@@ -14193,15 +14204,17 @@ function liquidityBuild(){
 }
 function liquidityDistance(pool){return pool?pool.distancePct.toFixed(2)+'% · '+pool.distanceAtr.toFixed(2)+' ATR':'НЕТ АКТИВНОГО УРОВНЯ'}
 function liquidityRenderChart(data){
-  const svg=liquidityEl('lq-chart');if(!svg)return;const levels=data.pools.slice(0,12),values=levels.map(x=>x.price).concat(data.current),min=Math.min(...values),max=Math.max(...values),pad=Math.max((max-min)*.08,data.atr*.35),lo=min-pad,hi=max+pad,w=900,h=410,y=value=>30+(hi-value)/(hi-lo)*(h-60);
-  // Keep the line at its real price. Only labels move when nearby pools collide.
-  const labelRows=levels.map((pool,index)=>({index,rawY:y(pool.price)})).sort((a,b)=>a.rawY-b.rawY);
-  const labelGap=27,top=30,bottom=380;
-  labelRows.forEach((row,index)=>{row.labelY=Math.max(row.rawY,index?labelRows[index-1].labelY+labelGap:top)});
-  if(labelRows.length&&labelRows.at(-1).labelY>bottom){labelRows.at(-1).labelY=bottom;for(let index=labelRows.length-2;index>=0;index--)labelRows[index].labelY=Math.min(labelRows[index].labelY,labelRows[index+1].labelY-labelGap)}
-  const labelYByIndex=new Map(labelRows.map(row=>[row.index,row.labelY]));
-  const rows=levels.map((pool,index)=>{const yy=y(pool.price),labelY=labelYByIndex.get(index),color=pool.status==='swept'?'#697688':pool.side==='above'?'#d8324c':'#16835d',dash=pool.status==='swept'?'5 7':'',opacity=pool.status==='swept'?.65:.95,width=150+pool.strength*5.8;return '<line x1="210" x2="'+Math.min(830,210+width)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="'+(pool.kind==='cluster'?3:1.6)+'" stroke-dasharray="'+dash+'" opacity="'+opacity+'"/><circle cx="210" cy="'+yy+'" r="'+(pool.kind==='cluster'?4:3)+'" fill="'+color+'" opacity="'+opacity+'"/>'+(Math.abs(labelY-yy)>4?'<path d="M 205 '+yy+' L 195 '+labelY+' L 184 '+labelY+' M 830 '+yy+' L 844 '+labelY+'" fill="none" stroke="'+color+'" stroke-width="1" opacity=".6"/>':'')+'<text x="24" y="'+(labelY+4)+'" fill="'+color+'" font-size="10" opacity="'+opacity+'">'+escHtml(pool.short)+' · '+escHtml(pool.name.slice(0,18))+'</text><text x="872" y="'+(labelY+4)+'" fill="'+color+'" font-size="10" text-anchor="end" opacity="'+opacity+'">'+miFmtPrice(pool.price)+'</text>'}).join('');
-  const cy=y(data.current);svg.innerHTML=rows+'<line class="lq-chart-current-line" x1="18" x2="882" y1="'+cy+'" y2="'+cy+'" stroke-width="2" stroke-dasharray="4 5"/><rect class="lq-chart-current-pill" x="385" y="'+(cy-13)+'" width="130" height="26" rx="6"/><text class="lq-chart-current-text" x="450" y="'+(cy+4)+'" text-anchor="middle">ЦЕНА '+miFmtPrice(data.current)+'</text>';
+  const svg=liquidityEl('lq-chart');if(!svg)return;
+  const levels=data.pools.slice(0,12).map(pool=>({pool}));levels.push({current:true,price:data.current});
+  levels.sort((a,b)=>(b.pool?.price??b.price)-(a.pool?.price??a.price));
+  const top=17,gap=29.3,height=Math.max(180,top+(levels.length-1)*gap+24);
+  svg.setAttribute('viewBox','0 0 900 '+height);svg.parentElement.style.height=(height+2)+'px';
+  svg.innerHTML=levels.map((row,index)=>{
+    const y=top+index*gap,band=y-11;
+    if(row.current)return '<g class="lq-ladder-current"><rect x="12" y="'+band+'" width="876" height="25" rx="7"/><text x="24" y="'+(y+5)+'">ТЕКУЩАЯ ЦЕНА</text><text x="870" y="'+(y+5)+'" text-anchor="end">'+escHtml(miFmtPrice(data.current))+'</text></g>';
+    const pool=row.pool,tone=pool.status==='swept'?'swept':pool.side==='above'?'above':'below',strength=miClamp(Number(pool.strength)||0,0,100),width=Math.round(100+strength*3.2);
+    return '<g class="lq-ladder-row '+tone+'"><title>'+escHtml(pool.name)+' · '+escHtml(miFmtPrice(pool.price))+'</title><rect class="lq-ladder-band" x="12" y="'+band+'" width="876" height="25" rx="7"/><circle cx="26" cy="'+(y+1)+'" r="4"/><text x="40" y="'+(y+5)+'" class="lq-ladder-name">'+escHtml((pool.short+' · '+pool.name).slice(0,34))+'</text><rect class="lq-ladder-track" x="352" y="'+(y-3)+'" width="423" height="8" rx="4"/><rect class="lq-ladder-fill" x="352" y="'+(y-3)+'" width="'+width+'" height="8" rx="4"/><text x="870" y="'+(y+5)+'" text-anchor="end">'+escHtml(miFmtPrice(pool.price))+'</text></g>';
+  }).join('');
 }
 function liquidityBuildVRVP(tf){
   const limits={'5m':220,'15m':200,'1h':168,'4h':180,'1d':180},candles=(marketIntelState.candles[tf]||[]).slice(-(limits[tf]||168));if(candles.length<20)return null;
@@ -14226,7 +14239,8 @@ function renderLiquidityMap(){
   if(!marketIntelState.ticker||!marketIntelState.candles[liquidityState.tf]?.length)return;const data=liquidityBuild();liquidityState.pools=data.pools;const change=Number(marketIntelState.ticker.changePct);
   battleSet('lq-symbol',liquidityState.symbol+' / USDT · ТЕКУЩАЯ ЦЕНА');battleSet('lq-price',miFmtPrice(data.current));battleSet('lq-change',(change>=0?'+':'')+change.toFixed(2)+'% ЗА 24 ЧАСА',change>=0?'good':'bad');battleSet('lq-source',marketIntelState.source);battleSet('lq-atr','ATR 1Ч '+miFmtPrice(data.atr));
   battleSet('lq-above-price',data.nearestAbove?miFmtPrice(data.nearestAbove.price):'—');battleSet('lq-above-name',data.nearestAbove?data.nearestAbove.name:'Активных пулов сверху нет');battleSet('lq-above-distance',liquidityDistance(data.nearestAbove));battleSet('lq-below-price',data.nearestBelow?miFmtPrice(data.nearestBelow.price):'—');battleSet('lq-below-name',data.nearestBelow?data.nearestBelow.name:'Активных пулов снизу нет');battleSet('lq-below-distance',liquidityDistance(data.nearestBelow));
-  battleSet('lq-live-count',data.active.length+' ПУЛОВ');battleSet('lq-chart-caption',MI_TF_LABELS[liquidityState.tf]+' · '+data.pools.length+' уровней · снятые показаны пунктиром');liquidityRenderChart(data);liquidityRenderVRVP();
+  battleSet('lq-insight-price',miFmtPrice(data.current));const nearest=[data.nearestAbove,data.nearestBelow].filter(Boolean).sort((a,b)=>a.distanceAtr-b.distanceAtr)[0];battleSet('lq-insight-pool',nearest?nearest.short+' · '+miFmtPrice(nearest.price):'Нет активных пулов');battleSet('lq-insight-focus',data.gravity);
+  battleSet('lq-live-count',data.active.length+' ПУЛОВ');battleSet('lq-chart-caption',MI_TF_LABELS[liquidityState.tf]+' · уровни по цене · длина полосы показывает силу · снятые уровни серые');liquidityRenderChart(data);liquidityRenderVRVP();
   battleSet('lq-gravity-code',data.gravity,data.tone);const code=liquidityEl('lq-gravity-code');if(code)code.style.color=data.tone==='bad'?'var(--r)':'var(--g)';battleSet('lq-gravity-copy',data.copy);battleSet('lq-upper-force',data.upperForce.toFixed(0));battleSet('lq-lower-force',data.lowerForce.toFixed(0));const dot=liquidityEl('lq-gravity-dot');if(dot)dot.style.background=data.tone==='bad'?'var(--r)':'var(--g)';
   const first=data.upperForce>=data.lowerForce?data.nearestAbove:data.nearestBelow,second=data.upperForce>=data.lowerForce?data.nearestBelow:data.nearestAbove;liquidityEl('lq-route').innerHTML=[first?'Первая цель: '+first.name+' · '+miFmtPrice(first.price)+'.':'Ближайшая цель не сформирована.',second?'Альтернативная цель: '+second.name+' · '+miFmtPrice(second.price)+'.':'Обратный уровень не сформирован.','После снятия уровня жди возврат или закрепление — сам прокол не является входом.'].map((x,i)=>'<div><b>'+(i+1)+'</b><span>'+escHtml(x)+'</span></div>').join('');
   liquidityEl('lq-pool-table').innerHTML=data.pools.length?data.pools.map(x=>liquidityPoolRow(x,data.current)).join(''):'<tr><td colspan="6">Уровни не найдены.</td></tr>';
@@ -14658,12 +14672,21 @@ function overviewMarketScheduleRender(){if(overviewState.marketRenderTimer||!ove
 function overviewRenderMarketTable(){
   const body=overviewEl('ov-market-body');if(!body)return;
   const names={BTC:'Bitcoin',ETH:'Ethereum',SOL:'Solana',BNB:'BNB',XRP:'XRP'},symbols=Object.keys(names);
+  overviewRenderAltseason();
   const rows=symbols.map((symbol,index)=>{const feed=tickerData[symbol]||{},fallback=marketIntelState.symbol===symbol?marketIntelState.ticker:null,useSnapshot=symbol===overviewState.symbol&&fallback&&Number.isFinite(Number(fallback.price)),feedPrice=Number(feed.price),price=useSnapshot?Number(fallback.price):Number.isFinite(feedPrice)&&feedPrice>0?feedPrice:Number(fallback?.price),feedChange=feed.chg==null?NaN:Number(feed.chg),change=useSnapshot&&fallback.changePct!=null?Number(fallback.changePct):Number.isFinite(feedChange)?feedChange:fallback?.changePct==null?NaN:Number(fallback.changePct);return {symbol,index,price,change}})
     .filter(row=>overviewState.marketFilter==='all'||Number.isFinite(row.change)&&(overviewState.marketFilter==='up'?row.change>=0:row.change<0));
   body.innerHTML=rows.length?rows.map(row=>{
     const quoted=Number.isFinite(row.price)&&row.price>0,changed=Number.isFinite(row.change),tone=changed?(row.change>0?'good':row.change<0?'bad':''):'',selected=row.symbol===overviewState.symbol;
     return '<tr'+(selected?' class="selected"':'')+'><td class="ov-market-rank">'+(row.index+1)+'</td><td><button type="button" class="ov-market-asset" onclick="overviewSelectSymbol(\''+row.symbol+'\',this)" aria-label="Показать обзор '+names[row.symbol]+'" aria-current="'+(selected?'true':'false')+'"><img class="coin-icon" src="assets/coins/'+row.symbol.toLowerCase()+'.svg" width="26" height="26" alt=""><span>'+names[row.symbol]+' <small>'+row.symbol+'</small></span></button></td><td class="numeric ov-market-price">'+(quoted?miFmtPrice(row.price):'—')+'</td><td class="numeric"><span class="ov-market-change '+tone+'" aria-label="'+(changed?(row.change>0?'Рост ':row.change<0?'Снижение ':'Без изменения ')+overviewChangeLabel(row.change):'Изменение недоступно')+'">'+(changed?overviewChangeLabel(row.change):'—')+'</span></td></tr>';
   }).join(''):'<tr><td colspan="4" class="ov-market-empty">Для этого фильтра пока нет монет с доступными котировками.</td></tr>';
+}
+function overviewRenderAltseason(){
+  const value=overviewEl('ov-altseason-value'),copy=overviewEl('ov-altseason-copy'),marker=overviewEl('ov-altseason-marker');if(!value||!copy||!marker)return;
+  const change=symbol=>{const feed=tickerData[symbol],number=feed?.chg==null?NaN:Number(feed.chg);return Number.isFinite(number)?number:symbol===marketIntelState.symbol?Number(marketIntelState.ticker?.changePct):NaN};
+  const btc=change('BTC'),alts=['ETH','SOL','BNB','XRP'].map(change).filter(Number.isFinite);
+  if(!Number.isFinite(btc)||!alts.length){value.textContent='—';copy.textContent='Ожидаем котировки ETH, SOL, BNB и XRP';marker.hidden=true;return}
+  const stronger=alts.filter(number=>number>btc).length,score=Math.round(stronger/alts.length*100);
+  value.textContent=score+'%';copy.textContent=stronger+' из '+alts.length+' альткоинов опережают BTC за 24 ч';marker.hidden=false;marker.style.left=score+'%';
 }
 function overviewRestorePin(){try{const symbol=miCleanSymbol(localStorage.getItem('et_overview_pinned_symbol')||'');if(symbol){overviewState.pinnedSymbol=symbol;overviewState.symbol=symbol}}catch(e){}}
 function overviewSyncControls(){const symbol=overviewState.symbol,input=overviewEl('ov-symbol-input'),pin=overviewEl('ov-pin-btn'),active=overviewState.pinnedSymbol===symbol;if(input)input.value=symbol;document.querySelectorAll('[data-ov-symbol]').forEach(btn=>btn.classList.toggle('active',btn.dataset.ovSymbol===symbol));if(pin){pin.classList.toggle('active',active);pin.setAttribute('aria-pressed',String(active));const copy=pin.querySelector('span');if(copy)copy.textContent=active?'ЗАКРЕПЛЕНО':'ЗАКРЕПИТЬ'}overviewRenderMarketTable()}
@@ -14676,7 +14699,7 @@ function overviewRenderNews(){const box=overviewEl('ov-news-list');if(!box)retur
 function overviewRenderFocus(macro){
   const pill=overviewEl('ov-focus-pill'),newsPill=overviewEl('ov-news-pill'),event=macro.nextHigh,minutes=macro.highMinutes,urgent=Boolean(event&&minutes<=60),news=overviewState.news[0];if(!pill)return;
   pill.classList.toggle('urgent',urgent);pill.classList.toggle('scheduled',Boolean(event&&!urgent));
-  overviewSet('ov-focus-icon',urgent?'🔥':event?'🗓️':'✅');
+  const focusIcon=overviewEl('ov-focus-icon')?.querySelector('img');if(focusIcon)focusIcon.src=urgent?'assets/icons/flame.svg':'assets/icons/calendar.svg';
   overviewSet('ov-focus-text',event?event.country+' · '+event.title:'Важных событий в ближайшие 48 часов нет');
   overviewSet('ov-focus-count',event?environmentCountdown(Math.max(0,minutes)):'→');
   overviewSet('ov-focus-label',urgent?'СКОРОЕ СОБЫТИЕ':'КАЛЕНДАРЬ');
