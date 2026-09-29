@@ -5542,6 +5542,34 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
 <!-- TOPBAR (desktop) -->
 <div class="jnl-topbar" id="jnl-topbar">
+  <a class="top-brand" href="/" aria-label="ANDROMEDA — на главную">/𝗔𝗡𝗗𝗥𝗢𝗠𝗘𝗗𝗔\</a>
+  <nav class="top-nav" aria-label="Разделы ANDROMEDA">
+    <button type="button" class="top-nav-link active" data-page="overview" onclick="showPage('overview',this)">Обзор</button>
+    <button type="button" class="top-nav-link" data-page="journal" onclick="showPage('journal',this)">Журнал</button>
+    <button type="button" class="top-nav-link" data-page="battle" onclick="showPage('battle',this)">Анализ решений</button>
+    <details class="top-nav-group"><summary>Рынок <span aria-hidden="true">⌄</span></summary><div class="top-nav-menu">
+      <button type="button" data-page="liquidity" onclick="showPage('liquidity',this)">Карта ликвидности</button>
+      <button type="button" data-page="watchtower" onclick="showPage('watchtower',this)">Слежка</button>
+      <button type="button" data-page="trendline" onclick="showPage('trendline',this)">Трендовая линия</button>
+      <button type="button" data-page="elliott" onclick="showPage('elliott',this)">Волны Эллиотта</button>
+      <button type="button" data-page="premarket" onclick="showPage('premarket',this)">Radar</button>
+      <button type="button" data-page="marketintel" onclick="showPage('marketintel',this)">Аналитика BTC</button>
+    </div></details>
+    <details class="top-nav-group"><summary>Аналитика <span aria-hidden="true">⌄</span></summary><div class="top-nav-menu">
+      <button type="button" data-page="dashboard" onclick="showPage('dashboard',this)">EDGE</button>
+      <button type="button" data-page="progress" onclick="showPage('progress',this)">Разбор</button>
+      <button type="button" data-page="digest" onclick="showPage('digest',this)">Неделя</button>
+      <button type="button" data-page="library" onclick="showPage('library',this)">Библиотека</button>
+    </div></details>
+    <details class="top-nav-group"><summary>Сервисы <span aria-hidden="true">⌄</span></summary><div class="top-nav-menu top-nav-menu-end">
+      <button type="button" data-page="coach" onclick="showPage('coach',this)">AI Coach</button>
+      <button type="button" data-page="aichat" onclick="showPage('aichat',this)">AI чат</button>
+      <button type="button" data-page="settings" onclick="showPage('settings',this)">Настройки</button>
+      <a href="screener.html" target="_blank" rel="noopener">Скринер ↗</a>
+      <a href="profile.html">Мой профиль ↗</a>
+      <a href="admin.html" id="topnav-admin" style="display:none">Админ ↗</a>
+    </div></details>
+  </nav>
   <div class="jtb-dot"></div>
   <span class="jtb-badge" id="jtb-page-badge">ТЕРМИНАЛ // ОБЗОР</span>
   <!-- SA SCORE widget -->
@@ -8080,6 +8108,9 @@ function etDialogCancel(){etDialogFinish(false);}
 function etDialogConfirm(){if(!etDialogState)return;const inputs=[...document.querySelectorAll('#et-dialog-fields [data-et-field]')];if(inputs.length){const values={};inputs.forEach(el=>values[el.dataset.etField]=el.value);etDialogFinish(values);}else etDialogFinish(true);}
 function etConfirm(options){return etDialog(options);}
 document.addEventListener('keydown',event=>{if(!document.getElementById('et-dialog')?.classList.contains('open'))return;if(event.key==='Escape')etDialogCancel();if(event.key==='Enter'&&event.target.tagName!=='TEXTAREA')etDialogConfirm();});
+document.querySelectorAll('.top-nav-group').forEach(group=>group.addEventListener('toggle',()=>{if(group.open)document.querySelectorAll('.top-nav-group').forEach(other=>{if(other!==group)other.open=false});}));
+document.addEventListener('click',event=>{if(!event.target.closest('.top-nav-group'))document.querySelectorAll('.top-nav-group[open]').forEach(group=>group.open=false);});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')document.querySelectorAll('.top-nav-group[open]').forEach(group=>{group.open=false;group.querySelector('summary')?.focus();});});
 function showPage(p,btn){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   var pg=document.getElementById('page-'+p);
@@ -8088,6 +8119,8 @@ function showPage(p,btn){
   document.body.classList.toggle('overview-page-active',p==='overview');
 
   document.querySelectorAll('.sb-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
+  document.querySelectorAll('.top-nav [data-page]').forEach(function(b){const active=b.dataset.page===p;b.classList.toggle('active',active);if(b.tagName==='BUTTON')b.setAttribute('aria-current',active?'page':'false');});
+  document.querySelectorAll('.top-nav-group[open]').forEach(group=>group.open=false);
   document.querySelectorAll('.sb-nav-group').forEach(group=>{group.open=Boolean(group.querySelector('.sb-item.active'));});
   document.querySelectorAll('.tnav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.jtb-nav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
@@ -8145,8 +8178,9 @@ function applyFeatureAccess(features){
     const hasSection = features.includes(s.key);
 
     // Sidebar nav button
-    const sbBtn = document.querySelector(`.sb-item[data-page="${s.sbPage}"]`);
-    if(sbBtn) sbBtn.style.display = hasSection ? '' : 'none';
+     const sbBtn = document.querySelector(`.sb-item[data-page="${s.sbPage}"]`);
+     if(sbBtn) sbBtn.style.display = hasSection ? '' : 'none';
+     document.querySelectorAll(`.top-nav [data-page="${s.sbPage}"]`).forEach(btn=>btn.style.display=hasSection?'':'none');
 
     // Top tab nav (inside journal page)
     if(s.navPage){
@@ -8216,7 +8250,7 @@ async function init(){
   const jtbNm=document.getElementById('jtb-name');
   if(jtbAv)jtbAv.textContent=initLetter;
   if(jtbNm)jtbNm.textContent=displayName.split(' ')[0].toUpperCase();
-  if(p.role==='admin'){const a=document.getElementById('snav-admin');if(a)a.style.display='flex';}
+  if(p.role==='admin'){const a=document.getElementById('snav-admin');if(a)a.style.display='flex';const topAdmin=document.getElementById('topnav-admin');if(topAdmin)topAdmin.style.display='block';}
   
   // Free tier: first 10 trades fully functional, then upgrade prompt
   window._userPlan = p.plan;

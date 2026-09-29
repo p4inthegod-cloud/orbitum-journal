@@ -787,3 +787,77 @@ html[data-theme] .lq-vrvp-chart svg [stroke="#ff5c6c"] { stroke: var(--r); }
   html[data-theme] .ov-metrics { grid-template-columns: 1fr 1fr; }
   html[data-theme] .ov-levels { grid-template-columns: 1fr; }
 }
+
+/* Full-width market-style navigation replaces the left rail. */
+html[data-theme] { --sb: 0px; }
+html[data-theme] :is(.sidebar,.sb-overlay,.mob-bar,.mob-bottom-nav) { display: none !important; }
+html[data-theme] .main { margin-left: 0 !important; }
+html[data-theme] .jnl-topbar {
+  display: grid !important;
+  grid-template-columns: max-content minmax(0,1fr) max-content;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  height: 64px;
+  margin-left: 0 !important;
+  padding: 0 26px;
+  overflow: visible;
+  z-index: 400;
+  background: var(--bg-card) !important;
+  box-shadow: 0 1px 0 var(--bd) !important;
+}
+html[data-theme] .jnl-topbar :is(.jtb-dot,#jtb-page-badge,#j-sa-widget,.jtb-sep-v),
+html[data-theme] .jnl-topbar > div[style*="flex:1"] { display: none !important; }
+html[data-theme] .top-brand { color: var(--t); font-size: 17px; font-weight: 850; letter-spacing: -.02em; text-decoration: none; white-space: nowrap; }
+html[data-theme] .top-brand:hover { color: var(--a); }
+html[data-theme] .top-nav { display: flex; align-items: center; justify-content: flex-start; gap: 4px; min-width: 0; height: 100%; }
+html[data-theme] .top-nav > .top-nav-link,
+html[data-theme] .top-nav-group > summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--t);
+  font: 750 13px/1.25 var(--font-body);
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+}
+html[data-theme] .top-nav-group > summary::-webkit-details-marker { display: none; }
+html[data-theme] .top-nav-group > summary span { color: var(--m); font-size: 15px; line-height: 1; }
+html[data-theme] .top-nav > .top-nav-link:hover,
+html[data-theme] .top-nav-group > summary:hover,
+html[data-theme] .top-nav-group[open] > summary { background: var(--bg-card2); color: var(--a); }
+html[data-theme] .top-nav > .top-nav-link.active,
+html[data-theme] .top-nav-group:has(.active) > summary { color: var(--a); box-shadow: inset 0 -3px var(--a); border-radius: 0; }
+html[data-theme] .top-nav :is(button,summary,a):focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
+html[data-theme] .top-nav-group { position: relative; flex: 0 0 auto; }
+html[data-theme] .top-nav-menu { position: absolute; top: calc(100% + 9px); left: 0; display: grid; gap: 3px; min-width: 215px; padding: 8px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg-card); box-shadow: 0 16px 35px rgba(31,48,82,.2); z-index: 450; }
+html[data-theme] .top-nav-menu-end { right: 0; left: auto; }
+html[data-theme] .top-nav-menu > :is(button,a) { display: block; width: 100%; min-height: 37px; padding: 9px 11px; border: 0; border-radius: 7px; background: transparent; color: var(--t); font: 650 12px/1.3 var(--font-body); text-align: left; text-decoration: none; white-space: nowrap; cursor: pointer; }
+html[data-theme] .top-nav-menu > :is(button,a):hover,
+html[data-theme] .top-nav-menu > .active { background: var(--a2); color: var(--a); }
+html[data-theme] .jnl-topbar .jtb-right { justify-content: flex-end; margin-left: 0; }
+@media (max-width: 1250px) {
+  html[data-theme] .jnl-topbar { grid-template-columns: minmax(0,1fr) max-content; grid-template-rows: 56px minmax(46px,auto); height: auto; gap: 0 12px; padding: 0 20px 5px; }
+  html[data-theme] .top-nav { grid-column: 1 / -1; grid-row: 2; }
+  html[data-theme] .jnl-topbar .jtb-right { grid-column: 2; grid-row: 1; }
+}
+@media (max-width: 768px) {
+  html[data-theme] .jnl-topbar { position: sticky; top: 0; grid-template-rows: 54px auto; padding: 0 12px 7px; }
+  html[data-theme] .top-brand { font-size: 15px; }
+  html[data-theme] .top-nav { flex-wrap: wrap; align-content: center; gap: 0 2px; }
+  html[data-theme] .top-nav > .top-nav-link,
+  html[data-theme] .top-nav-group > summary { min-height: 36px; padding: 7px 9px; font-size: 11.5px; }
+  html[data-theme] .top-nav-menu { top: calc(100% + 3px); min-width: 190px; max-width: calc(100vw - 24px); }
+  html[data-theme] .top-nav-group:nth-child(4) .top-nav-menu,
+  html[data-theme] .top-nav-group:last-child .top-nav-menu { right: 0; left: auto; }
+  html[data-theme] .jnl-topbar .theme-label { display: none; }
+  html[data-theme] .jnl-topbar .journal-theme-toggle { min-width: 36px; padding: 5px 9px; }
+  html[data-theme] .main { padding-bottom: 38px !important; }
+}
