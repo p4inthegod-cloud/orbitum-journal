@@ -16,21 +16,6 @@ if(typeof supabase==='undefined'){
   var s1=document.createElement('script');s1.src='https://unpkg.com/@supabase/supabase-js@2';document.head.appendChild(s1);
 }
 </script>
-<script>
-// Show user-friendly error if Supabase still not loaded after 5s
-setTimeout(function(){
-  if(typeof supabase==='undefined'){
-    var msg=document.createElement('div');
-    msg.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#161616;border-bottom:2px solid #ff3923;padding:14px 20px;font-family:monospace;font-size:12px;color:#ffaa60;text-align:center;';
-    msg.innerHTML='⚠️ Браузер блокирует загрузку скриптов (Tracking Prevention). <b>Отключи блокировку для этого сайта</b> или используй Chrome/Firefox. <a href="https://ai-orbitum.vercel.app/journal" style="color:#ff3923;margin-left:8px">Перезагрузить →</a>';
-    document.body.insertBefore(msg,document.body.firstChild);
-    // Hide skeletons
-    document.querySelectorAll('.sk,.sk-tcard').forEach(function(el){el.style.display='none';});
-    var sl=document.getElementById('trades-list');
-    if(sl)sl.innerHTML='<div style="text-align:center;padding:40px;font-family:monospace;font-size:11px;color:rgba(255,255,255,0.4)">⚠️ Скрипты заблокированы браузером.<br>Отключи Tracking Prevention для этого сайта.</div>';
-  }
-},5000);
-</script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
    ORBITUM THEME SYSTEM v3 — 4 themes only
@@ -5890,9 +5875,10 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <button class="tnav" onclick="showPage('marketintel',this)" data-page="marketintel"><span class="emoji-glyph ui-emoji" aria-hidden="true">📈</span>АНАЛИТИКА BTC</button>
     </div>
     <div class="fcard" id="add-trade-form">
-      <div class="fcard-title">Новая сделка</div><p class="form-intro">Укажите параметры сделки, проверьте риск и сохраните результат в журнал.</p>
+      <div class="trade-form-heading"><div><div class="fcard-title">Новая сделка</div><p class="form-intro">Заполните основные параметры, проверьте риск и сохраните результат.</p></div><span class="trade-form-badge"><span class="emoji-glyph ui-emoji" aria-hidden="true">📝</span> Журнал</span></div>
 
       <!-- ROW 1: Pair + Direction + Result -->
+      <div class="trade-form-group trade-form-basics">
       <div class="fg3" style="margin-bottom:12px">
         <div class="field field-key">
           <label for="f-pair">Пара <span class="field-hint" data-tip="Торговая пара.&#10;Пример: BTC/USDT, ETH/BTC&#10;Пиши как привык на бирже">?</span></label>
@@ -5929,7 +5915,9 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           </div>
         </div>
       </div>
+      </div>
 
+      <div class="trade-form-group">
       <h3 class="form-section-title">Размер позиции и результат</h3>
 <!-- ROW 2: Deposit + Leverage | Risk% + PnL% -->
       <div class="fg2" style="margin-bottom:6px">
@@ -5959,7 +5947,9 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           <input id="f-pnl" type="number" placeholder="авто" step="0.01" oninput="fromPct()">
         </div>
       </div>
+      </div>
 
+      <div class="trade-form-group">
       <h3 class="form-section-title">Цены и управление риском</h3>
 <!-- ROW 3: Entry + Stop | Take + P&L $ -->
       <div class="fg2" style="margin-bottom:6px">
@@ -5984,28 +5974,30 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       </div>
 
       <!-- RR + Risk $ display bar -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+      <div class="trade-risk-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+        <div class="trade-risk-item" style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
           <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">R:R</span>
           <div class="rr-display" id="rr-val" style="font-size:14px;">—</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+        <div class="trade-risk-item" style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
           <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">РИСК $</span>
           <div style="font-family:var(--font-mono);font-size:14px;color:var(--r);" id="risk-usd-val">—</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+        <div class="trade-risk-item" style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
           <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">ЦЕЛЬ $</span>
           <div style="font-family:var(--font-mono);font-size:14px;color:var(--g);" id="tp-usd-val">—</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+        <div class="trade-risk-item" style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:6px 10px;border-radius:7px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
           <span style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:1px;">ПОЗИЦИЯ $</span>
           <div style="font-family:var(--font-mono);font-size:14px;color:var(--a);" id="pos-size-val">—</div>
         </div>
       </div>
+      </div>
 
       <!-- Setup type buttons -->
+      <div class="trade-form-group trade-form-setup">
       <div style="margin-bottom:4px">
-        <div style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">Тип сетапа <span class="field-hint" data-tip="Выбери паттерн по которому вошёл.&#10;FVG — Fair Value Gap&#10;Order Block — зона крупного игрока&#10;Liquidity Sweep — снятие ликвидности&#10;S/R Level — уровень поддержки/сопротивления&#10;Breakout — пробой уровня">?</span></div>
+        <div class="trade-setup-title" style="font-family:var(--font-mono);font-size:11px;color:var(--m);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">Тип сетапа <span class="field-hint" data-tip="Выбери паттерн по которому вошёл.&#10;FVG — Fair Value Gap&#10;Order Block — зона крупного игрока&#10;Liquidity Sweep — снятие ликвидности&#10;S/R Level — уровень поддержки/сопротивления&#10;Breakout — пробой уровня">?</span></div>
         <div class="setup-btns" id="setup-btns">
           <button class="setup-btn sb-fvg" onclick="setSetup('FVG',this)">FVG</button>
           <button class="setup-btn sb-ob" onclick="setSetup('OB',this)">Ордер-блок</button>
@@ -6015,6 +6007,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           <button class="setup-btn sb-wy" onclick="setSetup('Wyckoff',this)">Вайкофф</button>
           <button class="setup-btn sb-other" onclick="setSetup('Other',this)">Другое</button>
         </div>
+      </div>
       </div>
 
       <details class="trade-details" id="trade-details">
@@ -6110,7 +6103,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
     </div>
     <aside class="history-rail" aria-label="История сделок">
     <div class="list-head">
-      <div class="list-title">История</div>
+      <div class="history-heading"><div class="list-title">История сделок</div><span id="history-count" class="history-count">Загрузка…</span></div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="filters">
           <button class="fbtn active" onclick="setF('all',this)">Все</button>
@@ -8014,10 +8007,36 @@ const ORBITUM_PERSONAL_MODE=true;
 if(typeof supabase==='undefined'&&new URLSearchParams(location.search).get('demo')==='1'){
   window.supabase={createClient:function(){return {auth:{},from:function(){return {};},channel:function(){return {on:function(){return this;},subscribe:function(){}};}};}};
 }
-const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+// The fallback CDN loads asynchronously. Instantiate only after it is ready.
+let sb=null;
 let currentUser=null, allTrades=[], currentFilter='all', currentDir='long';
+let journalAuthReady=false;
 let balanceStart=1000, balancePopupOpen=false, goalPopupOpen=false;
+
+function journalWithTimeout(task,ms){
+  let timer;
+  return Promise.race([task,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Истекло время ожидания')),ms);})]).finally(()=>clearTimeout(timer));
+}
+function journalHistoryError(message){
+  hideStatSkeletons();
+  const count=document.getElementById('history-count');
+  if(count)count.textContent='Ошибка загрузки';
+  const list=document.getElementById('trades-list');
+  if(!list)return;
+  list.innerHTML='<div class="history-load-error" role="alert"><span class="emoji-glyph ui-emoji" aria-hidden="true">📝</span><strong>История пока недоступна</strong><p>'+escHtml(message)+'</p><button type="button" onclick="retryJournalHistory()">Повторить загрузку</button></div>';
+}
+function retryJournalHistory(){
+  const list=document.getElementById('trades-list');
+  const count=document.getElementById('history-count');
+  if(count)count.textContent='Загрузка…';
+  if(list)list.innerHTML='<div class="history-loading-inline" role="status">Загружаем историю сделок…</div>';
+  if(!sb||!journalAuthReady)waitForSupabaseAndInit(0);
+  else loadTrades();
+}
+function journalTradeCountLabel(count){
+  const lastTwo=count%100,last=count%10;
+  return count+' '+(lastTwo>=11&&lastTwo<=14?'сделок':last===1?'сделка':last>=2&&last<=4?'сделки':'сделок');
+}
 
 // ─── SIDEBAR ─────────────────────────────────────
 function openSB(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
@@ -8207,7 +8226,7 @@ async function init(){
   // Wait for Supabase to restore session from localStorage (race condition fix)
   let session = null;
   for(let _try=0; _try<3; _try++){
-    const r = await sb.auth.getSession();
+    const r = await journalWithTimeout(sb.auth.getSession(),10000);
     session = r.data?.session;
     if(session) break;
     // Give SDK time to restore session from localStorage
@@ -8217,8 +8236,18 @@ async function init(){
   const user=session.user;
   if(!user){window.location.href='/login?returnTo=/journal';return;}
   currentUser=user;
-  const{data:p}=await sb.from('profiles').select('*').eq('id',user.id).single();
-  if(!p){window.location.href='/login?returnTo=/journal';return;}
+  let p=null;
+  try{
+    const result=await journalWithTimeout(sb.from('profiles').select('*').eq('id',user.id).single(),10000);
+    if(result.error)throw result.error;
+    p=result.data;
+  }catch(error){
+    if(!ORBITUM_PERSONAL_MODE)throw error;
+  }
+  if(!p){
+    if(!ORBITUM_PERSONAL_MODE){journalHistoryError('Профиль не найден. Войдите снова или повторите загрузку.');return;}
+    p={full_name:user.user_metadata?.full_name||'',username:user.user_metadata?.username||'',plan:null,role:null,features:['journal']};
+  }
   const hasAccess=ORBITUM_PERSONAL_MODE||p.plan==='lifetime'||(p.plan==='monthly'&&p.plan_expires_at&&new Date(p.plan_expires_at)>new Date())||p.role==='admin';
   
   // ── FEATURES: apply section access ───────────────────────
@@ -8248,10 +8277,11 @@ async function init(){
   window._hasFullAccess = hasAccess;
   
   // Boot sequence (once per day)
-  _runJournalBoot();
+  if(typeof _runJournalBoot==='function')_runJournalBoot();
   // SA Score in topbar
   _jLoadSA(false);
   
+  journalAuthReady=true;
   await loadTrades();
   
   if(!ORBITUM_PERSONAL_MODE&&!hasAccess){
@@ -8280,16 +8310,19 @@ async function init(){
 
 // ── ЗАПУСК — safe init with Supabase readiness check ──────────
 function waitForSupabaseAndInit(attempts = 0) {
-  if (typeof supabase !== 'undefined' || typeof createClient !== 'undefined') {
+  let demo=new URLSearchParams(location.search).get('demo')==='1';
+  try{demo=demo||localStorage.getItem('orb_demo_mode')==='1';}catch(error){}
+  if (demo || (window.supabase && typeof window.supabase.createClient==='function')) {
+    if(!demo&&!sb)sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+      document.addEventListener('DOMContentLoaded',()=>init().catch(error=>{console.error('[Journal] Initialization failed',error);journalHistoryError('Не удалось подключиться к аккаунту. Проверьте соединение и попробуйте снова.');}),{once:true});
     } else {
-      init();
+      init().catch(error=>{console.error('[Journal] Initialization failed',error);journalHistoryError('Не удалось подключиться к аккаунту. Проверьте соединение и попробуйте снова.');});
     }
-  } else if (attempts < 30) {
+  } else if (attempts < 50) {
     setTimeout(() => waitForSupabaseAndInit(attempts + 1), 200);
   } else {
-    console.error('[ORBITUM] Supabase failed to load after 6s');
+    journalHistoryError('Не загрузился клиент базы данных. Проверьте блокировку скриптов и повторите попытку.');
   }
 }
 waitForSupabaseAndInit();
@@ -8376,8 +8409,11 @@ async function loadTrades(){
     onbCheck(allTrades.length);
     return;
   }
-  const{data,error}=await sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  if(error){document.getElementById('trades-list').innerHTML='<div class="empty">Ошибка загрузки</div>';hideStatSkeletons();return;}
+  let result;
+  try{result=await journalWithTimeout(sb.from('trades').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),12000);}
+  catch(error){journalHistoryError('Запрос занял слишком много времени. Проверьте соединение и повторите загрузку.');return false;}
+  const{data,error}=result;
+  if(error){journalHistoryError('Не удалось получить сделки. Повторите загрузку через несколько секунд.');return false;}
   allTrades=data||[];
   hideStatSkeletons();
   updateStatsEnhanced();render();renderDashboard();renderProgress();renderLevelBar(allTrades);restoreFormDefaults();
@@ -8690,6 +8726,8 @@ function journalCoinIcon(pair){
 function render(){
   hideTradeSkeleton();
   const list=document.getElementById('trades-list');
+  const count=document.getElementById('history-count');
+  if(count)count.textContent=journalTradeCountLabel(allTrades.length);
   let f=allTrades;
   if(currentFilter==='win')f=f.filter(t=>terminalTradeOutcome(t)==='win');
   else if(currentFilter==='loss')f=f.filter(t=>terminalTradeOutcome(t)==='loss');
