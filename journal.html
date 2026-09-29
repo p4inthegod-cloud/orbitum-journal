@@ -14254,7 +14254,7 @@ function liquidityRenderVRVP(){
 function liquidityPoolRow(pool,current){
   const side=pool.price>current?'above':'below',label=side==='above'?'СВЕРХУ':'СНИЗУ';
   const heat=pool.status==='live'?'<span class="lq-pool-heat" title="Оценочная сила неснятого пула: '+pool.heat+' из 3">'+'🔥'.repeat(pool.heat||1)+'</span>':'';
-  return '<tr class="lq-pool-row '+pool.status+' '+side+'"><td><div class="lq-pool-name"><strong>'+escHtml(pool.name)+'</strong>'+heat+'</div></td><td class="'+side+'">'+escHtml(miFmtPrice(pool.price))+'</td><td>'+label+'</td><td>'+pool.distancePct.toFixed(2)+'% · '+pool.distanceAtr.toFixed(2)+' ATR</td><td>'+pool.touches+'</td><td><span class="lq-status '+pool.status+'">'+(pool.status==='live'?'НЕ СНЯТА':'СНЯТА')+'</span></td></tr>';
+  return '<tr class="lq-pool-row '+(pool.status==='live'?'is-live':'is-swept')+' '+side+'"><td><div class="lq-pool-name"><strong>'+escHtml(pool.name)+'</strong>'+heat+'</div></td><td class="'+side+'">'+escHtml(miFmtPrice(pool.price))+'</td><td>'+label+'</td><td>'+pool.distancePct.toFixed(2)+'% · '+pool.distanceAtr.toFixed(2)+' ATR</td><td>'+pool.touches+'</td><td><span class="lq-status '+pool.status+'">'+(pool.status==='live'?'НЕ СНЯТА':'СНЯТА')+'</span></td></tr>';
 }
 function renderLiquidityMap(){
   if(!marketIntelState.ticker||!marketIntelState.candles[liquidityState.tf]?.length)return;const data=liquidityBuild();liquidityState.pools=data.pools;const change=Number(marketIntelState.ticker.changePct);
