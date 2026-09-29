@@ -552,3 +552,124 @@ html[data-theme] .ov-market-filters button.active { font-weight: 800; }
   html[data-theme] .ov-market-asset small { margin-left: 2px; font-size: 10px; }
   html[data-theme] .ov-market-change { font-size: 11px; }
 }
+
+/* Direction, category and sentiment are visible without reading a signed number. */
+html[data-theme] {
+  --news-stroke: #efaf4b;
+  --news-surface: #fffaf0;
+  --news-ink: #a96813;
+  --index-stroke: #9b65e8;
+  --index-surface: #faf5ff;
+  --index-ink: #7140bb;
+}
+html[data-theme="dark"] {
+  --news-stroke: #efbd63;
+  --news-surface: #302919;
+  --news-ink: #f4c46c;
+  --index-stroke: #b98afa;
+  --index-surface: #2a2140;
+  --index-ink: #cdaeff;
+}
+html[data-theme] #ov-change.good::before,
+html[data-theme] .ov-market-change.good::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-right: 6px;
+  border-right: 5px solid transparent;
+  border-bottom: 7px solid currentColor;
+  border-left: 5px solid transparent;
+  vertical-align: middle;
+}
+html[data-theme] #ov-change.bad::before,
+html[data-theme] .ov-market-change.bad::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-right: 6px;
+  border-top: 7px solid currentColor;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  vertical-align: middle;
+}
+html[data-theme] .ov-chip-rail {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+  margin: 0 0 18px;
+}
+html[data-theme] .ov-chip-rail > button { min-width: 0; margin: 0; }
+html[data-theme] .ov-focus-pill { flex: 1.1 1 340px; }
+html[data-theme] .ov-focus-pill.scheduled {
+  background: linear-gradient(var(--news-surface), var(--news-surface)) padding-box,
+    linear-gradient(100deg, var(--news-stroke), #f2d582) border-box;
+}
+html[data-theme] .ov-focus-pill.scheduled .ov-focus-icon { background: var(--news-surface); }
+html[data-theme] .ov-focus-pill.scheduled :is(.ov-focus-label,.ov-focus-count) { color: var(--news-ink); }
+html[data-theme] .ov-news-pill,
+html[data-theme] .ov-index-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 280px;
+  min-height: 48px;
+  padding: 6px 11px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  color: var(--t);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 4px 13px rgba(41, 56, 96, .07);
+}
+html[data-theme] .ov-news-pill[hidden] { display: none !important; }
+html[data-theme] .ov-news-pill {
+  background: linear-gradient(var(--news-surface), var(--news-surface)) padding-box,
+    linear-gradient(100deg, var(--news-stroke), #f2d582) border-box;
+}
+html[data-theme] .ov-index-pill {
+  flex-grow: .78;
+  background: linear-gradient(var(--index-surface), var(--index-surface)) padding-box,
+    linear-gradient(100deg, var(--a), var(--index-stroke)) border-box;
+}
+html[data-theme] .ov-pill-emoji { flex: 0 0 auto; font-size: 18px; line-height: 1; }
+html[data-theme] .ov-pill-tag { flex: 0 0 auto; padding: 4px 7px; border-radius: 999px; background: var(--news-stroke); color: #221706; font-size: 10px; font-weight: 800; letter-spacing: .03em; }
+html[data-theme] .ov-index-pill .ov-pill-tag { background: var(--index-stroke); color: #fff; }
+html[data-theme] .ov-chip-rail > button strong { overflow: hidden; min-width: 0; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+html[data-theme] .ov-pill-arrow,
+html[data-theme] .ov-index-pill-value { flex: 0 0 auto; margin-left: auto; color: var(--news-ink); font-size: 12px; font-weight: 800; }
+html[data-theme] .ov-index-pill-value { color: var(--index-ink); }
+html[data-theme] .ov-chip-rail > button:focus-visible { outline: 3px solid var(--a); outline-offset: 3px; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html[data-theme] :is(.ov-news-pill,.ov-index-pill) { transition: transform .18s ease, box-shadow .18s ease; }
+  html[data-theme] :is(.ov-news-pill,.ov-index-pill):hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(41, 56, 96, .14); }
+}
+html[data-theme] .ov-sentiment { min-height: 188px; gap: 22px; }
+html[data-theme] .ov-sentiment-gauge { flex: 0 0 230px; width: 230px; height: 160px; }
+html[data-theme] .ov-gauge-title { position: absolute; top: 0; left: 0; width: 100%; color: var(--m); font-size: 17px; font-weight: 600; text-align: center; white-space: nowrap; }
+html[data-theme] .ov-sentiment-gauge svg { position: absolute; top: 30px; left: 10px; width: 210px; height: 118px; overflow: visible; }
+html[data-theme] .ov-sentiment-gauge path { fill: none; stroke-width: 13; stroke-linecap: round; }
+html[data-theme] .ov-sentiment-gauge path.fear { stroke: #ec3650; }
+html[data-theme] .ov-sentiment-gauge path.fear-soft { stroke: #f39c12; }
+html[data-theme] .ov-sentiment-gauge path.neutral { stroke: #f5d829; }
+html[data-theme] .ov-sentiment-gauge path.greed-soft { stroke: #92d80f; }
+html[data-theme] .ov-sentiment-gauge path.greed { stroke: #14c98a; }
+html[data-theme] .ov-sentiment-gauge circle { fill: #080d16; stroke: #fff; stroke-width: 3; }
+html[data-theme] .ov-sentiment-gauge > strong { position: absolute; top: 83px; bottom: auto; left: 0; width: 100%; color: var(--t); font-size: 44px; font-weight: 800; line-height: 1; text-align: center; }
+@media (max-width: 900px) {
+  html[data-theme] .ov-chip-rail { overflow-x: auto; padding: 1px 2px 8px; scrollbar-width: none; scroll-snap-type: x proximity; }
+  html[data-theme] .ov-chip-rail::-webkit-scrollbar { display: none; }
+  html[data-theme] .ov-chip-rail > button { flex: 0 0 285px; scroll-snap-align: start; }
+}
+@media (max-width: 600px) {
+  html[data-theme] .ov-sentiment { flex-direction: column; align-items: center; gap: 7px; padding: 15px 12px; }
+  html[data-theme] .ov-sentiment-gauge { flex: 0 0 160px; width: 230px; height: 160px; margin: 0; transform: none; }
+  html[data-theme] .ov-sentiment-copy { text-align: center; }
+  html[data-theme] .ov-chip-rail > button { flex-basis: 280px; }
+  html[data-theme] .ov-chip-rail > button strong { font-size: 11px; }
+  html[data-theme] .ov-pill-tag { font-size: 9px; }
+  html[data-theme] .ov-market-change.good::before,
+  html[data-theme] .ov-market-change.bad::before { margin-right: 3px; }
+}
