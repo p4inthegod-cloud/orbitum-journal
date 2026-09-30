@@ -137,7 +137,7 @@ function pixelRenderSessionTimeline(id, session, now = new Date()) {
   session.schedule.forEach(segment => {
     const block = document.createElement('div'), code = segment.phase.code;
     const active = now.getTime() >= segment.start && now.getTime() < segment.end;
-    block.className = 'px-session-block ' + code.toLowerCase() + (active ? ' is-active' : '');
+    block.className = 'px-session-block ' + code.toLowerCase() + (active ? ' is-active' : now.getTime()>=segment.end?' is-complete':' is-upcoming');
     block.style.left = ((segment.start - start) / dayLength * 100) + '%';
     block.style.width = ((segment.end - segment.start) / dayLength * 100) + '%';
     const range = environmentUtcTime(segment.start) + '–' + (segment.end === end ? '24:00' : environmentUtcTime(segment.end));
@@ -149,6 +149,9 @@ function pixelRenderSessionTimeline(id, session, now = new Date()) {
   });
   const marker = document.createElement('i'); marker.className = 'px-session-now'; marker.setAttribute('aria-hidden', 'true');
   marker.style.left = Math.max(0, Math.min(100, (now.getTime() - start) / dayLength * 100)) + '%';
+  const badge=document.createElement('span');badge.className='world-session-countdown';badge.textContent='До смены · '+environmentCountdown(session.minutes);marker.append(badge);
+  if((now.getTime()-start)/dayLength>.8)marker.classList.add('at-end');
+  if((now.getTime()-start)/dayLength<.2)marker.classList.add('at-start');
   track.append(marker);
   track.setAttribute('aria-label', descriptions.join('. ') + '. Сейчас ' + environmentUtcTime(now) + ' UTC: ' + session.phase.title);
   const ticks = document.createElement('div'); ticks.className = 'px-session-ticks'; ticks.setAttribute('aria-hidden', 'true');

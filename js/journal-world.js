@@ -9,11 +9,11 @@ function worldAttachSessionScene(block,code) {
   block.append(scenery);
 }
 function worldRenderLiquidity(data, targetId = 'lq-chart') {
-  const host=document.getElementById(targetId);if(!host)return;host.replaceChildren();
+  const host=document.getElementById(targetId);if(!host)return;host.setAttribute('role','group');host.replaceChildren();
   const rows=data.pools.slice(0,12).map(pool=>({pool,price:pool.price}));rows.push({current:true,price:data.current});rows.sort((a,b)=>b.price-a.price);
   rows.forEach(item=>{
     const pool=item.pool,swept=pool?.status==='swept',tone=item.current?'current':swept?'swept':pool.price>data.current?'above':'below',heat=swept?0:Math.max(1,Math.min(3,pool?.heat||1));
-    const row=worldElement('div','world-pool '+tone);row.setAttribute('role','listitem');row.dataset.price=String(item.price);row.dataset.status=item.current?'current':pool.status;
+    const row=worldElement('div','world-pool '+tone);row.dataset.price=String(item.price);row.dataset.status=item.current?'current':pool.status;
     const name=worldElement('div','world-pool-name'),price=worldElement('strong','world-pool-price',miFmtPrice(item.price));
     if(item.current){name.append(worldElement('i','world-price-pointer'),worldElement('strong',null,'Текущая цена'));row.setAttribute('aria-label','Текущая цена '+miFmtPrice(item.price));}
     else{name.append(worldElement('span','world-pool-code',pool.short),worldElement('strong',null,pool.name));row.title=pool.name+' · '+miFmtPrice(pool.price)+' · '+pool.distancePct.toFixed(2)+'% · '+pool.distanceAtr.toFixed(2)+' ATR';row.setAttribute('aria-label',pool.name+', '+miFmtPrice(pool.price)+', '+(swept?'ликвидность снята':'неснятый пул, сила '+heat+' из 3'));}
@@ -24,6 +24,14 @@ function worldRenderLiquidity(data, targetId = 'lq-chart') {
     const fire=worldElement('span','world-pool-fire');fire.setAttribute('aria-hidden','true');
     if(!item.current&&!swept){for(let i=0;i<heat;i++)fire.append(worldElement('span','emoji-glyph','🔥'));if(heat>=2){const sparks=worldElement('span','px-pool-sparks');sparks.style.setProperty('--spark-delay',Math.floor(pool.price%4)+'s');for(let i=0;i<heat;i++)sparks.append(worldElement('i'));fire.append(sparks);}}
     else if(swept)fire.append(worldElement('span','world-swept-label','Снята'));
+    if(!item.current){
+      row.tabIndex=0;row.setAttribute('role','button');
+      row.setAttribute('aria-pressed',String(typeof worldLiquiditySelection!=='undefined'&&worldLiquiditySelection?.price===pool.price));
+      const details=worldElement('span','world-pool-detail',pool.distancePct.toFixed(2)+'% · '+pool.distanceAtr.toFixed(2)+' ATR · '+(swept?'Снята':'Сила '+heat+'/3'));
+      row.append(details);
+      const select=()=>worldSelectLiquidityLevel(pool,targetId);row.addEventListener('click',select);
+      row.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select();}});
+    }
     row.append(name,platform,fire,price);host.append(row);
   });
 }

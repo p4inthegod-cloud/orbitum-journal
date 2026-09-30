@@ -2,6 +2,29 @@
 let worldOverviewPeriod = '1h';
 let worldOverviewCandles = [];
 let worldOverviewAvailable = false;
+let worldLiquiditySelection = null;
+
+async function worldSelectLiquidityLevel(pool, targetId) {
+  const symbol = targetId === 'ov-world-liquidity' ? overviewState.symbol : liquidityState.symbol;
+  if (targetId !== 'ov-world-liquidity') {
+    showPage('overview', document.querySelector('[data-page="overview"]'));
+    if (overviewState.symbol !== symbol) await overviewSelectSymbol(symbol);
+  }
+  if(overviewState.symbol!==symbol)return;
+  worldLiquiditySelection = {price:pool.price,name:pool.name,symbol};
+  worldUpdateSelectedLevel(); worldDrawCandles();
+  document.getElementById('world-overview-chart')?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
+
+function worldUpdateSelectedLevel() {
+  const canvas=document.getElementById('world-overview-chart');if(!canvas)return;
+  let chip=document.getElementById('world-selected-level');
+  if(!chip){chip=worldElement('button','world-selected-level');chip.id='world-selected-level';chip.type='button';chip.addEventListener('click',()=>{worldLiquiditySelection=null;worldUpdateSelectedLevel();worldDrawCandles();});canvas.parentElement.append(chip);}
+  const selected=worldLiquiditySelection?.symbol===overviewState.symbol?worldLiquiditySelection:null;
+  chip.hidden=!selected;chip.textContent=selected?selected.name+' · '+miFmtPrice(selected.price)+'  ×':'';
+  chip.setAttribute('aria-label',selected?'Убрать выбранный уровень '+selected.name:'Уровень не выбран');
+  document.querySelectorAll('.world-pool[role="button"]').forEach(row=>{const active=Boolean(selected&&Number(row.dataset.price)===selected.price);row.classList.toggle('is-selected',active);row.setAttribute('aria-pressed',String(active));});
+}
 
 function worldOpenLiquidity() {
   liquidityState.symbol = overviewState.symbol;
@@ -30,7 +53,9 @@ function worldRenderOverviewWorkspace(analysis, snapshot) {
   document.getElementById('world-top-breadth').textContent = breadth == null ? '—' : Math.round(breadth) + '% растут';
   pixelSetMeter('world-top-meter', analysis?.score, {label:'Сила рыночного контекста',caption:''});
   document.getElementById('world-chart-title').textContent = symbol + ' / USDT';
-  document.getElementById('world-chart-price').textContent = analysis ? miFmtPrice(analysis.current) : '—';
+  const priceNode=document.getElementById('world-chart-price'),priceText=analysis ? miFmtPrice(analysis.current) : '—';
+  if(priceNode.textContent!==priceText&&priceNode.dataset.hasPrice==='true'&&analysis){priceNode.classList.remove('world-price-updated');void priceNode.offsetWidth;priceNode.classList.add('world-price-updated');}
+  priceNode.textContent=priceText;priceNode.dataset.hasPrice=String(Boolean(analysis));
   const last = worldOverviewCandles.at(-1);
   document.getElementById('world-chart-range').textContent = last ? 'H ' + miFmtPrice(last.high) + ' · L ' + miFmtPrice(last.low) : 'Нет свечных данных';
   document.getElementById('world-chart-source').textContent = last ? worldOverviewCandles.length + ' свечей · ' + ({'15m':'15 минут','1h':'1 час','4h':'4 часа'})[worldOverviewPeriod] + ' · ' + (marketIntelState.source || 'BINANCE') : 'Ожидаем источник';
@@ -64,7 +89,8 @@ function worldRenderOverviewWorkspace(analysis, snapshot) {
     map.replaceChildren(worldElement('div', 'world-empty-note', 'Уровни появятся после загрузки рыночных данных'));
     document.getElementById('world-map-gravity').textContent = '—';
   }
-  worldDrawCandles();
+  if(worldLiquiditySelection&&worldLiquiditySelection.symbol!==symbol)worldLiquiditySelection=null;
+  worldUpdateSelectedLevel();worldDrawCandles();
 }
 
 function worldDrawCandles(cursor = -1) {
@@ -78,7 +104,8 @@ function worldDrawCandles(cursor = -1) {
   const dark = worldTheme() === 'dark';
   const colors = {grid:dark ? '#293451' : '#d9e0ef', caption:dark ? '#94a8cd' : '#617494', up:dark ? '#54d1d5' : '#158db0', down:dark ? '#ae88ed' : '#9260d7', text:dark ? '#e8efff' : '#19384f'};
   const left = 10, right = width - 73, top = 12, bottom = height - 61;
-  const low = Math.min(...candles.map(c => c.low)), high = Math.max(...candles.map(c => c.high));
+  const selection = worldLiquiditySelection?.symbol===canvas.dataset.symbol ? worldLiquiditySelection : null;
+  const low = Math.min(...candles.map(c => c.low),selection?.price??Infinity), high = Math.max(...candles.map(c => c.high),selection?.price??-Infinity);
   const pad = (high - low) * .13 || high * .01;
   const min = low - pad, max = high + pad, y = value => top + (max - value) / (max - min) * (bottom - top);
   ctx.font = '600 11px Inter, Arial, sans-serif'; ctx.lineWidth = 1;
@@ -107,6 +134,7 @@ function worldDrawCandles(cursor = -1) {
     ctx.fillStyle = colors.caption; ctx.textAlign = i === 0 ? 'left' : i === 3 ? 'right' : 'center'; ctx.fillText(label, x, height - 7);
   }
   ctx.textAlign = 'left';
+  if(selection){const levelY=y(selection.price);ctx.strokeStyle=colors.down;ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(left,levelY);ctx.lineTo(right,levelY);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=colors.down;ctx.fillRect(left,levelY-4,8,8);ctx.lineWidth=1;canvas.dataset.selectedPrice=String(selection.price);}else delete canvas.dataset.selectedPrice;
   if (cursor >= 0 && cursor < candles.length) {
     const x = left + (cursor + .5) * step;
     ctx.strokeStyle = colors.caption; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, height - 24); ctx.stroke(); ctx.setLineDash([]);
