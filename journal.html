@@ -5287,6 +5287,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <script src="js/journal-concept.js"></script>
 <link rel="stylesheet" href="css/journal-quest.css">
 <script src="js/journal-quest.js"></script>
+<link rel="stylesheet" href="css/journal-details.css">
+<script src="js/journal-details.js"></script>
 </head>
 <body class="overview-page-active">
 
@@ -13179,6 +13181,7 @@ function renderTickerTrack() {
 
 // ── ОБНОВЛЕНИЕ ОДНОГО ТИКЕРА (без перерендера) ───────────
 function updateTickerItem(sym, newPrice, chg) {
+  if(Number.isFinite(Number(newPrice))&&Number(newPrice)>0)worldRecordSource('quotes');
   const key  = sym.replace('/','_');
   const prev = tickerData[sym] ? tickerData[sym].price : null;
 
@@ -14187,13 +14190,7 @@ function miBuildAnalysis(){
   return {inds,ticker,current,levels,dailyTrend,score,confidence,bull,bear,verdict,divergences};
 }
 
-function miRenderChart(analysis){
-  const tf=marketIntelState.chartTF,full=marketIntelState.candles[tf]||[],candles=full.slice(-96),svg=miEl('mi-chart');if(!svg||!candles.length)return;const closes=candles.map(x=>x.close),ema=miEMA(closes,21),all=closes.concat(ema.filter(Number.isFinite)),min=Math.min(...all),max=Math.max(...all),span=max-min||1,w=900,h=270,padX=26,padY=24,x=i=>padX+i/(closes.length-1)*(w-padX*2),y=v=>padY+(max-v)/span*(h-padY*2),path=values=>{let started=false;return values.map((v,i)=>{if(!Number.isFinite(v))return '';const command=started?'L':'M';started=true;return `${command}${x(i).toFixed(1)} ${y(v).toFixed(1)}`}).join(' ')},pricePath=path(closes),emaPath=path(ema),area=`${pricePath} L${x(closes.length-1).toFixed(1)} ${h-padY} L${padX} ${h-padY} Z`;
-  const levelLine=(value,color,label)=>value>=min&&value<=max?`<line x1="${padX}" x2="${w-padX}" y1="${y(value)}" y2="${y(value)}" stroke="${color}" stroke-width="1" stroke-dasharray="5 7" opacity=".42"/><text x="${w-padX-4}" y="${y(value)-6}" fill="${color}" font-size="9" text-anchor="end">${label}</text>`:'';
-  const div=analysis.divergences&&analysis.divergences[tf],offset=full.length-candles.length;let divOverlay='';if(div&&div.found&&div.first.index>=offset&&div.second.index>=offset){const x1=x(div.first.index-offset),x2=x(div.second.index-offset),y1=y(div.first.price),y2=y(div.second.price),color=div.direction==='bull'?'#b6ff2e':'#ff5c6c',label=div.direction==='bull'?'RSI БЫЧЬЯ':'RSI МЕДВЕЖЬЯ';divOverlay=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2" stroke-dasharray="5 4" filter="url(#miGlow)"/><circle cx="${x1}" cy="${y1}" r="4" fill="#030504" stroke="${color}" stroke-width="2"/><circle cx="${x2}" cy="${y2}" r="5" fill="${color}" stroke="#030504" stroke-width="2"/><text x="${(x1+x2)/2}" y="${Math.min(y1,y2)-9}" fill="${color}" font-size="10" text-anchor="middle">${label}</text>`}
-  svg.innerHTML=`<defs><linearGradient id="miArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b6ff2e" stop-opacity=".13"/><stop offset="1" stop-color="#b6ff2e" stop-opacity="0"/></linearGradient><filter id="miGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="${area}" fill="url(#miArea)"/><path d="${emaPath}" fill="none" stroke="#6de8df" stroke-width="1.35" opacity=".7"/><path d="${pricePath}" fill="none" stroke="#b6ff2e" stroke-width="2" filter="url(#miGlow)"/>${levelLine(analysis.levels.support,'#b6ff2e','S')}${levelLine(analysis.levels.resistance,'#ff5c6c','R')}${divOverlay}<circle cx="${x(closes.length-1)}" cy="${y(closes.at(-1))}" r="4" fill="#b6ff2e" stroke="#071006" stroke-width="2"/>`;
-  miSet('mi-chart-caption',`последние ${candles.length} свечей · ${MI_TF_LABELS[tf]}`);miSet('mi-chart-low','МИН '+miFmtPrice(Math.min(...closes)));miSet('mi-chart-current','ТЕКУЩАЯ '+miFmtPrice(closes.at(-1)));miSet('mi-chart-high','МАКС '+miFmtPrice(Math.max(...closes)));
-}
+function miRenderChart(analysis){worldRenderMarketInstrument(analysis);}
 function miRenderRSI(analysis){
   MI_INTERVALS.forEach(tf=>{const card=document.querySelector(`[data-mi-rsi="${tf}"]`);if(!card)return;const value=analysis.inds[tf].rsi,zone=miRSIZone(value),num=card.querySelector('.mi-rsi-value'),marker=card.querySelector('.mi-rsi-marker'),copy=card.querySelector('.mi-rsi-zone');num.textContent=Number.isFinite(value)?value.toFixed(1):'—';miToneClass(num,zone.tone);if(marker)marker.style.left=miClamp(value||50,2,98)+'%';if(copy)copy.textContent=zone.label});
   const label=analysis.bull>=3?'покупатели подтверждены на большинстве горизонтов':analysis.bear>=3?'продавцы подтверждены на большинстве горизонтов':analysis.bull===analysis.bear?'горизонты конфликтуют — выраженного импульса нет':'есть частичное совпадение, но сигнал не полный';miEl('mi-rsi-sync').innerHTML=`<strong>Согласованность ${analysis.confidence}%:</strong> ${label}.`;
@@ -14361,12 +14358,12 @@ function liquidityRenderVRVP(){
   const svg=liquidityEl('lq-vrvp-chart'),profile=liquidityBuildVRVP(liquidityState.vrvpTf);
   if(!svg||!profile)return;
   const {candles,bins,low,high,poc,val,vah,current}=profile;
-  const w=Math.max(820,Math.round(svg.parentElement.clientWidth-2));
+  const w=Math.max(280,Math.round(svg.parentElement.clientWidth-2));
   const h=Math.max(310,Math.round(svg.parentElement.clientHeight-2));
   svg.setAttribute('viewBox','0 0 '+w+' '+h);
-  const top=42,bottom=h-24,priceLeft=78,profileRight=w-20;
-  const profileWidth=Math.max(190,Math.min(340,Math.round(w*.24)));
-  const profileLeft=profileRight-profileWidth,priceRight=profileLeft-112;
+  const top=42,bottom=h-24,priceLeft=w<600?52:78,profileRight=w-20;
+  const profileWidth=Math.max(72,Math.min(340,Math.round(w*.24)));
+  const profileLeft=profileRight-profileWidth,priceRight=profileLeft-(w<600?24:112);
   const span=high-low||1,y=value=>top+(high-value)/span*(bottom-top);
   const x=index=>priceLeft+(index+.5)/candles.length*(priceRight-priceLeft);
   const candleWidth=Math.max(1.35,Math.min(6,(priceRight-priceLeft)/candles.length*.7));
@@ -14796,7 +14793,7 @@ function renderWatchtower(){
 }
 async function scanWatchtower(force){
   if(watchtowerState.scanning)return;watchtowerState.scanning=true;const requestId=++watchtowerState.requestId,btn=document.getElementById('wt-scan-btn'),state=document.getElementById('wt-scan-state');if(btn){btn.disabled=true;btn.textContent='ОБХОД...'}if(state)state.classList.remove('live');battleSet('wt-scan-label','СКАНИРУЮ 0 / '+watchtowerState.watchlist.length);
-  const output=[];let done=0;await Promise.all(watchtowerState.watchlist.map(async symbol=>{try{const data=await watchtowerLoadSymbol(symbol),result=watchtowerAnalyze(data);output.push(result)}catch(error){output.push({symbol,error,score:0,direction:'neutral',primary:{title:'НЕТ ДАННЫХ',copy:error.message||'Монета недоступна',tone:'warn'},inds:{'15m':{rsi:50}},changePct:0,volumeRatio:null})}finally{done++;battleSet('wt-scan-label','СКАНИРУЮ '+done+' / '+watchtowerState.watchlist.length)}}));if(requestId!==watchtowerState.requestId)return;watchtowerState.results=output.sort((a,b)=>b.score-a.score);watchtowerState.scanning=false;if(btn){btn.disabled=false;btn.textContent='СКАНИРОВАТЬ СЕЙЧАС'}if(state)state.classList.add('live');battleSet('wt-scan-label','СЛЕЖКА АКТИВНА');renderWatchtower();
+  const output=[];let done=0;await Promise.all(watchtowerState.watchlist.map(async symbol=>{try{const data=await watchtowerLoadSymbol(symbol),result=watchtowerAnalyze(data);output.push(result)}catch(error){output.push({symbol,error,score:0,direction:'neutral',primary:{title:'НЕТ ДАННЫХ',copy:error.message||'Монета недоступна',tone:'warn'},inds:{'15m':{rsi:50}},changePct:0,volumeRatio:null})}finally{done++;battleSet('wt-scan-label','СКАНИРУЮ '+done+' / '+watchtowerState.watchlist.length)}}));if(requestId!==watchtowerState.requestId)return;watchtowerState.results=output.sort((a,b)=>b.score-a.score);worldRecordSource('scan');watchtowerState.scanning=false;if(btn){btn.disabled=false;btn.textContent='СКАНИРОВАТЬ СЕЙЧАС'}if(state)state.classList.add('live');battleSet('wt-scan-label','СЛЕЖКА АКТИВНА');renderWatchtower();
   const strong=watchtowerState.results.find(x=>!x.error&&x.score>=82);if(strong){const fingerprint=strong.symbol+':'+strong.primary.title+':'+Math.round(strong.score/5);if(fingerprint!==watchtowerState.lastNotice){watchtowerState.lastNotice=fingerprint;try{localStorage.setItem('et_watchtower_notice',fingerprint)}catch(e){}showNotif(strong.direction==='short'?'error':'success','СЛЕЖКА · '+strong.symbol,strong.primary.title+' · '+strong.score+'/100',5200)}}if(force)showNotif('success','СЛЕЖКА ЗАВЕРШЕНА',watchtowerState.watchlist.length+' монет · '+watchtowerState.results.filter(x=>x.score>=60).length+' активных сигналов',2600);
 }
 function setWatchtowerFilter(filter,button){watchtowerState.filter=filter;document.querySelectorAll('[data-wt-filter]').forEach(btn=>btn.classList.toggle('active',btn===button));renderWatchtower()}

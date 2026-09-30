@@ -20,7 +20,10 @@ function worldRenderLiquidity(data, targetId = 'lq-chart') {
     const platform=worldElement('div','world-platform');platform.setAttribute('aria-hidden','true');
     const strength=item.current?100:miClamp(Number(pool.strength)||0,0,100),filled=Math.round((.24+strength*.0072)*24);platform.style.setProperty('--fill',item.current?'100%':filled/24*100+'%');
     for(let i=0;i<24;i++)platform.append(worldElement('i',i<(item.current?24:filled)?'filled':null));
-    if(!item.current){const crystal=worldElement('span','world-pool-crystal');crystal.style.backgroundPosition=(swept?'100%':pool.price>data.current?'0%':'50%')+' 0%';platform.append(crystal);}
+    if(!item.current){
+      const ground=worldElement('span','world-crystal-ground'),crystal=worldElement('span','world-pool-crystal');crystal.style.backgroundPosition=(swept?'100%':pool.price>data.current?'0%':'50%')+' 0%';platform.append(ground,crystal);
+      if(!swept&&heat>=2){const shards=worldElement('span','world-crystal-shards');for(let i=0;i<heat*2;i++)shards.append(worldElement('i'));platform.append(shards);}
+    }
     const fire=worldElement('span','world-pool-fire');fire.setAttribute('aria-hidden','true');
     if(!item.current&&!swept){for(let i=0;i<heat;i++)fire.append(worldElement('span','emoji-glyph','🔥'));if(heat>=2){const sparks=worldElement('span','px-pool-sparks');sparks.style.setProperty('--spark-delay',Math.floor(pool.price%4)+'s');for(let i=0;i<heat;i++)sparks.append(worldElement('i'));fire.append(sparks);}}
     else if(swept)fire.append(worldElement('span','world-swept-label','Снята'));

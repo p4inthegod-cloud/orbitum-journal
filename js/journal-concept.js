@@ -113,6 +113,7 @@ function worldDrawCandles(cursor = -1) {
     const value = max - i / 4 * (max - min), yy = y(value);
     ctx.strokeStyle = colors.grid; ctx.beginPath(); ctx.moveTo(left, yy); ctx.lineTo(right, yy); ctx.stroke();
     ctx.fillStyle = colors.caption; ctx.fillText(miFmtPrice(value), right + 8, yy + 4);
+    ctx.strokeStyle=colors.caption;for(let tick=0;tick<5;tick++){const ty=yy+(tick-2)*4;if(ty>=top&&ty<=bottom){ctx.beginPath();ctx.moveTo(right,ty);ctx.lineTo(right+(tick===2?5:2),ty);ctx.stroke();}}
   }
   const step = (right - left) / candles.length, body = Math.max(2, Math.min(8, step * .65));
   const maxVolume = Math.max(...candles.map(c => c.volume), 1);
@@ -157,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const x = event.clientX - chart.getBoundingClientRect().left;
     const index = Math.max(0, Math.min(worldOverviewCandles.length - 1, Math.floor((x - 10) / (chart.clientWidth - 83) * worldOverviewCandles.length)));
     const candle = worldOverviewCandles[index];
-    tooltip.hidden = false; tooltip.textContent = new Date(candle.time).toLocaleString('ru-RU', {timeZone:'UTC',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) + ' UTC · O ' + miFmtPrice(candle.open) + ' · H ' + miFmtPrice(candle.high) + ' · L ' + miFmtPrice(candle.low) + ' · C ' + miFmtPrice(candle.close);
+    tooltip.hidden = false; tooltip.textContent = new Date(candle.time).toLocaleString('ru-RU', {timeZone:'UTC',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) + ' UTC · O ' + miFmtPrice(candle.open) + ' · H ' + miFmtPrice(candle.high) + ' · L ' + miFmtPrice(candle.low) + ' · C ' + miFmtPrice(candle.close) + ' · V '+Number(candle.volume).toLocaleString('ru-RU',{maximumFractionDigits:2});
     worldDrawCandles(index);
   });
   chart.addEventListener('pointerleave', () => { tooltip.hidden = true; worldDrawCandles(); });
