@@ -142,6 +142,7 @@ function pixelRenderSessionTimeline(id, session, now = new Date()) {
     const range = environmentUtcTime(segment.start) + '–' + (segment.end === end ? '24:00' : environmentUtcTime(segment.end));
     block.title = segment.phase.title + ' · ' + range + ' UTC';
     block.setAttribute('aria-hidden', 'true');
+    worldAttachSessionScene(block, code);
     const name = document.createElement('span'); name.textContent = names[code]; block.append(name);
     descriptions.push(block.title); track.append(block);
   });
