@@ -3,6 +3,12 @@ let worldOverviewPeriod = '1h';
 let worldOverviewCandles = [];
 let worldOverviewAvailable = false;
 
+function worldOpenLiquidity() {
+  liquidityState.symbol = overviewState.symbol;
+  document.getElementById('lq-symbol-input').value = overviewState.symbol;
+  showPage('liquidity', document.querySelector('[data-page="liquidity"]'));
+}
+
 function worldSelectChartPeriod(period) {
   if (!['15m', '1h', '4h'].includes(period)) return;
   worldOverviewPeriod = period;

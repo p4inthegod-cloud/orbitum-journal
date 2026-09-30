@@ -5778,7 +5778,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           <div class="world-inventory-caption">Выберите актив для анализа</div>
           <h3>Пульс рынка <span>24ч</span></h3>
           <div id="world-market-tiles" class="world-market-tiles" aria-label="Изменение монет за 24 часа"></div>
-          <button class="world-inline-action" type="button" onclick="overviewJump('ov-market-table')">Все монеты →</button>
+          <button class="world-inline-action" type="button" onclick="overviewJump('ov-market-table',document.querySelector('.ov-page-tabs button:nth-child(2)'))">Все монеты →</button>
         </article>
         <article class="world-window world-candle-panel">
           <header class="world-window-head"><h2 id="world-chart-title">BTC / USDT</h2><div class="world-chart-periods" role="group" aria-label="Период свечного графика">
@@ -5788,10 +5788,10 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           </div></header>
           <div class="world-chart-reading"><strong id="world-chart-price">—</strong><span id="world-chart-range">Свечи загружаются</span></div>
           <div class="world-chart-surface"><canvas id="world-overview-chart" role="img" aria-label="Свечной график, данные загружаются"></canvas><div id="world-chart-empty" class="world-chart-empty">Загружаем рыночные данные…</div><output id="world-chart-tooltip" class="world-chart-tooltip" hidden></output></div>
-          <footer class="world-chart-footer"><span id="world-chart-source">—</span><button type="button" class="world-inline-action" onclick="showPage('market')">Открыть анализ →</button></footer>
+          <footer class="world-chart-footer"><span id="world-chart-source">—</span><button type="button" class="world-inline-action" onclick="openOverviewDetails()">Открыть анализ →</button></footer>
         </article>
         <article class="world-window world-overview-liquidity">
-          <header class="world-window-head"><h2>Карта ликвидности</h2><button class="world-window-tag" type="button" onclick="showPage('liquidity')" aria-label="Открыть полную карту ликвидности">↗</button></header>
+          <header class="world-window-head"><h2>Карта ликвидности</h2><button class="world-window-tag" type="button" onclick="worldOpenLiquidity()" aria-label="Открыть полную карту ликвидности">↗</button></header>
           <div class="world-map-summary"><span>Ближайшие неснятые пулы</span><strong id="world-map-gravity">—</strong></div>
           <div id="ov-world-liquidity" class="world-liquidity-map" role="list" aria-label="Ближайшие уровни ликвидности"></div>
           <footer class="world-map-legend"><span><i></i>Сверху</span><span><i></i>Снизу</span><small>Искры = сила пула</small></footer>
@@ -14361,7 +14361,7 @@ function liquiditySubmit(event){event.preventDefault();liquidityScan(liquidityEl
 function setLiquidityTF(tf,button){liquidityState.tf=tf;document.querySelectorAll('[data-lq-tf]').forEach(btn=>btn.classList.toggle('active',btn===button));renderLiquidityMap()}
 function setLiquidityVRVPTF(tf,button){liquidityState.vrvpTf=tf;document.querySelectorAll('[data-vrvp-tf]').forEach(btn=>btn.classList.toggle('active',btn===button));liquidityRenderVRVP()}
 function openLiquidityAnalytics(){marketIntelState.symbol=liquidityState.symbol;showPage('marketintel',document.querySelector('[data-page="marketintel"]'));selectMarketCoin(liquidityState.symbol);window.scrollTo({top:0,behavior:'smooth'})}
-function initLiquidityMap(){if(!liquidityState.initialized){liquidityState.initialized=true;let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))renderLiquidityMap()})});liquidityScan('BTC');liquidityState.refreshTimer=setInterval(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))liquidityScan(liquidityState.symbol,true)},60000)}else if(marketIntelState.symbol===liquidityState.symbol&&marketIntelState.ticker)renderLiquidityMap();else liquidityScan(liquidityState.symbol)}
+function initLiquidityMap(){if(!liquidityState.initialized){liquidityState.initialized=true;let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))renderLiquidityMap()})});liquidityScan(liquidityState.symbol);liquidityState.refreshTimer=setInterval(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))liquidityScan(liquidityState.symbol,true)},60000)}else if(marketIntelState.symbol===liquidityState.symbol&&marketIntelState.ticker)renderLiquidityMap();else liquidityScan(liquidityState.symbol)}
 
 // ── TRENDLINE ENGINE ─────────────────────────────────────────────
 const trendlineState={symbol:'BTC',tf:'15m',initialized:false,result:null,frames:{},refreshTimer:null,lastNotice:''};
