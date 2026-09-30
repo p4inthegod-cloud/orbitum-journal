@@ -5294,6 +5294,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <link rel="stylesheet" href="css/journal-sections.css">
 <link rel="stylesheet" href="css/journal-refresh.css">
 <link rel="stylesheet" href="css/journal-polish.css">
+<link rel="stylesheet" href="css/journal-pixel.css">
+<script src="js/journal-pixel.js"></script>
 </head>
 <body class="overview-page-active">
 
@@ -5758,12 +5760,14 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <div class="ov-loading" id="ov-loading"><i></i><span id="ov-loading-copy">Собираю BTC, сессии, новости и макро-календарь…</span></div>
 
       <div class="ov-pulse" id="ov-pulse">
-        <article class="ov-selected-coin"><div class="ov-coin-heading"><img id="ov-coin-icon" class="coin-icon" src="assets/coins/btc.svg" alt="" width="32" height="32"><span id="ov-coin-name">Bitcoin · BTC</span></div><strong id="ov-price">—</strong><small id="ov-price-meta">BTC / USDT · загрузка</small></article>
+        <article class="ov-selected-coin"><div class="ov-coin-heading"><img id="ov-coin-icon" class="coin-icon" src="assets/coins/btc.svg" alt="" width="32" height="32"><span id="ov-coin-name">Bitcoin · BTC</span></div><strong id="ov-price">—</strong><small id="ov-price-meta">BTC / USDT · загрузка</small><div class="px-spark" id="ov-price-spark"></div></article>
         <article><span>24 ЧАСА</span><strong id="ov-change">—</strong><small id="ov-range">диапазон —</small></article>
         <article><span>АКТИВНАЯ СЕССИЯ</span><strong id="ov-session">—</strong><small id="ov-session-next">следующая —</small></article>
-        <article><span>РЕЖИМ РЫНКА</span><strong id="ov-regime">—</strong><small id="ov-breadth">ширина рынка —</small></article>
+        <article><span>РЕЖИМ РЫНКА</span><strong id="ov-regime">—</strong><small id="ov-breadth">ширина рынка —</small><div class="px-spark" id="ov-breadth-spark"></div></article>
         <article><span>МАКРО-РИСК</span><strong id="ov-macro-risk">—</strong><small id="ov-next-event">события загружаются</small></article>
       </div>
+
+      <div class="px-session-timeline" id="ov-session-timeline"></div>
 
       <div class="ov-chip-rail" aria-label="Актуальные рыночные сигналы">
         <button type="button" class="ov-focus-pill" id="ov-focus-pill" onclick="overviewJump('ov-context-card',document.querySelector('.ov-page-tabs button:last-child'))" aria-label="Открыть новости и события">
@@ -5813,7 +5817,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           </div>
           <div class="ov-altseason" aria-label="Доля отслеживаемых альткоинов, опередивших Bitcoin за 24 часа">
             <span class="ov-altseason-title">Альтсезон · выборка</span><strong id="ov-altseason-value">—</strong>
-            <div class="ov-altseason-track"><i id="ov-altseason-marker"></i></div>
+            <div class="pixel-meter-host" id="ov-altseason-meter"></div>
             <small id="ov-altseason-copy">Ожидаем котировки ETH, SOL, BNB и XRP</small>
           </div></div>
           <div class="ov-market-hero">
@@ -5821,11 +5825,12 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
               <span>БАЛАНС СИЛ</span>
               <strong id="ov-bias">СКАНИРОВАНИЕ</strong>
               <p id="ov-bias-copy">Сверяю импульс и структуру 15м–1д.</p>
+              <div class="pixel-meter-host" id="ov-signal-meter"></div>
             </div>
             <div class="ov-metrics">
               <div><span>ТРЕНД 1Д</span><strong id="ov-trend">—</strong></div>
               <div><span>RSI 4Ч</span><strong id="ov-rsi">—</strong></div>
-              <div><span>ОБЪЁМ 1Ч</span><strong id="ov-volume">—</strong></div>
+              <div><span>ОБЪЁМ 1Ч</span><strong id="ov-volume">—</strong><div class="px-spark" id="ov-volume-spark"></div></div>
               <div><span>ATR 1Ч</span><strong id="ov-atr">—</strong></div>
             </div>
           </div>
@@ -6798,7 +6803,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           <div class="env-pulse-hero">
             <div class="env-regime"><div class="env-regime-code" id="env-regime-code">СКАНИРОВАНИЕ</div><p id="env-regime-copy">Собираю движение основных активов и структуру ширины рынка.</p></div>
             <div class="env-pulse-metrics">
-              <div class="env-metric"><span>ШИРИНА РЫНКА</span><strong id="env-breadth">—</strong></div>
+              <div class="env-metric"><span>ШИРИНА РЫНКА</span><strong id="env-breadth">—</strong><div class="px-spark" id="env-breadth-spark"></div></div>
               <div class="env-metric"><span>СРЕДНЕЕ ДВИЖЕНИЕ</span><strong id="env-volatility">—</strong></div>
               <div class="env-metric"><span>BTC 24H</span><strong id="env-btc-change">—</strong></div>
               <div class="env-metric"><span>СТРАХ И ЖАДНОСТЬ</span><strong id="env-fng">—</strong></div>
@@ -6836,6 +6841,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
       <article class="env-card env-session-card">
         <div class="env-card-head"><div><span class="env-card-title">КАРТА СЕССИЙ // UTC</span><small>время по Лондону, Нью-Йорку и Токио · ориентир активности, без учёта праздников</small></div><span class="env-source" id="env-clock">—</span></div>
+        <div class="px-session-timeline" id="env-session-timeline"></div>
         <div class="env-session-track" id="env-session-track"></div>
       </article>
     </section>
@@ -6968,7 +6974,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
       <div class="bs-grid">
         <article class="bs-card bs-verdict" id="bs-verdict-card">
-          <div class="bs-score-ring" id="bs-score-ring" title="Оценка силы направления, не вероятность прибыли"><strong id="bs-score">—</strong><small>СИЛА СИГНАЛА</small></div>
+          <div class="bs-score-ring pixel-score-card" id="bs-score-ring" title="Оценка силы направления, не вероятность прибыли"><strong id="bs-score">—</strong><small>СИЛА СИГНАЛА</small><div class="pixel-meter-host" id="bs-signal-meter"></div></div>
           <div class="bs-verdict-copy">
             <span>ПРИОРИТЕТНОЕ НАПРАВЛЕНИЕ</span>
             <h2 id="bs-verdict">СКАНИРОВАНИЕ</h2>
@@ -7000,13 +7006,13 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <div class="bs-scoreboard">
         <article class="bs-card bs-direction long">
           <div class="bs-dir-top"><span class="bs-dir-name">LONG</span><strong class="bs-dir-score" id="bs-long-score">—</strong></div>
-          <div class="bs-dir-bar"><i id="bs-long-bar"></i></div>
+          <div class="pixel-meter-host" id="bs-long-meter"></div>
           <div class="bs-dir-condition" id="bs-long-condition">Ожидание рыночных данных.</div>
           <div class="bs-dir-invalid"><strong>ОТМЕНА:</strong> <span id="bs-long-invalid">—</span></div>
         </article>
         <article class="bs-card bs-direction short">
           <div class="bs-dir-top"><span class="bs-dir-name">SHORT</span><strong class="bs-dir-score" id="bs-short-score">—</strong></div>
-          <div class="bs-dir-bar"><i id="bs-short-bar"></i></div>
+          <div class="pixel-meter-host" id="bs-short-meter"></div>
           <div class="bs-dir-condition" id="bs-short-condition">Ожидание рыночных данных.</div>
           <div class="bs-dir-invalid"><strong>ОТМЕНА:</strong> <span id="bs-short-invalid">—</span></div>
         </article>
@@ -7022,7 +7028,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           <div class="bs-card-head"><div><span class="bs-card-title">ПАРАМЕТРЫ МИССИИ</span><small>риск подстраивается под качество среды</small></div><span class="mi-live" id="bs-risk-mode">БАЗОВЫЙ</span></div>
           <div class="bs-risk-summary">
             <div class="bs-risk-cell"><span>ДОПУСТИМЫЙ РИСК</span><strong id="bs-risk-usd">—</strong></div>
-            <div class="bs-risk-cell"><span>РИСК ОТ БАЛАНСА</span><strong id="bs-risk-pct">—</strong></div>
+            <div class="bs-risk-cell"><span>РИСК ОТ БАЛАНСА</span><strong id="bs-risk-pct">—</strong><div class="pixel-meter-host" id="bs-risk-meter"></div></div>
             <div class="bs-risk-cell"><span>ОСТАЛОСЬ СДЕЛОК</span><strong id="bs-trades-left">—</strong></div>
           </div>
           <div class="bs-risk-choice" aria-label="Базовый риск">
@@ -11253,7 +11259,7 @@ function renderEnvironmentCalendar(){
   edgeSet('env-calendar-caption',`${events.length} событий · ${environmentState.source}`);
 }
 function renderEnvironmentAlerts(alerts){const el=document.getElementById('env-alert-feed');if(!el)return;edgeSet('env-alert-count',`${alerts.length} СИГНАЛОВ`);el.innerHTML=alerts.length?alerts.slice(0,7).map(x=>`<div class="env-alert ${x.severity}"><div class="env-alert-top"><span>${escHtml(x.type)}</span><small>${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</small></div><strong>${escHtml(x.title)}</strong><p>${escHtml(x.copy)}</p></div>`).join(''):'<div class="env-empty">Окружение спокойное. Критических предупреждений нет.</div>';}
-function renderEnvironmentSessions(session){const el=document.getElementById('env-session-track');if(!el)return;const now=Date.now();el.innerHTML=session.schedule.map(x=>`<div class="env-phase ${now>=x.start&&now<x.end?'active':''}"><span>${environmentUtcTime(x.start)}–${environmentUtcTime(x.end)} UTC</span><strong>${x.phase.title}</strong><p>${x.phase.copy}</p></div>`).join('');}
+function renderEnvironmentSessions(session){const el=document.getElementById('env-session-track');if(!el)return;const now=Date.now();pixelRenderSessionTimeline('env-session-timeline',session,new Date(now));el.innerHTML=session.schedule.map(x=>`<div class="env-phase ${now>=x.start&&now<x.end?'active':''}"><span>${environmentUtcTime(x.start)}–${x.end===session.schedule.at(-1).end?'24:00':environmentUtcTime(x.end)} UTC</span><strong>${x.phase.title}</strong><p>${x.phase.copy}</p></div>`).join('');}
 function environmentMaybeNotify(alerts,directive){
   alerts.filter(x=>x.severity==='high').forEach(x=>{terminalNotifyOnce(`env_${x.id}`,'danger',x.type,x.title+' · '+x.copy,8000);environmentDesktopNotify(x.type,x.title+' — '+x.copy,x.id);});
   if(directive.code==='REDUCE')terminalNotifyOnce(`env_reduce_${new Date().getUTCHours()}`,'warn','MARKET ENVIRONMENT','Повышенный внешний риск · снизить размер позиции',6500);
@@ -11272,7 +11278,7 @@ function renderEnvironment(){
   const age=Math.max(environmentState.lastCalendarAt,environmentState.lastMarketAt);edgeSet('env-data-age',age?`${Math.max(0,Math.round((Date.now()-age)/60000))}м НАЗАД`:'СИНХР.');edgeSet('env-data-source',environmentState.source);edgeSet('env-regime-code',environmentRegimeLabel(snapshot.code),snapshot.tone);edgeSet('env-regime-copy',snapshot.copy);edgeSet('env-breadth',snapshot.breadth==null?'—':`${Math.round(snapshot.breadth)}% РАСТУТ`,snapshot.breadth>=65?'good':snapshot.breadth<=35?'bad':'warn');edgeSet('env-volatility',snapshot.avgAbs==null?'—':snapshot.avgAbs.toFixed(2)+'%',snapshot.avgAbs>=4.5?'bad':snapshot.avgAbs<.85?'warn':null);edgeSet('env-btc-change',snapshot.btc==null?'—':`${snapshot.btc>=0?'+':''}${snapshot.btc.toFixed(2)}%`,snapshot.btc>0?'good':snapshot.btc<0?'bad':null);edgeSet('env-fng',snapshot.fng==null?'—':String(Math.round(snapshot.fng)),snapshot.fng<=20||snapshot.fng>=80?'warn':null);edgeSet('env-pulse-time',new Date(snapshot.at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
   edgeSet('env-directive-code',environmentDirectiveLabel(directive.code),directive.tone);edgeSet('env-directive-title',directive.title);edgeSet('env-directive-copy',directive.copy);const reasons=document.getElementById('env-directive-reasons');if(reasons)reasons.innerHTML=directive.reasons.map(x=>`<div class="env-reason ${x.severity}"><i></i><span>${escHtml(x.text)}</span></div>`).join('');const dot=document.getElementById('env-directive-dot');if(dot)dot.style.background=directive.tone==='bad'?'var(--r)':'var(--g)';
   edgeSet('env-clock',`${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')}Z`);edgeSet('env-rail-session',session.phase.title);edgeSet('env-rail-regime',environmentRegimeLabel(snapshot.code));edgeSet('env-rail-event',nextHigh?`${nextHigh.country} ${nextHigh.title} · ${environmentCountdown(Math.max(0,macro.highMinutes))}`:'ВАЖНЫХ СОБЫТИЙ НЕТ / 48Ч');edgeSet('env-rail-risk',environmentDirectiveLabel(directive.code),directive.tone);
-  renderEnvironmentCalendar();renderEnvironmentAlerts(macro.alerts);renderEnvironmentSessions(session);environmentMaybeNotify(macro.alerts,directive);
+  renderEnvironmentCalendar();renderEnvironmentAlerts(macro.alerts);renderEnvironmentSessions(session);pixelRenderRadar(snapshot);environmentMaybeNotify(macro.alerts,directive);
 }
 async function refreshEnvironment(force){
   edgeSet('env-data-source','синхронизация…');await fetchEnvironmentCalendar(Boolean(force));renderEnvironment();if(force)showNotif('success','СКАНЕР ОБНОВЛЁН',`${environmentState.events.length} макро-событий · ${environmentState.source}`,2600);
@@ -14198,7 +14204,7 @@ function renderBattleScreen(){
   const result=battleDecision();if(!result)return;
   battleState.lastDecision=result;const toneColor=result.tone==='bad'?'var(--r)':result.tone==='warn'?'var(--a)':'var(--g)',ring=battleEl('bs-score-ring');if(ring){ring.style.setProperty('--score',result.confidence);ring.style.setProperty('--tone',toneColor);ring.classList.toggle('bad',result.tone==='bad');ring.classList.toggle('warn',result.tone==='warn')}
   battleSet('bs-score',String(result.confidence));battleSet('bs-verdict',result.verdict,result.tone);const verdict=battleEl('bs-verdict');if(verdict)verdict.style.color=toneColor;battleSet('bs-verdict-copy',result.copy);battleSet('bs-meta-symbol',battleState.symbol+' / USDT');battleSet('bs-meta-session','СЕССИЯ '+result.session.phase.title);battleSet('bs-meta-regime','РЕЖИМ '+environmentRegimeLabel(result.snapshot.code));battleSet('bs-meta-age','ДАННЫЕ '+Math.max(0,Math.round((Date.now()-marketIntelState.loadedAt)/1000))+'С');
-  battleSet('bs-long-score',result.longScore+'/100');battleSet('bs-short-score',result.shortScore+'/100');battleEl('bs-long-bar').style.width=result.longScore+'%';battleEl('bs-short-bar').style.width=result.shortScore+'%';
+  battleSet('bs-long-score',result.longScore+'/100');battleSet('bs-short-score',result.shortScore+'/100');
   const support=miFmtPrice(result.levels.support),resistance=miFmtPrice(result.levels.resistance);
   battleSet('bs-long-condition','Подтверждение: удержание '+support+' и возврат импульса RSI выше 50.');battleSet('bs-long-invalid','закрепление ниже '+support+' или медвежья дивергенция на 1ч.');
   battleSet('bs-short-condition','Подтверждение: отказ от '+resistance+' и сохранение RSI ниже 50.');battleSet('bs-short-invalid','закрепление выше '+resistance+' или бычья дивергенция на 1ч.');
@@ -14207,6 +14213,7 @@ function renderBattleScreen(){
   battleEl('bs-factor-list').innerHTML=result.factors.map(battleFactorHTML).join('');
   const currentBalance=Math.max(0,(Number(balanceStart)||1000)+(allTrades||[]).reduce((sum,t)=>sum+(Number(t.pnl_usd)||Number(t.realized_pnl)||0),0)),riskMultiplier=result.hardBlock?0:result.verdict==='ЖДАТЬ'?.35:result.directive.code==='REDUCE'?.6:result.directive.code==='MANAGE'?.45:result.confidence<70?.75:1,effectivePct=Math.round(battleState.riskPct*riskMultiplier*100)/100,riskUsd=currentBalance*effectivePct/100,tradesLeft=Math.max(0,result.maxTrades-result.today.length);
   battleSet('bs-risk-usd',riskMultiplier===0?'$0':('$'+riskUsd.toFixed(2)),riskMultiplier===0?'bad':'good');battleSet('bs-risk-pct',effectivePct.toFixed(2)+'%',effectivePct<battleState.riskPct?'warn':'good');battleSet('bs-trades-left',String(tradesLeft),tradesLeft===0?'bad':tradesLeft===1?'warn':'good');battleSet('bs-risk-mode',riskMultiplier===0?'ЗАПРЕТ':riskMultiplier<1?'СНИЖЕННЫЙ':'БАЗОВЫЙ',riskMultiplier===0?'bad':riskMultiplier<1?'warn':'good');
+  pixelRenderBattle(result,effectivePct);
   const action=battleEl('bs-action'),allowed=!result.hardBlock&&result.verdict!=='ЖДАТЬ';if(action){action.disabled=!allowed;action.textContent=allowed?('ПЕРЕДАТЬ '+result.direction.toUpperCase()+' В ЖУРНАЛ'):'ВХОД ЗАБЛОКИРОВАН'}
   battleSet('bs-mission-note',result.hardBlock?result.copy:result.verdict==='ЖДАТЬ'?'Система сохраняет наблюдение, но не выдаёт направление. Риск принудительно снижен до разведочного.':'Рабочее направление: '+result.direction.toUpperCase()+'. Базовый риск '+battleState.riskPct.toFixed(1)+'% скорректирован средой до '+effectivePct.toFixed(2)+'%.');
 }
@@ -14313,7 +14320,8 @@ function liquidityRenderVRVP(){
 }
 function liquidityPoolRow(pool,current){
   const side=pool.price>current?'above':'below',label=side==='above'?'СВЕРХУ':'СНИЗУ';
-  const heat=pool.status==='live'?'<span class="lq-pool-heat" title="Оценочная сила неснятого пула: '+pool.heat+' из 3">'+'🔥'.repeat(pool.heat||1)+'</span>':'';
+  const heatCount=Math.max(1,Math.min(3,pool.heat||1)),sparks=heatCount>=2?'<span class="px-pool-sparks" aria-hidden="true" style="--spark-delay:'+Math.floor(pool.price%4)+'s">'+'<i></i>'.repeat(heatCount)+'</span>':'';
+  const heat=pool.status==='live'?'<span class="lq-pool-heat" role="img" aria-label="Сила неснятого пула: '+heatCount+' из 3" title="Оценочная сила неснятого пула: '+heatCount+' из 3">'+'<span class="emoji-glyph px-fire" aria-hidden="true">🔥</span>'.repeat(heatCount)+sparks+'</span>':'';
   return '<tr class="lq-pool-row '+(pool.status==='live'?'is-live':'is-swept')+' '+side+'"><td><div class="lq-pool-name"><strong>'+escHtml(pool.name)+'</strong>'+heat+'</div></td><td class="'+side+'">'+escHtml(miFmtPrice(pool.price))+'</td><td>'+label+'</td><td>'+pool.distancePct.toFixed(2)+'% · '+pool.distanceAtr.toFixed(2)+' ATR</td><td>'+pool.touches+'</td><td><span class="lq-status '+pool.status+'">'+(pool.status==='live'?'НЕ СНЯТА':'СНЯТА')+'</span></td></tr>';
 }
 function renderLiquidityMap(){
@@ -14762,12 +14770,12 @@ function overviewRenderMarketTable(){
   }).join(''):'<tr><td colspan="4" class="ov-market-empty">Для этого фильтра пока нет монет с доступными котировками.</td></tr>';
 }
 function overviewRenderAltseason(){
-  const value=overviewEl('ov-altseason-value'),copy=overviewEl('ov-altseason-copy'),marker=overviewEl('ov-altseason-marker');if(!value||!copy||!marker)return;
+  const value=overviewEl('ov-altseason-value'),copy=overviewEl('ov-altseason-copy');if(!value||!copy)return;
   const change=symbol=>{const feed=tickerData[symbol],number=feed?.chg==null?NaN:Number(feed.chg);return Number.isFinite(number)?number:symbol===marketIntelState.symbol?Number(marketIntelState.ticker?.changePct):NaN};
   const btc=change('BTC'),alts=['ETH','SOL','BNB','XRP'].map(change).filter(Number.isFinite);
-  if(!Number.isFinite(btc)||!alts.length){value.textContent='—';copy.textContent='Ожидаем котировки ETH, SOL, BNB и XRP';marker.hidden=true;return}
+  if(!Number.isFinite(btc)||!alts.length){value.textContent='—';copy.textContent='Ожидаем котировки ETH, SOL, BNB и XRP';pixelSetMeter('ov-altseason-meter',null,{label:'Альтсезон в отслеживаемой выборке',segments:14});return}
   const stronger=alts.filter(number=>number>btc).length,score=Math.round(stronger/alts.length*100);
-  value.textContent=score+'%';copy.textContent=stronger+' из '+alts.length+' альткоинов опережают BTC за 24 ч';marker.hidden=false;marker.style.left=score+'%';
+  value.textContent=score+'%';copy.textContent=stronger+' из '+alts.length+' альткоинов опережают BTC за 24 ч';pixelSetMeter('ov-altseason-meter',score,{label:'Альтсезон в отслеживаемой выборке',segments:14,valueText:copy.textContent});
 }
 function overviewRestorePin(){try{const symbol=miCleanSymbol(localStorage.getItem('et_overview_pinned_symbol')||'');if(symbol){overviewState.pinnedSymbol=symbol;overviewState.symbol=symbol}}catch(e){}}
 function overviewSyncControls(){const symbol=overviewState.symbol,input=overviewEl('ov-symbol-input'),pin=overviewEl('ov-pin-btn'),active=overviewState.pinnedSymbol===symbol;if(input)input.value=symbol;document.querySelectorAll('[data-ov-symbol]').forEach(btn=>btn.classList.toggle('active',btn.dataset.ovSymbol===symbol));if(pin){pin.classList.toggle('active',active);pin.setAttribute('aria-pressed',String(active));const copy=pin.querySelector('span:last-child');if(copy)copy.textContent=active?'ЗАКРЕПЛЕНО':'ЗАКРЕПИТЬ'}overviewRenderMarketTable()}
@@ -14812,9 +14820,10 @@ function overviewRenderSentiment(value){
 }
 function overviewRender(){
   overviewClock();overviewSyncControls();const hasMarket=marketIntelState.symbol===overviewState.symbol&&marketIntelState.ticker&&marketIntelState.candles['4h']?.length,session=environmentPhase(new Date()),snapshot=environmentMarketSnapshot(),macro=environmentBuildAlerts(snapshot,session),directive=environmentDirective(snapshot,session,macro),nextHigh=macro.nextHigh;
-  overviewRenderSentiment(snapshot.fng);overviewSet('ov-session',session.phase.title,'good');overviewSet('ov-session-next',`${session.eventLabel} через ${environmentCountdown(session.minutes)} · ${environmentUtcTime(session.transition)} UTC`);overviewSet('ov-regime',environmentRegimeLabel(snapshot.code),snapshot.tone);overviewSet('ov-breadth',snapshot.breadth==null?'ширина рынка загружается':Math.round(snapshot.breadth)+'% монет растут');overviewSet('ov-macro-risk',nextHigh&&macro.highMinutes<=25?'ПАУЗА':nextHigh&&macro.highMinutes<=60?'ПОВЫШЕН':nextHigh?'ЗАПЛАНИРОВАН':'ЧИСТО',nextHigh&&macro.highMinutes<=25?'bad':nextHigh&&macro.highMinutes<=60?'warn':nextHigh?'cyan':'good');overviewSet('ov-next-event',nextHigh?nextHigh.country+' · '+nextHigh.title+' · '+environmentCountdown(Math.max(0,macro.highMinutes)):'важных событий нет / 48ч');overviewRenderEvents();overviewRenderNews();overviewRenderFocus(macro);if(!hasMarket)return;
+  overviewRenderSentiment(snapshot.fng);overviewSet('ov-session',session.phase.title,'good');overviewSet('ov-session-next',`${session.eventLabel} через ${environmentCountdown(session.minutes)} · ${environmentUtcTime(session.transition)} UTC`);overviewSet('ov-regime',environmentRegimeLabel(snapshot.code),snapshot.tone);overviewSet('ov-breadth',snapshot.breadth==null?'ширина рынка загружается':Math.round(snapshot.breadth)+'% монет растут');overviewSet('ov-macro-risk',nextHigh&&macro.highMinutes<=25?'ПАУЗА':nextHigh&&macro.highMinutes<=60?'ПОВЫШЕН':nextHigh?'ЗАПЛАНИРОВАН':'ЧИСТО',nextHigh&&macro.highMinutes<=25?'bad':nextHigh&&macro.highMinutes<=60?'warn':nextHigh?'cyan':'good');overviewSet('ov-next-event',nextHigh?nextHigh.country+' · '+nextHigh.title+' · '+environmentCountdown(Math.max(0,macro.highMinutes)):'важных событий нет / 48ч');overviewRenderEvents();overviewRenderNews();overviewRenderFocus(macro);pixelRenderSessionTimeline('ov-session-timeline',session);if(!hasMarket){pixelRenderOverview(null,snapshot);return;}
   const analysis=miBuildAnalysis(),ticker=analysis.ticker,inds=analysis.inds,range=ticker.high-ticker.low,rangePct=ticker.low>0?range/ticker.low*100:null,synthesis=overviewSynthesis(analysis,snapshot,session,macro,directive),volume=inds['1h'].volumeRatio;
   overviewSet('ov-price',miFmtPrice(analysis.current),'cyan');overviewSet('ov-price-meta',overviewState.symbol+' / USDT · '+marketIntelState.source);overviewSet('ov-change',overviewChangeLabel(ticker.changePct),ticker.changePct>0?'good':ticker.changePct<0?'bad':'');overviewSet('ov-range',Number.isFinite(rangePct)?'диапазон суток '+rangePct.toFixed(2)+'%':'диапазон суток —');overviewSet('ov-source',marketIntelState.source+' · обновлено '+new Date(marketIntelState.loadedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));overviewSet('ov-score',analysis.score+'/100',analysis.verdict.tone);overviewSet('ov-bias',analysis.verdict.title,analysis.verdict.tone);overviewSet('ov-bias-copy',analysis.verdict.copy);overviewSet('ov-trend',analysis.dailyTrend.label,analysis.dailyTrend.tone);overviewSet('ov-rsi',Number.isFinite(inds['4h'].rsi)?inds['4h'].rsi.toFixed(1):'—',miRSIZone(inds['4h'].rsi).tone);overviewSet('ov-volume',Number.isFinite(volume)?volume.toFixed(2)+'×':'—',volume>=1.5?'good':volume<.7?'warn':'');overviewSet('ov-atr',Number.isFinite(inds['1h'].atrPct)?inds['1h'].atrPct.toFixed(2)+'%':'—',inds['1h'].atrPct>3?'bad':inds['1h'].atrPct>1.5?'warn':'');overviewSet('ov-support',miFmtPrice(analysis.levels.support));overviewSet('ov-current',miFmtPrice(analysis.current));overviewSet('ov-resistance',miFmtPrice(analysis.levels.resistance));
+  pixelRenderOverview(analysis,snapshot);
   const changeEl=overviewEl('ov-change');if(changeEl)changeEl.setAttribute('aria-label',Number.isFinite(ticker.changePct)?(ticker.changePct>0?'Рост ':ticker.changePct<0?'Снижение ':'Без изменения ')+overviewChangeLabel(ticker.changePct):'Изменение недоступно');
   const card=overviewEl('ov-action-card'),dot=card?.querySelector('.ov-action-dot');if(card){card.classList.remove('good','bad','warn');card.classList.add(synthesis.tone)}if(dot){dot.style.background=synthesis.tone==='bad'?'var(--r)':'var(--g)'}overviewSet('ov-action-code',synthesis.code,synthesis.tone);overviewSet('ov-action-title',synthesis.title);overviewSet('ov-action-copy',synthesis.copy);const facts=overviewEl('ov-action-facts');if(facts)facts.innerHTML=synthesis.facts.map(item=>'<div class="'+item.tone+'"><i></i><span>'+escHtml(item.text)+'</span></div>').join('');overviewSet('ov-risk',synthesis.risk,synthesis.tone);overviewSet('ov-plan-symbol',overviewState.symbol,'good');overviewSet('ov-entry-condition',synthesis.entry);overviewSet('ov-invalidation',synthesis.invalidation);overviewSet('ov-key-risk',synthesis.keyRisk,synthesis.hard?'bad':'warn');overviewSet('ov-bottom-line',synthesis.hard?'Сейчас важнее сохранить капитал, чем искать вход.':synthesis.direction==='neutral'?'Нет сделки — тоже решение. Жди подтверждённый выход из баланса.':'Работай только по условию и заранее фиксируй стоп; контекст не является сигналом.');
 }
