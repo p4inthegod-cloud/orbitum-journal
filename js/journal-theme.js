@@ -18,8 +18,8 @@
   }
   window.journalSetTheme = apply;
   window.journalToggleTheme = function () { apply(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true); };
-  var saved = 'light';
-  try { saved = localStorage.getItem(key) || 'light'; } catch (_) {}
+  var saved = 'dark';
+  try { saved = localStorage.getItem(key) || 'dark'; } catch (_) {}
   apply(saved, false);
   window.addEventListener('storage', function (event) { if (event.key === key) apply(event.newValue, false); });
   document.addEventListener('DOMContentLoaded', function () {

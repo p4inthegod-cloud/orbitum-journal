@@ -5298,6 +5298,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <script src="js/journal-pixel.js"></script>
 <link rel="stylesheet" href="css/journal-world.css">
 <script src="js/journal-world.js"></script>
+<link rel="stylesheet" href="css/journal-concept.css">
+<script src="js/journal-concept.js"></script>
 </head>
 <body class="overview-page-active">
 
@@ -5762,12 +5764,39 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <div class="ov-loading" id="ov-loading"><i></i><span id="ov-loading-copy">Собираю BTC, сессии, новости и макро-календарь…</span></div>
 
       <div class="ov-pulse" id="ov-pulse">
-        <article class="ov-selected-coin"><div class="ov-coin-heading"><img id="ov-coin-icon" class="coin-icon" src="assets/coins/btc.svg" alt="" width="32" height="32"><span id="ov-coin-name">Bitcoin · BTC</span></div><strong id="ov-price">—</strong><small id="ov-price-meta">BTC / USDT · загрузка</small><div class="px-spark" id="ov-price-spark"></div></article>
-        <article><span>24 ЧАСА</span><strong id="ov-change">—</strong><small id="ov-range">диапазон —</small></article>
+        <article class="ov-selected-coin"><div class="ov-coin-heading"><img id="ov-coin-icon" class="coin-icon" src="assets/coins/btc.svg" alt="" width="32" height="32"><span id="ov-coin-name">Bitcoin · BTC</span></div><strong id="ov-price">—</strong><div class="world-price-change"><strong id="ov-change">—</strong><small id="ov-range">диапазон —</small></div><small id="ov-price-meta">BTC / USDT · загрузка</small><div class="px-spark" id="ov-price-spark"></div></article>
+        <article><span>ШИРИНА РЫНКА</span><strong id="world-top-breadth">—</strong><small id="ov-breadth">Доля растущих монет</small><div class="px-spark" id="ov-breadth-spark"></div></article>
         <article><span>АКТИВНАЯ СЕССИЯ</span><strong id="ov-session">—</strong><small id="ov-session-next">следующая —</small></article>
-        <article><span>РЕЖИМ РЫНКА</span><strong id="ov-regime">—</strong><small id="ov-breadth">ширина рынка —</small><div class="px-spark" id="ov-breadth-spark"></div></article>
+        <article><span>СИЛА КОНТЕКСТА</span><strong id="world-top-score">—</strong><div id="world-top-meter" class="pixel-meter-host"></div><small id="ov-regime">Режим загружается</small></article>
         <article><span>МАКРО-РИСК</span><strong id="ov-macro-risk">—</strong><small id="ov-next-event">события загружаются</small></article>
       </div>
+
+      <section class="world-workspace" aria-label="Рабочий терминал">
+        <article class="world-window world-inventory">
+          <header class="world-window-head"><h2>Инвентарь монет</h2><span class="world-window-tag">USDT</span></header>
+          <div id="world-inventory-slots"></div>
+          <div class="world-inventory-caption">Выберите актив для анализа</div>
+          <h3>Пульс рынка <span>24ч</span></h3>
+          <div id="world-market-tiles" class="world-market-tiles" aria-label="Изменение монет за 24 часа"></div>
+          <button class="world-inline-action" type="button" onclick="overviewJump('ov-market-table')">Все монеты →</button>
+        </article>
+        <article class="world-window world-candle-panel">
+          <header class="world-window-head"><h2 id="world-chart-title">BTC / USDT</h2><div class="world-chart-periods" role="group" aria-label="Период свечного графика">
+            <button type="button" data-world-tf="15m" aria-pressed="false" onclick="worldSelectChartPeriod('15m')">15м</button>
+            <button type="button" class="active" data-world-tf="1h" aria-pressed="true" onclick="worldSelectChartPeriod('1h')">1ч</button>
+            <button type="button" data-world-tf="4h" aria-pressed="false" onclick="worldSelectChartPeriod('4h')">4ч</button>
+          </div></header>
+          <div class="world-chart-reading"><strong id="world-chart-price">—</strong><span id="world-chart-range">Свечи загружаются</span></div>
+          <div class="world-chart-surface"><canvas id="world-overview-chart" role="img" aria-label="Свечной график, данные загружаются"></canvas><div id="world-chart-empty" class="world-chart-empty">Загружаем рыночные данные…</div><output id="world-chart-tooltip" class="world-chart-tooltip" hidden></output></div>
+          <footer class="world-chart-footer"><span id="world-chart-source">—</span><button type="button" class="world-inline-action" onclick="showPage('market')">Открыть анализ →</button></footer>
+        </article>
+        <article class="world-window world-overview-liquidity">
+          <header class="world-window-head"><h2>Карта ликвидности</h2><button class="world-window-tag" type="button" onclick="showPage('liquidity')" aria-label="Открыть полную карту ликвидности">↗</button></header>
+          <div class="world-map-summary"><span>Ближайшие неснятые пулы</span><strong id="world-map-gravity">—</strong></div>
+          <div id="ov-world-liquidity" class="world-liquidity-map" role="list" aria-label="Ближайшие уровни ликвидности"></div>
+          <footer class="world-map-legend"><span><i></i>Сверху</span><span><i></i>Снизу</span><small>Искры = сила пула</small></footer>
+        </article>
+      </section>
 
       <div class="px-session-timeline" id="ov-session-timeline"></div>
 
@@ -14817,7 +14846,7 @@ function overviewRender(){
   const changeEl=overviewEl('ov-change');if(changeEl)changeEl.setAttribute('aria-label',Number.isFinite(ticker.changePct)?(ticker.changePct>0?'Рост ':ticker.changePct<0?'Снижение ':'Без изменения ')+overviewChangeLabel(ticker.changePct):'Изменение недоступно');
   const card=overviewEl('ov-action-card'),dot=card?.querySelector('.ov-action-dot');if(card){card.classList.remove('good','bad','warn');card.classList.add(synthesis.tone)}if(dot){dot.style.background=synthesis.tone==='bad'?'var(--r)':'var(--g)'}overviewSet('ov-action-code',synthesis.code,synthesis.tone);overviewSet('ov-action-title',synthesis.title);overviewSet('ov-action-copy',synthesis.copy);const facts=overviewEl('ov-action-facts');if(facts)facts.innerHTML=synthesis.facts.map(item=>'<div class="'+item.tone+'"><i></i><span>'+escHtml(item.text)+'</span></div>').join('');overviewSet('ov-risk',synthesis.risk,synthesis.tone);overviewSet('ov-plan-symbol',overviewState.symbol,'good');overviewSet('ov-entry-condition',synthesis.entry);overviewSet('ov-invalidation',synthesis.invalidation);overviewSet('ov-key-risk',synthesis.keyRisk,synthesis.hard?'bad':'warn');overviewSet('ov-bottom-line',synthesis.hard?'Сейчас важнее сохранить капитал, чем искать вход.':synthesis.direction==='neutral'?'Нет сделки — тоже решение. Жди подтверждённый выход из баланса.':'Работай только по условию и заранее фиксируй стоп; контекст не является сигналом.');
 }
-async function overviewSelectSymbol(rawSymbol,button,force=false){const symbol=miCleanSymbol(rawSymbol);if(!symbol){showNotif('warn','ОБЗОР','Введи тикер монеты, например BTC или ETH.',2600);return}overviewState.symbol=symbol;overviewSyncControls();const requestId=++overviewState.requestId,loading=overviewEl('ov-loading');overviewState.loading=true;loading?.classList.add('show');overviewSet('ov-loading-copy','Собираю '+symbol+': цена, структура, новости и макро-контекст…');try{if(!force&&marketIntelState.symbol===symbol&&marketIntelState.loadedAt&&Date.now()-marketIntelState.loadedAt<45000){overviewRender();return}const data=await miLoadMarket(symbol);if(requestId!==overviewState.requestId)return;marketIntelState.symbol=symbol;marketIntelState.candles=data.candles;marketIntelState.ticker=data.ticker;marketIntelState.source=data.source;marketIntelState.loadedAt=Date.now();overviewRender();if(button)showNotif('success','ОБЗОР',symbol+'/USDT · выжимка обновлена',2200)}catch(error){if(requestId===overviewState.requestId){overviewSet('ov-price','НЕТ ДАННЫХ','bad');overviewSet('ov-price-meta',error.message||'Источник недоступен');showNotif('error','ОБЗОР',error.message||'Не удалось загрузить монету',3600)}}finally{if(requestId===overviewState.requestId){overviewState.loading=false;loading?.classList.remove('show')}}}
+async function overviewSelectSymbol(rawSymbol,button,force=false){const symbol=miCleanSymbol(rawSymbol);if(!symbol){showNotif('warn','ОБЗОР','Введи тикер монеты, например BTC или ETH.',2600);return}overviewState.symbol=symbol;overviewSyncControls();const requestId=++overviewState.requestId,loading=overviewEl('ov-loading');overviewState.loading=true;worldRenderOverviewWorkspace(null,environmentMarketSnapshot());loading?.classList.add('show');overviewSet('ov-loading-copy','Собираю '+symbol+': цена, структура, новости и макро-контекст…');try{if(!force&&marketIntelState.symbol===symbol&&marketIntelState.loadedAt&&Date.now()-marketIntelState.loadedAt<45000){overviewRender();return}const data=await miLoadMarket(symbol);if(requestId!==overviewState.requestId)return;marketIntelState.symbol=symbol;marketIntelState.candles=data.candles;marketIntelState.ticker=data.ticker;marketIntelState.source=data.source;marketIntelState.loadedAt=Date.now();overviewRender();if(button)showNotif('success','ОБЗОР',symbol+'/USDT · выжимка обновлена',2200)}catch(error){if(requestId===overviewState.requestId){overviewSet('ov-price','НЕТ ДАННЫХ','bad');overviewSet('ov-price-meta',error.message||'Источник недоступен');showNotif('error','ОБЗОР',error.message||'Не удалось загрузить монету',3600)}}finally{if(requestId===overviewState.requestId){overviewState.loading=false;loading?.classList.remove('show')}}}
 function overviewSubmit(event){event.preventDefault();overviewSelectSymbol(overviewEl('ov-symbol-input')?.value,null,true)}
 function openOverviewDetails(){marketIntelState.symbol=overviewState.symbol;showPage('marketintel',document.querySelector('[data-page="marketintel"]'));selectMarketCoin(overviewState.symbol);window.scrollTo({top:0,behavior:'smooth'})}
 function initOverview(){if(!overviewState.initialized){overviewState.initialized=true;overviewRestorePin();overviewSyncControls();overviewSelectSymbol(overviewState.symbol,null,false);setTimeout(async()=>{await Promise.allSettled([fetchEnvironmentCalendar(false),overviewLoadNews(false)]);overviewRender()},250);overviewState.refreshTimer=setInterval(()=>{if(!overviewEl('page-overview')?.classList.contains('active'))return;overviewSelectSymbol(overviewState.symbol,null,true);overviewLoadNews(false).then(overviewRender);fetchEnvironmentCalendar(false).then(overviewRender)},60000);overviewState.contextTimer=setInterval(()=>{if(overviewEl('page-overview')?.classList.contains('active'))overviewRender()},15000)}else if(marketIntelState.symbol===overviewState.symbol&&marketIntelState.ticker)overviewRender();else overviewSelectSymbol(overviewState.symbol,null,false)}

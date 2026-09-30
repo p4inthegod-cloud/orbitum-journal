@@ -105,6 +105,7 @@ function pixelRenderOverview(analysis, snapshot) {
   pixelSparkline('ov-volume-spark', candles.map(candle => candle.volume), { label: 'Торговый объём ' + overviewState.symbol + ', часовые свечи', caption: 'Объём · часовых свечей: ' + candles.length });
   const breadth = pixelRecordBreadth(snapshot);
   pixelSparkline('ov-breadth-spark', breadth, { label: 'Ширина рынка, процент растущих монет', caption: breadth.length > 1 ? 'Ширина · наблюдения за этот сеанс' : 'Ширина · история накапливается' });
+  worldRenderOverviewWorkspace(analysis, snapshot);
   pixelSetMeter('ov-signal-meter', analysis?.score, { label: 'Сила рыночного сигнала', caption: 'Сила сигнала · 0–100' });
 }
 
