@@ -59,7 +59,11 @@ test('формирует русскую подпись без ссылок на 
   assert.ok(summary.changePct > 0);
 });
 
-test('определяет торговую сессию по UTC', () => {
+test('определяет торговую сессию с учётом часовых поясов', () => {
   assert.equal(getTradingSession(new Date('2026-08-15T02:00:00Z')).name, 'Азиатская');
-  assert.equal(getTradingSession(new Date('2026-08-15T13:00:00Z')).name, 'Пересечение Лондона и Нью-Йорка');
+  assert.equal(getTradingSession(new Date('2026-08-15T13:00:00Z')).name, 'Лондонская');
+  assert.equal(getTradingSession(new Date('2026-09-30T13:19:00Z')).name, 'Лондонская');
+  assert.equal(getTradingSession(new Date('2026-09-30T13:30:00Z')).name, 'Пересечение Лондона и Нью-Йорка');
+  assert.equal(getTradingSession(new Date('2026-12-01T14:19:00Z')).name, 'Лондонская');
+  assert.equal(getTradingSession(new Date('2026-12-01T14:30:00Z')).name, 'Пересечение Лондона и Нью-Йорка');
 });

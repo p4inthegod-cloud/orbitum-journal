@@ -6786,7 +6786,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
       <div class="env-status-row">
         <article><span>ТЕКУЩАЯ СЕССИЯ</span><strong id="env-current-session">—</strong><small id="env-session-window">МОДЕЛЬ UTC</small></article>
-        <article><span>СЛЕДУЮЩАЯ СЕССИЯ</span><strong id="env-next-session">—</strong><small id="env-next-countdown">—</small></article>
+        <article><span>СЛЕДУЮЩИЙ ПЕРЕХОД</span><strong id="env-next-session">—</strong><small id="env-next-countdown">—</small></article>
         <article><span>СОСТОЯНИЕ РЫНКА</span><strong id="env-market-regime">СКАНИРОВАНИЕ</strong><small id="env-regime-detail">ширина рынка</small></article>
         <article><span>МАКРО-РИСК</span><strong id="env-macro-risk">СИНХРОНИЗАЦИЯ</strong><small id="env-next-high">экономический календарь</small></article>
         <article><span>АКТУАЛЬНОСТЬ ДАННЫХ</span><strong id="env-data-age">—</strong><small id="env-data-source">ожидание</small></article>
@@ -6835,7 +6835,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       </div>
 
       <article class="env-card env-session-card">
-        <div class="env-card-head"><div><span class="env-card-title">КАРТА СЕССИЙ // UTC</span><small>характер ликвидности в течение суток</small></div><span class="env-source" id="env-clock">—</span></div>
+        <div class="env-card-head"><div><span class="env-card-title">КАРТА СЕССИЙ // UTC</span><small>время по Лондону, Нью-Йорку и Токио · ориентир активности, без учёта праздников</small></div><span class="env-source" id="env-clock">—</span></div>
         <div class="env-session-track" id="env-session-track"></div>
       </article>
     </section>
@@ -11131,18 +11131,58 @@ function terminalNotifyOnce(key,type,title,text,duration){
 // MARKET ENVIRONMENT — macro calendar + live breadth + risk directives
 // ══════════════════════════════════════════════════
 const ENV_PHASES=[
-  {code:'ASIA',start:0,end:7,title:'АЗИЯ',copy:'Чаще формирует диапазон. Ликвидность ниже, движения чувствительнее к отдельным потокам.'},
-  {code:'LONDON',start:7,end:12,title:'ЛОНДОН',copy:'Рост ликвидности. Часто снимается азиатский диапазон и появляется первое расширение дня.'},
-  {code:'OVERLAP',start:12,end:16,title:'ЛОНДОН × НЬЮ-ЙОРК',copy:'Максимальная ликвидность и скорость. Лучшее исполнение, но выше риск новостных выбросов.'},
-  {code:'NEW_YORK',start:16,end:21,title:'НЬЮ-ЙОРК',copy:'Американский поток определяет закрытие дня. Импульс может продолжиться или полностью развернуться.'},
-  {code:'OFF_HOURS',start:21,end:24,title:'ВНЕ СЕССИЙ',copy:'Ликвидность снижается. Приоритет — управление открытыми позициями, а не новые импульсивные входы.'}
+  {code:'ASIA',title:'АЗИЯ',copy:'Чаще формирует диапазон. Ликвидность ниже, движения чувствительнее к отдельным потокам.'},
+  {code:'LONDON',title:'ЛОНДОН',copy:'Рост ликвидности. Часто снимается азиатский диапазон и появляется первое расширение дня.'},
+  {code:'OVERLAP',title:'ЛОНДОН × НЬЮ-ЙОРК',copy:'Максимальная ликвидность и скорость. Лучшее исполнение, но выше риск новостных выбросов.'},
+  {code:'NEW_YORK',title:'НЬЮ-ЙОРК',copy:'Американский поток определяет закрытие дня. Импульс может продолжиться или полностью развернуться.'},
+  {code:'OFF_HOURS',title:'ВНЕ СЕССИЙ',copy:'Ликвидность снижается. Приоритет — управление открытыми позициями, а не новые импульсивные входы.'}
 ];
+const ENV_WINDOWS=[
+  {code:'ASIA',zone:'Asia/Tokyo',start:[9,0],end:[17,0]},
+  {code:'LONDON',zone:'Europe/London',start:[8,0],end:[16,30]},
+  {code:'NEW_YORK',zone:'America/New_York',start:[9,30],end:[16,0]}
+];
+const ENV_ZONE_FORMATTERS=new Map();
 let environmentState={events:[],source:'waiting',lastCalendarAt:0,lastMarketAt:0,alerts:[],snapshot:null};
 let environmentFilter='all';
+function environmentZoneParts(date,zone){
+  let formatter=ENV_ZONE_FORMATTERS.get(zone);
+  if(!formatter){formatter=new Intl.DateTimeFormat('en-GB',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});ENV_ZONE_FORMATTERS.set(zone,formatter);}
+  return Object.fromEntries(formatter.formatToParts(date).filter(x=>x.type!=='literal').map(x=>[x.type,Number(x.value)]));
+}
+function environmentZonedTime(year,month,day,hour,minute,zone){
+  const target=Date.UTC(year,month-1,day,hour,minute);let stamp=target;
+  for(let i=0;i<3;i++){const p=environmentZoneParts(new Date(stamp),zone),shown=Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute);stamp+=target-shown;}
+  return stamp;
+}
+function environmentWindows(now){
+  const utcDay=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()),windows=[];
+  for(let offset=-2;offset<=2;offset++){
+    const anchor=new Date(utcDay+offset*86400000+43200000);
+    ENV_WINDOWS.forEach(rule=>{const local=environmentZoneParts(anchor,rule.zone),start=environmentZonedTime(local.year,local.month,local.day,...rule.start,rule.zone),end=environmentZonedTime(local.year,local.month,local.day,...rule.end,rule.zone);windows.push({code:rule.code,start,end});});
+  }
+  return windows;
+}
+function environmentPhaseAt(stamp,windows){
+  const london=windows.some(x=>x.code==='LONDON'&&stamp>=x.start&&stamp<x.end),newYork=windows.some(x=>x.code==='NEW_YORK'&&stamp>=x.start&&stamp<x.end),asia=windows.some(x=>x.code==='ASIA'&&stamp>=x.start&&stamp<x.end);
+  return london&&newYork?'OVERLAP':london?'LONDON':newYork?'NEW_YORK':asia?'ASIA':'OFF_HOURS';
+}
+function environmentUtcTime(stamp){return new Date(stamp).toISOString().slice(11,16);}
+function environmentTransitionLabel(from,to){
+  if(to==='OVERLAP')return 'Нью-Йорк откроется';
+  if(from==='OVERLAP')return 'Лондон закроется';
+  if(to==='LONDON')return 'Лондон откроется';
+  if(to==='NEW_YORK')return 'Нью-Йорк откроется';
+  if(to==='ASIA')return 'Азия начнётся';
+  return from==='NEW_YORK'?'Нью-Йорк закроется':from==='LONDON'?'Лондон закроется':'Азия завершится';
+}
 function environmentPhase(now){
-  const d=now||new Date(),h=d.getUTCHours()+d.getUTCMinutes()/60,phase=ENV_PHASES.find(x=>h>=x.start&&h<x.end)||ENV_PHASES[4],index=ENV_PHASES.indexOf(phase),next=ENV_PHASES[(index+1)%ENV_PHASES.length],transition=new Date(d);
-  transition.setUTCSeconds(0,0);transition.setUTCHours(phase.end===24?24:phase.end,0,0,0);if(transition<=d)transition.setUTCDate(transition.getUTCDate()+1);
-  return {phase,next,transition,minutes:Math.max(0,Math.round((transition-d)/60000))};
+  const d=now||new Date(),stamp=d.getTime(),windows=environmentWindows(d),code=environmentPhaseAt(stamp,windows),phase=ENV_PHASES.find(x=>x.code===code);
+  const boundaries=[...new Set(windows.flatMap(x=>[x.start,x.end]))].sort((a,b)=>a-b),changes=boundaries.map(time=>({time,before:environmentPhaseAt(time-1,windows),after:environmentPhaseAt(time,windows)})).filter(x=>x.before!==x.after);
+  const upcoming=changes.find(x=>x.time>stamp),previous=[...changes].reverse().find(x=>x.time<=stamp),next=ENV_PHASES.find(x=>x.code===upcoming?.after)||ENV_PHASES[4],transition=new Date(upcoming?.time||stamp+86400000);
+  const dayStart=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()),dayEnd=dayStart+86400000,cuts=[dayStart,...changes.filter(x=>x.time>dayStart&&x.time<dayEnd).map(x=>x.time),dayEnd];
+  const schedule=cuts.slice(0,-1).map((start,i)=>({start,end:cuts[i+1],phase:ENV_PHASES.find(x=>x.code===environmentPhaseAt(start,windows))}));
+  return {phase,next,transition,minutes:Math.max(0,Math.ceil((transition-stamp)/60000)),eventLabel:environmentTransitionLabel(code,next.code),windowLabel:`${environmentUtcTime(previous?.time||dayStart)}–${environmentUtcTime(transition)} UTC`,schedule};
 }
 function environmentCountdown(minutes){
   if(!Number.isFinite(minutes))return '—';if(minutes<=0)return 'СЕЙЧАС';if(minutes<60)return `${minutes}м`;const h=Math.floor(minutes/60),m=minutes%60;return `${h}ч ${String(m).padStart(2,'0')}м`;
@@ -11202,7 +11242,7 @@ function environmentDirective(snapshot,session,macro){
   else if(!snapshot.count){code='OBSERVE';title='Дождаться полной синхронизации';copy='Live breadth ещё не получен. Используй календарь и локальную структуру, не делай вывод о всём рынке.';tone='warn';}
   else if(snapshot.code==='COMPRESSION'){code='WAIT BREAK';title='Не торговать середину диапазона';copy='Рынок сжат. Приоритет — дождаться подтверждённого выхода и принятия цены.';tone='warn';}
   else if(off){code='MANAGE';title='Новые входы только исключительного качества';copy='Вне основных окон ликвидность ниже. Лучше управлять открытым риском и готовить сценарии.';tone='warn';}
-  const reasons=[];if(macro.nextHigh)reasons.push({severity:macro.highMinutes<=25?'high':'',text:`${macro.nextHigh.country} ${macro.nextHigh.title} · через ${environmentCountdown(Math.max(0,macro.highMinutes))}`});reasons.push({severity:snapshot.avgAbs>=4.5?'high':'',text:`${environmentRegimeLabel(snapshot.code)} · рост ${snapshot.breadth==null?'—':Math.round(snapshot.breadth)+'%'} · среднее движение ${snapshot.avgAbs==null?'—':snapshot.avgAbs.toFixed(2)+'%'}`});reasons.push({severity:'',text:`${session.phase.title} · переход в ${session.next.title} через ${environmentCountdown(session.minutes)}`});return {code,title,copy,tone,reasons};
+  const reasons=[];if(macro.nextHigh)reasons.push({severity:macro.highMinutes<=25?'high':'',text:`${macro.nextHigh.country} ${macro.nextHigh.title} · через ${environmentCountdown(Math.max(0,macro.highMinutes))}`});reasons.push({severity:snapshot.avgAbs>=4.5?'high':'',text:`${environmentRegimeLabel(snapshot.code)} · рост ${snapshot.breadth==null?'—':Math.round(snapshot.breadth)+'%'} · среднее движение ${snapshot.avgAbs==null?'—':snapshot.avgAbs.toFixed(2)+'%'}`});reasons.push({severity:'',text:`${session.phase.title} · ${session.eventLabel.toLowerCase()} через ${environmentCountdown(session.minutes)} (${environmentUtcTime(session.transition)} UTC)`});return {code,title,copy,tone,reasons};
 }
 function setEnvironmentFilter(filter){environmentFilter=String(filter||'all');document.querySelectorAll('[data-env-filter]').forEach(el=>el.classList.toggle('active',el.dataset.envFilter===environmentFilter));renderEnvironmentCalendar();}
 function environmentFormatEventTime(timestamp){const d=new Date(timestamp);return Number.isNaN(d.getTime())?'—':d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}
@@ -11213,7 +11253,7 @@ function renderEnvironmentCalendar(){
   edgeSet('env-calendar-caption',`${events.length} событий · ${environmentState.source}`);
 }
 function renderEnvironmentAlerts(alerts){const el=document.getElementById('env-alert-feed');if(!el)return;edgeSet('env-alert-count',`${alerts.length} СИГНАЛОВ`);el.innerHTML=alerts.length?alerts.slice(0,7).map(x=>`<div class="env-alert ${x.severity}"><div class="env-alert-top"><span>${escHtml(x.type)}</span><small>${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</small></div><strong>${escHtml(x.title)}</strong><p>${escHtml(x.copy)}</p></div>`).join(''):'<div class="env-empty">Окружение спокойное. Критических предупреждений нет.</div>';}
-function renderEnvironmentSessions(session){const el=document.getElementById('env-session-track');if(!el)return;el.innerHTML=ENV_PHASES.map(x=>`<div class="env-phase ${x.code===session.phase.code?'active':''}"><span>${String(x.start).padStart(2,'0')}:00–${String(x.end).padStart(2,'0')}:00 UTC</span><strong>${x.title}</strong><p>${x.copy}</p></div>`).join('');}
+function renderEnvironmentSessions(session){const el=document.getElementById('env-session-track');if(!el)return;const now=Date.now();el.innerHTML=session.schedule.map(x=>`<div class="env-phase ${now>=x.start&&now<x.end?'active':''}"><span>${environmentUtcTime(x.start)}–${environmentUtcTime(x.end)} UTC</span><strong>${x.phase.title}</strong><p>${x.phase.copy}</p></div>`).join('');}
 function environmentMaybeNotify(alerts,directive){
   alerts.filter(x=>x.severity==='high').forEach(x=>{terminalNotifyOnce(`env_${x.id}`,'danger',x.type,x.title+' · '+x.copy,8000);environmentDesktopNotify(x.type,x.title+' — '+x.copy,x.id);});
   if(directive.code==='REDUCE')terminalNotifyOnce(`env_reduce_${new Date().getUTCHours()}`,'warn','MARKET ENVIRONMENT','Повышенный внешний риск · снизить размер позиции',6500);
@@ -11228,7 +11268,7 @@ async function toggleEnvironmentAlerts(){
 }
 function renderEnvironment(){
   const now=new Date(),session=environmentPhase(now),snapshot=environmentMarketSnapshot(),macro=environmentBuildAlerts(snapshot,session),directive=environmentDirective(snapshot,session,macro),nextHigh=macro.nextHigh;
-  edgeSet('env-current-session',session.phase.title,'good');edgeSet('env-session-window',`${String(session.phase.start).padStart(2,'0')}:00–${String(session.phase.end).padStart(2,'0')}:00 UTC`);edgeSet('env-next-session',session.next.title);edgeSet('env-next-countdown','ЧЕРЕЗ '+environmentCountdown(session.minutes));edgeSet('env-market-regime',environmentRegimeLabel(snapshot.code),snapshot.tone);edgeSet('env-regime-detail',snapshot.count?`${snapshot.up} растут · ${snapshot.down} снижаются`:'ширина рынка загружается');edgeSet('env-macro-risk',nextHigh&&macro.highMinutes<=60?'ПОВЫШЕН':nextHigh?'ЗАПЛАНИРОВАН':'ЧИСТО',nextHigh&&macro.highMinutes<=25?'bad':nextHigh&&macro.highMinutes<=60?'warn':'good');edgeSet('env-next-high',nextHigh?`${nextHigh.country} · ЧЕРЕЗ ${environmentCountdown(Math.max(0,macro.highMinutes))}`:'ВАЖНЫХ СОБЫТИЙ НЕТ / 48Ч');
+  edgeSet('env-current-session',session.phase.title,'good');edgeSet('env-session-window',session.windowLabel);edgeSet('env-next-session',session.eventLabel);edgeSet('env-next-countdown',`${environmentUtcTime(session.transition)} UTC · ЧЕРЕЗ ${environmentCountdown(session.minutes)}`);edgeSet('env-market-regime',environmentRegimeLabel(snapshot.code),snapshot.tone);edgeSet('env-regime-detail',snapshot.count?`${snapshot.up} растут · ${snapshot.down} снижаются`:'ширина рынка загружается');edgeSet('env-macro-risk',nextHigh&&macro.highMinutes<=60?'ПОВЫШЕН':nextHigh?'ЗАПЛАНИРОВАН':'ЧИСТО',nextHigh&&macro.highMinutes<=25?'bad':nextHigh&&macro.highMinutes<=60?'warn':'good');edgeSet('env-next-high',nextHigh?`${nextHigh.country} · ЧЕРЕЗ ${environmentCountdown(Math.max(0,macro.highMinutes))}`:'ВАЖНЫХ СОБЫТИЙ НЕТ / 48Ч');
   const age=Math.max(environmentState.lastCalendarAt,environmentState.lastMarketAt);edgeSet('env-data-age',age?`${Math.max(0,Math.round((Date.now()-age)/60000))}м НАЗАД`:'СИНХР.');edgeSet('env-data-source',environmentState.source);edgeSet('env-regime-code',environmentRegimeLabel(snapshot.code),snapshot.tone);edgeSet('env-regime-copy',snapshot.copy);edgeSet('env-breadth',snapshot.breadth==null?'—':`${Math.round(snapshot.breadth)}% РАСТУТ`,snapshot.breadth>=65?'good':snapshot.breadth<=35?'bad':'warn');edgeSet('env-volatility',snapshot.avgAbs==null?'—':snapshot.avgAbs.toFixed(2)+'%',snapshot.avgAbs>=4.5?'bad':snapshot.avgAbs<.85?'warn':null);edgeSet('env-btc-change',snapshot.btc==null?'—':`${snapshot.btc>=0?'+':''}${snapshot.btc.toFixed(2)}%`,snapshot.btc>0?'good':snapshot.btc<0?'bad':null);edgeSet('env-fng',snapshot.fng==null?'—':String(Math.round(snapshot.fng)),snapshot.fng<=20||snapshot.fng>=80?'warn':null);edgeSet('env-pulse-time',new Date(snapshot.at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
   edgeSet('env-directive-code',environmentDirectiveLabel(directive.code),directive.tone);edgeSet('env-directive-title',directive.title);edgeSet('env-directive-copy',directive.copy);const reasons=document.getElementById('env-directive-reasons');if(reasons)reasons.innerHTML=directive.reasons.map(x=>`<div class="env-reason ${x.severity}"><i></i><span>${escHtml(x.text)}</span></div>`).join('');const dot=document.getElementById('env-directive-dot');if(dot)dot.style.background=directive.tone==='bad'?'var(--r)':'var(--g)';
   edgeSet('env-clock',`${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')}Z`);edgeSet('env-rail-session',session.phase.title);edgeSet('env-rail-regime',environmentRegimeLabel(snapshot.code));edgeSet('env-rail-event',nextHigh?`${nextHigh.country} ${nextHigh.title} · ${environmentCountdown(Math.max(0,macro.highMinutes))}`:'ВАЖНЫХ СОБЫТИЙ НЕТ / 48Ч');edgeSet('env-rail-risk',environmentDirectiveLabel(directive.code),directive.tone);
@@ -14730,7 +14770,7 @@ function overviewRenderAltseason(){
   value.textContent=score+'%';copy.textContent=stronger+' из '+alts.length+' альткоинов опережают BTC за 24 ч';marker.hidden=false;marker.style.left=score+'%';
 }
 function overviewRestorePin(){try{const symbol=miCleanSymbol(localStorage.getItem('et_overview_pinned_symbol')||'');if(symbol){overviewState.pinnedSymbol=symbol;overviewState.symbol=symbol}}catch(e){}}
-function overviewSyncControls(){const symbol=overviewState.symbol,input=overviewEl('ov-symbol-input'),pin=overviewEl('ov-pin-btn'),active=overviewState.pinnedSymbol===symbol;if(input)input.value=symbol;document.querySelectorAll('[data-ov-symbol]').forEach(btn=>btn.classList.toggle('active',btn.dataset.ovSymbol===symbol));if(pin){pin.classList.toggle('active',active);pin.setAttribute('aria-pressed',String(active));const copy=pin.querySelector('span');if(copy)copy.textContent=active?'ЗАКРЕПЛЕНО':'ЗАКРЕПИТЬ'}overviewRenderMarketTable()}
+function overviewSyncControls(){const symbol=overviewState.symbol,input=overviewEl('ov-symbol-input'),pin=overviewEl('ov-pin-btn'),active=overviewState.pinnedSymbol===symbol;if(input)input.value=symbol;document.querySelectorAll('[data-ov-symbol]').forEach(btn=>btn.classList.toggle('active',btn.dataset.ovSymbol===symbol));if(pin){pin.classList.toggle('active',active);pin.setAttribute('aria-pressed',String(active));const copy=pin.querySelector('span:last-child');if(copy)copy.textContent=active?'ЗАКРЕПЛЕНО':'ЗАКРЕПИТЬ'}overviewRenderMarketTable()}
 function toggleOverviewPin(){const current=overviewState.symbol;if(overviewState.pinnedSymbol===current){overviewState.pinnedSymbol='';try{localStorage.removeItem('et_overview_pinned_symbol')}catch(e){}showNotif('success','ОБЗОР','Закрепление '+current+' снято',2200)}else{overviewState.pinnedSymbol=current;try{localStorage.setItem('et_overview_pinned_symbol',current)}catch(e){}showNotif('success','ОБЗОР',current+' закреплён как основная монета',2400)}overviewSyncControls()}
 function overviewClock(){const now=new Date();overviewSet('ov-clock',now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'UTC'})+' UTC')}
 function overviewTimeAgo(value){const timestamp=Number(value)>1e12?Number(value):Number(value)*1000;if(!Number.isFinite(timestamp))return '—';const minutes=Math.max(0,Math.round((Date.now()-timestamp)/60000));if(minutes<2)return 'СЕЙЧАС';if(minutes<60)return minutes+'М НАЗАД';if(minutes<1440)return Math.round(minutes/60)+'Ч НАЗАД';return Math.round(minutes/1440)+'Д НАЗАД'}
@@ -14772,7 +14812,7 @@ function overviewRenderSentiment(value){
 }
 function overviewRender(){
   overviewClock();overviewSyncControls();const hasMarket=marketIntelState.symbol===overviewState.symbol&&marketIntelState.ticker&&marketIntelState.candles['4h']?.length,session=environmentPhase(new Date()),snapshot=environmentMarketSnapshot(),macro=environmentBuildAlerts(snapshot,session),directive=environmentDirective(snapshot,session,macro),nextHigh=macro.nextHigh;
-  overviewRenderSentiment(snapshot.fng);overviewSet('ov-session',session.phase.title,'good');overviewSet('ov-session-next',session.next.title+' через '+environmentCountdown(session.minutes));overviewSet('ov-regime',environmentRegimeLabel(snapshot.code),snapshot.tone);overviewSet('ov-breadth',snapshot.breadth==null?'ширина рынка загружается':Math.round(snapshot.breadth)+'% монет растут');overviewSet('ov-macro-risk',nextHigh&&macro.highMinutes<=25?'ПАУЗА':nextHigh&&macro.highMinutes<=60?'ПОВЫШЕН':nextHigh?'ЗАПЛАНИРОВАН':'ЧИСТО',nextHigh&&macro.highMinutes<=25?'bad':nextHigh&&macro.highMinutes<=60?'warn':nextHigh?'cyan':'good');overviewSet('ov-next-event',nextHigh?nextHigh.country+' · '+nextHigh.title+' · '+environmentCountdown(Math.max(0,macro.highMinutes)):'важных событий нет / 48ч');overviewRenderEvents();overviewRenderNews();overviewRenderFocus(macro);if(!hasMarket)return;
+  overviewRenderSentiment(snapshot.fng);overviewSet('ov-session',session.phase.title,'good');overviewSet('ov-session-next',`${session.eventLabel} через ${environmentCountdown(session.minutes)} · ${environmentUtcTime(session.transition)} UTC`);overviewSet('ov-regime',environmentRegimeLabel(snapshot.code),snapshot.tone);overviewSet('ov-breadth',snapshot.breadth==null?'ширина рынка загружается':Math.round(snapshot.breadth)+'% монет растут');overviewSet('ov-macro-risk',nextHigh&&macro.highMinutes<=25?'ПАУЗА':nextHigh&&macro.highMinutes<=60?'ПОВЫШЕН':nextHigh?'ЗАПЛАНИРОВАН':'ЧИСТО',nextHigh&&macro.highMinutes<=25?'bad':nextHigh&&macro.highMinutes<=60?'warn':nextHigh?'cyan':'good');overviewSet('ov-next-event',nextHigh?nextHigh.country+' · '+nextHigh.title+' · '+environmentCountdown(Math.max(0,macro.highMinutes)):'важных событий нет / 48ч');overviewRenderEvents();overviewRenderNews();overviewRenderFocus(macro);if(!hasMarket)return;
   const analysis=miBuildAnalysis(),ticker=analysis.ticker,inds=analysis.inds,range=ticker.high-ticker.low,rangePct=ticker.low>0?range/ticker.low*100:null,synthesis=overviewSynthesis(analysis,snapshot,session,macro,directive),volume=inds['1h'].volumeRatio;
   overviewSet('ov-price',miFmtPrice(analysis.current),'cyan');overviewSet('ov-price-meta',overviewState.symbol+' / USDT · '+marketIntelState.source);overviewSet('ov-change',overviewChangeLabel(ticker.changePct),ticker.changePct>0?'good':ticker.changePct<0?'bad':'');overviewSet('ov-range',Number.isFinite(rangePct)?'диапазон суток '+rangePct.toFixed(2)+'%':'диапазон суток —');overviewSet('ov-source',marketIntelState.source+' · обновлено '+new Date(marketIntelState.loadedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));overviewSet('ov-score',analysis.score+'/100',analysis.verdict.tone);overviewSet('ov-bias',analysis.verdict.title,analysis.verdict.tone);overviewSet('ov-bias-copy',analysis.verdict.copy);overviewSet('ov-trend',analysis.dailyTrend.label,analysis.dailyTrend.tone);overviewSet('ov-rsi',Number.isFinite(inds['4h'].rsi)?inds['4h'].rsi.toFixed(1):'—',miRSIZone(inds['4h'].rsi).tone);overviewSet('ov-volume',Number.isFinite(volume)?volume.toFixed(2)+'×':'—',volume>=1.5?'good':volume<.7?'warn':'');overviewSet('ov-atr',Number.isFinite(inds['1h'].atrPct)?inds['1h'].atrPct.toFixed(2)+'%':'—',inds['1h'].atrPct>3?'bad':inds['1h'].atrPct>1.5?'warn':'');overviewSet('ov-support',miFmtPrice(analysis.levels.support));overviewSet('ov-current',miFmtPrice(analysis.current));overviewSet('ov-resistance',miFmtPrice(analysis.levels.resistance));
   const changeEl=overviewEl('ov-change');if(changeEl)changeEl.setAttribute('aria-label',Number.isFinite(ticker.changePct)?(ticker.changePct>0?'Рост ':ticker.changePct<0?'Снижение ':'Без изменения ')+overviewChangeLabel(ticker.changePct):'Изменение недоступно');

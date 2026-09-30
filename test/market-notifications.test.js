@@ -42,7 +42,8 @@ test('analyzeCoin identifies bearish structure and relative weakness against BTC
 test('session warnings respect regional daylight-saving time', () => {
   assert.equal(getSessionWarning(new Date('2026-08-16T23:55:00Z'))?.id, 'asia');
   assert.equal(getSessionWarning(new Date('2026-08-16T06:55:00Z'))?.id, 'london');
-  assert.equal(getSessionWarning(new Date('2026-08-16T11:55:00Z'))?.id, 'new-york');
+  assert.equal(getSessionWarning(new Date('2026-08-16T13:25:00Z'))?.id, 'new-york');
+  assert.equal(getSessionWarning(new Date('2026-08-16T13:35:00Z')), null);
   assert.equal(getSessionWarning(new Date('2026-08-16T12:15:00Z')), null);
 });
 
