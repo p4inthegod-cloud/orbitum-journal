@@ -74,8 +74,8 @@ function worldRenderTrendChart(result, candles) {
     parts.push(`<line x1="${left}" x2="${right}" y1="${yy}" y2="${yy}" stroke="var(--world-edge)" stroke-dasharray="2 6"/><text x="${right + 8}" y="${yy + 4}" fill="var(--m)" font-size="${mobile ? 10 : 11}">${axisPrice}</text>`);
   }
   rows.forEach((c, i) => {
-    const color = c.close >= c.open ? 'var(--g)' : 'var(--r)';
-    parts.push(`<g class="tl-candle" data-time="${c.time}"><line x1="${x(i)}" x2="${x(i)}" y1="${y(c.high)}" y2="${y(c.low)}" stroke="${color}" opacity=".8"/><rect x="${x(i) - body / 2}" y="${y(Math.max(c.open, c.close))}" width="${body}" height="${Math.max(1.2, Math.abs(y(c.open) - y(c.close)))}" fill="${color}" opacity=".85"/></g>`);
+    const color = c.close >= c.open ? 'var(--tl-candle-up)' : 'var(--tl-candle-down)';
+    parts.push(`<g class="tl-candle" data-time="${c.time}"><line x1="${x(i)}" x2="${x(i)}" y1="${y(c.high)}" y2="${y(c.low)}" stroke="${color}"/><rect x="${x(i) - body / 2}" y="${y(Math.max(c.open, c.close))}" width="${body}" height="${Math.max(1.2, Math.abs(y(c.open) - y(c.close)))}" fill="${color}"/></g>`);
   });
   const current = rows.at(-1).close;
   parts.push(`<line x1="${left}" x2="${right}" y1="${y(current)}" y2="${y(current)}" stroke="var(--m)" stroke-dasharray="2 6" opacity=".6"/>`);
