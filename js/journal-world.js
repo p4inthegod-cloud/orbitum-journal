@@ -43,7 +43,7 @@ function worldDrawBackground() {
 }
 function worldInstallChrome() {
   const canvas=worldElement('canvas','world-space');canvas.id='world-space';canvas.setAttribute('aria-hidden','true');document.body.prepend(canvas);worldDrawBackground();
-  const icons=['📊','📓','📈','🌐','🔬','🧰'];
+  const icons=['📊','💎','📓','📈','🌐','🔬','🧰'];
   document.querySelectorAll('.top-nav > .top-nav-link, .top-nav-group > summary').forEach((control,index)=>{
     const label=control.firstChild?.textContent.trim()||control.textContent.trim(),slot=worldElement('span','world-nav-slot'),emoji=worldElement('span','emoji-glyph',icons[index]),copy=worldElement('span','world-nav-label',label);
     slot.setAttribute('aria-hidden','true');slot.append(emoji);control.replaceChildren(slot,copy);if(control.tagName==='SUMMARY')copy.append(worldElement('span','world-nav-chevron','⌄'));

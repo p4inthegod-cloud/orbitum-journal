@@ -5298,6 +5298,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <script src="js/journal-market-registry.js"></script>
 <link rel="stylesheet" href="css/journal-decision.css">
 <script src="js/journal-decision.js"></script>
+<link rel="stylesheet" href="css/journal-coins.css">
+<script src="js/journal-coins.js"></script>
 </head>
 <body class="overview-page-active">
 
@@ -5375,7 +5377,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <span class="sb-item-icon"><span class="emoji-glyph ui-emoji" aria-hidden="true">📡</span></span>RADAR
     </button>
     <button class="sb-item" onclick="showPage('marketintel',this)" data-page="marketintel">
-      <span class="sb-item-icon"><span class="emoji-glyph ui-emoji" aria-hidden="true">📈</span></span>АНАЛИТИКА BTC
+      <span class="sb-item-icon"><span class="emoji-glyph ui-emoji" aria-hidden="true">📈</span></span>АНАЛИТИКА МОНЕТ
     </button>
     </details>
     <div class="sb-divider"></div>
@@ -5545,6 +5547,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
   <a class="top-brand" href="/" aria-label="ANDROMEDA — на главную">/𝗔𝗡𝗗𝗥𝗢𝗠𝗘𝗗𝗔\</a>
   <nav class="top-nav" aria-label="Разделы ANDROMEDA">
     <button type="button" class="top-nav-link active" data-page="overview" onclick="showPage('overview',this)">Обзор</button>
+    <button type="button" class="top-nav-link" data-page="marketintel" onclick="showPage('marketintel',this)">Аналитика монет</button>
     <button type="button" class="top-nav-link" data-page="journal" onclick="showPage('journal',this)">Журнал</button>
     <button type="button" class="top-nav-link" data-page="battle" onclick="showPage('battle',this)">Анализ решений</button>
     <details class="top-nav-group"><summary>Рынок <span aria-hidden="true">⌄</span></summary><div class="top-nav-menu">
@@ -5553,7 +5556,6 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <button type="button" data-page="trendline" onclick="showPage('trendline',this)">Трендовая линия</button>
       <button type="button" data-page="elliott" onclick="showPage('elliott',this)">Волны Эллиотта</button>
       <button type="button" data-page="premarket" onclick="showPage('premarket',this)">Radar</button>
-      <button type="button" data-page="marketintel" onclick="showPage('marketintel',this)">Аналитика BTC</button>
     </div></details>
     <details class="top-nav-group"><summary>Аналитика <span aria-hidden="true">⌄</span></summary><div class="top-nav-menu">
       <button type="button" data-page="dashboard" onclick="showPage('dashboard',this)">EDGE</button>
@@ -5921,7 +5923,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <button class="tnav" onclick="showPage('progress',this)" data-page="progress"><span class="emoji-glyph ui-emoji" aria-hidden="true">📈</span>РАЗБОР</button>
       <button class="tnav" onclick="showPage('digest',this)" data-page="digest"><span class="emoji-glyph ui-emoji" aria-hidden="true">📅</span>НЕДЕЛЯ</button>
       <button class="tnav" onclick="showPage('premarket',this)" data-page="premarket"><span class="emoji-glyph ui-emoji" aria-hidden="true">📡</span>РАДАР</button>
-      <button class="tnav" onclick="showPage('marketintel',this)" data-page="marketintel"><span class="emoji-glyph ui-emoji" aria-hidden="true">📈</span>АНАЛИТИКА BTC</button>
+      <button class="tnav" onclick="showPage('marketintel',this)" data-page="marketintel"><span class="emoji-glyph ui-emoji" aria-hidden="true">📈</span>АНАЛИТИКА МОНЕТ</button>
     </div>
     <div class="fcard" id="add-trade-form">
       <div class="trade-form-heading"><div><div class="fcard-title">Новая сделка</div><p class="form-intro">Заполните основные параметры, проверьте риск и сохраните результат.</p></div><span class="trade-form-badge"><span class="emoji-glyph ui-emoji" aria-hidden="true">📝</span> Журнал</span></div>
@@ -7503,8 +7505,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
     <section class="market-intel" id="market-intel" aria-label="Аналитика криптовалют">
       <header class="mi-head">
         <div>
-          <div class="mi-kicker"><i></i>АНАЛИТИКА МОНЕТЫ // LIVE</div>
-          <h1 id="mi-page-title">BTC // РЫНОЧНАЯ АНАЛИТИКА</h1>
+          <div class="mi-kicker"><i></i>АНАЛИТИКА МОНЕТ // LIVE</div>
+          <h1 id="mi-page-title">BTC / АНАЛИТИКА МОНЕТ</h1>
           <p>Мульти-таймфрейм RSI, структура тренда, волатильность, импульс и ключевые уровни в одном экране. BTC — главный актив, но можно проверить любую монету с парой к USDT.</p>
         </div>
         <div class="mi-controls">
@@ -8186,7 +8188,7 @@ function showPage(p,btn){
   document.querySelectorAll('.jtb-nav[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   document.querySelectorAll('.jtb-dd-item[data-page]').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});
   // Update topbar badge
-  const pageNames={overview:'ТЕРМИНАЛ // ОБЗОР',journal:'ТЕРМИНАЛ // ЖУРНАЛ',battle:'ТЕРМИНАЛ // АНАЛИЗ РЕШЕНИЙ',liquidity:'ТЕРМИНАЛ // КАРТА ЛИКВИДНОСТИ',watchtower:'ТЕРМИНАЛ // СЛЕЖКА',trendline:'ТЕРМИНАЛ // ТРЕНДОВАЯ ЛИНИЯ',elliott:'ТЕРМИНАЛ // ВОЛНЫ ЭЛЛИОТТА',library:'ТЕРМИНАЛ // БИБЛИОТЕКА',dashboard:'ТЕРМИНАЛ // EDGE',progress:'ТЕРМИНАЛ // РАЗБОР',chart:'ТЕРМИНАЛ // ГРАФИК',digest:'ТЕРМИНАЛ // НЕДЕЛЯ',premarket:'ТЕРМИНАЛ // РАДАР',marketintel:'ТЕРМИНАЛ // АНАЛИТИКА BTC',aichat:'ТЕРМИНАЛ // AI',coach:'ТЕРМИНАЛ // ТРЕНЕР',settings:'ТЕРМИНАЛ // НАСТРОЙКИ'};
+  const pageNames={overview:'ТЕРМИНАЛ // ОБЗОР',journal:'ТЕРМИНАЛ // ЖУРНАЛ',battle:'ТЕРМИНАЛ // АНАЛИЗ РЕШЕНИЙ',liquidity:'ТЕРМИНАЛ // КАРТА ЛИКВИДНОСТИ',watchtower:'ТЕРМИНАЛ // СЛЕЖКА',trendline:'ТЕРМИНАЛ // ТРЕНДОВАЯ ЛИНИЯ',elliott:'ТЕРМИНАЛ // ВОЛНЫ ЭЛЛИОТТА',library:'ТЕРМИНАЛ // БИБЛИОТЕКА',dashboard:'ТЕРМИНАЛ // EDGE',progress:'ТЕРМИНАЛ // РАЗБОР',chart:'ТЕРМИНАЛ // ГРАФИК',digest:'ТЕРМИНАЛ // НЕДЕЛЯ',premarket:'ТЕРМИНАЛ // РАДАР',marketintel:'ТЕРМИНАЛ // АНАЛИТИКА МОНЕТ',aichat:'ТЕРМИНАЛ // AI',coach:'ТЕРМИНАЛ // ТРЕНЕР',settings:'ТЕРМИНАЛ // НАСТРОЙКИ'};
   const badge=document.getElementById('jtb-page-badge');
   if(badge)badge.textContent=pageNames[p]||p.toUpperCase();
   closeToolsDD();
@@ -14177,7 +14179,7 @@ function miDivergenceAge(tf,candles){
   const minutes={'5m':5,'15m':15,'1h':60}[tf]||1,total=Math.max(minutes,candles*minutes);if(total<60)return `${total} МИН НАЗАД`;if(total<1440)return `${Math.round(total/60)} Ч НАЗАД`;return `${Math.round(total/1440)} ДН НАЗАД`;
 }
 function miDetectDivergence(candles,tf){
-  const rows=(candles||[]).slice(0,-1),rules={
+  const duration={'5m':300000,'15m':900000,'1h':3600000}[tf],rows=(candles||[]).filter(c=>c.time+duration<=Date.now()),rules={
     '5m':{price:.08,rsi:2.8,maxAge:54},'15m':{price:.12,rsi:3.2,maxAge:48},'1h':{price:.18,rsi:3.7,maxAge:42}
   }[tf];if(!rules||rows.length<45)return {found:false,tf,rsi:null};const rsiSeries=miRSISeries(rows),lastRSI=rsiSeries.filter(Number.isFinite).at(-1),lows=miPivotPoints(rows,rsiSeries,'low'),highs=miPivotPoints(rows,rsiSeries,'high'),candidates=[];
   const inspect=(points,side)=>{const recent=points.slice(-9);for(let a=0;a<recent.length-1;a++)for(let b=a+1;b<recent.length;b++){const first=recent[a],second=recent[b],gap=second.index-first.index,age=rows.length-1-second.index;if(gap<5||gap>90||age>rules.maxAge)continue;const pricePct=(second.price/first.price-1)*100,rsiDelta=second.rsi-first.rsi,types=[];if(side==='low'&&pricePct<=-rules.price&&rsiDelta>=rules.rsi)types.push({type:'regular_bull',direction:'bull',title:'БЫЧЬЯ',kind:'Обычная · цена ниже, RSI выше'});if(side==='low'&&pricePct>=rules.price&&rsiDelta<=-rules.rsi)types.push({type:'hidden_bull',direction:'bull',title:'БЫЧЬЯ',kind:'Скрытая · продолжение восходящего тренда'});if(side==='high'&&pricePct>=rules.price&&rsiDelta<=-rules.rsi)types.push({type:'regular_bear',direction:'bear',title:'МЕДВЕЖЬЯ',kind:'Обычная · цена выше, RSI ниже'});if(side==='high'&&pricePct<=-rules.price&&rsiDelta>=rules.rsi)types.push({type:'hidden_bear',direction:'bear',title:'МЕДВЕЖЬЯ',kind:'Скрытая · продолжение нисходящего тренда'});types.forEach(meta=>{const avgVolume=miAverage(rows.slice(Math.max(0,second.index-20),second.index).map(x=>x.volume)),volumeRatio=avgVolume>0?second.volume/avgVolume:1,zone=meta.direction==='bull'?Math.min(first.rsi,second.rsi):Math.max(first.rsi,second.rsi),zoneBonus=meta.direction==='bull'?(zone<=30?15:zone<=42?8:0):(zone>=70?15:zone>=58?8:0),freshness=30*(1-age/rules.maxAge),rsiScore=Math.min(25,Math.abs(rsiDelta)/rules.rsi*12),priceScore=Math.min(20,Math.abs(pricePct)/rules.price*9),volumeScore=Math.min(10,Math.max(0,(volumeRatio-.75)*10)),score=Math.round(miClamp(freshness+rsiScore+priceScore+zoneBonus+volumeScore+(meta.type.startsWith('regular')?4:0),0,100));if(score>=45)candidates.push({...meta,tf,first,second,age,gap,pricePct,rsiDelta,volumeRatio,score,tone:meta.direction==='bull'?'good':'bad'})})}};
@@ -14221,7 +14223,7 @@ function miStructureRow(label,value,detail,tone=''){return `<div class="mi-struc
 function miSignalRow(tone,text,tag){return `<div class="mi-signal ${tone}"><i></i><span>${escHtml(text)}</span><b>${escHtml(tag)}</b></div>`}
 function miRenderAnalysis(analysis){
   const {ticker,current,inds,levels,dailyTrend,score,confidence,verdict}=analysis,range=ticker.high-ticker.low,rangePos=range>0?miClamp((current-ticker.low)/range*100,0,100):50,rangePct=ticker.low>0?range/ticker.low*100:null;
-  miSet('mi-page-title',`${marketIntelState.symbol} // РЫНОЧНАЯ АНАЛИТИКА`);miSet('mi-asset-symbol',`${marketIntelState.symbol} / USDT`);miSet('mi-source',marketIntelState.source);miSet('mi-price',miFmtPrice(current));miSet('mi-change',miPct(ticker.changePct));miToneClass(miEl('mi-change'),ticker.changePct>=0?'good':'bad');miSet('mi-low',miFmtPrice(ticker.low));miSet('mi-high',miFmtPrice(ticker.high));miSet('mi-range-pos',Math.round(rangePos)+'% ДИАПАЗОНА');if(miEl('mi-range-marker'))miEl('mi-range-marker').style.left=rangePos+'%';miSet('mi-volume',miFmtBig(ticker.volumeQuote));miSet('mi-range-pct',Number.isFinite(rangePct)?rangePct.toFixed(2)+'%':'—');miSet('mi-trades-count',Number.isFinite(ticker.trades)?ticker.trades.toLocaleString('ru-RU'):'—');
+  miSet('mi-page-title',`${marketIntelState.symbol} / АНАЛИТИКА МОНЕТ`);miSet('mi-asset-symbol',`${marketIntelState.symbol} / USDT`);miSet('mi-source',marketIntelState.source);miSet('mi-price',miFmtPrice(current));miSet('mi-change',miPct(ticker.changePct));miToneClass(miEl('mi-change'),ticker.changePct>=0?'good':'bad');miSet('mi-low',miFmtPrice(ticker.low));miSet('mi-high',miFmtPrice(ticker.high));miSet('mi-range-pos',Math.round(rangePos)+'% ДИАПАЗОНА');if(miEl('mi-range-marker'))miEl('mi-range-marker').style.left=rangePos+'%';miSet('mi-volume',miFmtBig(ticker.volumeQuote));miSet('mi-range-pct',Number.isFinite(rangePct)?rangePct.toFixed(2)+'%':'—');miSet('mi-trades-count',Number.isFinite(ticker.trades)?ticker.trades.toLocaleString('ru-RU'):'—');
   const ring=miEl('mi-score-ring'),tone=verdict.tone==='bad'?'var(--r)':'var(--g)';if(ring){ring.style.setProperty('--score',score);ring.style.setProperty('--tone',tone)}miSet('mi-score',String(score));miSet('mi-verdict',verdict.title);if(miEl('mi-verdict'))miEl('mi-verdict').style.color=tone;miSet('mi-verdict-copy',verdict.copy);miSet('mi-confidence',confidence+'%');
   const rsi4=inds['4h'].rsi,rsiZone=miRSIZone(rsi4);miSet('mi-metric-rsi',Number.isFinite(rsi4)?rsi4.toFixed(1):'—');miToneClass(miEl('mi-metric-rsi'),rsiZone.tone);miSet('mi-metric-rsi-note',rsiZone.label);miSet('mi-metric-trend',dailyTrend.label);miToneClass(miEl('mi-metric-trend'),dailyTrend.tone);miSet('mi-metric-trend-note',dailyTrend.copy);miSet('mi-metric-atr',Number.isFinite(inds['1h'].atrPct)?inds['1h'].atrPct.toFixed(2)+'%':'—');miToneClass(miEl('mi-metric-atr'),inds['1h'].atrPct>3?'bad':inds['1h'].atrPct>1.5?'warn':'');const volRatio=inds['1h'].volumeRatio;miSet('mi-metric-vol',Number.isFinite(volRatio)?volRatio.toFixed(2)+'×':'—');miToneClass(miEl('mi-metric-vol'),volRatio>=1.5?'good':volRatio<.7?'warn':'');miSet('mi-metric-vol-note',Number.isFinite(volRatio)?(volRatio>=1.5?'объём выше нормы':volRatio<.7?'тонкий объём':'обычный объём'):'источник не передал объём');
   const market=window.etMarketFeed&&window.etMarketFeed.market,fng=Number(window.etMarketFeed&&window.etMarketFeed.fng);miSet('mi-metric-dom',market&&Number.isFinite(market.btcDominance)?market.btcDominance.toFixed(1)+'%':'—');miSet('mi-metric-fng',Number.isFinite(fng)?String(Math.round(fng)):'—');miSet('mi-metric-fng-note',Number.isFinite(fng)?(fng<=25?'экстремальный страх':fng<=45?'страх':fng<56?'нейтрально':fng<75?'жадность':'экстремальная жадность'):'ожидание индекса');miToneClass(miEl('mi-metric-fng'),Number.isFinite(fng)?(fng<=25?'bad':fng>=75?'warn':''):'');
