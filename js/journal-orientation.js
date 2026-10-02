@@ -72,8 +72,9 @@ function worldRenderOrientation(analysis, snapshot) {
     document.getElementById('ov-next-event').textContent = 'Календарь недоступен · риск событий неизвестен';
     document.getElementById('ov-macro-risk').className = 'warn';
   } else if (demo) {
-    document.getElementById('ov-next-event').textContent += ' · демо';
+    if(!document.getElementById('ov-next-event').textContent.endsWith(' · демо'))document.getElementById('ov-next-event').textContent += ' · демо';
   }
+  if(typeof worldRenderOverviewHourglass==='function')worldRenderOverviewHourglass();
 }
 
 function worldEventBucket(timestamp, now) {
@@ -117,6 +118,7 @@ function worldRenderEventTrack() {
     list.append(group);
   });
   if (events.length > shown.length) list.append(worldElement('p', 'world-stage-empty', 'Показаны ближайшие 24 из ' + events.length + ' событий. Уточните фильтр.'));
+  if(typeof worldRenderEventHourglasses==='function')worldRenderEventHourglasses(events);
 }
 
 function worldWatchReadings(result) {

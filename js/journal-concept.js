@@ -11,7 +11,8 @@ async function worldSelectLiquidityLevel(pool, targetId) {
     if (overviewState.symbol !== symbol) await overviewSelectSymbol(symbol);
   }
   if(overviewState.symbol!==symbol)return;
-  worldLiquiditySelection = {price:pool.price,name:pool.name,symbol};
+  worldLiquiditySelection = {price:pool.price,name:pool.name,symbol,short:pool.short,distancePct:pool.distancePct,distanceAtr:pool.distanceAtr,side:pool.side|| (pool.price>(marketIntelState.ticker?.price||worldOverviewCandles.at(-1)?.close||pool.price)?'above':'below')};
+  if(targetId!=='ov-world-liquidity')worldRenderOverviewWorkspace(worldOverviewAvailable?miBuildAnalysis():null,environmentMarketSnapshot());
   worldUpdateSelectedLevel(); worldDrawCandles();
   document.getElementById('world-overview-chart')?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
 }
@@ -21,7 +22,7 @@ function worldUpdateSelectedLevel() {
   let chip=document.getElementById('world-selected-level');
   if(!chip){chip=worldElement('button','world-selected-level');chip.id='world-selected-level';chip.type='button';chip.addEventListener('click',()=>{worldLiquiditySelection=null;worldUpdateSelectedLevel();worldDrawCandles();});canvas.parentElement.append(chip);}
   const selected=worldLiquiditySelection?.symbol===overviewState.symbol?worldLiquiditySelection:null;
-  chip.hidden=!selected;chip.textContent=selected?selected.name+' · '+miFmtPrice(selected.price)+'  ×':'';
+  chip.hidden=!selected;chip.textContent=selected?selected.name+' · '+miFmtPrice(selected.price)+(Number.isFinite(selected.distancePct)?' · '+selected.distancePct.toFixed(2)+'%':'')+(Number.isFinite(selected.distanceAtr)?' · '+selected.distanceAtr.toFixed(2)+' ATR':'')+'  ×':'';
   chip.setAttribute('aria-label',selected?'Убрать выбранный уровень '+selected.name:'Уровень не выбран');
   document.querySelectorAll('.world-pool[role="button"]').forEach(row=>{const active=Boolean(selected&&Number(row.dataset.price)===selected.price);row.classList.toggle('is-selected',active);row.setAttribute('aria-pressed',String(active));});
 }
@@ -80,6 +81,7 @@ function worldRenderOverviewWorkspace(analysis, snapshot) {
     // A balanced viewport around the price: nearest live levels on both sides.
     const above = data.above.slice(0, 2), below = data.below.slice(0, 2);
     const pools = above.concat(below);
+    if(worldLiquiditySelection?.symbol===symbol){const selectedPool=data.pools.find(pool=>pool.price===worldLiquiditySelection.price);if(selectedPool){Object.assign(worldLiquiditySelection,{distancePct:selectedPool.distancePct,distanceAtr:selectedPool.distanceAtr,side:selectedPool.price>data.current?'above':'below'});if(!pools.includes(selectedPool)){if(pools.length>=4)pools.pop();pools.push(selectedPool);}}}
     if (pools.length < 4) {
       data.active.filter(p => !pools.includes(p)).sort((a,b) => a.distancePct - b.distancePct).slice(0, 4 - pools.length).forEach(p => pools.push(p));
     }
@@ -101,7 +103,7 @@ function worldDrawCandles(cursor = -1) {
   canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
   const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
   const candles = worldOverviewCandles;
-  if (candles.length < 2) return;
+  if (candles.length < 2) {if(typeof worldSetPoolGeometry==='function')worldSetPoolGeometry(null);return;}
   const dark = worldTheme() === 'dark';
   const colors = {grid:dark ? '#293451' : '#d9e0ef', caption:dark ? '#94a8cd' : '#617494', up:dark ? '#54d1d5' : '#158db0', down:dark ? '#ae88ed' : '#9260d7', text:dark ? '#e8efff' : '#19384f'};
   const left = 10, right = width - 73, top = 12, bottom = height - 61;
@@ -136,7 +138,8 @@ function worldDrawCandles(cursor = -1) {
     ctx.fillStyle = colors.caption; ctx.textAlign = i === 0 ? 'left' : i === 3 ? 'right' : 'center'; ctx.fillText(label, x, height - 7);
   }
   ctx.textAlign = 'left';
-  if(selection){const levelY=y(selection.price);ctx.strokeStyle=colors.down;ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(left,levelY);ctx.lineTo(right,levelY);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=colors.down;ctx.fillRect(left,levelY-4,8,8);ctx.lineWidth=1;canvas.dataset.selectedPrice=String(selection.price);}else delete canvas.dataset.selectedPrice;
+  if(selection){const levelY=y(selection.price),color=selection.side==='below'?colors.up:colors.down;ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(left,levelY);ctx.lineTo(right,levelY);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=color;ctx.fillRect(left,levelY-4,8,8);ctx.lineWidth=1;canvas.dataset.selectedPrice=String(selection.price);}else delete canvas.dataset.selectedPrice;
+  if(typeof worldSetPoolGeometry==='function')worldSetPoolGeometry(selection?{right,y:y(selection.price)}:null);
   if (cursor >= 0 && cursor < candles.length) {
     const x = left + (cursor + .5) * step;
     ctx.strokeStyle = colors.caption; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, height - 24); ctx.stroke(); ctx.setLineDash([]);
