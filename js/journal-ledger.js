@@ -1,5 +1,14 @@
 /* Pixel journal workbench. User-controlled records, no automated trading or fabricated quotes. */
 const ledgerIcon=kind=>worldProtocolItem(kind);
+function ledgerPaintDraft(){
+  document.querySelectorAll('.setup-btn').forEach(b=>b.classList.toggle('active',Boolean(currentSetup&&b.getAttribute('onclick')?.includes("'"+currentSetup+"'"))));
+  const tf=[...document.querySelectorAll('#terminal-tf-chips .terminal-chip')].find(b=>b.textContent.trim()===currentTF);
+  if(tf)setTerminalTF(currentTF,tf);
+  const regime=[...document.querySelectorAll('#terminal-regime-chips .terminal-chip')].find(b=>b.getAttribute('onclick')?.includes("'"+currentRegime+"'"));
+  if(regime)setTerminalRegime(currentRegime,regime);
+  document.querySelectorAll('#terminal-mistake-chips .terminal-chip').forEach(b=>{const code=b.getAttribute('onclick')?.match(/toggleTerminalMistake\('([^']+)'/)?.[1];b.classList.toggle('active',currentMistakes.has(code));});
+  document.querySelectorAll('.em-opt').forEach(b=>{const option=b.getAttribute('onclick')?.match(/setEm\('([^']+)',(\d+)/);if(option)b.classList.toggle('active',Number(emVals[option[1]])===Number(option[2]));});
+}
 function ledgerMessage(copy,error=false){const box=ledgerField('ledger-message');if(!box)return;box.hidden=false;box.classList.toggle('error',error);box.textContent=copy;box.setAttribute('role',error?'alert':'status');}
 function ledgerSetMode(mode){
   journalLedger.mode=mode;ledgerField('add-trade-form').dataset.ledgerMode=mode;
@@ -133,7 +142,7 @@ function ledgerInstall(){
   ledgerInstallAdapters();ledgerSetMode('open');ledgerRender();
   const defaults=restoreFormDefaults;restoreFormDefaults=function(){defaults();ledgerRestoreDraft();ledgerCalc();};
   ledgerRestoreDraft();
-  const session=()=>{journalLedger.quotes.clear();LEDGER_DRAFT_FIELDS.forEach(id=>{if(ledgerField(id))ledgerField(id).value='';});currentSetup='';currentMistakes.clear();ledgerSetMode('open');ledgerRestoreDraft();ledgerRender();ledgerRefreshQuotes();};
+  const session=()=>{journalLedger.quotes.clear();LEDGER_DRAFT_FIELDS.forEach(id=>{if(ledgerField(id))ledgerField(id).value='';});currentSetup='';currentMistakes.clear();emVals={conf:5,fear:3,greed:3,calm:7};setDir('long');ledgerPaintDraft();ledgerSetMode('open');ledgerRestoreDraft();ledgerRender();ledgerRefreshQuotes();};
   let owner=currentUser?.id;setInterval(()=>{if(owner!==currentUser?.id){owner=currentUser?.id;session();}if(page.classList.contains('active')&&!document.hidden){if(Date.now()-journalLedger.quoteAt>=30000)ledgerRefreshQuotes();else ledgerRender();}},10000);
   window.addEventListener('online',ledgerRefreshQuotes);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ledgerRefreshQuotes();});
   ledgerRefreshQuotes();worldFitPanels(page);
