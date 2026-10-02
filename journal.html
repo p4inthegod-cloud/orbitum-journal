@@ -5295,6 +5295,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <script src="js/journal-craft.js"></script>
 <link rel="stylesheet" href="css/journal-trend-chart.css">
 <script src="js/journal-trend-chart.js"></script>
+<script src="js/journal-market-registry.js"></script>
 </head>
 <body class="overview-page-active">
 
@@ -13130,6 +13131,11 @@ const TICKER_SYMBOLS = [
   { sym:'EUR/GBP', pair:'EUR_GBP', type:'forex', icon:'€£',color:'#003189' },
 ];
 
+// Include the catalogue once; the existing stream subscribes to these pairs too.
+Object.keys(MARKET_COIN_NAMES).forEach(sym=>{
+  if(!TICKER_SYMBOLS.some(item=>item.sym===sym))TICKER_SYMBOLS.splice(TICKER_SYMBOLS.findIndex(item=>item.type==='forex'),0,{sym,pair:sym+'USDT',type:'crypto'});
+});
+
 // Хранилище данных тикера
 const tickerData = {};
 TICKER_SYMBOLS.forEach(s => {
@@ -14127,14 +14133,14 @@ async function miBinance(path){
   throw lastError||new Error('Рыночный источник недоступен');
 }
 function miParseKlines(rows){return (Array.isArray(rows)?rows:[]).map(row=>({time:Number(row[0]),open:Number(row[1]),high:Number(row[2]),low:Number(row[3]),close:Number(row[4]),volume:Number(row[5])})).filter(x=>Number.isFinite(x.close))}
-async function miLoadBinance(symbol){
+async function miLoadBinance(symbol,intervals=MI_DATA_INTERVALS){
   const pair=symbol+'USDT';
   const [ticker,...series]=await Promise.all([
     miBinance(`/api/v3/ticker/24hr?symbol=${encodeURIComponent(pair)}`),
-    ...MI_DATA_INTERVALS.map(tf=>miBinance(`/api/v3/klines?symbol=${encodeURIComponent(pair)}&interval=${tf}&limit=${tf==='1d'?500:1000}`))
+    ...intervals.map(tf=>miBinance(`/api/v3/klines?symbol=${encodeURIComponent(pair)}&interval=${tf}&limit=${tf==='1d'?500:1000}`))
   ]);
-  const candles={};MI_DATA_INTERVALS.forEach((tf,index)=>candles[tf]=miParseKlines(series[index]));
-  if(MI_DATA_INTERVALS.some(tf=>candles[tf].length<40))throw new Error('Недостаточно свечей для расчёта');
+  const candles={};intervals.forEach((tf,index)=>candles[tf]=miParseKlines(series[index]));
+  if(intervals.some(tf=>candles[tf].length<40))throw new Error('Недостаточно свечей для расчёта');
   return {source:'РЫНОЧНЫЕ ДАННЫЕ',ticker:{price:Number(ticker.lastPrice),change:Number(ticker.priceChange),changePct:Number(ticker.priceChangePercent),high:Number(ticker.highPrice),low:Number(ticker.lowPrice),volumeQuote:Number(ticker.quoteVolume),trades:Number(ticker.count)},candles};
 }
 async function miLoadUniverse(){
@@ -14151,7 +14157,7 @@ async function miLoadFallback(symbol){
   MI_DATA_INTERVALS.forEach(tf=>{while(candles[tf].length<40&&candles[tf].length)candles[tf]=candles[tf].concat(candles[tf])});
   return {source:'РЕЗЕРВНЫЙ ПОТОК',ticker:{price:Number(coin.current_price),change:Number(coin.price_change_24h),changePct:Number(coin.price_change_percentage_24h),high:Number(coin.high_24h),low:Number(coin.low_24h),volumeQuote:Number(coin.total_volume),trades:null},candles};
 }
-async function miLoadMarket(symbol){try{return await miLoadBinance(symbol)}catch(primaryError){try{return await miLoadFallback(symbol)}catch(fallbackError){throw new Error(fallbackError.message||primaryError.message)}}}
+async function miLoadMarket(symbol){try{return await miLoadSpotHistory(symbol)}catch(primaryError){try{return await miLoadFallback(symbol)}catch(fallbackError){throw new Error(fallbackError.message||primaryError.message)}}}
 
 function miEMA(values,period){
   const out=[],k=2/(period+1);let ema=null;values.forEach((value,index)=>{if(!Number.isFinite(value)){out.push(null);return}if(ema===null){ema=value}else ema=value*k+ema*(1-k);out.push(index<period-1?null:ema)});return out;
@@ -14514,7 +14520,7 @@ async function trendlineScan(rawSymbol,force){
   renderTrendlineEngine();battleSet('tl-state','ЗАГРУЗКА','warn');battleSet('tl-state-copy','Получаем свечи '+symbol+'/USDT.');battleSet('tl-verdict','ЗАГРУЗКА','warn');battleSet('tl-verdict-copy','Проверяем подтверждённые экстремумы.');
   try{
     // Reserve sparklines do not contain real 5m/15m OHLC: never use them for a trend signal.
-    const data=await miLoadBinance(symbol);if(request!==trendlineState.requestId)return;
+    const data=await miLoadSpotHistory(symbol,['5m','15m','1h','4h']);if(request!==trendlineState.requestId)return;
     if(!Number.isFinite(data.ticker.price)||data.ticker.price<=0||['5m','15m','1h','4h'].some(tf=>!data.candles[tf]?.length||!data.candles[tf].every(trendlineValidCandle)))throw Error('Свечи рынка неполные');
     trendlineState.data=data;trendlineState.loadedAt=Date.now();trendlineState.loading=false;renderTrendlineEngine();
   }catch(error){
@@ -14853,13 +14859,13 @@ function overviewChangeLabel(value){const n=Number(value);return Number.isFinite
 function overviewMarketScheduleRender(){if(overviewState.marketRenderTimer||!overviewEl('page-overview')?.classList.contains('active'))return;overviewState.marketRenderTimer=setTimeout(()=>{overviewState.marketRenderTimer=null;overviewRenderMarketTable()},500)}
 function overviewRenderMarketTable(){
   const body=overviewEl('ov-market-body');if(!body)return;
-  const names={BTC:'Bitcoin',ETH:'Ethereum',SOL:'Solana',BNB:'BNB',XRP:'XRP'},symbols=Object.keys(names);
+  const names=MARKET_COIN_NAMES,symbols=Object.keys(names);
   overviewRenderAltseason();
   const rows=symbols.map((symbol,index)=>{const feed=tickerData[symbol]||{},fallback=marketIntelState.symbol===symbol?marketIntelState.ticker:null,useSnapshot=symbol===overviewState.symbol&&fallback&&Number.isFinite(Number(fallback.price)),feedPrice=Number(feed.price),price=useSnapshot?Number(fallback.price):Number.isFinite(feedPrice)&&feedPrice>0?feedPrice:Number(fallback?.price),feedChange=feed.chg==null?NaN:Number(feed.chg),change=useSnapshot&&fallback.changePct!=null?Number(fallback.changePct):Number.isFinite(feedChange)?feedChange:fallback?.changePct==null?NaN:Number(fallback.changePct);return {symbol,index,price,change}})
     .filter(row=>overviewState.marketFilter==='all'||Number.isFinite(row.change)&&(overviewState.marketFilter==='up'?row.change>=0:row.change<0));
   body.innerHTML=rows.length?rows.map(row=>{
     const quoted=Number.isFinite(row.price)&&row.price>0,changed=Number.isFinite(row.change),tone=changed?(row.change>0?'good':row.change<0?'bad':''):'',selected=row.symbol===overviewState.symbol;
-    return '<tr'+(selected?' class="selected"':'')+'><td class="ov-market-rank">'+(row.index+1)+'</td><td><button type="button" class="ov-market-asset" onclick="overviewSelectSymbol(\''+row.symbol+'\',this)" aria-label="Показать обзор '+names[row.symbol]+'" aria-current="'+(selected?'true':'false')+'"><img class="coin-icon" src="assets/coins/'+row.symbol.toLowerCase()+'.svg" width="26" height="26" alt=""><span>'+names[row.symbol]+' <small>'+row.symbol+'</small></span></button></td><td class="numeric ov-market-price">'+(quoted?miFmtPrice(row.price):'—')+'</td><td class="numeric"><span class="ov-market-change '+tone+'" aria-label="'+(changed?(row.change>0?'Рост ':row.change<0?'Снижение ':'Без изменения ')+overviewChangeLabel(row.change):'Изменение недоступно')+'">'+(changed?overviewChangeLabel(row.change):'—')+'</span></td></tr>';
+    return '<tr'+(selected?' class="selected"':'')+'><td class="ov-market-rank">'+(row.index+1)+'</td><td><button type="button" class="ov-market-asset" onclick="overviewSelectSymbol(\''+row.symbol+'\',this)" aria-label="Показать обзор '+names[row.symbol]+'" aria-current="'+(selected?'true':'false')+'">'+journalCoinIcon(row.symbol)+'<span>'+names[row.symbol]+' <small>'+row.symbol+'</small></span></button></td><td class="numeric ov-market-price">'+(quoted?miFmtPrice(row.price):'—')+'</td><td class="numeric"><span class="ov-market-change '+tone+'" aria-label="'+(changed?(row.change>0?'Рост ':row.change<0?'Снижение ':'Без изменения ')+overviewChangeLabel(row.change):'Изменение недоступно')+'">'+(changed?overviewChangeLabel(row.change):'—')+'</span></td></tr>';
   }).join(''):'<tr><td colspan="4" class="ov-market-empty">Для этого фильтра пока нет монет с доступными котировками.</td></tr>';
 }
 function overviewRenderAltseason(){
