@@ -5302,6 +5302,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <script src="js/journal-coins.js"></script>
 <link rel="stylesheet" href="css/journal-watchtower.css">
 <script src="js/journal-watchtower.js"></script>
+<link rel="stylesheet" href="css/journal-audit.css">
 </head>
 <body class="overview-page-active">
 
@@ -7093,7 +7094,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
         <div>
           <div class="lq-kicker"><i></i>ЛИКВИДНОСТЬ // КАРТА ЦЕЛЕЙ</div>
           <h1>КАРТА ЛИКВИДНОСТИ</h1>
-          <p>Показывает, где лежат стопы и к каким ценам рынок может тянуться: экстремумы суток и недели, уровни прошлого дня и кластеры равных максимумов и минимумов.</p>
+          <p>Показывает предполагаемые зоны ликвидности по экстремумам цены: экстремумы суток и недели, уровни прошлого дня и кластеры равных максимумов и минимумов.</p>
         </div>
         <div class="lq-controls">
           <div class="lq-head-buttons"><button class="tg-shot-btn" type="button" onclick="sendActiveScreenToTelegram(this)">
@@ -7148,7 +7149,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 
       <article class="lq-card lq-vrvp">
         <div class="lq-card-head">
-          <div><span class="lq-card-title"><span class="emoji-glyph" aria-hidden="true">📊</span> VRVP // ПРОФИЛЬ ОБЪЁМА ВИДИМОГО ДИАПАЗОНА</span><small id="lq-vrvp-caption">где прошёл основной объём и где цена получила принятие</small></div>
+          <div><span class="lq-card-title"><span class="emoji-glyph" aria-hidden="true">📊</span> VRVP // ОЦЕНКА ПРОФИЛЯ ОБЪЁМА</span><small id="lq-vrvp-caption">где прошёл основной объём и где цена получила принятие</small></div>
           <div class="lq-vrvp-actions" aria-label="Таймфрейм VRVP">
             <button type="button" class="lq-vrvp-tf" data-vrvp-tf="5m" onclick="setLiquidityVRVPTF('5m',this)">5М</button>
             <button type="button" class="lq-vrvp-tf" data-vrvp-tf="15m" onclick="setLiquidityVRVPTF('15m',this)">15М</button>
@@ -7360,7 +7361,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <div class="el-kpis">
         <article class="el-card el-kpi"><span>ОСНОВНАЯ МОДЕЛЬ</span><strong id="el-model">—</strong><small id="el-model-copy">поиск импульса</small></article>
         <article class="el-card el-kpi"><span>ТЕКУЩАЯ ФАЗА</span><strong id="el-phase">—</strong><small id="el-phase-copy">нет расчёта</small></article>
-        <article class="el-card el-kpi"><span>КАЧЕСТВО СЧЁТА</span><strong id="el-confidence">—</strong><small id="el-confidence-copy">законы отдельно от ориентиров</small></article>
+        <article class="el-card el-kpi"><span>СООТВЕТСТВИЕ МОДЕЛИ</span><strong id="el-confidence">—</strong><small id="el-confidence-copy">законы отдельно от ориентиров</small></article>
         <article class="el-card el-kpi"><span>УРОВЕНЬ ОТМЕНЫ</span><strong id="el-invalidation">—</strong><small id="el-invalidation-copy">сценарий перестанет действовать</small></article>
         <article class="el-card el-kpi"><span>RSI-ПОДТВЕРЖДЕНИЕ</span><strong id="el-rsi">—</strong><small id="el-rsi-copy">между волнами 3 и 5</small></article>
       </div>
@@ -7371,15 +7372,15 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
             <div><span class="el-card-title" id="el-chart-title">BTC/USDT · 1Ч</span><small id="el-chart-copy">экстремумы и основной волновой счёт</small></div>
             <span class="el-live"><i></i><span id="el-source">РЫНОЧНЫЕ ДАННЫЕ</span></span>
           </div>
-          <div class="el-chart-wrap"><svg id="el-chart" viewBox="0 0 960 440" preserveAspectRatio="none" role="img" aria-label="Разметка волн Эллиотта"></svg></div>
-          <div class="el-legend"><span><i></i>ЦЕНА</span><span class="primary"><i></i>ОСНОВНОЙ СЧЁТ</span><span class="alternate"><i></i>АЛЬТЕРНАТИВА</span><span class="invalid"><i></i>ОТМЕНА</span></div>
+          <div class="el-chart-tools"><button type="button" id="el-toggle-alt" aria-pressed="true" onclick="elliottToggleLayer('alternate',this)">Альтернатива</button><button type="button" aria-pressed="true" onclick="elliottToggleLayer('rsi',this)">RSI</button><button type="button" onclick="elliottChartZoom(1)">＋ Масштаб</button><button type="button" onclick="elliottChartZoom(-1)">− Масштаб</button><button type="button" onclick="elliottChartZoom(0)">Весь счёт</button><button type="button" aria-label="Сместить график к более ранним свечам" onclick="elliottChartPan(12)">← Раньше</button><button type="button" aria-label="Сместить график к последним свечам" onclick="elliottChartPan(-12)">Позже →</button></div><div class="el-chart-wrap"><svg id="el-chart" viewBox="0 0 960 440" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Свечи, волны и RSI"></svg></div>
+          <div class="el-legend"><span><i></i>ЦЕНА</span><span class="primary"><i></i>ОСНОВНОЙ СЧЁТ</span><span class="alternate"><i></i>АЛЬТЕРНАТИВА</span><span><i></i>ПУНКТИР — КАНДИДАТ</span><span class="invalid"><i></i>ОТМЕНА</span></div>
         </article>
 
         <aside class="el-card el-scenarios">
           <div class="el-card-head"><div><span class="el-card-title">СЦЕНАРИИ</span><small>разметка не считается фактом до подтверждения ценой</small></div><span class="el-live" id="el-age">—</span></div>
           <div class="el-scenario" id="el-primary-card">
             <span>ОСНОВНОЙ</span><h3 id="el-primary-title">СКАНИРОВАНИЕ</h3><p id="el-primary-copy">Собираю значимые экстремумы.</p>
-            <div class="el-scenario-meta"><span>КАЧЕСТВО / СТАТУС</span><strong id="el-primary-score">—</strong></div>
+            <div class="el-scenario-meta"><span>СООТВЕТСТВИЕ / СТАТУС</span><strong id="el-primary-score">—</strong></div>
           </div>
           <div class="el-scenario" id="el-alt-card">
             <span>АЛЬТЕРНАТИВНЫЙ</span><h3 id="el-alt-title">—</h3><p id="el-alt-copy">Альтернатива появится после расчёта.</p>
@@ -8207,7 +8208,6 @@ function showPage(p,btn){
   if(p==='library')initElliottLibrary();
   if(p==='marketintel')initMarketIntel();
   if(p==='ideas')initIdeasPage();
-  if(p==='chat')
   if(p==='coach'){renderBiggestMistake(allTrades);renderPsychInsightsTo(document.getElementById('coach-psych-grid'),allTrades,allTrades.filter(t=>t.result==='win'),allTrades.filter(t=>t.result==='loss'));}
   if(p==='settings'){loadSettingsPage().catch(()=>{});}
   window.scrollTo({top:0,behavior:'instant'});
@@ -9354,7 +9354,7 @@ async function runBrutalAnalysis(){
   btn.textContent='⏳ АНАЛИЗИРУЮ...';
   result.classList.remove('show');
 
-  var trades=allTrades;
+  var trades=terminalStats(allTrades).valid;
   var wins=trades.filter(function(t){return t.result==='win';});
   var losses=trades.filter(function(t){return t.result==='loss';});
   var wr=wins.length+losses.length?Math.round(wins.length/(wins.length+losses.length)*100):null;
@@ -9451,7 +9451,8 @@ function reviewDayGroups(entries){
   return Object.values(groups).map(g=>({...g,netR:g.items.reduce((s,x)=>s+x.r,0)})).sort((a,b)=>a.date-b.date);
 }
 function reviewVerdict(stats,quality,leakCost){
-  const n=stats.valid.length;
+  const n=stats.rCount;
+  if(stats.valid.length&&n<stats.valid.length)return {code:'НЕПОЛНЫЕ ДАННЫЕ',title:'Дополни исполнение сделок',desc:'Неизвестный R не считается нулём. До заполнения цен финансовый вердикт не выносится.',priority:'Заполнить вход, выход и исходный стоп',cls:'mixed'};
   if(!n)return {code:'НЕТ ДАННЫХ',title:'Нечего разбирать',desc:'Закрой хотя бы одну сделку в выбранном периоде.',priority:'Собрать данные',cls:''};
   if(n<3)return {code:'НЕТ ВЕРДИКТА',title:'Выборка слишком мала',desc:`${n} сделок недостаточно для вывода. Проверь заполнение и продолжай сбор.`,priority:'Закрыть ещё '+(3-n)+' сделки',cls:'mixed'};
   if(stats.netR>0&&quality.score>=75&&leakCost<1)return {code:'ЧИСТЫЙ ПЕРИОД',title:'Результат и исполнение совпали',desc:'Период положительный без заметной цены нарушений. Не меняй систему — повторяй рабочий контекст.',priority:'Повторять без роста риска',cls:'positive'};
@@ -9462,7 +9463,7 @@ function reviewVerdict(stats,quality,leakCost){
 }
 function reviewRenderCurve(stats){
   const svg=document.getElementById('review-curve-svg'),empty=document.getElementById('review-curve-empty');if(!svg||!empty)return;
-  const entries=stats.entries||[];
+  const entries=(stats.entries||[]).filter(x=>Number.isFinite(x.r));
   if(!entries.length){svg.innerHTML='';empty.style.display='flex';edgeSet('review-chart-range','START 0.00R');edgeSet('review-chart-current','CURRENT —');return;}
   empty.style.display='none';
   const values=[0];entries.forEach(x=>values.push(values[values.length-1]+x.r));
@@ -9506,11 +9507,11 @@ function reviewRenderTrades(analysis){
 }
 function reviewGroupEntries(entries,keyFn){
   const groups={};(entries||[]).forEach(x=>{const name=String(keyFn(x.trade)||'—').toUpperCase();if(!groups[name])groups[name]=[];groups[name].push(x);});
-  return Object.entries(groups).map(([name,items])=>{const w=items.filter(x=>x.r>0).length,l=items.filter(x=>x.r<0).length,net=items.reduce((s,x)=>s+x.r,0);return {name,n:items.length,wr:w+l?w/(w+l):null,net,avg:items.length?net/items.length:0};}).sort((a,b)=>b.avg-a.avg||b.n-a.n);
+  return Object.entries(groups).map(([name,items])=>{const measured=items.filter(x=>Number.isFinite(x.r)),w=measured.filter(x=>x.r>0).length,l=measured.filter(x=>x.r<0).length,net=measured.reduce((s,x)=>s+x.r,0);return {name,n:measured.length,total:items.length,wr:w+l?w/(w+l):null,net,avg:measured.length?net/measured.length:null};}).sort((a,b)=>b.avg-a.avg||b.n-a.n);
 }
-function reviewRenderContextList(id,rows){const el=document.getElementById(id);if(!el)return;el.innerHTML=rows.length?rows.slice(0,8).map(r=>`<div class="review-context-row"><span>${escHtml(r.name)}</span><small>N ${r.n}</small><strong class="${r.wr==null?'':r.wr>=.5?'good':'bad'}">${r.wr==null?'—':Math.round(r.wr*100)+'%'}</strong><strong class="${r.avg>0?'good':r.avg<0?'bad':''}">${edgeFmtR(r.avg,true)}</strong></div>`).join(''):'<div class="review-empty-block">Нет данных.</div>';}
+function reviewRenderContextList(id,rows){const el=document.getElementById(id);if(!el)return;el.innerHTML=rows.length?rows.slice(0,8).map(r=>`<div class="review-context-row"><span>${escHtml(r.name)}</span><small>N ${r.n}${r.total!==r.n?' / '+r.total:''}</small><strong class="${r.wr==null?'':r.wr>=.5?'good':'bad'}">${r.wr==null?'—':Math.round(r.wr*100)+'%'}</strong><strong class="${r.avg>0?'good':r.avg<0?'bad':''}">${edgeFmtR(r.avg,true)}</strong></div>`).join(''):'<div class="review-empty-block">Нет данных.</div>';}
 function reviewRenderContext(analysis){
-  const entries=analysis.stats.entries||[],clean=entries.filter(x=>!reviewHasLeak(x.trade)),flagged=entries.filter(x=>reviewHasLeak(x.trade)),avg=arr=>arr.length?arr.reduce((s,x)=>s+x.r,0)/arr.length:null,cleanAvg=avg(clean),flaggedAvg=avg(flagged),gap=cleanAvg!=null&&flaggedAvg!=null?cleanAvg-flaggedAvg:null;
+  const entries=(analysis.stats.entries||[]).filter(x=>Number.isFinite(x.r)),clean=entries.filter(x=>!reviewHasLeak(x.trade)),flagged=entries.filter(x=>reviewHasLeak(x.trade)),avg=arr=>arr.length?arr.reduce((s,x)=>s+x.r,0)/arr.length:null,cleanAvg=avg(clean),flaggedAvg=avg(flagged),gap=cleanAvg!=null&&flaggedAvg!=null?cleanAvg-flaggedAvg:null;
   edgeSet('review-clean-avg',cleanAvg==null?'—':edgeFmtR(cleanAvg,true),cleanAvg>0?'good':cleanAvg<0?'bad':null);edgeSet('review-flagged-avg',flaggedAvg==null?'—':edgeFmtR(flaggedAvg,true),flaggedAvg>0?'good':flaggedAvg<0?'bad':null);edgeSet('review-behavior-gap',gap==null?'—':edgeFmtR(gap,true),gap>0?'good':gap<0?'bad':null);
   const days=['SUN','MON','TUE','WED','THU','FRI','SAT'],byDay=reviewGroupEntries(entries,t=>{const d=new Date(t.created_at);return Number.isNaN(d.getTime())?'UNKNOWN':days[d.getUTCDay()];}),bySession=reviewGroupEntries(entries,t=>terminalSession(t.created_at)),byDirection=reviewGroupEntries(entries,t=>t.direction||'—'),byPair=reviewGroupEntries(entries,t=>t.pair||'—');
   const candidates=[...byDay,...bySession,...byDirection,...byPair].filter(x=>x.n>=2).sort((a,b)=>b.avg-a.avg);edgeSet('review-best-context',candidates[0]?`${candidates[0].name} · ${edgeFmtR(candidates[0].avg,true)}`:'—',candidates[0]&&candidates[0].avg>0?'good':null);
@@ -9573,7 +9574,7 @@ function renderReviewV2(trades){
   const root=document.getElementById('review-v2');if(!root)return;
   const currentList=reviewPeriodTrades(trades||[],false),previousList=reviewPeriodTrades(trades||[],true),stats=terminalStats(currentList),previous=terminalStats(previousList),quality=reviewQuality(stats),previousQuality=reviewQuality(previous),leaks=edgeLeakRows(stats),leakCost=leaks.reduce((s,x)=>s+x.costR,0),days=reviewDayGroups(stats.entries),verdict=reviewVerdict(stats,quality,leakCost);
   const analysis={trades:currentList,stats,previous,quality,previousQuality,leaks,leakCost,days,verdict};reviewLastAnalysis=analysis;
-  edgeSet('review-net-r',stats.valid.length?edgeFmtR(stats.netR,true):'—',stats.netR>0?'good':stats.netR<0?'bad':null);edgeSet('review-avg-r',stats.valid.length?edgeFmtR(stats.expectancy,true):'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);edgeSet('review-quality',quality.score==null?'—':quality.score+'%',quality.score>=75?'good':quality.score<50&&quality.score!=null?'bad':quality.score!=null?'warn':null);edgeSet('review-completion',quality.reviewed==null?'—':quality.reviewed+'%',quality.reviewed>=80?'good':quality.reviewed<50&&quality.reviewed!=null?'bad':quality.reviewed!=null?'warn':null);edgeSet('review-leak-cost',stats.valid.length?(leakCost?'−'+leakCost.toFixed(2)+'R':'0.00R'):'—',leakCost?'bad':'good');edgeSet('review-active-days',stats.valid.length?String(days.length):'—');
+  edgeSet('review-net-r',stats.rCount?edgeFmtR(stats.netR,true):'—',stats.netR>0?'good':stats.netR<0?'bad':null);edgeSet('review-avg-r',stats.rCount?edgeFmtR(stats.expectancy,true):'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);edgeSet('review-quality',quality.score==null?'—':quality.score+'%',quality.score>=75?'good':quality.score<50&&quality.score!=null?'bad':quality.score!=null?'warn':null);edgeSet('review-completion',quality.reviewed==null?'—':quality.reviewed+'%',quality.reviewed>=80?'good':quality.reviewed<50&&quality.reviewed!=null?'bad':quality.reviewed!=null?'warn':null);edgeSet('review-leak-cost',stats.valid.length?(leakCost?'−'+leakCost.toFixed(2)+'R':'0.00R'):'—',leakCost?'bad':'good');edgeSet('review-active-days',stats.valid.length?String(days.length):'—');
   edgeSet('review-trades-count',`${stats.valid.length} ${stats.valid.length===1?'trade':'trades'}`);edgeSet('review-period-label',reviewActivePeriod==='all'?'ALL TIME':reviewActivePeriod+' DAYS');edgeSet('review-record',`${stats.pos.length}W · ${stats.neg.length}L · ${stats.be.length}BE`);edgeSet('review-curve-mode',stats.rMode);reviewRenderCurve(stats);
   const card=document.getElementById('review-verdict-card');if(card){card.classList.remove('positive','negative','mixed');if(verdict.cls)card.classList.add(verdict.cls);}edgeSet('review-verdict-code',verdict.code);edgeSet('review-verdict-title',verdict.title);edgeSet('review-verdict-desc',verdict.desc);edgeSet('review-priority',verdict.priority);
   reviewRenderComparison(stats,previous,quality,previousQuality);reviewRenderInbox(analysis);reviewRenderTrades(analysis);reviewRenderContext(analysis);reviewRenderGuardrails(analysis);reviewRenderShadow(analysis);reviewRenderLeakLedger(analysis);
@@ -10562,7 +10563,7 @@ function applyGlowEffects(){
 // ─── BIGGEST MISTAKE ──────────────────────────────
 function renderBiggestMistake(trades){
   var card=document.getElementById('mistake-card');
-  if(!card||!trades.length)return;
+  if(!card)return;card.style.display='none';if(!trades.length)return;
   // Find most costly pattern
   var highGreedLoss=trades.filter(t=>(t.emotion_greed||0)>=7&&t.result==='loss');
   var fomoEntries=trades.filter(t=>(t.emotion_fear||0)>=6&&(t.emotion_greed||0)>=6&&t.result==='loss');
@@ -10571,17 +10572,17 @@ function renderBiggestMistake(trades){
     {name:'FOMO Entry',trades:fomoEntries,icon:'🔥'},
     {name:'High Greed',trades:highGreedLoss,icon:'💀'},
     {name:'No Stop-Loss',trades:noSLLoss,icon:'🛑'},
-  ].filter(c=>c.trades.length>=1);
+  ].filter(c=>c.trades.length>=5);
   if(!candidates.length){card.style.display='none';return;}
   var worst=candidates.sort((a,b)=>{
-    var lossA=a.trades.reduce((s,t)=>s+(t.pnl_usd||t.pnl_pct||0),0);
-    var lossB=b.trades.reduce((s,t)=>s+(t.pnl_usd||t.pnl_pct||0),0);
+    var lossA=a.trades.reduce((s,t)=>s+(Number.isFinite(Number(t.pnl_usd))&&t.pnl_usd!=null?Number(t.pnl_usd):0),0);
+    var lossB=b.trades.reduce((s,t)=>s+(Number.isFinite(Number(t.pnl_usd))&&t.pnl_usd!=null?Number(t.pnl_usd):0),0);
     return lossA-lossB;
   })[0];
-  var totalLoss=worst.trades.reduce((s,t)=>s+(t.pnl_usd||0),0);
+  var totalLoss=worst.trades.reduce((s,t)=>s+(Number.isFinite(Number(t.pnl_usd))&&t.pnl_usd!=null?Number(t.pnl_usd):0),0);
   card.style.display='flex';
   document.getElementById('mistake-title').textContent=worst.icon+' '+worst.name;
-  document.getElementById('mistake-amount').textContent=totalLoss?'$'+Math.abs(totalLoss).toFixed(0):worst.trades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1)+'%';
+  document.getElementById('mistake-amount').textContent=totalLoss?'$'+Math.abs(totalLoss).toFixed(0):'денежный P&L неизвестен';
   document.getElementById('mistake-count').textContent=worst.trades.length;
 }
 
@@ -10640,15 +10641,16 @@ function runSimulator(){
 async function runAICoach(){
   var btn=document.getElementById('coach-btn');
   var recs=document.getElementById('coach-recs');
-  if(!allTrades.length){showNotif('warn','Нет данных','Добавь сделки для анализа');return;}
+  if(terminalStats(allTrades).valid.length<5){recs.innerHTML='<div class="audit-note">Для анализа повторяющихся ошибок нужны хотя бы 5 закрытых сделок. Открытые позиции пока не оцениваются.</div>';showNotif('warn','Мало данных','Нужны хотя бы 5 закрытых сделок для анализа');return;}
   btn.disabled=true;btn.textContent='АНАЛИЗИРУЮ...';
   recs.innerHTML='<div class="loading">AI изучает каждую сделку — паттерны, эмоции, время...</div>';
   
-  var trades=allTrades;
+  var trades=terminalStats(allTrades).valid;
+  var historyAtRequest=JSON.stringify(journalLedger.full||allTrades);
   var wins=trades.filter(t=>t.result==='win');
   var losses=trades.filter(t=>t.result==='loss');
   var wr=wins.length+losses.length?Math.round(wins.length/(wins.length+losses.length)*100):null;
-  var totalPnl=trades.reduce((s,t)=>s+(t.pnl_pct||0),0).toFixed(1);
+  var cash=auditCashSummary(trades), totalPnl=cash.total;
 
   // Compact trade data for AI (last 50 trades)
   var compactTrades = trades.slice(0, 50).map(t => ({
@@ -10674,10 +10676,11 @@ async function runAICoach(){
       body:JSON.stringify({
         mode: 'coach',
         trades: compactTrades,
-        stats: { wr, totalPnl },
+        stats: { wr, totalPnl, totalPnlUnit:'USD', closedTrades:cash.count, knownCashResults:cash.known, accountROI:null },
       })
     });
     var data=await res.json();
+    if(historyAtRequest!==JSON.stringify(journalLedger.full||allTrades)){auditRefreshCoach();btn.disabled=false;btn.textContent='ОБНОВИТЬ РЕКОМЕНДАЦИИ';return;}
     var text=(data.text||'').replace(/```json|```/g,'').trim();
     var items=[];
     try{ var _p=JSON.parse(text); items=Array.isArray(_p)?_p:(_p.patterns||[]); }catch(e){
@@ -10803,55 +10806,25 @@ function terminalMarker(note,key,fallback){
   const match=String(note||'').match(new RegExp('\\['+key+':([^\\]]+)\\]','i'));
   return match?match[1].toUpperCase():fallback;
 }
-function terminalSession(dateLike){
-  const d=new Date(dateLike||Date.now());
-  const h=Number.isNaN(d.getTime())?new Date().getUTCHours():d.getUTCHours();
-  if(h>=0&&h<7)return 'ASIA';
-  if(h>=7&&h<13)return 'LONDON';
-  if(h>=13&&h<21)return 'NEW YORK';
-  return 'OFF-HOURS';
-}
+function terminalSession(dateLike){const date=new Date(dateLike||Date.now());return environmentPhase(Number.isNaN(date.getTime())?new Date():date).phase.title;}
 function terminalStats(trades){
-  const valid=(trades||[]).filter(t=>Number.isFinite(Number(t.pnl_pct)));
-  const pos=valid.filter(t=>Number(t.pnl_pct)>0);
-  const neg=valid.filter(t=>Number(t.pnl_pct)<0);
-  const be=valid.filter(t=>Number(t.pnl_pct)===0);
-  const decisions=pos.concat(neg);
-  const grossWin=pos.reduce((s,t)=>s+Number(t.pnl_pct),0);
-  const grossLoss=Math.abs(neg.reduce((s,t)=>s+Number(t.pnl_pct),0));
-  const avgWin=pos.length?grossWin/pos.length:0;
-  const avgLoss=neg.length?grossLoss/neg.length:0;
-  const winRate=decisions.length?pos.length/decisions.length:null;
-  const lossRate=decisions.length?neg.length/decisions.length:null;
-  const payoff=avgLoss?avgWin/avgLoss:0;
-  const lossUnit=avgLoss||((pos.length&&avgWin)||1);
+  const finite=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
+  const valid=(trades||[]).filter(t=>t.status!=='open'&&(finite(t.pnl_usd)||finite(t.pnl_pct)||['win','loss','be'].includes(t.result)));
+  const outcome=t=>finite(t.pnl_usd)?Math.sign(Number(t.pnl_usd)):finite(t.pnl_pct)?Math.sign(Number(t.pnl_pct)):t.result==='win'?1:t.result==='loss'?-1:0;
+  const pos=valid.filter(t=>outcome(t)>0),neg=valid.filter(t=>outcome(t)<0),be=valid.filter(t=>outcome(t)===0),decisions=pos.concat(neg);
+  const money=valid.filter(t=>finite(t.pnl_usd)),moneyWins=money.filter(t=>Number(t.pnl_usd)>0),moneyLosses=money.filter(t=>Number(t.pnl_usd)<0);
+  const grossWin=moneyWins.reduce((s,t)=>s+Number(t.pnl_usd),0),grossLoss=Math.abs(moneyLosses.reduce((s,t)=>s+Number(t.pnl_usd),0));
+  const avgWin=moneyWins.length?grossWin/moneyWins.length:0,avgLoss=moneyLosses.length?grossLoss/moneyLosses.length:0,winRate=decisions.length?pos.length/decisions.length:null,lossRate=decisions.length?neg.length/decisions.length:null,payoff=avgLoss?avgWin/avgLoss:0;
   const chronological=valid.slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-  let exactR=0;
-  const entries=chronological.map(t=>{
-    const pnl=Number(t.pnl_pct)||0;
-    const entry=Number(t.entry_price),stop=Number(t.stop_loss),exit=Number(t.exit_price!=null?t.exit_price:t.take_profit);
-    let r;
-    if(pnl===0||t.result==='be')r=0;
-    else if(Number.isFinite(entry)&&Number.isFinite(stop)&&Number.isFinite(exit)&&Math.abs(entry-stop)>0){
-      r=String(t.direction||'long').toLowerCase()==='short'?(entry-exit)/Math.abs(entry-stop):(exit-entry)/Math.abs(entry-stop);
-      if(Number.isFinite(r))exactR++;
-    }else r=pnl/lossUnit;
-    if(!Number.isFinite(r))r=0;
-    return {trade:t,r:r};
+  const entries=chronological.map(trade=>{const entry=Number(trade.entry_price),stop=Number(trade.stop_loss),exit=Number(trade.exit_price);let r=null;
+    if(outcome(trade)===0)r=0;
+    else if(entry>0&&stop>0&&exit>0&&Math.abs(entry-stop)>0)r=(String(trade.direction||'long').toLowerCase()==='short'?entry-exit:exit-entry)/Math.abs(entry-stop);
+    return {trade,r};
   });
-  const rValues=entries.map(x=>x.r);
-  const grossRWin=rValues.filter(r=>r>0).reduce((s,r)=>s+r,0);
-  const grossRLoss=Math.abs(rValues.filter(r=>r<0).reduce((s,r)=>s+r,0));
-  const netR=rValues.reduce((s,r)=>s+r,0);
-  const expectancy=valid.length?netR/valid.length:0;
-  const pf=grossRLoss?grossRWin/grossRLoss:(grossRWin?Infinity:0);
-  const beWr=payoff?1/(1+payoff)*100:0;
-  let curve=0,peak=0,maxDD=0;
-  chronological.forEach(t=>{curve+=Number(t.pnl_pct)||0;peak=Math.max(peak,curve);maxDD=Math.max(maxDD,peak-curve);});
-  const recovery=maxDD?curve/maxDD:(curve>0?Infinity:0);
-  let rCurve=0,rPeak=0,maxDDR=0;
-  rValues.forEach(r=>{rCurve+=r;rPeak=Math.max(rPeak,rCurve);maxDDR=Math.max(maxDDR,rPeak-rCurve);});
-  return {valid,pos,neg,be,decisions,grossWin,grossLoss,avgWin,avgLoss,winRate,lossRate,payoff,expectancy,pf,beWr,net:curve,maxDD,recovery,entries,rValues,netR,maxDDR,grossRWin,grossRLoss,rMode:exactR===valid.length-be.length&&valid.length-be.length?'PRICE R':'NORMALIZED R'};
+  const rValues=entries.filter(x=>Number.isFinite(x.r)).map(x=>x.r),grossRWin=rValues.filter(r=>r>0).reduce((s,r)=>s+r,0),grossRLoss=Math.abs(rValues.filter(r=>r<0).reduce((s,r)=>s+r,0)),netR=rValues.reduce((s,r)=>s+r,0),expectancy=rValues.length?netR/rValues.length:0,pf=grossRLoss?grossRWin/grossRLoss:grossRWin?Infinity:0,beWr=payoff?1/(1+payoff)*100:0;
+  let curve=0,peak=0,maxDD=0;chronological.filter(t=>finite(t.pnl_usd)).forEach(t=>{curve+=Number(t.pnl_usd);peak=Math.max(peak,curve);maxDD=Math.max(maxDD,peak-curve);});
+  let rCurve=0,rPeak=0,maxDDR=0;rValues.forEach(r=>{rCurve+=r;rPeak=Math.max(rPeak,rCurve);maxDDR=Math.max(maxDDR,rPeak-rCurve);});
+  return {valid,pos,neg,be,decisions,grossWin,grossLoss,avgWin,avgLoss,winRate,lossRate,payoff,expectancy,pf,beWr,net:curve,maxDD,recovery:maxDD?curve/maxDD:curve>0?Infinity:0,entries,rValues,netR,maxDDR,grossRWin,grossRLoss,moneyCount:money.length,rCount:rValues.length,rMode:'R ПО ЦЕНАМ · '+rValues.length+'/'+valid.length};
 }
 
 let edgeActivePeriod='all';
@@ -10876,7 +10849,7 @@ function setEdgeTab(tab,btn){
 }
 function edgeFmtR(value,withPlus){
   if(value===Infinity)return '∞';
-  if(!Number.isFinite(Number(value)))return '—';
+  if(value===null||value===undefined||!Number.isFinite(Number(value)))return '—';
   const n=Number(value);return (withPlus&&n>0?'+':'')+n.toFixed(2)+'R';
 }
 function edgeSet(id,text,state){
@@ -10890,7 +10863,7 @@ function edgeConfidence(n){
 }
 function edgeConsistency(stats){
   if(!stats||stats.valid.length<5)return null;
-  const entries=stats.entries;
+  const entries=stats.entries.filter(x=>Number.isFinite(x.r));if(entries.length<5)return null;
   const days={};
   entries.forEach(x=>{const d=new Date(x.trade.created_at);const key=Number.isNaN(d.getTime())?'UNKNOWN':d.toISOString().slice(0,10);if(!days[key])days[key]=[];days[key].push(x);});
   const dayGroups=Object.values(days);
@@ -10904,7 +10877,7 @@ function edgeConsistency(stats){
 }
 function edgeSetupRows(stats){
   const groups={};
-  (stats.entries||[]).forEach(x=>{const name=String(x.trade.setup_type||'NO SETUP').trim().toUpperCase()||'NO SETUP';if(!groups[name])groups[name]=[];groups[name].push(x);});
+  (stats.entries||[]).filter(x=>Number.isFinite(x.r)).forEach(x=>{const name=String(x.trade.setup_type||'NO SETUP').trim().toUpperCase()||'NO SETUP';if(!groups[name])groups[name]=[];groups[name].push(x);});
   return Object.entries(groups).map(([name,items])=>{
     const w=items.filter(x=>x.r>0).length,l=items.filter(x=>x.r<0).length,be=items.length-w-l;
     const decision=w+l,wr=decision?w/decision:null,netR=items.reduce((s,x)=>s+x.r,0),avgR=items.length?netR/items.length:0;
@@ -10926,7 +10899,8 @@ function edgeLeakRows(stats){
   return rows.sort((a,b)=>b.costR-a.costR||b.n-a.n);
 }
 function edgeStatus(stats,consistency){
-  const n=stats.valid.length;
+  const n=stats.rCount;
+  if(stats.valid.length&&n<stats.valid.length)return {code:'НЕПОЛНЫЕ ДАННЫЕ',title:'Не все сделки имеют измеримый R',desc:'Заполни вход, фактический выход и исходный стоп. Неполная выборка не подтверждает преимущество.',cls:'forming',meter:0};
   if(!n)return {code:'НЕТ ДАННЫХ',title:'Нет закрытых сделок',desc:'Добавь результат сделки. Безубыток будет учтён отдельно и не испортит винрейт.',cls:'',meter:0};
   if(n<5)return {code:'ФОРМИРУЕТСЯ',title:'Выборка ещё холодная',desc:`${n} из 5 базовых наблюдений. Пока фиксируй контекст и не делай выводов о стратегии.`,cls:'forming',meter:n/5*28};
   if(stats.expectancy<0||stats.pf<1)return {code:'ОТРИЦАТЕЛЬНЫЙ EDGE',title:'Математика сейчас против тебя',desc:'Ожидание или профит-фактор ниже рабочей зоны. Сначала убери самую дорогую ошибку, затем оцени заново.',cls:'negative',meter:Math.min(55,25+n)};
@@ -10937,7 +10911,7 @@ function edgeStatus(stats,consistency){
 }
 function edgeRenderCurve(stats){
   const svg=document.getElementById('edge-v2-curve'),empty=document.getElementById('edge-v2-curve-empty');if(!svg||!empty)return;
-  const entries=stats.entries||[];
+  const entries=(stats.entries||[]).filter(x=>Number.isFinite(x.r));
   if(!entries.length){svg.innerHTML='';empty.style.display='flex';edgeSet('edge-v2-curve-range','START 0.00R');edgeSet('edge-v2-curve-summary','CURRENT —');return;}
   empty.style.display='none';
   const values=[0];entries.forEach(x=>values.push(values[values.length-1]+x.r));
@@ -11003,12 +10977,12 @@ function renderEdgeV2(trades){
   const filtered=edgePeriodTrades(trades||[]),stats=terminalStats(filtered),n=stats.valid.length,conf=edgeConfidence(n),consistency=edgeConsistency(stats),setups=edgeSetupRows(stats),leaks=edgeLeakRows(stats),status=edgeStatus(stats,consistency);
   const sample=document.getElementById('edge-v2-sample');if(sample)sample.innerHTML=`ВЫБОРКА // <strong>${n}</strong> · ${conf.detail} · ${edgeActivePeriod==='all'?'ВСЁ ВРЕМЯ':edgeActivePeriod+' ДНЕЙ'}`;
   const confidence=document.getElementById('edge-v2-confidence');if(confidence){confidence.textContent=conf.label;confidence.className='edge-confidence '+conf.cls;}
-  edgeSet('edge-v2-net-r',n?edgeFmtR(stats.netR,true):'—',stats.netR>0?'good':stats.netR<0?'bad':null);
-  edgeSet('edge-v2-exp',n?edgeFmtR(stats.expectancy,true):'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);
-  edgeSet('edge-v2-pf',n?terminalNum(stats.pf,2):'—',stats.pf>=1.15?'good':stats.pf&&stats.pf<1?'bad':stats.pf?'warn':null);
+  edgeSet('edge-v2-net-r',stats.rCount?edgeFmtR(stats.netR,true):'—',stats.netR>0?'good':stats.netR<0?'bad':null);
+  edgeSet('edge-v2-exp',stats.rCount?edgeFmtR(stats.expectancy,true):'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);
+  edgeSet('edge-v2-pf',stats.rCount?terminalNum(stats.pf,2):'—',stats.pf>=1.15?'good':stats.pf&&stats.pf<1?'bad':stats.pf?'warn':null);
   edgeSet('edge-v2-wr',stats.decisions.length?Math.round(stats.winRate*100)+'%':'—',stats.decisions.length?(stats.winRate>=.55?'good':stats.winRate<.45?'bad':'warn'):null);
   edgeSet('edge-v2-record',`${stats.pos.length}П · ${stats.neg.length}У · ${stats.be.length}БУ`);
-  edgeSet('edge-v2-dd',n?'−'+stats.maxDDR.toFixed(2)+'R':'—',stats.maxDDR>=3?'bad':stats.maxDDR>1.5?'warn':null);
+  edgeSet('edge-v2-dd',stats.rCount?'−'+stats.maxDDR.toFixed(2)+'R':'—',stats.maxDDR>=3?'bad':stats.maxDDR>1.5?'warn':null);
   edgeSet('edge-v2-consistency',consistency==null?'—':consistency+'%',consistency>=65?'good':consistency<45&&consistency!=null?'bad':consistency!=null?'warn':null);
   edgeSet('edge-v2-r-mode',stats.rMode);edgeRenderCurve(stats);
   const card=document.getElementById('edge-v2-status-card');if(card){card.classList.remove('positive','negative','forming');if(status.cls)card.classList.add(status.cls);}
@@ -11100,7 +11074,7 @@ function renderHistoryInsights(trades,providedStats){
   const allUsd=list.filter(t=>terminalTradePnl(t)!==null),avgUsd=allUsd.length?allUsd.reduce((sum,t)=>sum+terminalTradePnl(t),0)/allUsd.length:null;
   setInsight('hi-today-pnl',realizedToday,realizedState>0?'good':realizedState<0?'bad':null);
   setInsight('hi-today-wr',todayWr===null?'—':`${todayWr}%`,todayWr>=60?'good':todayWr!==null&&todayWr<40?'bad':todayWr!==null?'warn':null);
-  setInsight('hi-expectancy',avgUsd!==null?terminalFormatUsd(avgUsd):stats.valid.length?edgeFmtR(stats.expectancy,true):'—',(avgUsd??stats.expectancy)>0?'good':(avgUsd??stats.expectancy)<0?'bad':null);
+  setInsight('hi-expectancy',avgUsd!==null?terminalFormatUsd(avgUsd):stats.rCount?edgeFmtR(stats.expectancy,true):'—',(avgUsd??stats.expectancy)>0?'good':(avgUsd??stats.expectancy)<0?'bad':null);
   setInsight('hi-best-setup',bestSetup?`${bestSetup.name} · ${bestSetup.w+bestSetup.l?Math.round(bestSetup.w/(bestSetup.w+bestSetup.l)*100)+'%':'—'}`:'—',bestSetup&&bestSetup.pnl>0?'good':bestSetup&&bestSetup.pnl<0?'bad':null);
   setInsight('hi-last-leak',lastLeak,lastLeak==='CLEAN'?'good':'warn');
   const total=document.getElementById('hi-total-trades');if(total)total.textContent=`${list.length} ${list.length===1?'TRADE':'TRADES'}`;
@@ -11134,9 +11108,9 @@ function renderEdgeKernel(trades,providedStats){
   const sample=n<10?'COLD':n<30?'FORMING':n<60?'USABLE':'STRONG';
   const sampleEl=document.getElementById('edge-sample-status');if(sampleEl)sampleEl.textContent=`SAMPLE: ${n} // ${sample}`;
   terminalSetMetric('edge-expectancy',n?`${stats.expectancy>=0?'+':''}${stats.expectancy.toFixed(2)}R`:'—',stats.expectancy>0?'good':stats.expectancy<0?'bad':null);
-  terminalSetMetric('edge-pf',n?terminalNum(stats.pf,2):'—',stats.pf>=1.5?'good':stats.pf&&stats.pf<1?'bad':stats.pf?'warn':null);
-  terminalSetMetric('edge-avg-win',stats.pos.length?`+${stats.avgWin.toFixed(2)}%`:'—',stats.pos.length?'good':null);
-  terminalSetMetric('edge-avg-loss',stats.neg.length?`−${stats.avgLoss.toFixed(2)}%`:'—',stats.neg.length?'bad':null);
+  terminalSetMetric('edge-pf',stats.rCount?terminalNum(stats.pf,2):'—',stats.pf>=1.5?'good':stats.pf&&stats.pf<1?'bad':stats.pf?'warn':null);
+  terminalSetMetric('edge-avg-win',stats.moneyCount?terminalFormatUsd(stats.avgWin):'—',stats.pos.length?'good':null);
+  terminalSetMetric('edge-avg-loss',stats.moneyCount?terminalFormatUsd(-stats.avgLoss):'—',stats.neg.length?'bad':null);
   terminalSetMetric('edge-be-wr',stats.payoff?`${stats.beWr.toFixed(1)}%`:'—',stats.winRate*100>=stats.beWr?'good':n?'warn':null);
   terminalSetMetric('edge-recovery',n?terminalNum(stats.recovery,2):'—',stats.recovery>=2?'good':stats.recovery<0?'bad':stats.recovery?'warn':null);
 
@@ -11309,8 +11283,8 @@ async function fetchEnvironmentCalendar(force){
   return environmentState.events;
 }
 function environmentMarketSnapshot(){
-  const entries=[];try{if(typeof tickerData!=='undefined')Object.entries(tickerData).forEach(([symbol,data])=>{if(symbol.includes('/'))return;const change=Number(data&&data.chg);if(Number.isFinite(change))entries.push({symbol,change});});}catch(e){}
-  const count=entries.length,up=entries.filter(x=>x.change>0).length,down=entries.filter(x=>x.change<0).length,breadth=count?up/count*100:null,avgAbs=count?entries.reduce((s,x)=>s+Math.abs(x.change),0)/count:null,btc=entries.find(x=>x.symbol==='BTC')?.change,eth=entries.find(x=>x.symbol==='ETH')?.change,fng=Number(window.etMarketFeed&&window.etMarketFeed.fng),dispersion=count?Math.max(...entries.map(x=>x.change))-Math.min(...entries.map(x=>x.change)):null;
+  const entries=[];try{if(typeof tickerData!=='undefined')Object.entries(tickerData).forEach(([symbol,data])=>{if(symbol.includes('/'))return;const change=data?.chg==null||data.chg===''?NaN:Number(data.chg);if(Number.isFinite(change))entries.push({symbol,change});});}catch(e){}
+  const count=entries.length,up=entries.filter(x=>x.change>0).length,down=entries.filter(x=>x.change<0).length,breadth=count?up/count*100:null,avgAbs=count?entries.reduce((s,x)=>s+Math.abs(x.change),0)/count:null,btc=entries.find(x=>x.symbol==='BTC')?.change,eth=entries.find(x=>x.symbol==='ETH')?.change,fng=window.etMarketFeed?.fng==null?NaN:Number(window.etMarketFeed.fng),dispersion=count?Math.max(...entries.map(x=>x.change))-Math.min(...entries.map(x=>x.change)):null;
   let code='NO DATA',copy='Жду живые котировки основных криптоактивов.',tone='';
   if(count){
     if(avgAbs>=4.5){code='HIGH EXPANSION';copy='Движение корзины резко расширено. Погони за ценой и поздние входы имеют повышенный риск.';tone='bad';}
@@ -11328,7 +11302,7 @@ function environmentBuildAlerts(snapshot,session){
   if(nextHigh&&highMinutes<=60)alerts.push({id:'macro-'+nextHigh.id,severity:highMinutes<=20?'high':'medium',type:'МАКРО-СОБЫТИЕ',title:`${nextHigh.country} · ${nextHigh.title}`,copy:highMinutes<=0?'Публикация идёт сейчас. Не входить по первой реакции.':`До события ${environmentCountdown(highMinutes)}. Новый риск лучше не открывать.`});
   if(snapshot.avgAbs>=4.5)alerts.push({id:'volatility',severity:'high',type:'ВОЛАТИЛЬНОСТЬ',title:'Рынок в фазе сильного расширения',copy:`Среднее абсолютное движение корзины ${snapshot.avgAbs.toFixed(2)}%. Снизить размер и не догонять свечу.`});
   else if(snapshot.avgAbs>=2.5)alerts.push({id:'volatility',severity:'medium',type:'ВОЛАТИЛЬНОСТЬ',title:'Волатильность выше спокойной зоны',copy:`Среднее движение ${snapshot.avgAbs.toFixed(2)}%. Стоп должен учитывать увеличенный шум.`});
-  if(snapshot.breadth>=80||snapshot.breadth<=20)alerts.push({id:'breadth',severity:'medium',type:'ШИРИНА РЫНКА',title:snapshot.breadth>=80?'Синхронный рост рынка':'Синхронное снижение рынка',copy:`${Math.round(snapshot.breadth)}% корзины выше открытия суток. Не торговать против широкого потока без подтверждения.`});
+  if(snapshot.breadth!=null&&(snapshot.breadth>=80||snapshot.breadth<=20))alerts.push({id:'breadth',severity:'medium',type:'ШИРИНА РЫНКА',title:snapshot.breadth>=80?'Синхронный рост рынка':'Синхронное снижение рынка',copy:`${Math.round(snapshot.breadth)}% корзины выше открытия суток. Не торговать против широкого потока без подтверждения.`});
   if(snapshot.fng!=null&&(snapshot.fng<=20||snapshot.fng>=80))alerts.push({id:'sentiment',severity:'medium',type:'НАСТРОЕНИЕ',title:snapshot.fng<=20?'Экстремальный страх':'Экстремальная жадность',copy:`Индекс страха и жадности ${Math.round(snapshot.fng)}. Это контекст перегрева, а не самостоятельный сигнал входа.`});
   if(session.phase.code==='OVERLAP')alerts.push({id:'overlap',severity:'low',type:'ЛИКВИДНОСТЬ',title:'Пересечение Лондона и Нью-Йорка',copy:'Ликвидность максимальная. Ожидай ускорение и быстрые снятия локальных экстремумов.'});
   if(!snapshot.count)alerts.push({id:'feed',severity:'low',type:'ДАННЫЕ',title:'Рыночная корзина ещё синхронизируется',copy:'Директива строится по сессии и календарю до получения ширины рынка.'});
@@ -11994,68 +11968,29 @@ function onbClose(){
 
 // ═══ FIX #8: renderDigest + helpers ═══
 function renderDigest(){
-  var trades=allTrades||[];var now=new Date();var weekAgo=new Date(now);weekAgo.setDate(weekAgo.getDate()-7);
-  var wk=trades.filter(function(t){return new Date(t.created_at)>=weekAgo;});
-  var wl=document.getElementById('digest-week-label'),ti=document.getElementById('digest-title'),si=document.getElementById('digest-sub');
-  if(wl)wl.textContent=weekAgo.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'})+' — '+now.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
-  if(!wk.length){if(ti)ti.textContent='НЕТ ДАННЫХ';if(si)si.textContent='Добавь сделки за эту неделю';return;}
-  var wins=wk.filter(function(t){return t.result==='win';}),losses=wk.filter(function(t){return t.result==='loss';});
-  var tp=wk.reduce(function(s,t){return s+(t.pnl_pct||0);},0),wr=Math.round(wins.length/wk.length*100);
-  if(ti)ti.textContent=(tp>=0?'📈 ПРИБЫЛЬНАЯ НЕДЕЛЯ':'📉 УБЫТОЧНАЯ НЕДЕЛЯ');
-  if(si)si.textContent=wk.length+' сделок · WR '+wr+'% · P&L '+(tp>=0?'+':'')+tp.toFixed(1)+'%';
-  var dt=document.getElementById('dg-trades'),dd=document.getElementById('dg-trades-desc');
-  if(dt)dt.textContent=wk.length;if(dd)dd.textContent='WR '+wr+'% · '+wins.length+'W / '+losses.length+'L';
-  var dn=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],bd={};
-  wk.forEach(function(t){var d=new Date(t.created_at),k=d.toDateString();if(!bd[k])bd[k]={pnl:0,count:0,day:dn[d.getDay()]};bd[k].pnl+=(t.pnl_pct||0);bd[k].count++;});
-  var ds=Object.values(bd);
-  if(ds.length){
-    var best=ds.reduce(function(a,b){return a.pnl>b.pnl?a:b;}),worst=ds.reduce(function(a,b){return a.pnl<b.pnl?a:b;});
-    var eb=document.getElementById('dg-best-day'),ebd=document.getElementById('dg-best-desc');
-    var ew=document.getElementById('dg-worst-day'),ewd=document.getElementById('dg-worst-desc');
-    if(eb)eb.textContent=best.day;if(ebd)ebd.textContent='+'+best.pnl.toFixed(1)+'% · '+best.count+' сд.';
-    if(ew)ew.textContent=worst.day;if(ewd)ewd.textContent=worst.pnl.toFixed(1)+'% · '+worst.count+' сд.';
-  }
-  var il=document.getElementById('digest-insights-list');
-  if(il){var ins=[];
-    if(wr>=60)ins.push({i:'🎯',t:'<b>Высокий WR</b> — '+wr+'%'});
-    else if(wr<40&&wk.length>=3)ins.push({i:'⚠️',t:'<b>Низкий WR</b> — '+wr+'%'});
-    var af=wk.reduce(function(s,t){return s+(t.emotion_fear||0);},0)/wk.length;
-    if(af>6)ins.push({i:'😰',t:'<b>Высокий страх</b> — '+af.toFixed(1)+'/10'});
-    var ag=wk.reduce(function(s,t){return s+(t.emotion_greed||0);},0)/wk.length;
-    if(ag>6)ins.push({i:'🤑',t:'<b>Жадность</b> — '+ag.toFixed(1)+'/10'});
-    var ns=wk.filter(function(t){return !t.stop_loss;}).length;
-    if(ns>0)ins.push({i:'🛑',t:'<b>'+ns+' без стопа</b> из '+wk.length});
-    if(tp>0&&wk.length>=3)ins.push({i:'✅',t:'<b>Прибыльная неделя!</b> +'+tp.toFixed(1)+'%'});
-    if(!ins.length)ins.push({i:'📊',t:'Заполняй эмоции и сетапы для анализа.'});
-    il.innerHTML=ins.map(function(x){return '<div class="di-item"><span class="di-icon">'+x.i+'</span><div class="di-text">'+x.t+'</div></div>';}).join('');
-  }
-  _renderMC(trades);_renderWD(trades);
+  const now=Date.now(),days=typeof auditReportDays==='number'?auditReportDays:7,from=now-days*86400000,wk=(allTrades||[]).filter(t=>new Date(t.created_at).getTime()>=from),stats=terminalStats(wk);
+  const set=(id,text)=>{const node=document.getElementById(id);if(node)node.textContent=text;};
+  set('digest-week-label',new Date(from).toLocaleDateString('ru-RU')+' — '+new Date(now).toLocaleDateString('ru-RU'));
+  set('digest-title',stats.valid.length?(stats.net>0?'ПОЛОЖИТЕЛЬНЫЙ РЕЗУЛЬТАТ':stats.net<0?'ОТРИЦАТЕЛЬНЫЙ РЕЗУЛЬТАТ':'ИТОГ ПЕРИОДА'):'НЕТ ЗАКРЫТЫХ СДЕЛОК');
+  const partial=stats.moneyCount<stats.valid.length;
+  set('digest-sub',stats.valid.length+' сделок · P&L '+terminalFormatUsd(stats.net)+(partial?' · часть денежного результата неизвестна':'')+' · это денежный итог, не ROI счёта');
+  set('dg-trades',stats.valid.length);set('dg-trades-desc','WR '+(stats.winRate==null?'—':Math.round(stats.winRate*100)+'%')+' · '+stats.pos.length+'W / '+stats.neg.length+'L');
+  const groups=new Map();stats.valid.forEach(t=>{if(t.pnl_usd==null||t.pnl_usd===''||!Number.isFinite(Number(t.pnl_usd))||!Number.isFinite(new Date(t.created_at).getTime()))return;const day=new Date(t.created_at).toISOString().slice(0,10),group=groups.get(day)||{day,pnl:0,count:0};group.pnl+=Number(t.pnl_usd);group.count++;groups.set(day,group);});
+  const sorted=[...groups.values()].sort((a,b)=>b.pnl-a.pnl),best=sorted[0],worst=sorted.at(-1);
+  set('dg-best-day',best?.day||'—');set('dg-best-desc',best?terminalFormatUsd(best.pnl)+' · '+best.count+' сделок':'Нет денежного результата');set('dg-worst-day',worst?.day||'—');set('dg-worst-desc',worst?terminalFormatUsd(worst.pnl)+' · '+worst.count+' сделок':'Нет денежного результата');
+  const insights=document.getElementById('digest-insights-list');if(insights)insights.innerHTML='<div class="audit-note">'+escHtml('R по ценам: '+stats.rCount+'/'+stats.valid.length+' сделок. Средний результат '+edgeFmtR(stats.rCount?stats.expectancy:null,true)+'. Денежная просадка '+terminalFormatUsd(-stats.maxDD)+'. '+(partial?'Для полной денежной кривой заполни P&L оставшихся сделок.':'Проценты разных позиций не складываются в доходность счёта.'))+'</div>';
+  _renderMC(allTrades||[]);_renderWD(allTrades||[]);
 }
 function _renderMC(trades){
-  var el=document.getElementById('month-compare-rows');if(!el)return;
-  var n=new Date(),tm=n.getMonth(),ty=n.getFullYear(),pm=tm===0?11:tm-1,py=tm===0?ty-1:ty;
-  var ct=trades.filter(function(t){var d=new Date(t.created_at);return d.getMonth()===tm&&d.getFullYear()===ty;});
-  var pt=trades.filter(function(t){var d=new Date(t.created_at);return d.getMonth()===pm&&d.getFullYear()===py;});
-  var ms=[{k:'Сделок',c:ct.length,p:pt.length},
-    {k:'WR%',c:ct.length?Math.round(ct.filter(function(t){return t.result==='win';}).length/ct.length*100):0,
-     p:pt.length?Math.round(pt.filter(function(t){return t.result==='win';}).length/pt.length*100):0},
-    {k:'P&L%',c:ct.reduce(function(s,t){return s+(t.pnl_pct||0);},0),p:pt.reduce(function(s,t){return s+(t.pnl_pct||0);},0)}];
-  el.innerHTML=ms.map(function(m){var d=m.c-m.p;var dc=d>0?'up':d<0?'down':'same';var ds=d>0?'↑':d<0?'↓':'=';
-    var f=function(v){return m.k.includes('%')?v.toFixed(1)+'%':v;};
-    return '<div class="mc-row"><span class="mc-key">'+m.k+'</span><div class="mc-vals"><span class="mc-val prev">'+f(m.p)+'</span><span class="mc-val curr">'+f(m.c)+'</span><span class="mc-delta '+dc+'">'+ds+'</span></div></div>';}).join('');
+  const node=document.getElementById('month-compare-rows');if(!node)return;
+  const now=new Date(),current=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1),previous=Date.UTC(now.getUTCFullYear(),now.getUTCMonth()-1,1),a=terminalStats(trades.filter(t=>new Date(t.created_at)>=current)),b=terminalStats(trades.filter(t=>new Date(t.created_at)>=previous&&new Date(t.created_at)<current));
+  const rows=[['Сделок',String(a.valid.length),String(b.valid.length)],['WR',a.winRate==null?'—':Math.round(a.winRate*100)+'%',b.winRate==null?'—':Math.round(b.winRate*100)+'%'],['P&L $',terminalFormatUsd(a.net),terminalFormatUsd(b.net)]];
+  node.innerHTML=rows.map(([label,c,p])=>'<div class="mc-row"><span class="mc-key">'+label+'</span><div class="mc-vals"><span class="mc-val prev">'+p+'</span><span class="mc-val curr">'+c+'</span></div></div>').join('');
 }
 function _renderWD(trades){
-  var el=document.getElementById('weekly-dynamics');if(!el)return;
-  if(trades.length<3){el.innerHTML='<div class="empty" style="padding:14px">Нужно больше сделок</div>';return;}
-  var ws=[],n=new Date();for(var w=5;w>=0;w--){var s=new Date(n);s.setDate(s.getDate()-w*7-n.getDay());s.setHours(0,0,0,0);
-    var e=new Date(s);e.setDate(e.getDate()+7);
-    var wt=trades.filter(function(t){var d=new Date(t.created_at);return d>=s&&d<e;});
-    ws.push({l:s.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}),p:wt.reduce(function(a,t){return a+(t.pnl_pct||0);},0)});}
-  var mx=Math.max.apply(null,ws.map(function(w){return Math.abs(w.p);}))||1;
-  el.innerHTML='<div style="display:flex;align-items:flex-end;gap:8px;height:80px;padding:8px 0">'+ws.map(function(w){
-    var h=Math.max(4,Math.round(Math.abs(w.p)/mx*60));var c=w.p>=0?'rgba(52,208,88,0.6)':'rgba(255,77,77,0.6)';
-    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-family:var(--font-mono);font-size:11px;color:'+(w.p>=0?'var(--g)':'var(--r)')+'">'+(w.p>=0?'+':'')+w.p.toFixed(1)+'%</div><div style="width:100%;height:'+h+'px;background:'+c+';border-radius:3px 3px 0 0"></div><div style="font-family:var(--font-mono);font-size:11px;color:var(--m)">'+w.l+'</div></div>';
-  }).join('')+'</div>';
+  const node=document.getElementById('weekly-dynamics');if(!node)return;
+  const day=86400000,now=Date.now(),rows=Array.from({length:6},(_,i)=>{const from=now-(6-i)*7*day,to=from+7*day,stats=terminalStats(trades.filter(t=>{const time=new Date(t.created_at).getTime();return time>=from&&time<to;}));return {label:new Date(from).toLocaleDateString('ru-RU',{timeZone:'UTC',day:'2-digit',month:'short'}),stats};});
+  node.innerHTML='<div class="audit-weekly-bars">'+rows.map(row=>'<div><small>'+escHtml(row.label)+'</small><strong class="'+(row.stats.net<0?'bad':'good')+'">'+terminalFormatUsd(row.stats.net)+'</strong><span>'+row.stats.valid.length+' сделок</span></div>').join('')+'</div>';
 }
 
 // ══ INIT CALL ══
@@ -12301,13 +12236,13 @@ async function sendChatMessage() {
   if (typeof allTrades !== 'undefined' && allTrades.length) {
     var wins = allTrades.filter(function(t){return t.result==='win';}).length;
     var wr = Math.round(wins / allTrades.length * 100);
-    var totalPnl = allTrades.reduce(function(s,t){return s+(t.pnl_pct||0);},0).toFixed(1);
-    tradesContext = '\n\nКонтекст трейдера: ' + allTrades.length + ' сделок, винрейт ' + wr + '%, суммарный P&L ' + totalPnl + '%.';
+    var stats=terminalStats(allTrades),cash=auditCashSummary(stats.valid);
+    tradesContext='\n\nКонтекст трейдера: '+stats.valid.length+' закрытых сделок; WR '+(stats.winRate==null?'неизвестен':Math.round(stats.winRate*100)+'%')+'; известный денежный P&L '+(cash.total==null?'неизвестен':cash.total+' USD')+' ('+cash.known+'/'+cash.count+'). ROI счёта неизвестен. Не складывай проценты позиций.';
   }
 
   _chatHistory.push({ role: 'user', content: text });
 
-  var systemPrompt = 'Ты — персональный AI-коуч трейдера в приложении Eternity Trade. Отвечай на русском языке. Будь конкретным, практичным и лаконичным. Фокусируйся на психологии трейдинга, риск-менеджменте и анализе рынка.' + tradesContext;
+  var systemPrompt = 'Ты — персональный AI-коуч трейдера в приложении Eternity Trade. Отвечай на русском языке. Будь конкретным, практичным и лаконичным. Фокусируйся на психологии трейдинга, риск-менеджменте и анализе рынка.' + tradesContext + (typeof auditAssistantContext==='function'?auditAssistantContext():'');
 
   try {
     // Build proper messages array — ai.js supports it natively (BUG 6 fix)
@@ -14228,7 +14163,7 @@ function miRenderAnalysis(analysis){
   miSet('mi-page-title',`${marketIntelState.symbol} / АНАЛИТИКА МОНЕТ`);miSet('mi-asset-symbol',`${marketIntelState.symbol} / USDT`);miSet('mi-source',marketIntelState.source);miSet('mi-price',miFmtPrice(current));miSet('mi-change',miPct(ticker.changePct));miToneClass(miEl('mi-change'),ticker.changePct>=0?'good':'bad');miSet('mi-low',miFmtPrice(ticker.low));miSet('mi-high',miFmtPrice(ticker.high));miSet('mi-range-pos',Math.round(rangePos)+'% ДИАПАЗОНА');if(miEl('mi-range-marker'))miEl('mi-range-marker').style.left=rangePos+'%';miSet('mi-volume',miFmtBig(ticker.volumeQuote));miSet('mi-range-pct',Number.isFinite(rangePct)?rangePct.toFixed(2)+'%':'—');miSet('mi-trades-count',Number.isFinite(ticker.trades)?ticker.trades.toLocaleString('ru-RU'):'—');
   const ring=miEl('mi-score-ring'),tone=verdict.tone==='bad'?'var(--r)':'var(--g)';if(ring){ring.style.setProperty('--score',score);ring.style.setProperty('--tone',tone)}miSet('mi-score',String(score));miSet('mi-verdict',verdict.title);if(miEl('mi-verdict'))miEl('mi-verdict').style.color=tone;miSet('mi-verdict-copy',verdict.copy);miSet('mi-confidence',confidence+'%');
   const rsi4=inds['4h'].rsi,rsiZone=miRSIZone(rsi4);miSet('mi-metric-rsi',Number.isFinite(rsi4)?rsi4.toFixed(1):'—');miToneClass(miEl('mi-metric-rsi'),rsiZone.tone);miSet('mi-metric-rsi-note',rsiZone.label);miSet('mi-metric-trend',dailyTrend.label);miToneClass(miEl('mi-metric-trend'),dailyTrend.tone);miSet('mi-metric-trend-note',dailyTrend.copy);miSet('mi-metric-atr',Number.isFinite(inds['1h'].atrPct)?inds['1h'].atrPct.toFixed(2)+'%':'—');miToneClass(miEl('mi-metric-atr'),inds['1h'].atrPct>3?'bad':inds['1h'].atrPct>1.5?'warn':'');const volRatio=inds['1h'].volumeRatio;miSet('mi-metric-vol',Number.isFinite(volRatio)?volRatio.toFixed(2)+'×':'—');miToneClass(miEl('mi-metric-vol'),volRatio>=1.5?'good':volRatio<.7?'warn':'');miSet('mi-metric-vol-note',Number.isFinite(volRatio)?(volRatio>=1.5?'объём выше нормы':volRatio<.7?'тонкий объём':'обычный объём'):'источник не передал объём');
-  const market=window.etMarketFeed&&window.etMarketFeed.market,fng=Number(window.etMarketFeed&&window.etMarketFeed.fng);miSet('mi-metric-dom',market&&Number.isFinite(market.btcDominance)?market.btcDominance.toFixed(1)+'%':'—');miSet('mi-metric-fng',Number.isFinite(fng)?String(Math.round(fng)):'—');miSet('mi-metric-fng-note',Number.isFinite(fng)?(fng<=25?'экстремальный страх':fng<=45?'страх':fng<56?'нейтрально':fng<75?'жадность':'экстремальная жадность'):'ожидание индекса');miToneClass(miEl('mi-metric-fng'),Number.isFinite(fng)?(fng<=25?'bad':fng>=75?'warn':''):'');
+  const market=window.etMarketFeed&&window.etMarketFeed.market,fng=window.etMarketFeed?.fng==null?NaN:Number(window.etMarketFeed.fng);miSet('mi-metric-dom',market&&Number.isFinite(market.btcDominance)?market.btcDominance.toFixed(1)+'%':'—');miSet('mi-metric-fng',Number.isFinite(fng)?String(Math.round(fng)):'—');miSet('mi-metric-fng-note',Number.isFinite(fng)?(fng<=25?'экстремальный страх':fng<=45?'страх':fng<56?'нейтрально':fng<75?'жадность':'экстремальная жадность'):'ожидание индекса');miToneClass(miEl('mi-metric-fng'),Number.isFinite(fng)?(fng<=25?'bad':fng>=75?'warn':''):'');
   miRenderRSI(analysis);miRenderDivergences(analysis);miRenderChart(analysis);
   const ind4=inds['4h'],macdTone=ind4.macd.hist>0?'good':'bad',emaGap=ind4.ema50?((current/ind4.ema50-1)*100):null,structure=[miStructureRow('RSI 14 · 4 часа',Number.isFinite(rsi4)?rsi4.toFixed(1):'—',rsiZone.label,rsiZone.tone),miStructureRow('Цена к EMA 50',Number.isFinite(emaGap)?miPct(emaGap):'—',current>=ind4.ema50?'выше средней':'ниже средней',current>=ind4.ema50?'good':'bad'),miStructureRow('MACD · 4 часа',ind4.macd.hist>0?'ИМПУЛЬС ВВЕРХ':'ИМПУЛЬС ВНИЗ','гистограмма '+(Number.isFinite(ind4.macd.hist)?miFmtPrice(Math.abs(ind4.macd.hist)):'—'),macdTone),miStructureRow('ATR 14 · 1 час',Number.isFinite(inds['1h'].atrPct)?inds['1h'].atrPct.toFixed(2)+'%':'—','типичный ход одной часовой свечи',inds['1h'].atrPct>3?'bad':inds['1h'].atrPct>1.5?'warn':''),miStructureRow('Тренд · 1 день',dailyTrend.label,dailyTrend.copy,dailyTrend.tone),miStructureRow('Позиция в 24ч',Math.round(rangePos)+'%','от минимума к максимуму дня',rangePos>80?'warn':rangePos<20?'warn':'')];miEl('mi-structure-list').innerHTML=structure.join('');
   const signals=[];signals.push({tone:verdict.tone,text:verdict.copy,tag:'СТРУКТУРА'});Object.values(analysis.divergences).filter(x=>x.found).sort((a,b)=>b.score-a.score).slice(0,2).forEach(div=>signals.push({tone:div.tone,text:`RSI ${MI_TF_LABELS[div.tf]}: ${div.kind.toLowerCase()}, сила ${div.score}/100. Сигнал подтверждён ${miDivergenceAge(div.tf,div.age).toLowerCase()}.`,tag:'ДИВЕРГЕНЦИЯ'}));if(rsi4>=70)signals.push({tone:'bad',text:'RSI 4ч выше 70: новый лонг находится в зоне повышенного риска отката.',tag:'RSI'});else if(rsi4<=30)signals.push({tone:'warn',text:'RSI 4ч ниже 30: давление сильное, но вероятность технического отскока выросла.',tag:'RSI'});if(rangePos>=85)signals.push({tone:'warn',text:'Цена у верхней границы суточного диапазона — вход по рынку требует подтверждённого пробоя.',tag:'ДИАПАЗОН'});if(rangePos<=15)signals.push({tone:'warn',text:'Цена у нижней границы суточного диапазона — следи за реакцией, а не угадывай разворот.',tag:'ДИАПАЗОН'});if(Number.isFinite(volRatio)&&volRatio<.7)signals.push({tone:'warn',text:'Текущий объём ниже среднего: движение легче окажется ложным.',tag:'ОБЪЁМ'});if(Number.isFinite(volRatio)&&volRatio>=1.5)signals.push({tone:'good',text:`Объём ${volRatio.toFixed(2)}× от среднего подтверждает активное участие рынка.`,tag:'ОБЪЁМ'});const directive=typeof environmentState!=='undefined'&&environmentState.directive;if(directive&&['WAIT','MANAGE','REDUCE'].includes(directive.code))signals.push({tone:'bad',text:`Сканер среды требует осторожности: ${directive.title||directive.code}.`,tag:'СРЕДА'});miEl('mi-signal-list').innerHTML=signals.slice(0,6).map(x=>miSignalRow(x.tone,x.text,x.tag)).join('');
@@ -14338,25 +14273,30 @@ function liquidityPivots(candles,side){
 function liquidityClusters(candles,side,atr,tf){
   const pivots=liquidityPivots(candles,side).slice(-40),threshold=Math.max((atr||0)*.18,(candles.at(-1)?.close||1)*.0007),clusters=[];
   pivots.forEach(p=>{let cluster=clusters.find(c=>Math.abs(c.price-p.price)<=threshold);if(!cluster){cluster={price:p.price,items:[],side};clusters.push(cluster)}cluster.items.push(p);cluster.price=cluster.items.reduce((s,x)=>s+x.price,0)/cluster.items.length});
-  return clusters.filter(c=>c.items.length>=2).sort((a,b)=>b.items.length-a.items.length).slice(0,3).map((c,index)=>({name:(side==='above'?'РАВНЫЕ МАКСИМУМЫ':'РАВНЫЕ МИНИМУМЫ')+' '+MI_TF_LABELS[tf].toUpperCase(),short:side==='above'?'EQH':'EQL',price:c.price,side,touches:c.items.length,originIndex:c.items.at(-1).index,strength:88-index*8,kind:'cluster'}));
+  return clusters.filter(c=>c.items.length>=2).sort((a,b)=>b.items.length-a.items.length).slice(0,3).map((c,index)=>({name:(side==='above'?'РАВНЫЕ МАКСИМУМЫ':'РАВНЫЕ МИНИМУМЫ')+' '+MI_TF_LABELS[tf].toUpperCase(),short:side==='above'?'EQH':'EQL',price:c.price,side,touches:c.items.length,originIndex:c.items.at(-1).index,formedAt:c.items.at(-1).time+({'5m':300000,'15m':900000,'1h':3600000,'4h':14400000}[tf]||3600000)*4,strength:88-index*8,kind:'cluster'}));
 }
 function liquidityStaticPools(){
-  const oneHour=(marketIntelState.candles['1h']||[]).slice(0,-1),fourHour=(marketIntelState.candles['4h']||[]).slice(0,-1),ticker=marketIntelState.ticker||{},previous=oneHour.slice(-48,-24),week=fourHour.slice(-42),pools=[];
-  const add=(name,short,price,side,strength,originIndex,kind)=>{if(Number.isFinite(price)&&price>0)pools.push({name,short,price,side,touches:1,strength,originIndex,kind})};
-  add('МАКСИМУМ 24 ЧАСА','H24',Number(ticker.high),'above',92,oneHour.length-24,'period');add('МИНИМУМ 24 ЧАСА','L24',Number(ticker.low),'below',92,oneHour.length-24,'period');
-  if(previous.length){add('МАКСИМУМ ПРОШЛОГО ДНЯ','PDH',Math.max(...previous.map(x=>x.high)),'above',84,oneHour.length-24,'period');add('МИНИМУМ ПРОШЛОГО ДНЯ','PDL',Math.min(...previous.map(x=>x.low)),'below',84,oneHour.length-24,'period')}
-  if(week.length){add('МАКСИМУМ НЕДЕЛИ','WH',Math.max(...week.map(x=>x.high)),'above',98,fourHour.length-42,'period');add('МИНИМУМ НЕДЕЛИ','WL',Math.min(...week.map(x=>x.low)),'below',98,fourHour.length-42,'period')}
+  const rows=(marketIntelState.candles['1h']||[]).slice(0,-1),day=86400000,now=Date.now(),today=Math.floor(now/day)*day,previous=rows.filter(c=>c.time>=today-day&&c.time<today),rolling=rows.filter(c=>c.time>=now-day),week=(marketIntelState.candles['4h']||[]).slice(0,-1).filter(c=>c.time>=now-day*7),pools=[];
+  const addWindow=(source,name,short,strength,formedAt,complete=true)=>{
+    if(!source.length||!complete)return;
+    for(const side of ['above','below']){const key=side==='above'?'high':'low',point=source.reduce((a,b)=>side==='above'?(a[key]>b[key]?a:b):(a[key]<b[key]?a:b));pools.push({name:(side==='above'?'МАКСИМУМ ':'МИНИМУМ ')+name,short:short[side==='above'?0:1],price:point[key],side,touches:1,strength,formedAt:formedAt??point.time+(source[1]?source[1].time-source[0].time:3600000),originTime:point.time,kind:'period'});}
+  };
+  addWindow(rolling,'24 ЧАСОВ',['H24','L24'],92,null);
+  const completePrevious=previous.length===24&&previous[0]?.time===today-day&&previous.at(-1)?.time===today-3600000;
+  addWindow(previous,'ПРОШЛОГО ДНЯ UTC',['PDH','PDL'],84,today,completePrevious);
+  addWindow(week,'7 СУТОК',['WH','WL'],98,null);
   return pools;
 }
 function liquidityPoolStatus(pool,current,candles){
-  if(pool.side==='above'&&current>=pool.price)return 'swept';if(pool.side==='below'&&current<=pool.price)return 'swept';
-  if(pool.kind==='cluster'){const after=(candles||[]).slice(Math.max(0,(pool.originIndex||0)+1),-1);if(pool.side==='above'&&after.some(x=>x.high>pool.price*1.00025))return 'swept';if(pool.side==='below'&&after.some(x=>x.low<pool.price*.99975))return 'swept'}
-  return 'live';
+  const above=pool.side==='above',threshold=pool.price*(above?1.00025:.99975);
+  if(above?current>threshold:current<threshold)return 'swept';
+  const rows=(candles||[]),after=Number.isFinite(pool.formedAt)?rows.filter(c=>c.time>=pool.formedAt):rows.slice(Math.max(0,(pool.originIndex||0)+1));
+  return after.some(c=>above?c.high>threshold:c.low<threshold)?'swept':'live';
 }
 function liquidityBuild(){
   const analysis=miBuildAnalysis(),current=analysis.current,candles=marketIntelState.candles[liquidityState.tf]||[],atr=analysis.inds['1h'].atr||current*.01,raw=liquidityStaticPools().concat(liquidityClusters(candles,'above',atr,liquidityState.tf),liquidityClusters(candles,'below',atr,liquidityState.tf)),deduped=[];
-  raw.sort((a,b)=>b.strength-a.strength).forEach(pool=>{const duplicate=deduped.find(x=>x.side===pool.side&&Math.abs(x.price-pool.price)<=Math.max(atr*.12,current*.0005));if(duplicate){duplicate.name=duplicate.name+' + '+pool.short;duplicate.touches=Math.max(duplicate.touches,pool.touches);duplicate.strength=Math.min(100,duplicate.strength+6)}else deduped.push(pool)});
-  deduped.forEach(pool=>{pool.status=liquidityPoolStatus(pool,current,candles);pool.distancePct=Math.abs(pool.price/current-1)*100;pool.distanceAtr=Math.abs(pool.price-current)/(atr||1);pool.force=Math.round(pool.strength/(.55+pool.distanceAtr)*10)/10});
+  raw.sort((a,b)=>b.strength-a.strength).forEach(pool=>{const duplicate=deduped.find(x=>x.side===pool.side&&Math.abs(x.price-pool.price)<=Math.max(atr*.12,current*.0005));if(duplicate){duplicate.name=duplicate.name+' + '+pool.short;duplicate.touches=Math.max(duplicate.touches,pool.touches);duplicate.strength=Math.min(100,duplicate.strength+6);duplicate.formedAt=Math.min(duplicate.formedAt??Infinity,pool.formedAt??Infinity)}else deduped.push(pool)});
+  deduped.forEach(pool=>{const history=[...new Set(['4h','1h','5m',liquidityState.tf])].flatMap(tf=>marketIntelState.candles[tf]||[]).sort((a,b)=>a.time-b.time);pool.status=liquidityPoolStatus(pool,current,history);pool.distancePct=Math.abs(pool.price/current-1)*100;pool.distanceAtr=Math.abs(pool.price-current)/(atr||1);pool.force=Math.round(pool.strength/(.55+pool.distanceAtr)*10)/10});
   const active=deduped.filter(x=>x.status==='live');
   [...active].sort((a,b)=>a.force-b.force).forEach((pool,index)=>{pool.heat=Math.min(3,Math.max(1,Math.ceil((index+1)*3/active.length)))});
   const above=active.filter(x=>x.price>current).sort((a,b)=>a.price-b.price),below=active.filter(x=>x.price<current).sort((a,b)=>b.price-a.price),nearestAbove=above[0]||null,nearestBelow=below[0]||null,upperForce=above.reduce((s,x)=>s+x.force,0),lowerForce=below.reduce((s,x)=>s+x.force,0);
@@ -14400,7 +14340,7 @@ function liquidityRenderVRVP(){
   const levelSvg=levels.map(level=>{const yy=y(level.value),badgeY=level.badgeY,boxX=priceRight+14;return '<line x1="'+priceLeft+'" x2="'+profileRight+'" y1="'+yy+'" y2="'+yy+'" stroke="'+level.color+'" stroke-width="1.4" stroke-dasharray="'+level.dash+'" opacity=".82"/>'+(Math.abs(badgeY-yy)>2?'<line x1="'+boxX+'" x2="'+boxX+'" y1="'+yy+'" y2="'+badgeY+'" stroke="'+level.color+'" stroke-width="1"/>':'')+'<rect x="'+boxX+'" y="'+(badgeY-11)+'" width="78" height="22" rx="7" fill="var(--bg-card)" stroke="'+level.color+'" stroke-width="1.3"/><text x="'+(boxX+39)+'" y="'+(badgeY+4)+'" fill="'+level.color+'" font-size="11" font-weight="800" text-anchor="middle">'+level.label+'</text>'}).join('');
   svg.innerHTML=defs+'<rect x="'+(profileLeft-8)+'" y="'+(top-14)+'" width="'+(profileWidth+16)+'" height="'+(bottom-top+28)+'" rx="1" fill="var(--metric-surface)" stroke="var(--metric-edge)"/><rect x="'+priceLeft+'" y="'+y(vah)+'" width="'+(profileRight-priceLeft)+'" height="'+Math.max(0,y(val)-y(vah))+'" fill="url(#vrvp-zone)"/>'+grid+candleSvg+profileSvg+levelSvg+'<text x="'+(profileLeft+4)+'" y="25" fill="var(--m)" font-size="11" font-weight="750">'+(w<600?'ОБЪЁМ':'ОБЪЁМ ПО ЦЕНЕ')+'</text><text x="'+priceLeft+'" y="25" fill="var(--t)" font-size="12" font-weight="800">'+escHtml(liquidityState.symbol+'/USDT · '+MI_TF_LABELS[profile.tf].toUpperCase())+'</text>';
   worldMarkOrePeak(profile,{y,profileWidth,profileRight,binHeight,maxVolume});
-  battleSet('lq-vrvp-poc',miFmtPrice(poc),'warn');battleSet('lq-vrvp-vah',miFmtPrice(vah),'bad');battleSet('lq-vrvp-val',miFmtPrice(val),'good');const inside=current>=val&&current<=vah,position=inside?'ВНУТРИ ЗОНЫ':current>vah?'ВЫШЕ VAH':'НИЖЕ VAL';battleSet('lq-vrvp-position',position,inside?'good':'warn');battleSet('lq-vrvp-window',candles.length+' СВЕЧЕЙ');battleSet('lq-vrvp-caption',liquidityState.symbol+'/USDT · '+MI_TF_LABELS[profile.tf]+' · '+candles.length+' свечей · Value Area '+profile.acceptedPct.toFixed(0)+'%');battleSet('lq-vrvp-note',inside?'Цена торгуется внутри области принятия. POC — главный центр проторговки; движение внутри зоны чаще ротационное.':current>vah?'Цена выше Value Area. Для продолжения нужен приём объёма над VAH; возврат внутрь зоны ослабит пробой.':'Цена ниже Value Area. Для продолжения нужен приём объёма под VAL; возврат внутрь зоны укажет на ложный выход.');
+  battleSet('lq-vrvp-poc',miFmtPrice(poc),'warn');battleSet('lq-vrvp-vah',miFmtPrice(vah),'bad');battleSet('lq-vrvp-val',miFmtPrice(val),'good');const inside=current>=val&&current<=vah,position=inside?'ВНУТРИ ЗОНЫ':current>vah?'ВЫШЕ VAH':'НИЖЕ VAL';battleSet('lq-vrvp-position',position,inside?'good':'warn');battleSet('lq-vrvp-window',candles.length+' СВЕЧЕЙ');battleSet('lq-vrvp-caption',liquidityState.symbol+'/USDT · '+MI_TF_LABELS[profile.tf]+' · '+candles.length+' свечей · Value Area '+profile.acceptedPct.toFixed(0)+'% · объём распределён расчётно по свечам; покупатели/продавцы оценены по направлению свечи');battleSet('lq-vrvp-note',inside?'Цена торгуется внутри области принятия. POC — главный центр проторговки; движение внутри зоны чаще ротационное.':current>vah?'Цена выше Value Area. Для продолжения нужен приём объёма над VAH; возврат внутрь зоны ослабит пробой.':'Цена ниже Value Area. Для продолжения нужен приём объёма под VAL; возврат внутрь зоны укажет на ложный выход.');
 }
 function liquidityPoolRow(pool,current){
   const side=pool.price>current?'above':'below',label=side==='above'?'СВЕРХУ':'СНИЗУ';
@@ -14413,7 +14353,7 @@ function renderLiquidityMap(){
   battleSet('lq-symbol',liquidityState.symbol+' / USDT · ТЕКУЩАЯ ЦЕНА');battleSet('lq-price',miFmtPrice(data.current));battleSet('lq-change',(change>=0?'+':'')+change.toFixed(2)+'% ЗА 24 ЧАСА',change>=0?'good':'bad');battleSet('lq-source',marketIntelState.source);battleSet('lq-atr','ATR 1Ч '+miFmtPrice(data.atr));
   battleSet('lq-above-price',data.nearestAbove?miFmtPrice(data.nearestAbove.price):'—');battleSet('lq-above-name',data.nearestAbove?data.nearestAbove.name:'Активных пулов сверху нет');battleSet('lq-above-distance',liquidityDistance(data.nearestAbove));battleSet('lq-below-price',data.nearestBelow?miFmtPrice(data.nearestBelow.price):'—');battleSet('lq-below-name',data.nearestBelow?data.nearestBelow.name:'Активных пулов снизу нет');battleSet('lq-below-distance',liquidityDistance(data.nearestBelow));
   battleSet('lq-insight-price',miFmtPrice(data.current));const nearest=[data.nearestAbove,data.nearestBelow].filter(Boolean).sort((a,b)=>a.distanceAtr-b.distanceAtr)[0];battleSet('lq-insight-pool',nearest?nearest.short+' · '+miFmtPrice(nearest.price):'Нет активных пулов');battleSet('lq-insight-focus',data.gravity);
-  battleSet('lq-live-count',data.active.length+' ПУЛОВ');battleSet('lq-chart-caption',MI_TF_LABELS[liquidityState.tf]+' · уровни по цене · длина полосы показывает силу · снятые уровни серые');liquidityRenderChart(data);liquidityRenderVRVP();
+  battleSet('lq-live-count',data.active.length+' ПУЛОВ');battleSet('lq-chart-caption',MI_TF_LABELS[liquidityState.tf]+' · уровни по цене · огоньки — оценка силы, не объём заявок · снятые уровни серые');liquidityRenderChart(data);liquidityRenderVRVP();
   battleSet('lq-gravity-code',data.gravity,data.tone);const code=liquidityEl('lq-gravity-code');if(code)code.style.color=data.tone==='bad'?'var(--r)':'var(--g)';battleSet('lq-gravity-copy',data.copy);battleSet('lq-upper-force',data.upperForce.toFixed(0));battleSet('lq-lower-force',data.lowerForce.toFixed(0));const dot=liquidityEl('lq-gravity-dot');if(dot)dot.style.background=data.tone==='bad'?'var(--r)':'var(--g)';
   const first=data.upperForce>=data.lowerForce?data.nearestAbove:data.nearestBelow,second=data.upperForce>=data.lowerForce?data.nearestBelow:data.nearestAbove;liquidityEl('lq-route').innerHTML=[first?'Первая цель: '+first.name+' · '+miFmtPrice(first.price)+'.':'Ближайшая цель не сформирована.',second?'Альтернативная цель: '+second.name+' · '+miFmtPrice(second.price)+'.':'Обратный уровень не сформирован.','После снятия уровня жди возврат или закрепление — сам прокол не является входом.'].map((x,i)=>'<div><b>'+(i+1)+'</b><span>'+escHtml(x)+'</span></div>').join('');
   liquidityEl('lq-pool-table').innerHTML=data.pools.length?data.pools.map(x=>liquidityPoolRow(x,data.current)).join(''):'<tr><td colspan="6">Уровни не найдены.</td></tr>';
@@ -14446,6 +14386,28 @@ function trendlinePivots(candles,side,radius=3){
   return points;
 }
 function trendlineAt(line,index){return line.anchorOne.price+line.slope*(index-line.anchorOne.index)}
+function trendlineApplyLifecycle(result,tf){
+  const minutes=({'5m':5,'15m':15,'1h':60,'4h':240})[tf]||15;
+  const trigger=result.retestHeld?result.retestIndex:result.breakIndex;
+  result.triggerAge=trigger>=0?result.closed.length-1-trigger:null;
+  result.expiresAt=trigger>=0?result.all[trigger].time+minutes*60000*5:null;
+  const wrong=c=>result.side==='support'?c.close>trendlineAt(result,result.all.indexOf(c))+result.buffer:c.close<trendlineAt(result,result.all.indexOf(c))-result.buffer;
+  const cancelled=result.broken&&(wrong(result.live)||result.closed.slice(result.breakIndex+1).some(wrong));
+  const extended=result.broken&&result.distanceAtr>2.5;
+  const expired=result.broken&&(result.triggerAge>3||extended);
+  result.cancelled=cancelled;result.expired=expired;
+  if(cancelled||expired){result.stateKey=cancelled?'cancelled':'expired';result.state=cancelled?'ПРОБОЙ ОТМЕНЁН':'СИГНАЛ УСТАРЕЛ';result.tone='warn';result.entryReady=false;result.direction='neutral';}
+  const direction=result.side==='support'?'short':'long',entry=result.plan.entry;
+  if(Number.isFinite(entry)){
+    const index=result.retestIndex>=0?result.retestIndex:result.breakIndex,bar=result.all[index];
+    result.plan.stop=direction==='short'?Math.max(bar?.high||entry,result.currentLine)+result.atr*.18:Math.min(bar?.low||entry,result.currentLine)-result.atr*.18;
+    const pivots=trendlinePivots(result.closed,direction==='short'?'support':'resistance',3).filter(p=>direction==='short'?p.price<entry-result.atr*.25:p.price>entry+result.atr*.25).sort((a,b)=>direction==='short'?b.price-a.price:a.price-b.price);
+    result.plan.targetOne=pivots[0]?.price??null;result.plan.targetTwo=pivots[1]?.price??null;
+    result.plan.targetSource=pivots.length?'Подтверждённые ценовые экстремумы':'Подтверждённая цель пока не найдена';
+    const risk=Math.abs(entry-result.plan.stop);result.plan.rr=risk>0&&result.plan.targetOne!=null?Math.abs(result.plan.targetOne-entry)/risk:null;
+  }
+  return result;
+}
 function trendlineCandidate(candles,side,tf){
   const all=(candles||[]).slice(-181);if(all.length<55||!all.every(trendlineValidCandle))return null;const closed=all.slice(0,-1),live=all.at(-1),atr=miATR(closed.slice(-80))||closed.at(-1).close*.008,tolerance=atr*.22,buffer=atr*.18,pivots=trendlinePivots(closed,side,3),recent=pivots.slice(-14),candidates=[];
   for(let a=0;a<recent.length-1;a++)for(let b=a+1;b<recent.length;b++){
@@ -14475,11 +14437,11 @@ function trendlineCandidate(candles,side,tf){
   if(broken&&structureBroken){stateKey='confirmed';state='ПРОБОЙ ПОДТВЕРЖДЁН';tone=direction=(line.side==='support'?'short':'long');tone=direction==='short'?'bad':'good'}
   if(broken&&structureBroken&&retestIndex>=0){stateKey=retestHeld?'entry':'retest';state=retestHeld?'РЕТЕСТ УДЕРЖАН':'РЕТЕСТ НЕ УДЕРЖАН';tone=retestHeld?(direction==='short'?'bad':'good'):'warn'}
   const score=Math.round(miClamp(line.quality*.48+(broken?18:0)+(structureBroken?18:0)+(Number.isFinite(volumeRatio)&&volumeRatio>=1.25?8:0)+(retestHeld?18:0),0,100)),entry=broken&&structureBroken?trendlineAt(line,retestIndex>=0?retestIndex:currentIndex):null,stop=Number.isFinite(entry)?entry+(direction==='short'?atr*.42:-atr*.42):null,history=closed.slice(-120),lower=Math.min(...history.map(x=>x.low)),upper=Math.max(...history.map(x=>x.high)),targetOne=Number.isFinite(entry)?entry+(direction==='short'?-atr*2:atr*2):null,targetTwo=direction==='short'?Math.min(lower,entry-atr*4):direction==='long'?Math.max(upper,entry+atr*4):null,risk=Number.isFinite(entry)&&Number.isFinite(stop)?Math.abs(entry-stop):null,reward=Number.isFinite(targetOne)&&Number.isFinite(entry)?Math.abs(targetOne-entry):null;
-  return {...line,found:true,broken,breakIndex,breakTime:breakCandle?.time||null,wickIndex,structureBroken,previousPivot,volumeRatio,retestIndex,retestTime:retestIndex>=0?all[retestIndex]?.time:null,retestHeld,current,currentLine,signedDistance,distanceAtr:Math.abs(signedDistance),stateKey,state,tone,direction,score,entryReady:stateKey==='entry',plan:{entry,stop,targetOne,targetTwo,rr:risk>0&&reward>0?reward/risk:null}};
+  return trendlineApplyLifecycle({...line,found:true,broken,breakIndex,breakTime:breakCandle?.time||null,wickIndex,structureBroken,previousPivot,volumeRatio,retestIndex,retestTime:retestIndex>=0?all[retestIndex]?.time:null,retestHeld,current,currentLine,signedDistance,distanceAtr:Math.abs(signedDistance),stateKey,state,tone,direction,score,entryReady:stateKey==='entry',plan:{entry,stop,targetOne,targetTwo,rr:risk>0&&reward>0?reward/risk:null}},tf);
 }
 function trendlineDetect(candles,tf){
   const support=trendlineCandidate(candles,'support',tf),resistance=trendlineCandidate(candles,'resistance',tf),items=[support,resistance].filter(Boolean);if(!items.length)return {found:false,tf,state:'ЛИНИЯ НЕ НАЙДЕНА',stateKey:'none',tone:'warn',direction:'neutral',score:0,distanceAtr:null};
-  const priority={entry:6,confirmed:5,break:4,pierce:3,testing:2,active:1};items.sort((a,b)=>(priority[b.stateKey]||0)*100+b.score-Math.min(20,b.distanceAtr||0)-(priority[a.stateKey]||0)*100-a.score+Math.min(20,a.distanceAtr||0));return items[0];
+  const priority={entry:6,confirmed:5,break:4,pierce:3,testing:2,active:1,cancelled:-1,expired:-1};items.sort((a,b)=>(priority[b.stateKey]||0)*100+b.score-Math.min(20,b.distanceAtr||0)-(priority[a.stateKey]||0)*100-a.score+Math.min(20,a.distanceAtr||0));return items[0];
 }
 function trendlineBestSignal(candleMap){
   return ['5m','15m','1h'].map(tf=>trendlineDetect(candleMap?.[tf]||[],tf)).filter(x=>x.found&&x.direction!=='neutral'&&['confirmed','entry','break'].includes(x.stateKey)).sort((a,b)=>b.score-a.score)[0]||null;
@@ -14487,6 +14449,8 @@ function trendlineBestSignal(candleMap){
 function trendlineTime(time){return Number.isFinite(time)?new Date(time).toLocaleString('ru-RU',{timeZone:'UTC',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}
 function trendlineStateCopy(result){
   if(!result.found)return 'На выбранном таймфрейме нет двух качественных опорных точек.';
+  if(result.stateKey==='cancelled')return 'Цена вернулась за линию. Предыдущий пробой отменён; для нового сценария нужно новое подтверждение.';
+  if(result.stateKey==='expired')return 'Подтверждение старше трёх закрытых свечей либо цена ушла дальше 2.5 ATR. Старый вход больше не актуален.';
   if(result.stateKey==='active')return 'Линия сохраняет целостность. Вход против неё пока не подтверждён.';
   if(result.stateKey==='testing')return 'Цена подошла к линии. Нужна реакция закрытой свечи.';
   if(result.stateKey==='pierce')return 'Тень вышла за линию, но свеча не закрепилась. Это ещё не пробой.';
@@ -14538,7 +14502,7 @@ async function trendlineScan(rawSymbol,force){
 }
 function trendlineSubmit(event){event.preventDefault();trendlineScan(trendlineEl('tl-symbol-input')?.value,true)}
 function setTrendlineTF(tf,button){if(!['5m','15m','1h','4h'].includes(tf))return;trendlineState.tf=tf;renderTrendlineEngine();if(trendlineState.loading){battleSet('tl-state','ЗАГРУЗКА','warn');battleSet('tl-verdict','ЗАГРУЗКА','warn')}else if(trendlineState.error){battleSet('tl-state','НЕТ ДАННЫХ','warn');battleSet('tl-verdict','НЕТ ДАННЫХ','warn')}}
-function trendlinePrepareTrade(){const result=trendlineState.result;if(!result?.entryReady)return;setPair(trendlineState.symbol+'/USDT');setDir(result.direction);const fields={entry:result.plan.entry,sl:result.plan.stop,exit:result.plan.targetOne};Object.entries(fields).forEach(([id,value])=>{const el=document.getElementById('f-'+id);if(el&&Number.isFinite(value))el.value=String(Number(value.toPrecision(10)))});if(typeof calcRR==='function')calcRR();showPage('journal',document.querySelector('[data-page="journal"]'));document.getElementById('add-trade-form')?.scrollIntoView({behavior:'smooth',block:'start'});showNotif('success','СЦЕНАРИЙ ПЕРЕДАН',trendlineState.symbol+'/USDT · '+result.direction.toUpperCase()+' · вход после ретеста',3200)}
+function trendlinePrepareTrade(){const result=trendlineState.result;if(!result?.entryReady)return;if(typeof ledgerSetMode==='function'){['f-dep','f-usd','f-pnl','f-entry','f-sl','f-exit','ledger-actual-exit','ledger-fees'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});ledgerSetMode('open');}setPair(trendlineState.symbol+'/USDT');setDir(result.direction);const fields={entry:result.plan.entry,sl:result.plan.stop,exit:result.plan.targetOne};Object.entries(fields).forEach(([id,value])=>{const el=document.getElementById('f-'+id);if(el&&Number.isFinite(value))el.value=String(Number(value.toPrecision(10)))});if(typeof calcRR==='function')calcRR();showPage('journal',document.querySelector('[data-page="journal"]'));if(typeof ledgerStoreDraft==='function')ledgerStoreDraft();document.getElementById('add-trade-form')?.scrollIntoView({behavior:'smooth',block:'start'});showNotif('success','СЦЕНАРИЙ ПЕРЕДАН',trendlineState.symbol+'/USDT · '+result.direction.toUpperCase()+' · вход после ретеста',3200)}
 function openTrendlineFor(symbol,tf='15m'){const nextSymbol=miCleanSymbol(symbol)||'BTC';trendlineState.tf=['5m','15m','1h','4h'].includes(tf)?tf:'15m';if(nextSymbol!==trendlineState.symbol)trendlineState.data=null;trendlineState.symbol=nextSymbol;showPage('trendline',document.querySelector('[data-page="trendline"]'));window.scrollTo({top:0,behavior:'smooth'})}
 function initTrendlineEngine(){if(!trendlineState.initialized){trendlineState.initialized=true;trendlineScan(trendlineState.symbol,false);trendlineState.refreshTimer=setInterval(()=>{if(trendlineEl('page-trendline')?.classList.contains('active'))trendlineScan(trendlineState.symbol,true)},60000)}else if(trendlineState.data)renderTrendlineEngine();else trendlineScan(trendlineState.symbol,false)}
 
@@ -14556,34 +14520,88 @@ const ELLIOTT_LOWER_TF={'15m':'5m','1h':'15m','4h':'1h','1d':'4h'};
 function elliottRule(label,pass,detail,kind='law',verified=true){const ok=pass===true,status=!verified||pass===null?'unverified':kind==='guide'||kind==='classification'?(ok?'pass':'soft'):(ok?'pass':'fail');return {label,pass:ok,verified,kind,detail,status}}
 function elliottLineValue(a,b,index){const span=b.index-a.index||1;return a.price+(b.price-a.price)*(index-a.index)/span}
 function elliottCompressTurns(raw,threshold){const sorted=raw.filter(x=>Number.isFinite(x.price)&&Number.isFinite(x.index)).sort((a,b)=>a.index-b.index),out=[];sorted.forEach(point=>{const last=out.at(-1);if(!last){out.push(point);return}if(point.index===last.index&&point.type!==last.type){const keep=point.type==='high'?point.price>=last.price:point.price<=last.price;if(keep)out[out.length-1]=point;return}if(point.type===last.type){const extreme=point.type==='high'?point.price>last.price:point.price<last.price;if(extreme)out[out.length-1]=point;return}if(Math.abs(point.price-last.price)<threshold)return;out.push(point)});return out}
-function elliottMicroMotive(points,direction){const bull=direction==='bull',types=bull?['low','high','low','high','low','high']:['high','low','high','low','high','low'];for(let i=0;i<=points.length-6;i++){const p=points.slice(i,i+6);if(p.some((x,j)=>x.type!==types[j]))continue;const w1=Math.abs(p[1].price-p[0].price),w3=Math.abs(p[3].price-p[2].price),w5=Math.abs(p[5].price-p[4].price),rule2=bull?p[2].price>p[0].price:p[2].price<p[0].price,rule3=bull?p[3].price>p[1].price:p[3].price<p[1].price,noOverlap=bull?p[4].price>p[1].price:p[4].price<p[1].price,shortest=w3>=Math.min(w1,w5);if(rule2&&rule3&&shortest&&noOverlap)return {verified:true,pattern:'impulse',legs:5};const wave4Beyond2=bull?p[4].price>p[2].price:p[4].price<p[2].price,overlap=!noOverlap,contracting=w3<=w1*1.08&&w5<=w3*1.08,expanding=w3>=w1*.92&&w5>=w3*.92;if(rule2&&rule3&&shortest&&wave4Beyond2&&overlap&&(contracting||expanding))return {verified:true,pattern:'diagonal',legs:5}}
-  return {verified:false,pattern:null,legs:Math.max(0,points.length-1)}
+function elliottMicroMotive(points,direction){
+  const bull=direction==='bull',types=bull?['low','high','low','high','low','high']:['high','low','high','low','high','low'];
+  // A pattern inside a fragment does not prove the entire parent leg.
+  if(points.length!==6||points.some((p,i)=>p.type!==types[i]))return {verified:false,pattern:null,legs:Math.max(0,points.length-1)};
+  const p=points,w1=Math.abs(p[1].price-p[0].price),w3=Math.abs(p[3].price-p[2].price),w5=Math.abs(p[5].price-p[4].price);
+  const rule2=bull?p[2].price>p[0].price:p[2].price<p[0].price,rule3=bull?p[3].price>p[1].price:p[3].price<p[1].price,noOverlap=bull?p[4].price>p[1].price:p[4].price<p[1].price,shortest=w3>=Math.min(w1,w5),finalProgress=bull?p[5].price>p[4].price:p[5].price<p[4].price;
+  if(rule2&&rule3&&shortest&&noOverlap&&finalProgress)return {verified:true,pattern:'impulse',legs:5};
+  const wave4Beyond2=bull?p[4].price>p[2].price:p[4].price<p[2].price,contracting=w3<=w1*1.08&&w5<=w3*1.08,expanding=w3>=w1*.92&&w5>=w3*.92;
+  if(rule2&&rule3&&shortest&&wave4Beyond2&&!noOverlap&&finalProgress&&(contracting||expanding))return {verified:true,pattern:'diagonal',legs:5};
+  return {verified:false,pattern:null,legs:5};
 }
-function elliottSubdivisionEvidence(lowerCandles,start,end,direction,mode='five'){
-  const from=Math.min(start.time,end.time),to=Math.max(start.time,end.time),segment=(lowerCandles||[]).filter(c=>c.time>=from&&c.time<=to);if(segment.length<12)return {available:false,verified:false,pattern:null,legs:0,detail:'нет полного младшего таймфрейма'};const atr=miATR(segment)||Math.abs(end.price-start.price)*.08||1,raw=[],radius=1;
-  for(let i=radius;i<segment.length-radius;i++){const c=segment[i],low=c.low<segment[i-1].low&&c.low<=segment[i+1].low,high=c.high>segment[i-1].high&&c.high>=segment[i+1].high;if(low)raw.push({type:'low',price:c.low,index:i,time:c.time});if(high)raw.push({type:'high',price:c.high,index:i,time:c.time})}
-  const bull=direction==='bull';raw.push({type:bull?'low':'high',price:start.price,index:0,time:start.time},{type:bull?'high':'low',price:end.price,index:segment.length-1,time:end.time});const points=elliottCompressTurns(raw,atr*.2);if(mode==='five'){const result=elliottMicroMotive(points,direction);return {...result,available:true,detail:result.verified?(result.pattern==='impulse'?'5 волн подтверждены':'5 волн диагонали подтверждены'):'пять подволн не доказаны'}}
-  const types=bull?['low','high','low','high']:['high','low','high','low'];for(let i=0;i<=points.length-4;i++){const p=points.slice(i,i+4);if(p.some((x,j)=>x.type!==types[j]))continue;const reaction=bull?p[2].price>p[0].price:p[2].price<p[0].price,progress=bull?p[3].price>p[1].price:p[3].price<p[1].price;if(reaction&&progress)return {available:true,verified:true,pattern:'three',legs:3,detail:'коррективная тройка подтверждена'}}return {available:true,verified:false,pattern:null,legs:Math.max(0,points.length-1),detail:'коррективная тройка не доказана'}
+function elliottSubdivisionEvidence(lowerCandles,start,end,direction,mode='five',parentTf){
+  const missing=detail=>({available:false,verified:false,pattern:null,legs:0,detail});
+  const rows=(lowerCandles||[]).slice(0,-1);
+  if(rows.length<12||!Number.isFinite(start.time)||!Number.isFinite(end.time)||end.time<=start.time)return missing('нет полного младшего таймфрейма');
+  const intervals=rows.slice(1).map((c,i)=>c.time-rows[i].time).sort((a,b)=>a-b),step=intervals[Math.floor(intervals.length/2)];
+  if(!(step>0)||rows.some((c,i)=>!trendlineValidCandle(c)||(i&&c.time<=rows[i-1].time)))return missing('история свечей некорректна');
+  const duration=({'15m':900000,'1h':3600000,'4h':14400000,'1d':86400000})[parentTf]||step;
+  const from=start.time,to=end.time+duration,segment=rows.filter(c=>c.time>=from&&c.time<to);
+  if(segment.length<12||segment[0].time>from||segment.at(-1).time+step<to||segment.some((c,i)=>i&&c.time-segment[i-1].time>step*1.01))return missing('не покрыт весь интервал волны или есть пропуски');
+  const bull=direction==='bull',atr=miATR(segment)||Math.abs(end.price-start.price)*.08||1,tolerance=Math.max(atr*.05,Math.max(start.price,end.price)*1e-7);
+  const firstKey=bull?'low':'high',lastKey=bull?'high':'low';
+  const first=segment.findIndex(c=>c.time<from+duration&&Math.abs(c[firstKey]-start.price)<=tolerance);
+  let last=-1;segment.forEach((c,i)=>{if(c.time>=end.time&&Math.abs(c[lastKey]-end.price)<=tolerance)last=i;});
+  if(first<0||last<=first)return missing('опоры родительской волны не найдены в младших свечах');
+  const leg=segment.slice(first,last+1),raw=[];
+  for(let i=1;i<leg.length-1;i++){const c=leg[i];if(c.low<leg[i-1].low&&c.low<=leg[i+1].low)raw.push({type:'low',price:c.low,index:i,time:c.time});if(c.high>leg[i-1].high&&c.high>=leg[i+1].high)raw.push({type:'high',price:c.high,index:i,time:c.time});}
+  raw.push({type:bull?'low':'high',price:start.price,index:0,time:leg[0].time},{type:bull?'high':'low',price:end.price,index:leg.length-1,time:leg.at(-1).time});
+  const points=elliottCompressTurns(raw,atr*.2),anchored=points[0]?.index===0&&points.at(-1)?.index===leg.length-1;
+  if(!anchored)return {available:true,verified:false,pattern:null,legs:Math.max(0,points.length-1),detail:'весь участок не образует одну завершённую модель'};
+  if(mode==='five'){const result=elliottMicroMotive(points,direction);return {...result,available:true,detail:result.verified?(result.pattern==='impulse'?'5 подволн на всём участке':'диагональ на всём участке'):'пять подволн всего участка не доказаны'};}
+  const types=bull?['low','high','low','high']:['high','low','high','low'];
+  const verified=points.length===4&&points.every((p,i)=>p.type===types[i])&&(bull?points[2].price>points[0].price&&points[3].price>points[1].price:points[2].price<points[0].price&&points[3].price<points[1].price);
+  return {available:true,verified,pattern:verified?'three':null,legs:Math.max(0,points.length-1),detail:verified?'коррективная тройка на всём участке':'коррективная тройка всего участка не доказана'};
 }
 function elliottEvidenceRule(label,evidence,required){const pass=evidence.verified&&(required!=='impulse'||evidence.pattern==='impulse');return elliottRule(label,pass,evidence.detail+(required==='impulse'&&evidence.verified&&evidence.pattern!=='impulse'?' · волна 3 обязана быть импульсом':''),'law',evidence.available)}
 function elliottGuidelineScore(ratios,alternation,channel,age,confirmed){const ratioHits=ratios.filter(x=>x.pass).length,raw=55+ratioHits*6+(alternation?6:0)+(channel?7:0)-Math.max(0,age-6)*1.1;return Math.round(miClamp(confirmed?raw:Math.min(raw,64),0,100))}
 function elliottTwoFourBreak(p,closed,atr,direction){if(p.length<6||closed.length<2)return false;return closed.slice(-2).every((c,i)=>{const index=closed.length-2+i,line=elliottLineValue(p[2],p[4],index);return direction==='bull'?c.close<line-atr*.12:c.close>line+atr*.12})}
 function elliottZeroBBreak(p,closed,atr,direction){if(p.length<4||closed.length<2)return false;return closed.slice(-2).every((c,i)=>{const index=closed.length-2+i,line=elliottLineValue(p[0],p[2],index);return direction==='bear'?c.close>line+atr*.12:c.close<line-atr*.12})}
+function elliottFinalizeCandidate(result,closed,atr){
+  const p=result.points,last=p.at(-1),isImpulse=result.type==='impulse',sign=result.direction==='bull'?1:-1;
+  result.provisional=p.some(point=>point.provisional);
+  result.triggerLine=isImpulse&&!result.partial?{a:p[2],b:p[4],label:'2–4'}:result.type==='correction'?{a:p[0],b:p[2],label:'0–B'}:null;
+  result.scenarioDirection=result.partial?(sign>0?'long':'short'):(sign>0?'short':'long');
+  result.invalidation=result.partial?p[4].price:last.price;
+  result.triggerIndex=-1;
+  if(result.confirmed&&result.triggerLine){
+    const beyond=i=>{const level=elliottLineValue(result.triggerLine.a,result.triggerLine.b,i);return sign>0?closed[i].close<level-atr*.12:closed[i].close>level+atr*.12;};
+    for(let i=Math.max(last.index+2,1);i<closed.length;i++){if(beyond(i-1)&&beyond(i)){result.triggerIndex=i;break;}}
+  }
+  result.triggerAge=result.triggerIndex<0?null:closed.length-1-result.triggerIndex;
+  const after=result.triggerIndex<0?[]:closed.slice(result.triggerIndex+1);
+  const cancelled=result.triggerIndex>=0&&after.some(c=>sign>0?c.high>result.invalidation+atr*.12:c.low<result.invalidation-atr*.12);
+  const liveWrong=result.triggerIndex>=0&&(sign>0?result.current>result.invalidation+atr*.12:result.current<result.invalidation-atr*.12);
+  result.expired=result.triggerIndex>=0&&result.triggerAge>3;
+  result.cancelled=cancelled||liveWrong;
+  result.trendlineConfirmed=result.confirmed&&result.triggerIndex>=0&&!result.cancelled&&!result.expired;
+  result.triggerConfirmed=result.trendlineConfirmed;
+  result.statusKey=result.cancelled?'cancelled':result.expired?'expired':result.trendlineConfirmed?'triggered':result.confirmed?'structural':'candidate';
+  const unit=Math.abs(p[isImpulse&&!result.partial?5:1].price-p[0].price);
+  const anchor=result.partial?p[4].price:last.price,targetSign=result.partial?sign:-sign;
+  const targets=result.partial?[anchor+targetSign*unit,anchor+targetSign*unit*1.618]:result.trendlineConfirmed?[anchor+targetSign*unit*.382,anchor+targetSign*unit*.618]:[null,null];
+  const ahead=value=>Number.isFinite(value)&&(targetSign>0?value>result.current:value<result.current)?value:null;
+  result.targetOne=ahead(targets[0]);result.targetTwo=ahead(targets[1]);
+  if(result.cancelled||result.expired){result.phase=result.cancelled?'СЦЕНАРИЙ ОТМЕНЁН':'ТРИГГЕР УСТАРЕЛ';result.tone='warn';}
+  return result;
+}
 function elliottImpulseCandidate(points,direction,closed,atr,partial=false,candleMap={},tf='1h'){
   const bull=direction==='bull',types=bull?['low','high','low','high','low','high']:['high','low','high','low','high','low'],needed=partial?5:6;if(points.length!==needed||points.some((p,i)=>p.type!==types[i]))return null;const p=points,move=(a,b)=>Math.abs(p[b].price-p[a].price),w1=move(0,1),w2=move(1,2),w3=move(2,3),w4=move(3,4),w5=partial?null:move(4,5);if(w1<atr*.7||w3<atr*.7)return null;
   const rule2=bull?p[2].price>p[0].price:p[2].price<p[0].price,rule3=bull?p[3].price>p[1].price:p[3].price<p[1].price,noOverlap=bull?p[4].price>p[1].price:p[4].price<p[1].price,shortest=partial?true:w3>=Math.min(w1,w5),wave5Extreme=partial?true:(bull?p[5].price>p[3].price:p[5].price<p[3].price);if(!rule2||!rule3||!noOverlap||!shortest)return null;
-  const lowerTf=ELLIOTT_LOWER_TF[tf],lower=candleMap?.[lowerTf]||[],sub1=elliottSubdivisionEvidence(lower,p[0],p[1],direction,'five'),sub3=elliottSubdivisionEvidence(lower,p[2],p[3],direction,'five'),sub5=partial?null:elliottSubdivisionEvidence(lower,p[4],p[5],direction,'five'),subRules=[elliottEvidenceRule('Волна 1 имеет пять подволн',sub1,'motive'),elliottEvidenceRule('Волна 3 является импульсом',sub3,'impulse')];if(sub5)subRules.push(elliottEvidenceRule('Волна 5 имеет пять подволн',sub5,'motive'));if(subRules.some(r=>r.verified&&!r.pass))return null;
+  const lowerTf=ELLIOTT_LOWER_TF[tf],lower=candleMap?.[lowerTf]||[],sub1=elliottSubdivisionEvidence(lower,p[0],p[1],direction,'five',tf),sub3=elliottSubdivisionEvidence(lower,p[2],p[3],direction,'five',tf),sub5=partial?null:elliottSubdivisionEvidence(lower,p[4],p[5],direction,'five',tf),sub2=elliottSubdivisionEvidence(lower,p[1],p[2],bull?'bear':'bull','three',tf),sub4=elliottSubdivisionEvidence(lower,p[3],p[4],bull?'bear':'bull','three',tf),subRules=[elliottEvidenceRule('Волна 2 имеет три подволны',sub2,'three'),elliottEvidenceRule('Волна 4 имеет три подволны',sub4,'three'),elliottEvidenceRule('Волна 1 имеет пять подволн',sub1,'motive'),elliottEvidenceRule('Волна 3 является импульсом',sub3,'impulse')];if(sub5)subRules.push(elliottEvidenceRule('Волна 5 имеет пять подволн',sub5,'motive'));if(subRules.some(r=>r.verified&&!r.pass))return null;
   const truncated=!partial&&!wave5Extreme,wave3Extended=!truncated||w3>=Math.max(w1,w5)*1.3,truncationVerified=!truncated||(sub5?.verified&&wave3Extended);if(!truncationVerified)return null;
-  const r2=w2/w1,r3=w3/w1,r4=w4/w3,r5=partial?null:w5/w1,ratios=[{name:'ОТКАТ ВОЛНЫ 2',value:r2,range:'часто 0.500–0.618',pass:r2>=.382&&r2<=.786},{name:'ДЛИНА ВОЛНЫ 3',value:r3,range:'часто 1.618 × волна 1',pass:r3>=1&&r3<=2.75},{name:'ОТКАТ ВОЛНЫ 4',value:r4,range:'часто 0.236–0.382',pass:r4>=.146&&r4<=.5}];if(!partial)ratios.push({name:'ДЛИНА ВОЛНЫ 5',value:r5,range:'1.000 или 0.618 × волна 1',pass:r5>=.5&&r5<=1.75});const duration2=p[2].index-p[1].index,duration4=p[4].index-p[3].index,alternation=Math.abs(r2-r4)>=.12||Math.max(duration2,duration4)/Math.max(1,Math.min(duration2,duration4))>=1.4,channel=!partial&&Math.abs(p[5].price-elliottLineValue(p[1],p[3],p[5].index))<=atr*1.5,subdivisionConfirmed=partial?(sub1.verified&&sub3.verified&&sub3.pattern==='impulse'):(sub1.verified&&sub3.verified&&sub3.pattern==='impulse'&&sub5.verified),confirmed=subdivisionConfirmed&&!partial,age=Math.max(0,closed.length-1-p.at(-1).index),score=elliottGuidelineScore(ratios,alternation,channel,age,confirmed),rules=[elliottRule('Волна 2 не пересекает начало волны 1',rule2,rule2?'закон выполнен':'счёт недействителен'),elliottRule('Волна 3 выходит за окончание волны 1',rule3,rule3?'закон выполнен':'счёт недействителен'),elliottRule('Волна 4 не входит в территорию волны 1',noOverlap,noOverlap?'закон выполнен':'это не импульс'),elliottRule('Волна 3 не самая короткая',shortest,shortest?'закон выполнен':'счёт недействителен'),...subRules,elliottRule('Чередование волн 2 и 4',alternation,alternation?'различаются глубиной или временем':'слабое соответствие','guide')];
-  if(truncated)rules.push(elliottRule('Усечение пятой доказано',truncationVerified,'пять внутренних подволн после выраженной третьей волны','law',Boolean(sub5?.available)));const rsi=miRSISeries(closed),wave3Rsi=rsi[p[3].index],wave5Rsi=!partial?rsi[p[5].index]:null,divergence=!partial&&wave5Extreme&&Number.isFinite(wave3Rsi)&&Number.isFinite(wave5Rsi)&&(bull?wave5Rsi<wave3Rsi-2.5:wave5Rsi>wave3Rsi+2.5),trendlineConfirmed=!partial&&elliottTwoFourBreak(p,closed,atr,direction),invalidation=p[4].price,targetOne=p[4].price+(bull?1:-1)*w1,targetTwo=p[4].price+(bull?1:-1)*w1*1.618,statusKey=trendlineConfirmed?'triggered':confirmed?'structural':'candidate',phase=partial?(subdivisionConfirmed?'ФОРМИРУЕТСЯ ВОЛНА 5':'ВОЗМОЖНА ВОЛНА 5'):(confirmed?(trendlineConfirmed?(truncated?'УСЕЧЁННАЯ 5 + ПРОБОЙ 2–4':'ИМПУЛЬС 1–5 + ПРОБОЙ 2–4'):(truncated?'УСЕЧЁННАЯ 5 · СТРУКТУРА ВАЛИДНА':'ИМПУЛЬС 1–5 · СТРУКТУРА ВАЛИДНА')):'ИМПУЛЬС-КАНДИДАТ 1–5');
-  return {type:'impulse',partial,direction,points:p,labels:partial?['0','1','2','3','4']:['0','1','2','3','4','5'],rules,ratios,score,age,phase,model:(bull?'ВОСХОДЯЩИЙ':'НИСХОДЯЩИЙ')+' ИМПУЛЬС',tone:confirmed?(bull?'good':'bad'):'warn',invalidation,targetOne,targetTwo,divergence,divergenceLabel:divergence?(bull?'МЕДВЕЖЬЯ':'БЫЧЬЯ'):'НЕТ',wave3Rsi,wave5Rsi,current:closed.at(-1).close,confirmed,statusKey,subdivisionConfirmed,trendlineConfirmed,truncated};
+  const r2=w2/w1,r3=w3/w1,r4=w4/w3,r5=partial?null:w5/w1,ratios=[{name:'ОТКАТ ВОЛНЫ 2',value:r2,range:'часто 0.500–0.618',pass:r2>=.382&&r2<=.786},{name:'ДЛИНА ВОЛНЫ 3',value:r3,range:'часто 1.618 × волна 1',pass:r3>=1&&r3<=2.75},{name:'ОТКАТ ВОЛНЫ 4',value:r4,range:'часто 0.236–0.382',pass:r4>=.146&&r4<=.5}];if(!partial)ratios.push({name:'ДЛИНА ВОЛНЫ 5',value:r5,range:'1.000 или 0.618 × волна 1',pass:r5>=.5&&r5<=1.75});const duration2=p[2].index-p[1].index,duration4=p[4].index-p[3].index,alternation=Math.abs(r2-r4)>=.12||Math.max(duration2,duration4)/Math.max(1,Math.min(duration2,duration4))>=1.4,channel=!partial&&Math.abs(p[5].price-elliottLineValue(p[1],p[3],p[5].index))<=atr*1.5,subdivisionConfirmed=partial?(sub1.verified&&sub3.verified&&sub3.pattern==='impulse'):(sub1.verified&&sub3.verified&&sub3.pattern==='impulse'&&sub5.verified),confirmed=subdivisionConfirmed&&sub2.verified&&sub4.verified&&!partial&&!p.some(point=>point.provisional),age=Math.max(0,closed.length-1-p.at(-1).index),score=elliottGuidelineScore(ratios,alternation,channel,age,confirmed),rules=[elliottRule('Волна 2 не пересекает начало волны 1',rule2,rule2?'закон выполнен':'счёт недействителен'),elliottRule('Волна 3 выходит за окончание волны 1',rule3,rule3?'закон выполнен':'счёт недействителен'),elliottRule('Волна 4 не входит в территорию волны 1',noOverlap,noOverlap?'закон выполнен':'это не импульс'),elliottRule('Волна 3 не самая короткая',shortest,shortest?'закон выполнен':'счёт недействителен'),...subRules,elliottRule('Чередование волн 2 и 4',alternation,alternation?'различаются глубиной или временем':'слабое соответствие','guide')];
+  if(truncated)rules.push(elliottRule('Усечение пятой доказано',truncationVerified,'пять внутренних подволн после выраженной третьей волны','law',Boolean(sub5?.available)));const rsi=miRSISeries(closed),wave3Rsi=rsi[p[3].index],wave5Rsi=!partial?rsi[p[5].index]:null,divergence=!partial&&wave5Extreme&&Number.isFinite(wave3Rsi)&&Number.isFinite(wave5Rsi)&&(bull?wave5Rsi<wave3Rsi-2.5:wave5Rsi>wave3Rsi+2.5),trendlineConfirmed=confirmed&&!partial&&elliottTwoFourBreak(p,closed,atr,direction),invalidation=p[4].price,targetOne=p[4].price+(bull?1:-1)*w1,targetTwo=p[4].price+(bull?1:-1)*w1*1.618,statusKey=trendlineConfirmed?'triggered':confirmed?'structural':'candidate',phase=partial?(subdivisionConfirmed?'ФОРМИРУЕТСЯ ВОЛНА 5':'ВОЗМОЖНА ВОЛНА 5'):(confirmed?(trendlineConfirmed?(truncated?'УСЕЧЁННАЯ 5 + ПРОБОЙ 2–4':'ИМПУЛЬС 1–5 + ПРОБОЙ 2–4'):(truncated?'УСЕЧЁННАЯ 5 · СТРУКТУРА ВАЛИДНА':'ИМПУЛЬС 1–5 · СТРУКТУРА ВАЛИДНА')):'ИМПУЛЬС-КАНДИДАТ 1–5');
+  return elliottFinalizeCandidate({type:'impulse',partial,direction,points:p,labels:partial?['0','1','2','3','4']:['0','1','2','3','4','5'],rules,ratios,score,age,phase,model:(bull?'ВОСХОДЯЩИЙ':'НИСХОДЯЩИЙ')+' ИМПУЛЬС',tone:confirmed?(bull?'good':'bad'):'warn',invalidation,targetOne,targetTwo,divergence,divergenceLabel:divergence?(bull?'МЕДВЕЖЬЯ':'БЫЧЬЯ'):'НЕТ',wave3Rsi,wave5Rsi,current:closed.at(-1).close,confirmed,statusKey,subdivisionConfirmed,trendlineConfirmed,truncated},closed,atr);
 }
 function elliottDiagonalCandidate(points,direction,closed,atr,candleMap={},tf='1h'){
   const bull=direction==='bull',types=bull?['low','high','low','high','low','high']:['high','low','high','low','high','low'];
   if(points.length!==6||points.some((point,i)=>point.type!==types[i]))return null;
   const p=points,w=[0,1,2,3,4].map(i=>Math.abs(p[i+1].price-p[i].price)),opposite=bull?'bear':'bull',rule2=bull?p[2].price>p[0].price:p[2].price<p[0].price,rule3=bull?p[3].price>p[1].price:p[3].price<p[1].price,overlap=bull?p[4].price<=p[1].price:p[4].price>=p[1].price,wave4Beyond2=bull?p[4].price>p[2].price:p[4].price<p[2].price,shortest=w[2]>=Math.min(w[0],w[4]),contracting=w[2]<=w[0]*1.08&&w[4]<=w[2]*1.08&&w[3]<=w[1]*1.08,expanding=w[2]>=w[0]*.92&&w[4]>=w[2]*.92&&w[3]>=w[1]*.92;
   if(!rule2||!rule3||!overlap||!wave4Beyond2||!shortest||(!contracting&&!expanding))return null;
-  const lower=candleMap?.[ELLIOTT_LOWER_TF[tf]]||[],threeLegs=p.slice(0,5).map((start,i)=>elliottSubdivisionEvidence(lower,start,p[i+1],i%2===0?direction:opposite,'three')),motiveLegs=p.slice(0,5).map((start,i)=>i%2===0?elliottSubdivisionEvidence(lower,start,p[i+1],direction,'five'):threeLegs[i]),allThrees=threeLegs.every(e=>e.verified),fiveThreeProfile=motiveLegs.every((e,i)=>i%2===0?e.verified:threeLegs[i].verified),profileAvailable=threeLegs.every(e=>e.available)||motiveLegs.every((e,i)=>i%2===0?e.available:threeLegs[i].available);
+  const lower=candleMap?.[ELLIOTT_LOWER_TF[tf]]||[],threeLegs=p.slice(0,5).map((start,i)=>elliottSubdivisionEvidence(lower,start,p[i+1],i%2===0?direction:opposite,'three',tf)),motiveLegs=p.slice(0,5).map((start,i)=>i%2===0?elliottSubdivisionEvidence(lower,start,p[i+1],direction,'five',tf):threeLegs[i]),allThrees=threeLegs.every(e=>e.verified),fiveThreeProfile=motiveLegs.every((e,i)=>i%2===0?e.verified:threeLegs[i].verified),profileAvailable=threeLegs.every(e=>e.available)||motiveLegs.every((e,i)=>i%2===0?e.available:threeLegs[i].available);
   if(profileAvailable&&!allThrees&&!fiveThreeProfile)return null;
   const subdivisionProfile=allThrees?'3-3-3-3-3':fiveThreeProfile?'5-3-5-3-5':'НЕ ДОКАЗАН',lastLegVerified=allThrees?threeLegs[4].verified:fiveThreeProfile?motiveLegs[4].verified:false,wave5Extreme=bull?p[5].price>p[3].price:p[5].price<p[3].price,truncationGap=wave5Extreme?0:Math.abs(p[3].price-p[5].price),truncationOk=wave5Extreme||(lastLegVerified&&truncationGap<=Math.max(atr*.25,w[2]*.05));
   if(!truncationOk)return null;
@@ -14603,40 +14621,46 @@ function elliottCorrectionCandidate(points,closed,atr,candleMap={},tf='1h'){
   if(rb<.9&&cBeyondA){pattern='zigzag';subtype='ЗИГЗАГ';modes=['five','three','five']}
   else if(rb>=.9){pattern='flat';modes=['three','three','five'];if(bBeyondStart&&cBeyondA)subtype='РАСШИРЕННАЯ ПЛОСКОСТЬ';else if(bBeyondStart&&!cBeyondA)subtype='БЕГУЩАЯ ПЛОСКОСТЬ';else if(!bBeyondStart&&cBeyondA)subtype='ПРАВИЛЬНАЯ ПЛОСКОСТЬ';else return null}
   else return null;
-  const lower=candleMap?.[ELLIOTT_LOWER_TF[tf]]||[],legDirections=[direction,bearish?'bull':'bear',direction],evidence=modes.map((mode,i)=>elliottSubdivisionEvidence(lower,p[i],p[i+1],legDirections[i],mode));
+  const lower=candleMap?.[ELLIOTT_LOWER_TF[tf]]||[],legDirections=[direction,bearish?'bull':'bear',direction],evidence=modes.map((mode,i)=>elliottSubdivisionEvidence(lower,p[i],p[i+1],legDirections[i],mode,tf));
   if(evidence.some(e=>e.available&&!e.verified))return null;
-  const subdivisions=evidence.every(e=>e.verified),running=subtype==='БЕГУЩАЯ ПЛОСКОСТЬ',confirmed=subdivisions&&!running,zeroBBroken=confirmed&&elliottZeroBBreak(p,closed,atr,direction),age=Math.max(0,closed.length-1-p[3].index),rightLook=pattern==='zigzag'?rb<=.786&&rc>=.618&&rc<=1.75:subtype==='ПРАВИЛЬНАЯ ПЛОСКОСТЬ'?rb<=1.05&&rc>=.8&&rc<=1.3:subtype==='РАСШИРЕННАЯ ПЛОСКОСТЬ'?rb<=1.618&&rc>=1&&rc<=2.618:false,ratios=[{name:'ОТКАТ ВОЛНЫ B',value:rb,range:pattern==='flat'?'не менее 0.900':'обычно менее 0.900',pass:pattern==='flat'?rb>=.9:rb<.9},{name:'ДЛИНА ВОЛНЫ C',value:rc,range:pattern==='flat'?'зависит от типа плоскости':'часто 0.618–1.618 × A',pass:rightLook}],rules=[elliottEvidenceRule('Внутренняя структура волны A: '+(modes[0]==='five'?'5':'3'),evidence[0],modes[0]==='five'?'motive':'three'),elliottEvidenceRule('Внутренняя структура волны B: 3',evidence[1],'three'),elliottEvidenceRule('Внутренняя структура волны C: 5',evidence[2],'motive'),elliottRule('Геометрия: '+subtype.toLowerCase(),true,pattern==='zigzag'?'B не достигает начала A, C проходит конец A':bBeyondStart?'B вышла за начало A; положение C определяет тип':'B около начала A, C немного проходит конец A','classification'),elliottRule('Правильный вид и соразмерность',rightLook,rightLook?'пропорции выглядят типично':'законы не нарушены, но пропорции нетипичны','guide')];
+  const subdivisions=evidence.every(e=>e.verified),running=subtype==='БЕГУЩАЯ ПЛОСКОСТЬ',confirmed=subdivisions&&!running&&!p.some(point=>point.provisional),zeroBBroken=confirmed&&elliottZeroBBreak(p,closed,atr,direction),age=Math.max(0,closed.length-1-p[3].index),rightLook=pattern==='zigzag'?rb<=.786&&rc>=.618&&rc<=1.75:subtype==='ПРАВИЛЬНАЯ ПЛОСКОСТЬ'?rb<=1.05&&rc>=.8&&rc<=1.3:subtype==='РАСШИРЕННАЯ ПЛОСКОСТЬ'?rb<=1.618&&rc>=1&&rc<=2.618:false,ratios=[{name:'ОТКАТ ВОЛНЫ B',value:rb,range:pattern==='flat'?'не менее 0.900':'обычно менее 0.900',pass:pattern==='flat'?rb>=.9:rb<.9},{name:'ДЛИНА ВОЛНЫ C',value:rc,range:pattern==='flat'?'зависит от типа плоскости':'часто 0.618–1.618 × A',pass:rightLook}],rules=[elliottEvidenceRule('Внутренняя структура волны A: '+(modes[0]==='five'?'5':'3'),evidence[0],modes[0]==='five'?'motive':'three',tf),elliottEvidenceRule('Внутренняя структура волны B: 3',evidence[1],'three',tf),elliottEvidenceRule('Внутренняя структура волны C: 5',evidence[2],'motive'),elliottRule('Геометрия: '+subtype.toLowerCase(),true,pattern==='zigzag'?'B не достигает начала A, C проходит конец A':bBeyondStart?'B вышла за начало A; положение C определяет тип':'B около начала A, C немного проходит конец A','classification'),elliottRule('Правильный вид и соразмерность',rightLook,rightLook?'пропорции выглядят типично':'законы не нарушены, но пропорции нетипичны','guide')];
   if(running)rules.push(elliottRule('Бегущая плоскость требует старшего контекста',null,'крайне редкая модель: без сильного смежного импульса не подтверждается','law',false));
   const proportionPenalty=(rb>1.618?10:0)+(rc>2.618?18:0)+(!rightLook?6:0)+(running?16:0),baseScore=elliottGuidelineScore(ratios,false,zeroBBroken,age,confirmed),score=Math.round(miClamp(baseScore-proportionPenalty,0,100)),phase=confirmed?(zeroBBroken?subtype+' + ПРОБОЙ 0–B':subtype+' · СТРУКТУРА ВАЛИДНА'):subtype+'-КАНДИДАТ',invalidation=p[3].price,targetOne=p[3].price+(bullish?-1:1)*a*.382,targetTwo=p[3].price+(bullish?-1:1)*a*.618,tone=zeroBBroken?(direction==='bear'?'good':'bad'):'warn';
-  return {type:'correction',subtype:pattern,partial:false,direction,points:p,labels:['0','A','B','C'],rules,ratios,score,age,phase,model:(bearish?'НИСХОДЯЩАЯ':'ВОСХОДЯЩАЯ')+' '+subtype,tone,invalidation,targetOne,targetTwo,divergence:false,divergenceLabel:'НЕ ПРИМЕНЯЕТСЯ',current:closed.at(-1).close,confirmed,statusKey:zeroBBroken?'triggered':confirmed?'structural':'candidate',subdivisionConfirmed:subdivisions,structureConfirmed:confirmed,triggerConfirmed:zeroBBroken,trendlineConfirmed:zeroBBroken,running,rightLook};
+  return elliottFinalizeCandidate({type:'correction',subtype:pattern,partial:false,direction,points:p,labels:['0','A','B','C'],rules,ratios,score,age,phase,model:(bearish?'НИСХОДЯЩАЯ':'ВОСХОДЯЩАЯ')+' '+subtype,tone,invalidation,targetOne,targetTwo,divergence:false,divergenceLabel:'НЕ ПРИМЕНЯЕТСЯ',current:closed.at(-1).close,confirmed,statusKey:zeroBBroken?'triggered':confirmed?'structural':'candidate',subdivisionConfirmed:subdivisions,structureConfirmed:confirmed,triggerConfirmed:zeroBBroken,trendlineConfirmed:zeroBBroken,running,rightLook},closed,atr);
 }
 function elliottTriangleCandidate(points,closed,atr,candleMap={},tf='1h'){
-  if(points.length!==6)return null;const p=points,upFirst=p.map(x=>x.type).join(',')==='high,low,high,low,high,low',downFirst=p.map(x=>x.type).join(',')==='low,high,low,high,low,high';if(!upFirst&&!downFirst)return null;const highs=(upFirst?[p[0],p[2],p[4]]:[p[1],p[3],p[5]]).map(x=>x.price),lows=(upFirst?[p[1],p[3],p[5]]:[p[0],p[2],p[4]]).map(x=>x.price),highsDown=highs[1]<highs[0]&&highs[2]<=highs[1],lowsUp=lows[1]>lows[0]&&lows[2]>=lows[1],highsUp=highs[1]>highs[0]&&highs[2]>=highs[1],lowsDown=lows[1]<lows[0]&&lows[2]<=lows[1],upperBarrier=Math.max(...highs)-Math.min(...highs)<=atr*.6,lowerBarrier=Math.max(...lows)-Math.min(...lows)<=atr*.6,contracting=(highsDown&&(lowsUp||lowerBarrier))||(lowsUp&&(highsDown||upperBarrier)),expanding=highsUp&&lowsDown;if(!contracting&&!expanding)return null;const lower=candleMap?.[ELLIOTT_LOWER_TF[tf]]||[],direction=upFirst?'bear':'bull',evidence=p.slice(0,5).map((start,i)=>elliottSubdivisionEvidence(lower,start,p[i+1],i%2===0?direction:(direction==='bear'?'bull':'bear'),'three'));if(evidence.some(e=>e.available&&!e.verified))return null;const subdivisions=evidence.every(e=>e.verified),rules=[elliottRule('Пять волн A–B–C–D–E',true,'структура состоит из пяти частей'),elliottRule('Все части являются коррективными тройками',subdivisions,subdivisions?'структура 3-3-3-3-3 подтверждена':'нужен младший таймфрейм','law',evidence.every(e=>e.available)),elliottRule('Границы '+(contracting?'сходятся':'расширяются'),true,contracting?'сходящийся или барьерный треугольник':'редкий расширяющийся треугольник'),elliottRule('Позиция: волна 4, B или финальная X',null,'без старшей степени место модели не подтверждено','law',false)],age=Math.max(0,closed.length-1-p[5].index),score=Math.round(miClamp(45+(subdivisions?12:0)-Math.max(0,age-6),0,62));return {type:'triangle',partial:false,direction,points:p,labels:['0','A','B','C','D','E'],rules,ratios:[],score,age,phase:'ТРЕУГОЛЬНИК-КАНДИДАТ',model:(contracting?'СХОДЯЩИЙСЯ':'РАСШИРЯЮЩИЙСЯ')+' ТРЕУГОЛЬНИК',tone:'warn',invalidation:null,targetOne:null,targetTwo:null,divergence:false,divergenceLabel:'НЕ ПРИМЕНЯЕТСЯ',current:closed.at(-1).close,confirmed:false,statusKey:'candidate',subdivisionConfirmed:subdivisions,trendlineConfirmed:false};
+  if(points.length!==6)return null;const p=points,upFirst=p.map(x=>x.type).join(',')==='high,low,high,low,high,low',downFirst=p.map(x=>x.type).join(',')==='low,high,low,high,low,high';if(!upFirst&&!downFirst)return null;const highs=(upFirst?[p[0],p[2],p[4]]:[p[1],p[3],p[5]]).map(x=>x.price),lows=(upFirst?[p[1],p[3],p[5]]:[p[0],p[2],p[4]]).map(x=>x.price),highsDown=highs[1]<highs[0]&&highs[2]<=highs[1],lowsUp=lows[1]>lows[0]&&lows[2]>=lows[1],highsUp=highs[1]>highs[0]&&highs[2]>=highs[1],lowsDown=lows[1]<lows[0]&&lows[2]<=lows[1],upperBarrier=Math.max(...highs)-Math.min(...highs)<=atr*.6,lowerBarrier=Math.max(...lows)-Math.min(...lows)<=atr*.6,contracting=(highsDown&&(lowsUp||lowerBarrier))||(lowsUp&&(highsDown||upperBarrier)),expanding=highsUp&&lowsDown;if(!contracting&&!expanding)return null;const lower=candleMap?.[ELLIOTT_LOWER_TF[tf]]||[],direction=upFirst?'bear':'bull',evidence=p.slice(0,5).map((start,i)=>elliottSubdivisionEvidence(lower,start,p[i+1],i%2===0?direction:(direction==='bear'?'bull':'bear'),'three',tf));if(evidence.some(e=>e.available&&!e.verified))return null;const subdivisions=evidence.every(e=>e.verified),rules=[elliottRule('Пять волн A–B–C–D–E',true,'структура состоит из пяти частей'),elliottRule('Все части являются коррективными тройками',subdivisions,subdivisions?'структура 3-3-3-3-3 подтверждена':'нужен младший таймфрейм','law',evidence.every(e=>e.available)),elliottRule('Границы '+(contracting?'сходятся':'расширяются'),true,contracting?'сходящийся или барьерный треугольник':'редкий расширяющийся треугольник'),elliottRule('Позиция: волна 4, B или финальная X',null,'без старшей степени место модели не подтверждено','law',false)],age=Math.max(0,closed.length-1-p[5].index),score=Math.round(miClamp(45+(subdivisions?12:0)-Math.max(0,age-6),0,62));return {type:'triangle',partial:false,direction,points:p,labels:['0','A','B','C','D','E'],rules,ratios:[],score,age,phase:'ТРЕУГОЛЬНИК-КАНДИДАТ',model:(contracting?'СХОДЯЩИЙСЯ':'РАСШИРЯЮЩИЙСЯ')+' ТРЕУГОЛЬНИК',tone:'warn',invalidation:null,targetOne:null,targetTwo:null,divergence:false,divergenceLabel:'НЕ ПРИМЕНЯЕТСЯ',current:closed.at(-1).close,confirmed:false,statusKey:'candidate',subdivisionConfirmed:subdivisions,trendlineConfirmed:false};
 }
 function elliottRejectedAudit(swings,closed,atr){const p=swings.slice(-6);if(p.length!==6)return null;const bull=p.map(x=>x.type).join(',')==='low,high,low,high,low,high',bear=p.map(x=>x.type).join(',')==='high,low,high,low,high,low';if(!bull&&!bear)return null;const move=(a,b)=>Math.abs(p[b].price-p[a].price),w1=move(0,1),w3=move(2,3),w5=move(4,5),rule2=bull?p[2].price>p[0].price:p[2].price<p[0].price,rule3=bull?p[3].price>p[1].price:p[3].price<p[1].price,noOverlap=bull?p[4].price>p[1].price:p[4].price<p[1].price,shortest=w3>=Math.min(w1,w5),wave5=bull?p[5].price>p[3].price:p[5].price<p[3].price,diagWave4=bull?p[4].price>p[2].price:p[4].price<p[2].price,diagContract=w3<=w1*1.08&&w5<=w3*1.08,rules=[elliottRule('Волна 2 не пересекает начало волны 1',rule2,rule2?'закон выполнен':'жёсткое нарушение'),elliottRule('Волна 3 выходит за окончание волны 1',rule3,rule3?'закон выполнен':'жёсткое нарушение'),elliottRule('Импульс: волна 4 не входит в волну 1',noOverlap,noOverlap?'закон выполнен':'обычный импульс исключён'),elliottRule('Волна 3 не самая короткая',shortest,shortest?'закон выполнен':'жёсткое нарушение'),elliottRule('Пятая обновляет третью либо доказывает усечение',wave5,wave5?'экстремум обновлён':'усечение без пяти внутренних подволн не принимается'),elliottRule('Диагональ имеет клин и волна 4 не ломает волну 2',!noOverlap&&diagWave4&&diagContract,!noOverlap?(diagWave4&&diagContract?'геометрия возможна':'пересечение само по себе не доказывает диагональ'):'не требуется','guide')];return {found:false,rejected:true,tf:null,closed,swings,score:0,phase:'СЧЁТ ОТБРОШЕН',model:'НАРУШЕН ЗАКОН ВОЛНОВОГО ПРИНЦИПА',tone:'bad',current:closed.at(-1)?.close||null,rules,ratios:[],rejectionReason:rules.find(r=>r.status==='fail')?.detail||'структура не подтверждена'} }
+function elliottApplyLiveLifecycle(result,candle,atr){
+  if(!candle||!Number.isFinite(candle.close))return result;
+  result.current=candle.close;
+  if(result.trendlineConfirmed&&(result.direction==='bull'?candle.high>result.invalidation+atr*.12:candle.low<result.invalidation-atr*.12)){
+    result.cancelled=true;result.trendlineConfirmed=false;result.triggerConfirmed=false;result.statusKey='cancelled';result.phase='СЦЕНАРИЙ ОТМЕНЁН';result.tone='warn';result.targetOne=null;result.targetTwo=null;
+  }
+  const sign=result.scenarioDirection==='long'?1:-1;
+  for(const key of ['targetOne','targetTwo'])if(Number.isFinite(result[key])&&(result[key]-result.current)*sign<=0)result[key]=null;
+  return result;
+}
 function elliottAnalyze(candles,tf,candleMap={}){
   const data=elliottSwings(candles,tf),{closed,swings,atr}=data;if(swings.length<4)return {found:false,tf,closed,swings,score:0,phase:'НЕДОСТАТОЧНО СТРУКТУРЫ',model:'НЕТ РАЗМЕТКИ',tone:'warn',current:closed.at(-1)?.close||null,rules:[],ratios:[]};const candidates=[];
   for(let i=0;i<=swings.length-6;i++){const points=swings.slice(i,i+6);['bull','bear'].forEach(dir=>{[elliottImpulseCandidate(points,dir,closed,atr,false,candleMap,tf),elliottDiagonalCandidate(points,dir,closed,atr,candleMap,tf)].forEach(x=>{if(x)candidates.push(x)})});const triangle=elliottTriangleCandidate(points,closed,atr,candleMap,tf);if(triangle)candidates.push(triangle)}
   for(let i=Math.max(0,swings.length-8);i<=swings.length-5;i++){const points=swings.slice(i,i+5);['bull','bear'].forEach(dir=>{const x=elliottImpulseCandidate(points,dir,closed,atr,true,candleMap,tf);if(x)candidates.push(x)})}
   for(let i=Math.max(0,swings.length-9);i<=swings.length-4;i++){const x=elliottCorrectionCandidate(swings.slice(i,i+4),closed,atr,candleMap,tf);if(x)candidates.push(x)}
-  candidates.sort((a,b)=>((b.confirmed?120:0)+b.score-b.age*1.2)-((a.confirmed?120:0)+a.score-a.age*1.2));const primary=candidates[0];if(!primary){const audit=elliottRejectedAudit(swings,closed,atr);return audit?{...audit,tf}:{found:false,tf,closed,swings,score:0,phase:'НЕТ ВАЛИДНОГО СЧЁТА',model:'СТРУКТУРА НЕ ДОКАЗАНА',tone:'warn',current:closed.at(-1)?.close||null,rules:[],ratios:[]}}const alternate=candidates.find(x=>x!==primary&&(x.direction!==primary.direction||x.type!==primary.type||Math.abs(x.points.at(-1).index-primary.points.at(-1).index)>2))||null;let signal=null;
+  candidates.forEach(candidate=>elliottApplyLiveLifecycle(candidate,candles.at(-1),atr));
+  candidates.sort((a,b)=>((b.cancelled||b.expired?-150:b.confirmed?120:0)+b.score-b.age*1.2)-((a.cancelled||a.expired?-150:a.confirmed?120:0)+a.score-a.age*1.2));const primary=candidates[0];if(!primary){const audit=elliottRejectedAudit(swings,closed,atr);return audit?{...audit,tf}:{found:false,tf,closed,swings,score:0,phase:'НЕТ ВАЛИДНОГО СЧЁТА',model:'СТРУКТУРА НЕ ДОКАЗАНА',tone:'warn',current:closed.at(-1)?.close||null,rules:[],ratios:[]}}const alternate=candidates.find(x=>x!==primary&&(x.direction!==primary.direction||x.type!==primary.type||Math.abs(x.points.at(-1).index-primary.points.at(-1).index)>2))||null;let signal=null;
   if(primary.confirmed&&primary.type==='impulse'&&!primary.partial&&primary.trendlineConfirmed){const reverse=primary.direction==='bull'?'short':'long',weight=Math.round(miClamp(primary.score+(primary.divergence?8:0),0,100));signal={title:primary.divergence?'ВОЛНА 5 + ПРОБОЙ 2–4 + RSI':'ПОДТВЕРЖДЁН ПРОБОЙ ЛИНИИ 2–4',direction:reverse,tone:reverse==='long'?'good':'bad',weight,tf,copy:'Пять волн подтверждены на младшей степени, после чего цена пробила линию 2–4. Это триггер смены фазы, а не вход вслепую.'}}
   if(primary.confirmed&&primary.type==='correction'&&primary.trendlineConfirmed){const reverse=primary.direction==='bear'?'long':'short';signal={title:'КОРРЕКЦИЯ + ПРОБОЙ ЛИНИИ 0–B',direction:reverse,tone:reverse==='long'?'good':'bad',weight:Math.round(primary.score),tf,copy:'Внутренняя форма коррекции подтверждена, цена пробила линию 0–B. Нужна проверка старшей структуры и риска.'}}
   return {...primary,found:true,tf,closed,swings,atr,alternate,candidates,signal};
 }
 function elliottBestSignal(candleMap){return ['15m','1h'].map(tf=>elliottAnalyze(candleMap?.[tf]||[],tf,candleMap)).filter(x=>x.found&&x.signal).sort((a,b)=>b.signal.weight-a.signal.weight)[0]||null}
-function elliottStatusText(result){if(result?.signal||result?.trendlineConfirmed)return 'ТРИГГЕР ПОДТВЕРЖДЁН';if(result?.confirmed)return 'СТРУКТУРА ВАЛИДНА';return 'КАНДИДАТ'}
-function elliottScenarioCopy(result){if(result.rejected)return 'Автоматическая разметка снята: '+(result.rejectionReason||'нарушен непреложный закон структуры')+'. Баллы Фибоначчи не могут вернуть этот счёт.';if(result.found===false)return 'Система не нашла структуру, которую можно доказать законами и подразделениями меньшей степени. Лучше оставить график без счёта, чем навязать неверный.';if(result.type==='diagonal')return 'Пересечение волн 1 и 4 рассматривается как признак диагонали, но не доказывает её само по себе. Без позиции 1/A или 5/C в старшей структуре модель остаётся кандидатом.';if(result.type==='triangle')return 'Пять коррективных частей похожи на треугольник. Его нельзя подтверждать без позиции перед последней действующей волной старшей степени.';if(result.type==='correction'){if(result.trendlineConfirmed)return 'Подразделения коррекции доказаны, а два закрытия подтвердили пробой линии 0–B. Это ценовой триггер, но старший контекст и риск всё ещё обязательны.';if(result.confirmed)return 'Внутренняя структура коррекции валидна на младшей степени. Это ещё не разворотный сигнал: линия 0–B не подтверждена ценой.';return 'Внешняя форма совпала, но подразделения 5-3-5 или 3-3-5 ещё не доказаны — это кандидат, не завершённая коррекция.'}if(result.partial)return 'Волны 1–4 проходят законы импульса. Пятая остаётся проектируемой до появления собственного пятичастного строения.';if(!result.confirmed)return 'Внешние экстремумы проходят законы, но структура волн 1, 3 и 5 на младшей степени не доказана. Разворотный сигнал заблокирован.';if(result.trendlineConfirmed)return 'Пять волн подтверждены, затем два закрытия пробили линию 2–4. Смена фазы получила ценовое подтверждение.';if(result.divergence)return 'Пять волн и RSI-расхождение подтверждены, но линия 2–4 ещё удерживает структуру. Разворотного входа пока нет.';return 'Пять волн подтверждены на младшей степени. До пробоя линии 2–4 это валидная структура без разворотного триггера.'}
-function elliottRenderChart(result,candles){
-  const svg=elliottEl('el-chart'),rows=(candles||[]).slice(-120);if(!svg||!rows.length){if(svg)svg.innerHTML='';return}const w=960,h=440,padX=36,padY=27,all=rows.flatMap(x=>[x.high,x.low]);if(result.found){all.push(result.invalidation,result.targetOne,result.targetTwo)}const min=Math.min(...all.filter(Number.isFinite)),max=Math.max(...all.filter(Number.isFinite)),span=max-min||1,x=i=>padX+i/Math.max(1,rows.length-1)*(w-padX*2),y=v=>padY+(max-v)/span*(h-padY*2),closes=rows.map(x=>x.close),pricePath=closes.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' '),parts=[`<path d="${pricePath}" fill="none" stroke="#718078" stroke-width="1.4" opacity=".72"/>`];
-  const last=rows.at(-1).close;parts.push(`<line x1="${padX}" x2="${w-padX}" y1="${y(last)}" y2="${y(last)}" stroke="#59635c" stroke-width="1" stroke-dasharray="4 7" opacity=".38"/>`);
-  if(result.found){const firstTime=rows[0].time,mapped=result.points.map((p,i)=>({p,label:result.labels[i],index:rows.findIndex(c=>c.time===p.time)})).filter(x=>x.index>=0);if(mapped.length>=2){const wavePath=mapped.map((m,i)=>(i?'L':'M')+x(m.index).toFixed(1)+' '+y(m.p.price).toFixed(1)).join(' ');parts.push(`<path d="${wavePath}" fill="none" stroke="#b6ff2e" stroke-width="2.2"/>`);mapped.forEach(m=>parts.push(`<circle cx="${x(m.index)}" cy="${y(m.p.price)}" r="6" fill="#030504" stroke="#b6ff2e" stroke-width="2"/><text x="${x(m.index)}" y="${y(m.p.price)-11}" fill="#b6ff2e" font-size="11" text-anchor="middle">${m.label}</text>`))}if(Number.isFinite(result.invalidation)&&result.invalidation>=min&&result.invalidation<=max)parts.push(`<line x1="${padX}" x2="${w-padX}" y1="${y(result.invalidation)}" y2="${y(result.invalidation)}" stroke="#ff5c6c" stroke-width="1" stroke-dasharray="5 7" opacity=".55"/><text x="${w-padX-4}" y="${y(result.invalidation)-7}" fill="#ff7180" font-size="9" text-anchor="end">ОТМЕНА</text>`);const lastMapped=mapped.at(-1);if(result.partial&&lastMapped&&Number.isFinite(result.targetOne)){parts.push(`<line x1="${x(lastMapped.index)}" x2="${w-padX}" y1="${y(lastMapped.p.price)}" y2="${y(result.targetOne)}" stroke="var(--g)" stroke-width="1.5" stroke-dasharray="6 7" opacity=".65"/><circle cx="${w-padX}" cy="${y(result.targetOne)}" r="5" fill="#030504" stroke="var(--g)" stroke-width="1.5"/><text x="${w-padX-8}" y="${y(result.targetOne)-9}" fill="var(--g)" font-size="9" text-anchor="end">ПРОЕКЦИЯ 5</text>`)}}
-  svg.innerHTML=parts.join('');
-}
+function elliottStatusText(result){if(result?.cancelled)return 'СЦЕНАРИЙ ОТМЕНЁН';if(result?.expired)return 'ТРИГГЕР УСТАРЕЛ';if(result?.confirmed&&result?.trendlineConfirmed)return 'ТРИГГЕР ПОДТВЕРЖДЁН';if(result?.confirmed)return 'СТРУКТУРА ВАЛИДНА';return 'КАНДИДАТ';}
+function elliottScenarioCopy(result){if(result.cancelled)return 'Цена прошла отмену сценария после подтверждения. Разметка сохранена как история, нового сигнала нет.';if(result.expired)return 'После триггера прошло больше трёх закрытых свечей. Сценарий исторический: нужен новый триггер, догонять движение не следует.';if(result.rejected)return 'Автоматическая разметка снята: '+(result.rejectionReason||'нарушен непреложный закон структуры')+'. Баллы Фибоначчи не могут вернуть этот счёт.';if(result.found===false)return 'Система не нашла структуру, которую можно доказать законами и подразделениями меньшей степени. Лучше оставить график без счёта, чем навязать неверный.';if(result.type==='diagonal')return 'Пересечение волн 1 и 4 рассматривается как признак диагонали, но не доказывает её само по себе. Без позиции 1/A или 5/C в старшей структуре модель остаётся кандидатом.';if(result.type==='triangle')return 'Пять коррективных частей похожи на треугольник. Его нельзя подтверждать без позиции перед последней действующей волной старшей степени.';if(result.type==='correction'){if(result.trendlineConfirmed)return 'Подразделения коррекции доказаны, а два закрытия подтвердили пробой линии 0–B. Это ценовой триггер, но старший контекст и риск всё ещё обязательны.';if(result.confirmed)return 'Внутренняя структура коррекции валидна на младшей степени. Это ещё не разворотный сигнал: линия 0–B не подтверждена ценой.';return 'Внешняя форма совпала, но подразделения 5-3-5 или 3-3-5 ещё не доказаны — это кандидат, не завершённая коррекция.'}if(result.partial)return 'Волны 1–4 проходят законы импульса. Пятая остаётся проектируемой до появления собственного пятичастного строения.';if(!result.confirmed)return 'Внешние экстремумы проходят законы, но структура волн 1, 3 и 5 на младшей степени не доказана. Разворотный сигнал заблокирован.';if(result.trendlineConfirmed)return 'Пять волн подтверждены, затем два закрытия пробили линию 2–4. Смена фазы получила ценовое подтверждение.';if(result.divergence)return 'Пять волн и RSI-расхождение подтверждены, но линия 2–4 ещё удерживает структуру. Разворотного входа пока нет.';return 'Пять волн подтверждены на младшей степени. До пробоя линии 2–4 это валидная структура без разворотного триггера.'}
+function elliottRenderChart(result,candles){if(typeof worldRenderElliottChart==='function')worldRenderElliottChart(result,candles);}
 function elliottRatioHTML(r){const status=r.pass?'pass':'soft';return `<div class="el-ratio-row ${status}"><span>${escHtml(r.name)}</span><strong>${Number.isFinite(r.value)?r.value.toFixed(3):'—'}</strong><small>типовой диапазон ${escHtml(r.range)}</small><b>${r.pass?'В НОРМЕ':'ДОПУСК'}</b></div>`}
 function elliottRuleKindLabel(kind){return kind==='law'?'ЗАКОН':kind==='classification'?'КЛАССИФИКАЦИЯ':'ОРИЕНТИР'}
 function renderElliottLab(){
-  const frames={};['15m','1h','4h','1d'].forEach(tf=>frames[tf]=elliottAnalyze(marketIntelState.candles[tf]||[],tf,marketIntelState.candles));elliottState.frames=frames;const result=frames[elliottState.tf];elliottState.result=result;const tone=result.tone||'warn',laws=(result.rules||[]).filter(x=>x.kind==='law'),verifiedLaws=laws.filter(x=>x.verified),passedLaws=verifiedLaws.filter(x=>x.pass).length,unverified=laws.filter(x=>!x.verified).length;battleSet('el-model',result.model,tone);battleSet('el-model-copy',result.rejected?'счёт запрещён законами':result.found?(result.trendlineConfirmed?'структура и ценовой триггер подтверждены':result.confirmed?'внутренняя структура валидна · торгового триггера нет':'структурный кандидат, не сигнал'):'валидная модель отсутствует');battleSet('el-phase',result.phase,tone);battleSet('el-phase-copy',result.found?(result.partial?'пятая волна ещё развивается':'последний экстремум '+result.age+' свечей назад'):result.rejected?'автоматический счёт снят':'нет рабочего счёта');battleSet('el-confidence',result.found?result.score+'/100':result.rejected?'0/100':'—',result.trendlineConfirmed&&result.score>=75?tone:result.rejected?'bad':'warn');battleSet('el-confidence-copy',result.found?passedLaws+'/'+verifiedLaws.length+' доказанных законов'+(unverified?' · '+unverified+' без подтверждения':''):result.rejected?'нарушение нельзя компенсировать':'законы отдельно от ориентиров');battleSet('el-invalidation',result.found&&result.invalidation!=null?miFmtPrice(result.invalidation):'—','bad');battleSet('el-invalidation-copy',result.found?'цена, после которой рабочий счёт снимается':'сценарий не активен');battleSet('el-rsi',result.found?result.divergenceLabel:'—',result.divergence?(result.direction==='bull'?'bad':'good'):'warn');battleSet('el-rsi-copy',result.divergence?'между экстремумами волн 3 и 5':'RSI является ориентиром, не законом');
+  const frames={};['15m','1h','4h','1d'].forEach(tf=>frames[tf]=elliottAnalyze(marketIntelState.candles[tf]||[],tf,marketIntelState.candles));elliottState.frames=frames;const result=frames[elliottState.tf];elliottState.result=result;const tone=result.tone||'warn',laws=(result.rules||[]).filter(x=>x.kind==='law'),verifiedLaws=laws.filter(x=>x.verified),passedLaws=verifiedLaws.filter(x=>x.pass).length,unverified=laws.filter(x=>!x.verified).length;battleSet('el-model',result.model,tone);battleSet('el-model-copy',result.rejected?'счёт запрещён законами':result.found?(result.cancelled?'сценарий отменён':result.expired?'исторический триггер':result.confirmed&&result.trendlineConfirmed?'структура и ценовой триггер подтверждены':result.confirmed?'внутренняя структура валидна · торгового триггера нет':'структурный кандидат, не сигнал'):'валидная модель отсутствует');battleSet('el-phase',result.phase,tone);battleSet('el-phase-copy',result.found?(result.partial?'пятая волна ещё развивается':'последний экстремум '+result.age+' свечей назад'):result.rejected?'автоматический счёт снят':'нет рабочего счёта');battleSet('el-confidence',result.found?result.score+'/100':result.rejected?'0/100':'—',result.trendlineConfirmed&&result.score>=75?tone:result.rejected?'bad':'warn');battleSet('el-confidence-copy',result.found?passedLaws+'/'+laws.length+' законов подтверждено'+(unverified?' · '+unverified+' без подтверждения':''):result.rejected?'нарушение нельзя компенсировать':'законы отдельно от ориентиров');battleSet('el-invalidation',result.found&&result.invalidation!=null?miFmtPrice(result.invalidation):'—','bad');battleSet('el-invalidation-copy',result.found?'цена, после которой рабочий счёт снимается':'сценарий не активен');battleSet('el-rsi',result.found?result.divergenceLabel:'—',result.divergence?(result.direction==='bull'?'bad':'good'):'warn');battleSet('el-rsi-copy',result.divergence?'между экстремумами волн 3 и 5':'RSI является ориентиром, не законом');
   battleSet('el-chart-title',elliottState.symbol+'/USDT · '+MI_TF_LABELS[elliottState.tf].toUpperCase());battleSet('el-source',marketIntelState.source||'РЫНОЧНЫЕ ДАННЫЕ');battleSet('el-chart-copy',result.found?result.model+' · '+result.phase.toLowerCase():result.rejected?'неверная линия счёта скрыта':'значимые экстремумы без принудительной разметки');elliottRenderChart(result,marketIntelState.candles[elliottState.tf]||[]);battleSet('el-age',result.found?result.age+' СВЕЧЕЙ':result.rejected?'ОТКЛОНЕНО':'—');const primary=elliottEl('el-primary-card');if(primary)primary.className='el-scenario '+tone;battleSet('el-primary-title',result.phase,tone);battleSet('el-primary-copy',elliottScenarioCopy(result));battleSet('el-primary-score',result.found?result.score+'/100 · '+elliottStatusText(result):result.rejected?'ЗАПРЕЩЁН':'—');
   const alt=result.alternate,altTone=alt?.tone||'warn',altCard=elliottEl('el-alt-card');if(altCard)altCard.className='el-scenario '+altTone;battleSet('el-alt-title',alt?alt.phase:(result.found?'НЕ ФОРСИРОВАТЬ СЧЁТ':'ЖДАТЬ НОВОЙ СТРУКТУРЫ'),altTone);battleSet('el-alt-copy',alt?elliottScenarioCopy(alt):(result.found?'При нарушении уровня отмены счёт полностью снимается. Система не переименовывает импульс в диагональ без проверки её отдельных законов.':'Новая разметка появится только после формирования структуры, проходящей законы Волнового принципа.'));battleSet('el-alt-trigger',result.found&&result.invalidation!=null?miFmtPrice(result.invalidation):'—');const rules=elliottEl('el-rules');if(rules)rules.innerHTML=(result.rules||[]).slice(0,9).map(r=>`<div class="el-rule ${r.status}"><i></i><span>${escHtml(r.label)}</span><small>${elliottRuleKindLabel(r.kind)} · ${escHtml(r.detail)}</small></div>`).join('')||'<div class="el-rule unverified"><i></i><span>Ожидание значимых экстремумов</span><small>законы пока нельзя проверить</small></div>';
   battleSet('el-swing-count',(result.swings?.length||0)+' ЭКСТРЕМУМОВ');const ratioTable=elliottEl('el-ratio-table');if(ratioTable)ratioTable.innerHTML=(result.ratios||[]).map(elliottRatioHTML).join('')||'<div class="el-ratio-row soft"><span>НЕТ МОДЕЛИ</span><strong>—</strong><small>Фибоначчи применяется только после валидной разметки</small><b>—</b></div>';const matrix=elliottEl('el-matrix');if(matrix)matrix.innerHTML=Object.entries(frames).map(([tf,item])=>`<button type="button" class="el-tf-card ${tf===elliottState.tf?'active':''}" onclick="setElliottTF('${tf}',document.querySelector('[data-el-tf=\"${tf}\"]'))"><span>${MI_TF_LABELS[tf].toUpperCase()}</span><strong class="${item.tone||'warn'}">${escHtml(item.phase)}</strong><small>${item.found?item.score+'/100 · '+elliottStatusText(item).toLowerCase():item.rejected?'нарушен закон':'чистого счёта нет'}</small></button>`).join('');
@@ -14953,5 +14977,7 @@ async function sendActiveScreenToTelegram(button){
 document.addEventListener('DOMContentLoaded',()=>setTimeout(initOverview,180));
 </script>
 
+<script src="js/journal-wave-chart.js"></script>
+<script src="js/journal-audit.js"></script>
 </body>
 </html>

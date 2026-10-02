@@ -17,6 +17,10 @@ function worldProtocolItem(kind) {
 }
 
 function worldRenderTrendProtocol(result) {
+  if(result.cancelled||result.expired){
+    const protocol=document.querySelector('.tl-protocol');if(protocol)protocol.dataset.ready='false';
+    return `<div class="tl-stage waiting">${worldProtocolItem('shield')}<div class="tl-stage-copy"><span class="tl-stage-label">${result.cancelled?'Пробой отменён':'Подтверждение устарело'}</span><small>${result.cancelled?'Цена вернулась за линию. Ждём новое закрытие и подтверждение структуры.':'Срок входа истёк либо цена слишком далеко от линии. Ждём новый сценарий.'}</small></div><span class="tl-stage-status">Ждать</span></div>`;
+  }
   const stages = [
     {item:'crystal',label:'Линия подтверждена',done:result.found,meta:result.found?result.touches+' касания':'Нет опор'},
     {item:'torch',label:'Свеча закрылась за линией',done:result.broken,meta:result.broken?'Закрытие подтверждено':'Ждём закрытую свечу'},
@@ -83,6 +87,8 @@ function worldRenderTrendChart(result, candles) {
     const color = result.side === 'support' ? 'var(--tl-up)' : 'var(--tl-down)';
     const a = result.anchorOne, b = result.anchorTwo, end = all.length - 1;
     const ax = x(a.index - first), ay = y(a.price), bx = x(b.index - first), by = y(b.price), ex = x(rows.length - 1), ey = y(result.currentLine);
+    const zoneStart=Math.max(b.index,first+rows.length-24),zoneEnd=all.length-1,margin=result.atr*.35;
+    parts.push(`<path class="tl-retest-zone" d="M${x(zoneStart-first)} ${y(trendlineAt(result,zoneStart)+margin)}L${ex} ${y(trendlineAt(result,zoneEnd)+margin)}L${ex} ${y(trendlineAt(result,zoneEnd)-margin)}L${x(zoneStart-first)} ${y(trendlineAt(result,zoneStart)-margin)}Z" fill="${color}" opacity=".08"><title>Зона наблюдения ретеста: ±0.35 ATR от линии. Не подтверждает вход.</title></path>`);
     svg.dataset.side = result.side;
     svg.dataset.startTime = String(a.time);
     svg.dataset.endTime = String(all[end].time);
@@ -130,7 +136,13 @@ function worldRenderTrendChart(result, candles) {
   const longWindow = rows.at(-1).time - rows[0].time > 20 * 3600000;
   const time = stamp => longWindow ? new Date(stamp).toLocaleDateString('ru-RU', {timeZone: 'UTC', day: '2-digit', month: '2-digit'}) : new Date(stamp).toLocaleTimeString('ru-RU', {timeZone: 'UTC', hour: '2-digit', minute: '2-digit'});
   [0, Math.floor((rows.length - 1) / 2), rows.length - 1].forEach((i, tick) => parts.push(`<text x="${x(i)}" y="${height - 13}" fill="var(--m)" font-size="11" text-anchor="${tick === 0 ? 'start' : tick === 2 ? 'end' : 'middle'}">${time(rows[i].time)}${tick === 2 ? ' UTC' : ''}</text>`));
+  parts.push('<g id="tl-cursor" visibility="hidden"><line id="tl-cursor-line" stroke="var(--tl-up)" stroke-dasharray="2 3"/><rect id="tl-cursor-dot" width="6" height="6" fill="var(--tl-up)"/></g>');
   svg.innerHTML = parts.join('');
+  let readout=document.getElementById('tl-chart-readout');if(!readout){readout=document.createElement('div');readout.id='tl-chart-readout';readout.className='el-chart-readout';svg.parentElement.after(readout);}
+  const display=index=>{const candle=rows[index],px=x(index),cursor=svg.querySelector('#tl-cursor'),line=svg.querySelector('#tl-cursor-line'),dot=svg.querySelector('#tl-cursor-dot');cursor.setAttribute('visibility','visible');for(const [attr,value] of Object.entries({x1:px,x2:px,y1:top,y2:bottom}))line.setAttribute(attr,value);dot.setAttribute('x',px-3);dot.setAttribute('y',y(candle.close)-3);readout.textContent=trendlineTime(candle.time)+' UTC · O '+trendlinePrice(candle.open)+' · H '+trendlinePrice(candle.high)+' · L '+trendlinePrice(candle.low)+' · C '+trendlinePrice(candle.close)+(result.found?' · Линия '+trendlinePrice(trendlineAt(result,first+index)):'');};
+  svg.onpointermove=event=>{const rect=svg.getBoundingClientRect(),px=(event.clientX-rect.left)/rect.width*width;display(Math.max(0,Math.min(rows.length-1,Math.round((px-left)/(right-left)*(rows.length-1)))));};
+  svg.setAttribute('tabindex','0');let cursorIndex=rows.length-1;svg.onkeydown=event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();cursorIndex=Math.max(0,Math.min(rows.length-1,cursorIndex+(event.key==='ArrowRight'?1:-1)));display(cursorIndex);};
+  readout.textContent='Наведи курсор для цены и времени · подсветка вокруг линии — зона наблюдения ретеста ±0.35 ATR.';
 }
 
 function trendlinePrice(value) {

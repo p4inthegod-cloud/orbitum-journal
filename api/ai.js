@@ -200,7 +200,8 @@ function buildScreenerInsightPrompt() {
 function buildStatsLine(stats = {}) {
   const bits = [];
   if (stats.wr != null) bits.push(`WR ${stats.wr}%`);
-  if (stats.totalPnl != null) bits.push(`P&L ${stats.totalPnl}%`);
+  if (stats.totalPnl != null) bits.push(`P&L ${stats.totalPnl}${stats.totalPnlUnit === 'USD' ? ' USD' : '% позиции (не ROI счёта)'}`);
+  if (stats.knownCashResults != null) bits.push(`Денежный результат заполнен: ${stats.knownCashResults}/${stats.closedTrades} закрытых сделок; ROI счёта неизвестен`);
   if (stats.totalUsd != null) bits.push(`Net $${stats.totalUsd}`);
   if (stats.avgLossStreak != null) bits.push(`Avg loss streak ${stats.avgLossStreak}`);
   return bits.join(' | ');
