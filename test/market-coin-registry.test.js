@@ -38,3 +38,13 @@ test('fallback rejects duplicated candles and missing instruments',async()=>{
   quote.result.list=[];
   await assert.rejects(()=>ctx.miLoadBybitSpot('UNKNOWN',required),/пара не найдена/);
 });
+test('changing coin during a page initialization loads the new choice and ignores the late old response',async()=>{
+  const pending={},state={symbol:'BTC',loading:false,loadedAt:0,requestId:0};
+  const ctx=vm.createContext({marketIntelState:state,document:{querySelectorAll:()=>[]},miCleanSymbol:s=>s,miEl:()=>null,miSet(){},miRenderAnalysis(){},miBuildAnalysis:()=>({}),miLoadMarket:s=>new Promise(resolve=>pending[s]=resolve)});
+  vm.runInContext(html.slice(html.indexOf('async function selectMarketCoin('),html.indexOf('function marketIntelSubmit(')),ctx);
+  const old=ctx.selectMarketCoin('BTC'),latest=ctx.selectMarketCoin('HYPE');
+  assert.equal(typeof pending.HYPE,'function');
+  pending.HYPE({ticker:{price:90},candles:{'1h':[]},source:'РЫНОЧНЫЕ ДАННЫЕ'});await latest;
+  pending.BTC({ticker:{price:85000},candles:{'1h':[]},source:'РЫНОЧНЫЕ ДАННЫЕ'});await old;
+  assert.equal(state.symbol,'HYPE');assert.equal(state.ticker.price,90);assert.equal(state.loading,false);
+});
