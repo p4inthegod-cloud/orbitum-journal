@@ -91,6 +91,7 @@ function worldRenderOverviewWorkspace(analysis, snapshot) {
   }
   if(worldLiquiditySelection&&worldLiquiditySelection.symbol!==symbol)worldLiquiditySelection=null;
   worldUpdateSelectedLevel();worldDrawCandles();
+  if(typeof worldRenderOrientation==='function')worldRenderOrientation(analysis,snapshot);
 }
 
 function worldDrawCandles(cursor = -1) {
