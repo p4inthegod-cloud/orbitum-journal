@@ -1,3 +1,39 @@
+/* Original inventory sprites; status remains tied to the existing entry checks. */
+const WORLD_PROTOCOL_SPRITES = {
+  crystal: ['.....cc.....','....cwvc....','...ccwvvc...','...bcwvvc...','..bbcwvvvc..','..bbcwvvvc..','..bbcvvvvc..','...bcvvvc...','...bbvvc....','....bvc.....','.....d......','....ddd.....'],
+  torch: ['.....g......','....gog.....','...gowog....','...gooog....','....oog.....','.....o......','....mmm.....','....ddd.....','.....gg.....','.....gd.....','.....gd.....','.....dd.....'],
+  hammer: ['...mmmmmm...','..mmwwmmmd..','..mwwmmmmd..','...mmmddd...','.....gd.....','....ggd.....','...ggd......','..ggd.......','.ggd........','.gd.........','..d.........','............'],
+  shield: ['..mmmmmmmm..','..mwwwwwwm..','..mwccccwm..','..mwcvcvwm..','..mwcvvcwm..','..mwcvvcwm..','..mwcvcvwm..','...mwccwm...','...mmwwmm...','....mmmm....','.....mm.....','............'],
+  book: ['..vvvvvvvd..','.dvvvvvvvmd.','.dvggggvvm..','.dvvvvvvvm..','.dvggggvvm..','.dvvvvvvvm..','.dvvvvvvvm..','.dvvvvvvvm..','.dmmmmmmmd..','..wwwwwwmd..','..dddddddd..','............']
+};
+
+function worldProtocolItem(kind) {
+  const colors = {d:'#48557e',m:'#a6bad8',c:'#45d6ff',b:'#238cb9',v:'#a87cff',g:'#f2c967',o:'#fb914b',w:'#eff6ff'};
+  const shadows = [];
+  WORLD_PROTOCOL_SPRITES[kind].forEach((row,y) => [...row].forEach((pixel,x) => {
+    if (colors[pixel]) shadows.push(`${x*2}px ${y*2}px ${colors[pixel]}`);
+  }));
+  return `<span class="tl-inventory-item" data-item="${kind}" aria-hidden="true"><i style="box-shadow:${shadows.join(',')}"></i></span>`;
+}
+
+function worldRenderTrendProtocol(result) {
+  const stages = [
+    {item:'crystal',label:'Линия подтверждена',done:result.found,meta:result.found?result.touches+' касания':'Нет опор'},
+    {item:'torch',label:'Свеча закрылась за линией',done:result.broken,meta:result.broken?'Закрытие подтверждено':'Ждём закрытую свечу'},
+    {item:'hammer',label:'Структура сломана',done:result.structureBroken,meta:result.structureBroken?'Экстремум пройден':'Последний экстремум удерживается'},
+    {item:'shield',label:'Ретест удержан',done:result.retestHeld,failed:result.retestIndex>=0&&!result.retestHeld,meta:result.retestIndex>=0?(result.retestHeld?'Реакция подтверждена':'Возврат не удержан'):'Ждём возврат к линии'}
+  ];
+  const current = stages.findIndex(s => !s.done), count = stages.filter(s => s.done).length;
+  const protocol = document.querySelector('.tl-protocol');
+  if (protocol) protocol.dataset.ready = String(Boolean(result.entryReady));
+  const rows = stages.map((s,i) => {
+    const state = s.done?'done':s.failed?'failed':i===current?'current':'waiting';
+    const status = s.done?'Готово':s.failed?'Не удержан':i===current?'Проверяем':'Ожидание';
+    return `<div class="tl-stage ${state}" data-step="${i+1}">${worldProtocolItem(s.item)}<div class="tl-stage-copy"><span class="tl-stage-label"><em>${String(i+1).padStart(2,'0')}</em>${s.label}</span><small>${s.meta}</small></div><span class="tl-stage-status">${status}</span></div>`;
+  }).join('');
+  return rows + `<div class="tl-protocol-progress"><span class="tl-progress-squares" aria-hidden="true">${stages.map(s=>`<i class="${s.done?'filled':''}"></i>`).join('')}</span><span>${count} из 4 проверок</span><strong>${result.entryReady?'Сценарий готов к проверке риска':'Вход ещё не подтверждён'}</strong></div>`;
+}
+
 /* One directional line, real pivot coordinates and a separate projected segment. */
 function worldRenderTrendChart(result, candles) {
   const svg = trendlineEl('tl-chart');
@@ -87,6 +123,8 @@ function trendlinePrice(value) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const protocolTitle = document.querySelector('.tl-protocol .tl-card-title');
+  if (protocolTitle) {protocolTitle.classList.add('tl-inventory-title');protocolTitle.insertAdjacentHTML('afterbegin',worldProtocolItem('book'));}
   const svg = trendlineEl('tl-chart');
   if (!svg) return;
   let frame;

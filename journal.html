@@ -14495,8 +14495,7 @@ function trendlineRenderGuide(result){
   ].map(p=>'<div>'+p.label+'<strong>'+trendlinePrice(p.price)+'</strong><small>'+trendlineTime(p.time)+' UTC</small></div>').join(''):'';
 }
 function trendlineStages(result){
-  const stages=[{label:'Линия подтверждена',done:result.found,meta:result.found?result.touches+' касания':'нет опор'},{label:'Свеча закрылась за линией',done:result.broken,meta:result.broken?'да':'ожидание'},{label:'Структура сломана',done:result.structureBroken,meta:result.structureBroken?'да':'нет'},{label:'Ретест удержан',done:result.retestHeld,meta:result.retestIndex>=0?(result.retestHeld?'да':'не удержан'):'ожидание'}];
-  let current=stages.findIndex(x=>!x.done);if(current<0)current=stages.length;return stages.map((x,i)=>`<div class="tl-stage ${x.done?'done':i===current?'current':''}"><b>${i+1}</b><span>${x.label}</span><small>${x.meta}</small></div>`).join('');
+  return worldRenderTrendProtocol(result);
 }
 function renderTrendlineEngine(){
   const data=trendlineState.data,frames={};['5m','15m','1h','4h'].forEach(tf=>frames[tf]=trendlineDetect(data?.candles[tf]||[],tf));trendlineState.frames=frames;const result=frames[trendlineState.tf];trendlineState.result=result;const candles=data?.candles[trendlineState.tf]||[],tone=result.tone||'warn',lineType=result.found?(result.side==='support'?'ВОСХОДЯЩАЯ ПОДДЕРЖКА':'НИСХОДЯЩЕЕ СОПРОТИВЛЕНИЕ'):'НЕ НАЙДЕНА';
