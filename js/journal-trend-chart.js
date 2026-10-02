@@ -61,7 +61,7 @@ function worldRenderTrendChart(result, candles) {
   const min = low - padding, max = high + padding;
   const x = i => left + i / Math.max(1, rows.length - 1) * (right - left);
   // Leave space outside support/resistance for labels instead of clamping them over candles.
-  const labelSpace = result.found ? 82 : 0;
+  const labelSpace = result.found ? 82 + (result.breakTime ? 29 : 0) + (result.retestTime ? 29 : 0) : 0;
   const priceTop = top + (result.found && result.side === 'resistance' ? labelSpace : 0);
   const priceBottom = bottom - (result.found && result.side === 'support' ? labelSpace : 0);
   const y = value => priceTop + (max - value) / (max - min) * (priceBottom - priceTop);
@@ -87,7 +87,7 @@ function worldRenderTrendChart(result, candles) {
     const direction = result.side === 'support' ? 'ВОСХОДЯЩАЯ' : 'НИСХОДЯЩАЯ';
     parts.push(`<path d="M${ax},${ay} L${bx},${by} L${ex},${ey}" fill="none" stroke="${color}" stroke-width="9" opacity=".12"/><line class="tl-trend-core" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${color}" stroke-width="3"/><line class="tl-trend-projection" x1="${bx}" y1="${by}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="2.5" stroke-dasharray="7 5"/>`);
     const placedLabels = [], below = result.side === 'support';
-    const label = (xx, yy, text, boxWidth, className='tl-pivot-label') => {
+    const label = (xx, yy, text, boxWidth, className='tl-pivot-label', labelColor=color) => {
       const boxX = Math.max(left, Math.min(right - boxWidth, xx - boxWidth / 2));
       const lineY = px => y(trendlineAt(result, first + (px-left)/(right-left)*(rows.length-1)));
       const limits = [yy,lineY(boxX),lineY(boxX+boxWidth)];
@@ -97,7 +97,7 @@ function worldRenderTrendChart(result, candles) {
       for(const prior of placedLabels){if(boxX<prior.x+prior.width+5 && boxX+boxWidth+5>prior.x && boxY<prior.y+28 && boxY+28>prior.y) boxY=below?prior.y+29:prior.y-29;}
       placedLabels.push({x:boxX,y:boxY,width:boxWidth});
       const connectionY = below?boxY:boxY+23;
-      return `<line x1="${xx}" x2="${xx}" y1="${yy}" y2="${connectionY}" stroke="${color}" stroke-dasharray="2 3" opacity=".65"/><rect class="${className}" data-point-y="${yy}" data-placement="${below?'below':'above'}" x="${boxX}" y="${boxY}" width="${boxWidth}" height="23" fill="var(--bg-card)" stroke="${color}"/><text x="${boxX + boxWidth / 2}" y="${boxY + 15}" fill="${color}" text-anchor="middle" font-size="11" font-weight="750">${text}</text>`;
+      return `<line x1="${xx}" x2="${xx}" y1="${yy}" y2="${connectionY}" stroke="${labelColor}" stroke-dasharray="2 3" opacity=".65"/><rect class="${className}" data-point-y="${yy}" data-placement="${below?'below':'above'}" x="${boxX}" y="${boxY}" width="${boxWidth}" height="23" fill="var(--bg-card)" stroke="${labelColor}"/><text x="${boxX + boxWidth / 2}" y="${boxY + 15}" fill="${labelColor}" text-anchor="middle" font-size="11" font-weight="750">${text}</text>`;
     };
     // Separate labels when pivots are near each other on a narrow viewport.
     [a, b].forEach((p, i) => {
@@ -112,8 +112,9 @@ function worldRenderTrendChart(result, candles) {
     const event = (time, name, eventColor) => {
       const index = rows.findIndex(c => c.time === time);
       if (index < 0) return;
-      const xx = x(index), yy = y(rows[index].close), labelX = Math.max(left + 4, Math.min(right - 55, xx + 9));
-      parts.push(`<rect x="${xx - 4}" y="${yy - 4}" width="8" height="8" fill="${eventColor}" stroke="var(--bg-card)"/><text x="${labelX}" y="${Math.max(top + 12, Math.min(bottom - 4, yy + 22))}" fill="${eventColor}" font-size="11" font-weight="700">${name}</text>`);
+      const xx = x(index), yy = y(rows[index].close);
+      parts.push(`<rect x="${xx - 4}" y="${yy - 4}" width="8" height="8" fill="${eventColor}" stroke="var(--bg-card)"/>`);
+      parts.push(label(xx,yy,name,70,'tl-event-label',eventColor));
     };
     if (result.breakTime) event(result.breakTime, 'ПРОБОЙ', 'var(--r)');
     if (result.retestTime) event(result.retestTime, 'РЕТЕСТ', 'var(--g)');
