@@ -5296,6 +5296,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <link rel="stylesheet" href="css/journal-trend-chart.css">
 <script src="js/journal-trend-chart.js"></script>
 <script src="js/journal-market-registry.js"></script>
+<link rel="stylesheet" href="css/journal-decision.css">
+<script src="js/journal-decision.js"></script>
 </head>
 <body class="overview-page-active">
 
@@ -14304,6 +14306,7 @@ function renderBattleScreen(){
   pixelRenderBattle(result,effectivePct);
   const action=battleEl('bs-action'),allowed=!result.hardBlock&&result.verdict!=='ЖДАТЬ';if(action){action.disabled=!allowed;action.textContent=allowed?('ПЕРЕДАТЬ '+result.direction.toUpperCase()+' В ЖУРНАЛ'):'ВХОД ЗАБЛОКИРОВАН'}
   battleSet('bs-mission-note',result.hardBlock?result.copy:result.verdict==='ЖДАТЬ'?'Система сохраняет наблюдение, но не выдаёт направление. Риск принудительно снижен до разведочного.':'Рабочее направление: '+result.direction.toUpperCase()+'. Базовый риск '+battleState.riskPct.toFixed(1)+'% скорректирован средой до '+effectivePct.toFixed(2)+'%.');
+  decisionRender(result,riskUsd,effectivePct);
 }
 async function battleScan(rawSymbol,button,force){
   const symbol=miCleanSymbol(rawSymbol);if(!symbol){miShowError('—',new Error('Введи тикер монеты, например BTC или ETH.'));return}
