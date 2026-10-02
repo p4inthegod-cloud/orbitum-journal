@@ -1,7 +1,7 @@
 /* Pixel materials decorate existing values; chart coordinates and timestamps stay authoritative. */
 let worldPoolGeometry = null;
 let worldPoolLinkFrame = 0;
-const WORLD_PANEL_SELECTOR = '.world-window,.ov-card,.ov-market-table,.px-session-timeline,.env-card,.wt-card,.wt-signal-card,.mi-card,.lq-card,.lq-vrvp-metrics>div,.bs-verdict,.bs-scenario,.bs-mission,.bs-matrix,.history-rail,.review-card,.dash-card,#add-trade-form';
+const WORLD_PANEL_SELECTOR = '.world-window,.tl-card,.tl-detail,.tl-tf-card,.tl-plan-cell,.ov-card,.ov-market-table,.px-session-timeline,.env-card,.wt-card,.wt-signal-card,.mi-card,.lq-card,.lq-vrvp-metrics>div,.bs-verdict,.bs-scenario,.bs-mission,.bs-matrix,.history-rail,.review-card,.dash-card,#add-trade-form';
 
 function worldFitPanels(root = document) {
   const panels = [...root.querySelectorAll(WORLD_PANEL_SELECTOR)];

@@ -5293,6 +5293,8 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 <script src="js/journal-orientation.js"></script>
 <link rel="stylesheet" href="css/journal-craft.css">
 <script src="js/journal-craft.js"></script>
+<link rel="stylesheet" href="css/journal-trend-chart.css">
+<script src="js/journal-trend-chart.js"></script>
 </head>
 <body class="overview-page-active">
 
@@ -7252,15 +7254,10 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
         </div>
         <div class="tl-controls">
           <form class="tl-search" onsubmit="trendlineSubmit(event)">
-            <input id="tl-symbol-input" value="BTC" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Тикер монеты" placeholder="BTC, ETH, SOL...">
+            <input id="tl-symbol-input" value="BTC" maxlength="24" autocomplete="off" spellcheck="false" aria-label="Тикер монеты" placeholder="BTC, ETH, SOL...">
             <button type="submit">ПОСТРОИТЬ ЛИНИЮ</button>
           </form>
-          <div class="tl-tfs" aria-label="Таймфрейм трендовой линии">
-            <button type="button" data-tl-tf="5m" onclick="setTrendlineTF('5m',this)">5М</button>
-            <button type="button" class="active" data-tl-tf="15m" onclick="setTrendlineTF('15m',this)">15М</button>
-            <button type="button" data-tl-tf="1h" onclick="setTrendlineTF('1h',this)">1Ч</button>
-            <button type="button" data-tl-tf="4h" onclick="setTrendlineTF('4h',this)">4Ч</button>
-          </div>
+
         </div>
       </header>
 
@@ -7275,11 +7272,17 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
       <div class="tl-main">
         <article class="tl-card tl-chart-card">
           <div class="tl-card-head">
-            <div><span class="tl-card-title" id="tl-chart-title">BTC/USDT · 15М</span><small id="tl-chart-copy">свечи, опорные точки и динамическая линия</small></div>
-            <span class="tl-live"><i></i><span id="tl-source">РЫНОЧНЫЕ ДАННЫЕ</span></span>
+            <div><div class="tl-chart-identity"><span class="tl-card-title" id="tl-chart-title">BTC/USDT</span><div class="tl-tfs" aria-label="Таймфрейм трендовой линии">
+            <button type="button" data-tl-tf="5m" onclick="setTrendlineTF('5m',this)">5М</button>
+            <button type="button" class="active" data-tl-tf="15m" onclick="setTrendlineTF('15m',this)">15М</button>
+            <button type="button" data-tl-tf="1h" onclick="setTrendlineTF('1h',this)">1Ч</button>
+            <button type="button" data-tl-tf="4h" onclick="setTrendlineTF('4h',this)">4Ч</button>
+          </div></div><small id="tl-chart-copy">Свечи и подтверждённые опоры · время UTC</small></div>
           </div>
           <div class="tl-chart-wrap"><svg id="tl-chart" viewBox="0 0 960 430" preserveAspectRatio="none" role="img" aria-label="График трендовой линии"></svg></div>
-          <div class="tl-legend"><span><i></i>ЦЕНА</span><span class="line"><i></i>ТРЕНДОВАЯ</span><span class="break"><i></i>ПРОБОЙ</span><span class="retest"><i></i>РЕТЕСТ</span></div>
+          <div class="tl-direction-bar" id="tl-direction-bar"><strong id="tl-chart-direction">Ищем линию</strong><span id="tl-chart-change"></span></div>
+          <div class="tl-anchor-ledger" id="tl-anchor-ledger"></div>
+          <div class="tl-legend"><span><i></i>ЦЕНА</span><span class="line"><i></i>МЕЖДУ ОПОРАМИ</span><span class="projection"><i></i>ПРОДОЛЖЕНИЕ</span><span class="break"><i></i>ПРОБОЙ</span><span class="retest"><i></i>РЕТЕСТ</span></div>
         </article>
 
         <aside class="tl-card tl-protocol">
@@ -14132,7 +14135,7 @@ async function miLoadBinance(symbol){
   ]);
   const candles={};MI_DATA_INTERVALS.forEach((tf,index)=>candles[tf]=miParseKlines(series[index]));
   if(MI_DATA_INTERVALS.some(tf=>candles[tf].length<40))throw new Error('Недостаточно свечей для расчёта');
-  return {source:'BINANCE LIVE',ticker:{price:Number(ticker.lastPrice),change:Number(ticker.priceChange),changePct:Number(ticker.priceChangePercent),high:Number(ticker.highPrice),low:Number(ticker.lowPrice),volumeQuote:Number(ticker.quoteVolume),trades:Number(ticker.count)},candles};
+  return {source:'РЫНОЧНЫЕ ДАННЫЕ',ticker:{price:Number(ticker.lastPrice),change:Number(ticker.priceChange),changePct:Number(ticker.priceChangePercent),high:Number(ticker.highPrice),low:Number(ticker.lowPrice),volumeQuote:Number(ticker.quoteVolume),trades:Number(ticker.count)},candles};
 }
 async function miLoadUniverse(){
   if(marketIntelState.universe)return marketIntelState.universe;
@@ -14413,7 +14416,8 @@ function openLiquidityAnalytics(){marketIntelState.symbol=liquidityState.symbol;
 function initLiquidityMap(){if(!liquidityState.initialized){liquidityState.initialized=true;let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))renderLiquidityMap()})});liquidityScan(liquidityState.symbol);liquidityState.refreshTimer=setInterval(()=>{if(liquidityEl('page-liquidity')?.classList.contains('active'))liquidityScan(liquidityState.symbol,true)},60000)}else if(marketIntelState.symbol===liquidityState.symbol&&marketIntelState.ticker)renderLiquidityMap();else liquidityScan(liquidityState.symbol)}
 
 // ── TRENDLINE ENGINE ─────────────────────────────────────────────
-const trendlineState={symbol:'BTC',tf:'15m',initialized:false,result:null,frames:{},refreshTimer:null,lastNotice:''};
+const trendlineState={symbol:'BTC',tf:'15m',initialized:false,result:null,frames:{},data:null,loading:false,error:'',requestId:0,loadedAt:0,refreshTimer:null,lastNotice:''};
+function trendlineValidCandle(c){return c&&['time','open','high','low','close','volume'].every(k=>Number.isFinite(c[k]))&&c.low>0&&c.volume>=0&&c.high>=Math.max(c.open,c.close)&&c.low<=Math.min(c.open,c.close)}
 function trendlineEl(id){return document.getElementById(id)}
 function trendlinePivots(candles,side,radius=3){
   const rows=candles||[],key=side==='support'?'low':'high',points=[];
@@ -14430,24 +14434,26 @@ function trendlinePivots(candles,side,radius=3){
 }
 function trendlineAt(line,index){return line.anchorOne.price+line.slope*(index-line.anchorOne.index)}
 function trendlineCandidate(candles,side,tf){
-  const all=(candles||[]).slice(-181);if(all.length<55)return null;const closed=all.slice(0,-1),live=all.at(-1),atr=miATR(closed.slice(-80))||closed.at(-1).close*.008,tolerance=atr*.22,buffer=atr*.18,pivots=trendlinePivots(closed,side,3),recent=pivots.slice(-14),candidates=[];
+  const all=(candles||[]).slice(-181);if(all.length<55||!all.every(trendlineValidCandle))return null;const closed=all.slice(0,-1),live=all.at(-1),atr=miATR(closed.slice(-80))||closed.at(-1).close*.008,tolerance=atr*.22,buffer=atr*.18,pivots=trendlinePivots(closed,side,3),recent=pivots.slice(-14),candidates=[];
   for(let a=0;a<recent.length-1;a++)for(let b=a+1;b<recent.length;b++){
     const first=recent[a],second=recent[b],span=second.index-first.index;if(span<9||span>135)continue;
-    const slope=(second.price-first.price)/span,validSlope=side==='support'?slope>0:slope<0;if(!validSlope||Math.abs(slope/(second.price||1))>.018)continue;
+    const slope=(second.price-first.price)/span,validSlope=side==='support'?slope>0:slope<0;if(!validSlope||Math.abs(second.price-first.price)<tolerance*2||Math.abs(slope/(second.price||1))>.018)continue;
+    // Both pivots must bound the same unbroken support/resistance segment.
+    let cutsSegment=false;for(let i=first.index+1;i<second.index;i++){const level=first.price+slope*(i-first.index);if(side==='support'?closed[i].low<level-tolerance:closed[i].high>level+tolerance){cutsSegment=true;break}}if(cutsSegment)continue;
     const line={side,tf,anchorOne:first,anchorTwo:second,slope},oldLimit=Math.max(second.index+1,closed.length-10);let oldBreaks=0;
     for(let i=second.index+1;i<oldLimit;i++){const value=trendlineAt(line,i),c=closed[i];if(side==='support'&&c.close<value-buffer)oldBreaks++;if(side==='resistance'&&c.close>value+buffer)oldBreaks++}
     if(oldBreaks>0)continue;
     const touches=pivots.filter(p=>p.index>=first.index&&Math.abs(p.price-trendlineAt(line,p.index))<=tolerance).length,projected=trendlineAt(line,closed.length-1),distanceAtr=Math.abs(closed.at(-1).close-projected)/(atr||1),quality=Math.round(miClamp(26+touches*13+Math.min(22,span/4)-oldBreaks*20-Math.max(0,distanceAtr-3)*3,0,100));
     if(touches<2||quality<45)continue;candidates.push({...line,touches,quality,atr,tolerance,buffer,closed,all,live,distanceAtr});
   }
-  if(!candidates.length)return null;candidates.sort((a,b)=>b.quality-a.quality);const line=candidates[0],start=Math.max(line.anchorTwo.index+1,closed.length-10);let breakIndex=-1,wickIndex=-1;
+  if(!candidates.length)return null;candidates.sort((a,b)=>(b.quality-(closed.length-1-b.anchorTwo.index)*.15)-(a.quality-(closed.length-1-a.anchorTwo.index)*.15));const line=candidates[0],start=Math.max(line.anchorTwo.index+1,closed.length-10);let breakIndex=-1,wickIndex=-1;
   for(let i=start;i<closed.length;i++){
     const value=trendlineAt(line,i),c=closed[i],closedBeyond=line.side==='support'?c.close<value-buffer:c.close>value+buffer,wickBeyond=line.side==='support'?c.low<value-buffer:c.high>value+buffer;
     if(closedBeyond&&breakIndex<0)breakIndex=i;else if(wickBeyond&&wickIndex<0)wickIndex=i;
   }
   const broken=breakIndex>=0,previousPivot=broken?trendlinePivots(closed.slice(0,breakIndex),line.side,3).at(-1):null,breakCandle=broken?closed[breakIndex]:null,structureBroken=Boolean(broken&&previousPivot&&(line.side==='support'?breakCandle.close<previousPivot.price:breakCandle.close>previousPivot.price)),avgVolume=broken?miAverage(closed.slice(Math.max(0,breakIndex-20),breakIndex).map(x=>x.volume)):null,volumeRatio=broken&&avgVolume>0?breakCandle.volume/avgVolume:null;
   let retestIndex=-1,retestHeld=false;
-  if(broken){for(let i=breakIndex+1;i<all.length;i++){const value=trendlineAt(line,i),c=all[i],touch=line.side==='support'?c.high>=value-tolerance:c.low<=value+tolerance,held=line.side==='support'?c.close<value:c.close>value;if(touch){retestIndex=i;retestHeld=held}}}
+  if(broken){for(let i=breakIndex+1;i<closed.length;i++){const value=trendlineAt(line,i),c=all[i],touch=line.side==='support'?c.high>=value-tolerance:c.low<=value+tolerance,held=line.side==='support'?c.close<value:c.close>value;if(touch){retestIndex=i;retestHeld=held}}}
   const currentIndex=all.length-1,current=all.at(-1).close,currentLine=trendlineAt(line,currentIndex),signedDistance=(current-currentLine)/(atr||1),testing=!broken&&Math.abs(signedDistance)<=.32;
   let stateKey='active',state='ЛИНИЯ АКТИВНА',tone='warn',direction='neutral';
   if(testing){stateKey='testing';state='ЦЕНА У ЛИНИИ';tone='warn'}
@@ -14465,7 +14471,7 @@ function trendlineDetect(candles,tf){
 function trendlineBestSignal(candleMap){
   return ['5m','15m','1h'].map(tf=>trendlineDetect(candleMap?.[tf]||[],tf)).filter(x=>x.found&&x.direction!=='neutral'&&['confirmed','entry','break'].includes(x.stateKey)).sort((a,b)=>b.score-a.score)[0]||null;
 }
-function trendlineTime(time){return Number.isFinite(time)?new Date(time).toLocaleString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}
+function trendlineTime(time){return Number.isFinite(time)?new Date(time).toLocaleString('ru-RU',{timeZone:'UTC',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}
 function trendlineStateCopy(result){
   if(!result.found)return 'На выбранном таймфрейме нет двух качественных опорных точек.';
   if(result.stateKey==='active')return 'Линия сохраняет целостность. Вход против неё пока не подтверждён.';
@@ -14476,33 +14482,53 @@ function trendlineStateCopy(result){
   if(result.stateKey==='retest')return 'Цена вернулась к линии, но реакция пока не подтвердила новое направление.';
   return 'Цена вернулась к линии и удержалась с новой стороны. Сценарий готов к проверке риском.';
 }
-function trendlineRenderChart(result,candles){
-  const svg=trendlineEl('tl-chart'),rows=(candles||[]).slice(-96);if(!svg||!rows.length){if(svg)svg.innerHTML='';return}const w=960,h=430,padX=34,padY=25,prices=rows.flatMap(x=>[x.high,x.low]);
-  if(result.found){const startIndex=Math.max(0,result.all.length-rows.length),values=[trendlineAt(result,startIndex),trendlineAt(result,result.all.length-1)].filter(Number.isFinite);prices.push(...values)}const min=Math.min(...prices),max=Math.max(...prices),span=max-min||1,x=i=>padX+i/Math.max(1,rows.length-1)*(w-padX*2),y=v=>padY+(max-v)/span*(h-padY*2),bodyW=Math.max(2,(w-padX*2)/rows.length*.55),parts=[];
-  for(let i=0;i<rows.length;i++){const c=rows[i],up=c.close>=c.open,color=up?'#7b8b80':'#76535a',top=y(Math.max(c.open,c.close)),bottom=y(Math.min(c.open,c.close));parts.push(`<line x1="${x(i)}" x2="${x(i)}" y1="${y(c.high)}" y2="${y(c.low)}" stroke="${color}" stroke-width="1" opacity=".62"/><rect x="${x(i)-bodyW/2}" y="${top}" width="${bodyW}" height="${Math.max(1,bottom-top)}" fill="${color}" opacity=".72"/>`)}
-  const current=rows.at(-1).close;parts.push(`<line x1="${padX}" x2="${w-padX}" y1="${y(current)}" y2="${y(current)}" stroke="var(--g)" stroke-width="1" stroke-dasharray="4 7" opacity=".32"/><text x="${w-padX-4}" y="${y(current)-7}" fill="var(--g)" font-size="9" text-anchor="end">${miFmtPrice(current)}</text>`);
-  if(result.found){const firstVisible=Math.max(0,result.all.length-rows.length),lastGlobal=result.all.length-1,lineStart=trendlineAt(result,firstVisible),lineEnd=trendlineAt(result,lastGlobal),lineColor=result.side==='support'?'#b6ff2e':'#ff5c6c';parts.push(`<line x1="${x(0)}" x2="${x(rows.length-1)}" y1="${y(lineStart)}" y2="${y(lineEnd)}" stroke="${lineColor}" stroke-width="2" opacity=".9"/>`);[result.anchorOne,result.anchorTwo].forEach((p,index)=>{const local=result.all.findIndex(c=>c.time===p.time)-firstVisible;if(local>=0&&local<rows.length)parts.push(`<circle cx="${x(local)}" cy="${y(p.price)}" r="5" fill="#030504" stroke="${lineColor}" stroke-width="2"/><text x="${x(local)+8}" y="${y(p.price)-8}" fill="${lineColor}" font-size="8">ОПОРА ${index+1}</text>`)});if(result.breakTime){const local=rows.findIndex(c=>c.time===result.breakTime);if(local>=0)parts.push(`<circle cx="${x(local)}" cy="${y(rows[local].close)}" r="7" fill="#ff5c6c" opacity=".18"/><circle cx="${x(local)}" cy="${y(rows[local].close)}" r="3" fill="#ff5c6c"/><text x="${x(local)+8}" y="${y(rows[local].close)+15}" fill="#ff7180" font-size="9">ПРОБОЙ</text>`)}if(result.retestTime){const local=rows.findIndex(c=>c.time===result.retestTime);if(local>=0)parts.push(`<circle cx="${x(local)}" cy="${y(rows[local].close)}" r="4" fill="var(--g)"/><text x="${x(local)+8}" y="${y(rows[local].close)-9}" fill="var(--g)" font-size="9">РЕТЕСТ</text>`)}}
-  svg.innerHTML=parts.join('');
+function trendlineRenderChart(result,candles){worldRenderTrendChart(result,candles)}
+function trendlineRenderGuide(result){
+  const bar=trendlineEl('tl-direction-bar'),ledger=trendlineEl('tl-anchor-ledger');
+  if(bar)bar.dataset.side=result.found?result.side:'';
+  battleSet('tl-chart-direction',result.found?(result.side==='support'?'↗ Восходящая поддержка':'↘ Нисходящее сопротивление'):'Наклонная линия не подтверждена');
+  battleSet('tl-chart-change',result.found?miPct((result.anchorTwo.price/result.anchorOne.price-1)*100)+' между опорами · пунктир — продолжение':'Нужны две подтверждённые опоры с заметным изменением цены');
+  if(ledger)ledger.innerHTML=result.found?[
+    {label:'1 · Начало',price:result.anchorOne.price,time:result.anchorOne.time},
+    {label:'2 · Подтверждение',price:result.anchorTwo.price,time:result.anchorTwo.time},
+    {label:'Конец продолжения',price:result.currentLine,time:result.all.at(-1).time}
+  ].map(p=>'<div>'+p.label+'<strong>'+trendlinePrice(p.price)+'</strong><small>'+trendlineTime(p.time)+' UTC</small></div>').join(''):'';
 }
 function trendlineStages(result){
   const stages=[{label:'Линия подтверждена',done:result.found,meta:result.found?result.touches+' касания':'нет опор'},{label:'Свеча закрылась за линией',done:result.broken,meta:result.broken?'да':'ожидание'},{label:'Структура сломана',done:result.structureBroken,meta:result.structureBroken?'да':'нет'},{label:'Ретест удержан',done:result.retestHeld,meta:result.retestIndex>=0?(result.retestHeld?'да':'не удержан'):'ожидание'}];
   let current=stages.findIndex(x=>!x.done);if(current<0)current=stages.length;return stages.map((x,i)=>`<div class="tl-stage ${x.done?'done':i===current?'current':''}"><b>${i+1}</b><span>${x.label}</span><small>${x.meta}</small></div>`).join('');
 }
 function renderTrendlineEngine(){
-  const frames={};['5m','15m','1h','4h'].forEach(tf=>frames[tf]=trendlineDetect(marketIntelState.candles[tf]||[],tf));trendlineState.frames=frames;const result=frames[trendlineState.tf];trendlineState.result=result;const candles=marketIntelState.candles[trendlineState.tf]||[],tone=result.tone||'warn',lineType=result.found?(result.side==='support'?'ВОСХОДЯЩАЯ ПОДДЕРЖКА':'НИСХОДЯЩЕЕ СОПРОТИВЛЕНИЕ'):'НЕ НАЙДЕНА';
+  const data=trendlineState.data,frames={};['5m','15m','1h','4h'].forEach(tf=>frames[tf]=trendlineDetect(data?.candles[tf]||[],tf));trendlineState.frames=frames;const result=frames[trendlineState.tf];trendlineState.result=result;const candles=data?.candles[trendlineState.tf]||[],tone=result.tone||'warn',lineType=result.found?(result.side==='support'?'ВОСХОДЯЩАЯ ПОДДЕРЖКА':'НИСХОДЯЩЕЕ СОПРОТИВЛЕНИЕ'):'НЕ НАЙДЕНА';
   battleSet('tl-line-type',lineType,result.found?(result.side==='support'?'good':'bad'):'warn');battleSet('tl-line-copy',result.found?(result.side==='support'?'лонговая структура · ищем пробой вниз':'шортовая структура · ищем пробой вверх'):'нужны две подтверждённые опоры');battleSet('tl-state',result.state,tone);battleSet('tl-state-copy',trendlineStateCopy(result));battleSet('tl-distance',result.found?result.distanceAtr.toFixed(2)+' ATR':'—',result.found&&result.distanceAtr<=.35?'warn':null);battleSet('tl-distance-copy',result.found?Math.abs((result.current/result.currentLine-1)*100).toFixed(2)+'% от линии':'в ATR и процентах');battleSet('tl-touches',result.found?String(result.touches):'—',result.found&&result.touches>=3?'good':'warn');battleSet('tl-touches-copy',result.found?(result.touches>=3?'линия подтверждена рынком':'минимальное подтверждение'):'качество построения');battleSet('tl-score',result.found?result.score+'/100':'—',tone);battleSet('tl-score-copy',result.entryReady?'готов к проверке риска':result.broken?'ждём завершения протокола':'сетап не активирован');
-  battleSet('tl-chart-title',trendlineState.symbol+'/USDT · '+MI_TF_LABELS[trendlineState.tf].toUpperCase());battleSet('tl-source',marketIntelState.source||'РЫНОЧНЫЕ ДАННЫЕ');trendlineRenderChart(result,candles);battleSet('tl-signal-side',result.direction==='long'?'LONG':result.direction==='short'?'SHORT':'ЖДАТЬ',tone);battleSet('tl-verdict',result.entryReady?(result.direction==='short'?'SHORT ПО РЕТЕСТУ':'LONG ПО РЕТЕСТУ'):result.state,tone);battleSet('tl-verdict-copy',trendlineStateCopy(result));const stages=trendlineEl('tl-stages');if(stages)stages.innerHTML=trendlineStages(result);
-  battleSet('tl-anchor-one',result.found?miFmtPrice(result.anchorOne.price):'—');battleSet('tl-anchor-one-time',result.found?trendlineTime(result.anchorOne.time):'—');battleSet('tl-anchor-two',result.found?miFmtPrice(result.anchorTwo.price):'—');battleSet('tl-anchor-two-time',result.found?trendlineTime(result.anchorTwo.time):'—');battleSet('tl-slope',result.found?((result.slope/result.anchorTwo.price)*100>=0?'+':'')+((result.slope/result.anchorTwo.price)*100).toFixed(3)+'%':'—',result.found?(result.slope>0?'good':'bad'):null);battleSet('tl-integrity',result.found?(result.broken?'НАРУШЕНА':'СОХРАНЕНА'):'—',result.found?(result.broken?'bad':'good'):null);battleSet('tl-integrity-copy',result.found?(result.broken?'закрытие за динамическим уровнем':'закреплений за линией нет'):'проверка нарушений');battleSet('tl-data-age','ОБНОВЛЕНО СЕЙЧАС');
+  battleSet('tl-chart-title',trendlineState.symbol+'/USDT');battleSet('tl-chart-copy',MI_TF_LABELS[trendlineState.tf]+' · свечи и подтверждённые опоры · время UTC');document.querySelectorAll('[data-tl-tf]').forEach(btn=>{const active=btn.dataset.tlTf===trendlineState.tf;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});trendlineRenderChart(result,candles);trendlineRenderGuide(result);battleSet('tl-signal-side',result.direction==='long'?'LONG':result.direction==='short'?'SHORT':'ЖДАТЬ',tone);battleSet('tl-verdict',result.entryReady?(result.direction==='short'?'SHORT ПО РЕТЕСТУ':'LONG ПО РЕТЕСТУ'):result.state,tone);battleSet('tl-verdict-copy',trendlineStateCopy(result));const stages=trendlineEl('tl-stages');if(stages)stages.innerHTML=trendlineStages(result);
+  battleSet('tl-anchor-one',result.found?miFmtPrice(result.anchorOne.price):'—');battleSet('tl-anchor-one-time',result.found?trendlineTime(result.anchorOne.time):'—');battleSet('tl-anchor-two',result.found?miFmtPrice(result.anchorTwo.price):'—');battleSet('tl-anchor-two-time',result.found?trendlineTime(result.anchorTwo.time):'—');battleSet('tl-slope',result.found?((result.slope/result.anchorTwo.price)*100>=0?'+':'')+((result.slope/result.anchorTwo.price)*100).toFixed(3)+'%':'—',result.found?(result.slope>0?'good':'bad'):null);battleSet('tl-integrity',result.found?(result.broken?'НАРУШЕНА':'СОХРАНЕНА'):'—',result.found?(result.broken?'bad':'good'):null);battleSet('tl-integrity-copy',result.found?(result.broken?'закрытие за динамическим уровнем':'закреплений за линией нет'):'проверка нарушений');battleSet('tl-data-age',trendlineState.loadedAt?'Обновлено '+trendlineTime(trendlineState.loadedAt)+' UTC':'Нет данных');
   const matrix=trendlineEl('tl-matrix');if(matrix)matrix.innerHTML=Object.entries(frames).map(([tf,item])=>`<button type="button" class="tl-tf-card ${tf===trendlineState.tf?'active':''}" onclick="setTrendlineTF('${tf}',document.querySelector('[data-tl-tf=\"${tf}\"]'))"><span>${MI_TF_LABELS[tf].toUpperCase()}</span><strong class="${item.tone||'warn'}">${escHtml(item.state)}</strong><small>${item.found?(item.score+'/100 · '+item.distanceAtr.toFixed(2)+' ATR'):'рабочая линия не найдена'}</small></button>`).join('');
-  const plan=result.plan||{};battleSet('tl-plan-side',result.direction==='long'?'LONG':result.direction==='short'?'SHORT':'НЕТ ВХОДА',tone);battleSet('tl-entry',Number.isFinite(plan.entry)?miFmtPrice(plan.entry):'—');battleSet('tl-stop',Number.isFinite(plan.stop)?miFmtPrice(plan.stop):'—');battleSet('tl-target-one',Number.isFinite(plan.targetOne)?miFmtPrice(plan.targetOne):'—');battleSet('tl-target-two',Number.isFinite(plan.targetTwo)?miFmtPrice(plan.targetTwo):'—');battleSet('tl-plan-note',result.entryReady?`Ретест подтверждён. Расчётная первая цель даёт R:R ${Number.isFinite(plan.rr)?plan.rr.toFixed(1):'—'}. Перед входом проверь ликвидность и события.`:result.broken&&result.structureBroken?'Пробой и структура подтверждены. Не входи в импульс — дождись возврата к линии.':'Система не разрешает вход до закрытия за линией и подтверждения структуры.');const action=trendlineEl('tl-journal-action');if(action){action.disabled=!result.entryReady;action.textContent=result.entryReady?'ПЕРЕДАТЬ '+result.direction.toUpperCase()+' В ЖУРНАЛ':'СЦЕНАРИЙ ЕЩЁ НЕ ГОТОВ'}battleSet('tl-status-price','ЦЕНА '+miFmtPrice(result.current||marketIntelState.ticker?.price));
+  const plan=result.plan||{};battleSet('tl-plan-side',result.direction==='long'?'LONG':result.direction==='short'?'SHORT':'НЕТ ВХОДА',tone);battleSet('tl-entry',Number.isFinite(plan.entry)?miFmtPrice(plan.entry):'—');battleSet('tl-stop',Number.isFinite(plan.stop)?miFmtPrice(plan.stop):'—');battleSet('tl-target-one',Number.isFinite(plan.targetOne)?miFmtPrice(plan.targetOne):'—');battleSet('tl-target-two',Number.isFinite(plan.targetTwo)?miFmtPrice(plan.targetTwo):'—');battleSet('tl-plan-note',result.entryReady?`Ретест подтверждён. Расчётная первая цель даёт R:R ${Number.isFinite(plan.rr)?plan.rr.toFixed(1):'—'}. Перед входом проверь ликвидность и события.`:result.broken&&result.structureBroken?'Пробой и структура подтверждены. Не входи в импульс — дождись возврата к линии.':'Система не разрешает вход до закрытия за линией и подтверждения структуры.');const action=trendlineEl('tl-journal-action');if(action){action.disabled=!result.entryReady;action.textContent=result.entryReady?'ПЕРЕДАТЬ '+result.direction.toUpperCase()+' В ЖУРНАЛ':'СЦЕНАРИЙ ЕЩЁ НЕ ГОТОВ'}battleSet('tl-status-price','ЦЕНА '+miFmtPrice(result.current||data?.ticker?.price));
   if(result.entryReady){const notice=trendlineState.symbol+':'+trendlineState.tf+':'+result.direction+':'+result.breakTime;if(notice!==trendlineState.lastNotice){trendlineState.lastNotice=notice;showNotif(result.direction==='short'?'error':'success','ТРЕНДОВАЯ · '+trendlineState.symbol,result.state+' · '+result.score+'/100',5200)}}
 }
-async function trendlineScan(rawSymbol,force){const symbol=miCleanSymbol(rawSymbol);if(!symbol){showNotif('warn','ТРЕНДОВАЯ','Введи тикер монеты, например BTC.',2400);return}trendlineState.symbol=symbol;if(trendlineEl('tl-symbol-input'))trendlineEl('tl-symbol-input').value=symbol;battleSet('tl-state','СКАНИРОВАНИЕ','warn');battleSet('tl-state-copy','Получаю свечи и проверяю динамическую структуру.');await selectMarketCoin(symbol,null,Boolean(force));renderTrendlineEngine()}
+async function trendlineScan(rawSymbol,force){
+  const symbol=miCleanSymbol(rawSymbol);if(!symbol){showNotif('warn','ТРЕНДОВАЯ','Введи тикер монеты, например BTC.',2400);return}
+  if(!force&&trendlineState.data&&symbol===trendlineState.symbol&&Date.now()-trendlineState.loadedAt<45000){renderTrendlineEngine();return}
+  const request=++trendlineState.requestId;trendlineState.symbol=symbol;trendlineState.data=null;trendlineState.loadedAt=0;trendlineState.loading=true;trendlineState.error='';
+  if(trendlineEl('tl-symbol-input'))trendlineEl('tl-symbol-input').value=symbol;
+  renderTrendlineEngine();battleSet('tl-state','ЗАГРУЗКА','warn');battleSet('tl-state-copy','Получаем свечи '+symbol+'/USDT.');battleSet('tl-verdict','ЗАГРУЗКА','warn');battleSet('tl-verdict-copy','Проверяем подтверждённые экстремумы.');
+  try{
+    // Reserve sparklines do not contain real 5m/15m OHLC: never use them for a trend signal.
+    const data=await miLoadBinance(symbol);if(request!==trendlineState.requestId)return;
+    if(!Number.isFinite(data.ticker.price)||data.ticker.price<=0||['5m','15m','1h','4h'].some(tf=>!data.candles[tf]?.length||!data.candles[tf].every(trendlineValidCandle)))throw Error('Свечи рынка неполные');
+    trendlineState.data=data;trendlineState.loadedAt=Date.now();trendlineState.loading=false;renderTrendlineEngine();
+  }catch(error){
+    if(request!==trendlineState.requestId)return;trendlineState.loading=false;trendlineState.error=error.message||'Источник недоступен';renderTrendlineEngine();
+    const copy='Нет достоверных свечей '+symbol+'/USDT. Проверь тикер или повтори загрузку.';
+    battleSet('tl-state','НЕТ ДАННЫХ','warn');battleSet('tl-state-copy',copy);battleSet('tl-verdict','НЕТ ДАННЫХ','warn');battleSet('tl-verdict-copy',copy);battleSet('tl-chart-copy',copy);
+  }
+}
 function trendlineSubmit(event){event.preventDefault();trendlineScan(trendlineEl('tl-symbol-input')?.value,true)}
-function setTrendlineTF(tf,button){trendlineState.tf=tf;document.querySelectorAll('[data-tl-tf]').forEach(btn=>btn.classList.toggle('active',btn===button));if(marketIntelState.ticker)renderTrendlineEngine()}
+function setTrendlineTF(tf,button){if(!['5m','15m','1h','4h'].includes(tf))return;trendlineState.tf=tf;renderTrendlineEngine();if(trendlineState.loading){battleSet('tl-state','ЗАГРУЗКА','warn');battleSet('tl-verdict','ЗАГРУЗКА','warn')}else if(trendlineState.error){battleSet('tl-state','НЕТ ДАННЫХ','warn');battleSet('tl-verdict','НЕТ ДАННЫХ','warn')}}
 function trendlinePrepareTrade(){const result=trendlineState.result;if(!result?.entryReady)return;setPair(trendlineState.symbol+'/USDT');setDir(result.direction);const fields={entry:result.plan.entry,sl:result.plan.stop,exit:result.plan.targetOne};Object.entries(fields).forEach(([id,value])=>{const el=document.getElementById('f-'+id);if(el&&Number.isFinite(value))el.value=String(Number(value.toPrecision(10)))});if(typeof calcRR==='function')calcRR();showPage('journal',document.querySelector('[data-page="journal"]'));document.getElementById('add-trade-form')?.scrollIntoView({behavior:'smooth',block:'start'});showNotif('success','СЦЕНАРИЙ ПЕРЕДАН',trendlineState.symbol+'/USDT · '+result.direction.toUpperCase()+' · вход после ретеста',3200)}
-function openTrendlineFor(symbol,tf='15m'){trendlineState.symbol=miCleanSymbol(symbol)||'BTC';trendlineState.tf=tf;showPage('trendline',document.querySelector('[data-page="trendline"]'));trendlineScan(trendlineState.symbol,false);window.scrollTo({top:0,behavior:'smooth'})}
-function initTrendlineEngine(){if(!trendlineState.initialized){trendlineState.initialized=true;trendlineScan(trendlineState.symbol,false);trendlineState.refreshTimer=setInterval(()=>{if(trendlineEl('page-trendline')?.classList.contains('active'))trendlineScan(trendlineState.symbol,true)},60000)}else if(marketIntelState.symbol===trendlineState.symbol&&marketIntelState.ticker)renderTrendlineEngine();else trendlineScan(trendlineState.symbol,false)}
+function openTrendlineFor(symbol,tf='15m'){const nextSymbol=miCleanSymbol(symbol)||'BTC';trendlineState.tf=['5m','15m','1h','4h'].includes(tf)?tf:'15m';if(nextSymbol!==trendlineState.symbol)trendlineState.data=null;trendlineState.symbol=nextSymbol;showPage('trendline',document.querySelector('[data-page="trendline"]'));window.scrollTo({top:0,behavior:'smooth'})}
+function initTrendlineEngine(){if(!trendlineState.initialized){trendlineState.initialized=true;trendlineScan(trendlineState.symbol,false);trendlineState.refreshTimer=setInterval(()=>{if(trendlineEl('page-trendline')?.classList.contains('active'))trendlineScan(trendlineState.symbol,true)},60000)}else if(trendlineState.data)renderTrendlineEngine();else trendlineScan(trendlineState.symbol,false)}
 
 // ── ELLIOTT WAVE LAB ─────────────────────────────────────────────
 const elliottState={symbol:'BTC',tf:'1h',initialized:false,result:null,frames:{},refreshTimer:null,lastNotice:''};
