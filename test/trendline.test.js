@@ -20,6 +20,9 @@ test('ascending support and descending resistance use real confirmed pivots at e
     assert.equal(result.side,slope>0?'support':'resistance');
     assert.ok(slope>0?result.slope>0:result.slope<0);
     assert.ok(Math.abs(result.anchorTwo.price-result.anchorOne.price)>=result.tolerance*2);
+    assert.equal(result.touchPoints.length,result.touches);
+    assert.equal(new Set(result.touchPoints.map(p=>p.time)).size,result.touches);
+    assert.ok(result.touchPoints.every(p=>p.index<result.closed.length-3));
     assert.equal(result.all[result.anchorOne.index].time,result.anchorOne.time);
     assert.equal(result.all[result.anchorTwo.index].time,result.anchorTwo.time);
     for(let i=result.anchorOne.index+1;i<result.anchorTwo.index;i++){

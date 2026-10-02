@@ -47,6 +47,8 @@ function worldRenderTrendChart(result, candles) {
   const first = result.found ? Math.max(0, Math.min(all.length - 96, result.anchorOne.index - 4)) : 0;
   const rows = all.slice(first);
   svg.dataset.symbol = trendlineState.symbol;
+  const touchCount = trendlineEl('tl-chart-touch-count');
+  if (touchCount) touchCount.textContent = result.found ? `КАСАНИЯ · ${result.touches}` : 'КАСАНИЯ · —';
   delete svg.dataset.side;
   delete svg.dataset.startTime;
   delete svg.dataset.endTime;
@@ -100,9 +102,11 @@ function worldRenderTrendChart(result, candles) {
       return `<line x1="${xx}" x2="${xx}" y1="${yy}" y2="${connectionY}" stroke="${labelColor}" stroke-dasharray="2 3" opacity=".65"/><rect class="${className}" data-point-y="${yy}" data-placement="${below?'below':'above'}" x="${boxX}" y="${boxY}" width="${boxWidth}" height="23" fill="var(--bg-card)" stroke="${labelColor}"/><text x="${boxX + boxWidth / 2}" y="${boxY + 15}" fill="${labelColor}" text-anchor="middle" font-size="11" font-weight="750">${text}</text>`;
     };
     // Separate labels when pivots are near each other on a narrow viewport.
-    [a, b].forEach((p, i) => {
-      const xx = x(p.index - first), yy = y(p.price);
-      parts.push(`<rect class="tl-anchor" data-anchor="${i + 1}" data-price="${p.price}" data-time="${p.time}" x="${xx - 5}" y="${yy - 5}" width="10" height="10" fill="var(--bg-card)" stroke="${color}" stroke-width="2.5"><title>Опора ${i + 1} · ${trendlinePrice(p.price)} · ${trendlineTime(p.time)} UTC</title></rect>`);
+    result.touchPoints.forEach((p, i) => {
+      const anchor = p.index === a.index ? 1 : p.index === b.index ? 2 : null;
+      const xx = x(p.index - first), linePrice = trendlineAt(result,p.index), yy = y(linePrice);
+      // Every counted pivot is drawn once, including both construction anchors.
+      parts.push(`<circle class="tl-touch${anchor?' tl-anchor':''}" ${anchor?`data-anchor="${anchor}"`:''} data-touch="${i+1}" data-price="${p.price}" data-line-price="${linePrice}" data-time="${p.time}" cx="${xx}" cy="${yy}" r="${anchor?4.5:3.5}" fill="var(--bg-card)" stroke="${color}" stroke-width="2"><title>Касание ${i+1}${anchor?' · опора '+anchor:''} · ${trendlinePrice(p.price)} · ${trendlineTime(p.time)} UTC</title></circle>`);
     });
     parts.push(label(ax, ay, 'СТАРТ · 1', 82));
     if (bx - ax > 90) parts.push(label(bx, by, 'ОПОРА · 2', 84));
@@ -118,7 +122,7 @@ function worldRenderTrendChart(result, candles) {
     };
     if (result.breakTime) event(result.breakTime, 'ПРОБОЙ', 'var(--r)');
     if (result.retestTime) event(result.retestTime, 'РЕТЕСТ', 'var(--g)');
-    svg.setAttribute('aria-label', `${trendlineState.symbol}/USDT: ${direction.toLowerCase()} линия. Начало ${trendlinePrice(a.price)}, вторая опора ${trendlinePrice(b.price)}, продолжение ${trendlinePrice(result.currentLine)}.`);
+    svg.setAttribute('aria-label', `${trendlineState.symbol}/USDT: ${direction.toLowerCase()} линия, ${result.touches} подтверждённых касаний. Начало ${trendlinePrice(a.price)}, вторая опора ${trendlinePrice(b.price)}, продолжение ${trendlinePrice(result.currentLine)}.`);
   } else {
     parts.push(`<text x="${left}" y="24" fill="var(--m)" font-size="12">Нет подтверждённой наклонной линии</text>`);
     svg.setAttribute('aria-label', `${trendlineState.symbol}/USDT: свечи, подтверждённая наклонная линия не найдена.`);

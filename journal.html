@@ -7282,7 +7282,7 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
           <div class="tl-chart-wrap"><svg id="tl-chart" viewBox="0 0 960 430" preserveAspectRatio="none" role="img" aria-label="График трендовой линии"></svg></div>
           <div class="tl-direction-bar" id="tl-direction-bar"><strong id="tl-chart-direction">Ищем линию</strong><span id="tl-chart-change"></span></div>
           <div class="tl-anchor-ledger" id="tl-anchor-ledger"></div>
-          <div class="tl-legend"><span><i></i>ЦЕНА</span><span class="line"><i></i>МЕЖДУ ОПОРАМИ</span><span class="projection"><i></i>ПРОДОЛЖЕНИЕ</span><span class="break"><i></i>ПРОБОЙ</span><span class="retest"><i></i>РЕТЕСТ</span></div>
+          <div class="tl-legend"><span><i></i>ЦЕНА</span><span class="line"><i></i>МЕЖДУ ОПОРАМИ</span><span class="projection"><i></i>ПРОДОЛЖЕНИЕ</span><span class="touches"><i></i><span id="tl-chart-touch-count">КАСАНИЯ</span></span><span class="break"><i></i>ПРОБОЙ</span><span class="retest"><i></i>РЕТЕСТ</span></div>
         </article>
 
         <aside class="tl-card tl-protocol">
@@ -14443,8 +14443,8 @@ function trendlineCandidate(candles,side,tf){
     const line={side,tf,anchorOne:first,anchorTwo:second,slope},oldLimit=Math.max(second.index+1,closed.length-10);let oldBreaks=0;
     for(let i=second.index+1;i<oldLimit;i++){const value=trendlineAt(line,i),c=closed[i];if(side==='support'&&c.close<value-buffer)oldBreaks++;if(side==='resistance'&&c.close>value+buffer)oldBreaks++}
     if(oldBreaks>0)continue;
-    const touches=pivots.filter(p=>p.index>=first.index&&Math.abs(p.price-trendlineAt(line,p.index))<=tolerance).length,projected=trendlineAt(line,closed.length-1),distanceAtr=Math.abs(closed.at(-1).close-projected)/(atr||1),quality=Math.round(miClamp(26+touches*13+Math.min(22,span/4)-oldBreaks*20-Math.max(0,distanceAtr-3)*3,0,100));
-    if(touches<2||quality<45)continue;candidates.push({...line,touches,quality,atr,tolerance,buffer,closed,all,live,distanceAtr});
+    const touchPoints=pivots.filter(p=>p.index>=first.index&&Math.abs(p.price-trendlineAt(line,p.index))<=tolerance),touches=touchPoints.length,projected=trendlineAt(line,closed.length-1),distanceAtr=Math.abs(closed.at(-1).close-projected)/(atr||1),quality=Math.round(miClamp(26+touches*13+Math.min(22,span/4)-oldBreaks*20-Math.max(0,distanceAtr-3)*3,0,100));
+    if(touches<2||quality<45)continue;candidates.push({...line,touches,touchPoints,quality,atr,tolerance,buffer,closed,all,live,distanceAtr});
   }
   if(!candidates.length)return null;candidates.sort((a,b)=>(b.quality-(closed.length-1-b.anchorTwo.index)*.15)-(a.quality-(closed.length-1-a.anchorTwo.index)*.15));const line=candidates[0],start=Math.max(line.anchorTwo.index+1,closed.length-10);let breakIndex=-1,wickIndex=-1;
   for(let i=start;i<closed.length;i++){
