@@ -20,7 +20,19 @@ async function marketRegistryLoadQuotes() {
       if (MARKET_COIN_NAMES[symbol]&&price>0&&Number.isFinite(price)&&Number.isFinite(change)) updateTickerItem(symbol,price,change);
     });
     overviewMarketScheduleRender();
-  } catch (_) { /* Keep the last valid quote; streaming updates remain active. */ }
+  } catch (_) {
+    // A single unlisted Binance pair rejects the entire bulk request (e.g. HYPE).
+    try {
+      const response=await miFetchJSON('https://api.bybit.com/v5/market/tickers?category=spot');
+      if(response.retCode!==0)return;
+      for(const row of response.result?.list||[]){
+        if(!row.symbol.endsWith('USDT'))continue;
+        const symbol=row.symbol.slice(0,-4),price=Number(row.lastPrice),change=Number(row.price24hPcnt)*100;
+        if(MARKET_COIN_NAMES[symbol]&&price>0&&Number.isFinite(change))updateTickerItem(symbol,price,change);
+      }
+      overviewMarketScheduleRender();
+    } catch (_) { /* Retain last valid quotes and their original reception times. */ }
+  }
 }
 
 async function miLoadBybitSpot(symbol, intervals) {
@@ -61,5 +73,5 @@ document.addEventListener('DOMContentLoaded',()=>{
     if (input) {input.setAttribute('list',list.id);input.placeholder='BTC, HYPE, SUI…';}
   }
   marketRegistryLoadQuotes();
-  setInterval(()=>{if(document.getElementById('page-overview')?.classList.contains('active'))marketRegistryLoadQuotes();},60000);
+  setInterval(()=>{if(['page-overview','page-premarket'].includes(document.querySelector('.page.active')?.id))marketRegistryLoadQuotes();},30000);
 });

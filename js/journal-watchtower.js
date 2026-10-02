@@ -1,4 +1,9 @@
 /* Watch post: closed-bar evidence, expiring observations, event transitions. */
+document.addEventListener('DOMContentLoaded',()=>{
+  if(document.getElementById('journal-live-module'))return;
+  const style=document.createElement('link');style.rel='stylesheet';style.href='css/journal-live.css';document.head.append(style);
+  const script=document.createElement('script');script.id='journal-live-module';script.src='js/journal-live.js';document.head.append(script);
+},{once:true});
 const watchPost={baseline:new Map(),events:[],notified:new Set(),lastAt:0,pending:false};
 const watchStages={attention:{title:'Приближаются / наблюдаем',icon:'tower',copy:'Рядом с уровнем или ждём реакцию'},confirmed:{title:'Есть подтверждение',icon:'torch',copy:'Закрытая свеча подтвердила событие · ещё не разрешение на вход'},inactive:{title:'Отменились / устарели',icon:'hourglass',copy:'Сценарий прошёл, изменился или данные недоступны'}};
 WORLD_PROTOCOL_SPRITES.tower=['...mmmmmm...','...mwwwwm...','...mwcwwm...','...mmwwmm...','....mwwm....','....mwwm....','....mwwm....','....mwwm....','...mmwwmm...','..mmddddmm..','..mmmmmmmm..','............'];

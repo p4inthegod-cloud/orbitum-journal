@@ -90,7 +90,7 @@ export default async function handler(req, res) {
       const start = Date.parse(`${from}T00:00:00Z`), end = Date.parse(`${to}T00:00:00Z`);
       if (end < start || end - start > 14 * 86400000) return res.status(400).json({ error: 'calendar range must be 0–14 days' });
       const result = await economicCalendar(from, to);
-      res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, must-revalidate');
       return res.status(200).json({ ...result, updatedAt: new Date().toISOString() });
     }
 
