@@ -11,23 +11,11 @@ function worldToy(kind, label) {
   return toy;
 }
 
-function worldRouteTo(id, step) {
-  const target = document.getElementById(id);
-  if (!target) return;
-  document.querySelectorAll('.world-route-step').forEach(button => {
-    const active = Number(button.dataset.step) === step;
-    button.classList.toggle('active', active);
-    if (active) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current');
-  });
-  target.focus({preventScroll: true});
-  target.scrollIntoView({block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
-}
-
 function worldInstallOrientation() {
   const pulse = document.getElementById('ov-pulse');
   if (pulse) {
     const hero = worldElement('section', 'world-market-hero world-window');
-    hero.id = 'world-market-now'; hero.tabIndex = -1; hero.setAttribute('aria-label', 'Рынок сейчас');
+    hero.id = 'world-market-now'; hero.setAttribute('aria-label', 'Рынок сейчас');
     const heading = worldElement('header', 'world-hero-heading');
     const title = worldElement('h2', null, 'Рынок сейчас');
     title.prepend(worldToy('compass', 'Выбранный актив'));
@@ -41,34 +29,7 @@ function worldInstallOrientation() {
     const bias = worldElement('span', 'world-hero-bias'); bias.id = 'world-hero-bias';
     copy.append(regime, bias, detail); explanation.append(copy);
     pulse.before(hero); hero.append(heading, pulse, explanation);
-    const route = worldElement('nav', 'world-reading-route'); route.setAttribute('aria-label', 'Маршрут чтения обзора');
-    [['compass', 'Что происходит', 'Цена, ширина, сессия и риск', 'world-market-now'], ['crystal', 'Где важные уровни', 'График и ближайшие пулы', 'world-overview-levels'], ['flag', 'Что проверить перед сделкой', 'Условие входа и отмена сценария', 'ov-action-card']].forEach(([kind, name, hint, id], index) => {
-      const step = worldElement('button', 'world-route-step' + (index === 0 ? ' active' : '')); step.type = 'button'; step.dataset.step = index + 1;
-      if (!index) step.setAttribute('aria-current', 'step');
-      const content = worldElement('span'); content.append(worldElement('strong', null, name), worldElement('small', null, hint));
-      step.append(worldToy(kind), worldElement('b', 'world-route-number', String(index + 1).padStart(2, '0')), content);
-      step.addEventListener('click', () => worldRouteTo(id, index + 1)); route.append(step);
-    });
-    hero.before(route);
-    const workspace = document.querySelector('.world-workspace');
-    if (workspace) {workspace.id = 'world-overview-levels'; workspace.tabIndex = -1;}
-    const action = document.getElementById('ov-action-card'); if (action) action.tabIndex = -1;
-    let routeFrame;
-    addEventListener('scroll', () => {
-      cancelAnimationFrame(routeFrame);
-      routeFrame = requestAnimationFrame(() => {
-        if (!document.getElementById('page-overview').classList.contains('active')) return;
-        const targets = ['world-market-now', 'world-overview-levels', 'ov-action-card'];
-        let current = 1;
-        targets.forEach((id, index) => {if (document.getElementById(id)?.getBoundingClientRect().top <= 180) current = index + 1;});
-        document.querySelectorAll('.world-route-step').forEach(button => {
-          const active = Number(button.dataset.step) === current;
-          button.classList.toggle('active', active);
-          if (active) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current');
-        });
-      });
-    }, {passive: true});
-    [['.world-candle-panel .world-window-head', 'compass', '02 · Цена выбранного актива'], ['.world-overview-liquidity .world-window-head', 'crystal', '02 · Ближайшие уровни'], ['#ov-action-card .ov-card-head', 'flag', '03 · Проверка сценария']].forEach(([selector, kind, label]) => {
+    [['.world-candle-panel .world-window-head', 'compass', 'Цена выбранного актива'], ['.world-overview-liquidity .world-window-head', 'crystal', 'Ближайшие уровни'], ['#ov-action-card .ov-card-head', 'flag', 'Проверка сценария']].forEach(([selector, kind, label]) => {
       const host = document.querySelector(selector); if (!host) return;
       const marker = worldToy(kind, label); marker.classList.add('world-zone-toy'); host.prepend(marker);
     });
@@ -89,7 +50,7 @@ function worldBuildLegend() {
   const summary = worldElement('summary'); summary.append(worldToy('book'), worldElement('span', null, 'Обозначения мира'), worldElement('small', null, 'Цвета, предметы и состояния'));
   legend.append(summary);
   const grid = worldElement('div', 'world-symbol-grid');
-  [['compass', 'Выбранный актив', 'Этот тикер объединяет цену, график и карту в обзоре.'], ['crystal', 'Кристалл и огоньки', 'Неснятый пул. 1–3 огонька — относительная сила по модели, не объём в долларах.'], ['rock', 'Серый камень', 'Ликвидность уже снята. Серое поле с «Нет данных» означает недоступный источник.'], ['beacon', 'Маяк события', 'Ближайшая важная публикация. Янтарный — внимание к времени, не направление цены.'], ['flag', 'Флаг маршрута', 'Переход к проверке входа, риска и отмены сценария.'], ['square', 'Квадратный маркер', 'Последняя точка графика или показатель, изменившийся между завершёнными сканами.']].forEach(([kind, title, copy]) => {
+  [['compass', 'Выбранный актив', 'Этот тикер объединяет цену, график и карту в обзоре.'], ['crystal', 'Кристалл и огоньки', 'Неснятый пул. 1–3 огонька — относительная сила по модели, не объём в долларах.'], ['rock', 'Серый камень', 'Ликвидность уже снята. Серое поле с «Нет данных» означает недоступный источник.'], ['beacon', 'Маяк события', 'Ближайшая важная публикация. Янтарный — внимание к времени, не направление цены.'], ['flag', 'Флаг планирования', 'Проверка входа, риска и отмены сценария; в календаре — события на более позднее время.'], ['square', 'Квадратный маркер', 'Последняя точка графика или показатель, изменившийся между завершёнными сканами.']].forEach(([kind, title, copy]) => {
     const row = worldElement('div'); const body = worldElement('div'); body.append(worldElement('strong', null, title), worldElement('p', null, copy)); row.append(worldToy(kind), body); grid.append(row);
   });
   const colors = worldElement('p', 'world-color-key', 'Голубой: цена на графике / пулы снизу. Фиолетовый: EMA / пулы сверху. Рост и снижение отмечены также знаком +/− и словами. Цвет предмета не является сигналом входа.');
