@@ -4,7 +4,7 @@ const watchStages={attention:{title:'Приближаются / наблюдае
 WORLD_PROTOCOL_SPRITES.tower=['...mmmmmm...','...mwwwwm...','...mwcwwm...','...mmwwmm...','....mwwm....','....mwwm....','....mwwm....','....mwwm....','...mmwwmm...','..mmddddmm..','..mmmmmmmm..','............'];
 WORLD_PROTOCOL_SPRITES.hourglass=['..mmmmmmmm..','..mggggggm..','...mggggm...','....mggm....','.....mm.....','.....mm.....','....mggm....','...mdggdm...','..mdggggdm..','..mmmmmmmm..','............','............'];
 function watchLife(event,rows,tf,price,atr,now=Date.now()){
-  const duration=coinTfMs[tf],at=event.at,age=at?Math.max(0,now-at):null,move=Number.isFinite(event.price)&&atr>0?Math.abs(price-event.price)/atr:null;
+  const duration=coinTfMs[tf],at=event.at,age=at?Math.max(0,now-at):null,move=at&&Number.isFinite(event.price)&&atr>0?Math.abs(price-event.price)/atr:null;
   let cancelled=false;if(event.line&&event.type==='retest')cancelled=rows.filter(c=>c.time+duration>at).some(c=>event.direction==='long'?c.close<trendlineAt(event.line,event.line.all.findIndex(x=>x.time===c.time))-(event.line.buffer||0):c.close>trendlineAt(event.line,event.line.all.findIndex(x=>x.time===c.time))+(event.line.buffer||0));
   const expired=age!=null&&age>duration*(event.type==='divergence'?6:3),extended=move!=null&&move>1.5;
   return {age,move,cancelled,expired,extended,inactive:cancelled||expired||extended,reason:cancelled?'Условие отменено закрытой свечой':expired?'Событие старше '+(event.type==='divergence'?6:3)+' свечей':extended?'Цена ушла больше чем на 1,5 ATR':'Событие актуально'};
