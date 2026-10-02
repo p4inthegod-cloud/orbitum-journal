@@ -60,7 +60,11 @@ function worldRenderTrendChart(result, candles) {
   const low = Math.min(...prices), high = Math.max(...prices), padding = (high - low || high * .01 || 1) * .12;
   const min = low - padding, max = high + padding;
   const x = i => left + i / Math.max(1, rows.length - 1) * (right - left);
-  const y = value => top + (max - value) / (max - min) * (bottom - top);
+  // Leave space outside support/resistance for labels instead of clamping them over candles.
+  const labelSpace = result.found ? 82 : 0;
+  const priceTop = top + (result.found && result.side === 'resistance' ? labelSpace : 0);
+  const priceBottom = bottom - (result.found && result.side === 'support' ? labelSpace : 0);
+  const y = value => priceTop + (max - value) / (max - min) * (priceBottom - priceTop);
   const body = Math.max(1.2, (right - left) / rows.length * .65), parts = [];
   for (let i = 0; i <= 4; i++) {
     const value = max - (max - min) * i / 4, yy = y(value);
@@ -82,10 +86,18 @@ function worldRenderTrendChart(result, candles) {
     svg.dataset.endTime = String(all[end].time);
     const direction = result.side === 'support' ? 'ВОСХОДЯЩАЯ' : 'НИСХОДЯЩАЯ';
     parts.push(`<path d="M${ax},${ay} L${bx},${by} L${ex},${ey}" fill="none" stroke="${color}" stroke-width="9" opacity=".12"/><line class="tl-trend-core" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${color}" stroke-width="3"/><line class="tl-trend-projection" x1="${bx}" y1="${by}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="2.5" stroke-dasharray="7 5"/>`);
-    const label = (xx, yy, text, boxWidth) => {
+    const placedLabels = [], below = result.side === 'support';
+    const label = (xx, yy, text, boxWidth, className='tl-pivot-label') => {
       const boxX = Math.max(left, Math.min(right - boxWidth, xx - boxWidth / 2));
-      const boxY = Math.max(34, Math.min(bottom - 24, yy - 35));
-      return `<rect x="${boxX}" y="${boxY}" width="${boxWidth}" height="23" fill="var(--bg-card)" stroke="${color}"/><text x="${boxX + boxWidth / 2}" y="${boxY + 15}" fill="${color}" text-anchor="middle" font-size="11" font-weight="750">${text}</text>`;
+      const lineY = px => y(trendlineAt(result, first + (px-left)/(right-left)*(rows.length-1)));
+      const limits = [yy,lineY(boxX),lineY(boxX+boxWidth)];
+      rows.forEach((c,i) => {if(x(i)+body/2>=boxX && x(i)-body/2<=boxX+boxWidth) limits.push(y(below?c.low:c.high));});
+      let boxY = below ? Math.max(...limits)+12 : Math.min(...limits)-35;
+      // Stack nearby labels away from price when the viewport becomes narrow.
+      for(const prior of placedLabels){if(boxX<prior.x+prior.width+5 && boxX+boxWidth+5>prior.x && boxY<prior.y+28 && boxY+28>prior.y) boxY=below?prior.y+29:prior.y-29;}
+      placedLabels.push({x:boxX,y:boxY,width:boxWidth});
+      const connectionY = below?boxY:boxY+23;
+      return `<line x1="${xx}" x2="${xx}" y1="${yy}" y2="${connectionY}" stroke="${color}" stroke-dasharray="2 3" opacity=".65"/><rect class="${className}" data-point-y="${yy}" data-placement="${below?'below':'above'}" x="${boxX}" y="${boxY}" width="${boxWidth}" height="23" fill="var(--bg-card)" stroke="${color}"/><text x="${boxX + boxWidth / 2}" y="${boxY + 15}" fill="${color}" text-anchor="middle" font-size="11" font-weight="750">${text}</text>`;
     };
     // Separate labels when pivots are near each other on a narrow viewport.
     [a, b].forEach((p, i) => {
@@ -95,9 +107,8 @@ function worldRenderTrendChart(result, candles) {
     parts.push(label(ax, ay, 'СТАРТ · 1', 82));
     if (bx - ax > 90) parts.push(label(bx, by, 'ОПОРА · 2', 84));
     parts.push(`<rect class="tl-line-end" data-price="${result.currentLine}" x="${ex - 5}" y="${ey - 5}" width="10" height="10" fill="${color}" stroke="var(--bg-card)" stroke-width="2"/>`);
-    // Keep the end label on the other side of the line from pivot 2's label.
-    const endLabelY = Math.max(34, Math.min(bottom - 24, result.side === 'support' ? Math.min(ey - 62, by - 64) : ey + 14));
-    parts.push(`<line x1="${ex}" x2="${ex}" y1="${ey}" y2="${result.side === 'support' ? endLabelY + 23 : endLabelY}" stroke="${color}" stroke-dasharray="2 3" opacity=".75"/><rect class="tl-end-label" x="${right - 76}" y="${endLabelY}" width="76" height="23" fill="var(--bg-card)" stroke="${color}"/><text x="${right - 38}" y="${endLabelY + 15}" fill="${color}" text-anchor="middle" font-size="11" font-weight="750">КОНЕЦ</text><text class="tl-direction-label" x="${left}" y="24" fill="${color}" font-size="12" font-weight="800">${result.side === 'support' ? '↗' : '↘'} ${direction}</text>`);
+    parts.push(label(ex,ey,'КОНЕЦ',76,'tl-end-label'));
+    parts.push(`<text class="tl-direction-label" x="${left}" y="24" fill="${color}" font-size="12" font-weight="800">${result.side === 'support' ? '↗' : '↘'} ${direction}</text>`);
     const event = (time, name, eventColor) => {
       const index = rows.findIndex(c => c.time === time);
       if (index < 0) return;
