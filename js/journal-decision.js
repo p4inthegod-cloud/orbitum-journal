@@ -123,6 +123,18 @@ document.addEventListener('DOMContentLoaded',()=>{
     try{const data=await miLoadSpotHistory(symbol);if(request!==decisionRequest||shared!==marketIntelState.requestId)return;if(!(data.ticker.price>0)||MI_DATA_INTERVALS.some(tf=>!data.candles[tf]?.length||!data.candles[tf].every(trendlineValidCandle)))throw Error('Неполные свечи');marketIntelState.candles=data.candles;marketIntelState.ticker=data.ticker;marketIntelState.source=data.source;marketIntelState.loadedAt=Date.now();marketIntelState.loading=false;renderBattleScreen();}
     catch(error){if(request!==decisionRequest||shared!==marketIntelState.requestId)return;marketIntelState.loading=false;marketIntelState.ticker=null;marketIntelState.candles=Object.fromEntries(MI_DATA_INTERVALS.map(tf=>[tf,[]]));marketIntelState.loadedAt=0;decisionClear('Данные '+symbol+' недоступны. Проверь тикер или повтори загрузку.');battleSet('bs-verdict','НЕТ ДАННЫХ');battleEl('bs-verdict-card').setAttribute('aria-busy','false');}
   };
-  battlePrepareTrade=function(){if(!decisionModel||battleEl('bs-action').disabled)return;const m=decisionModel;setPair(battleState.symbol+'/USDT');setDir(m.side);for(const [id,value] of [['f-entry',battleEl('decision-entry').value],['f-sl',battleEl('decision-stop').value],['f-exit',battleEl('decision-target').value],['f-risk',m.effectivePct]]){if(battleEl(id))battleEl(id).value=value;}if(typeof calcRR==='function')calcRR();showPage('journal',document.querySelector('[data-page="journal"]'));};
+  battlePrepareTrade=function(){
+    if(!decisionModel||battleEl('bs-action').disabled)return;
+    const m=decisionModel,entry=battleEl('decision-entry').value,stop=battleEl('decision-stop').value,target=battleEl('decision-target').value;
+    const position=decisionPosition(m.side,Number(entry),Number(stop),Number(target),m.riskUsd);if(!position.valid)return;
+    setPair(battleState.symbol+'/USDT');setDir(m.side);
+    for(const [id,value] of [['f-entry',entry],['f-sl',stop],['f-exit',target],['f-risk',m.effectivePct]]){if(battleEl(id))battleEl(id).value=value;}
+    if(typeof ledgerSetMode==='function'){
+      battleEl('f-dep').value=String(position.notional);
+      ['f-usd','f-pnl','ledger-actual-exit','ledger-fees'].forEach(id=>{if(battleEl(id))battleEl(id).value='';});
+      ledgerSetMode('open');ledgerStoreDraft();
+    }
+    if(typeof calcRR==='function')calcRR();showPage('journal',document.querySelector('[data-page="journal"]'));
+  };
   setInterval(()=>{if(battleEl('page-battle')?.classList.contains('active')&&!marketIntelState.loading&&battleState.lastDecision)renderBattleScreen();},15000);
 });
