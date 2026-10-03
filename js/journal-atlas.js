@@ -33,8 +33,9 @@ function atlasDecorate(root) {
   }
 }
 function atlasRenderRoutes(query='') {
-  const host=document.getElementById('atlas-results'),current=auditNavigation.active,needle=query.trim().toLocaleLowerCase('ru');
-  const routes=atlasRoutes.filter(row=>row.join(' ').toLocaleLowerCase('ru').includes(needle));host.replaceChildren();
+  const host=document.getElementById('atlas-results'),current=auditNavigation.active;
+  const words=query.trim().toLocaleLowerCase('ru').replace(/ё/g,'е').split(/\s+/).filter(Boolean).map(word=>word.length>4?word.replace(/[ьаяыеиоуьюй]+$/u,''):word);
+  const routes=atlasRoutes.filter(row=>{const text=row.join(' ').toLocaleLowerCase('ru').replace(/ё/g,'е');return words.every(word=>text.includes(word));});host.replaceChildren();
   document.getElementById('atlas-count').textContent=routes.length?'Разделов: '+routes.length:'Ничего не найдено. Попробуйте «риск», «свечи» или «журнал».';
   let group='';
   for(const [id,label,icon,description,category] of routes){
