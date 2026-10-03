@@ -3,6 +3,21 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../js/journal-ledger-model.js',import.meta.url),'utf8');
+test('position routes preserve long/short progress and separate risk from target distance',()=>{
+  const c=context();for(const direction of ['long','short']){
+    const sign=direction==='short'?-1:1,t={entry_price:100,stop_loss:100-5*sign,take_profit:100+10*sign,direction};
+    const reward=c.ledgerPositionRoute(t,{price:100+6*sign});assert.equal(reward.targetPct,60);assert.equal(reward.position,71.19999999999999);assert.equal(reward.phase,'reward');
+    const risk=c.ledgerPositionRoute(t,{price:100-3*sign});assert.equal(risk.riskPct,60);assert.equal(risk.phase,'risk');assert.ok(Math.abs(risk.position-11.2)<1e-9);
+    assert.equal(c.ledgerPositionRoute(t,{price:100+12*sign}).position,100);assert.equal(c.ledgerPositionRoute(t,{price:100+12*sign}).phase,'target');
+    assert.equal(c.ledgerPositionRoute(t,{price:100-6*sign}).position,0);assert.equal(c.ledgerPositionRoute(t,{price:100-6*sign}).phase,'stop');
+  }
+});
+test('a high reward/risk ratio keeps the entry visible and absent quotes never invent progress',()=>{
+  const c=context(),t={entry_price:11.087,stop_loss:11.108,take_profit:9.479,direction:'short'};
+  assert.equal(c.ledgerPositionRoute(t,{price:11.087}).position,28);
+  const absent=c.ledgerPositionRoute(t,null);assert.equal(absent.phase,'pending');assert.equal(absent.position,null);assert.equal(absent.targetPct,null);
+  assert.equal(c.ledgerPositionRoute({...t,stop_loss:10},null),null);assert.equal(c.ledgerPositionRoute({...t,take_profit:null},null),null);
+});
 function context(){const c=vm.createContext({Date,Map,Set,Number,Math,JSON,allTrades:[],document:{getElementById:id=>({value:({'f-pair':'HYPE','f-entry':'100','f-dep':'1000','f-sl':'95','f-exit':'110','f-lev':'10'})[id]||''})},currentUser:{id:'owner'},currentDir:'long',currentTF:'1H',currentRegime:'TREND',currentSetup:'',currentMistakes:new Set(),emVals:{conf:5,fear:3,greed:3,calm:7}});vm.runInContext(source,c);return c;}
 test('an open trade has nullable result and P&L, a separate planned target and actual notional',()=>{const c=context(),t=c.ledgerFormTrade();assert.equal(t.status,'open');assert.equal(t.result,null);assert.equal(t.pnl_usd,null);assert.equal(t.pnl_pct,null);assert.equal(t.exit_price,null);assert.equal(t.take_profit,110);assert.equal(t.deposit,1000);assert.equal(t.leverage,10);assert.equal(t.pair,'HYPE/USDT');});
 test('full notional determines risk and reward without another leverage multiplier',()=>{const c=context(),p=c.ledgerPlan({entry:100,size:1000,stop:95,target:110});assert.equal(p.qty,10);assert.equal(p.risk,50);assert.equal(p.reward,100);assert.equal(p.rr,2);});
