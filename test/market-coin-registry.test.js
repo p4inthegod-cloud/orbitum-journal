@@ -7,7 +7,7 @@ const registry=readFileSync(new URL('../js/journal-market-registry.js',import.me
 const required=['5m','15m','1h','4h'];
 const row=i=>[String(1700000000000+i*300000),'100','102','98','101','123'];
 function context(overrides={}) {
-  const ctx=vm.createContext({document:{addEventListener(){}},MI_DATA_INTERVALS:[...required,'1d'],trendlineValidCandle:c=>[c.time,c.open,c.high,c.low,c.close,c.volume].every(Number.isFinite)&&c.low<=Math.min(c.open,c.close)&&c.high>=Math.max(c.open,c.close),...overrides});
+  const ctx=vm.createContext({AbortController,setTimeout,clearTimeout,document:{addEventListener(){}},MI_DATA_INTERVALS:[...required,'1d'],trendlineValidCandle:c=>[c.time,c.open,c.high,c.low,c.close,c.volume].every(Number.isFinite)&&c.low<=Math.min(c.open,c.close)&&c.high>=Math.max(c.open,c.close),...overrides});
   vm.runInContext(html.slice(html.indexOf('function miParseKlines('),html.indexOf('async function miLoadUniverse('))+'\n'+registry+'\nthis.names=MARKET_COIN_NAMES;',ctx);
   return ctx;
 }
@@ -37,6 +37,22 @@ test('fallback rejects duplicated candles and missing instruments',async()=>{
   await assert.rejects(()=>ctx.miLoadBybitSpot('HYPE',required),/достоверных свечей/);
   quote.result.list=[];
   await assert.rejects(()=>ctx.miLoadBybitSpot('UNKNOWN',required),/пара не найдена/);
+});
+
+test('a stalled primary cannot hold up a valid complete fallback snapshot and its requests are cancelled',async()=>{
+  let aborted=0;
+  const ctx=context({miBinance:(path,signal)=>new Promise((resolve,reject)=>signal.addEventListener('abort',()=>{aborted++;reject(Error('Aborted'));},{once:true})),miFetchJSON:async url=>url.includes('tickers')?{retCode:0,result:{list:[{symbol:'HYPEUSDT',lastPrice:'101',prevPrice24h:'100',price24hPcnt:'.01'}]}}:{retCode:0,result:{list:Array.from({length:48},(_,i)=>row(i)).reverse()}}});
+  const started=Date.now(),data=await ctx.miLoadSpotHistory('HYPE',required);
+  assert.ok(Date.now()-started<2000,'backup must start while the primary is still pending');
+  assert.equal(data.exchange,'BYBIT');assert.deepEqual(Object.keys(data.candles),required);
+  assert.equal(aborted,required.length+1);
+});
+
+test('a responsive primary avoids requesting the backup exchange',async()=>{
+  let backups=0;
+  const ctx=context({miBinance:async path=>path.includes('ticker')?{lastPrice:'101'}:Array.from({length:48},(_,i)=>row(i)),miFetchJSON:async()=>{backups++;throw Error('Backup should not start');}});
+  await ctx.miLoadSpotHistory('BTC',required);await new Promise(resolve=>setTimeout(resolve,800));
+  assert.equal(backups,0);
 });
 test('changing coin during a page initialization loads the new choice and ignores the late old response',async()=>{
   const pending={},state={symbol:'BTC',loading:false,loadedAt:0,requestId:0};

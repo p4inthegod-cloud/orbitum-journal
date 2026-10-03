@@ -5,17 +5,21 @@
 <script src="js/journal-theme.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANDROMEDA · Торговый журнал</title>
+<!-- JOURNAL PRELOAD START -->
+<link rel="preload" href="css/journal-ui-f60e9b4019d0.css" as="style">
+<link rel="preload" href="js/journal-ui-3001f6036137.js" as="script">
+<link rel="preload" href="assets/fonts/Tiny5-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/pixel-pack/compass.webp" as="image">
+<link rel="preload" href="assets/pixel-pack/gem.webp" as="image">
+<link rel="preload" href="assets/pixel-pack/scroll.webp" as="image">
+<link rel="preload" href="assets/pixel-pack/target.webp" as="image">
+<link rel="preload" href="assets/pixel-pack/owl.webp" as="image">
+<link rel="preload" href="assets/pixel-pack/chest.webp" as="image">
+<link rel="preload" href="assets/pixel-pack/pickaxe.webp" as="image">
+<link rel="preload" href="assets/pixel-pack/crystal-purple.webp" as="image">
+<!-- JOURNAL PRELOAD END -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
-<!-- Fallback: if CDN blocked by Tracking Prevention -->
-<script>
-if(typeof supabase==='undefined'){
-  console.warn('[ORBITUM] CDN blocked — loading from unpkg fallback');
-  var s1=document.createElement('script');s1.src='https://unpkg.com/@supabase/supabase-js@2';document.head.appendChild(s1);
-}
-</script>
+<script src="js/journal-loader.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
    ORBITUM THEME SYSTEM v3 — 4 themes only
@@ -5276,34 +5280,10 @@ html[data-theme="mono"] .btn-add:disabled{background:#080a09!important;border-co
 @media(max-width:760px){.tg-shot-top{display:none}.ov-search{grid-template-columns:1fr 1fr}.ov-search input{grid-column:1/-1}.ov-pulse{grid-template-columns:1fr 1fr}.ov-pulse article:last-child{grid-column:1/-1}.ov-market-hero,.ov-context-columns{grid-template-columns:1fr}.ov-levels{grid-template-columns:1fr}.ov-head h1{font-size:26px}.ov-head p{font-size:10px}.ov-card{padding:15px}.ov-coins{overflow:auto}.ov-live-stamp{display:none}.lq-vrvp-actions{flex-wrap:wrap}.lq-vrvp-chart{height:350px}.lq-vrvp-metrics{grid-template-columns:1fr 1fr}.lq-vrvp-metrics div:last-child{grid-column:1/-1}}
 @media(max-width:480px){.ov-search{grid-template-columns:1fr}.ov-search input{grid-column:auto}.ov-pulse{grid-template-columns:1fr}.ov-pulse article:last-child{grid-column:auto}.ov-metrics{grid-template-columns:1fr 1fr}.ov-action-code{font-size:30px}.lq-vrvp{padding:14px}.lq-vrvp-chart{height:310px}}
 </style>
-<link rel="stylesheet" href="css/journal-sections.css">
-<link rel="stylesheet" href="css/journal-refresh.css">
-<link rel="stylesheet" href="css/journal-polish.css">
-<link rel="stylesheet" href="css/journal-pixel.css">
-<script src="js/journal-pixel.js"></script>
-<link rel="stylesheet" href="css/journal-world.css">
-<script src="js/journal-world.js"></script>
-<link rel="stylesheet" href="css/journal-concept.css">
-<script src="js/journal-concept.js"></script>
-<link rel="stylesheet" href="css/journal-quest.css">
-<script src="js/journal-quest.js"></script>
-<link rel="stylesheet" href="css/journal-details.css">
-<script src="js/journal-details.js"></script>
-<link rel="stylesheet" href="css/journal-orientation.css">
-<script src="js/journal-orientation.js"></script>
-<link rel="stylesheet" href="css/journal-craft.css">
-<script src="js/journal-craft.js"></script>
-<link rel="stylesheet" href="css/journal-trend-chart.css">
-<script src="js/journal-trend-chart.js"></script>
-<script src="js/journal-market-registry.js"></script>
-<link rel="stylesheet" href="css/journal-decision.css">
-<script src="js/journal-decision.js"></script>
-<link rel="stylesheet" href="css/journal-coins.css">
-<script src="js/journal-coins.js"></script>
-<link rel="stylesheet" href="css/journal-watchtower.css">
-<script src="js/journal-watchtower.js"></script>
-<link rel="stylesheet" href="css/journal-audit.css">
-<link rel="stylesheet" href="css/journal-atlas.css">
+<!-- JOURNAL ASSETS START -->
+<link rel="stylesheet" href="css/journal-ui-f60e9b4019d0.css" data-journal-styles>
+<script src="js/journal-ui-3001f6036137.js"></script>
+<!-- JOURNAL ASSETS END -->
 </head>
 <body class="overview-page-active">
 
@@ -10004,10 +9984,7 @@ async function importCSV(input){
 
   try{
   if(ext==='xlsx'||ext==='xls'){
-    if(typeof XLSX==='undefined'){
-      if(log)log.innerHTML='❌ Библиотека XLSX не загружена. Проверь интернет.';
-      input.value='';return;
-    }
+    await journalLoadLibrary('XLSX');
     const binaryStr = await new Promise((res,rej)=>{
       const r=new FileReader();
       r.onload=e=>res(e.target.result);
@@ -14065,21 +14042,22 @@ function miFmtBig(value){const n=Number(value);if(!Number.isFinite(n))return '�
 function miPct(value,digits=2){const n=Number(value);return Number.isFinite(n)?(n>=0?'+':'')+n.toFixed(digits)+'%':'—'}
 function miAverage(values){const clean=values.filter(Number.isFinite);return clean.length?clean.reduce((a,b)=>a+b,0)/clean.length:null}
 
-async function miFetchJSON(url,timeout=9000){
+async function miFetchJSON(url,timeout=9000,signal){
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
-  try{const response=await fetch(url,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();}finally{clearTimeout(timer)}
+  const abort=()=>controller.abort();if(signal?.aborted)controller.abort();else signal?.addEventListener("abort",abort,{once:true});
+  try{const response=await fetch(url,{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();}finally{clearTimeout(timer);signal?.removeEventListener("abort",abort)}
 }
-async function miBinance(path){
+async function miBinance(path,signal){
   const hosts=['https://data-api.binance.vision','https://api.binance.com'];let lastError=null;
-  for(const host of hosts){try{return await miFetchJSON(host+path,8500)}catch(error){lastError=error}}
+  for(const host of hosts){try{return await miFetchJSON(host+path,8500,signal)}catch(error){lastError=error;if(signal?.aborted)throw error}}
   throw lastError||new Error('Рыночный источник недоступен');
 }
 function miParseKlines(rows){return (Array.isArray(rows)?rows:[]).map(row=>({time:Number(row[0]),open:Number(row[1]),high:Number(row[2]),low:Number(row[3]),close:Number(row[4]),volume:Number(row[5])})).filter(x=>Number.isFinite(x.close))}
-async function miLoadBinance(symbol,intervals=MI_DATA_INTERVALS){
+async function miLoadBinance(symbol,intervals=MI_DATA_INTERVALS,signal){
   const pair=symbol+'USDT';
   const [ticker,...series]=await Promise.all([
-    miBinance(`/api/v3/ticker/24hr?symbol=${encodeURIComponent(pair)}`),
-    ...intervals.map(tf=>miBinance(`/api/v3/klines?symbol=${encodeURIComponent(pair)}&interval=${tf}&limit=${tf==='1d'?500:1000}`))
+    miBinance(`/api/v3/ticker/24hr?symbol=${encodeURIComponent(pair)}`,signal),
+    ...intervals.map(tf=>miBinance(`/api/v3/klines?symbol=${encodeURIComponent(pair)}&interval=${tf}&limit=${tf==='1d'?500:1000}`,signal))
   ]);
   const candles={};intervals.forEach((tf,index)=>candles[tf]=miParseKlines(series[index]));
   if(intervals.some(tf=>candles[tf].length<40))throw new Error('Недостаточно свечей для расчёта');
@@ -14968,7 +14946,7 @@ function initOverview(){if(!overviewState.initialized){overviewState.initialized
 // ══════════════════════════════════════════════════════
 const SCREENSHOT_SECTIONS={overview:['.overview-os','ОБЗОР'],battle:['.battle-screen','АНАЛИЗ РЕШЕНИЙ'],liquidity:['.liquidity-map','КАРТА ЛИКВИДНОСТИ + VRVP'],watchtower:['.watchtower','СЛЕЖКА'],trendline:['.trend-engine','ТРЕНДОВАЯ ЛИНИЯ'],elliott:['.elliott-lab','ВОЛНЫ ЭЛЛИОТТА'],premarket:['.env-os','MARKET RADAR'],marketintel:['.market-intel','АНАЛИТИКА МОНЕТЫ'],dashboard:['.edge-v2','EDGE'],progress:['.review-v2','РАЗБОР'],digest:['#page-digest','НЕДЕЛЯ'],journal:['#page-journal','ЖУРНАЛ']};
 let screenshotLibraryPromise=null;
-function ensureScreenshotLibrary(){if(typeof html2canvas==='function')return Promise.resolve();if(!screenshotLibraryPromise)screenshotLibraryPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js';script.onload=()=>typeof html2canvas==='function'?resolve():reject(new Error('Модуль снимков не загрузился'));script.onerror=()=>reject(new Error('Браузер заблокировал модуль снимков'));document.head.appendChild(script)});return screenshotLibraryPromise}
+function ensureScreenshotLibrary(){return journalLoadLibrary('html2canvas')}
 function screenshotJpeg(canvas){let source=canvas,data=source.toDataURL('image/jpeg',.84);for(let pass=0;pass<3&&data.length>3000000;pass++){const scale=Math.max(.55,Math.sqrt(2800000/data.length)*.94),next=document.createElement('canvas');next.width=Math.max(1,Math.round(source.width*scale));next.height=Math.max(1,Math.round(source.height*scale));next.getContext('2d').drawImage(source,0,0,next.width,next.height);source=next;data=source.toDataURL('image/jpeg',pass?0.72:.78)}return data.split(',')[1]}
 async function sendActiveScreenToTelegram(button){
   if(button?.classList.contains('sending'))return;const active=document.querySelector('.page.active'),page=(active?.id||'page-overview').replace(/^page-/,''),config=SCREENSHOT_SECTIONS[page]||['#page-'+page,page.toUpperCase()],target=document.querySelector(config[0])||active;if(!target){showNotif('error','TELEGRAM','Активный экран не найден',3000);return}
@@ -14978,8 +14956,8 @@ async function sendActiveScreenToTelegram(button){
 document.addEventListener('DOMContentLoaded',()=>setTimeout(initOverview,180));
 </script>
 
-<script src="js/journal-wave-chart.js"></script>
-<script src="js/journal-audit.js"></script>
-<script src="js/journal-atlas.js"></script>
+<!-- JOURNAL RUNTIME START -->
+<script src="js/journal-runtime-91ddcdd7cdac.js"></script>
+<!-- JOURNAL RUNTIME END -->
 </body>
 </html>
