@@ -18,8 +18,8 @@
   }
   window.journalSetTheme = apply;
   window.journalToggleTheme = function () { apply(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true); };
-  var saved = 'light';
-  try { saved = localStorage.getItem(key) || 'light'; } catch (_) {}
+  var saved = 'dark';
+  try { saved = localStorage.getItem(key) || 'dark'; } catch (_) {}
   apply(saved, false);
   window.addEventListener('storage', function (event) { if (event.key === key) apply(event.newValue, false); });
   document.addEventListener('DOMContentLoaded', function () {
@@ -28,12 +28,13 @@
     var meta = document.getElementById('ov-price-meta');
     var icon = document.getElementById('ov-coin-icon');
     var name = document.getElementById('ov-coin-name');
-    var names = { BTC: 'Bitcoin', ETH: 'Ethereum', SOL: 'Solana', BNB: 'BNB', XRP: 'XRP' };
+    var names = MARKET_COIN_NAMES;
     function syncCoin() {
       var symbol = ((meta && meta.textContent || '').match(/^([A-Z0-9]+)/) || [])[1] || 'BTC';
       if (!icon || !name) return;
-      icon.hidden = !names[symbol];
-      if (names[symbol]) icon.src = 'assets/coins/' + symbol.toLowerCase() + '.svg';
+      var hasIcon = ['BTC','ETH','SOL','BNB','XRP'].includes(symbol);
+      icon.hidden = !hasIcon;
+      if (hasIcon) icon.src = 'assets/coins/' + symbol.toLowerCase() + '.svg';
       name.textContent = names[symbol] ? names[symbol] + ' · ' + symbol : symbol;
     }
     if (meta) new MutationObserver(syncCoin).observe(meta, { childList: true, characterData: true, subtree: true });
