@@ -20,7 +20,7 @@ const atlasRoutes = [
 const atlasEmoji = {'📊':'compass','💎':'gem','📓':'scroll','📒':'scroll','📔':'scroll','📈':'target','🔭':'owl','🔬':'chest','🧰':'pickaxe','🔥':'fire','⏳':'hourglass','⌛':'hourglass','🛡️':'shield','🛡':'shield','🎯':'target','📚':'scroll','📖':'scroll','📕':'scroll','🔍':'search','💡':'bulb','🔒':'lock','🔑':'key','🔗':'link','⚠️':'warning','⚠':'warning','✅':'check','❌':'cross','🌐':'earth','🌍':'earth','⭐':'star','✨':'sparkle','🧲':'magnet','📌':'flag','📨':'mail','✉️':'mail','🤖':'orb','🧠':'bulb','📰':'scroll','⚔️':'sword','⚡':'lightning','💰':'coin','❤️':'heart','🌅':'sun','🔔':'clock','🛰️':'portal-blue','🕰️':'clock'};
 function atlasImage(name) {
   const img = document.createElement('img'); img.className='atlas-icon';
-  img.src='assets/pixel-pack/'+name+'.png'; img.alt=''; img.width=32; img.height=32; img.decoding='async'; img.loading='lazy'; img.draggable=false;
+  img.src='assets/pixel-pack/'+name+'.webp'; img.alt=''; img.width=32; img.height=32; img.decoding='async'; img.draggable=false;
   return img;
 }
 function atlasDecorate(root) {
@@ -48,7 +48,7 @@ function atlasRenderRoutes(query='') {
 }
 function atlasOpen(){const dialog=document.getElementById('atlas-dialog');if(dialog.open)return;document.getElementById('atlas-search').value='';atlasRenderRoutes();dialog.showModal();document.getElementById('atlas-search').focus();}
 function atlasInstall(){
-  const stylesheet=document.querySelector('link[href="css/journal-atlas.css"]');if(stylesheet)document.head.append(stylesheet);
+  const stylesheet=document.querySelector('link[data-journal-styles],link[href="css/journal-atlas.css"]');if(stylesheet)document.head.append(stylesheet);
   const right=document.querySelector('.jtb-right');if(!right)return;
   const trigger=document.createElement('button');trigger.type='button';trigger.className='atlas-launch';trigger.append(atlasImage('compass'));trigger.setAttribute('aria-label','Карта разделов и поиск · Ctrl K');trigger.title='Карта разделов · Ctrl K';trigger.addEventListener('click',atlasOpen);right.prepend(trigger);
   const dialog=document.createElement('dialog');dialog.id='atlas-dialog';dialog.className='atlas-dialog';dialog.setAttribute('aria-labelledby','atlas-title');

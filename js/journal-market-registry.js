@@ -35,12 +35,12 @@ async function marketRegistryLoadQuotes() {
   }
 }
 
-async function miLoadBybitSpot(symbol, intervals) {
+async function miLoadBybitSpot(symbol, intervals, signal) {
   const pair=encodeURIComponent(symbol+'USDT'),base='https://api.bybit.com/v5/market/';
   const intervalIds={'5m':'5','15m':'15','1h':'60','4h':'240','1d':'D'};
   const [quote,...series]=await Promise.all([
-    miFetchJSON(base+'tickers?category=spot&symbol='+pair),
-    ...intervals.map(tf=>miFetchJSON(base+'kline?category=spot&symbol='+pair+'&interval='+intervalIds[tf]+'&limit='+(tf==='1d'?500:1000)))
+    miFetchJSON(base+'tickers?category=spot&symbol='+pair,9000,signal),
+    ...intervals.map(tf=>miFetchJSON(base+'kline?category=spot&symbol='+pair+'&interval='+intervalIds[tf]+'&limit='+(tf==='1d'?500:1000),9000,signal))
   ]);
   const ticker=quote.retCode===0&&quote.result?.list?.find(row=>row.symbol===symbol+'USDT');
   if (!ticker||!(Number(ticker.lastPrice)>0)) throw Error('Спотовая пара не найдена');
@@ -54,12 +54,22 @@ async function miLoadBybitSpot(symbol, intervals) {
   return {source:'РЫНОЧНЫЕ ДАННЫЕ',exchange:'BYBIT',ticker:{price,change:previous>0?price-previous:null,changePct:Number(ticker.price24hPcnt)*100,high:Number(ticker.highPrice24h),low:Number(ticker.lowPrice24h),volumeQuote:Number(ticker.turnover24h),trades:null},candles};
 }
 
+let spotPreferredExchange='BINANCE';
 async function miLoadSpotHistory(symbol, intervals=MI_DATA_INTERVALS) {
-  try { return await miLoadBinance(symbol,intervals); }
-  catch (primaryError) {
-    try { return await miLoadBybitSpot(symbol,intervals); }
-    catch (_) { throw primaryError; }
-  }
+  // Race complete, validated snapshots; never combine candles from two exchanges.
+  const primary=new AbortController(),backup=new AbortController();
+  const loaders=spotPreferredExchange==='BYBIT'?[miLoadBybitSpot,miLoadBinance]:[miLoadBinance,miLoadBybitSpot];
+  let timer,startBackup,started=false,primaryError;
+  const fallback=new Promise((resolve,reject)=>{
+    startBackup=()=>{if(started)return;started=true;clearTimeout(timer);loaders[1](symbol,intervals,backup.signal).then(resolve,reject);};
+    timer=setTimeout(startBackup,750);
+  });
+  const first=loaders[0](symbol,intervals,primary.signal).catch(error=>{primaryError=error;startBackup();throw error;});
+  try {
+    const data=await Promise.any([first,fallback]);
+    spotPreferredExchange=data.exchange||'BINANCE';return data;
+  } catch (_) {throw primaryError||new Error('Рыночные источники недоступны');}
+  finally {clearTimeout(timer);primary.abort();backup.abort();}
 }
 
 document.addEventListener('DOMContentLoaded',()=>{

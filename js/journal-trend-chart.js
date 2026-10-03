@@ -10,7 +10,7 @@ const WORLD_PROTOCOL_SPRITES = {
 function worldProtocolItem(kind) {
   const objects={crystal:'gem',torch:'fire',hammer:'hammer',shield:'shield',book:'scroll',flag:'flag',rocket:'compass',warning:'warning',tower:'owl',hourglass:'hourglass'};
   const name=objects[kind]||'gem';
-  return `<span class="tl-inventory-item" data-item="${kind}" aria-hidden="true"><img class="atlas-icon" src="assets/pixel-pack/${name}.png" alt="" width="32" height="32" decoding="async" draggable="false"></span>`;
+  return `<span class="tl-inventory-item" data-item="${kind}" aria-hidden="true"><img class="atlas-icon" src="assets/pixel-pack/${name}.webp" alt="" width="32" height="32" decoding="async" draggable="false"></span>`;
 }
 
 function worldRenderTrendProtocol(result) {

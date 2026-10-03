@@ -1,14 +1,4 @@
 /* Watch post: closed-bar evidence, expiring observations, event transitions. */
-document.addEventListener('DOMContentLoaded',()=>{
-  if(document.getElementById('journal-live-module'))return;
-  const style=document.createElement('link');style.rel='stylesheet';style.href='css/journal-live.css';document.head.append(style);
-  const script=document.createElement('script');script.id='journal-live-module';script.src='js/journal-live.js';
-  script.addEventListener('load',()=>{
-    const style=document.createElement('link');style.rel='stylesheet';style.href='css/journal-ledger.css';document.head.append(style);
-    const model=document.createElement('script');model.src='js/journal-ledger-model.js';
-    model.addEventListener('load',()=>{const ui=document.createElement('script');ui.src='js/journal-ledger.js';document.head.append(ui);},{once:true});document.head.append(model);
-  },{once:true});document.head.append(script);
-},{once:true});
 const watchPost={baseline:new Map(),events:[],notified:new Set(),lastAt:0,pending:false};
 const watchStages={attention:{title:'Приближаются / наблюдаем',icon:'tower',copy:'Рядом с уровнем или ждём реакцию'},confirmed:{title:'Есть подтверждение',icon:'torch',copy:'Закрытая свеча подтвердила событие · ещё не разрешение на вход'},inactive:{title:'Отменились / устарели',icon:'hourglass',copy:'Сценарий прошёл, изменился или данные недоступны'}};
 WORLD_PROTOCOL_SPRITES.tower=['...mmmmmm...','...mwwwwm...','...mwcwwm...','...mmwwmm...','....mwwm....','....mwwm....','....mwwm....','....mwwm....','...mmwwmm...','..mmddddmm..','..mmmmmmmm..','............'];
