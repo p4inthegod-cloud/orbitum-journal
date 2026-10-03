@@ -49,7 +49,7 @@ function ledgerRender(){
   if(signature===journalLedger.renderSignature)return;journalLedger.renderSignature=signature;
   const openNotes=[...host.querySelectorAll('.ledger-note[open]')].map(n=>n.closest('[data-trade-id]').dataset.tradeId);
   const focused=document.activeElement?.closest('[data-ledger-action]'),focus=focused?{id:focused.dataset.id,action:focused.dataset.ledgerAction}:null,scroll=host.scrollTop;
-  hideTradeSkeleton();ledgerSummary();worldRenderJournalCalendar();
+  hideTradeSkeleton();ledgerSummary();worldRenderJournalCalendar();renderHistoryInsights(ledgerClosed(rows));
   ledgerField('history-count').textContent=journalTradeCountLabel(rows.length);
   document.querySelectorAll('[data-ledger-filter]').forEach(b=>{const active=b.dataset.ledgerFilter===journalLedger.filter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
   let filtered=rows.filter(t=>journalLedger.filter==='all'||journalLedger.filter==='open'&&ledgerOpen(t)||journalLedger.filter==='closed'&&!ledgerOpen(t)||['win','loss'].includes(journalLedger.filter)&&!ledgerOpen(t)&&terminalTradeOutcome(t)===journalLedger.filter||['long','short'].includes(journalLedger.filter)&&t.direction===journalLedger.filter);

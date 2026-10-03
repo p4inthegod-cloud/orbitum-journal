@@ -8,12 +8,9 @@ const WORLD_PROTOCOL_SPRITES = {
 };
 
 function worldProtocolItem(kind) {
-  const colors = {d:'#48557e',m:'#a6bad8',c:'#45d6ff',b:'#238cb9',v:'#a87cff',g:'#f2c967',o:'#fb914b',w:'#eff6ff'};
-  const shadows = [];
-  WORLD_PROTOCOL_SPRITES[kind].forEach((row,y) => [...row].forEach((pixel,x) => {
-    if (colors[pixel]) shadows.push(`${x*2}px ${y*2}px ${colors[pixel]}`);
-  }));
-  return `<span class="tl-inventory-item" data-item="${kind}" aria-hidden="true"><i style="box-shadow:${shadows.join(',')}"></i></span>`;
+  const objects={crystal:'gem',torch:'fire',hammer:'hammer',shield:'shield',book:'scroll',flag:'flag',rocket:'compass',warning:'warning',tower:'owl',hourglass:'hourglass'};
+  const name=objects[kind]||'gem';
+  return `<span class="tl-inventory-item" data-item="${kind}" aria-hidden="true"><img class="atlas-icon" src="assets/pixel-pack/${name}.png" alt="" width="32" height="32" decoding="async" draggable="false"></span>`;
 }
 
 function worldRenderTrendProtocol(result) {
