@@ -1,5 +1,8 @@
 /* Pixel journal workbench. User-controlled records, no automated trading or fabricated quotes. */
 const ledgerIcon=kind=>worldProtocolItem(kind);
+const LEDGER_QUOTE_MS=10000,LEDGER_QUOTE_STALE_MS=30000;
+const ledgerObject=name=>`<img class="ledger-object atlas-icon" src="assets/pixel-pack/${name}.webp" alt="" width="16" height="16" loading="lazy" decoding="async">`;
+let ledgerQuoteFrame=0;
 function ledgerPaintDraft(){
   document.querySelectorAll('.setup-btn').forEach(b=>b.classList.toggle('active',Boolean(currentSetup&&b.getAttribute('onclick')?.includes("'"+currentSetup+"'"))));
   const tf=[...document.querySelectorAll('#terminal-tf-chips .terminal-chip')].find(b=>b.textContent.trim()===currentTF);
@@ -28,18 +31,28 @@ function ledgerSummary(){
   const wins=closed.filter(t=>terminalTradeOutcome(t)==='win').length,losses=closed.filter(t=>terminalTradeOutcome(t)==='loss').length;
   ledgerField('ledger-overview').innerHTML=[['torch','Открытые позиции',String(open.length),'Записаны · ещё в работе'],['book','Закрытые сделки',String(closed.length),'Только завершённые сделки'],['crystal','Win rate',wins+losses?Math.round(wins/(wins+losses)*100)+'%':'—','Без открытых и безубытка'],['shield','Зафиксированный P&L',realized.length?terminalFormatUsd(net):'—','Без расчётной прибыли открытых']].map(([icon,title,value,copy])=>`<div class="ledger-overview-card">${ledgerIcon(icon)}<div><span>${title}</span><strong>${escHtml(value)}</strong><small>${copy}</small></div></div>`).join('');
 }
-function ledgerQuote(t){const symbol=String(t.pair||'').toUpperCase().replace(/[\/-]/g,'');const q=journalLedger.quotes.get(symbol);return q&&Date.now()-q.at<90000?q:null;}
+function ledgerQuote(t){const symbol=String(t.pair||'').toUpperCase().replace(/[\/-]/g,'');const q=journalLedger.quotes.get(symbol);return q&&Date.now()-q.at<LEDGER_QUOTE_STALE_MS?q:null;}
+async function ledgerFetchQuote(symbol){
+  const primary=new AbortController(),backup=new AbortController();let startBackup,timer,started=false;
+  const valid=(price,source)=>{price=Number(price);if(!(price>0&&Number.isFinite(price)))throw Error('Нет цены');return {price,source};};
+  const fallback=new Promise((resolve,reject)=>{startBackup=()=>{if(started)return;started=true;clearTimeout(timer);miFetchJSON('https://api.bybit.com/v5/market/tickers?category=spot&symbol='+encodeURIComponent(symbol),4500,backup.signal).then(row=>{if(row.retCode!==0)throw Error('Нет цены');return valid(row.result?.list?.find(q=>q.symbol===symbol)?.lastPrice,'Bybit Spot');}).then(resolve,reject);};timer=setTimeout(startBackup,500);});
+  const first=miBinance('/api/v3/ticker/price?symbol='+encodeURIComponent(symbol),primary.signal).then(row=>valid(row.price,'Binance Spot')).catch(error=>{startBackup();throw error;});
+  const deadline=setTimeout(()=>{primary.abort();backup.abort();},6000);
+  try{return await Promise.any([first,fallback]);}finally{clearTimeout(timer);clearTimeout(deadline);primary.abort();backup.abort();}
+}
+function ledgerScheduleQuoteRender(){if(!ledgerQuoteFrame)ledgerQuoteFrame=requestAnimationFrame(()=>{ledgerQuoteFrame=0;ledgerRender();});}
 async function ledgerRefreshQuotes(){
   if(journalLedger.quoteBusy||document.hidden||!ledgerField('page-journal')?.classList.contains('active'))return;
-  journalLedger.quoteBusy=true;const user=currentUser?.id;
+  journalLedger.quoteBusy=true;journalLedger.quoteAt=Date.now();const user=currentUser?.id;
+  const refresh=ledgerField('ledger-quotes-refresh');if(refresh){refresh.disabled=true;refresh.setAttribute('aria-busy','true');}
   const symbols=[...new Set(ledgerRows().filter(ledgerOpen).map(t=>String(t.pair||'').toUpperCase().replace(/[\/-]/g,'')))];
   let cursor=0;
   async function worker(){while(cursor<symbols.length){const symbol=symbols[cursor++];if(!/^[A-Z0-9]{2,32}USDT$/.test(symbol))continue;
-    try{let price,source='Спот';try{const row=await miBinance('/api/v3/ticker/price?symbol='+encodeURIComponent(symbol));price=Number(row.price);if(!(price>0))throw Error('Нет цены');source='Binance Spot';}catch(_){const row=await miFetchJSON('https://api.bybit.com/v5/market/tickers?category=spot&symbol='+encodeURIComponent(symbol));if(row.retCode!==0)throw Error('Нет цены');price=Number(row.result?.list?.find(q=>q.symbol===symbol)?.lastPrice);source='Bybit Spot';}
-      if(price>0&&Number.isFinite(price)&&currentUser?.id===user)journalLedger.quotes.set(symbol,{price,source,at:Date.now()});
-    }catch(_){/* Keep the original age. A stale quote cannot look current. */}
+    try{const quote=await ledgerFetchQuote(symbol);if(currentUser?.id===user){journalLedger.quotes.set(symbol,{...quote,at:Date.now()});ledgerScheduleQuoteRender();}}
+    catch(_){/* Never refresh the reception time of a failed or stale quote. */}
   }}
-  try{await Promise.all([worker(),worker(),worker()]);journalLedger.quoteAt=Date.now();if(currentUser?.id===user)ledgerRender();}finally{journalLedger.quoteBusy=false;}
+  try{await Promise.all([worker(),worker(),worker()]);if(currentUser?.id===user)ledgerRender();}
+  finally{journalLedger.quoteBusy=false;if(refresh){refresh.disabled=false;refresh.removeAttribute('aria-busy');}}
 }
 function ledgerSetFilter(filter){journalLedger.filter=filter;currentFilter='all';worldJournalDay='';ledgerRender();}
 function ledgerRender(){
@@ -64,17 +77,17 @@ function ledgerRender(){
     const actual=open?'Открыта':outcome==='win'?'Прибыль':outcome==='loss'?'Убыток':'Безубыток';
     const result=open?(move!==null?terminalFormatUsd(move):'—'):(pnl!==null?terminalFormatUsd(pnl):t.pnl_pct!==null&&t.pnl_pct!==undefined?terminalFormatPct(t.pnl_pct):'—');
     const note=terminalCleanNote(t.note_why);
-    return `<article class="ledger-trade ${open?'open':outcome}" data-trade-id="${id}"><header>${ledgerIcon(open?'torch':outcome==='loss'?'shield':'crystal')}<div><strong>${escHtml(t.pair)}</strong><small>${escHtml(date.day+' · '+date.time)}</small></div><span class="ledger-direction ${t.direction==='short'?'short':'long'}">${t.direction==='short'?'↘ SHORT':'↗ LONG'}</span><span class="ledger-state">${actual}</span></header><div class="ledger-trade-result"><div><span>${open?'Расчётный P&L · до комиссий':'Зафиксированный P&L'}</span><strong class="${(move??pnl)>0?'positive':(move??pnl)<0?'negative':''}">${escHtml(result)}</strong></div><small>${open?(q?escHtml(q.source)+' · '+new Date(q.at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'Котировка недоступна или устарела'):'Сделка завершена'}</small></div><div class="ledger-trade-levels"><div><span>Вход</span><strong>${price(t.entry_price)}</strong></div><div><span>${open?'Текущая цена':'Выход'}</span><strong>${price(open?q?.price:t.exit_price)}</strong></div><div><span>Стоп</span><strong>${price(t.stop_loss)}</strong></div><div><span>Цель</span><strong>${price(t.take_profit)}</strong></div></div><div class="ledger-trade-meta"><span>Позиция ${price(t.deposit)}</span>${t.setup_type?'<span>'+escHtml(t.setup_type)+'</span>':''}${plan.rr!==null?'<span>R:R 1 : '+plan.rr.toFixed(2)+'</span>':''}</div>${open?ledgerProgress(t,q):''}${note?'<details class="ledger-note"><summary>План и заметки</summary><p>'+escHtml(note)+'</p>'+ (t.note_lesson?'<p>'+escHtml(t.note_lesson)+'</p>':'')+'</details>':''}<footer>${open?'<button type="button" class="ledger-close-button" data-ledger-action="close" data-id="'+id+'">Закрыть сделку</button>':''}<button type="button" data-ledger-action="edit" data-id="${id}">${open?'Изменить план':'Редактировать'}</button><button type="button" class="ledger-delete" data-ledger-action="delete" data-id="${id}" aria-label="Удалить сделку ${escHtml(t.pair)}">Удалить</button></footer></article>`;
+    return `<article class="ledger-trade ${open?'open':outcome}" data-trade-id="${id}"><header>${ledgerIcon(open?'torch':outcome==='loss'?'shield':'crystal')}<div><strong>${escHtml(t.pair)}</strong><small>${escHtml(date.day+' · '+date.time)}</small></div><span class="ledger-direction ${t.direction==='short'?'short':'long'}">${t.direction==='short'?'↘ SHORT':'↗ LONG'}</span><span class="ledger-state">${actual}</span></header><div class="ledger-trade-result"><div><span>${open?'P&L · до комиссий':'Зафиксированный P&L'}</span><strong class="${(move??pnl)>0?'positive':(move??pnl)<0?'negative':''}">${escHtml(result)}</strong></div><small class="ledger-quote ${open&&!q?'unavailable':''}">${open?ledgerObject(q?'clock':'warning'):''}${open?(q?escHtml(q.source)+' · '+new Date(q.at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'Нет свежей цены'):'Сделка завершена'}</small></div><div class="ledger-trade-levels"><div><span class="ledger-level-caption">${ledgerObject('flag')}Вход</span><strong>${price(t.entry_price)}</strong></div><div><span class="ledger-level-caption">${ledgerObject(open?'gem':'check')}${open?'Сейчас':'Выход'}</span><strong>${price(open?q?.price:t.exit_price)}</strong></div><div><span class="ledger-level-caption">${ledgerObject('shield')}Стоп</span><strong>${price(t.stop_loss)}</strong></div><div><span class="ledger-level-caption">${ledgerObject('chest')}Цель</span><strong>${price(t.take_profit)}</strong></div></div><div class="ledger-trade-meta"><span>${ledgerObject('coin')}Размер ${price(t.deposit)}</span>${t.setup_type?'<span>'+escHtml(t.setup_type)+'</span>':''}${plan.rr!==null?'<span>R:R 1 : '+plan.rr.toFixed(2)+'</span>':''}</div>${open?ledgerProgress(t,q):''}${note?'<details class="ledger-note"><summary>План и заметки</summary><p>'+escHtml(note)+'</p>'+ (t.note_lesson?'<p>'+escHtml(t.note_lesson)+'</p>':'')+'</details>':''}<footer>${open?'<button type="button" class="ledger-close-button" data-ledger-action="close" data-id="'+id+'" aria-label="Закрыть сделку" title="Закрыть сделку">'+ledgerObject('check')+'<span class="ledger-button-label">Закрыть</span></button>':''}<button type="button" data-ledger-action="edit" data-id="${id}">${ledgerObject('hammer')}<span class="ledger-button-label">${open?'План':'Править'}</span></button><button type="button" class="ledger-delete" data-ledger-action="delete" data-id="${id}" aria-label="Удалить сделку ${escHtml(t.pair)}" title="Удалить сделку">${ledgerObject('cross')}<span class="ledger-button-label">Удалить</span></button></footer></article>`;
   }).join('');
   host.querySelectorAll('[data-trade-id]').forEach(card=>{if(openNotes.includes(card.dataset.tradeId)){const note=card.querySelector('.ledger-note');if(note)note.open=true;}});
   if(focus){[...host.querySelectorAll('[data-ledger-action]')].find(b=>b.dataset.id===focus.id&&b.dataset.ledgerAction===focus.action)?.focus({preventScroll:true});}
   host.scrollTop=scroll;
 }
 function ledgerProgress(t,q){
-  const stop=Number(t.stop_loss),target=Number(t.take_profit),entry=Number(t.entry_price);
-  if(!(stop>0&&target>0&&stop!==target))return '';
-  const fraction=n=>Math.max(0,Math.min(1,(n-stop)/(target-stop)));
-  return `<div class="ledger-progress" aria-label="Стоп ${stop}, вход ${entry}, цель ${target}${q?', текущая цена '+q.price:''}"><span>Стоп</span><div>${Array.from({length:20},(_,i)=>'<i class="'+(i<10?'risk':'reward')+'"></i>').join('')}<b style="left:${fraction(entry)*100}%" title="Вход"></b>${q?'<em style="left:'+fraction(q.price)*100+'%" title="Текущая цена"></em>':''}</div><span>Цель</span></div>`;
+  const route=ledgerPositionRoute(t,q);if(!route)return '';
+  const copy=route.phase==='pending'?'Жду свежую котировку':route.phase==='target'?'Цена достигла цели · закрытие вручную':route.phase==='stop'?'Цена у стопа или за ним':route.phase==='risk'?Math.round(route.riskPct)+'% расстояния до стопа':Math.round(route.targetPct)+'% пути от входа к цели';
+  const label='Шкала позиции: стоп '+t.stop_loss+', вход '+t.entry_price+', цель '+t.take_profit+'. '+copy+(q?'. Текущая цена '+q.price:'');
+  return `<div class="ledger-route ${route.phase}" role="group" aria-label="${escHtml(label)}" style="--route-position:${route.position??28}%"><div class="ledger-route-labels"><span>${ledgerObject('shield')}Стоп</span><span>${ledgerObject('flag')}Вход</span><span>${ledgerObject('chest')}Цель</span></div><div class="ledger-route-track" aria-hidden="true"><span class="ledger-route-risk"></span><span class="ledger-route-reward"></span><span class="ledger-route-fill"></span><i class="ledger-route-entry"></i>${q?'<b class="ledger-route-current" title="Текущая цена">'+ledgerObject('gem')+'</b>':''}</div><div class="ledger-route-caption"><span>${escHtml(copy)}</span><small title="Риск и движение к цели показаны в разных масштабах, чтобы близкий стоп оставался виден">Риск / путь к цели</small></div></div>`;
 }
 function ledgerDialog(id,closing){
   const t=ledgerRows().find(x=>String(x.id)===String(id));if(!t||!ledgerOpen(t))return;
@@ -129,7 +142,7 @@ function ledgerInstall(){
   form.querySelectorAll('.form-section-title').forEach((title,i)=>title.insertAdjacentHTML('afterbegin',ledgerIcon(i===0?'crystal':'shield')));
   form.querySelector('.trade-details summary').firstElementChild.textContent='Заметки, сетап и эмоции';
   const setup=groups[3];const advanced=form.querySelector('#trade-details .trade-details-body');advanced.prepend(setup);
-  const rail=page.querySelector('.history-rail'),calendar=rail.querySelector('.world-calendar-panel');if(calendar){const details=document.createElement('details');details.className='ledger-calendar';details.innerHTML='<summary>Календарь закрытых сделок</summary>';details.append(calendar);rail.append(details);}
+  const rail=page.querySelector('.history-rail');rail.querySelector('.list-title').insertAdjacentHTML('afterend',`<button type="button" id="ledger-quotes-refresh" title="Обновить цены позиций · автоматически каждые 10 секунд" aria-label="Обновить цены позиций">${ledgerObject('clock')}<span>10 с</span></button>`);ledgerField('ledger-quotes-refresh').addEventListener('click',ledgerRefreshQuotes);const calendar=rail.querySelector('.world-calendar-panel');if(calendar){const details=document.createElement('details');details.className='ledger-calendar';details.innerHTML='<summary>Календарь закрытых сделок</summary>';details.append(calendar);rail.append(details);}
   rail.querySelector('.list-title').textContent='Позиции и история';const filters=rail.querySelector('.filters');filters.innerHTML=[['all','Все'],['open','Открытые'],['closed','Закрытые'],['win','Прибыль'],['loss','Убыток'],['long','Long'],['short','Short']].map(([key,label])=>`<button type="button" class="fbtn" data-ledger-filter="${key}">${label}</button>`).join('');
   const dialog=document.createElement('dialog');dialog.id='ledger-dialog';dialog.className='ledger-dialog';document.body.append(dialog);
   page.addEventListener('click',event=>{
@@ -143,7 +156,7 @@ function ledgerInstall(){
   const defaults=restoreFormDefaults;restoreFormDefaults=function(){defaults();ledgerRestoreDraft();ledgerCalc();};
   ledgerRestoreDraft();
   const session=()=>{journalLedger.quotes.clear();LEDGER_DRAFT_FIELDS.forEach(id=>{if(ledgerField(id))ledgerField(id).value='';});currentSetup='';currentMistakes.clear();emVals={conf:5,fear:3,greed:3,calm:7};setDir('long');ledgerPaintDraft();ledgerSetMode('open');ledgerRestoreDraft();ledgerRender();ledgerRefreshQuotes();};
-  let owner=currentUser?.id;setInterval(()=>{if(owner!==currentUser?.id){owner=currentUser?.id;session();}if(page.classList.contains('active')&&!document.hidden){if(Date.now()-journalLedger.quoteAt>=30000)ledgerRefreshQuotes();else ledgerRender();}},10000);
+  let owner=currentUser?.id;setInterval(()=>{if(owner!==currentUser?.id){owner=currentUser?.id;session();}if(page.classList.contains('active')&&!document.hidden){if(Date.now()-journalLedger.quoteAt>=LEDGER_QUOTE_MS)ledgerRefreshQuotes();else ledgerRender();}},5000);
   window.addEventListener('online',ledgerRefreshQuotes);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ledgerRefreshQuotes();});
   ledgerRefreshQuotes();worldFitPanels(page);
 }

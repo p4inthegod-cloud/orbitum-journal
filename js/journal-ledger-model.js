@@ -7,6 +7,16 @@ function ledgerClosed(rows){return (rows||[]).filter(t=>!ledgerOpen(t)).map(t=>{
   return closed?{...t,created_at:closed}:t;
 }).sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at));}
 function ledgerNumber(value){if(value===null||value===undefined||String(value).trim()==='')return null;const n=Number(String(value).replace(',','.'));return Number.isFinite(n)?n:null;}
+function ledgerPositionRoute(t,quote){
+  const entry=ledgerNumber(t.entry_price),stop=ledgerNumber(t.stop_loss),target=ledgerNumber(t.take_profit),sign=t.direction==='short'?-1:1;
+  const risk=(entry-stop)*sign,reward=(target-entry)*sign;
+  if(!(entry>0&&stop>0&&target>0&&risk>0&&reward>0))return null;
+  const price=ledgerNumber(quote?.price),move=price>0?(price-entry)*sign:null;
+  const targetPct=move===null?null:move/reward*100,riskPct=move===null?null:Math.max(0,-move/risk*100);
+  // Risk and reward have separate visual scales so a very close stop stays readable.
+  const position=move===null?null:move>=0?28+Math.min(1,move/reward)*72:28*(1-Math.min(1,-move/risk));
+  return {position,targetPct,riskPct,phase:move===null?'pending':move>=reward?'target':move<=-risk?'stop':move<0?'risk':'reward'};
+}
 function ledgerPlan({entry,size,stop,target,direction='long'}){
   [entry,size,stop,target]=[entry,size,stop,target].map(ledgerNumber);
   const sign=direction==='short'?-1:1,qty=entry>0&&size>0?size/entry:null;

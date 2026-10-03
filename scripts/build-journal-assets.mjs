@@ -3,7 +3,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const styles = ['sections','refresh','polish','pixel','world','concept','quest','details','orientation','craft','trend-chart','decision','coins','watchtower','audit','live','ledger','atlas'];
+const styles = ['sections','refresh','polish','pixel','world','concept','quest','details','orientation','craft','trend-chart','decision','coins','watchtower','audit','live','ledger','atlas','position'];
 const head = ['pixel','world','concept','quest','details','orientation','craft','trend-chart','market-registry','decision','coins','watchtower'];
 const tail = ['wave-chart','audit','atlas','live','ledger-model','ledger'];
 function bundle(names, extension, label) {
