@@ -25,6 +25,7 @@ const tailMarkup=`<!-- JOURNAL RUNTIME START -->\n<script src="${runtime}"></scr
 if(html.includes('<!-- JOURNAL RUNTIME START -->'))html=html.replace(/<!-- JOURNAL RUNTIME START -->[\s\S]*?<!-- JOURNAL RUNTIME END -->/,tailMarkup);
 else html=html.replace(/<script src="js\/journal-wave-chart.js"><\/script>[\s\S]*?<script src="js\/journal-atlas.js"><\/script>/,tailMarkup);
 html=html.replace(/<!-- JOURNAL PRELOAD START -->[\s\S]*?<!-- JOURNAL PRELOAD END -->\n?/,'');
-const preload=`<!-- JOURNAL PRELOAD START -->\n<link rel="preload" href="${css}" as="style">\n<link rel="preload" href="${js}" as="script">\n<link rel="preload" href="assets/fonts/Tiny5-Regular.ttf" as="font" type="font/ttf" crossorigin>\n<!-- JOURNAL PRELOAD END -->\n`;
+const icons=['compass','gem','scroll','target','owl','chest','pickaxe','crystal-purple'].map(name=>`<link rel="preload" href="assets/pixel-pack/${name}.webp" as="image">`).join('\n');
+const preload=`<!-- JOURNAL PRELOAD START -->\n<link rel="preload" href="${css}" as="style">\n<link rel="preload" href="${js}" as="script">\n<link rel="preload" href="assets/fonts/Tiny5-Regular.ttf" as="font" type="font/ttf" crossorigin>\n${icons}\n<!-- JOURNAL PRELOAD END -->\n`;
 html=html.replace('<link rel="icon"',preload+'<link rel="icon"');fs.writeFileSync(file,html);
 console.log(JSON.stringify({css,js,runtime}));

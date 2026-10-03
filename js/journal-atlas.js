@@ -18,9 +18,9 @@ const atlasRoutes = [
   ['settings','Настройки','hammer','Профиль уведомлений, Telegram и алерты.','Помощь']
 ];
 const atlasEmoji = {'📊':'compass','💎':'gem','📓':'scroll','📒':'scroll','📔':'scroll','📈':'target','🔭':'owl','🔬':'chest','🧰':'pickaxe','🔥':'fire','⏳':'hourglass','⌛':'hourglass','🛡️':'shield','🛡':'shield','🎯':'target','📚':'scroll','📖':'scroll','📕':'scroll','🔍':'search','💡':'bulb','🔒':'lock','🔑':'key','🔗':'link','⚠️':'warning','⚠':'warning','✅':'check','❌':'cross','🌐':'earth','🌍':'earth','⭐':'star','✨':'sparkle','🧲':'magnet','📌':'flag','📨':'mail','✉️':'mail','🤖':'orb','🧠':'bulb','📰':'scroll','⚔️':'sword','⚡':'lightning','💰':'coin','❤️':'heart','🌅':'sun','🔔':'clock','🛰️':'portal-blue','🕰️':'clock'};
-function atlasImage(name) {
+function atlasImage(name,critical=false) {
   const img = document.createElement('img'); img.className='atlas-icon';
-  img.src='assets/pixel-pack/'+name+'.webp'; img.alt=''; img.width=32; img.height=32; img.decoding='async'; img.draggable=false;
+  img.src='assets/pixel-pack/'+name+'.webp'; img.alt=''; img.width=32; img.height=32; img.decoding='async'; img.loading=critical?'eager':'lazy';if(critical)img.fetchPriority='high';img.draggable=false;
   return img;
 }
 function atlasDecorate(root) {
@@ -29,7 +29,7 @@ function atlasDecorate(root) {
     if(node.dataset.atlasIcon)continue;
     const toy=[...node.classList].find(c=>c.startsWith('world-toy-'))?.replace('world-toy-','');
     const name=node.classList.contains('world-brand-crystal')?'crystal-purple':toy?({compass:'compass',crystal:'crystal-purple',rock:'ore',beacon:'lantern',flag:'flag',book:'scroll',square:'gem',weather:'cloud'})[toy]:atlasEmoji[node.textContent.trim()];
-    if(!name)continue;node.dataset.atlasIcon=name;node.replaceChildren(atlasImage(name));node.classList.add('atlas-object');node.setAttribute('aria-hidden','true');
+    if(!name)continue;node.dataset.atlasIcon=name;node.replaceChildren(atlasImage(name,node.classList.contains('world-brand-crystal')));node.classList.add('atlas-object');node.setAttribute('aria-hidden','true');
   }
 }
 function atlasRenderRoutes(query='') {
@@ -50,15 +50,15 @@ function atlasOpen(){const dialog=document.getElementById('atlas-dialog');if(dia
 function atlasInstall(){
   const stylesheet=document.querySelector('link[data-journal-styles],link[href="css/journal-atlas.css"]');if(stylesheet)document.head.append(stylesheet);
   const right=document.querySelector('.jtb-right');if(!right)return;
-  const trigger=document.createElement('button');trigger.type='button';trigger.className='atlas-launch';trigger.append(atlasImage('compass'));trigger.setAttribute('aria-label','Карта разделов и поиск · Ctrl K');trigger.title='Карта разделов · Ctrl K';trigger.addEventListener('click',atlasOpen);right.prepend(trigger);
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='atlas-launch';trigger.append(atlasImage('compass',true));trigger.setAttribute('aria-label','Карта разделов и поиск · Ctrl K');trigger.title='Карта разделов · Ctrl K';trigger.addEventListener('click',atlasOpen);right.prepend(trigger);
   const dialog=document.createElement('dialog');dialog.id='atlas-dialog';dialog.className='atlas-dialog';dialog.setAttribute('aria-labelledby','atlas-title');
   dialog.innerHTML='<header><div><h2 id="atlas-title">Карта разделов</h2><p>Рынок · план · история · разбор</p></div><button type="button" class="atlas-close" aria-label="Закрыть карту разделов">×</button></header><label for="atlas-search">Куда хотите перейти?</label><input id="atlas-search" type="search" placeholder="Название, инструмент или задача" autocomplete="off"><p id="atlas-count" role="status" aria-live="polite"></p><div id="atlas-results"></div><footer><span>Ctrl K / ⌘ K — открыть</span><span>Esc — закрыть</span></footer>';
   document.body.append(dialog);dialog.querySelector('.atlas-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>trigger.focus({preventScroll:true}));dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
   const search=document.getElementById('atlas-search');search.addEventListener('input',()=>atlasRenderRoutes(search.value));search.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();dialog.querySelector('.atlas-route')?.focus();}if(e.key==='Enter'){e.preventDefault();dialog.querySelector('.atlas-route')?.click();}});
   document.getElementById('atlas-results').addEventListener('keydown',e=>{if(!['ArrowDown','ArrowUp','Home','End'].includes(e.key))return;const buttons=[...dialog.querySelectorAll('.atlas-route')],i=buttons.indexOf(document.activeElement);if(i<0)return;e.preventDefault();buttons[e.key==='Home'?0:e.key==='End'?buttons.length-1:(i+(e.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length].focus();});
   document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'&&!event.altKey){event.preventDefault();dialog.open?dialog.close():atlasOpen();}});
-  document.querySelectorAll('.top-nav [data-page]').forEach(button=>{const route=atlasRoutes.find(row=>row[0]===button.dataset.page);if(!route)return;const slot=button.querySelector('.world-nav-slot');if(slot){slot.replaceChildren(atlasImage(route[2]));slot.setAttribute('aria-hidden','true');}else button.prepend(atlasImage(route[2]));button.title=route[3];});
-  const tools=document.querySelector('.top-nav-group summary .world-nav-slot');if(tools)tools.replaceChildren(atlasImage('pickaxe'));
+  document.querySelectorAll('.top-nav [data-page]').forEach(button=>{const route=atlasRoutes.find(row=>row[0]===button.dataset.page);if(!route)return;const slot=button.querySelector('.world-nav-slot'),critical=!button.closest('.top-nav-menu');if(slot){slot.replaceChildren(atlasImage(route[2],critical));slot.setAttribute('aria-hidden','true');}else button.prepend(atlasImage(route[2],critical));button.title=route[3];});
+  const tools=document.querySelector('.top-nav-group summary .world-nav-slot');if(tools)tools.replaceChildren(atlasImage('pickaxe',true));
   const watchLabel=document.querySelector('.top-nav [data-page="watchtower"] .world-nav-label');if(watchLabel)watchLabel.textContent='Наблюдения';
   document.querySelectorAll('.world-symbol-guide').forEach(guide=>{guide.querySelector('summary>span:not(.world-toy)').textContent='Легенда';});
   const pulse=document.getElementById('ov-pulse'),hero=document.getElementById('world-market-now');
