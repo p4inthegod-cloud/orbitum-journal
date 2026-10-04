@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {credentials,signature,readOnly,okxClient,paginated,reconcile,orderLevels} from '../lib/okx-journal.js';
-import {makeHandler} from '../api/okx.js';
+import {makeHandler} from '../lib/okx-api.js';
 const now=1700001000000,connection={id:'connection',region:'global',demo:false,account_uid:'1234',created_at:new Date(now-100000).toISOString()};
 const position={instId:'BTC-USDT-SWAP',instType:'SWAP',posId:'987654321012345678',posSide:'net',pos:'10',avgPx:'100',markPx:'106',lever:'5',upl:'6',mgnMode:'cross',cTime:String(now-10000),uTime:String(now-1000)};
 const instruments=new Map([[position.instId,{ctType:'linear',ctVal:'0.01',ctMult:'1',ctValCcy:'BTC',settleCcy:'USDT'}]]);

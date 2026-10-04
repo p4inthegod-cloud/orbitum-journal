@@ -16,9 +16,9 @@ The initial connection imports currently open **linear USDT SWAP and FUTURES** p
 
 ## Server and database
 
-`api/okx.js` uses the existing `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` server variables. No OKX keys are embedded in source, environment variables, analytics, browser storage or API responses. A key is transiently held by the connection form and cleared after submission/closing.
+`/api/okx` is rewritten to the shared journal entrypoint (`api/journal-tg.js`), which dispatches to `lib/okx-api.js` separately from the existing Telegram handler. The project keeps 12 functions within the current hosting limit. OKX uses the existing `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` server variables. No OKX keys are embedded in source, environment variables, analytics, browser storage or API responses. A key is transiently held by the connection form and cleared after submission/closing.
 
-Only this function is deployed in Singapore (`sin1`), near the Sydney database; other functions keep their existing placement. The OKX REST host is selected separately from the account's registration region.
+The shared journal function is deployed in Singapore (`sin1`), near the Sydney database; other functions keep their existing placement. The OKX REST host is selected separately from the account's registration region.
 
 Credentials are stored in Supabase Vault with authenticated encryption. `public.okx_connections` has RLS and no browser grants/policies; the deliberate default deny is appropriate for this server-only table. The SQL RPC is SECURITY INVOKER, executable only by `service_role`, and checks that role. Every user endpoint verifies its bearer token through Auth before choosing the owner. The client cannot choose another owner. Exchange calls use GET-only endpoint and regional host allowlists, bounded requests and safe error codes.
 
