@@ -37,6 +37,40 @@ if (carousel) {
   }
 }
 
+// Drag changes the phase of the running CSS animation, without pausing it.
+const carouselViewport = document.querySelector('.carousel-viewport');
+const carouselTrack = document.querySelector('.carousel-track');
+if (carouselViewport && carouselTrack) {
+  let drag = null;
+  carouselViewport.addEventListener('pointerdown', event => {
+    if (event.button !== 0 || !event.isPrimary || drag) return;
+    const animation = carouselTrack.getAnimations().find(item => item.animationName === 'screen-orbit');
+    const loopWidth = carouselTrack.querySelector('.carousel-group').getBoundingClientRect().width;
+    const duration = animation?.effect?.getTiming().duration;
+    if (!animation || !loopWidth || typeof duration !== 'number' || duration <= 0) return;
+    drag = { id: event.pointerId, x: event.clientX, animation, loopWidth, duration };
+    carouselViewport.setPointerCapture(event.pointerId);
+    carouselViewport.classList.add('is-dragging');
+    event.preventDefault();
+  });
+  carouselViewport.addEventListener('pointermove', event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const delta = event.clientX - drag.x;
+    const phase = Number(drag.animation.currentTime) - delta * drag.duration / drag.loopWidth;
+    drag.animation.currentTime = ((phase % drag.duration) + drag.duration) % drag.duration;
+    drag.x = event.clientX;
+  });
+  const finishDrag = event => {
+    if (!drag || event.pointerId !== drag.id) return;
+    drag = null;
+    carouselViewport.classList.remove('is-dragging');
+    if (carouselViewport.hasPointerCapture(event.pointerId)) carouselViewport.releasePointerCapture(event.pointerId);
+  };
+  carouselViewport.addEventListener('pointerup', finishDrag);
+  carouselViewport.addEventListener('pointercancel', finishDrag);
+  carouselViewport.addEventListener('lostpointercapture', finishDrag);
+}
+
 // One-time, transform/opacity-only reveals; content stays visible without JS.
 if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   const observer = new IntersectionObserver(entries => {

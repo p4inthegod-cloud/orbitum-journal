@@ -879,13 +879,13 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
 }
 
 /* A continuous ribbon of real product screens; only the track moves. */
-.system-gallery{--screen-width:clamp(320px,61vw,820px);--screen-gap:26px;position:relative;width:100vw;margin-left:calc(50% - 50vw);text-align:left;scroll-margin-top:110px;isolation:isolate}
+.system-gallery{--screen-width:clamp(290px,52vw,700px);--screen-gap:22px;position:relative;width:100vw;margin-left:calc(50% - 50vw);text-align:left;scroll-margin-top:110px;isolation:isolate}
 .system-gallery::before{content:'';position:absolute;inset:-30px 0;z-index:-1;background:radial-gradient(ellipse at 35% 45%,#79ab8620,transparent 55%),radial-gradient(ellipse at 80% 50%,#8372d315,transparent 50%);pointer-events:none}
 .gallery-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:10px}
 .gallery-wordmark{font:20px/1.4 var(--pixel);color:var(--green);letter-spacing:.035em}
 .gallery-wordmark>span{font:600 9px/1.5 var(--body);letter-spacing:.14em;color:#94a99d;margin-left:12px}
 .carousel-viewport{overflow:hidden;padding:25px 0 28px;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.carousel-track{display:flex;width:max-content;animation:screen-orbit 80s linear infinite;animation-delay:-4s;will-change:transform}
+.carousel-track{display:flex;width:max-content;animation:screen-orbit 104s linear infinite;animation-delay:-4s;will-change:transform}
 .carousel-group{display:flex;gap:var(--screen-gap);padding-right:var(--screen-gap);flex-shrink:0}
 .carousel-screen{--screen-accent:#b0f2a0;flex:0 0 var(--screen-width);width:var(--screen-width);margin:0;padding:15px;border:1px solid #b0f2a028;border-radius:24px;background:linear-gradient(135deg,#1a302675,#10192785 55%,#18253465);box-shadow:inset 0 1px 0 #ffffff0a,0 15px 40px #02071145;position:relative;overflow:hidden}
 .screen-watchtower{--screen-accent:#52c8ff}
@@ -903,10 +903,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
 .screen-description{display:flex;align-items:center;gap:8px;margin:13px 3px 0;font-size:10px;line-height:1.5;color:#9db0a5}
 .screen-description i{width:4px;height:4px;flex-shrink:0;background:var(--screen-accent);opacity:.7;box-shadow:0 0 8px var(--screen-accent)}
 .system-gallery.is-offscreen .carousel-track,.system-gallery.is-hidden .carousel-track{animation-play-state:paused}
-@media(hover:hover){.carousel-viewport:hover .carousel-track{animation-play-state:paused}}
+
 @keyframes screen-orbit{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(max-width:760px){
-  .system-gallery{--screen-width:86vw;--screen-gap:16px;scroll-margin-top:90px}
+  .system-gallery{--screen-width:80vw;--screen-gap:16px;scroll-margin-top:90px}
   .gallery-wordmark{font-size:18px}
   .gallery-wordmark>span{font-size:8px;margin-left:8px}
   .carousel-viewport{padding-block:20px 22px;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
@@ -925,3 +925,10 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
   .carousel-screen{width:100%;min-width:0}
 }
 @media(prefers-reduced-motion:reduce) and (max-width:760px){.carousel-group{grid-template-columns:1fr}}
+
+/* Drag seeks the running animation, so automatic motion never stops on hover. */
+.carousel-viewport{cursor:grab;touch-action:pan-y;user-select:none}
+.carousel-viewport.is-dragging{cursor:grabbing}
+.screen-sessions{--screen-accent:#52c8ff}
+.screen-economics{--screen-accent:#e3c48c}
+@media(prefers-reduced-motion:reduce){.carousel-viewport{cursor:default}}
