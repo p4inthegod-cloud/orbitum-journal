@@ -22,18 +22,9 @@ document.addEventListener('keydown', event => {
 });
 document.getElementById('year').textContent = String(new Date().getFullYear());
 
-// Keep the ribbon quiet offscreen; its pause control also works on touch.
+// Keep the ribbon quiet offscreen and while the tab is hidden.
 const carousel = document.querySelector('.system-gallery');
-const carouselToggle = document.querySelector('.carousel-toggle');
-if (carousel && carouselToggle) {
-  carouselToggle.addEventListener('click', () => {
-    const paused = carousel.dataset.paused !== 'true';
-    carousel.dataset.paused = String(paused);
-    carouselToggle.setAttribute('aria-pressed', String(paused));
-    carouselToggle.setAttribute('aria-label', paused ? 'Продолжить прокрутку скриншотов' : 'Приостановить прокрутку скриншотов');
-    carouselToggle.querySelector('.motion-label').textContent = paused ? 'Продолжить' : 'Приостановить';
-    carouselToggle.querySelector('.motion-symbol').textContent = paused ? '▷' : 'Ⅱ';
-  });
+if (carousel) {
   const syncVisibility = () => carousel.classList.toggle('is-hidden', document.hidden);
   document.addEventListener('visibilitychange', syncVisibility);
   syncVisibility();
