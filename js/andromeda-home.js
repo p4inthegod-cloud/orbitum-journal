@@ -71,6 +71,38 @@ if (carouselViewport && carouselTrack) {
   carouselViewport.addEventListener('lostpointercapture', finishDrag);
 }
 
+// A deliberate walkthrough: real screens stay still while the visitor chooses a step.
+const caseTabs = [...document.querySelectorAll('.case-tab')];
+const casePanels = [...document.querySelectorAll('.case-panel')];
+if (caseTabs.length && casePanels.length) {
+  const selectStage = selected => {
+    caseTabs.forEach(tab => {
+      const active = tab === selected;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+    });
+    casePanels.forEach(panel => {
+      panel.hidden = panel.id !== selected.getAttribute('aria-controls');
+    });
+  };
+  caseTabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectStage(tab));
+    tab.addEventListener('keydown', event => {
+      let next;
+      if (event.key === 'ArrowRight') next = (index + 1) % caseTabs.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + caseTabs.length) % caseTabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = caseTabs.length - 1;
+      else return;
+      event.preventDefault();
+      selectStage(caseTabs[next]);
+      caseTabs[next].focus();
+    });
+  });
+} else if (casePanels.length) {
+  casePanels.forEach(panel => { panel.hidden = false; });
+}
+
 // One-time, transform/opacity-only reveals; content stays visible without JS.
 if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   const observer = new IntersectionObserver(entries => {
