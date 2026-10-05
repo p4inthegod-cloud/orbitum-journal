@@ -2,6 +2,9 @@
 // All types verify tg_notify_* preference + respect silent hours
 // New type: ai_coach_feedback (post-trade AI loop)
 
+import { makePaymentCheckout } from '../lib/payment-checkout.js';
+const paymentCheckout = makePaymentCheckout();
+
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const SB_URL    = process.env.SUPABASE_URL;
 const SB_KEY    = process.env.SUPABASE_SERVICE_KEY;
@@ -42,6 +45,7 @@ async function tgSend(chat_id, text, extra = {}) {
       const e = await r.json().catch(() => ({}));
       if (e?.error_code === 403) return false; // user blocked bot — not an error
       console.warn('[notify] tgSend', chat_id, e?.description);
+      return false;
     }
     return true;
   } catch(e) {
@@ -129,11 +133,13 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')   return res.status(405).end();
 
+  if (req.body?.type === 'payment_checkout') return paymentCheckout(req, res);
+
   const userId = req.headers['x-notify-user'];
   if (!userId || !/^[0-9a-f-]{36}$/.test(userId))
     return res.status(401).json({ error: 'Unauthorized' });
 
-  const { type, data } = req.body;
+  const { type, data } = req.body || {};
   if (!type) return res.status(400).json({ error: 'Missing type' });
 
   if (type === 'screenshot' && !await verifyUserToken(req, userId))
@@ -145,6 +151,15 @@ export default async function handler(req, res) {
   if (type === 'payment_request_admin') {
     const verified = await verifyUserToken(req, userId);
     if (!verified) return res.status(401).json({ error: 'Invalid user token' });
+
+    const savedPaymentId = String(data?.payment_id || '');
+    if (!/^\d+$/.test(savedPaymentId)) return res.status(400).json({ error: 'Invalid payment ID' });
+    const savedResponse = await fetch(`${SB_URL}/rest/v1/payments?id=eq.${savedPaymentId}&user_id=eq.${userId}&status=eq.pending&select=id,plan,amount_usdt,tx_hash,notes`, {
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, Accept: 'application/json' },
+    });
+    const savedRows = await savedResponse.json().catch(() => []);
+    const saved = savedResponse.ok && Array.isArray(savedRows) ? savedRows[0] : null;
+    if (!saved) return res.status(404).json({ error: 'Pending payment not found' });
 
     const [payerR, adminsR] = await Promise.all([
       fetch(`${SB_URL}/rest/v1/profiles?id=eq.${userId}&select=id,full_name,username,tg_username`, {
@@ -160,11 +175,11 @@ export default async function handler(req, res) {
     if (!Array.isArray(admins) || !admins.length)
       return res.status(503).json({ error: 'Admin Telegram is not linked' });
 
-    const plan = data?.plan === 'lifetime' ? 'Lifetime' : 'Monthly';
-    const amount = Number(data?.amount || 0);
-    const tg = String(data?.tg_username || payer?.tg_username || '').trim();
-    const tx = String(data?.tx_hash || '').trim();
-    const paymentId = String(data?.payment_id || '').trim();
+    const plan = saved.plan === 'lifetime' ? 'Lifetime' : 'Monthly';
+    const amount = Number(saved.amount_usdt);
+    const tg = saved.notes?.match(/(?:^|;\s*)tg:([^;]+)/)?.[1] || String(payer?.tg_username || '').trim();
+    const tx = String(saved.tx_hash || '').trim();
+    const paymentId = String(saved.id);
     const payerName = payer?.full_name || payer?.username || 'Orbitum user';
 
     const lines = [
