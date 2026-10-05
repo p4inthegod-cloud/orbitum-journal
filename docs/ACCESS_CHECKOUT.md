@@ -29,16 +29,30 @@
 
 ## Адреса возврата из писем
 
-В Supabase → Authentication → URL Configuration должны быть разрешены точные домены приложения и callback `/login` с query string. Например, для рабочего домена:
+5 октября 2026 в Supabase → Authentication → URL Configuration добавлены callback `/login` с query string для рабочего домена и конкретного доверенного предпросмотра:
 
 ```
 https://orbitum.trade/login**
-https://www.orbitum.trade/login**
+https://deploy-preview-90--orbitum.netlify.app/login**
 ```
 
-Для локальной проверки писем можно отдельно добавить `http://127.0.0.1:4173/login**`. Для предпросмотров добавлять только доверенные адреса. Проверить актуальный Site URL и собственный SMTP, не отключая подтверждение email. Существующие callback-адреса других страниц сохранять.
+Существующие три callback-адреса сохранены. Site URL остаётся `https://orbitum.trade/cabinet.html` для совместимости с действующим сайтом; новая страница всегда явно передаёт callback `/login` и безопасный `returnTo`. Не разрешать общий wildcard для всех доменов предпросмотров. Другой домен или предпросмотр требует отдельной записи в allowlist.
 
-Панель Supabase в браузере требует авторизации; подключённый MCP предоставляет SQL, но не изменение Auth URL Configuration. Реальная доставка письма и allowlist callback пока не подтверждены. Браузерные тесты этих сценариев используют перехват запросов и не отправляют писем.
+В авторизованной панели проверены включённый Email provider, разрешённая регистрация и обязательное подтверждение email. Собственный SMTP Resend уже настроен (`smtp.resend.com`, порт 465); SMTP-учётные данные не изменялись и не включены в репозиторий.
+
+Реальная проверка выполнена с разрешённым пользователем адресом: письмо входа пришло во «Входящие» Gmail, кнопка авторизовала аккаунт и вернула на `/pay?plan=lifetime` с выбранным тарифом «Навсегда». Пароль не менялся, реальный платёж не выполнялся. Отдельная реальная регистрация и смена пароля не выполнялись; их клиентские сценарии проверены изолированными браузерными тестами.
+
+## Шаблоны писем
+
+В `supabase/templates` сохранены HTML-шаблоны, установленные и повторно проверенные в Supabase Dashboard:
+
+| Файл | Шаблон Dashboard | Тема |
+| --- | --- | --- |
+| `confirmation.html` | Confirm sign up | ANDROMEDA — подтверждение email |
+| `magic-link.html` | Magic link or OTP | ANDROMEDA — ссылка для входа |
+| `recovery.html` | Reset password | ANDROMEDA — восстановление доступа |
+
+Русские тексты, единое оформление ANDROMEDA, адаптивные таблицы с inline-стилями, один основной призыв к действию и запасная ссылка. Все ссылки используют `{{ .ConfirmationURL }}`, чтобы Supabase проверял одноразовый токен и разрешённый callback. Непроверенные данные пользователя в HTML не вставляются. Файлы хранятся как воспроизводимый источник; Git-деплой сам по себе не меняет настройки Dashboard.
 
 Документация: [password recovery](https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail), [passwordless sign-in](https://supabase.com/docs/guides/auth/auth-email-passwordless), [redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls).
 
