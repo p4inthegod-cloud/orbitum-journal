@@ -88,7 +88,10 @@ async function sbFetch(path, opts = {}) {
       ...opts.headers,
     },
   });
-  if (opts.method === 'PATCH' || opts.method === 'DELETE') return { ok: r.ok };
+  if (!r.ok) {
+    throw new Error(`Database operation failed (${r.status})`);
+  }
+  if ((opts.method === 'PATCH' || opts.method === 'DELETE') && !opts.prefer?.includes('return=representation')) return { ok: true };
   return r.json();
 }
 
@@ -128,30 +131,37 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')   return res.status(405).json({ error: 'POST only' });
 
-  const admin = await verifyAdmin(req);
+  let admin;
+  try { admin = await verifyAdmin(req); }
+  catch { return res.status(503).json({ error: 'Authentication service unavailable' }); }
   if (!admin) return res.status(403).json({ error: 'Not admin' });
 
   const { action, userId, payId, plan, data, features } = req.body;
 
   try {
     if (action === 'confirm_payment') {
-      if (!payId || !userId || !plan) return res.status(400).json({ error: 'Missing params' });
-      const expiresAt = plan === 'monthly' ? new Date(Date.now() + 30 * 24 * 3600000).toISOString() : null;
-      await sbFetch(`payments?id=eq.${payId}`, { method: 'PATCH', body: JSON.stringify({ status: 'confirmed', confirmed_at: new Date().toISOString(), confirmed_by: admin.id }) });
-      await sbFetch(`profiles?id=eq.${userId}`, { method: 'PATCH', body: JSON.stringify({ plan, plan_expires_at: expiresAt, features: featuresForPlan(plan) }) });
-      const profiles = await sbFetch(`profiles?id=eq.${userId}&select=tg_chat_id,tg_linked,full_name`, { prefer: 'return=representation' });
+      if (!/^\d+$/.test(String(payId || ''))) return res.status(400).json({ error: 'Missing or invalid payId' });
+      const activation = await sbFetch('rpc/confirm_andromeda_payment', { method: 'POST',
+        body: JSON.stringify({ p_payment_id: String(payId), p_admin_id: admin.id }) });
+      if (activation.error) return res.status(activation.error.endsWith('not_found') ? 404 : 409).json({ error: activation.error });
+      if (activation.already_confirmed) return res.status(200).json({ ok: true, already_confirmed: true });
+      // The database locks the claim and grants access atomically, using its saved owner/tariff.
+      const paymentUser = activation.user_id, finalPlan = activation.plan;
+      const profiles = await sbFetch(`profiles?id=eq.${paymentUser}&select=tg_chat_id,tg_linked,full_name`, { prefer: 'return=representation' });
       const profile  = Array.isArray(profiles) ? profiles[0] : null;
       if (profile?.tg_linked && profile?.tg_chat_id) {
         const name = profile.full_name?.split(' ')[0] || 'trader';
-        await tgSend(profile.tg_chat_id, `<b>Access confirmed!</b>\n---\nWelcome to ${plan === 'lifetime' ? 'Lifetime' : 'Monthly'} plan, <b>${name}</b>.\n\nAll features are now unlocked:\n+ Real-time setup signals\n+ AI insights + confidence %\n+ Full analytics + AI Coach\n\n<a href="${APP_URL}/screener">Open Screener</a>  |  <a href="${APP_URL}/journal">Open Journal</a>`);
+        const safeName = name.replace(/[&<>]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[char]));
+        await tgSend(profile.tg_chat_id, `<b>Доступ к ANDROMEDA активирован!</b>\n\n${safeName}, твой тариф: <b>${finalPlan === 'lifetime' ? 'Навсегда' : 'На месяц'}</b>.\nЖурнал, скринер, аналитика и AI Coach доступны в системе.\n\n<a href="${APP_URL}/journal">Открыть ANDROMEDA</a>`);
       }
-      await audit(admin.id, 'confirm_payment', { targetUserId: userId, targetType: 'payment', targetId: payId, metadata: { plan } });
+      await audit(admin.id, 'confirm_payment', { targetUserId: paymentUser, targetType: 'payment', targetId: payId, metadata: { plan: finalPlan } });
       return res.status(200).json({ ok: true });
     }
 
     if (action === 'reject_payment') {
-      if (!payId) return res.status(400).json({ error: 'Missing payId' });
-      await sbFetch(`payments?id=eq.${payId}`, { method: 'PATCH', body: JSON.stringify({ status: 'rejected' }) });
+      if (!/^\d+$/.test(String(payId || ''))) return res.status(400).json({ error: 'Missing or invalid payId' });
+      const updated = await sbFetch(`payments?id=eq.${payId}&status=eq.pending`, { method: 'PATCH', prefer: 'return=representation', body: JSON.stringify({ status: 'rejected' }) });
+      if (!Array.isArray(updated) || !updated.length) return res.status(409).json({ error: 'Payment is not pending' });
       await audit(admin.id, 'reject_payment', { targetType: 'payment', targetId: payId });
       return res.status(200).json({ ok: true });
     }
